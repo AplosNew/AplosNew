@@ -1341,4 +1341,12 @@ function customerInvoiceController(cboService, commonMessage, $scope, $rootScope
     $scope.closeJournalPopUp = function () {
         angular.element(document.querySelector('#JournalPopUp')).modal('hide');
     }
+
+    $scope.pullShakwat = function () {
+        console.log('Hello Shakwat');
+    }
+    $scope.pullShakwat();
+    $scope.pullShakwat1 = function () {
+        console.log('Hello Shakwat');
+    }
 }
