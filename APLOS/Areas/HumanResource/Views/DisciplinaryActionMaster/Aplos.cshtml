@@ -1,0 +1,252 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Disciplinary Action Master
+</h3>
+<div class="form-elements form-horizontal" ng-form name="disciplinaryActionMasterNewForm">
+    <input type="hidden" ng-model="disciplinaryActionMasterNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="PlantId" class="form-control" ng-model="disciplinaryActionMasterNew.PlantId" name="Plant" required tabindex="1" ng-change="$scope.getDataByEmp(EmpSystemId)">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee Name :</label>
+            <div class="col-sm-8">
+                <label>{{disciplinaryAction.EmployeeName}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee Code :</label>
+            <div class="col-sm-8">
+                <label>{{disciplinaryAction.EmployeeCode}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Budget Code :</label>
+            <div class="col-sm-8">
+                <label>{{disciplinaryAction.BudgetCode}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Email :</label>
+            <div class="col-sm-8">
+                <label>{{disciplinaryAction.EmailId}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Given Designation :</label>
+            <div class="col-sm-8">
+                <label>{{disciplinaryAction.Designation}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Department :</label>
+            <div class="col-sm-8">
+                <label>{{disciplinaryAction.Department}}</label>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li> <button ng-click="AddDisciplinaryActionMaster()" class="btn" ng-show="disciplinaryActionMasterNew.EmpSystemId!=null" ng-disabled="$scope.damList.length>0"><i class="glyphicon glyphicon-plus"></i> Add Action Criticality</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label"></label>
+            <div class="col-sm-8" style="margin-top:-14px;">
+                <ul class="common-btn list-inline text-left">
+                    <li><button class="btn" ng-click="popUp('EmployeeInformation');"><i class="glyphicon glyphicon-search"></i> Search Employee</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-8">
+                <div>
+                    <img id="uploadImageSrc" ng-src="{{imageSrc}}" style="margin-left: 180px; border: 1px solid; height: 200px; width: 200px;" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+            @*<ul class="list-inline text-right">
+                <li>
+                    <button type="button" class="btn" ng-click=""><span class="glyphicon glyphicon-refresh"></span> Clear</button>
+                </li>
+            </ul>*@
+        </div>
+    <div class="table-responsive modal-table">
+        <table class="table table-striped" ng-show="disciplinaryActionMasterNew.EmpSystemId!=null">
+            <thead>
+                <tr>
+                    <th style="text-align:center">Edit</th>
+                    <th>Employee Id</th>
+                    <th>Name</th>
+                    <th>DOJ</th>
+                    <th>DOC</th>
+                    <th>Criticality</th>
+                    <th>Action</th>
+                    <th>Description</th>
+                    <th>Investigator</th>
+                    <th>Responsible Person</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="q in damList">
+                    <td style="text-align:center"><span class="glyphicon glyphicon-edit" ng-click="EditActCriticality(q.Id,$index)"></span></td>
+                    <td>{{q.EmpSystemId}}</td>
+                    <td>{{q.EmployeeName}}</td>
+                    <td>{{q.DOJ|dateFiltering}}</td>
+                    <td>{{q.DOC|dateFiltering}}</td>
+                    <td>{{q.Criticality}}</td>
+                    <td>{{q.Action}}</td>
+                    <td>{{q.Description}}</td>
+                    <td>{{q.InvestigatorName}}</td>
+                    <td>{{q.ResponsiblePersonName}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+<confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="criticalityPopUp" role="dialog" data-backdrop="static" data-keyboard="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add Criticality Details</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="form-elements form-horizontal" ng-form="addCriticalityForm">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Criticality <sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select id="ActionCriticalityId" class="form-control" ng-model="disciplinaryActionMasterNew.ActionCriticalityId" name="Criticality" required tabindex="1">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in criticalityList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Investigator">Investigator </label>
+                                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                    <span class="input-group-addon">{{disciplinaryActionMasterNew.InvestigatorId}}</span>
+                                    <input type="text" ng-model="disciplinaryActionMasterNew.InvestigatorName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="popUp('EmployeeInfoIvg')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearInvestigator()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Description </label>
+                                <div class="col-sm-8 show-message">
+                                    <textarea class="form-control" rows="3" ng-model="disciplinaryActionMasterNew.Description" tabindex="3" maxlength="250"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Action<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select id="ActionId" class="form-control" ng-model="disciplinaryActionMasterNew.ActionId" name="Action" required tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in actionList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Responsible Person">Responsible Person<sup>*</sup></label>
+                                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                    <span class="input-group-addon">{{disciplinaryActionMasterNew.ResponsiblePersonId}}</span>
+                                    <input type="text" ng-model="disciplinaryActionMasterNew.ResponsiblePersonName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="popUp('EmployeeInfo')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearResponsiblePerson()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button type="button" class="btn" ng-click="Save();"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+                            <button type="button" class="btn" ng-click="ClearActionPopUp();"><span class="glyphicon glyphicon-refresh"></span> Clear</button>
+                            <button type="button" class="btn" ng-click="Delete(disciplinaryActionMasterNew.Id)"><span class="glyphicon glyphicon-trash"></span> Delete</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                {{popUpTitle}}
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="popUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="popUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th ng-repeat="x in popUpList">{{x.Text}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count"
+                                ng-click="selectSingleClick(x)" ng-dblclick="selectdblClick(x);">
+                                <td ng-repeat="hh in popUpList">{{x[hh.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="popUpData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

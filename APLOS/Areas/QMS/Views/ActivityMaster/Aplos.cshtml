@@ -1,0 +1,630 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="QMSActivityMasterForm">
+    <div class="row" ng-form name="General">
+        <input type="hidden" ng-model="QMSActivityMaster.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="QMSActivityMaster.Sequence" e-width="100" required tabindex="1" />
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label"> Short Name <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Short Name" ng-model="QMSActivityMaster.ShortName" class="form-control" required tabindex="3" maxlength="10">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="User Defined Name" ng-model="QMSActivityMaster.UserName" class="form-control" required tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">QMS Activity Category <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+
+                        <select ng-model="QMSActivityMaster.QMSActivityCategoryId" class="form-control" name="QMS Activity Category"
+                                ng-options="item.Value as item.Text for item in QMSActivityCategoryList" required tabindex="7">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Quality Activity Check Type</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+
+                        <select ng-model="QMSActivityMaster.QualityActivityCheckTypeId" class="form-control"
+                                ng-options="item.Value as item.Text for item in QualityActivityCheckTypeList" tabindex="9">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Business Process Type <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+
+                        <select ng-model="QMSActivityMaster.BusinessProcessTypeId" class="form-control" name="Business Process Type"
+                                ng-options="item.Value as item.Text for item in BusinessProcessTypeList" required tabindex="11">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Audit Frequency</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Audit Frequency" ng-model="QMSActivityMaster.AuditFrequency" class="form-control" maxlength="15" tabindex="13">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Code" ng-model="QMSActivityMaster.Code" class="form-control" required tabindex="2" maxlength="10">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Standard Name" ng-model="QMSActivityMaster.StandardName" class="form-control" maxlength="15" required tabindex="4">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">SOP Item</label>
+                <div class="col-sm-8">
+
+                    <div class="select-style">
+
+                        <select ng-model="QMSActivityMaster.SOPId" class="form-control"
+                                ng-options="item.Value as item.Text for item in SOPItemList" tabindex="6">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Criticality Level<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select ng-model="QMSActivityMaster.CriticalityLevel" class="form-control" name="Criticality Level" required tabindex="8">
+                            <option value="">--Select--</option>
+                            <option value="Critical">Critical</option>
+                            <option value="SemiCritical">Semi Critical</option>
+                            <option value="Normal">Normal</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Business Process <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+
+                        <select ng-model="QMSActivityMaster.BusinessProcessId" class="form-control" name="Business Process"
+                                ng-options="item.Value as item.Text for item in BusinessProcessList" required tabindex="10">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+         
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="QMSActivityMaster.Remarks" maxlength="250" tabindex="12"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save()" class="btn" tabindex="14"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="15"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear()" class="btn" tabindex="16"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <confirm-modal></confirm-modal>
+    <div class="row">
+        <div class="form-elements form-horizontal" ng-form id="QAMTab">
+            <div class="tab-design" id="tab_show">
+
+                <div class="site-tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="process" role="tab" data-toggle="tab">Process</a></li>
+                        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="department" role="tab" data-toggle="tab">Department</a></li>
+                        <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="document" role="tab" data-toggle="tab">Document</a></li>
+                        <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="responsibleperson" role="tab" data-toggle="tab">Responsible Person</a></li>
+                        <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="sublocation" role="tab" data-toggle="tab">Sub Location</a></li>
+                    </ul>
+                </div>
+
+                <div class="tab-content">
+
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+                        <div class="row">
+                            @*Process body*@
+                            <div class="col-sm-12 col-sm-12 col-md-12">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="showProcessTabPopUp();" ng-disabled="QMSActivityMaster.Id==null" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                      
+                            </div>
+
+                            <div class="col-xs-12">
+                                <div style="color:black;" id="GridSelectedProcessTab" ej-grid e-datasource="SelectedProcessTabList"
+                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-allowselection="false" e-filtersettings-filterType="excel">
+                                    <div e-columns>
+                                        <div e-column e-type="string" e-field="QMSActivityMasterId" e-headertext="QMS Activity Master" e-width="40"></div>
+                                        <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                        <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                        <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+                                        <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                        <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                        <div e-column e-template="#DeleteProcessTab" e-width="40"></div>
+                                    </div>
+                                </div>
+
+                                <script type="text/template" id="DeleteProcessTab">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.ConfirmDeleteProcessTab(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                        <div class="row">
+                            @*Department body*@
+                            <div class="col-sm-12 col-sm-12 col-md-12">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="showDepartmentTabPopUp();" ng-disabled="QMSActivityMaster.Id==null" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+
+                            </div>
+
+                            <div class="col-xs-12">
+                                <div style="color:black;" id="GridSelectedDepartmentTab" ej-grid e-datasource="SelectedDepartmentTabList"
+                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-allowselection="false" e-filtersettings-filterType="excel">
+                                    <div e-columns>
+                                        <div e-column e-type="string" e-field="QMSActivityMasterId" e-headertext="QMS Activity Master" e-width="40"></div>
+                                        <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                        <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                        <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+                                        <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                        <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                        <div e-column e-template="#DeleteDepartmentTab" e-width="40"></div>
+                                    </div>
+                                </div>
+
+                                <script type="text/template" id="DeleteDepartmentTab">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.ConfirmDeleteDepartmentTab(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                        <div class="row">
+                            @*Document body*@
+                            <div class="col-sm-12 col-sm-12 col-md-12">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="GetDocumentDetails();" ng-disabled="QMSActivityMaster.Id==null" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+
+                            </div>
+
+                            <div class="col-xs-12">
+                                <div style="color:black;" id="GridSelectedDocumentTab" ej-grid e-datasource="QmsDocumentList"
+                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-allowselection="false" e-filtersettings-filterType="excel">
+                                    <div e-columns>
+                                        <div e-column e-type="string" e-field="QMSActivityMasterId" e-headertext="QMS Activity Master" e-width="40"></div>
+                                        <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                        <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                        <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+                                        <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                        <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                        <div e-column e-type="string" e-field="DocumentCategory" e-headertext="Document Category" e-width="140"></div>
+                                        <div e-column e-type="string" e-field="DocumentSubCategory" e-headertext="Document Sub Category" e-width="140"></div>
+                                        <div e-column e-template="#DeleteDocumentTab" e-width="40"></div>
+                                    </div>
+                                </div>
+
+                                <script type="text/template" id="DeleteDocumentTab">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.ConfirmDeleteDocumentTab(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>
+
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                        <div class="row">
+                            @*Responsible Person body*@
+                            <div class="col-sm-12 col-sm-12 col-md-12">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="showDocumentPreparedByPopUp();" ng-disabled="QMSActivityMaster.Id==null" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <input type="radio" ng-model="EntryType" value="Employee">
+                                    <span>Employee</span>
+                                    <input type="radio" ng-model="EntryType" value="Position">
+                                    <span>Position</span>
+
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12">
+                                <div style="color:black;" id="GridSelectedDocumentPreparedBy" ej-grid e-datasource="SelectedDocumentPreparedByList"
+                                     e-gridlines="vertical" e-allowfiltering="true" e-rowdatabound="preparedByrowcolor" e-allowpaging="true" e-allowsorting="true"
+                                     e-allowselection="false" e-filtersettings-filterType="excel">
+                                    <div e-columns>
+                                        <div e-column e-type="string" e-field="EntryTypeName" e-headertext="Entry Type" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                        <div e-column e-type="string" e-field="EmployeeName" e-headertext="EmployeeName" e-width="140"></div>
+                                        <div e-column e-type="string" e-field="PositionName" e-headertext="Position" e-width="80"></div>
+                                        <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                                 
+                                        <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                                        <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+
+                                        <div e-column e-template="#DeleteDocumentDocumentPreparedBy" e-width="40"></div>
+                                    </div>
+                                </div>
+
+                                <script type="text/template" id="DeleteDocumentDocumentPreparedBy">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.ConfirmDeleteDocumentPreparedBy(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                        <div class="row">
+                            @*Sub Location body*@
+                            <div class="col-sm-12 col-sm-12 col-md-12">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="GetSubLocationDetails();" ng-disabled="QMSActivityMaster.Id==null" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+
+                            </div>
+
+                            <div class="col-xs-12">
+                                <div style="color:black;" id="GridSelectedSubLocationTab" ej-grid e-datasource="QmsSubLocationList"
+                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-allowselection="false" e-filtersettings-filterType="excel">
+                                    <div e-columns>
+                                        <div e-column e-type="string" e-field="QMSActivityMasterId" e-headertext="QMS Activity Master" e-width="40"></div>
+                                        <div e-column e-field="DocumentLocation" e-headertext="Document Location" e-width="80"></div>
+                                        <div e-column e-field="DocLocationCode" e-headertext="Document Location Code" e-width="80"></div>
+                                        <div e-column e-field="DocumentSubLocation" e-headertext="Document Sub Location" e-width="80"></div>
+                                        <div e-column e-field="SubLocationCode" e-headertext="Document Sub Location Code" e-width="80"></div>
+                                        <div e-column e-template="#DeleteSubLocationTab" e-width="40"></div>
+                                    </div>
+                                </div>
+
+                                <script type="text/template" id="DeleteSubLocationTab">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.ConfirmDeleteSubLocationTab(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>
+
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+<confirm-modal></confirm-modal>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="1"></div>
+            <div e-column e-field="Code" e-headertext="Code" e-width="2"></div>
+            <div e-column e-field="QMSACId" e-headertext="QMS Activity Category" e-width="4"></div>
+
+            <div e-column e-field="CriticalityLevel" e-headertext="Criticality Level" e-width="3"></div>
+            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="3"></div>
+            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="4"></div>
+            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+            <div e-column e-field="BPUsername" e-headertext="Business Process" e-width="4"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="SubDocumentPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Documents List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="SubDocGrid" ej-grid e-datasource="SubDocList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkedSubLocationTabItem" e-width="20"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-field="UserName" e-headertext="UserName" e-width="80"></div>
+                                <div e-column e-field="DocumentCategory" e-headertext="Document Category" e-width="80"></div>
+                                <div e-column e-field="DocumentSubCategory" e-headertext="Document Sub Category" e-width="80"></div>
+
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkedSubLocationTabItem">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="SaveDocumentTab();closeDocumentTabPopUp('SubDocumentPopUp');" class="btn"><i class=""></i> Save</button>
+                            <button ng-click="closeDocumentTabPopUp('SubDocumentPopUp');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="SubLocationPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Sub Location List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="SubLocGrid" ej-grid e-datasource="SubLocationList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkedSubLocationTabItem" e-width="20"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="80"></div>
+                                @*<div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>*@
+                                <div e-column e-field="DocumentLocation" e-headertext="Document Location" e-width="80"></div>
+                                <div e-column e-field="DocLocationCode" e-headertext="Document Location Code" e-width="80"></div>
+                                <div e-column e-field="DocumentSubLocation" e-headertext="Document Sub Location" e-width="80"></div>
+                                <div e-column e-field="SubLocationCode" e-headertext="Document Sub Location Code" e-width="80"></div>
+
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkedSubLocationTabItem">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li>
+                        
+                            <button ng-click="SaveSubLocationTab();closeSubLocationTabPopUp('SubLocationPopUp');" class="btn"><i class=""></i> Save</button>
+                            <button ng-click="closeSubLocationTabPopUp('SubLocationPopUp');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade site-modal in" id="DocumentPreparedByPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Document Prepared By List ({{EntryType}}) <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridPreparedBy" ej-grid e-datasource="DocumentPreparedByList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkedDocumentPreparedByItem" e-width="20"></div>
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="140"></div>
+                                <div e-column e-type="string" e-field="PositionName" e-headertext="Position" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-type="string" e-field="DepartmentName" e-headertext="Department Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+                            </div>
+                           
+                        </div>
+                        <script type="text/template" id="checkedDocumentPreparedByItem">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li @*ng-click="$parent.DeleteSalesOrderConfirm(this);"*@>
+                            <button ng-click="SaveResponsiblePerson();closeResponsiblePersonPopUp('DocumentPreparedByPopUp');" class="btn"><i class=""></i> Save</button>
+                            <button ng-click="closeResponsiblePersonPopUp('DocumentPreparedByPopUp');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="ProcessTabPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Process List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridProcessTab" ej-grid e-datasource="ProcessList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkedProcessTabItem" e-width="20"></div>
+                                <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="140"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                              
+                            </div>
+
+                        </div>
+                        <script type="text/template" id="checkedProcessTabItem">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li @*ng-click="$parent.DeleteSalesOrderConfirm(this);"*@>
+                            <button ng-click="SaveProcessTab();closeProcessTabPopUp('ProcessTabPopUp');" class="btn"><i class=""></i> Save</button>
+                            <button ng-click="closeProcessTabPopUp('ProcessTabPopUp');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="DepartmentTabPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Department List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridDepartmentTab" ej-grid e-datasource="DepartmentList"
+                             e-allowfiltering="true" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-template="#checkedDepartmentTabItem" e-width="20"></div>
+                                <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="140"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
+                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+
+                            </div>
+
+                        </div>
+                        <script type="text/template" id="checkedDepartmentTabItem">
+                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
+                        </script>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li @*ng-click="$parent.DeleteSalesOrderConfirm(this);"*@>
+                            <button ng-click="SaveDepartmentTab();closeDepartmentTabPopUp('DepartmentTabPopUp');" class="btn"><i class=""></i> Save</button>
+                            <button ng-click="closeDepartmentTabPopUp('DepartmentTabPopUp');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<confirm-archive-generic modalid="DeleteProcessTabPopUp" title="Confirmation" message="Are you sure want to Delete?" data-ng-click-right-button="DeleteProcess();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDelDepartmentPopUp" title="Confirmation" message="Are you sure want to Delete?" data-ng-click-right-button="DeleteDepartmentTab();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerPopUp" title="Confirmation" message="Are you sure want to Delete?" data-ng-click-right-button="DeleteDocument();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerSLPopUp" title="Confirmation" message="Are you sure want to Delete?" data-ng-click-right-button="DeleteSubLocation();"></confirm-archive-generic>
+<confirm-archive-generic modalid="DeleteDocumentPreparedByPopUp" title="Confirmation" message="Are you sure to delete the selected Prepared By?" data-ng-click-right-button="DeleteDocumentPreparedBy()"></confirm-archive-generic>
+

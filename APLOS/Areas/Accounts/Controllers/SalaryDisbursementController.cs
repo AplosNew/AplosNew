@@ -1,0 +1,1008 @@
+﻿using Aplos.Controllers;
+using Aplos.Properties;
+using Library.Accounting.Accounts;
+using Library.Core;
+using Library.Crosscutting.Security;
+using Library.Data;
+using Library.Data.Repositories;
+using Library.Data.Sql;
+using Library.Model.Banks;
+using Library.Model.Enums;
+using Library.Model.Organizations;
+using Library.Service.Advances;
+using Library.Service.Employees;
+using Library.Service.SalaryDisbursement;
+using Library.ViewModel.Vouchers;
+using OTSBD;
+using Syncfusion.XlsIO;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading;
+using System.Web.Mvc;
+
+namespace Aplos.Areas.Accounts.Controllers
+{
+    public class SalaryDisbursementController : BaseController
+    {
+        private readonly ISalaryDisbursementService _salaryDisbursementService;
+        private readonly IEmployeePayableService _employeePayableService;
+        private readonly IEmployeePayableWriteOffService _employeePayableWirteOffService;
+        private readonly IAdvanceWriteOffService _advanceWriteOffService;
+        private readonly ISqlRepository _sqlRepository;
+        private readonly ISalaryHeadGLService _salaryHeadGLService;
+        private readonly IRepositoryAsync<Company> _companyRepository;
+
+        public SalaryDisbursementController(
+            ISalaryDisbursementService salaryDisbursementService
+            , IEmployeePayableService employeePayableService
+            , IEmployeePayableWriteOffService employeePayableWirteOffService
+            , IAdvanceWriteOffService advanceWriteOffService
+            , ISalaryHeadGLService salaryHeadGLService
+            , IRepositoryAsync<Company> companyRepository
+            , ISqlRepository sqlRepository)
+        {
+            _salaryDisbursementService = salaryDisbursementService;
+            _employeePayableService = employeePayableService;
+            _employeePayableWirteOffService = employeePayableWirteOffService;
+            _advanceWriteOffService = advanceWriteOffService;
+            _salaryHeadGLService = salaryHeadGLService;
+            _companyRepository = companyRepository;
+            _sqlRepository = sqlRepository;
+        }
+        #region SalaryPayable
+        
+        public ActionResult SalaryPayable()
+        {
+            return View("~/Areas/Accounts/Views/SalaryDisbursement/SalaryPayable.cshtml");
+        }
+       
+        public ActionResult SalaryPayableDisbursement()
+        {
+            return View("~/Areas/Accounts/Views/SalaryDisbursement/SalaryPayableDisbursement.cshtml");
+        }
+        
+       
+        public ActionResult Aplos()
+        {
+            return View();
+        }
+
+       
+        [Authorize, HttpGet]
+        public JsonResult GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetSalaryLockDataList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetSalaryLockCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetSalaryLockCTCDataList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalaryLockDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetSalaryLockDataGLList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalaryLockInDirectTakeAwayDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetSalaryLockInDirectTakeAwayDataList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalaryLockInDirectCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetSalaryLockInDirectCTCDataList(yearNo, monthNo, employeeId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+        }
+
+      
+        [Authorize, HttpGet]
+        public JsonResult GetSalaryLockInDirectDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            string wcEmpStatus = " AND spm.SalaryProcFlag=''";
+
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
+            }
+            if (isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            else
+            {
+                if (isActive == true)
+                {
+                    wcEmpStatus = " AND spm.SalaryProcFlag =''";
+                }
+                if (isSeperated == true)
+                {
+                    wcEmpStatus = " AND spm.SalaryProcFlag ='SEPARATED'";
+                }
+                if (isMaternity == true)
+                {
+                    wcEmpStatus = " AND spm.SalaryProcFlag ='MLV_PRE'";
+
+                }
+            }
+            string sql = @"SELECT 
+                            X.SalaryHead ,
+                            X.InDirectGLName,X.InDirectBudgetName,X.InDirectActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.DisbusmentAmount) DisbusmentAmount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId 
+                            FROM
+                            (
+                            select sh.SalaryHead,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
+                        , DrAmount=case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount)*-1 else SUM(spc.DisbusmentAmount) end
+                        , 0 CrAmount
+                        ,SUM(spc.DisbusmentAmount) DisbusmentAmount
+
+						 ,SGL.DrInDirectGLId GLGeneralInfoId
+						, SGL.DrInDirectBudgetMasterId BudgetMasterId
+						,SGL.DrInDirectActivityId ActivityId
+						,IGL.AccountCode+' - '+IGL.UserName InDirectGLName
+                           ,IB.UserName InDirectBudgetName
+                           ,IA.UserName InDirectActivityName
+                        from [dbo].[SalaryLock] sl 
+                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID
+						 LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=SGL.DrInDirectGLId
+                            LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=SGL.DrInDirectBudgetMasterId
+                            LEFT JOIN HKP.Budget IB ON IB.Id=IBM.BudgetId
+                            LEFT JOIN HKP.Activity IA ON IA.Id=SGL.DrInDirectActivityId
+							
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
+                        and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 and sgl.DrInDirectActivityId<>''
+                        group by sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence],SGL.DrInDirectGLId,SGL.DrInDirectBudgetMasterId,SGL.DrInDirectActivityId
+						,IGL.AccountCode,IGL.UserName ,IB.UserName ,IA.UserName
+                        UNION
+			            select sh.SalaryHead,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
+                        , 0 DrAmount
+                        , CrAmount=case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount)*-1 else SUM(spc.DisbusmentAmount) end
+                        ,SUM(spc.DisbusmentAmount) DisbusmentAmount
+						 ,SGL.CrInDirectGLId GLGeneralInfoId
+						, SGL.CrInDirectBudgetMasterId BudgetMasterId
+						,SGL.CrInDirectActivityId ActivityId
+						,CIGL.AccountCode+' - '+CIGL.UserName InDirectGLName
+                           ,CIB.UserName InDirectBudgetName
+                           ,CIA.UserName InDirectActivityName
+                        from [dbo].[SalaryLock] sl 
+                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID
+
+							LEFT JOIN HKP.GLGeneralInfo CIGL ON CIGL.Id=SGL.CrInDirectGLId
+                            LEFT JOIN MST.BudgetMaster CIBM ON CIBM.Id=SGL.CrInDirectBudgetMasterId
+                            LEFT JOIN HKP.Budget CIB ON CIB.Id=CIBM.BudgetId
+                            LEFT JOIN HKP.Activity CIA ON CIA.Id=SGL.CrInDirectActivityId
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
+                        and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 and sgl.CrInDirectActivityId<>''
+                        group by sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
+						,SGL.CrInDirectGLId,SGL.CrInDirectBudgetMasterId,SGL.CrInDirectActivityId
+                        ,CIGL.AccountCode,CIGL.UserName ,CIB.UserName ,CIA.UserName
+						)X
+						GROUP BY 
+						X.SalaryHead,
+                        X.InDirectGLName,X.InDirectBudgetName,X.InDirectActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId 
+						ORDER BY 6";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetListWithCombine()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var commany = _companyRepository.Find(identity.CompanyId);
+            return Json(_salaryHeadGLService.GetSalaryHeadGLCombine(commany.COAId), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpPost]
+        public JsonResult GetDirectSalaryLockSalarySheetData(string yearNo, string monthNo, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetDirectSalaryLockSalarySheetData(yearNo, monthNo, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult GetInDirectSalaryLockSalarySheetData(string yearNo, string monthNo, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetInDirectSalaryLockSalarySheetData(yearNo, monthNo, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+        
+        }
+
+        [HttpPost]
+        public JsonResult ParkSalaryPayable(VoucherViewModel voucherVM,string yearNo,string monthNo,string monthName
+            , IEnumerable<VoucherDetailViewModel> directJVList, IEnumerable<VoucherDetailViewModel> inDirectJVList
+            , IEnumerable<VoucherDetailViewModel> directSalaryLockList, IEnumerable<VoucherDetailViewModel> indirectSalaryLockList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            int year = Int32.Parse(yearNo);
+            int month = Int32.Parse(monthNo);
+
+            int monthdays = System.DateTime.DaysInMonth(year, month);
+            DateTime dt = new DateTime(year, month, 1);
+            dt = dt.AddDays(monthdays - 1);
+            if (voucherVM.PostingDate > dt)
+                throw new CustomException("Posting Date must in the selected month of "+ monthName);
+
+            voucherVM.SourceType = SourceType.SalaryPayable.ToString();
+            if (directJVList!=null && directJVList.Sum(r=>r.DrAmount) != directJVList.Sum(r => r.CrAmount))
+                throw new CustomException("Direct Salary Dr and Cr Amount not match!");
+            if (inDirectJVList != null && inDirectJVList.Sum(r => r.DrAmount) != inDirectJVList.Sum(r => r.CrAmount))
+                throw new CustomException("InDirect Salary Dr and Cr Amount not match!");
+
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkSalaryPayable(voucherVM, yearNo, monthNo, monthName, directJVList, inDirectJVList, directSalaryLockList, indirectSalaryLockList)) });
+        }
+        
+        [HttpGet, Authorize]
+        public JsonResult GetSalaryPayableVoucherList(GridParameter parameters)
+        {
+            return Json(_salaryDisbursementService.GetSalaryPayableVoucherList(parameters), JsonRequestBehavior.AllowGet);
+        }
+
+
+       
+        [HttpGet, Authorize]
+        public ActionResult GetSalaryPayableVoucherReport(ReportFormat reportFormat, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _salaryDisbursementService.GetSalaryPayableVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeSalaryProcessedReportSalaryLogWiseInVoucher(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string voucherId)
+        {
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var fileName = month + "-" + year + "SalarySheet" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+
+
+                //var workbook = _salaryDisbursementService.GetEmployeeSalaryProcessedReportSalaryLogWiseInVoucher(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.PlantName, voucherId);
+                var workbook = _salaryDisbursementService.GetEmployeeSalaryProcessedReportSalaryLogWiseInVoucher(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false, voucherId);
+
+                workbook.Version = ExcelVersion.Excel97to2003;
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string voucherId)
+        {
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+
+                var fileName = month + "-" + year + "SalarySheet" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+
+
+               // var workbook = _salaryDisbursementService.GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false, voucherId);
+                var workbook = accountsSalaryPayableService.GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false, voucherId);
+
+                workbook.Version = ExcelVersion.Excel97to2003;
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+
+
+        [Authorize, HttpGet]
+        public JsonResult GetDirectSalaryPayableDisbursementDataList(string yearNo, string monthNo, string pMode, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string wcEmpStatus = " AND spm.SalaryProcFlag=''";
+
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
+            }
+            if (isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            else
+            {
+                if (isActive == true)
+                {
+                    wcEmpStatus = " AND spm.SalaryProcFlag =''";
+                }
+                if (isSeperated == true)
+                {
+                    wcEmpStatus = " AND spm.SalaryProcFlag ='SEPARATED'";
+                }
+                if (isMaternity == true)
+                {
+                    wcEmpStatus = " AND spm.SalaryProcFlag ='MLV_PRE'";
+
+                }
+            }
+
+            string sql = null;
+            if (!string.IsNullOrEmpty(pMode))
+            {
+                 sql = @"SELECT
+                        X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.DisbusmentAmount) DisbusmentAmount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                        FROM
+                        (
+            select sh.SalaryHead,sh.[Sequence], sl.YearNo, sl.MonthNo, sh.HeadType
+                        , 0 DrAmount
+                        , CrAmount =case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount) * -1 else SUM(spc.DisbusmentAmount) end
+                        , SUM(spc.DisbusmentAmount) DisbusmentAmount
+                          ,vd.GLGeneralInfoId 
+						, vd.BudgetMasterId
+						,vd.ActivityId
+                        , CDGL.AccountCode + ' - ' + CDGL.UserName GLName
+                           , CDB.UserName BudgetName
+                           , CDA.UserName ActivityName
+                        from[dbo].[SalaryLock] sl
+                        left join dbo.SalaryProcMaster spm on   spm.MonthNo = sl.MonthNo and spm.YearNo = sl.YearNo
+                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID = spm.SystemID and sl.EmpSystemId = spc.EmpInfoSystemID
+                        left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID = spc.SalaryHeadID
+                        left join dbo.EmployeeInformation ei on ei.SystemId = sl.EmpSystemId
+                        left join MST.ManpowerBudget MPB on MPB.Id = ei.BudgetCode
+                        left join ORG.Position PO on PO.Id = MPB.PositionId
+                        left join trn.Voucher v on v.Id=sl.PayableVoucherId
+						left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Net Pay'
+							LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=vd.GLGeneralInfoId
+                            LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=vd.BudgetMasterId
+                            LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
+                            LEFT JOIN HKP.Activity CDA ON CDA.Id=vd.ActivityId
+                        where sl.MonthNo = '" + monthNo + "' and sl.YearNo = '" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL 
+                        and sl.IsDisbursed=1 and spd.PaymentMode='" + pMode + @"'
+                        and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount != 0 and PO.DirectManpowerCost = 1  " + wcEmpStatus + @"
+                        AND sh.PartOfNetPay=1 
+
+                        group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
+                        ,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
+                        , CDGL.AccountCode, CDGL.UserName, CDB.UserName, CDA.UserName
+                        UNION
+                        select sh.SalaryHead,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
+                        , 0 DrAmount
+                        , CrAmount=case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount)*-1 else SUM(spc.DisbusmentAmount) end
+                        ,SUM(spc.DisbusmentAmount) DisbusmentAmount
+						  ,vd.GLGeneralInfoId 
+						, vd.BudgetMasterId
+						,vd.ActivityId
+						,CIGL.AccountCode+' - '+CIGL.UserName GLName
+                           ,CIB.UserName BudgetName
+                           ,CIA.UserName Name
+                        from [dbo].[SalaryLock] sl 
+                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+						left join trn.Voucher v on v.Id=sl.PayableVoucherId
+						left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Net Pay'
+							LEFT JOIN HKP.GLGeneralInfo CIGL ON CIGL.Id=vd.GLGeneralInfoId
+                            LEFT JOIN MST.BudgetMaster CIBM ON CIBM.Id=vd.BudgetMasterId
+                            LEFT JOIN HKP.Budget CIB ON CIB.Id=CIBM.BudgetId
+                            LEFT JOIN HKP.Activity CIA ON CIA.Id=vd.ActivityId
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL 
+                        and sl.IsDisbursed=1 and spd.PaymentMode='" + pMode + @"'
+                        and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 --and sgl.CrInDirectActivityId<>''
+                        and spc.DisbusmentAmount!=0 " + wcEmpStatus + @"
+
+                        group by sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
+						,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
+                        ,CIGL.AccountCode,CIGL.UserName ,CIB.UserName ,CIA.UserName
+                        )X
+                        GROUP BY
+
+                        X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                        ORDER BY 5";
+            }
+            else
+            {
+
+                 sql = @"SELECT
+                        X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.DisbusmentAmount) DisbusmentAmount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                        FROM
+                        (
+            select sh.SalaryHead,sh.[Sequence], sl.YearNo, sl.MonthNo, sh.HeadType
+                        , 0 DrAmount
+                        , CrAmount =case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount) * -1 else SUM(spc.DisbusmentAmount) end
+                        , SUM(spc.DisbusmentAmount) DisbusmentAmount
+                          ,vd.GLGeneralInfoId 
+						, vd.BudgetMasterId
+						,vd.ActivityId
+                        , CDGL.AccountCode + ' - ' + CDGL.UserName GLName
+                           , CDB.UserName BudgetName
+                           , CDA.UserName ActivityName
+                        from[dbo].[SalaryLock] sl
+                        left join dbo.SalaryProcMaster spm on   spm.MonthNo = sl.MonthNo and spm.YearNo = sl.YearNo
+                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID = spm.SystemID and sl.EmpSystemId = spc.EmpInfoSystemID
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID = spc.SalaryHeadID
+                        left join dbo.EmployeeInformation ei on ei.SystemId = sl.EmpSystemId
+
+                        left join MST.ManpowerBudget MPB on MPB.Id = ei.BudgetCode
+
+                        left join ORG.Position PO on PO.Id = MPB.PositionId
+
+                        left join trn.Voucher v on v.Id=sl.PayableVoucherId
+						left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Net Pay'
+							LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=vd.GLGeneralInfoId
+                            LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=vd.BudgetMasterId
+                            LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
+                            LEFT JOIN HKP.Activity CDA ON CDA.Id=vd.ActivityId
+                        where sl.MonthNo = '" + monthNo + "' and sl.YearNo = '" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL 
+                        and sl.IsDisbursed=1
+                        and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount != 0 and PO.DirectManpowerCost = 1 " + wcEmpStatus + @"
+                        AND sh.PartOfNetPay=1 
+
+                        group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
+                        ,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
+                        , CDGL.AccountCode, CDGL.UserName, CDB.UserName, CDA.UserName
+                        UNION
+                        select sh.SalaryHead,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
+                        , 0 DrAmount
+                        , CrAmount=case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount)*-1 else SUM(spc.DisbusmentAmount) end
+                        ,SUM(spc.DisbusmentAmount) DisbusmentAmount
+						  ,vd.GLGeneralInfoId 
+						, vd.BudgetMasterId
+						,vd.ActivityId
+						,CIGL.AccountCode+' - '+CIGL.UserName GLName
+                           ,CIB.UserName BudgetName
+                           ,CIA.UserName Name
+                        from [dbo].[SalaryLock] sl 
+                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+						left join trn.Voucher v on v.Id=sl.PayableVoucherId
+						left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Net Pay'
+							LEFT JOIN HKP.GLGeneralInfo CIGL ON CIGL.Id=vd.GLGeneralInfoId
+                            LEFT JOIN MST.BudgetMaster CIBM ON CIBM.Id=vd.BudgetMasterId
+                            LEFT JOIN HKP.Budget CIB ON CIB.Id=CIBM.BudgetId
+                            LEFT JOIN HKP.Activity CIA ON CIA.Id=vd.ActivityId
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL 
+                        and sl.IsDisbursed=1
+                        and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 --and sgl.CrInDirectActivityId<>''
+                        and spc.DisbusmentAmount!=0 " + wcEmpStatus + @"
+
+                        group by sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
+						,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
+                        ,CIGL.AccountCode,CIGL.UserName ,CIB.UserName ,CIA.UserName
+                        )X
+                        GROUP BY
+
+                        X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                        ORDER BY 5";
+            }
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetEmployeeDisbursementDataList(string yearNo, string monthNo,string pMode,string bankId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = null;
+            if (bankId == null)
+            {
+                 sql = @" select sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo
+                        ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName Bank,v.VoucherNo PayableVoucherNo
+                        ,spc.DisbusmentAmount Amount,spd.Id
+                        from [dbo].[SalaryLock] sl 
+                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+						left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+						left join hkp.Designation d on d.Id=spd.DesignationId
+						left join hkp.Bank b on spd.BankSystemID=b.Id
+						left join trn.Voucher v on v.Id=sl.PayableVoucherId
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + "'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL and sl.IsDisbursed=1 and spd.PaymentMode='" + pMode + @"'
+                         and spc.DisbusmentAmount!=0  and spd.PlantId='" + identity.PlantId + @"' 
+						 and ISNULL(sh.SalaryHead, '')  in ('Net Pay')";
+            }
+            else
+            {
+                 sql = @" select sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo
+                        ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName Bank,v.VoucherNo PayableVoucherNo
+                        ,spc.DisbusmentAmount Amount,spd.Id
+                        from [dbo].[SalaryLock] sl 
+                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+						left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+						left join hkp.Designation d on d.Id=spd.DesignationId
+						left join hkp.Bank b on spd.BankSystemID=b.Id
+						left join trn.Voucher v on v.Id=sl.PayableVoucherId
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL and sl.IsDisbursed=1 
+                        and spd.PaymentMode='" + pMode + "' and spd.BankSystemID='"+bankId+@"'
+                         and spc.DisbusmentAmount!=0  and spd.PlantId='" + identity.PlantId + @"' 
+						 and ISNULL(sh.SalaryHead, '')  in ('Net Pay')";
+            }
+            
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetBankList(string yearNo,string monthNo)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"select Id Value, UserName Text from hkp.bank where Id IN(
+                    select distinct spd.BankSystemID
+                    from dbo.SalaryLock sl 
+                    join dbo.SalaryProcMaster sm  on sl.MonthNo=sm.MonthNo and sl.YearNo=sm.YearNo
+                    left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=sm.SystemID 
+                    left join dbo.SalaryProcessLogDetail spd on spd.EmpSystemId=spc.EmpInfoSystemID
+                     WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + "' AND sl.PayableVoucherId<>'' AND sl.IsDisbursed=1 and spd.PlantId='" + identity.PlantId + @"' 
+                      )   ";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetBankMasterList(GridParameter parameters, BankACType bankACType, string bankId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(GetBankMasterData(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, bankId, bankACType), JsonRequestBehavior.AllowGet);
+        }
+        private GridModel GetBankMasterData(GridParameter parameters, string companyGroupId, string companyId, string plantId, string bankId, BankACType type)
+        {
+            
+                parameters.CmdText = @"SELECT BM.Id AS BankMasterId, BM.AccountTitle, BM.AccountNumber, BM.GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
+                                    , BM.BudgetMasterId, BU.Code AS BudgetCode, BU.UserName AS BudgetName, BM.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+                                    , ACT.UserName AS BankAccountTypeName, BM.BankId, BM.Code AS BankCode, B.UserName AS BankName, BM.BankBranchId, BB.Code AS BankBranchCode, BB.UserName AS BankBranchName
+                                    , BM.CurrencyId, C.Code AS CurrencyCode, C.[Name] AS CurrencyName, BM.EntityId
+                                    FROM [MST].[BankMaster] AS BM
+                                    LEFT JOIN [HKP].[GLGeneralInfo] As GL ON GL.Id=BM.GLGeneralInfoId
+                                    LEFT JOIN [MST].[BudgetMaster] AS BUM ON BUM.Id=BM.BudgetMasterId
+                                    LEFT JOIN [HKP].[Budget] AS BU ON BU.Id=BUM.BudgetId
+                                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=BM.ActivityId
+                                    LEFT JOIN [HKP].[BankAccountType] AS ACT ON ACT.Id=BM.BankAccountTypeId
+                                    LEFT JOIN [HKP].[Bank] AS B ON B.Id=BM.BankId
+                                    LEFT JOIN [HKP].[BankBranch] AS BB ON BB.Id=BM.BankBranchId
+                                    LEFT JOIN [SCS].Currency AS C ON C.Id=BM.CurrencyId
+                                    WHERE BM.Archive=0 AND BM.Active=1 AND BM.CompanyGroupId='" + companyGroupId + "' AND BM.CompanyId='" + companyId + "' AND BM.PlantId='" + plantId + @"'" +
+                                    " AND BM.AccountType='" + type + "' AND BM.BankId='" + bankId + "'";
+                return _sqlRepository.GetGridData(parameters);
+        }
+        [HttpPost]
+        public JsonResult ParkSalaryPayableDisbursement(VoucherViewModel voucherVM, string yearNo, string monthNo, string monthName, string pMode, IEnumerable<VoucherDetailViewModel> directJVList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            int year = Int32.Parse(yearNo);
+            int month = Int32.Parse(monthNo);
+
+            int monthdays = System.DateTime.DaysInMonth(year, month);
+            DateTime dt = new DateTime(year, month, 1);
+            dt = dt.AddDays(monthdays - 1);
+            if (voucherVM.PostingDate > dt)
+                throw new CustomException("Posting Date must in the selected month of " + monthName);
+            voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
+            voucherVM.SourceType = SourceType.SalaryPayable.ToString();
+            
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkSalaryPayableDisbursement(voucherVM, yearNo, monthNo, monthName, pMode, directJVList)) });
+        }
+        #region Salary Disbusment ---------------------------------
+
+        [HttpPost]
+        public ActionResult GetEmpInfo(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            bool sa = identity.IsSysAdmin;
+            bool ca = identity.IsControlAdmin;
+            string userId = identity.UserId;
+            string plantId = identity.PlantId;
+            string companyGroupId = identity.CompanyGroupId;
+
+            var wcPayrollGroup = "";
+            var wcSalaryProcess = "";
+            var salaryProcessJoin = "";
+            var salaryProcessColumn = "";
+            var strDOJ = "";
+            string salaryProcessFlag = "";
+            string wcEmpStatus = " Where (1=0 ";
+
+            if (sa == true || ca == true)
+            {
+                wcPayrollGroup = @"";
+            }
+            else
+            {
+                wcPayrollGroup = @"AND E.SystemId  IN (SELECT employeeid from MST.PayrollGroupMaster where PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"'))";
+            }
+            if (salaryProcessId == "STRUCTURE")
+            {
+                salaryProcessColumn = "";
+                salaryProcessJoin = "";
+                wcSalaryProcess = "";
+                strDOJ = "AND DOJ<='" + effectiveDate + @"' AND (DOS is null OR DOS>= '" + effectiveDate + @"')";
+
+
+            }
+            else if (!string.IsNullOrEmpty(salaryProcessId))
+            {
+                salaryProcessColumn = ",ISNULL(SPM.Description,'') SalaryProcess";
+                salaryProcessJoin = @"  LEFT OUTER JOIN SalaryProcChild SPC ON SPC.EmpInfoSystemID = E.SystemId
+                                    LEFT OUTER JOIN SalaryProcMaster SPM ON SPM.SystemID = spc.SlrProcMstSystemID and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')";
+                wcSalaryProcess = @"AND SPC.SlrProcMstSystemID IN('" + salaryProcessId + @"')";
+
+            }
+            else if (string.IsNullOrEmpty(salaryProcessId) == true && salaryProcessId != "STRUCTURE")
+            {
+                salaryProcessColumn = ",ISNULL(SPM.Description,'') SalaryProcess";
+                salaryProcessJoin = @"  LEFT OUTER JOIN SalaryProcChild SPC ON SPC.EmpInfoSystemID = E.SystemId
+                                    LEFT OUTER JOIN SalaryProcMaster SPM ON SPM.SystemID = spc.SlrProcMstSystemID and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')";
+
+                wcSalaryProcess = @" AND SPC.SlrProcMstSystemID IN( SELECT SystemID FROM SalaryProcMaster
+                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                        AND MonthNo =  MONTH('" + effectiveDate + @"') AND YearNo =  YEAR('" + effectiveDate + @"')  )";
+            }
+            if (salaryProcessId == "STRUCTURE")
+            {
+                wcEmpStatus = " Where (1=1 ";
+                salaryProcessFlag = "";
+            }
+            else
+            {
+                salaryProcessFlag = ", Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag";
+                wcEmpStatus = " Where (1=0 ";
+
+                if (isActive == true && isSeperated == true && isMaternity == true)
+                {
+                    wcEmpStatus = " Where (1=1 ";
+                }
+                else
+                {
+                    if (isActive == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='Regular'";
+                    }
+                    if (isSeperated == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='SEPARATED'";
+                    }
+                    if (isMaternity == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='MLV_PRE'";
+
+                    }
+                }
+            }
+
+            wcEmpStatus += ")";
+
+            var cListOId = string.Empty; var cList = string.Empty; ; var cListId = string.Empty; var Join = string.Empty;
+            var param = string.Empty;
+            if (!string.IsNullOrEmpty(companyGroupId) && !string.IsNullOrEmpty(plantId))
+                param = "E.GroupID='" + companyGroupId + "' AND E.PlantId='" + plantId + "'";
+            else if (!string.IsNullOrEmpty(companyGroupId) && string.IsNullOrEmpty(plantId))
+                param = "E.GroupID='" + companyGroupId + "'";
+
+            string sql = @"SELECT [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
+                                     isnull(e.SystemId,'') EmpSystemId
+									,ISNULL(e.EmployeeId,'')  EmployeeId 
+	                                ,sl.Id,CheckBoxSelect=case when  sl.Id is null then  CONVERT(bit,0) when sl.IsDisbursed <> 1  then CONVERT(bit,0) else  CONVERT(bit,1) end   
+									,SPM.MonthNo,SPM.YearNo ,sl.IsLocked AS Lock
+                                    ,ISNULL(e.EmployeeCode,'') EmployeeCode
+                                    ,ISNULL(e.EmployeeName,'') EmployeeName								
+                                    ,ISNULL(mpb.EntityId,'') EntityId
+									,ISNULL(mpb.PositionId,'') PositionId                                     
+                                    ,isnull(ISNULL(egdsg.UserName,ld.UserName),'') Designation                                       
+									,ISNULL(Department.UserName,'') Department 
+									,ISNULL(Division.UserName,'') Division 
+									,ISNULL(EmpC.UserName,'') EmployeeCategory
+									,ISNULL(Plant.UserName,'') Plant 
+									,ISNULL(Section.UserName,'') Section 
+									,ISNULL(SubSection.UserName,'') SubSection 
+									,ISNULL(Unit.UserName,'') Unit 
+                                    ,ISNULL(eL.UserName,'') Line
+                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOJ, 106), ' ', '-'),'') DOJ
+                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
+                                    , CASE WHEN MONTH(DOS) =  MONTH('" + effectiveDate + @"')  AND YEAR(DOS) = YEAR('" + effectiveDate + @"') then 'Separated' else 'Active' end CurrentMonthEmployeeStatus
+                                    ,ISNULL(e.EmployeeStatus,'') EmployeeStatus
+                                    " + salaryProcessFlag + @"
+                                    " + salaryProcessColumn + @"
+									,ISNULL(PG.UserName,'') PayRollGroup
+                                    ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
+                                    ,ISNULL(jl.JobLocation, '') JobLocation
+									,ISNULL(e.PaymentMode,'') PaymentMode
+									,ISNULL(bb.UserName,'') BankName
+                                    ,ISNULL(v.VoucherNo,'' ) VoucherNo
+                                    ,ISNULL(sl.PayableVoucherId,'') PayableVoucherId
+                                    ,ISNULL(sl.DisbursementVoucherId,'') DisbursementVoucherId
+                                    ,v.VoucherNo as PayableVoucherNo
+                                    ,vl.VoucherNo as DisbursementVoucherNo
+                                    ,sl.IsDisbursed
+                                    FROM EmployeeInformation e
+                                    LEFT OUTER JOIN ORG.Department edept on edept.id=e.DepartmentId
+                                    LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId
+                                    LEFT OUTER JOIN ORG.Division ediv on ediv.id=e.DivisionId
+                                    LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=e.SubDivisionId
+                                    LEFT OUTER JOIN ORG.Section es on es.id=e.SectionId
+                                    LEFT OUTER JOIN ORG.SubSection ess on ess.id=e.SubSectionId
+                                    LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
+                                    LEFT OUTER JOIN ORG.Unit eu on eu.id=e.UnitId
+                                    LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
+                                    LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
+									LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
+                                    LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=e.LegalDesignationId
+
+                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
+									,dg.UserName GivenDesignationGroup
+									FROM mst.DesignationMaster dm
+									LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
+									) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
+									AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
+                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+                                    LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+                                    LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
+                                    LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
+                                    LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                    LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+                                    LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId                                   
+                                    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
+                                    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId			                                       
+                                    LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
+                                    Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
+									Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+                                    " + salaryProcessJoin + @"
+                                    Left Join [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
+									left join [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
+									left join [HKP].[Bank] bb on bb.Id = ebi.BankSystemID
+									Left join SalaryLock sl on sl.EmpSystemId=e.SystemId and sl.YearNo=YEAR('" + effectiveDate + @"') AND SL.MonthNo=Month('" + effectiveDate + @"')
+                                    LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
+                                    LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
+
+                                     WHERE " + param + @" " + strDOJ + @" and sl.islocked=1 and sl.PayableVoucherId is not null
+                                            " + wcPayrollGroup + @"  " + wcSalaryProcess + @"                                       
+                                     ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+
+            JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpPost]
+        public ActionResult Save(List<SalaryLock> EmployeeList)
+        {
+            try
+            {
+                SaveSalaryLock(EmployeeList);
+                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public void SaveSalaryLock(List<SalaryLock> EmployeeList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster;
+            //DataSet dsunlockemp;
+            //DataSet dssetunlock;
+            //DataTable dtunlockemp;
+            try
+            {
+                string EmpIdLoop = "";
+                foreach (var item in EmployeeList)
+                {
+                    if (EmpIdLoop == "")
+                    {
+                        EmpIdLoop = "'" + item.EmpSystemId + "'"; ;
+                    }
+                    else
+                    {
+                        EmpIdLoop += ",'" + item.EmpSystemId + "'";
+
+                    }
+                }
+
+                //string sql1 = " select * from SalaryLock where  MonthNo='" + EmployeeList[0].MonthNo + @"' and YearNo='" + EmployeeList[0].YearNo + @"' and EmpSystemId IN (" + EmpIdLoop + @")";
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sql1, out dsunlockemp, false, "1");
+                //dtunlockemp = dsunlockemp.Tables[0];
+
+                //string EmpLoop = "";
+                //foreach (DataRow row in dtunlockemp.Rows)
+                //{
+                //    if (EmpLoop == "")
+                //    {
+                //        EmpLoop = "'" + row["EmpSystemId"].ToString() + "'"; ;
+                //    }
+                //    else
+                //    {
+                //        EmpLoop += ",'" + row["EmpSystemId"].ToString() + "'";
+
+                //    }
+                //}
+
+                //if (dsunlockemp.Tables[0].Rows.Count > 0)
+                //{
+                //    string sql2 = " UPDATE SalaryLock SET IsDisbursed=0 WHERE EmpSystemId in (" + EmpLoop + @") and YearNo='" + EmployeeList[0].YearNo.ToString() + @"' and MonthNo='" + EmployeeList[0].MonthNo.ToString() + @"'";
+                //    objCon = new ConnectionManager.DAL.ConManager("1");
+                //    objCon.OpenDataSetThroughAdapter(sql2, out dssetunlock, false, "1");
+                //}
+
+                string sql = "select * from SalaryLock where  MonthNo='" + EmployeeList[0].MonthNo + @"' and YearNo='" + EmployeeList[0].YearNo + @"' and EmpSystemId IN (" + EmpIdLoop + @")";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                DataView DvMaster = new DataView(dsMaster.Tables[0]);
+
+                foreach (var item in EmployeeList)
+                {
+                    DvMaster.RowFilter = "EmpSystemId='"+ item.EmpSystemId+@"'";
+
+                    if (DvMaster.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        string sID = string.Empty;
+                        bplib.clsGenID objGenID = new bplib.clsGenID();
+                        objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SalaryLock", out sID);
+
+                        dr["Id"] = "SL" + sID;
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["YearNo"] = item.YearNo;
+                        dr["MonthNo"] = item.MonthNo;
+                        dr["IsLocked"] = item.Lock;
+                        dr["IsDisbursed"] = item.CheckBoxSelect;
+                        dr["PayableVoucherId"] = item.PayableVoucherId;
+                        dr["DisbursementVoucherId"] = item.PayableVoucherId;
+
+                        //dr["DisbursedAddedBy"] = identity.Name;
+                        dr["AddedBy"] = identity.Name;
+                        //dr["DisbursedAddedDate"] = DateTime.Now;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = DvMaster[0].Row;
+                        dr.BeginEdit();
+
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["YearNo"] = item.YearNo;
+                        dr["MonthNo"] = item.MonthNo;
+                        dr["IsLocked"] = item.Lock;
+                        dr["IsDisbursed"] = item.CheckBoxSelect;
+                        dr["PayableVoucherId"] = item.PayableVoucherId;
+                        dr["DisbursementVoucherId"] = item.DisbursementVoucherId;
+
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now;
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+                    }
+                    DvMaster.RowFilter = null;
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public class SalaryLock : BaseModel
+        {
+            #region Scalar Properties            
+            public string Id { get; set; }
+            public string EmpSystemId { get; set; }
+            public int YearNo { get; set; }
+            public int MonthNo { get; set; }
+            public bool IsLocked { get; set; }
+            public bool Lock { get; set; }
+            public bool IsDisbursed { get; set; }
+            public string PayableVoucherId { get; set; }
+            public string DisbursementVoucherId { get; set; }
+            public bool CheckBoxSelect { get; set; }
+
+            #endregion Scalar Properties
+
+            #region Audit Properties
+            [NeverUpdate]
+            public string AddedBy { get; set; }
+            [NeverUpdate]
+            public DateTime? AddedDate { get; set; }
+            [NeverUpdate]
+            public string AddedFromIP { get; set; }
+
+            public string UpdatedBy { get; set; }
+            public DateTime? UpdatedDate { get; set; }
+            public string UpdatedFromIP { get; set; }
+
+            #endregion Audit Properties
+        }
+
+
+        #endregion
+
+        #endregion
+    }
+}

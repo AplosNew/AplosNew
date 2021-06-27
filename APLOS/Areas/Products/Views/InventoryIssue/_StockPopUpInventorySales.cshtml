@@ -1,0 +1,114 @@
+﻿<style>
+    .modellgModify {
+        width: 1460px;
+    }
+</style>
+<div class="modal fade site-modal in" id="stockPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content" style="overflow:scroll">
+            <div class="modal-header" style="width:1680px;"> Material Stock<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <table class="table table-striped" style="font-size: 12px;white-space: nowrap; ">
+                        <thead>
+							<tr>
+								<th>Select</th> @*ng-hide="productNew.Id!=null"*@
+								<th>IsOpeningBalance</th>
+								<th>Vendor</th>
+								<th>Entry Date</th>
+								<th>PO No</th>
+								<th>GRN Date</th>
+								<th>GRN No</th>
+								<th>Receive Qty</th>
+								@*<th>Base Qty</th>*@
+								<th>Issue Qty</th>
+
+								<th>Purchase Return Qty</th>
+								<th>Issue Return Qty</th>
+								<th>Adjustment Qty</th>
+								<th>Inventory Sale Qty</th>
+								<th>Balance Qty</th>
+								<th>Rate</th>
+								<th>Base Rate</th>
+								<th>Sales Rate</th>
+								<th>Amount</th>
+								<th>Approved</th>
+								<th>Posting</th>
+
+								<th class="col-md-2">Requisition Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+							</tr>
+                        </thead>
+                        <tbody>
+							<tr ng-repeat="x in materialStockList">
+								<td>
+									@*ng-hide="productNew.Id!=null"*@
+									<div class="checkbox-site">
+										<label>
+											<input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag">
+											<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+										</label>
+									</div>
+								</td>
+								<td>{{x.IsOpeningBalance}}</td>
+								<td>{{x.PartyCode}}-{{x.PartyName}}</td>
+								<td>{{x.ReceiveDate}}</td>
+								<td>{{x.PONo}}</td>
+								<td>{{x.GRNDate}}</td>
+								<td>{{x.GRNNo}}</td>
+								<td>{{x.TransactionQty}} {{x.TUoM}}</td>
+								@*<td>{{x.BaseQty}} {{x.BUoM}}</td>*@
+								<td>{{x.BaseIssueQty}} {{x.TUoM}}</td>
+
+								<td>{{x.PurchaseReturnQty}} {{x.TUoM}}</td>
+								<td>{{x.IssueReturnQty}} {{x.TUoM}}</td>
+								<td>{{x.ReductionByAdjustmentQty}} {{x.TUoM}}</td>
+
+								<td>{{x.InventorySalesQty}} {{x.TUoM}}</td>
+
+								<td>{{x.BalanceStock}} {{x.TUoM}}</td>
+								<td>{{x.BaseRate|setDecimal:2}} {{x.TCurrency}}</td>
+								<td>{{x.BaseCurrencyRate|setDecimal:2}} {{x.BCurrency}}</td>
+
+								<td>{{x.SalesRate|setDecimal:2}} {{x.TCurrency}}</td>
+								<td>{{x.TotalAmount|setDecimal:2}} {{x.TCurrency}}</td>
+								<td>{{x.IsApproved}}</td>
+								<td>{{x.IsPosting}}</td>
+
+
+								<td class="text-right" colspan="2">
+									<div class="input-group">
+										<input type="text" n-decimals="2" ng-model="x.RequisitionQty" class="form-control text-right" @*ng-keyup="calculateBaseQty(x)" ng-disabled="productNew.Id!=null"*@ width="200" />
+										<span class="input-group-addon">{{x.TUoM}}</span>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="7" class="text-right"><strong>Total : </strong></td>
+								<td class="text-left"><strong>{{materialStockList | sumByKey : 'TransactionQty' }}</strong></td>
+								@*<td class="text-left"><strong>{{materialStockList | sumByKey : 'BaseQty' }}</strong></td>*@
+								<td class="text-left"><strong>{{materialStockList | sumByKey : 'IssueQty' }}</strong></td>
+
+								<td class="text-left"><strong>{{materialStockList | sumByKey : 'PurchaseReturnQty' }}</strong></td>
+								<td class="text-left"><strong>{{materialStockList | sumByKey : 'IssueReturnQty' }}</strong></td>
+								<td class="text-left"><strong>{{materialStockList | sumByKey : 'ReductionByAdjustmentQty' }}</strong></td>
+								<td class="text-left"><strong>{{materialStockList | sumByKey : 'InventorySalesQty' }}</strong></td>
+
+								<td class="text-left"><strong>{{materialStockList | sumByKey : 'BalanceStock' }}</strong></td>
+								<td class="text-left"><strong>&nbsp;@*{{materialStockList | sumByKey : 'BaseQty' }}*@</strong></td>
+								<td colspan="3"></td>
+								<td class="text-left"><strong>{{materialStockList | sumByKey : 'RequisitionQty' }}</strong></td>
+								<td></td>
+							</tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="common-btn">
+					<ul class="list-inline text-right" style="width: 1680px;">
+						<li><button ng-click="addMaterialStock();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add</button></li> @*ng-hide="productNew.Id!=null"*@
+						<li><button ng-click="closeStockPopUp();" class="btn">Close</button></li> @*ng-hide="productNew.Id==null"*@
+					</ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

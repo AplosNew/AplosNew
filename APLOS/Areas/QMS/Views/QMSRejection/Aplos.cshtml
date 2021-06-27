@@ -1,0 +1,380 @@
+﻿<togglable name="{{title}}"></togglable>
+<style>
+
+    .filled {
+        background-color: #ff0000 !important;
+    }
+</style>
+
+<div class="form-elements form-horizontal" ng-form name="QMSRejectionForm">
+    <div class="row" ng-form name="General">
+        <input type="hidden" ng-model="QMSRejection.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Date" ng-model="QMSRejection.Date" datepicker class="form-control" required tabindex="1">
+
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label" title="Employee"><span>Employee<sup>*</sup></span></label>
+                <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:QMSRejection.EmpIStatus==='Separated'}">{{QMSRejection.EmpCode}}</span>
+                    <input type="text" ng-model="QMSRejection.EmpName" name="Employee" required class="form-control" readonly ng-class="{filled:QMSRejection.EmpIStatus==='Separated'}">
+                    <span class="input-group-btn">
+                        <button ng-click="EmpPopUp()" tabindex="3" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="EmpClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Location<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="QMSRejection.LocationId" name="Location"
+                                ng-options="item.Value as item.Text for item in LocationList" required tabindex="5">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Production Reference No.<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select ng-model="QMSRejection.ProductionReferenceId" class="form-control"
+                                ng-options="item.Value as item.Text for item in ProductionReferenceList" ng-change="Get()" name="Production Reference" required tabindex="7">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" ng-hide="enable">
+                <label class="col-sm-4 control-label">Customer</label>
+                <div class="col-sm-8">
+                    <input type="text" ng-model="QMSRejection.Customer" class="form-control" readonly maxlength="50">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="QMSRejection.ShiftMasterId" name="Shift"
+                                ng-options="item.Value as item.Text for item in ShiftMasterList" required tabindex="2">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select ng-model="QMSRejection.ProcessId" class="form-control"
+                                ng-options="item.Value as item.Text for item in ProcessList" name="Process" required tabindex="4">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label" title="Responsible Person"><span>Responsible Person<sup>*</sup></span></label>
+                <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon" ng-class="{filled:QMSRejection.EmployeeStatus==='Separated'}">{{QMSRejection.EmployeeCode}}</span>
+                    <input type="text" ng-model="QMSRejection.ResponsiblePerson" name="Responsible Person" required class="form-control" readonly ng-class="{filled:QMSRejection.EmployeeStatus==='Separated'}">
+                    <span class="input-group-btn">
+                        <button ng-click="ResponsiblePersonPopUp()" tabindex="6" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="ResponsiblePersonClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <textarea style="height: 98px;" tabindex="8" maxlength="250" class="form-control" ng-model="QMSRejection.Remarks"></textarea>
+                    </div>
+                </div>
+            </div>
+
+      
+
+        </div>
+        <br />
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save()" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear()" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <confirm-modal></confirm-modal>
+
+    <div class="row">
+        <div class="form-elements form-horizontal" ng-form id="QITab">
+            <div class="tab-design" id="tab_show">
+
+                <div class="site-tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="rejectionchild" role="tab" data-toggle="tab" class="glyphicon glyphicon-plus-sign"></a></li>
+
+                    </ul>
+                </div>
+
+                <div class="tab-content">
+
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                        <div class="row">
+
+                            <div ng-form name="RejectionChildForm" class="form-horizontal form-element-ctrl">
+
+                                <div class="form-elements">
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Stock Keeping Unit<sup>*</sup> </label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="RejectionChild.StockKeepingUnitId" name="Stock Keeping Unit"
+                                                            ng-options="item.Value as item.Text for item in StockKeepingUnitList" required tabindex="12">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Defect <sup>*</sup> </label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="RejectionChild.QMSDefectMasterId" name="Defect" required
+                                                            ng-options="item.Value as item.Text for item in QMSDefectMasterList" tabindex="13">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label" title="Entity">Grade<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="RejectionChild.GradeMasterId" name="Grade" required
+                                                            ng-options="item.Value as item.Text for item in GradeMasterList" tabindex="14">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">No. of Pics<sup>*</sup> </label>
+                                            <div class="col-sm-8 show-message">
+
+                                                <input type="text" name="No. of Pics" ng-model="RejectionChild.NoOfPics" class="form-control" required tabindex="15" maxlength="15">
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label" title="Repairable Pics">Repairable Pics<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+
+                                                    <input type="text" name="Repairable Pics" ng-model="RejectionChild.RepairablePics" class="form-control" required tabindex="16" maxlength="15">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="SaveRejectionChild()" class="btn" ng-disabled="QMSRejection.Id==null" tabindex="17"><i class="glyphicon glyphicon-plus-sign"></i></button></li>
+                                
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div style="color:black;" id="GridRejectionChildTab" ej-grid e-datasource="RejectionChildTabList"
+                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-allowselection="false" e-filtersettings-filterType="excel">
+                                    <div e-columns>
+                                        <div e-column e-type="string" e-field="QMSRejectionMasterId" e-headertext="QMS Rejection" e-width="40"></div>
+                                        <div e-column e-type="string" e-field="DefectMaster" e-headertext="Defect Master" e-width="60"></div>
+                                        <div e-column e-type="string" e-field="SKU" e-headertext="Stock Keeping Unit" e-width="60"></div>
+                                        <div e-column e-type="string" e-field="Grade" e-headertext="Grade" e-width="50"></div>
+                                        <div e-column e-type="string" e-field="NoOfPics" e-headertext="No. Of Pics" e-width="40"></div>
+                                        <div e-column e-type="string" e-field="RepairablePics" e-headertext="Repairable Pics" e-width="60"></div>
+                                  
+
+                                        <div e-column e-template="#DeleteRejectionChildTab" e-width="40"></div>
+                                    </div>
+                                </div>
+
+                                <script type="text/template" id="DeleteRejectionChildTab">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.ConfirmDeleteRejectionChildTab(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+    <br />
+    
+</div>
+
+
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+
+    <div id="QMSRejectionGrid" ej-grid e-datasource="QMSRejectionList"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-recorddoubleclick="Get">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+
+            <div e-column e-field="Process" e-headertext="Process" e-width="2"></div>
+            <div e-column e-field="Shift" e-headertext="Shift" e-width="2"></div>
+          
+            <div e-column e-field="Location" e-headertext="Location" e-width="2"></div>
+            <div e-column e-field="Customer" e-headertext="Customer" e-width="2"></div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="EmployeePopUpResPerson" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Responsible Person List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridEmployeeResPerson" ej-grid e-datasource="EmpResPersonList"
+                             e-allowfiltering="true" e-recorddoubleclick="setEmpData" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="140"></div>
+                                <div e-column e-type="string" e-field="PositionName" e-headertext="Position" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-type="string" e-field="DepartmentName" e-headertext="Department Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+
+                            <button ng-click="closeEmpResPersonPopUp('EmployeePopUpResPerson');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="EmployeePop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridEmployee" ej-grid e-datasource="EmpList"
+                             e-allowfiltering="true" e-recorddoubleclick="setEmployeeData" e-allowpaging="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                                <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="140"></div>
+                                <div e-column e-type="string" e-field="PositionName" e-headertext="Position" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-type="string" e-field="DepartmentName" e-headertext="Department Name" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+
+                            <button ng-click="closeEmpPopUp('EmployeePop');" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<confirm-archive-generic modalid="DeleteRejectionChildTabPopUp" title="Confirmation" message="Are you sure want to Delete?" data-ng-click-right-button="DeleteRejectionChild();"></confirm-archive-generic>

@@ -1,0 +1,161 @@
+﻿<togglable name="Designation Budget"></togglable>
+<div class="form-elements form-horizontal" ng-form name="designationBudgetNewForm">
+    <input type="hidden" ng-model="designationBudgetNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Budget Code<sup>*</sup></label>
+            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                <input type="hidden" name="Budget Code" ng-model="designationBudgetNew.BudgetCodeId" class="form-control">
+                <input type="text" name="Code" ng-model="designationBudgetNew.Code" class="form-control" readonly>
+                <span class="input-group-btn">
+                    <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                    <button ng-click="clearCode()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                </span>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Activity<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Activity" ng-model="designationBudgetNew.Activity" class="form-control" maxlength="50" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Requirement<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Requirement" only-numbers  ng-model="designationBudgetNew.Requirement" class="form-control" required tabindex="5">
+            </div>
+        </div>
+        
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Legal Designation<sup>*</sup></label>
+            <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                <input type="hidden" name="Legal Designation" ng-model="designationBudgetNew.LegalDesignationId" class="form-control">
+                <input type="text" name="Legal Designation" ng-model="designationBudgetNew.LegalDesignation" class="form-control" readonly>
+                <span class="input-group-btn">
+                    <button ng-click="popUpLD();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                    <button ng-click="clearLegalDesignaitonCode()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                </span>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Budget No.<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Budget No" only-numbers ng-model="designationBudgetNew.BudgetNo" class="form-control" required tabindex="4" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="designationBudgetNew.Remarks" maxlength="250" tabindex="6"></textarea>
+            </div>
+        </div>
+       
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <div class="content-container-fluid" style="color:black;overflow:scroll">
+        <div style="color:black;" id="Grid" ej-grid e-datasource="designationBudgets" e-recorddoubleclick="Get"
+             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="20"></div>
+                <div e-column e-field="Code" e-headertext="Budget Code" e-width="20"></div>
+                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="40"></div>
+                <div e-column e-field="Activity" e-headertext="Activity" e-width="30"></div>
+                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="40"></div>
+                <div e-column e-field="BudgetNo" e-headertext="BudgetNo" e-width="25"></div>
+                <div e-column e-field="Requirement" e-headertext="Requirement" e-width="25"></div>
+                <div e-column e-headertext="Actions" e-width="15">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.Get(this);" style="margin: -6px;"></i></button>
+                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeData(this);" style="margin: -6px;"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<modal-table modalid="popUpId"
+             data-title={{popUpTitle}}
+             data-search-parameters="budgetpopUpParameters"
+             data-exclued-column-list="Code"
+             data-field-list="popUpList"
+             data-data-list="popUpDataList"
+             data-search-function="getPopUpData"
+             data-single-click="selectSingleClick(data)"
+             data-double-click="selectDoubleClick(data)"
+             data-right-button="true"
+             data-left-button="true"
+             data-ng-click-left-button="selectByButton()"
+             data-ng-click-cancel="closePopUp()">
+</modal-table>
+
+<div class="modal fade site-modal in" id="LDPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Legal Designation<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+
+                                <th>Sequence</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>User Define Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" pagination-id="metaData.name + 'popUpDataList'" total-items="popUpParameters.total_count" ng-dblclick="selectLegalDesignationDoubleClick(x)">
+
+                                <td>{{x.Sequence}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'popUpDataList'"
+                                             max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getPopUpData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>

@@ -1,0 +1,415 @@
+﻿using Aplos.Controllers;
+using Aplos.Properties;
+using ConnectionManager.DAL;
+using Library.Core;
+using Library.Crosscutting.Security;
+using Library.Data;
+using Library.Data.Sql;
+using Library.Model.Enums;
+using Library.Model.HumanResources;
+using Library.Service.Enums;
+using Library.Service.Helpers;
+using Library.Service.HumanResources;
+using Library.Service.Leave;
+using Library.Service.Logs;
+using OTSBD;
+using Syncfusion.ExcelToPdfConverter;
+using Syncfusion.Pdf;
+using Syncfusion.XlsIO;
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Reflection;
+using System.Threading;
+using System.Web.Mvc;
+
+namespace Aplos.Areas.Payrolls.Controllers
+{
+    public class EmployeeServiceVariableController : BaseController
+    {
+        #region Constructor
+        private readonly ISqlRepository _sqlRepository;
+        private readonly IMaternityLeavePolicyService _LeavePolicyMaster;
+        private clsReport objRpt;
+
+        public EmployeeServiceVariableController(
+              IMaternityLeavePolicyService LeavePolicyService,
+            ISqlRepository sqlRepository
+            )
+        {
+            _LeavePolicyMaster = LeavePolicyService;
+            _sqlRepository = sqlRepository;
+        }
+
+        #endregion Constructor
+
+        #region -- Pages
+        public ActionResult Aplos()
+        {
+            return View();
+        }
+
+        #endregion -- Pages
+
+        [HttpGet, Authorize]
+        public JsonResult GetEmpServiceTypeCbo()
+        {
+            return Json(_sqlRepository.GetDataCollection(@"SELECT Id as Value,[Service] Text FROM dbo.EmpServiceType"), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeServiceFixedReport(ReportFormat reportFormat, string FromDate, string ToDate, string Service)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var reportFileName = "Employee Service Variable";
+            var workbook = GetReportWorkSheet(FromDate, ToDate, Service);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
+        private IWorkbook GetReportWorkSheet(string FromDate, string ToDate, string Service)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+            string FactoryName = string.Empty;
+            DataSet dsCmp = null;
+            DataSet dsFactory = null;
+            string CmpName = "";
+            string FactoryAddress = string.Empty;
+            objRpt = new clsReport();
+            objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
+            objRpt.SelectedPlant(identity.PlantId, out dsFactory);
+            var sheet = workbook.Worksheets[0];
+
+            sheet.Name = "EmployeeServiceVariable";
+
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+
+            DataTable data = GetData(FromDate, ToDate, Service);
+
+            #region Headers
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 12, ExcelHAlign.HAlignLeft);
+            int ColEmpId = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 25, ExcelHAlign.HAlignLeft);
+            int ColEmpName = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 15, ExcelHAlign.HAlignLeft);
+            int ColEmpEntity = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Depertment", 15, ExcelHAlign.HAlignLeft);
+            int ColEmpDepertment = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Designation", 15, ExcelHAlign.HAlignLeft);
+            int ColDesignation = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Service Name", 15, ExcelHAlign.HAlignLeft);
+            int ColServiceName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Service Category", 15, ExcelHAlign.HAlignLeft);
+            int ColServiceCategory = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "UOM", 15, ExcelHAlign.HAlignLeft);
+            int ColUOM = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "From", 15, ExcelHAlign.HAlignRight);
+            int ColFrom = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "To", 15, ExcelHAlign.HAlignRight);
+            int ColTo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Quantity", 15, ExcelHAlign.HAlignRight);
+            int ColQty = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Currency", 15, ExcelHAlign.HAlignLeft);
+            int ColCurrency = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Rate", 15, ExcelHAlign.HAlignRight);
+            int ColRate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Amount", 15, ExcelHAlign.HAlignRight);
+            int ColAmount = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Final Amount", 15, ExcelHAlign.HAlignRight);
+            int ColFinalAmount = COL;
+            COL++;
+            
+            report.SetHeaderText(ref sheet, ROW, COL, "Chargable", 15, ExcelHAlign.HAlignLeft);
+            int ColChargable = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "NonChargable", 15, ExcelHAlign.HAlignLeft);
+            int ColNonChargable = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 15, ExcelHAlign.HAlignLeft);
+            int ColRemarks = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Added By", 15, ExcelHAlign.HAlignLeft);
+            int ColAddedBy = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Added Date", 15, ExcelHAlign.HAlignLeft);
+            int ColAddedDate = COL;
+
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            sheet.Range[ROW, 1, ROW, COL].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, COL].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.Font.Bold = true;
+
+            endCol = COL;
+            #endregion Headers
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+            ROW++;
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                sheet[ROW, ColEmpId].Text = data.Rows[i]["EmpId"].ToString();
+                sheet[ROW, ColEmpName].Text = data.Rows[i]["EmpName"].ToString();
+                sheet[ROW, ColEmpEntity].Text = data.Rows[i]["EmpEntity"].ToString();
+                sheet[ROW, ColEmpDepertment].Text = data.Rows[i]["EmpDepertment"].ToString();
+                sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
+                sheet[ROW, ColServiceName].Text = data.Rows[i]["ServiceName"].ToString();
+                sheet[ROW, ColUOM].Text = data.Rows[i]["UOM"].ToString();
+                sheet[ROW, ColFinalAmount].Number = Convert.ToDouble(data.Rows[i]["FinalAmount"].ToString());
+                sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
+                sheet[ROW, ColServiceCategory].Text = data.Rows[i]["ServiceCategory"].ToString();
+                sheet[ROW, ColFrom].Number = Convert.ToDouble(data.Rows[i]["From"].ToString());
+                sheet[ROW, ColTo].Number = Convert.ToDouble(data.Rows[i]["To"].ToString());
+                sheet[ROW, ColQty].Number = Convert.ToDouble(data.Rows[i]["Qty"].ToString());
+                sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
+                sheet[ROW, ColAmount].Number = Convert.ToDouble(data.Rows[i]["Amount"].ToString());
+                sheet[ROW, ColChargable].Text = data.Rows[i]["Chargable"].ToString();
+                sheet[ROW, ColNonChargable].Text = data.Rows[i]["NonChargable"].ToString();
+                sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+                sheet[ROW, ColAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
+                sheet[ROW, ColAddedDate].Text = data.Rows[i]["AddedDate"].ToString();
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                ROW++;
+            }
+
+            #region Line Setup
+
+            sheet.Range[6, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[6, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[6, 1, ROW - 1, endCol].WrapText = true;
+
+            #endregion Line Setup
+
+            #region ******************Report Header******************
+            try
+            {
+                string strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), identity.CompanyId + ".jpg");  // IDCardEng.xlsx
+                Image companyLogo = Image.FromFile(strPath);
+                if (companyLogo != null)
+                {
+                    double totalWidth = sheet.GetColumnWidth(1) + sheet.GetColumnWidth(2);
+                    int totalWidthPixel = (int)(totalWidth * 7.25);
+                    int totalheight = (int)((sheet.GetRowHeight(1) + sheet.GetRowHeight(2) + sheet.GetRowHeight(3) + sheet.GetRowHeight(3)) * 1.50);
+
+                    companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                    IPictureShape pic = null;
+
+                    pic = sheet.Pictures.AddPicture(1, 1, companyLogo);
+
+                }
+
+
+            }
+            catch (Exception)
+            {
+
+
+            }
+
+            ROW = 1;
+            COL = 1;
+
+            //string FactoryName = string.Empty;
+            //string CmpName = "";
+            //string FactoryAddress = string.Empty;
+            //int SheetIndex = 0;
+            if (dsCmp.Tables[0].Rows.Count > 0)
+            {
+                CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+            }
+            else
+            {
+                CmpName = "";
+            }
+            sheet.Range[ROW, 3].Text = CmpName;
+            sheet.Range[ROW, 3, COL, endCol].Merge();
+            sheet.Range[ROW, 3].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, 3].CellStyle.Font.Size = 12;
+            sheet.Range[ROW, 3, COL, endCol].RowHeight = 20;
+            sheet.Range[ROW, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[ROW, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, 3, COL, endCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+            ROW += 1;
+            if (dsFactory.Tables[0].Rows.Count > 0)
+            {
+
+                FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+            }
+            else
+            {
+                FactoryName = "";
+            }
+            sheet.Range[ROW, 3].Text = FactoryName;
+            sheet.Range[ROW, 3, ROW, endCol].Merge();
+            sheet.Range[ROW, 3].CellStyle.Font.Size = 10;
+            sheet.Range[ROW, 3, ROW, endCol].RowHeight = 20;
+            sheet.Range[ROW, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[ROW, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, 3, ROW, endCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+            ROW += 1;
+            if (dsFactory.Tables[0].Rows.Count > 0)
+            {
+                FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
+            }
+            else
+            {
+                FactoryAddress = "";
+            }
+            sheet.Range[ROW, 3].Text = FactoryAddress;
+            sheet.Range[ROW, 3, ROW, endCol].Merge();
+            sheet.Range[ROW, 3].CellStyle.Font.Size = 22;
+            sheet.Range[ROW, 3, ROW, endCol].RowHeight = 17;
+            sheet.Range[ROW, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[ROW, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, 3, ROW, endCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+            ROW += 1;
+            sheet.Range[ROW, 3].Text = "Employee Service Variable: " + FromDate + " To " + ToDate;
+            sheet.Range[ROW, 3, ROW, endCol].Merge();
+            sheet.Range[ROW, 3].CellStyle.Font.Size = 10;
+            sheet.Range[ROW, 3, ROW, endCol].RowHeight = 20;
+            sheet.Range[ROW, 3].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[ROW, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, 3, ROW, endCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+            #endregion ******************Report Header******************
+
+            #region UsedRange Alignment
+
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            sheet.Range["A1"].CellStyle.Font.Size = 14;
+            sheet.Range["A2"].CellStyle.Font.Size = 10;
+            sheet.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+            #endregion UsedRange Alignment
+
+            #region Page Setup
+            sheet.PageSetup.TopMargin = 0.5;
+            sheet.PageSetup.BottomMargin = 0.7;
+            sheet.PageSetup.PrintTitleRows = "$1:$5";
+            sheet.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+            sheet.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + identity.Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+            sheet.PageSetup.LeftMargin = 0.5;
+            sheet.PageSetup.RightMargin = 0.2;
+            sheet.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+            sheet.PageSetup.FitToPagesTall = 0;
+            sheet.PageSetup.FitToPagesWide = 1;
+            sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+            sheet.IsDisplayZeros = false;
+            #endregion Page Setup
+
+
+            #region Freeze Panes
+
+            sheet.IsDisplayZeros = false;
+            sheet.UsedRange["A7"].FreezePanes();
+            sheet.FirstVisibleColumn = 1;
+            sheet.FirstVisibleRow = 6;
+
+            #endregion Freeze Panes
+
+            //report.CompanyHeader(ref sheet, endCol, "Employee Service Variable: " + FromDate + " - " + ToDate + " ", identity.CompanyId);
+            //report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
+        private DataTable GetData(string FromDate, string ToDate, string Service)
+        {
+            try
+            {
+                string sql = @"select ei.EmployeeCode EmpId,ei.EmployeeName EmpName,e.UserName EmpEntity,d.UserName EmpDepertment,ld.UserName Designation,
+                                est.Service ServiceName,esc.Category ServiceCategory,uom.UserName UOM, esd.[From] , esd.[To],
+								esd.Quantity Qty,cu.Code Currency,esr.Rate ,esd.Amount, 
+								 FinalAmount=case when ISNULL( esd.Amount,0) =0 then (isnull(esd.Quantity,0)* isnull(esr.Rate,0)) 
+								 else ISNULL( esd.Amount,0) end
+                                , case when esd.Chargeable = '1' then 'Yes' else '' end Chargable
+                                ,case when esd.Chargeable = '0' then 'Yes' else '' end NonChargable,esr.Remarks, esd.AddedBy ,
+								FORMAT(esd.addedDate,'dd-MMM-yyyy') AddedDate
+                                from [dbo].[EmpServiceData] esd
+                                left join EmployeeInformation ei on ei.SystemId = esd.EmployeeId
+								--left join 
+                                left join mst.ManpowerBudget mb on mb.Id = ei.BudgetCode
+                                left join org.Entity e on e.Id = mb.EntityId
+                                left join ORG.Department d on d.Id = ei.DepartmentId
+                                left join HKP.LegalDesignation ld on ld.Id = ei.LegalDesignationId
+                                left join [dbo].[EmpServiceCategory] esc on esc.Id = esd.EmployeeServiceCategoryId
+                                left join [dbo].[EmpServiceType] est on est.Id= esc.EmpServiceTypeId
+								left join CurrencyRuleChild c on c.SalaryHeadID=est.SalaryHeadId 
+								inner join CurrencyRuleMaster cm on cm.SystemID=c.MstSystemID 
+								inner join SalaryRuleMaster sm on sm.CurrencyRuleSystemID=cm.SystemID and sm.SystemID=ei.SalaryRuleMasterSystemID
+								left join SCS.Currency cu on cu.Id = c.AmtDefinitionCurrency
+                                left join scs.UnitOfMeasurement uom on uom.Id =  est.UOMId
+                                left join [dbo].[EmployeeServicesRate] esr on esr.EmployeeServiceCategoryId = esd.EmployeeServiceCategoryId
+                                where esd.Date between '" + FromDate + "' and '" + ToDate + "' AND est.Id='"+ Service + "'";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+    }
+}

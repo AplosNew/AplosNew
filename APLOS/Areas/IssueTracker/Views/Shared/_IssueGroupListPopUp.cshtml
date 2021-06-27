@@ -1,0 +1,46 @@
+﻿<div class="modal fade site-modal in" id="issueGroupListPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Issue Groups <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Group Name</th>
+                                    <th>Responsible Person</th>
+                                    <th>Action</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in IssueGroups" ng-dblclick="GetIssueGroup(x);">
+
+                                    <td>{{x.Id}}</td>
+                                    <td>{{x.Name}}</td>
+                                    <td>{{x.ResponsiblePerson}}</td>
+                                    
+                                    <td>
+                                        <div class="common-btn">
+                                            <ul class="list-inline text-left">
+                                                <li><button ng-click="RemoveIssueGroupPopUp(x);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i> </button></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="hideIssueGroupListPopUp();" class="btn" tabindex="4"><i class=""></i> Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+

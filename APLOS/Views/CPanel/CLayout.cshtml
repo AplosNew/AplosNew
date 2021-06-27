@@ -1,0 +1,332 @@
+﻿<!DOCTYPE html>
+<html lang="en" ng-app="cpanelApp" spellcheck="true">
+<head>
+    <link href="~/SyncfusionLib/css/web/default-theme/ej.web.all.min.css" rel="stylesheet" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <base href="@ViewBag.BasePath">
+    <title>{{title}}</title>
+    <link rel="icon" href="images/title.gif" type="image/gif" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    @Styles.Render("~/bundles/css")
+    @Styles.Render("~/bundles/fonts")
+    @Scripts.Render("~/bundles/jq")
+    @Scripts.Render("~/bundles/angular")
+    @Scripts.Render("~/bundles/syncfusion")
+    @Scripts.Render("~/bundles/accounts")
+    @Scripts.Render("~/bundles/addresses")
+    @Scripts.Render("~/bundles/currencies")
+    @Scripts.Render("~/bundles/logs")
+    @Scripts.Render("~/bundles/menus")
+    @Scripts.Render("~/bundles/modules")
+    @Scripts.Render("~/bundles/organizations")
+    @Scripts.Render("~/bundles/securities")
+    @Scripts.Render("~/bundles/setups")
+    @Scripts.Render("~/bundles/employees")
+    @Scripts.Render("~/bundles/cpanel")
+
+
+</head>
+<body panel-body>
+    <div id="iframe_div_for_report" style="display:none"></div>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-site">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse" class="navbar-toggle collapsed" type="button">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="navbar-collapse collapse" id="navbar">
+                <ul class="nav navbar-nav">
+                    <li><a ng-click="ShowHideSideBar()" class="nav-control"><span aria-hidden="true" class="glyphicon glyphicon-align-left"></span></a></li>
+                    <li><strong>Panel:</strong> Control</li>
+                    <li><strong>Last Login:</strong> @ViewBag.LastLoginTime</li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@ViewBag.FullName <i class="fa fa-angle-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{bootPoint}}password-change/@ViewBag.Name"><i class="fa fa-key"></i> Change Password</a></li>
+                            <li><a href="{{bootPoint}}logout"><i class="fa fa-power-off"></i>  Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid" id="main">
+        <div class="row">
+            <div class="col-sm-3 col-md-2 sidebar">
+                <h1>
+                    <a href="{{bootPoint}}dashboard" class="navbar-brand" style="margin-top: -6px;">
+                        <img class="logo" src="images/aplos-logo.png" style="height:34px;">
+                        <span>V-@typeof(Aplos.WebApiApplication).Assembly.GetName().Version</span>
+                    </a>
+                </h1>
+                <nav class="main-nav">
+                    <ul>
+                        <li>
+                            <a><span class="glyphicon glyphicon-lock"></span>Access Control</a>
+                            <ul>
+                                <li><a href="{{bootPoint}}query-editor">Query</a></li>
+                                <li><a href="{{bootPoint}}control-admin">Control Admin</a></li>
+                                <li><a href="{{bootPoint}}system-admin">System Admin</a></li>
+                                <li><a href="{{bootPoint}}show-all-user">All User</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a><span class="glyphicon glyphicon-lock"></span>Security</a>
+                            <ul>
+                                <li><a href="{{bootPoint}}sys-authtoken-lock">AuthToken Lock</a></li>
+                                <li><a href="{{bootPoint}}sys-user-lock">System Admin Lock</a></li>
+                                <li><a href="{{bootPoint}}encrypt-decrypt">Encrypt Decrypt</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a><span class="fa fa-list-alt"></span>General Setups</a>
+                            <ul>
+                                <li><a href="{{bootPoint}}plant-config">Plant Config</a></li>
+                                <li><a href="{{bootPoint}}rpt-template">Report Template Config</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a><span class="fa fa-list-alt"></span>Address Setups</a>
+                            <ul>
+                                <li><a href="{{bootPoint}}continent">Continent</a></li>
+                                <li><a href="{{bootPoint}}country">Country</a></li>
+                                <li><a href="{{bootPoint}}state">State</a></li>
+                                <li><a href="{{bootPoint}}district">District</a></li>
+                                <li><a href="{{bootPoint}}city">City</a></li>
+                                <li><a href="{{bootPoint}}area">Area</a></li>
+                                <li><a href="{{bootPoint}}policestation">Police Station</a></li>
+                                <li><a href="{{bootPoint}}postoffice">Post Office</a></li>
+                                <li><a href="{{bootPoint}}smtp-config">SMTP Configuration</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a><span class="fa fa-list-alt"></span>Generic Data Setups</a>
+                            <ul>
+                                <li><a href="{{bootPoint}}currency">Currency</a></li>
+                                <li><a href="{{bootPoint}}company-parallel-currency">Company Parallel Currency</a></li>
+                                <li><a href="{{bootPoint}}qualification-level">Qualification Level</a></li>
+                                <li><a href="{{bootPoint}}qualification-stream">Qualification Stream</a></li>
+                                <li><a href="{{bootPoint}}language">Language</a></li>
+                                <li><a href="{{bootPoint}}blood-group">Blood Group</a></li>
+                                <li><a href="{{bootPoint}}civil-status">Civil Status</a></li>
+                                <li><a href="{{bootPoint}}religion">Religion</a></li>
+                                <li><a href="{{bootPoint}}uom-dimension">UoM Dimension</a></li>
+                                <li><a href="{{bootPoint}}business-process">Business Process</a></li>
+                                <li><a href="{{bootPoint}}buyer-activity">Buyer Activity</a></li>
+                                <li><a href="{{bootPoint}}inquiry-activity">Inquiry Activity</a></li>
+                                <li><a href="{{bootPoint}}salutation">Salutation</a></li>
+                                <li><a href="{{bootPoint}}relationship">Relationship</a></li>
+                                <li><a href="{{bootPoint}}profession">Profession</a></li>
+                                <li><a href="{{bootPoint}}label-list">Label List</a></li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a><span class="glyphicon glyphicon-book"></span>Organization Setups</a>
+                            <ul>
+                                <li><a href="{{bootPoint}}company-group">Company Group</a></li>
+                                <li><a href="{{bootPoint}}company-group-currency"> Company Group Currency</a></li>
+                                <li><a href="{{bootPoint}}organization-category">Organization Category</a></li>
+                                <li><a href="{{bootPoint}}organization-class">Organization Class</a></li>
+                                <li><a href="{{bootPoint}}company">Company</a></li>
+                                <li><a href="{{bootPoint}}plant">Plant</a></li>
+                                <li><a href="{{bootPoint}}acc-cutoff-date-opening-balance">ACC OB CutOff Date</a></li>
+                                <li><a href="{{bootPoint}}delete-acccutoff-backdata">Delete BackDated data before Cut off</a></li>
+                                <li><a href="{{bootPoint}}hr-cutoff-date-opening-balance">HR OB CutOff Date</a></li>
+                                <li><a href="{{bootPoint}}account-type">Account Type</a></li>
+                                <li><a href="{{bootPoint}}holiday-category">Holiday Category</a></li>
+                                <li><a href="{{bootPoint}}position-grouping-data">Position Grouping Data</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a><span class="glyphicon glyphicon-book"></span>Relationship Setups</a>
+                            <ul>
+                                <li><a href="{{bootPoint}}entity-relationship">Entity Relationship</a></li>
+                                <li><a href="{{bootPoint}}position-relationship">Position Relationship</a></li>
+                                <li><a href="{{bootPoint}}coa-relationship">COA Relationship</a></li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a><span class="fa fa-desktop"></span>Modules</a>
+                            <ul>
+                                <li><a href="{{bootPoint}}module">Module</a></li>
+                                @*<li><a href="{{bootPoint}}sub-module">Submodule</a></li>*@
+                                <li><a href="{{bootPoint}}company-group-module">Company Group Module</a></li>
+                                <li><a href="{{bootPoint}}module-extended"> Extended Module URL</a></li>
+                                <li><a href="{{bootPoint}}notification-url"> Notification URL</a></li>
+
+                                <li><a href="{{bootPoint}}module-app">Module App</a></li>
+                                <li><a href="{{bootPoint}}company-group-module-app">Company Group Module App</a></li>
+                                <li><a href="{{bootPoint}}prerecruitment-url">Prerecruitment URL</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a><span class="fa fa-bars"></span>Menus</a>
+                            <ul>
+                                @*<li><a href="{{bootPoint}}menu">Menu</a></li>*@
+                                @*<li><a href="{{bootPoint}}menu-action">Menu Action</a></li>*@
+                                <li><a href="{{bootPoint}}menu-frame">Menu Frame</a></li>
+                                <li><a href="{{bootPoint}}menu-group">Menu Group</a></li>
+                                <li><a href="{{bootPoint}}menu-sub-group">Menu Subgroup</a></li>
+                                @*<li><a href="{{bootPoint}}menu-item">Menu Item</a></li>
+        <li><a href="{{bootPoint}}menu-master">Menu Master</a></li>
+        <li><a href="{{bootPoint}}menu-new">Menu Creation</a></li>
+        <li><a href="{{bootPoint}}company-group-menu-master" title="Company Group Menu Master">CG Menu Master</a></li>*@
+                                <li><a href="{{bootPoint}}menu-sync" title="Menu Sync">Menu Sync</a></li>
+                                <li><a href="{{bootPoint}}sync-url" title="Sync URL">Sync URL</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a><span class="fa fa-th"></span>Logs</a>
+                            <ul>
+                                <li><a href="{{bootPoint}}access-log">Access Log</a></li>
+                                <li><a href="{{bootPoint}}action-log">Action Log</a></li>
+                                <li><a href="{{bootPoint}}error-log">Error Log</a></li>
+                                <li><a href="{{bootPoint}}mail-log">Mail Log</a></li>
+                                <li><a href="{{bootPoint}}mail-send">Send Mail</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                <div class="inner-content">
+                    <div ng-view></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="loader" data-loader>
+        Please wait
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+    </div>
+    <noscript>
+        JavaScript is disable in your browser. Please enable from browser settings.
+    </noscript>
+</body>
+<style>
+    .loaderr {
+        width: 300px;
+        height: 200px;
+        background-color: #0780BA;
+        color: #fff;
+        padding: 100px;
+        font-size: 25px;
+    }
+
+    .e-grid .e-headercelldiv {
+        font-weight: bold;
+        font-size: 8.5pt;
+        display: block;
+        border: 0 none;
+        height: 29px;
+        line-height: 29px;
+        margin: -7px;
+        padding: 0 .7em;
+        text-align: left;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        /*font-family: "Arial Narrow";*/
+    }
+
+    .e-grid .e-rowcell {
+        border-width: 1px 0 0 1px;
+        padding: .7em;
+        line-height: 10px;
+        white-space: nowrap;
+        width: auto;
+        vertical-align: middle;
+    }
+
+    .e-gridheader .e-headercell {
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    .e-grid .e-gridheader .e-icon {
+        color: white;
+    }
+
+    .e-grid.e-wrap .e-columnheader .e-headercelldiv {
+        margin-bottom: 2px;
+        margin-top: 0;
+        font-size: 8.5pt;
+    }
+
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-grid .e-headercell, .e-grid .e-headercell-hover {
+        height: 30px !important;
+    }
+
+    .e-grid {
+        font-size: 8.5pt !important;
+    }
+
+        .e-grid .e-rowcell {
+            padding-top: 2px !important;
+            padding-bottom: 4px !important;
+            padding-left: 4px !important;
+            padding-right: 4px !important;
+            font-size: 8.5pt;
+        }
+
+        .e-pager, .e-grid .e-pagerstatusbar {
+            border: none;
+            padding: 0px;
+            margin: 0px;
+            font-size: 8.5pt;
+        }
+
+        .e-grid .e-rowcell dl, menu, ol, ul {
+            padding: 0px !important;
+            margin: 0px !important;
+        }
+
+    e-grid .e-columnheader .wrap .e-headercelldiv {
+        height: Auto;
+    }
+
+    .e-grid .e-excelfilter .e-btncontainer input {
+        /*padding: .2em .4em .3em;*/
+        padding: 0px;
+    }
+
+    .e-grid.e-dlgcontainer .e-dlgBtns .e-clear {
+        padding: 3px;
+    }
+
+    .e-grid.e-dlgcontainer .e-dlgBtns .e-filter {
+        padding: 3px;
+    }
+
+    ::-ms-clear {
+        display: none;
+    }
+
+    .e-grid.filtered .e-filteredicon {
+        color: red;
+    }
+    .e-grid .e-vhandle {
+        background-color: #1c1f32;
+    }
+
+    .e-grid .e-hhandle {
+        background-color: #1c1f32;
+    }
+</style>
+</html>

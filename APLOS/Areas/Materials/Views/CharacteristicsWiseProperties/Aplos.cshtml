@@ -1,0 +1,710 @@
+﻿<style>
+    div[class="form-group"] {
+        height: 10px !important;
+        /*font-size: 12px !important;*/
+    }
+
+    .control-label {
+        text-align: right !important;
+        line-height: 10px !important;
+        padding-right: 5px !important;
+        /*font-weight: bold !important;*/
+        /*font-size: 11px !important;*/
+        /*font-family: Verdana, Geneva, Tahoma, sans-serif;*/
+    }
+</style>
+
+<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Characteristics Wise Properties
+
+</h3>
+<div class="form-elements form-horizontal" ng-form id="Bulletin" name="characteristicsWisePropertiesForm">
+    @*<input type="hidden" ng-model="bulletinmaster.Id">*@
+
+
+
+
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li>
+                <button ng-click="showMMModal();" class="btn"><i class="glyphicon glyphicon-search"></i> Material Master</button>
+            </li>
+        </ul>
+    </div>
+
+    <!--Master view Left-->
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">MaterialMasterId</label>
+            <div class="col-sm-8">
+                <span> {{master.MaterialMasterId}}</span>
+                @*<span class="highlight-txt" ng-click="masterAddEditPopup('EDIT')"> {{master.MaterialMasterId}}</span>*@
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Code</label>
+            <div class="col-sm-8">
+                {{master.Code}}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Material Type</label>
+            <div class="col-sm-8">
+                {{master.MaterialType}}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Material Grid</label>
+            <div class="col-sm-8">
+                {{master.GridNO}}
+            </div>
+        </div>
+    </div>
+
+    <!--Master view Rigt-->
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">User Name</label>
+            <div class="col-sm-8">
+                {{master.UserName}}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Description</label>
+            <div class="col-sm-8">
+                {{master.Description}}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Material Group</label>
+            <div class="col-sm-8">
+                {{master.MaterialGroup}}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Base UOM</label>
+            <div class="col-sm-8">
+                {{master.BaseUOM}}
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-12 col-md-12" style="text-align:left;line-height:14px;" ng-show="(master.SelectedCharacteristics.length>0)">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Selected Characteristics</label>
+            <div class="col-sm-2">
+                <label class="control-label text-bold">{{master.SelectedCharacteristics}}</label>
+            </div>
+        </div>
+    </div>
+    
+    @*<div class="col-xs-12 col-sm-12 col-md-12" style="text-align:left;line-height:14px;" ng-show="master.Characteristics2Selected">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Selected Characteristics</label>
+            <div class="col-sm-2">
+                <label class="control-label">{{master.Characteristics2}}</label>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12" style="text-align:left;line-height:14px;" ng-show="master.Characteristics3Selected">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Selected Characteristics</label>
+            <div class="col-sm-2">
+                <label class="control-label">{{master.Characteristics3}}</label>
+            </div>
+        </div>
+    </div>*@
+   
+
+    <div class="common-btn" ng-show="IsCharacteristicsbtnVisible">
+        <ul class="list-inline text-left">
+            <li>
+                <button ng-click="characteristicsPopup();" class="btn"><i class="glyphicon glyphicon-plus"></i> Select Characteristics</button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li ng-show="IsAdd">
+                <button ng-disabled="btnDisabledSave" ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button>
+            </li>
+            <li ng-show="IsDel">
+                <button ng-click="deleteMasterPopup();" class="btn"><i class="glyphicon glyphicon-trash"></i>Delete</button>
+            </li>
+        </ul>
+    </div>
+    <div class="common-btn" ng-show="showCharacteristicsGrid(master.Id);">
+        <ul class="list-inline">
+            <li>
+                <button ng-click="detailEntryPopup('NEW');" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Line Item </button>
+            </li>
+        </ul>
+    </div>
+
+
+    @*Detail Grid*@
+    <div class="col-xs-12 col-sm-12 col-md-12" ng-show="showDetailGrid(detailList);">
+        <div class="table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Edit</th>
+                        <th>Delete</th>                        
+                        <th ng-show="master.Characteristics1Selected">{{master.Characteristics1}} Code</th>
+                        <th ng-show="master.Characteristics1Selected">{{master.Characteristics1}} Description</th>
+                        <th ng-show="master.Characteristics2Selected">{{master.Characteristics2}} Code</th>
+                        <th ng-show="master.Characteristics2Selected">{{master.Characteristics2}} Description</th>
+                        <th ng-show="master.Characteristics3Selected">{{master.Characteristics3}} Code</th>
+                        <th ng-show="master.Characteristics3Selected">{{master.Characteristics3}} Description</th>
+                        <th>Id</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in detailList" ng-show="!x.Archive">
+                        <td>
+                            <ul class="list-inline action-list">
+                                <li>
+                                    <button ng-click="getDetailRow(x.Id)" class="btn-action tooltip-here" data-placement="top" title="Edit" tooltip>
+                                        <i class="glyphicon glyphicon-edit"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul class="list-inline action-list">
+                                <li>
+                                    <button ng-click="deleteDetailPopup(x.Id)" class="btn-action tooltip-here" data-placement="top" title="Remove" tooltip>
+                                        <i class="glyphicon glyphicon-trash"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </td>
+                       
+                        <td ng-show="master.Characteristics1Selected">{{x.CharacteristicsValue1Code}}</td>
+                        <td ng-show="master.Characteristics1Selected">{{x.CharacteristicsValue1}}</td>
+                        <td ng-show="master.Characteristics2Selected">{{x.CharacteristicsValue2Code}}</td>
+                        <td ng-show="master.Characteristics2Selected">{{x.CharacteristicsValue2}}</td>
+                        <td ng-show="master.Characteristics3Selected">{{x.CharacteristicsValue3Code}}</td>
+                        <td ng-show="master.Characteristics3Selected">{{x.CharacteristicsValue3}}</td>
+                        <td>{{x.Id}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <!--characteristics Left-->
+    @*<div class="col-xs-12 col-sm-12 col-md-12" ng-show="showCharacteristicsGrid(master.MaterialMasterId)">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Selected Characteristics</label>
+                <div class="col-sm-5">
+                    <input type="text" name="SelectedCharacteristics" ng-model="master.SelectedCharacteristics" readonly class="form-control">
+                </div>
+            </div>
+        </div>*@
+
+    <!--characteristics Rigt-->
+    <div class="">
+
+        @*<div class="form-group">
+                <label class="col-sm-4 control-label">Company</label>
+                <div class="col-sm-8">
+                    {{master.Company}}
+                </div>
+            </div>*@
+
+    </div>
+    
+
+   
+
+    @*Master Search Modal*@
+    <div class="modal fade site-modal in" id="mastersearchpopup" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    {{$rootScope.title}} Master <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="$root.parameters.searchBy">
+                                                <option ng-repeat="option in searchbyMasterlist" ng-show="option.IsVisible" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="loadMasterData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="loadMasterData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th ng-repeat="h in searchbyMasterlist" ng-show="h.IsVisible">{{h.Text}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in masterList | itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="GetMasterIndex(x.Id, $index);">
+                                    <td ng-repeat="h in searchbyMasterlist" ng-show="h.IsVisible">{{x[h.Value]}}</td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*Material Master search*@
+    <div class="modal fade site-modal in" id="mmmodal" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Material Master
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="$root.parameters.searchBy">
+                                                <option ng-repeat="option in searchbyMaterialMasterDatalist" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="loadMMData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="loadMMData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th ng-repeat="h in searchbyMaterialMasterDatalist">{{h.Text}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in mmData  |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getMMCode(x);">
+                                    <td ng-repeat="hh in searchbyMaterialMasterDatalist">{{x[hh.Value]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--MM Grid Characteristics Popup-->
+    <div class="modal fade site-modal in" id="characteristicspopup" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Material Master Grid Characteristics</h4>
+                </div>
+                <div class="modal-body text-center">
+
+
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+
+                            <label class="col-sm-3 control-label"> Grid Name: </label>
+                            <div class="col-sm-8" style="text-align:left;">
+                                {{master.GridNO}}
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="common-btn">
+                    </div>
+                    @*Grid*@
+                    @*Characteristics *@
+                    @*ng-show="showCharacteristicsGrid(master.MaterialMasterId)"*@
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <div class="checkbox-site text-center">
+                                                <input type="checkbox" ng-click="CheckAll($event);">
+                                            </div>
+                                        </th>
+                                        <th>Characteristics</th>
+                                        <th>Sort</th>
+                                        <th>Id</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in CharacteristicsData  | orderBy:Sort">
+
+                                        @*<td ng-click="getDetailRow($index)"><i class="glyphicon glyphicon-pencil"></i></td>
+                                            <td ng-click="deleteDetail($index)" data-toggle="modal" data-target="#archivePopUp"><i class="glyphicon glyphicon-remove"></i></td>*@
+                                        <td>
+                                            <div class="checkbox-site">
+                                                <input type="checkbox" ng-model="x.IsSelected">
+                                            </div>
+                                        </td>
+                                        <td>{{x.Alias}}</td>
+                                        <td>{{x.Sort}}</td>
+                                        <td>{{x.Id}}</td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!--Master Bottom Buttons-->
+                    <div class="common-btn">
+                    </div>
+                    <div class="common-btn">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <ul class="list-inline text-left"></ul>
+                        </div>
+                        <ul class="list-inline text-right">
+                            <li>
+                                <button ng-click="selectCharacteristics();" class="btn"><i class="glyphicon glyphicon-plus"></i> Select</button>
+                            </li>
+
+                        </ul>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+
+</div>
+<div class="form-elements form-horizontal" ng-form id="Detail" name="DetailForm" ng-submit="SaveDetail()">
+    <!--Detail Entry Popup-->
+    <div class="modal fade site-modal in" id="detailentrypopup" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="overflow:auto;height: 400px;font-size:11px;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Characteristics Value Entry</h4>
+                    
+                </div>
+                <div class="modal-body">
+
+                    @*Characteristics Value*@
+                    <div ng-show="showCharacteristicsGrid(master.SelectedCharacteristics)" style="padding-top:20px;padding-bottom:10px;">
+                        
+                            @*<div class="col-xs-12 col-sm-12 col-md-12" ng-show="master.Characteristics1Selected">*@
+                            <div class="col-xs-12 col-sm-12 col-md-12" style="text-align:left;line-height:14px;" ng-show="master.Characteristics1Selected">
+                                <div class="form-group">
+
+                                    <label class="col-sm-2 control-label">{{master.Characteristics1}}<sup>*</sup></label>
+                                    <input type="hidden" ng-model="detail.Characteristics1ValueId">
+                                    <div class="col-sm-2  pdr3">
+                                        <input type="text" ng-model="detail.Characteristics1Value" class="form-control">
+                                    </div>
+                                    @*<input type="text" class="col-sm-4 form-control" ng-model="master.Characteristics1Value">*@
+                                    <button class="btn single-small-btn pdl3" ng-click="searchCharacteristics1Value(master.Characteristics1Id)">
+                                        <i class="glyphicon glyphicon-search"></i>
+                                    </button>
+                                    <button ng-click="clearCharacteristics1Value();" class="btn single-small-btn">
+                                        <i class="glyphicon glyphicon-refresh"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            @*</div>*@
+                            @*<div class="col-xs-12 col-sm-12 col-md-12" ng-show="master.Characteristics2Selected">*@
+                            <div class="col-xs-12 col-sm-12 col-md-12" style="text-align:left;line-height:14px;" ng-show="master.Characteristics2Selected">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">{{master.Characteristics2}}<sup>*</sup></label>
+                                    @*<input type="text" ng-model="master.Characteristics2">*@
+                                    <input type="hidden" ng-model="detail.Characteristics2ValueId">
+                                    <div class="col-sm-2  pdr3">
+                                        <input type="text" ng-model="detail.Characteristics2Value" class="form-control">
+                                    </div>
+
+                                    @*<input type="text" class="col-sm-4 form-control pdr3" ng-model="master.Characteristics2Value">*@
+                                    <button class="btn single-small-btn pdl3" ng-click="searchCharacteristics2Value(master.Characteristics2Id)">
+                                        <i class="glyphicon glyphicon-search"></i>
+                                    </button>
+                                    <button ng-click="clearCharacteristics2Value();" class="btn single-small-btn">
+                                        <i class="glyphicon glyphicon-refresh"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            @*</div>*@
+                            @*<div class="col-xs-12 col-sm-12 col-md-12" ng-show="master.Characteristics3Selected">*@
+                            <div class="col-xs-12 col-sm-12 col-md-12" style="text-align:left;line-height:14px;" ng-show="master.Characteristics3Selected">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">{{master.Characteristics3}}<sup>*</sup></label>
+                                    @*<input type="text" ng-model="master.Characteristics3">*@
+                                    <input type="hidden" ng-model="detail.Characteristics3ValueId">
+                                    <div class="col-sm-2  pdr3">
+                                        <input type="text" ng-model="detail.Characteristics3Value" class="form-control">
+                                    </div>
+                                    @*<input type="text" class="col-sm-4 form-control pdr3" ng-model="master.Characteristics3Value">*@
+                                    <button class="btn single-small-btn pdl3" ng-click="searchCharacteristics3Value(master.Characteristics3Id)">
+                                        <i class="glyphicon glyphicon-search"></i>
+                                    </button>
+                                    <button ng-click="clearCharacteristics3Value();" class="btn single-small-btn">
+                                        <i class="glyphicon glyphicon-refresh"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            @*</div>*@
+                        
+                      </div>
+                    <div class="clearfix"></div>
+                    <div class="col-xs-12 col-sm-12 col-md-12" style="padding-top:10px;padding-bottom:10px;">
+                    </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12" style="padding-top:10px;padding-bottom:10px; border:1px solid">
+                            <div class="form-group">
+                                <div class="col-sm-1">
+                                    <input type="number" class="form-control" ng-model="detailfactor.AlternativeUOMFactor">
+                                </div>
+                                <label class="col-sm-1 control-label">Alternative UOM<sup>*</sup></label>
+                                <div class="col-sm-3">
+                                    @*<div class="select-style">
+                            <select ng-model="detail.UOMId" class="form-control" name="Unit Of Masurement"
+                                    id="UOMId" ng-options="item.CharacteristicsName as item.CharacteristicsName for CharacteristicsData in uomList" tabindex="1"></select>
+                        </div>*@
+
+                                    <div class="select-style">
+                                        <select name="UnitOfMasurement" ng-model="detailfactor.AlternativeUOMId" ng-options="item.Value as item.Text for item in uomList">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <label class="col-sm-1 control-label">Is</label>
+                                <div class="col-sm-2">
+                                    <input type="number" name="Base uom factor" ng-model="detailfactor.BaseUOMFactor" class="form-control" maxlength="50">
+                                </div>
+
+                                <div class="col-sm-3">
+                                    <input type="hidden" name="Baseuom" ng-model="detailfactor.BaseUOMId">
+                                    <input type="text" name="Base uom" ng-model="detailfactor.BaseUOM" class="form-control" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="clearfix"></div>
+                        @*Select UOM*@
+                        <div class="common-btn" ng-show="showCharacteristicsGrid(master.SelectedCharacteristics)" style="padding-top:10px;">
+                            <ul class="list-inline text-left">
+                                <li>
+                                    <button ng-click="uomPopup();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add UOM</button>
+                                </li>
+                            </ul>
+                        </div>
+                    <div class="clearfix"></div>
+                        @*UOM Grid*@
+                        <div class="col-xs-12 col-sm-12 col-md-12 text-left" ng-show="showDetailGrid(detailuomList)">
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Delete</th>                                           
+                                            <th>Code</th>
+                                            <th>User Name</th>
+                                            <th>UOMId</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in detailuomList" ng-show="!x.Archive">
+                                            <td ng-click="deleteUOMPopup(x.Id,x.UOM)" data-target="#confiruomdelete"><i class="glyphicon glyphicon-remove"></i></td>
+                                            <td>{{x.UOMCode}}</td>
+                                            <td>{{x.UOM}}</td>
+                                            <td>{{x.UOMId}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    <div class="clearfix"></div>
+                        @*Save btn*@
+                        <div class="common-btn" style="padding-top:10px;">
+                            <ul class="list-inline text-right">
+                                <li>
+                                    <button ng-click="SaveDetail();" ng-disabled="$scope.btnDisabledSave" class="btn"><i class="glyphicon glyphicon-plus"></i>{{ActionDetail}}</button>
+                                </li>
+                                @*<li>
+                                    <button ng-click="DeleteDetail();" class="btn"><i class="glyphicon glyphicon-plus"></i>Delete</button>
+                                </li>*@
+                            </ul>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+
+   
+
+    <!--MM UOM List Popup-->
+    <div class="modal fade site-modal in" id="UOMpopup" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Material Master UOM
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="$root.parameters.searchBy">
+                                                <option ng-repeat="option in searchbyMMUOMlist" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="loadMMUOMData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="loadMMUOMData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <div class="checkbox-site text-center">
+                                                <input type="checkbox" ng-click="CheckAllUOM($event);">
+                                            </div>
+                                        </th>
+                                        <th ng-repeat="h in searchbyMMUOMlist">{{h.Text}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr dir-paginate="x in mmUOMData  |itemsPerPage:$root.pageSize" total-items="$root.total_count">
+                                        <td>
+                                            <div class="checkbox-site">
+                                                <input type="checkbox" ng-model="x.IsSelectedID">
+                                            </div>
+                                        </td>
+                                        <td ng-repeat="hh in searchbyMMUOMlist">{{x[hh.Value]}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                    </div>
+                    <div class="common-btn">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <ul class="list-inline text-left"></ul>
+                        </div>
+                        <ul class="list-inline text-right">
+                            <li>
+                                <button ng-click="getUOMCode();" class="btn"><i class="glyphicon glyphicon-plus"></i> Select</button>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!--Characteristics Value Popup-->
+    <div class="modal fade site-modal in" id="characteristicsValuepopup" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    {{CharacteristicsSearchTitle}} Value
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-lg-3">
+                                        <div class="select-style">
+                                            <select ng-model="$root.parameters.searchBy">
+                                                <option ng-repeat="option in searchbyCharacteristicsValuelist" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="loadCharacteristicsValueData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="loadCharacteristicsValueData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th ng-repeat="h in searchbyCharacteristicsValuelist">{{h.Text}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in characteristicsValueData  |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getCharacteristicsValueCode(x.Id, x.Description);">
+                                    <td ng-repeat="hh in searchbyCharacteristicsValuelist">{{x[hh.Value]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-modal></confirm-modal>
+<confirm-archive title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRowYes()"></confirm-archive>
+<confirm-archive-generic data-modalid="confirchilddelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeChildYes()"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmasterdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeMasterYes()"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirdetaildelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeDetailYes()"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confiruomdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeUOMYes()"></confirm-archive-generic>

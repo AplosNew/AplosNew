@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D2AE9A12-73C5-496B-AD1C-44937193DE1D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Library.Accounting</RootNamespace>
+    <AssemblyName>Aplos.Accounting</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ConnectionManager">
+      <HintPath>..\APLOS\Library\ConnectionManager.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Core">
+      <HintPath>..\APLOS\Library\Library.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Crosscutting">
+      <HintPath>..\APLOS\Library\Library.Crosscutting.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Data">
+      <HintPath>..\APLOS\Library\Library.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Model.Core">
+      <HintPath>..\APLOS\Library\Library.Model.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Service.Core">
+      <HintPath>..\APLOS\Library\Library.Service.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.ViewModel.Core">
+      <HintPath>..\APLOS\Library\Library.ViewModel.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.DocIO.Base">
+      <HintPath>..\APLOS\Library\Syncfusion.DocIO.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.DocToPdfConverter.Base">
+      <HintPath>..\APLOS\Library\Syncfusion.DocToPdfConverter.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.OfficeChartToImageConverter.WPF">
+      <HintPath>..\APLOS\Library\Syncfusion.OfficeChartToImageConverter.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.XlsIO.Base">
+      <HintPath>..\APLOS\Library\Syncfusion.XlsIO.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Accounts\AccountsDocAcceptanceService.cs" />
+    <Compile Include="Accounts\AccountsSalaryPayableService.cs" />
+    <Compile Include="Accounts\AccountsEmployeePayableService.cs" />
+    <Compile Include="Accounts\AccountsInventorySalesService.cs" />
+    <Compile Include="Accounts\AccountsInventoryPayableReportService.cs" />
+    <Compile Include="Accounts\AccountsSalesReportService.cs" />
+    <Compile Include="Accounts\AccountsLoanService.cs" />
+    <Compile Include="Accounts\AccountsPartyReconciliationService.cs" />
+    <Compile Include="Accounts\AccountsAutoLoanService.cs" />
+    <Compile Include="Accounts\AccountsStatusDashboardService.cs" />
+    <Compile Include="Accounts\AccountsBankService.cs" />
+    <Compile Include="Accounts\AccountsInventoryPayableService.cs" />
+    <Compile Include="Accounts\AccountsMaterialGroupGlService.cs" />
+    <Compile Include="Accounts\AccountsSalesService.cs" />
+    <Compile Include="Accounts\AccountsOpeningBalanceService.cs" />
+    <Compile Include="Accounts\AccountsGLService.cs" />
+    <Compile Include="Accounts\AccountsCommonService.cs" />
+    <Compile Include="Accounts\AccountsInvoiceReportService.cs" />
+    <Compile Include="Accounts\AccountsAdvanceService.cs" />
+    <Compile Include="Accounts\AccountsInvoiceService.cs" />
+    <Compile Include="Accounts\TaxReportService.cs" />
+    <Compile Include="FixedAssets\FixedAssetReportService.cs" />
+    <Compile Include="FixedAssets\FixedAssetDisposeService.cs" />
+    <Compile Include="FixedAssets\FixedAssetQueryService.cs" />
+    <Compile Include="Accounts\AccountVoucherReportService.cs" />
+    <Compile Include="Accounts\AccountsListDemo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\APLOS.Domain\Aplos.Model.csproj">
+      <Project>{7f2fcb85-b5bd-457e-ae20-8793d0c72f20}</Project>
+      <Name>Aplos.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\APLOS.Service\Aplos.Service.csproj">
+      <Project>{aa817a3e-2bf1-4f54-9008-2df78294c1c8}</Project>
+      <Name>Aplos.Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aplos.ViewModel\Aplos.ViewModel.csproj">
+      <Project>{a40084df-ad53-44c7-805e-93769e586805}</Project>
+      <Name>Aplos.ViewModel</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

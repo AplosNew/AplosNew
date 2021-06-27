@@ -1,0 +1,211 @@
+﻿
+<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+<div class="form-elements form-horizontal"  ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.CompanyId" ng-change="companyOnChange();"
+                                ng-options="item.Value as item.Text for item in companyList" id="plantId"
+                                name="Company" required tabindex="1">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.PlantId"
+                                ng-options="item.Value as item.Text for item in plantList" id="plantId" ng-change="getData()"
+                                name="Plant" required tabindex="1">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 style="text-align:center">Bank</h2>
+    <input type="hidden" ng-model="ModelNew.HeadLabel">
+    <div class="col-sm-12" style="margin-left:-29px">
+        <fieldset class="scheduler-border" style="width:1076px">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Salary Head</label>
+                    <div class="col-sm-6">
+                        <div class="select-style">
+                            <select ng-model="ModelNew.SalaryHeadIdFormula" id="SalaryHeadFormula" class="form-control" name="Salary Head" ng-options="item.Id as item.UserName for item in salaryHeadList" tabindex="5">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="SetFormula('SHead');ClearFormulaSource('');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Operator</label>
+                    <div class="col-sm-6">
+                        <div class="select-style">
+                            <select ng-model="ModelNew.Operator" id="Operator" class="form-control" name="Operator" ng-options="item.Value as item.Text for item in OperatorList" tabindex="5">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="SetFormula('Operator');ClearFormulaSource('');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Precedence</label>
+                    <div class="col-sm-6">
+                        <div class="select-style">
+                            <select ng-model="ModelNew.Precedence" class="form-control" name="Precedence" tabindex="5">
+                                <option value=""></option>
+                                <option value="(">(</option>
+                                <option value=")">)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="SetFormula('Precedence');ClearFormulaSource('');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Value</label>
+                    <div class="col-sm-6">
+                        <input type="number" name="Value" ng-model="ModelNew.Value" class="form-control" required tabindex="2" maxlength="50">
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="SetFormula('Value');ClearFormulaSource('');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="RemoveFormula();" class="btn" tabindex="9"><i class="glyphicon glyphicon-backward"></i></button></li>
+                    </ul>
+                </div>
+                <div class="form-group">
+                    {{ModelNew.FormulaDescription}}
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    @*<hr style="width:100%;text-align:left;margin-left:0; border-top: 1px solid black;">*@
+    <h2 style="text-align:center">Cash</h2>
+    <div class="col-sm-12" style="margin-left:-29px">
+        <fieldset class="scheduler-border" style="width:1076px">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Salary Head</label>
+                    <div class="col-sm-6">
+                        <div class="select-style">
+                            <select ng-model="CashDetail.CashSalaryHeadIdFormula" id="CashSalaryHeadFormula" class="form-control" name="Salary Head" ng-options="item.Id as item.UserName for item in salaryHeadList" tabindex="5">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="SetCashFormula('CashSHead');ClearFormulaSource('');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Operator</label>
+                    <div class="col-sm-6">
+                        <div class="select-style">
+                            <select ng-model="CashDetail.Operator" id="Operator" class="form-control" name="Operator" ng-options="item.Value as item.Text for item in OperatorList" tabindex="5">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="SetCashFormula('Operator');ClearFormulaSource('');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Precedence</label>
+                    <div class="col-sm-6">
+                        <div class="select-style">
+                            <select ng-model="CashDetail.Precedence" class="form-control" name="Precedence" tabindex="5">
+                                <option value=""></option>
+                                <option value="(">(</option>
+                                <option value=")">)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="SetCashFormula('Precedence');ClearFormulaSource('');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Value</label>
+                    <div class="col-sm-6">
+                        <input type="number" name="Value" ng-model="CashDetail.Value" class="form-control" required tabindex="2" maxlength="50">
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="SetCashFormula('Value');ClearFormulaSource('');" class="btn" tabindex="9"><i class="glyphicon glyphicon-forward"></i></button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="CashRemoveFormula();" class="btn" tabindex="9"><i class="glyphicon glyphicon-backward"></i></button></li>
+                    </ul>
+                </div>
+                <div class="form-group">
+                    {{CashDetail.CashFormulaDescription}}
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+        </ul>
+    </div>
+</div>

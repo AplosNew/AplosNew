@@ -1,0 +1,101 @@
+﻿<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> System Admin</h3>
+<div class="form-elements form-horizontal" ng-form="modelForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 col-md-4 control-label">Company Group<sup>*</sup></label>
+            <div class="col-sm-4 col-md-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="model.CompanyGroupId" ng-options="item.Value as item.Text for item in companyGroupList" ng-change="getData();"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="row text-right">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Username</th>
+                <th>EmployeeId</th>
+                <th>FullName</th>
+                <th>DOB</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>AuthToken</th>
+                <th>Password</th>
+                <th>Type</th>
+                <th>Active</th>
+                <th>Archive</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in userList|itemsPerPage:$root.pageSize" total-items="$root.total_count">
+                <td>{{x.Id}}</td>
+                <td>{{x.UserId}}</td>
+                <td>{{x.EmployeeId}}</td>
+                <td>{{x.FullName}}</td>
+                <td>{{x.DateOfBirth}}</td>
+                <td>{{x.Phone}}</td>
+                <td>{{x.Email}}</td>
+                <td>{{x.AuthToken}}</td>
+                <td>
+                    {{x.Password}}
+                    <i class="glyphicon glyphicon-eye-open" ng-click="DecryptText(x.Password,$index)"></i>
+                </td>
+                <td>{{x.Type}}</td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+                <td>{{x.Archive?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<div class="modal fade site-modal in" id="Popup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header"> User Password <button type="button" class="close" data-dismiss="modal">&times;</button> </div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-12 col-sm-12 form-elements form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Password :</label>
+                        <div class="col-sm-8">
+                            <label class="control-label">{{encryptDecrypt.Decrypt}}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="closePopUp()" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

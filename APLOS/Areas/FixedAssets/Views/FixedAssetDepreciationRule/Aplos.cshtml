@@ -1,0 +1,218 @@
+﻿<style>
+    .remove-left-space {
+        padding-left: 0px;
+    }
+
+    .remove-right-space {
+        padding-right: 0px;
+    }
+</style>
+<togglable name="Depreciation Rule Information"></togglable>
+<div class="form-elements  form-horizontal" ng-form id="DepreciationRule" name="depreciationRuleForm">
+    <input type="hidden" ng-model="depreciationRule.Id">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Depreciation Rules</label>
+                <div class="col-sm-6 remove-right-space">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="depreciationRule.DepreciationRules" tabindex="1">
+                            <option></option>
+                            <option value="ReducingBalance">Reducing Balance</option>
+                            <option value="StraightLine">Straight  Line</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Description<sup>*</sup></label>
+                <div class="col-sm-6 remove-right-space show-message">
+                    <input maxlength="50" type="text" name="Description" ng-model="depreciationRule.Description" class="form-control" required tabindex="3">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                <div class="col-sm-5  show-message">
+                    <input maxlength="10" type="text" name="Code" ng-model="depreciationRule.Code" class="form-control"  tabindex="2">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12  col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Factor<sup>*</sup></label>
+                <div class="col-sm-6 remove-right-space show-message">
+                    <input maxlength="50" type="text" n-Decimals="4" name="StandardName" ng-model="depreciationRule.Factor" class="form-control" placeholder="0.0000" tabindex="4">
+                </div>
+                <div class="col-sm-2">
+                    <span>Yearly %</span>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Life Time<sup>*</sup></label>
+                <div class="col-sm-6 remove-right-space show-message">
+                    <input maxlength="50" type="text" n-Decimals="4" name="LifeT ime" ng-model="depreciationRule.LifeTime" class="form-control" placeholder="0.0000" tabindex="6">
+                </div>
+                <div class="col-sm-2">
+                    <span>Year</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Dep. Charged</label>
+                <div class="col-sm-6  remove-right-space">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="depreciationRule.DepreciationCharge"
+                                ng-options="item.Value as item.Text for item in DepreciationChargeList" tabindex="7">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12  col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Salvage Value</label>
+                <div class="col-sm-5">
+                    <input type="text" maxlength="50" name="SalvageValue" ng-model="depreciationRule.SalvageValue" class="form-control" placeholder="0.0000" n-Decimals="4" tabindex="5">
+                </div>
+                <div class="col-sm-3">
+                    <span>% Asset Value</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Depreciation</label>
+                <div class="col-sm-3  remove-right-space">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="depreciationRule.DepreciationPurchase" tabindex="8">
+                            <option></option>
+                            <option value="ReducingBalance">Charged</option>
+                            <option value="StraightLine">Not Charged</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-5">
+                    <span> In the Month of Purchase/Capitalize</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Depreciation</label>
+                <div class="col-sm-3 remove-right-space">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="depreciationRule.DepreciationDisposal" tabindex="9">
+                            <option></option>
+                            <option value="ReducingBalance">Charged</option>
+                            <option value="StraightLine">Not Charged</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-5">
+                    <span>In the Month of Disposal</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Uniform Across The Year</label>
+                <div class="col-sm-3">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="depreciationRule.UniformAcross" tabindex="10">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Active</label>
+                <div class="col-sm-3">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="depreciationRule.Active" tabindex="11">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*<div class="col-xs-12  col-sm-6 col-md-6">
+            <div class="form-group">
+                <div class="col-sm-5">
+                    <span> In the Month of Purchase/Capitalize</span>
+                </div>
+</div>
+            <div class="form-group">
+                <div class="col-sm-5">
+                    <span>In the Month of Disposal</span>
+                </div>
+                </div>
+            </div>*@
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="12"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="13"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+        </div>
+    </div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Description</th>
+                <th>Depreciation Rules</th>
+                <th>Factor</th>
+                <th>Salvage Value</th>
+                <th>Life Time</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in depreciationRules |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.Code}}</td>
+                <td>{{x.Description}}</td>
+                <td>{{x.DepreciationRules}}</td>
+                <td>{{x.Factor}}</td>
+                <td>{{x.SalvageValue}}</td>
+                <td>{{x.LifeTime}}</td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>

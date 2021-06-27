@@ -1,0 +1,1426 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Project Planning Purchase Order
+</h3>
+<div class="form-elements" ng-form id="projectplanningPurchaseOrderNew" name="projectPlanningPurchaseOrderForm">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li> <button ng-click="Clear();" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus"></i> AddNew</button></li>
+                    <li> <button ng-click="getProjectPlanningPurchaseOrder()" class="btn" tabindex="10"><i class="glyphicon glyphicon-search"></i> Search</button></li>
+                </ul>
+            </div>
+        </div>
+        <input type="hidden" ng-model="projectplanningPurchaseOrderNew.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Project Planning<sup>*</sup></label>
+                <div class="col-sm-7  show-message">
+                    <input type="text" name="Project Planning" tabindex="5" ng-model="projectPlanningInfo.Title" class="form-control" required readonly>
+                </div>
+                <div class="col-sm-1">
+                    <button ng-click="getProjectPlanningSearchPopup();" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
+                <div class="col-sm-7 show-message">
+                    <input type="text" name="Vendor" tabindex="3" ng-model="projectplanningPurchaseOrderNew.Vendor" class="form-control" readonly required>
+                </div>
+                <div class="col-sm-1">
+                    <button ng-click="showVendorModal();" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
+                </div>
+                @*<div class="col-sm-1">
+                        <button ng-click="clearVendorCode();" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </div>*@
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="projectplanningPurchaseOrderNew.CurrencyId"
+                                ng-options="item.Value as item.Text for item in CurrencyList" id="CurrencyId"
+                                name="Currency" required tabindex="1" ng-change="getCurrencyName(projectplanningPurchaseOrderNew.CurrencyId)"></select>
+                    </div>
+                </div>
+
+            </div>
+            @*<div class="form-group">
+                <label class="col-sm-4 control-label">Total Amount</label>
+                <div class="col-sm-8">
+                    <input type="text" name="totalAmount" ng-model="projectplanningPurchaseOrderNew.TotalAmount|number:4" class="form-control" readonly tabindex="4" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Total Quantity</label>
+                <div class="col-sm-8">
+                    <input type="text" name="totalQuantity" ng-model="projectplanningPurchaseOrderNew.TotalQuantity" class="form-control" readonly tabindex="4" maxlength="50">
+                </div>
+            </div>*@
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Vendor Reference No</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Vendor Reference No" ng-model="projectplanningPurchaseOrderNew.VendorReferanceNo" class="form-control" tabindex="4" maxlength="50">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Project Planning Requisition<sup>*</sup></label>
+                <div class="col-sm-7  show-message">
+                    @*<input type="text" name="Project Planning" tabindex="5" ng-model="projectPlanningRequisitionInfo.ProjectPlanningId" class="form-control" required readonly>*@
+                    <input type="text" name="Project Planning" tabindex="5" ng-model="projectplanningPurchaseOrderNew.RequisitionTitle" class="form-control" required readonly>
+                </div>
+                <div class="col-sm-1">
+                    <button ng-click="getProjectPlanningRequisitionSearchPopup();" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Planning Code</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Planning Code" ng-model="projectPlanningInfo.Code" class="form-control" readonly tabindex="4" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Exchange Rate</label>
+                <div class="col-sm-6">
+                    <input type="text" name="Exchange Rate" ng-disabled="projectplanningPurchaseOrderNew.ExchangeRate===0" ng-model="projectplanningPurchaseOrderNew.ExchangeRate" n-Decimals="4" class="form-control" tabindex="4">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" name="Exchange Rate" ng-model="projectPlanningInfo.CurrencyName" class="form-control" tabindex="4" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Planning Description</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Planning Description" ng-model="projectPlanningInfo.Description" class="form-control" readonly tabindex="4" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">PO Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="PoDate" id="PoDate" ng-model="projectplanningPurchaseOrderNew.PoDate" tabindex="5" datepicker class="form-control" end-date={{maxDate}} required>
+                    @*<input type="text" ng-model="e.NewDOC" ng-disabled="e.ApprovalStatus == 'Extend'" ng-change="setApprovalDate(e.EmployeeId,$index)" date-format="dd-MM-yyyy" selector="form-control" end-date={{maxDate}} style="width: 110px;" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="8">*@
+
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-sm-12">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li ng-show="projectplanningPurchaseOrderNew.Id !=null"> <button ng-click="ShowProjectPlanningDetailForm();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i>Add Line Item</button></li>
+                    @*<li> <button ng-click="saveMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{projectplanningPurchaseOrders.length>0 ? 'Update':'Save'}}</button></li>*@
+                    <li> <button ng-click="saveMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                </ul>
+            </div>
+        </div>
+        @*ng-disabled="projectplanningPurchaseOrders.length >0"*@
+
+
+        <div class="col-xs-12" ng-show="projectPlanningPOMaterialSavedList.length >0">
+            <div class="table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                            <th>Asset Item</th>
+                            <th>Asset Master</th>
+                            <th>Asset Type</th>
+                            <th>Requisition Quantity</th>
+                            <th>Raised Quantity</th>
+                            <th>Quantity</th>
+                            <th>Rate</th>
+                            <th>Article</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in projectPlanningPOMaterialSavedList">
+                            <td class="text-right table-td">
+                                <ul class="list-inline action-list">
+                                    <li>
+                                        <button ng-click="editProjectPlanningDetail($index, x)" ng-disabled="x.AvgRate > 0" class="btn-action tooltip-here" data-placement="top" title="Edit">
+                                            <i class="glyphicon glyphicon-edit"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="text-right table-td">
+                                <ul class="list-inline action-list">
+                                    <li>
+                                        <button ng-click="valuePassInPORecMasterModal($index, x.Id)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td>{{x.UserName}}</td>
+                            <td>{{x.FixedAssetMaster}}</td>
+                            <td>{{x.AssetType}}</td>
+                            <td>{{x.RequisitionQuantity}}({{x.RequisitionUoM}})</td>
+                            <td>{{x.RaisedQuantity}}({{x.RequisitionUoM}})</td>
+                            <td>{{x.ArtQuantity !=null?x.ArtQuantity:x.Quantity}}({{x.PoRequisitionUoM}})</td>
+                            <td>{{x.ArtQuantity !=null?x.AvgRate:x.Rate}}</td>
+                            <td class="text-right table-td">
+                                <ul class="list-inline action-list">
+                                    <li>
+                                        <button ng-click="materialMasterArticleAddFormPopup(x)" class="btn-action" title="article Assign">
+                                            <i class="glyphicon glyphicon-list"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+@*MasterSerchPopup*@
+<div class="modal fade site-modal in" id="projectPlanningPurchaseOrderPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Project Planning Purchase Order</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="projectplanningPurchaseOrderListParameters.searchBy">
+                                            <option ng-repeat="option in searchByProjectPlanningPurchaseOrderList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="projectplanningPurchaseOrderListParameters.search" ng-enter="GetProjectPlanningPurchaseOrderListData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetProjectPlanningPurchaseOrderListData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Apply</th>
+                                <th>Id</th>
+                                <th>Project Planning</th>
+                                <th>Project Planning Requisition</th>
+                                <th>Vendor</th>
+                                <th>Vendor Reference No</th>
+                                <th>Total Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in projectplanningPurchaseOrders |itemsPerPage:projectplanningPurchaseOrderListParameters.pageSize" total-items="projectplanningPurchaseOrderListParameters.total_count" ng-dblclick="GetProjectPlanningPurchaseOrderInfo(x);">
+                                <td class="text-right table-td">
+                                    <ul class="list-inline action-list">
+                                        <li>
+                                            <button ng-click="valuePassInProjectPlanningPurchaseOrderDelModal($index, x.Id)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td>{{x.Id}}</td>
+                                <td>{{x.Title}}</td>
+                                <td>{{x.RequisitionTitle}}</td>
+                                <td>{{x.Vendor}}</td>
+                                <td>{{x.VendorReferanceNo}}</td>
+                                <td>{{x.TotalQuantity}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="GetFixedAssetPurchaseOrderListData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="projectPlanningCloseListPopUp()" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*ProjectPlanningSerarchPopUp*@
+<div class="modal fade site-modal in" id="projectPlanningPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Project Planning</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="projectPlanningListParameters.searchBy">
+                                            <option ng-repeat="option in searchByProjectPlanningList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="projectPlanningListParameters.search" ng-enter="GetProjectPlanningListData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetProjectPlanningListData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Responsible Person</th>
+                                <th>Entity</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in projectPlannings |itemsPerPage:projectPlanningListParameters.pageSize" total-items="projectPlanningListParameters.total_count" ng-dblclick="GetProjectPlanningInfo(x);">
+                                <td>{{x.Code}}</td>
+                                <td>{{x.Title}}</td>
+                                <td>{{x.Description}}</td>
+                                <td>{{x.ResponsiblePersonName}}</td>
+                                <td>{{x.EntityName}}</td>
+                                <td>{{x.Status}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="GetProjectPlanningListData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="budgetMasterSelectdCloseListPopUp();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*AssetItemSerarchPopUp*@
+<div class="modal fade site-modal in" id="projectPlanningRequisitionPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Project Planning Requisition</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="projectPlanningRequisitionListParameters.searchBy">
+                                            <option ng-repeat="option in searchByProjectPlanningRequisitionList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="projectPlanningRequisitionListParameters.search" ng-enter="GetProjectPlanningRequisitionListData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetProjectPlanningRequisitionListData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Requisition</th>
+                                <th>Requisition Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in projectPlanningRequisitions |itemsPerPage:projectPlanningRequisitionListParameters.pageSize" total-items="projectPlanningRequisitionListParameters.total_count" ng-dblclick="GetProjectPlanningRequisitionInfo(x);">
+                                <td>{{x.Description}}</td>
+                                <td>{{x.RequisitionDate | dateFiltering}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="GetProjectPlanningRequisitionListData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="budgetMasterSelectdCloseListPopUp();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*ProjectPlanningRequisitionSerarchPopUp*@
+<div class="modal fade site-modal in" id="projectPlanningPurchaseOrderDetailFormPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:90%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Asset Items</h4>
+            </div>
+            <div class="modal-body text-center">
+                <div class="site-tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Asset</a></li>
+                        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Others</a></li>
+                    </ul>
+                </div>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                        <div class="form-group">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="getProjectPlanningDetailListData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus">Add</i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="table-responsive modal-table"  ng-show="ProjectPlanningPurchaseOrderDetailSelectedList.length>0">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Apply</th>
+                                        <th>Asset Item</th>
+                                        <th>Asset Master</th>
+                                        <th>Asset Type</th>
+                                        <th>Requisition Quantity</th>
+                                        <th>Raised Quantity</th>
+                                        <th>Balace Quantity</th>
+                                        <th>PO UoM</th>
+                                        <th>Quantity</th>
+                                        <th>Rate <span ng-show="currencyName">({{currencyName}})</span></th>
+                                        <th>Rate <span ng-show="projectPlanningInfo.CurrencyName">({{projectPlanningInfo.CurrencyName}})</span></th>
+                                        <th>Amount <span ng-show="currencyName">({{currencyName}})</span></th>
+                                        <th>Amount <span ng-show="projectPlanningInfo.CurrencyName">({{projectPlanningInfo.CurrencyName}})</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in ProjectPlanningPurchaseOrderDetailSelectedList" ng-class="{unsaveRow : x.Id==null}">
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="valuePassInBudgetSelectedDelModal($index, x.Id)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                        <i class="glyphicon glyphicon-remove"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td>{{x.UserName}}</td>
+                                        <td>{{x.FixedAssetName}}</td>
+                                        <td>{{x.AssetType}}</td>
+                                        <td>{{x.RequisitionQuantity}}({{x.RequisitionUOM}})</td>
+                                        <td>{{x.RaisedQuantity}}</td>
+                                        <td>{{x.RequisitionQuantity-x.RaisedQuantity}}</td>
+                                        <td style="width:144px">
+                                            <div class="select-style">
+                                                <select class="form-control" required ng-model="x.AlternativeUomId"
+                                                        ng-options="item.Value as item.Text for item in x.alernativeUomLists" id="AlternativeUomId"
+                                                        name="AlternativeUom" tabindex="1">
+                                                    <option></option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-group">
+                                                <div class="col-sm-12">
+                                                    <input type="text" name="Quantity" class="form-control" required only-Numbers ng-model="x.Quantity" ng-disabled="x.AlternativeUomId ===null" />
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style="width:120px">
+                                            <div class="form-group">
+                                                <div class="col-sm-12">
+                                                    <input type="text" name="Rate" class="form-control" required n-Decimals="4" ng-model="x.Rate" />
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ x.Rate* projectplanningRequisitionNew.ExchangeRate| number:4}}</td>
+                                        <td>{{ x.Quantity * x.Rate| number:4}}</td>
+                                        <td>{{x.Quantity * x.Rate* projectplanningPurchaseOrderNew.ExchangeRate| number:4}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                        <div class="form-group">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="getProjectPlanningRMMNonAssetListData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus">Add</i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="table-responsive modal-table" ng-show="ProjectPlanningPurchaseOrderDetailSelectedList.length>0">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Apply</th>
+                                        <th>Asset Item</th>
+                                        <th>Asset Master</th>
+                                        <th>Asset Type</th>
+                                        <th>Requisition Quantity</th>
+                                        <th>Raised Quantity</th>
+                                        <th>Balace Quantity</th>
+                                        <th>Base UoM</th>
+                                        <th>Po UoM</th>
+                                        <th>Quantity</th>
+                                        <th>Rate <span ng-show="currencyName">({{currencyName}})</span></th>
+                                        <th>Rate <span ng-show="projectPlanningInfo.CurrencyName">({{projectPlanningInfo.CurrencyName}})</span></th>
+                                        <th>Amount <span ng-show="currencyName">({{currencyName}})</span></th>
+                                        <th>Amount <span ng-show="projectPlanningInfo.CurrencyName">({{projectPlanningInfo.CurrencyName}})</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in ProjectPlanningPurchaseOrderDetailSelectedList" ng-class="{unsaveRow : x.Id==null}">
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="valuePassInBudgetSelectedDelModal($index, x.Id)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                        <i class="glyphicon glyphicon-remove"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td>{{x.UserName}}</td>
+                                        <td>{{x.FixedAssetName}}</td>
+                                        <td>{{x.AssetType}}</td>
+                                        <td>{{x.RequisitionQuantity}}</td>
+                                        <td>{{x.RaisedQuantity}}</td>
+                                        <td>{{x.RequisitionQuantity-x.RaisedQuantity}}</td>
+                                        <td>{{x.BaseUom}}</td>
+                                        <td style="width:144px">
+                                            <div class="select-style">
+                                                <select class="form-control" required ng-model="x.AlternativeUomId"
+                                                        ng-options="item.Value as item.Text for item in x.alernativeUomLists" id="AlternativeUomId"
+                                                        name="AlternativeUom" tabindex="1">
+                                                    <option></option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-group">
+                                                <div class="col-sm-12">
+                                                    <input type="text" name="Quantity" class="form-control"  only-Numbers ng-model="x.Quantity" ng-disabled="x.AlternativeUomId ===null" />
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style="width:120px">
+                                            <div class="form-group">
+                                                <div class="col-sm-12">
+                                                    <input type="text" name="Rate" class="form-control"  n-Decimals="4" ng-model="x.Rate" />
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ x.Rate* projectplanningRequisitionNew.ExchangeRate| number:4}}</td>
+                                        <td>{{ x.Quantity * x.Rate| number:4}}</td>
+                                        <td>{{x.Quantity * x.Rate* projectplanningPurchaseOrderNew.ExchangeRate| number:4}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="PPPurchaseOrderDetailSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*ProjectPlanningPOMasterDetail*@
+<div class="modal fade site-modal in" id="projectPlanningListModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:75%">
+        <div class="modal-content">
+            <div class="modal-header">
+                Material Master
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="projectPlanningDetailListParameters.searchBy">
+                                            <option ng-repeat="option in searchByProjectPlanningDetailList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="projectPlanningDetailListParameters.search" ng-enter="loadProjectPlanningDetailListData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadProjectPlanningDetailListData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Asset Item</th>
+                                <th>Asset Master</th>
+                                <th>Asset Type</th>
+                                <th>Requisition UoM</th>
+                                <th>Requisition Quantity</th>
+                                <th>Raised Quantity</th>
+                                <th>Balace Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in projectPlanningDetailList |itemsPerPage:projectPlanningDetailListParameters.pageSize" pagination-id="metaData.name + 'projectPlanningDetailList'" total-items="projectPlanningDetailListParameters.total_count">
+                                @*<tr dir-paginate="x in projectPlanningRequisitions |itemsPerPage:projectPlanningRequisitionListParameters.pageSize" pagination-id="metaData.name + 'projectPlanningRequisitions'" total-items="projectPlanningRequisitionListParameters.total_count">*@
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+
+                                            <input type="checkbox" id="{{x.Id}}" ng-model="x.Flag" checked="{{x.Flag}}" ng-click="selectPODetailChValue($event,x)">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.FixedAssetName}}</td>
+                                <td>{{x.AssetType}}</td>
+                                <td>{{x.RequisitionUOM}}</td>
+                                <td>{{x.RequisitionQuantity}}</td>
+                                <td>{{x.RaisedQuantity}}</td>@*RaisedQuantity*@
+                                <td>{{x.RequisitionQuantity-x.RaisedQuantity}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'projectPlanningRequisitions'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadProjectPlanningDetailListData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="projectPlanningModalCloseListPopUp();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*ProjectPlanningPOMasterRequisitionNonAssetList*@
+<div class="modal fade site-modal in" id="projectPlanningRMMNonAssetListModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:75%">
+        <div class="modal-content">
+            <div class="modal-header">
+                Material Master
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="projectPlanningDetailListParameters.searchBy">
+                                            <option ng-repeat="option in searchByProjectPlanningDetailList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="projectPlanningDetailListParameters.search" ng-enter="loadProjectPlanningDetailListData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadProjectPlanningDetailListData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Asset Item</th>
+                                <th>Asset Master</th>
+                                <th>Asset Type</th>
+                                <th>Base UoM</th>
+                                <th>Requisition Quantity</th>
+                                <th>Raised Quantity</th>
+                                <th>Balace Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in projectPlanningDetailList |itemsPerPage:projectPlanningDetailListParameters.pageSize" pagination-id="metaData.name + 'projectPlanningDetailList'" total-items="projectPlanningDetailListParameters.total_count">
+                                @*<tr dir-paginate="x in projectPlanningRequisitions |itemsPerPage:projectPlanningRequisitionListParameters.pageSize" pagination-id="metaData.name + 'projectPlanningRequisitions'" total-items="projectPlanningRequisitionListParameters.total_count">*@
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" id="{{x.Id}}" ng-model="x.Flag" checked="{{x.Flag}}" ng-click="selectPODetailChValue($event,x)">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.FixedAssetName}}</td>
+                                <td>{{x.AssetType}}</td>
+                                <td>{{x.BaseUom}}</td>
+                                <td>{{x.RequisitionQuantity}}</td>
+                                <td>{{x.RaisedQuantity}}</td>@*RaisedQuantity*@
+                                <td>{{x.RequisitionQuantity-x.RaisedQuantity}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'projectPlanningRequisitions'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadProjectPlanningDetailListData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="projectPlanningRMMNonAssetCloseListPopUp();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*Vendor search*@
+<div class="modal fade site-modal in" id="vendormodal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Vendor
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="vendorListParameters.searchBy">
+                                            <option ng-repeat="option in searchbyVendorlist" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="vendorListParameters.search" ng-enter="loadVendorData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadVendorData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th ng-repeat="h in searchbyVendorlist">{{h.Text}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in vendorData  |itemsPerPage:vendorListParameters.pageSize" pagination-id="metaData.name + 'vendorData'" total-items="vendorListParameters.total_count" ng-dblclick="getVendorCode(x.Id, x.UserName);">
+                                <td ng-repeat="hh in searchbyVendorlist">{{x[hh.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'vendorData'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="GetAccDepreciationGLTypeListData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+@*Material Master Modal*@
+@*<div class="modal fade site-modal in" id="materialMasterFormModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:90%">
+        <div class="modal-content" ng-form name="projectPlanningPOmaterialMasterForm">
+            <div class="modal-header">
+                Material Master
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="form-group">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="projectPlanningMaterialMasterSearchPopup();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i>Add Material Master</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Apply</th>
+                                <th>Code</th>
+                                <th>User Name</th>
+                                <th>BaseUoM</th>
+                                <th>Planning Quantity</th>
+                                <th>Raised Quantity </th>
+                                <th>Balance Quantity</th>
+                                <th>POUOM</th>
+                                <th>Quantity</th>
+                                <th>Rate <span ng-show="currencyName">({{currencyName}})</span></th>
+                                <th>Rate <span ng-show="projectPlanningInfo.CurrencyName">({{projectPlanningInfo.CurrencyName}})</span></th>
+                                <th>Amount <span ng-show="currencyName">({{currencyName}})</span></th>
+                                <th>Amount <span ng-show="projectPlanningInfo.CurrencyName">({{projectPlanningInfo.CurrencyName}})</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in ProjectPlaningPOMaterialListForSave" ng-show="x.ProjectPlanningPurchaseOrderDetailId==ProjectPlanningPurchaseOrderDetailId" ng-dblclick="checkIsRegisterApply(x);">
+                                <td class="text-right table-td">
+                                    <ul class="list-inline action-list">
+                                        <li>
+                                            <button ng-click="valuePassInMaterialFormDelModal($index, x.Id)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.BaseUom}}</td>
+                                <td>{{x.PlanningQuantity}}({{x.PlanningUOM}})</td>
+                                <td>{{x.ReverseQuantity}}({{x.PlanningUOM}})</td>
+
+                                <td>{{x.PlanningQuantity-(x.ReverseTotalQuantity+x.ReverseQuantity)}}</td>
+                                <td style="width:144px">
+                                    <div class="form-group" show-errors>
+                                        <div class="col-sm-12 show-message">
+                                            <div class="select-style">
+                                                <select class="form-control" required ng-model="x.AlternativeUomId"
+                                                        ng-options="item.Value as item.Text for item in x.alernativeUomLists" id="AlternativeUomId"
+                                                        name="AlternativeUom" tabindex="1">
+                                                    <option></option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group" show-errors>
+                                        <div class="col-sm-12 show-message">
+                                            <input type="text" name="Quantity" class="form-control" required only-Numbers ng-model="x.Quantity" ng-disabled="x.AlternativeUomId ===null" ng-keyup="convertMaterialUOMQuantity($index,x.PlanningUOMId,x.AlternativeUomId,x.Quantity,x.PlanningQuantity-x.ReverseTotalQuantity-x.ReverseQuantity)" ng-change="getTotalResult()" />
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="width:120px">
+                                    <div class="form-group" show-errors>
+                                        <div class="col-sm-12 show-message">
+                                            <input type="text" name="Rate" class="form-control" required n-Decimals="4" ng-model="x.Rate" ng-change="getTotalResult()" />
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ x.Rate* projectplanningPurchaseOrderNew.ExchangeRate| number:4}}</td>
+                                <td>{{ x.Quantity * x.Rate| number:4}}</td>
+                                <td>{{x.Quantity * x.Rate* projectplanningPurchaseOrderNew.ExchangeRate| number:4}}</td>
+                            </tr>
+                            <tr style="background: #ddd;">
+                                <td colspan="8" class="text-left"><b>Sub Total: </b></td>
+                                <td class="text-left" style="padding-left: 35px;"></td>
+                                <td colspan="2"></td>
+                                <td><b>{{totalBdtAmount| number:4}}</b></td>
+                                <td>&nbsp;&nbsp;&nbsp;<b>{{totalAmount| number:4}}</b></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="ProjectPlanningPOMaterialMasterSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>*@
+<div class="modal fade site-modal in" id="MaterialMasterModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:75%">
+        <div class="modal-content">
+            <div class="modal-header">
+                Project Planning Material Master
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="materialMasterListParameters.searchBy">
+                                            <option ng-repeat="option in searchbyMaterailMasterList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="materialMasterListParameters.search" ng-enter="loadMaterialMasterData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadMaterialMasterData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Code</th>
+                                <th>User Name</th>
+                                <th>BaseUom</th>
+                                <th>Material Group</th>
+                                <th>Planning Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in projectPlanningMaterialMasterList  |itemsPerPage:materialMasterListParameters.pageSize" pagination-id="metaData.name + 'projectPlanningMaterialMasterList'" total-items="materialMasterListParameters.total_count">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" id="{{x.Id}}" ng-model="x.Flag" ng-checked="x.Flag">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.BaseUom}}</td>
+                                <td>{{x.MaterialGroupMaster}}</td>
+                                <td>{{x.Quantity}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="5"
+                                             pagination-id="metaData.name + 'projectPlanningMaterialMasterList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadMaterialMasterData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="materialMasterModalCloseListPopUp();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*MachineType Master Modal*@
+@*<div class="modal fade site-modal in" id="projectPlanningPOMachineTypeMasterFormModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:75%" ng-form="machineTypeMasterForm">
+        <div class="modal-content">
+            <div class="modal-header">
+                Asset Item
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="form-group">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="machineTypeMasterSearchPopup();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i>Add Asset Item</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Apply</th>
+                                <th>Asset Item</th>
+                                <th> Planning Asset Item Quantity</th>
+                                <th>Balance Quantity</th>
+                                <th>Raised Quantity </th>
+                                <th>PO UOM</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in ProjectPlaningPurchaseOrderMachineTypeListForSave" ng-show="x.ProjectPlanningPurchaseOrderDetailId==ProjectPlanningPurchaseOrderDetailId">
+                                <td class="text-right table-td">
+                                    <ul class="list-inline action-list">
+                                        <li>
+                                            <button ng-click="valuePassInMachineFormDelModal($index, x.Id)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td>{{x.AssetItemName}}</td>
+                                <td>{{x.ProjectPlanningMachineTypeQuantity}}({{x.PlanningUOM}})</td>
+                                <td>{{x.ProjectPlanningMachineTypeQuantity-x.ReverseTotalQuantity-x.ReverseQuantity}}</td>
+                                <td>{{x.ReverseQuantity}}({{x.PlanningUOM}})</td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="col-sm-12">
+                                            <div class="select-style">
+                                                <select class="form-control" required ng-model="x.POMachineTypeUomId"
+                                                        ng-options="item.Value as item.Text for item in x.AlernativeUomLists" id="uom"
+                                                        name="AlternativeUom" tabindex="1">
+                                                    <option></option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </td>
+                                <td>
+                                    <div class="form-group" show-errors>
+                                        <div class="show-message">
+                                            <input type="text" name="Quantity" maxlength="15" ng-model="x.Quantity" ng-keyup="convertUOMQuantity($index,x.PlanningUOMId,x.POMachineTypeUomId,x.Quantity,x.ProjectPlanningMachineTypeQuantity-x.ReverseTotalQuantity-x.ReverseQuantity)" class="form-control" required tabindex="3">
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="ProjectPlanningPOMachineTypeSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>*@
+@*<div class="modal fade site-modal in" id="machineTypeMasterModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:75%">
+        <div class="modal-content">
+            <div class="modal-header">
+                Asset Item
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="machineTypeListParameters.searchBy">
+                                            <option ng-repeat="option in searchByMachineTypeList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="machineTypeListParameters.search">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadMachineTypeMasterData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Asset Item</th>
+                                <th>Asset Class</th>
+                                <th>Asset SubClass</th>
+                                <th>Asset Master</th>
+                                <th>Base UoM</th>
+                                <th>Planning UOM</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in machineTypeMasterList  |itemsPerPage:machineTypeListParameters.pageSize" pagination-id="metaData.name + 'machineTypeMasterList'" total-items="machineTypeListParameters.total_count">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" id="{{x.Id}}" ng-model="x.Flag" ng-checked="x.Flag">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.AssetItemName}}</td>
+                                <td>{{x.AssetClassName}}</td>
+                                <td>{{x.AssetSubClassName}}</td>
+                                <td>{{x.FixedAssetMasterName}}</td>
+                                <td>{{x.BaseUOM}}</td>
+                                <td>{{x.PlanningUOM}}</td>
+                                <td>{{x.Quantity}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'machineTypeMasterList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadMachineTypeMasterData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="machineTypeMasterModalCloseListPopUp();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>*@
+
+<div class="modal fade site-modal in" id="ProjectPlanningDetailEditPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Edit purchase order Requisition Detail</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-elements" ng-form id="projectPlanning" name="projectPlanningBudgetForm">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Asset Item</th>
+                                            <th>Asset Master</th>
+                                            <th>Asset Type</th>
+                                            <th>Requisition Quantity</th>
+                                            <th>Raised Quantity</th>
+                                            <th>Balance Quantity</th>
+                                            <th>Base UoM</th>
+                                            <th>PO UOM</th>
+                                            <th>Quantity</th>
+                                            <th>Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>{{ProjectPlanningPOSavedEditTempList.UserName}}</td>
+                                            <td>{{ProjectPlanningPOSavedEditTempList.FixedAssetName}}</td>
+                                            <td>{{ProjectPlanningPOSavedEditTempList.AssetType}}</td>
+                                            <td>{{ProjectPlanningPOSavedEditTempList.RequisitionQuantity}}</td>
+                                            <td>{{ProjectPlanningPOSavedEditTempList.RaisedQuantity}}</td>
+                                            <td>{{ProjectPlanningPOSavedEditTempList.RequisitionQuantity - ProjectPlanningPOSavedEditTempList.RaisedQuantity}}</td>
+                                            <td>{{ProjectPlanningPOSavedEditTempList.BaseUom}}</td>
+                                            <td style="width:200px">
+                                                <div class="select-style">
+                                                    <select class="form-control" required ng-model="ProjectPlanningPOSavedEditTempList.AlternativeUomId"
+                                                            ng-options="item.Value as item.Text for item in ProjectPlanningPOSavedEditTempList.alernativeUomLists" id="AlternativeUomId"
+                                                            name="AlternativeUom" tabindex="1">
+                                                        <option></option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group">
+                                                    <div class="">
+                                                        <input type="text" name="Amount" only-Numbers maxlength="15" ng-model="ProjectPlanningPOSavedEditTempList.Quantity" class="form-control" tabindex="3">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group" show-errors>
+                                                    <div class="show-message">
+                                                        <input type="text" name="Amount" only-Numbers maxlength="15" ng-model="ProjectPlanningPOSavedEditTempList.Rate" class="form-control" required tabindex="3">
+                                                    </div>
+                                                </div>
+                                            </td>
+
+
+
+
+
+
+
+                                            @*<td>
+                                                    <div class="form-group" show-errors>
+                                                        <div class="show-message">
+                                                            <input type="text" name="Amount" only-Numbers maxlength="15" ng-model="ProjectPlanningDetailSavedEditTempList.Quantity" class="form-control" required tabindex="3">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="form-group" show-errors>
+                                                        <div class="show-message">
+                                                            <input type="text" name="Amount" only-Numbers maxlength="15" ng-model="ProjectPlanningDetailSavedEditTempList.Rate" class="form-control" required tabindex="3">
+                                                        </div>
+                                                    </div>
+                                                </td>*@
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="projectPlanningDetailEditSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*Material Master Article*@
+<div class="modal fade site-modal in" id="materialMasterArticleFormModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:90%">
+        <div class="modal-content" ng-form name="projectPlanningPOmaterialMasterArticleForm">
+            <div class="modal-header">
+                Article
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="form-group">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="materialMasterArticleSearchPopup();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i>Add Article</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Delete</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th ng-repeat="x in articleHead">{{x.MaterialAttributeName}}</th>
+                                <th>PO Material UoM</th>
+                                <th>Requisition Quantity</th>
+                                <th>Raised Quantity</th>
+                                <th>Balance Quantity</th>
+                                <th>Quantity</th>
+                                <th>Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in PPRequisitionMaterialArticleListForSave" style="white-space: normal;">
+                                <td class="text-right table-td">
+                                    <ul class="list-inline action-list">
+                                        <li>
+                                            <button ng-click="valuePassInPOArticleMasterModal($index,x)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td ng-repeat="y in articleHead">{{x[y.MaterialAttributeName]}}</td>
+                                <td>{{x.PoRequisitionUoM}}</td>
+                                <td>{{x.RequisitionQuantity}}</td>
+                                <td>{{x.RaisedQuantity}}</td>
+                                <td>{{x.RequisitionQuantity-x.RaisedQuantity}}</td>
+                                <td><input type="text" name="Rate" class="form-control" style="width:100px" required n-Decimals="4" ng-model="x.Quantity" ng-change="getCalculateValue(x)" /></td>
+                                <td><input type="text" name="Rate" class="form-control" style="width:100px" required n-Decimals="4" ng-model="x.Rate" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="ProjectPlanningRequisitionMaterialMasterAticleSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="materialMasterArticleSearchPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:75%">
+        <div class="modal-content">
+            <div class="modal-header">
+                Material Master Articel
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center form-elements">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal ">
+                        <div class="form-group" ng-repeat="l in list" ng-if="$index % 2 === 0">
+                            <label class="col-sm-4 control-label">{{l.labelName}}</label>
+                            <div class="col-sm-8">
+                                <div ng-dropdown-multiselect="" options="l.valueListName" selected-model="l.modelName"
+                                     extra-settings="multiSelectSettings" events="onItemSelect($events)"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal" ng-if="$index+1/2 !=0">
+                        <div class="form-group" ng-repeat="l in list" ng-if="$index % 2 != 0">
+                            <label class="col-sm-4 control-label">{{l.labelName}}</label>
+                            <div class="col-sm-8">
+                                <div ng-dropdown-multiselect="" options="l.valueListName" selected-model="l.modelName"
+                                     extra-settings="multiSelectSettings" events="multi4events"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-12 table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Code</th>
+                                    <th>Short Name</th>
+                                    <th>Standard Name</th>
+                                    <th>Requisition Quantity</th>
+                                    <th ng-repeat="x in articleHead">{{x.MaterialAttributeName}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @*<tr ng-repeat="x in setSingleRow | filter: {'Machine Type':(selectedText)}">*@
+
+                                <tr ng-repeat="x in setSingleRow |  filter: {$:(selectedText)}">
+
+                                    <td class="text-right table-td">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" id="{{x.Id}}" ng-model="x.Flag" ng-checked="x.Flag">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>{{x.Code}}</td>
+                                    <td>{{x.ShortName}}</td>
+                                    <td>{{x.StandardName}}</td>
+                                    <td>{{x.RequisitionQuantity}}</td>
+                                    <td ng-repeat="y in articleHead">{{x[y.MaterialAttributeName]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="materialMasterArticleSearchModalCloseListPopUp();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic data-modalid="confirmgenericPORecDetailSelectedItem" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeletePORecDetailSelectedItem()">
+</confirm-archive-generic>
+@*<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeleteBudgetItem()">
+</confirm-archive-generic>*@
+@*<confirm-archive-generic data-modalid="confirmgenericPopUpForMaterialForm" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeleteMaterialSavedItem()">
+</confirm-archive-generic>*@
+@*<confirm-archive-generic data-modalid="confirmgenericPODetailPopUp" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeletePODetailItem()">
+</confirm-archive-generic>*@
+<confirm-archive-generic data-modalid="confirmgenericPurchaseOrderSelectedPopUp" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeletePurchaseOrderSelectedItem()">
+</confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmgenericPODetailSelectedPopUp" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeletePODetailSelectedItem()">
+</confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmgenericPOArticleDetailSelectedItem" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="confirmgenericPOArticleDetailSelectedItem()">
+</confirm-archive-generic>
+@*<confirm-archive-generic data-modalid="confirmgenericPopUpForMachineForm" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeleteMachineSavedItem()">
+</confirm-archive-generic>*@
+<confirm-modal></confirm-modal>

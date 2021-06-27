@@ -1,0 +1,117 @@
+﻿<togglable name="PO LC MAP"></togglable>
+<div class="row">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSetPOLCMap(1) }"><a ng-click="setTabPOLCMap(1)" href="" aria-controls="general" role="tab" data-toggle="tab">PO Without LC</a></li>
+                <li role="presentation" ng-class="{ active: isSetPOLCMapIndex(2) }"><a ng-click="setTabPOLCMapIndex(2)" href="" aria-controls="general" role="tab" data-toggle="tab">PO With LC</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetPOLCMap(1), active: isSetPOLCMap(1) }">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="Grid123" ej-grid e-datasource="GriddataPOWithOutLC"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="20"></div>
+                                <div e-column e-field="PODate" e-headertext="PODate" e-width="40"></div>
+                                <div e-column e-field="StandardName" e-headertext="Vendor" e-width="80"></div>
+                                <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="20"></div>
+                                <div e-column e-field="Currency" e-headertext="Currency" e-width="15"></div>
+                                <div e-column e-field="OS" e-headertext="Order Specific" e-width="40"></div>
+                                <div e-column e-field="DocRefNo" e-headertext="PINo" e-width="40"></div>
+                                <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="40"></div>
+                                <div e-column e-field="Flag" e-headertext="State" e-width="30"></div>
+                                <div e-column e-template="#PurchaseLCId" e-headertext="Purchase LC No" e-width="130"></div>
+                                <div e-column e-headertext="Actions" e-width="20">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-pencil" title="Update" ng-click="$parent.UpdatePOforLCdata(this)" style="margin: -6px;"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="PurchaseLCId">
+                        <div class="col-sm-12">
+                            <div class="col-sm-9">
+                                <input type="text" hidden ng-model="data.PurchaseLCId" disabled style="color:black;margin-left: -32px;width: 170%;" class="form-control" />
+                                <input type="text" ng-model="data.LCRef" disabled style="color:black;margin-left: -32px;width: 170%;" class="form-control" />
+                            </div>
+                            <div class="col-sm-3">
+                                <button style="margin-left: 14px;" class="btn single-small-btn"><i class="glyphicon glyphicon-search" ng-click="$parent.a($event);"></i></button>
+                            </div>
+                        </div>
+                    </script>
+                </fieldset>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetPOLCMapIndex(2), active: isSetPOLCMapIndex(2) }">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="Grid" ej-grid e-datasource="GriddataPOWithLC"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
+                             e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="40"></div>
+                                <div e-column e-field="PODate" e-headertext="PODate" e-width="50"></div>
+                                <div e-column e-field="StandardName" e-headertext="Vendor" e-width="80"></div>
+                                <div e-column e-field="OrderSpec" e-headertext="Order Specific" e-width="40"></div>
+                                <div e-column e-field="DocRefNo" e-headertext="PINo" e-width="40"></div>
+                                <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
+                                <div e-column e-field="LCRef" e-headertext="LC No" e-width="80"></div>
+                                <div e-column e-field="Flag" e-headertext="State" e-width="30"></div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="ContractPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">@*Contract Wise*@ Purchase LC</h4>
+            </div>
+
+
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="Grid456" ej-grid e-datasource="LcList" e-allowsorting="true"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                             e-recorddoubleclick="recorddoubleclickContract"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="LCRef" e-headertext="LC No" e-width="100"></div>
+                                <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
+                                <div e-column e-field="UDNo" e-headertext="UD No" e-width="100"></div>
+                                <div e-column e-field="MasterLCRef" e-headertext="MasterLC Ref" e-width="100"></div>
+                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="100"></div>
+                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                <div e-column e-field="LCOpeningDate" e-headertext="LCOpening Date" e-width="100"></div>
+                                <div e-column e-field="LCExpiryDate" e-headertext="LCExpiry Date" e-width="100"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
+                                <div e-column e-field="AccountTitle" e-headertext="LCOpening Bank" e-width="100"></div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="CloseContractPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

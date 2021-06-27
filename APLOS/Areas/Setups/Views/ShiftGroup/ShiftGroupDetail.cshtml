@@ -1,0 +1,101 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Shift Group Tag</h3>
+<div class="form-elements row" ng-form name="shiftGroupDetailForm">
+    <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal  form-element-ctrl">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Plant</label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="shiftGroupDetail.PlantId"
+                            ng-options="item.Value as item.Text for item in plantList"
+                            ng-change="getJobLocationOnPlantChange()" required>
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal  form-element-ctrl">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Job Location</label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="shiftGroupDetail.JobLocationId"
+                            ng-options="item.Value as item.Text for item in jobLocationList"
+                            ng-change="getShiftGroupOnLocationChange()" required>
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal  form-element-ctrl">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Shift Group</label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="shiftGroupDetail.ShiftGroupId"
+                            ng-options="item.Value as item.Text for item in shiftGroupCboList"
+                            ng-change="getShiftOnJobLocationChange()" required>
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row text-right">
+    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>User Name</th>
+                <th>Shift Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="x in shiftGroupDetailList">
+                <td>
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" id="{{x.ShiftDefinationId}}" ng-model="x.Flag" ng-checked="x.Flag">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </td>
+                <td>{{x.UserName}}</td>
+                <td>{{x.ShiftType}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="row">
+    <div class="col-xs-12">
+        <ul class="common-btn list-inline text-right">
+            <li>
+                <button ng-click="Save();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button>
+            </li>
+        </ul>
+    </div>
+</div>
+<confirm-modal></confirm-modal>

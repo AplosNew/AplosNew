@@ -1,0 +1,86 @@
+﻿<div class="modal fade site-modal in" id="InvoiceDetailPaymentDetailPopUp" role="dialog" data-backdrop="static">
+    
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            @*<div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closePartyPopUpNew();">&times;</button></div>*@
+            <div class="modal-header">Voucher Print for Set-Off Detail<button type="button" class="close" ng-click="closeInvoiceDetailPaymentDetailPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+
+                @*<div class="row text-right">
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="search-form">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="select-style">
+                                <select ng-model="searchByParty">
+                                    <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-7">
+                            <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="showPartyPopUpNew()">
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2">
+                            <button type="button" ng-click="showPartyPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+
+                @*<div class="row">*@
+                <div class="col-md-12">
+
+                    @*style="color:black;overflow:scroll"*@
+                    <div style="color:black;" id="agingInvoiceSetOffPaymentDetailPopUP" ej-grid e-datasource="AgingInvoiceSetOffPaymentDetailPoPUpList" e-recorddoubleclick="showSetOffDetailPopUP"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                        <div e-columns>
+
+
+                            @*<div e-column e-type="string" e-field="InvoiceId" e-headertext="Invoice Id" e-width="70"></div>*@
+                            <div e-column e-type="string" e-field="InvoiceNo" e-headertext="Invoice No" e-width="70"></div>
+
+                            
+                            @*<div e-column e-field="PartyName" e-headertext="Party" e-width="100" e-filter="false"></div>*@
+
+                            <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="100">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="$parent.printInvoicePaymentDetailVoucherReport(this);" tooltip="Voucher No" class="btn" style="top: 1px;">{{data.VoucherNo}}</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PostingDate" e-headertext="Posting Date" e-width="70"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="PaymentAmount" e-headertext="Payment" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="numeric" @*e-format="{0:0.00}"*@ e-field="CheckNo" e-headertext=" Check No" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="CheckDate" e-headertext="Check Date" e-width="70"></div>
+                            <div e-column e-field="AccountTitle" e-headertext="Bank A/C" e-width="70"></div>
+                            <div e-column e-field="CheckLotNo" e-headertext="CheckLot No" e-width="70"></div>
+
+                            @*<div e-column e-type="numeric" e-format="{0:0.00}" e-field="Gross" e-headertext=" Gross" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SetOff" e-headertext=" SetOff" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Amount" e-headertext=" Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>*@
+
+                        </div>
+
+                    </div>
+                </div>
+                @*</div>*@
+
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeInvoiceDetailPaymentDetailPopUp();" class="btn">Close</button></li>
+                </ul>
+                @*<i>**Showing top 100 {{partyType}} order by Code</i>*@
+
+                @*<script type="text/template" id="hLink">
+                    <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
+                </script>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

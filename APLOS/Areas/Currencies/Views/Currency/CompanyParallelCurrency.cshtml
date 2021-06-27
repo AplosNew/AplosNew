@@ -1,0 +1,117 @@
+﻿<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Company Parallel Currency</h3>
+<div class="form-horizontal form-elements" ng-form id="comParallelCurrency" name="comParallelCurrencyForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-2 col-md-2 control-label"> Company Group</label>
+                <div class="col-sm-3 col-md-4">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="curcomPara.CompanyGroupId" ng-change="changeCurrencyGroup(curcomPara.CompanyGroupId)" ng-options="item.Value as item.Text for item in companyGroupList" ng-disabled="groupCurrencyList.length>0">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-3 col-md-2 control-label">Company<sup>*</sup></label>
+                <div class="col-sm-3 col-md-4 show-message">
+                    <div class="select-style">
+                        <select ng-model="curcomPara.CompanyId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in companyList"
+                                ng-change="onChangecompanyGetlist(curcomPara.CompanyId);companyCurrencyChange(curcomPara.CompanyId)"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th class="col-sm-2">Local Currency</th>
+                    <th class="col-sm-5">Currency Type</th>
+                    <th>Currency</th>
+                    <th>Is Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <label>Local Currency 1</label>
+                    </td>
+                    <td>
+                        <div class="select-style">
+                            <select class="form-control" ng-model="curcomPara.comcurType" required>
+                                <option value="CompanyCurrency">Company Currency</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="select-style">
+                            <select class="form-control" ng-model="curcomPara.comcurId" ng-options="item.Value as item.Text for item in companyCurrencyList" required></select>
+                        </div>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Local Currency 2</label>
+                    </td>
+                    <td>
+                        <div class="select-style">
+                            <select class="form-control" ng-model="curcomPara.GroCurType">
+                                <option value="CompanyGroupCurrency">Company Group Currency</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="select-style">
+                            <select class="form-control" ng-model="curcomPara.groupcurId" ng-options="item.Value as item.Text for item in companyGroupCurrencyList"
+                                    ng-change="hardCurrencyChange(curcomPara.comcurId,curcomPara.groupcurId)"></select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="curcomPara.GroupParrallelCurrencyDel">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Local Currency 3</label>
+                    </td>
+                    <td>
+                        <div class="select-style">
+                            <select class="form-control" ng-model="curcomPara.hardcurType">
+                                <option value="HardCurrency">Hard Currency</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="select-style">
+                            <select class="form-control" ng-model="curcomPara.hardcurId" ng-options="item.Value as item.Text for item in hardCurrencyList"></select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="curcomPara.HardParrallelCurrencyDel">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<toaster-container toaster-options="{'close-button':true, 'animation-class': 'toast-top-center'}"></toaster-container>

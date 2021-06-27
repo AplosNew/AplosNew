@@ -1,0 +1,144 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Legal Salary Structure</h3>
+<div class="form-elements" ng-form name="legalSalaryGradeNewForm">
+    <div class="col-xs-12 col-sm-4 col-md-4  form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="legalSalaryGradeNew.CompanyId" ng-change="companyOnChange()"
+                            ng-options="item.Value as item.Text for item in companyList" name="Company" required tabindex="1">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Effective Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Effective Date" ng-model="legalSalaryGradeNew.EffectiveDate" datepicker class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
+            </div>
+        </div>
+
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4  form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="legalSalaryGradeNew.PlantId" ng-change="getLegalSalaryGradeList();"
+                            ng-options="item.Value as item.Text for item in plantList" name="Plant" required tabindex="3">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Employment Location</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="legalSalaryGradeNew.EmployeeLocationId" ng-options="item.Value as item.Text for item in employmentLocationList" name="Employment Location" tabindex="7"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4  form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-5 control-label">Legal Salary Grade<sup>*</sup></label>
+            <div class="col-sm-7 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="legalSalaryGradeNew.LegalSalaryGradeId" name="Legal Salary Grade" ng-change="load();"
+                            ng-options="item.Value as item.Text for item in legalSalaryGradeList" required tabindex="2">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+       
+    </div>
+
+
+
+    <div class="clearfix"></div>
+    <div class="table-responsive table table-bordered col-md-12" ng-show="legalSalaryList.length>0">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Salary Head</th>
+                    @*<th>Head Category</th>
+                        <th>Entry Currency</th>
+                         <th>Definition Currency</th>
+                         <th>Disbusment Currency</th>*@
+                    <th>Salary Head Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in legalSalaryList">
+                    <td>{{x.SalaryHead}}</td>
+                    @*<td>{{x.HeadCategory}}</td>
+                        <td>{{x.EntryCurrency}}</td>
+                        <td>{{x.DefinitionCurrency}}</td>
+                        <td>{{x.DisbusmentCurrency}}</td>*@
+                    <td>
+                        <input type="text" n-decimals="2" ng-model="x.SalaryHeadValue" class="col-sm-2 form-control text-right" style="margin-top:-5px;margin-bottom:-5px;">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="clearfix"></div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn" tabindex="4"><i class="glyphicon glyphicon-floppy-disk"></i> {{legalSalaryGradeNew.Id==null?'Save':'Update'}}</button></li>
+            <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="5"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="Clear();" class="btn" tabindex="6"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+
+</div>
+<div class="row text-right">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList|orderBy:'name'" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Effective Date</th>
+                <th>Employee Location</th>                
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in legalSalaryGrades |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.Id}}</td>
+                <td>{{x.EffectiveDate}}</td>
+                <td>{{x.EmployeeLocationName}}</td>
+                </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>

@@ -1,0 +1,15491 @@
+﻿using Library.Core;
+using Library.Crosscutting;
+using Library.Data.Repositories;
+using Library.Data.Sql;
+using Library.Data.UnitOfWorks;
+using Library.Model.Enums;
+using Library.Model.Logs;
+using Library.Model.Organizations;
+using Library.Model.Setups;
+using Library.Service.Addresses;
+using Library.Service.Attendances;
+using Library.Service.Helpers;
+using Library.Service.HumanResources;
+using Library.Service.OrderManagements;
+using Library.Service.Organizations;
+using Library.Service.Properties;
+using Library.Service.Setups;
+using Library.ViewModel.Organizations;
+using Library.ViewModel.Setups;
+using OTSBD;
+using Syncfusion.XlsIO;
+using Syncfusion.XlsIO.Implementation;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Net.Mail;
+using System.Text;
+using static Library.Service.Helpers.ReportUtility;
+using static System.Net.Mime.MediaTypeNames;
+
+namespace Library.SchedulingServices.Setups
+{
+    public class MailSenderService : IMailSenderService
+    {
+        #region Constructor
+        private readonly IRepositoryAsync<MailReceiver> _mailReceiverRepository;
+        private readonly IRepositoryAsync<MailReceiverDetail> _mailReceiverDetailRepository;
+        private readonly IRepositoryAsync<MailReceiverServiceMapping> _mailReceiverServiceMappingRepository;
+        private readonly ISMTPConfigurationService _smtpConfigurationService;
+        private readonly IAttendanceManagementService _attendanceManagementService;
+        private readonly IManpowerAttendanceSummary _manpowerAttendanceSummary;
+        private readonly IProductionOrderService _productionOrderService;
+        private readonly ISqlRepository _sqlRepository;
+        private readonly IEntityService _entityService;
+        private readonly IRepositoryAsync<CompanyGroup> _companyGroupRepository;
+        private readonly IRepositoryAsync<Company> _companyRepository;
+        private readonly IRepositoryAsync<MailLog> _mailLogRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMonthlyAttendanceInformation _monthlyAttendanceInformation;
+        //Library.MaterialManagement.JobWork.JobWorkCommon JobWorkCommon = null;
+
+        public MailSenderService(
+              IRepositoryAsync<MailReceiverDetail> mailReceiverDetailRepository
+            , ISMTPConfigurationService smtpConfigurationService
+            , IRepositoryAsync<MailReceiverServiceMapping> mailReceiverServiceMappingRepository
+            , IRepositoryAsync<MailReceiver> mailReceiverRepository
+            , ISqlRepository sqlRepository
+            , IEntityService entityService
+            , IRepositoryAsync<CompanyGroup> companyGroupRepository
+            , IRepositoryAsync<Company> companyRepository
+            , IRepositoryAsync<MailLog> mailLogRepository
+            , IUnitOfWork unitOfWork
+            , IAttendanceManagementService attendanceManagementService
+            , IProductionOrderService ProductionOrderService
+            , IManpowerAttendanceSummary manpowerAttendanceSummary
+            , IMonthlyAttendanceInformation monthlyAttendanceInformation
+              )
+        {
+            _mailReceiverDetailRepository = mailReceiverDetailRepository;
+            _smtpConfigurationService = smtpConfigurationService;
+            _mailReceiverServiceMappingRepository = mailReceiverServiceMappingRepository;
+            _mailReceiverRepository = mailReceiverRepository;
+            _sqlRepository = sqlRepository;
+            _entityService = entityService;
+            _companyGroupRepository = companyGroupRepository;
+            _companyRepository = companyRepository;
+            _mailLogRepository = mailLogRepository;
+            _unitOfWork = unitOfWork;
+            _attendanceManagementService = attendanceManagementService;
+            _productionOrderService = ProductionOrderService;
+            _manpowerAttendanceSummary = manpowerAttendanceSummary;
+            _monthlyAttendanceInformation = monthlyAttendanceInformation;
+        }
+
+        #endregion Constructor
+
+        #region ***************EmailSenderFunction*******************
+        private List<MailViewModel> GetAdministrativeMailList()
+        {
+            var sql = @"SELECT MRD.Id, MRD.UserId, MRD.MailType, ISNULL(U.FullName,MRD.FullName) AS FullName, MRD.Email AS Email, ISNULL(U.Active, CONVERT(BIT, 1)) AS Active  FROM [SCS].[MailReceiverDetail] AS MRD
+						LEFT JOIN [SEC].[User] AS U ON U.Id=MRD.UserId
+						JOIN [SCS].[MailReceiver] AS MR ON MR.Id = MRD.MailReceiverId
+                        WHERE MR.Active = 1 AND MR.MailReceipientType = 'Admin'";
+            return _mailReceiverDetailRepository.SqlQuery<MailViewModel>(sql).ToList();
+        }
+
+        private static MailLog CrateMailLog(string addedBy, string ip, string appVersion, string serviceName, string fileName, MailReceiverServiceMapping item)
+        {
+            return new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = item?.CompanyGroupId,
+                CompanyId = item?.CompanyId,
+                PlantId = item?.PlantId,
+                MailReceiverId = item?.MailReceiverId,
+                SenderName = item?.SenderName,
+                Subject = item?.Subject,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = serviceName,
+                UserId = null,
+                AttachmentName = fileName,
+                IsSuccess = false
+            };
+        }
+
+        public List<MailViewModel> GetMaileList(MailReceiverServiceMapping item)
+        {
+            //clsMailGeneric ob = new clsMailGeneric();
+            var sql = @"SELECT MRD.Id, MRD.UserId, MRD.MailType, ISNULL(U.FullName, MRD.FullName) AS FullName, ISNULL(U.Email, MRD.Email) AS Email, ISNULL(U.Active, CONVERT(BIT, 1)) AS Active  FROM [SCS].[MailReceiverDetail] AS MRD
+
+                        LEFT JOIN[SEC].[User] AS U ON U.Id=MRD.UserId
+                       JOIN [SCS].[MailReceiver] AS MR ON MR.Id = MRD.MailReceiverId
+
+                       WHERE MRD.MailReceiverId= '" + item.MailReceiverId + "' and MR.Active = 1";
+            return _mailReceiverDetailRepository.SqlQuery<MailViewModel>(sql).ToList();
+        }
+
+        /// <summary>
+        /// EmpLeave Approval Mail
+        /// </summary>
+        /// <param name="plantId"></param>
+        /// <param name="emailMessage"></param>
+        /// <param name="toEmailId"></param>
+        /// 
+        public void SendFirstLeaveApproveRequestMail(string empSystemId, string plantId, string emailMessage, string toEmailId, string toEmailEmployeeName, string laEmpSystemId, string laEmpName, string laEmpCode)
+        {
+            var log = new MailLog
+            {
+                AddedBy = "",
+                AddedDate = DateTime.Now,
+                AddedFromIP = "",
+                AppVersion = "",
+                CompanyGroupId = "",
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "EmployeeLeaveApprovalMail",
+                UserId = null,
+                AttachmentName = "N/A",
+                IsSuccess = false,
+                MailGenerator = MailGenerator.Scheduler.ToString(),
+                Remarks = "EmployeeLeaveApprovalMail",
+                Subject = "Requested to Approve Leave of " + laEmpName + " (" + laEmpCode + ")"
+            };
+
+            try
+            {
+                var emailList = GetAdministrativeMailList();
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var companyList = _companyRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                foreach (var companyGroup in companyGroupList)
+                {
+                    log.CompanyGroupId = companyGroup.Id;
+                    var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                    var email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                    var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                    log.CcList = ccList;
+                    var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                    log.BccList = bccList;
+                    var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                    //foreach (var company in companyList.Where(r => r.CompanyGroupId == companyGroup.Id))
+                    //{
+                    if (!string.IsNullOrEmpty(toEmailId))
+                    {
+                        log.SenderEmail = smtpConfigurationCG.SenderSystemEmail;
+                        log.SenderName = smtpConfigurationCG.SenderSystemName;
+                        var MyAppLogin = _sqlRepository.GetDataTable("SELECT MyAppURL from ORG.CompanyGroup where id='" + log.CompanyGroupId + "'").Rows[0]["MyAppURL"].ToString();
+
+                        emailMessage += "<br>" + log.SenderName;
+
+                        emailMessage += "<br><br><br><a href = " + MyAppLogin + "> Please Login Here</a> ";
+                        try
+                        {
+                            var message = email.PrepareMessage(log.SenderName + "<" + log.SenderEmail + ">",
+                                    toEmailEmployeeName + "<" + toEmailId + ">", ccList, bccList, log.Subject, emailMessage);
+
+                            if (message != null)
+                            {
+                                email.Send(message);
+                                log.ToList = toEmailId;
+                                log.CcList = ccList;
+                                log.BccList = bccList;
+                                log.IsSuccess = true;
+                                log.HasAttachment = false;
+                                log.Remarks = "Leave Approval Mail has been send Successfully";
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            log.IsSuccess = false;
+                            log.HasAttachment = false;
+                            log.Remarks = ex.Message;
+                            continue;
+                        }
+
+                    }
+
+                    //}
+                }
+                _mailLogRepository.Insert(log);
+                _unitOfWork.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                //log.Remarks = ex.Message;
+                //_mailLogRepository.Insert(log);
+                //_unitOfWork.SaveChanges();
+                //throw;
+            }
+        }
+
+        /// <summary>
+        /// Approved Employees after preRecruitement Confirmation.
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendPreApprovedEmployeeList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-ApprovedEmployeeList",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var companyList = _companyRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.ApprovedEmployeeList.ToString();
+
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, smtpConfigurationC.IsSSL);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+
+                                var path = SendPreApproved(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        log.IsSuccess = false;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = "Err:ApprovedEmployeeList -" + ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Control Chart Mail
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendControlChart(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-DailyControlChartReport",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.ControlChartMail.ToString();
+
+
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+                    List<MailReceiverServiceMapping> mailServiceList = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping where CompanyGroupId='" + companyGroup.Id + @"' AND ServiceName='" + serviceName + @"'");
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+
+
+                                //ProductionOrderReports con = new ProductionOrderReports(_sqlRepository);
+                                //DataTable dt = _sqlRepository.GetDataTable("SELECT * FROM org.Entity AS e WHERE e.PlantId='" + item.PlantId + @"' AND e.IsProduction=1");
+                                List<string> path = new List<string>();
+
+                                Library.Service.Extension.OrderControl.MailSenderService _service = new Service.Extension.OrderControl.MailSenderService();
+                                IWorkbook workbook1 = _service.ControlChartReportXls(); // ControlChartReportXls();
+                                string reportFileName = "ControlChart" + DateTime.Now.ToString("yyMMdd");
+                                workbook1.Version = ExcelVersion.Excel2016;
+                                var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+                                workbook1.SaveAs(filePath);
+                                workbook1.Close();
+                                path.Add(filePath);
+
+                                if (path.Count > 0)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        for (int i = 0; i < path.Count; i++)
+                                        {
+                                            message.Attachments.Add(new Attachment(path[i].ToString()));
+                                        }
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+
+
+
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                    finally
+                                    {
+                                        for (int i = 0; i < path.Count; i++)
+                                        {
+                                            try
+                                            {
+                                                File.Delete(path[i].ToString());
+                                            }
+                                            catch (Exception ex)
+                                            {
+
+                                            }
+
+                                        }
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Approved Employees After Probation From EmployeeInformation Table
+        /// Enum:ProbationConfirmedEmployeeList
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendProbationApprovedEmployeeList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-ProbationConfirmedEmployeeList",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var companyList = _companyRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.ProbationConfirmedEmployeeList.ToString();
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+
+                                var path = SendProbationApproved(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Pending For Confirmation Probation Approval Email sending Function
+        /// Enum: PendingForProbationApproval
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendProbationPeriodList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-PendingForProbationApproval",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var companyList = _companyRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.PendingForProbationApproval.ToString();
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+
+                                var path = SendProbation(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        ///  Applied for Resignation Employee list
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendAppliedResignationEmployeeList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-AppliedForResignationEmployeeList",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var companyList = _companyRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.AppliedForResignationEmployeeList.ToString();
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+
+                                var path = SendAppliedResignation(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Manual Attendace Report, last day Manual Attendance Status
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendManualAttendanceEmployeeList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-AppliedForResignationEmployeeList",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var companyList = _companyRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.ManualAttendanceNotification.ToString();
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+
+                                var path = SendManualAttendanceNotification(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Approved Employee List for Resignation
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendApprovedResignedEmployeeList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-ResignationApprovedEmployeeList",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.ResignationApprovedEmployeeList.ToString();
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+
+                                var emailList = GetMaileList(item);
+
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+
+                                var path = SendApprovedResignation(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Unapproved Resignations and overdued resignations
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendResignationDueList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-ResignationDue",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var companyList = _companyRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.ResignationDue.ToString();
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+
+                                var emailList = GetMaileList(item);
+
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+
+                                var path = SendResignationDue(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Resignation to be Approved Employee List
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendResignationToBeApprovedList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-ResignationToBeApproved",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var companyList = _companyRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.ResignationToBeApproved.ToString();
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+
+                                var path = SendResignationToBeApproved(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Approved Salary Notification
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        ///    #endregion
+        public void SendApprovedSalaryProcessNotification(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-ApprovedSalaryProcessNotification",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.ApprovedSalaryProcessNotification.ToString();
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+
+                                var path = SendPreApproved(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Separated Employee List After Resignation
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendSaparatedEmployeeList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-SeperatedEmployeeList",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.SeperatedEmployeeList.ToString();
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+
+                                var path = SendSeperatedEmployee(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Increment Due Employee List
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendIncrementDueEmployeeList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-IncrementDue",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.IncrementDue.ToString();
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+
+                                var path = SendIncrementDue(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Daily Attendance Notification
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendDailyAttendanceNotificationList(string addedBy, string ip, string appVersion, string workDate)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-DailyAttendanceNotification",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.DailyAttendanceNotification.ToString();
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, smtpConfigurationC.IsSSL);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, smtpConfigurationCG.IsSSL);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+                                var path = SendDailyAttendanceNotification(item.CompanyGroupId, item.CompanyId, item.PlantId, fileName, workDate, "", "", "", "", "", "", "", "", "", "");
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                        File.Delete(path.ToString());
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Yesterday Absent Notification
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendYesterdayAbsentNotificationList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-YesterdayAbsentNotification",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.YesterdayAbsentNotification.ToString();
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+                                var path = SendYesterdayAbsentNotification(item.CompanyGroupId, item.CompanyId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Daily Missed Punch Notification
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendDailyMissedPunchEmpList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-DailyMissedPuchReport",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.DailyMissedPunch.ToString();
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+                                var path = SendMissedPunchNotification(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Daily Attendance From App
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendDailyAttendanceFromAppList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-DailyAttendanceFromAppReport",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.AttendanceFromApp.ToString();
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+                                var path = SendAttendanceFromAppNotification(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Daily Device Punch Information
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendDailyDevicePunchList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-DailyDevicePunchInformation",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.DailyDevicePunchInformation.ToString();
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+                                var path = SendDailyDevicePunchInfo(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Daily Attendance Summary
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendDailyAttendanceSummary(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-DailyAttendanceSummary",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.DailyAttendanceSummary.ToString();
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+                    List<MailReceiverServiceMapping> mailServiceList = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping where CompanyGroupId='" + companyGroup.Id + @"' AND ServiceName='" + serviceName + @"'");
+                    //List<MailReceiverServiceMapping> list2 = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping");
+                    //var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+                                var path = SendDailyAttendanceSummarySQLEXCEL(item.CompanyGroupId, item.PlantId, fileName, "EXCEL");
+
+                                string readText = SendDailyAttendanceSummarySQLEXCEL(item.CompanyGroupId, item.PlantId, fileName, "HTML");
+
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody + "<br/>" + readText);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Yesterday Missed Punch
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendYesterdayMissedPunchReport(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-YesterdayMissedPunchReport",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.YesterdayMissedPunch.ToString();
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+                    List<MailReceiverServiceMapping> mailServiceList = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping where CompanyGroupId='" + companyGroup.Id + @"' AND ServiceName='" + serviceName + @"'");
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+                                var path = SendYesterdayMissedPunch(item.CompanyGroupId, item.PlantId, fileName, "EXCEL");
+
+
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// MonthlyAttendanceInformation
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendMonthlyAttendanceInformationReport(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-MonthlyAttendanceInformation",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.MonthlyAttendanceInformation.ToString();
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+
+
+                    };
+                    List<MailReceiverServiceMapping> mailServiceList = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping where CompanyGroupId='" + companyGroup.Id + @"' AND ServiceName='" + serviceName + @"'");
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+
+
+                                string filePath = "";
+                                var errorMsg = "";
+                                ExcelEngine excelEngine = null;
+
+                                excelEngine = new ExcelEngine();
+                                try
+                                {
+                                    IWorkbook workbook = _monthlyAttendanceInformation.XlsMonthlyAttendanceSummaryReport(item.CompanyId, item.PlantId, DateTime.Now.Month.ToString(), DateTime.Now.Year.ToString(), "", "ALLSTATUS", null, true, false, false, true, true, true);
+                                    workbook.Version = ExcelVersion.Excel97to2003;
+
+                                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MonthlyAttendanceInformation" + DateTime.Now.ToString("dd-MMM-yyyy") + ".xls");
+                                    workbook.SaveAs(filePath);
+                                    workbook.Close();
+                                    excelEngine.Dispose();
+                                }
+                                catch (Exception ex)
+                                {
+                                    errorMsg = ex.Message;
+                                }
+                                var path = filePath;
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                    finally
+                                    {
+                                        try
+                                        {
+                                            if (!string.IsNullOrEmpty(path.ToString()))
+                                                File.Delete(path);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.Remarks = serviceName + " - " + ex.Message;
+                                            //continue;
+
+                                        }
+                                        finally
+                                        {
+
+                                        }
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Daily Attendance Audit
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendDailyAttendanceAuditReport(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-DailyAttendanceAudit",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            string filePath = "";
+            string path = "";
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.DailyAttendanceAudit.ToString();
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    List<MailReceiverServiceMapping> mailServiceList = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping where CompanyGroupId='" + companyGroup.Id + @"' AND ServiceName='" + serviceName + @"'");
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, smtpConfigurationC.IsSSL);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+
+                                try
+                                {
+                                    IWorkbook workbook = _attendanceManagementService.GetManualOutTimeDateWiseReport("", item.PlantId, item.CompanyId, item.CompanyGroupId, "", DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy"), DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy"));
+                                    var reportFileName = "AtnA" + DateTime.Now.ToString("yyMMdd") + item.PlantId;
+                                    workbook.Version = ExcelVersion.Excel2016;
+                                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xls");
+                                    workbook.SaveAs(filePath);
+                                    workbook.Close();
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
+
+                                path = filePath;
+
+                                if (!string.IsNullOrEmpty(path.ToString()))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path.ToString()));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message.ToString();
+                                        continue;
+                                    }
+                                    finally
+                                    {
+                                        try
+                                        {
+
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.Remarks = serviceName + " - " + ex.Message;
+                                            //continue;
+
+                                        }
+                                        finally
+                                        {
+
+                                        }
+
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+            finally
+            {
+                if (!string.IsNullOrEmpty(path.ToString()))
+                    File.Delete(filePath);
+            }
+        }
+
+        /// <summary>
+        /// Daily Production Report Line Booking
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendDailyProductionReport(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-DailyProductionReport",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            List<string> path = null;
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.DailyProductionReport.ToString();
+
+
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+                    List<MailReceiverServiceMapping> mailServiceList = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping where CompanyGroupId='" + companyGroup.Id + @"' AND ServiceName='" + serviceName + @"'");
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+
+
+                                ProductionOrderReports con = new ProductionOrderReports(_sqlRepository);
+                                DataTable dt = _sqlRepository.GetDataTable("SELECT * FROM org.Entity AS e WHERE e.PlantId='" + item.PlantId + @"' AND e.IsProduction=1");
+                                path = new List<string>();
+                                for (int WB = 0; WB < dt.Rows.Count; WB++)
+                                {
+                                    try
+                                    {
+                                        IWorkbook workbook = con.ProductionReportXls(dt.Rows[WB]["Id"].ToString(), DateTime.Now.ToString("dd-MMM-yyyy"), DateTime.Now.ToString("dd-MMM-yyyy"));
+                                        var reportFileName = "Production Status" + dt.Rows[WB]["UserName"].ToString() + DateTime.Now.ToString("yyMMdd");
+                                        workbook.Version = ExcelVersion.Excel2016;
+                                        var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xls");
+                                        workbook.SaveAs(filePath);
+                                        workbook.Close();
+
+                                        IWorkbook workbook1 = con.LineBookingStatusXls(dt.Rows[WB]["Id"].ToString(), item.PlantId);
+                                        var reportFileName1 = "Line Booking Status" + dt.Rows[WB]["UserName"].ToString() + DateTime.Now.ToString("yyMMdd");
+                                        workbook1.Version = ExcelVersion.Excel2016;
+                                        var filePath1 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName1 + ".xls");
+                                        workbook1.SaveAs(filePath1);
+                                        workbook1.Close();
+
+                                        path.Add(filePath);
+                                        path.Add(filePath1);
+
+                                    }
+                                    catch (Exception)
+                                    {
+
+                                    }
+                                }
+
+                                if (path.Count > 0)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        for (int i = 0; i < path.Count; i++)
+                                        {
+                                            message.Attachments.Add(new Attachment(path[i].ToString()));
+                                        }
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+
+
+
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                    finally
+                                    {
+
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+            finally
+            {
+                for (int i = 0; i < path.Count; i++)
+                {
+                    try
+                    {
+                        File.Delete(path[i].ToString());
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                }
+            }
+        }
+
+        /// <summary>
+        /// Late Attendance Posting(first 10 days of Previous Month) Report
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendLateAttendancePosting(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-LateAttendancePosting",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.LateAttendancePosting.ToString();
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+                    List<MailReceiverServiceMapping> mailServiceList = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping where CompanyGroupId='" + companyGroup.Id + @"' AND ServiceName='" + serviceName + @"'");
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+
+                                string postingDateMonth = "";
+                                DateTime startdate = DateTime.Now;
+                                startdate = new DateTime(startdate.Year, startdate.Month, 1);
+                                int DayNumber = DayNum(DateTime.Now.ToString("dd-MMM-yyyy"), startdate);
+
+                                if (DayNumber >= 0 && DayNumber <= 10)
+                                {
+                                    postingDateMonth = DateTime.Now.AddMonths(-1).AddDays(1).ToString("dd-MMM-yyyy");
+                                }
+                                if (DayNumber > 10 && DayNumber <= 31)
+                                {
+                                    postingDateMonth = DateTime.Now.ToString("dd-MMM-yyyy");
+                                }
+
+
+                                IWorkbook workbook = _attendanceManagementService.GetLateAttendancePostingReport("", item.PlantId, item.CompanyId, item.CompanyGroupId, "", postingDateMonth);
+                                var reportFileName = "LateAttendancePosting" + DateTime.Now.ToString("yyMMdd");
+                                workbook.Version = ExcelVersion.Excel2016;
+                                var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xls");
+                                workbook.SaveAs(filePath);
+                                workbook.Close();
+
+                                var path = filePath;
+
+                                if (!string.IsNullOrEmpty(path.ToString()))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path.ToString()));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                    finally
+                                    {
+                                        try
+                                        {
+                                            if (!string.IsNullOrEmpty(path.ToString()))
+                                                File.Delete(filePath);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.Remarks = serviceName + " - " + ex.Message;
+                                            //continue;
+
+                                        }
+                                        finally
+                                        {
+
+                                        }
+
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Account Delay Posting
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendAccountDelayPosting(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-AccountDelayPosting",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.AccountDelayPosting.ToString();
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+                    List<MailReceiverServiceMapping> mailServiceList = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping where CompanyGroupId='" + companyGroup.Id + @"' AND ServiceName='" + serviceName + @"'");
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+
+                                var path = GetAccountDelayPosting(item.CompanyGroupId, item.PlantId);
+
+
+                                if (!string.IsNullOrEmpty(path.ToString()))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path.ToString()));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                    finally
+                                    {
+                                        try
+                                        {
+                                            if (!string.IsNullOrEmpty(path.ToString()))
+                                                File.Delete(path);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.Remarks = serviceName + " - " + ex.Message;
+                                            //continue;
+
+                                        }
+                                        finally
+                                        {
+
+                                        }
+
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Yesterday OverStayMail
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendYestedayOverstayMail(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-YesterdayOverstay",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.YesterdayOverstay.ToString();
+                ExcelEngine excelEngine = null;
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+                    List<MailReceiverServiceMapping> mailServiceList = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping where CompanyGroupId='" + companyGroup.Id + @"' AND ServiceName='" + serviceName + @"'");
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+                                string filePath = "";
+                                var errorMsg = "";
+                                excelEngine = new ExcelEngine();
+                                try
+                                {
+
+                                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DailyOverStay" + DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy") + ".xlsx");
+                                    IWorkbook workbook = _attendanceManagementService.GetIndividualDailyOT("", item.CompanyGroupId, item.PlantId, "", "", DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy"), DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy"), "0", false, "OverStay", filePath);
+                                    workbook.Version = ExcelVersion.Excel2016;
+
+
+                                    workbook.SaveAs(filePath);
+                                    workbook.Close();
+                                    excelEngine.Dispose();
+                                }
+                                catch (Exception ex)
+                                {
+                                    errorMsg = ex.Message;
+
+
+                                }
+
+
+                                var path = filePath;// _attendanceManagementService.GetIndividualDailyOT("",item.CompanyGroupId, item.PlantId,"","",DateTime.Now.ToString("dd-MMM-yyyy"),DateTime.Now.ToString(),"0","");
+
+
+                                if (!string.IsNullOrEmpty(path.ToString()))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path.ToString()));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                    finally
+                                    {
+                                        try
+                                        {
+                                            if (!string.IsNullOrEmpty(path.ToString()))
+                                                File.Delete(path);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.Remarks = serviceName + " - " + ex.Message;
+                                            //continue;
+
+                                        }
+                                        finally
+                                        {
+
+                                        }
+
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+
+        /// <summary>
+        /// Yesterday OverStayMail
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendDailyAttendanceSummaryPositonWiseMail(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-DailyAttendanceSummaryPositonWise",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.DailyAttendanceSummaryPositionWise.ToString();
+                ExcelEngine excelEngine = null;
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+                    List<MailReceiverServiceMapping> mailServiceList = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping where CompanyGroupId='" + companyGroup.Id + @"' AND ServiceName='" + serviceName + @"'");
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+                                string filePath = "";
+                                var errorMsg = "";
+                                excelEngine = new ExcelEngine();
+                                try
+                                {
+                                    IWorkbook workbook = _manpowerAttendanceSummary.GetCustomizedAttendanceSummaryReport(item.CompanyGroupId, item.CompanyId, item.PlantId, DateTime.Now.ToString("dd-MMM-yyyy"));
+                                    workbook.Version = ExcelVersion.Excel97to2003;
+
+                                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DailyAttendanceSummary" + DateTime.Now.ToString("dd-MMM-yyyy") + ".xls");
+                                    workbook.SaveAs(filePath);
+                                    workbook.Close();
+                                    excelEngine.Dispose();
+                                }
+                                catch (Exception ex)
+                                {
+                                    errorMsg = ex.Message;
+
+
+                                }
+
+
+                                var path = filePath;// _attendanceManagementService.GetIndividualDailyOT("",item.CompanyGroupId, item.PlantId,"","",DateTime.Now.ToString("dd-MMM-yyyy"),DateTime.Now.ToString(),"0","");
+
+
+                                if (!string.IsNullOrEmpty(path.ToString()))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path.ToString()));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                    finally
+                                    {
+                                        try
+                                        {
+                                            if (!string.IsNullOrEmpty(path.ToString()))
+                                                File.Delete(path);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.Remarks = serviceName + " - " + ex.Message;
+                                            //continue;
+
+                                        }
+                                        finally
+                                        {
+
+                                        }
+
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+
+        /// <summary>
+        /// Yesterday OverStayMail
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void SendLastFewDaysPaymentMadeMail(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-LastFewDaysPaymentMade",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.LastFewDaysPaymentMade.ToString();
+                ExcelEngine excelEngine = null;
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+                    List<MailReceiverServiceMapping> mailServiceList = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping where CompanyGroupId='" + companyGroup.Id + @"' AND ServiceName='" + serviceName + @"'");
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+                                string filePath = "";
+                                var errorMsg = "";
+                                excelEngine = new ExcelEngine();
+                                try
+                                {
+                                    ReportUtility ru = new ReportUtility();
+                                    IWorkbook workbook = GetAutoMailLastFewDaysPaymentMadeReportData(item.CompanyGroupId, item.CompanyId, item.PlantId);
+
+                                    var reportFileName = serviceName + DateTime.Now.ToString("yyMMdd") + item.PlantId;
+                                    workbook.Version = ExcelVersion.Excel2016;
+                                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xls");
+
+                                    workbook.SaveAs(filePath);
+                                    workbook.Close();
+                                    excelEngine.Dispose();
+                                }
+                                catch (Exception ex)
+                                {
+                                    errorMsg = ex.Message;
+
+
+                                }
+
+
+                                var path = filePath;// _attendanceManagementService.GetIndividualDailyOT("",item.CompanyGroupId, item.PlantId,"","",DateTime.Now.ToString("dd-MMM-yyyy"),DateTime.Now.ToString(),"0","");
+
+
+                                if (!string.IsNullOrEmpty(path.ToString()))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path.ToString()));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                    finally
+                                    {
+                                        try
+                                        {
+                                            if (!string.IsNullOrEmpty(path.ToString()))
+                                                File.Delete(path);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.Remarks = serviceName + " - " + ex.Message;
+                                            //continue;
+
+                                        }
+                                        finally
+                                        {
+
+                                        }
+
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        public void SendLastFewDaysPayableCreatedMail(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-LastFewDaysPayableCreated",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.LastFewDaysPayableCreated.ToString();
+                ExcelEngine excelEngine = null;
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+                    List<MailReceiverServiceMapping> mailServiceList = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping where CompanyGroupId='" + companyGroup.Id + @"' AND ServiceName='" + serviceName + @"'");
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+                                string filePath = "";
+                                var errorMsg = "";
+                                excelEngine = new ExcelEngine();
+                                try
+                                {
+                                    ReportUtility ru = new ReportUtility();
+
+                                    IWorkbook workbook = GetAutoMailLastFewDaysPayableCreatedData(item.CompanyGroupId, item.CompanyId, item.PlantId);
+                                    workbook.Version = ExcelVersion.Excel2016;
+                                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, serviceName + DateTime.Now.ToString("dd-MMM-yyyy") + ".xlsx");
+                                    workbook.SaveAs(filePath);
+                                    workbook.Close();
+                                    excelEngine.Dispose();
+                                }
+                                catch (Exception ex)
+                                {
+                                    errorMsg = ex.Message;
+
+
+                                }
+
+
+                                var path = filePath;// _attendanceManagementService.GetIndividualDailyOT("",item.CompanyGroupId, item.PlantId,"","",DateTime.Now.ToString("dd-MMM-yyyy"),DateTime.Now.ToString(),"0","");
+
+
+                                if (!string.IsNullOrEmpty(path.ToString()))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path.ToString()));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                    finally
+                                    {
+                                        try
+                                        {
+                                            if (!string.IsNullOrEmpty(path.ToString()))
+                                                File.Delete(path);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.Remarks = serviceName + " - " + ex.Message;
+                                            //continue;
+
+                                        }
+                                        finally
+                                        {
+
+                                        }
+
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+        public void SendTNAReportMail(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-TNAReport",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.TNAReport.ToString();
+                ExcelEngine excelEngine = null;
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+                    List<MailReceiverServiceMapping> mailServiceList = _sqlRepository.GetModelCollection<MailReceiverServiceMapping>("select * from scs.MailReceiverServiceMapping where CompanyGroupId='" + companyGroup.Id + @"' AND ServiceName='" + serviceName + @"'");
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+                                string filePath = "";
+                                var errorMsg = "";
+                                excelEngine = new ExcelEngine();
+                                try
+                                {
+                                    //ReportUtility ru = new ReportUtility();
+
+                                    //filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, serviceName + DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy") + ".xlsx");
+                                    DateTime date = DateTime.Now; // will give the date for today
+                                    string FromDate = date.ToString("dd-MMM-yyyy");
+                                    string ToDate = date.AddDays(90).ToString("dd-MMM-yyyy");
+
+
+                                    Dictionary<string, object> Filter = new Dictionary<string, object>();
+                                    Filter.Add("ReportLevel", "ALL");
+                                    Filter.Add("FromDate", FromDate);
+                                    Filter.Add("ToDate", ToDate);
+                                    Filter.Add("ActiveStatus", "All");
+                                    Filter.Add("DateSelection", "ASON");
+
+                                    //IWorkbook workbook = _attendanceManagementService.GetManualOutTimeDateWiseReport("", item.PlantId, item.CompanyId, item.CompanyGroupId, "", DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy"), DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy"));
+                                    IWorkbook workbook = GetTNAStatusReport(item.CompanyGroupId, item.CompanyId, item.PlantId, "", "Mail", "Mail", Filter, null);
+
+                                    var reportFileName = "AtnA" + DateTime.Now.ToString("yyMMdd") + item.PlantId;
+                                    workbook.Version = ExcelVersion.Excel2016;
+                                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xls");
+                                    //workbook.SaveAs(filePath);
+                                    //workbook.Close();
+
+
+                                    //workbook.Version = ExcelVersion.Excel2016;
+
+
+                                    workbook.SaveAs(filePath);
+                                    workbook.Close();
+                                    excelEngine.Dispose();
+                                }
+                                catch (Exception ex)
+                                {
+                                    errorMsg = ex.Message;
+
+
+                                }
+
+
+                                var path = filePath;// _attendanceManagementService.GetIndividualDailyOT("",item.CompanyGroupId, item.PlantId,"","",DateTime.Now.ToString("dd-MMM-yyyy"),DateTime.Now.ToString(),"0","");
+
+
+                                if (!string.IsNullOrEmpty(path.ToString()))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path.ToString()));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                    finally
+                                    {
+                                        try
+                                        {
+                                            if (!string.IsNullOrEmpty(path.ToString()))
+                                                File.Delete(path);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.Remarks = serviceName + " - " + ex.Message;
+                                            //continue;
+
+                                        }
+                                        finally
+                                        {
+
+                                        }
+
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+
+
+
+        public void RunTodoScheduler(string addedBy, string ip, string appVersion)
+        {
+
+            try
+            {
+                Library.Service.TaskScheduler.TaskScheduler scheduler = new Library.Service.TaskScheduler.TaskScheduler(_sqlRepository);
+                scheduler.ProcessAllPendingSchedule();
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public void RunTaskNotification(string addedBy, string ip, string appVersion, string companyGroupId)
+        {
+
+            try
+            {
+                Library.Service.TaskScheduler.TaskScheduler scheduler = new Library.Service.TaskScheduler.TaskScheduler(_sqlRepository);
+                scheduler.TaskNotification(companyGroupId);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+        public void RunTNAScheduler(string addedBy, string ip, string appVersion)
+        {
+            try
+            {
+                Library.Service.TaskScheduler.TaskScheduler scheduler = new Library.Service.TaskScheduler.TaskScheduler(_sqlRepository);
+                scheduler.RunTNASchedule();
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+
+
+
+        /// <summary>
+        /// DailyProductionTargetSchedule For Basic and Odyssey
+        /// </summary>
+        /// <param name="addedBy"></param>
+        /// <param name="ip"></param>
+        /// <param name="appVersion"></param>
+        public void DailyProductionTargetSchedule(string addedBy, string ip, string appVersion)
+        {
+            try
+            {
+                DataTable dtPlant = _sqlRepository.GetDataTable("Select * from ORG.Plant");
+                Library.Service.Productions.ProductionBooking.ProductionServices scheduler = new Library.Service.Productions.ProductionBooking.ProductionServices(_sqlRepository);
+                for (int i = 0; i < dtPlant.Rows.Count; i++)
+                {
+                    scheduler.UpdateDailyTarget(DateTime.Now.ToString("dd-MMM-yyyy"), dtPlant.Rows[i]["Id"].ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        #endregion ***************EmailSenderFunction*******************
+
+        #region Excel File Triggering Function
+        private string SendPreApproved(string companyGroupId, string plantId, string fileName)
+        {
+            try
+            {
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+                //get ds
+                var dataTable = HRMS.GetEmpInfo(companyGroupId, plantId);
+
+                var today = DateTime.Now;
+                var dvEmpInfo = new DataView(dataTable)
+                {
+                    RowFilter = "vApprovedDateTime >='" + DateTime.Now.ToString("dd-MMM-yyyy") + "' and IsApproved =1"
+                };
+                var dtEmpInfo = dvEmpInfo.ToTable();
+                //EXcel
+                return GetPreApprovedEmployeeList(companyGroupId, plantId, dtEmpInfo, "Approved Interviewee List", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+        private string SendProbation(string companyGroupId, string plantId, string fileName)
+        {
+            try
+            {
+                var addedDays = "0";
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetProbationPeriodAlertBeforDaysInfo(companyGroupId, plantId, out DataSet dsProbationPeriodAlertBeforeDaysInfo);
+
+                addedDays = dsProbationPeriodAlertBeforeDaysInfo.Tables[0].Rows[0]["ProbationPeriodAlertBeforeDays"].ToString();
+
+                var dtEmpInfo = HRMS.GetEmpInfo(companyGroupId, plantId);
+
+                var today = DateTime.Now.Date;
+                var AlertDays = today.AddDays(addedDays.ToInt()).Date;
+                using (var dvEmpInfo = new DataView(dtEmpInfo)
+                {
+                    RowFilter = "IsConfirmedProbation = 0 and ((DOCs >= '" + today + "' and DOCs <= '" + AlertDays + "' ) or  DOCs <= '" + today + "')",
+                    Sort = "DOCs"
+                })
+                {
+                    var dtEmpInfoFitered = dvEmpInfo.ToTable();
+                    //set ds
+                    return GetProbationPeriodList(companyGroupId, plantId, dtEmpInfoFitered, "Pending Employees For Probation Approval", fileName);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+
+        private string SendProbationApproved(string companyGroupId, string plantId, string fileName)
+        {
+            try
+            {
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                var dataTable = HRMS.GetEmpInfo(companyGroupId, plantId);
+                var dvEmpInfo = new DataView(dataTable)
+                {
+                    RowFilter = "ProbationConfirmEntryDate ='" + DateTime.Now.ToString("dd-MMM-yyyy") + "' and IsConfirmedProbation =1"
+                };
+                var dtEmpInfo = dvEmpInfo.ToTable();
+                //set ds
+                return GetProbationApprovedEmployeeList(companyGroupId, plantId, dtEmpInfo, "Approved Employee List", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private string SendAppliedResignation(string companyGroupId, string plantId, string fileName)
+        {
+            try
+            {
+                //get ds
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                var dataTable = HRMS.GetEmpInfo(companyGroupId, plantId);
+                var dvEmpInfo = new DataView(dataTable)
+                {
+                    RowFilter = "rsgApprovalStatus='Pending' and resignationAddedDate = '" + DateTime.Now.Date + "'"
+                };
+                var dtEmpInfo = dvEmpInfo.ToTable();
+                //set ds
+                return GetAppliedForResignationEmployeeList(companyGroupId, plantId, dtEmpInfo, "Resigned Employee List", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private string SendResignationToBeApproved(string companyGroupId, string plantId, string fileName)
+        {
+            try
+            {
+                var addedDays = "0";
+                //get ds
+
+                //get ds
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                var dataTable = HRMS.GetEmpInfo(companyGroupId, plantId);
+                //DataView dvEmpInfo = new DataView(dsEmpInfo.Tables[0]);
+                var today = DateTime.Now.Date;
+                var AlertDays = today.AddDays(addedDays.ToInt()).Date;
+                var dvEmpInfo = new DataView(dataTable)
+                {
+                    RowFilter = "rsgApprovalStatus = 'Pending' and ((EffectiveDateS >= '" + today + "' and EffectiveDateS <= '" + AlertDays + "' ) or EffectiveDateS >= '" + today + "')",
+                    Sort = "resignationApprovedEffectiveDate"
+                };
+                var dtEmpInfo = dvEmpInfo.ToTable();
+
+                return GetResignationToBeApprovedList(companyGroupId, plantId, dtEmpInfo, "Resignation To Be Approved Employee List", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private string SendApprovedResignation(string companyGroupId, string plantId, string fileName)
+        {
+            try
+            {
+                //get ds
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                var dataTable = HRMS.GetEmpInfo(companyGroupId, plantId);
+                var dvEmpInfo = new DataView(dataTable)
+                {
+                    RowFilter = "rsgApprovalStatus='Approved' AND EmployeeStatus = 'Active' AND resignationApprovedEntryDateS = '" + DateTime.Now.Date + "'"
+                };
+                var dtEmpInfo = dvEmpInfo.ToTable();
+                //set ds
+                return GetApprovedForResignationEmployeeList(companyGroupId, plantId, dtEmpInfo, "Resignation Approved Employee List", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private string SendResignationDue(string companyGroupId, string plantId, string fileName)
+        {
+            try
+            {
+                var addedDays = "0";
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                //get ds
+                HRMS.GetResignationAlertBeforDaysInfo(companyGroupId, plantId, out DataSet dsResignationAlertBeforeDaysInfo);
+
+                if (dsResignationAlertBeforeDaysInfo.Tables[0].Rows.Count > 0)
+                {
+                    addedDays = dsResignationAlertBeforeDaysInfo.Tables[0].Rows[0]["ResignationAlertBeforeDays"].ToString();
+                }
+                else
+                {
+                    throw new Exception("Resignation  Alert Before Days not found");
+                }
+                //get ds
+                var dataTable = HRMS.GetEmpInfo(companyGroupId, plantId);
+                //DataView dvEmpInfo = new DataView(dsEmpInfo.Tables[0]);
+                var today = DateTime.Now.Date;
+                var AlertDays = today.AddDays(addedDays.ToInt()).Date;
+                var dvEmpInfo = new DataView(dataTable)
+                {
+                    RowFilter = "rsgApprovalStatus = 'Approved' AND EmployeeStatus = 'Active' AND ((resignationApprovedEffectiveDate >= '" + today + "' and resignationApprovedEffectiveDate <= '" + AlertDays + "' ) or  resignationApprovedEffectiveDate <= '" + today + "')",
+                };
+                var dtEmpInfo = dvEmpInfo.ToTable();
+
+                return GetResignationDueList(companyGroupId, plantId, dtEmpInfo, "To Be Saparated Employees", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private string SendSeperatedEmployee(string companyGroupId, string plantId, string fileName)
+        {
+            DataSet dsEmpInfo = null;
+
+            try
+            {
+                //get ds
+                //GetEmpInfo(companyGroupId, plantId, out dsEmpInfo);
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetSeparatedEmpInfo(companyGroupId, plantId, out dsEmpInfo);
+                var dvEmpInfo = new DataView(dsEmpInfo.Tables[0])
+                {
+                    RowFilter = "ApplicantSeparationDateEX  = '" + DateTime.Now.Date + "' AND EmployeeStatus = 'Separated' AND rsgApprovalStatus = 'Approved'"
+                };
+                var dtEmpInfo = dvEmpInfo.ToTable();
+                //set ds
+                return GetSeperatedEmployeeList(companyGroupId, plantId, dtEmpInfo, "Resigned Employee List", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        //private string SendApprovedSalary(string companyGroupId, string plantId, string fileName)
+        //{
+        //	DataSet dsEmpInfo = null;
+
+        //	try
+        //	{
+        //		//get ds
+        //		GetEmpInfo(companyGroupId, plantId, out dsEmpInfo);
+        //		var dvEmpInfo = new DataView(dsEmpInfo.Tables[0]);
+        //		var dtEmpInfo = dvEmpInfo.ToTable();
+        //		//set ds
+        //		return GetApprovedSalaryNotification(companyGroupId, plantId, dtEmpInfo, "Resigned Employee List", fileName);
+        //	}
+        //	catch (Exception)
+        //	{
+        //		throw;
+        //	}
+        //}
+
+        /// <summary>
+        /// IcrementDue of Each Employee as per system Policy
+        /// </summary>
+        /// <param name="companyGroupId"></param>
+        /// <param name="plantId"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        private string SendIncrementDue(string companyGroupId, string plantId, string fileName)
+        {
+            DataSet dsEmpInfo = null;
+
+            try
+            {
+                var addedDays = "0";
+                //get ds
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetProbationPeriodAlertBeforDaysInfo(companyGroupId, plantId, out DataSet dsProbationPeriodAlertBeforeDaysInfo);
+
+                addedDays = dsProbationPeriodAlertBeforeDaysInfo.Tables[0].Rows[0]["IncrementAlertBeforeDays"].ToString();
+
+                HRMS.GetIncrementEmpInfo(companyGroupId, plantId, out dsEmpInfo);
+
+                var today = DateTime.Now.Date;
+                var AlertDays = today.AddDays(addedDays.ToInt()).Date;
+                DataView dvEmpInfo = new DataView(dsEmpInfo.Tables[0])
+                {
+                    RowFilter = "(sIncrementNextDueDate >= '" + today + "' and sIncrementNextDueDate <= '" + AlertDays + "' ) or  sIncrementNextDueDate <= '" + today + "'",
+                    Sort = "sIncrementNextDueDate"
+                };
+
+                var dtEmpInfo = dvEmpInfo.ToTable();
+                //set ds
+                return GetIncrementDueList(companyGroupId, plantId, dtEmpInfo, "Increment Due List ", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private string SendDailyAttendanceNotification(string companyGroupId, string companyId, string plantId, string fileName, string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string empCategoryList, string designationList, string lineList, string Dstatus)
+        {
+            try
+            {
+                return GetDailyAttendanceEmpInfoList(companyGroupId, companyId, plantId, "Daily Attendace Notification", fileName, workDate, shift, Entity, Dept, Ydate, Sec, SSec, empCategoryList, designationList, lineList, Dstatus);// GetIncrementDueList(companyGroupId, plantId, dtEmpInfo, "Increment Due List ", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private string SendYesterdayAbsentNotification(string companyGroupId, string companyId, string plantId, string fileName)
+        {
+            try
+            {
+                return GetYesterdayAbsentEmpInfoList(companyGroupId, companyId, plantId, "Absent Information", fileName);// GetIncrementDueList(companyGroupId, plantId, dtEmpInfo, "Increment Due List ", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private string SendMissedPunchNotification(string companyGroupId, string plantId, string fileName)
+        {
+            DataSet dsEmpInfo = null;
+
+            try
+            {
+                //Get DS
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                var dtEmpInfo = HRMS.GetMissedPunchInfo(companyGroupId, plantId);
+                //set ds
+                return GetMissedPunchLsitExcel(companyGroupId, plantId, dtEmpInfo, "Missed Punch List", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private string SendManualAttendanceNotification(string companyGroupId, string plantId, string fileName)
+        {
+            DataSet dsEmpInfo = null;
+
+            try
+            {
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                //Get DS
+                var dtEmpInfo = HRMS.GetManualAttendanceInfo(companyGroupId, plantId);
+                //set ds
+                return GetManualAttendanceLsitExcel(companyGroupId, plantId, dtEmpInfo, "Entry Information of Manual Attendance", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private string SendAttendanceFromAppNotification(string companyGroupId, string plantId, string fileName)
+        {
+            DataSet dsEmpInfo = null;
+
+            try
+            {
+                //Get DS
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                var dtEmpInfo = HRMS.GetAttendanceFromAppInfo(companyGroupId, plantId);
+                //set ds
+                return GetAttendanceFromAppExcel(companyGroupId, plantId, dtEmpInfo, "Employee Attendace From App", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private string SendDailyDevicePunchInfo(string companyGroupId, string plantId, string fileName)
+        {
+            DataSet dsEmpInfo = null;
+
+            try
+            {
+
+                return GetDailyDevicePunchInfoExcel(companyGroupId, plantId, "Device Punch Information", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private string SendDailyAttendanceSummarySQLEXCEL(string companyGroupId, string plantId, string fileName, string fileType)
+        {
+            try
+            {
+                return GetDailyAttendanceSummaryExcel(companyGroupId, plantId, "Daily Attendance Summary", fileName, fileType);
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private string SendYesterdayMissedPunch(string companyGroupId, string plantId, string fileName, string fileType)
+        {
+            try
+            {
+
+                try
+                {
+                    //Get DS
+                    //set ds
+                    return GetYesterdayMissedPunchLsitExcel(companyGroupId, plantId, "Missed Punch List", fileName);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private string SendAttendanceAudit(string companyGroupId, string plantId, string fileName, string fileType)
+        {
+            try
+            {
+
+                try
+                {
+                    return GetYesterdayMissedPunchLsitExcel(companyGroupId, plantId, "Missed Punch List", fileName);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+        #endregion Excel File Triggering Function
+
+        #region ExcelFileCreationFunction
+
+        /// <summary>
+        /// PreRecruitement: Approved Employee List
+        /// </summary>
+        /// <param name="companyGroupId"></param>
+        /// <param name="plantId"></param>
+        /// <param name="dtEmpInfo"></param>
+        /// <param name="SheetHeader"></param>
+        /// <param name="SheetName"></param>
+        public string GetPreApprovedEmployeeList(string companyGroupId, string plantId, DataTable dtEmpInfo, string SheetHeader, string SheetName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Entity'",
+                    Sort = "eSequence"
+                };
+                dtEntity = dvEntity.ToTable(true, "UserName");
+
+                var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Position'",
+                    Sort = "pSequence"
+                };
+                dtPosition = dvPosition.ToTable(true, "UserName");
+
+                var dvBC = new DataView(dtEmpInfo);
+                var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                for (int i = 0; i < dtBC.Rows.Count; i++)
+                {
+                    IsBudgetCodeApplicable = Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                    if (IsBudgetCodeApplicable)
+                    {
+                        break;
+                    }
+                }
+                if (dtEmpInfo.Rows.Count > 0)
+                {
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+                    workbook = application.Workbooks.Create(1);
+                    sheet1 = workbook.Worksheets[0];
+
+                    xlsRow = 6;
+
+                    #region variable
+                    var cEmployeeCode = 0;
+                    var cName = 0;
+                    var cDOJ = 0;
+                    var cProbPeriod = 0;
+                    var cDOC = 0;
+                    var cDOB = 0;
+                    var cBudgetCode = 0;
+                    var cDesignation = 0;
+                    var colNum = 0;
+                    var cGivenDesignation = 0;
+                    var cLD = 0;
+
+                    #endregion variable
+                    var endXlsCol = 0;
+
+                    xlsRow++;
+                    xlsCol = 1;
+                    var cSl = 0;
+
+                    #region Header
+                    oRU.SetHeaderText(ref sheet1, xlsRow - 1, xlsCol, "Employee info", ExcelHAlign.HAlignCenter);
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SL", 6); cSl = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Pro. Period (Days)"); cProbPeriod = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Tentative DOC"); cDOC = xlsCol; xlsCol++;
+
+                    if (IsBudgetCodeApplicable)
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); cBudgetCode = xlsCol; xlsCol++;
+
+                        for (int i = 0; i < dtEntity.Rows.Count; i++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+                        }
+                        for (int c = 0; c < dtPosition.Rows.Count; c++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[c]["UserName"].ToString(), 25); xlsCol++;
+                        }
+                    }//IsBudgetCodeApplicable
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GivenDesignation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal Designation", 25); cLD = xlsCol; xlsCol++;
+
+                    #endregion Header
+                    sheet1.Range[xlsRow - 1, cSl, xlsRow - 1, cLD].Merge();
+                    xlsCol--;
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    var slCount = 0;
+                    for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
+                    {
+                        slCount++;
+                        #region Loop
+
+                        oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cName, dtEmpInfo.Rows[i]["EmployeeName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOB, dtEmpInfo.Rows[i]["DOB"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOJ, dtEmpInfo.Rows[i]["DOJ"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cProbPeriod, dtEmpInfo.Rows[i]["ProbationPeriod"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOC, dtEmpInfo.Rows[i]["DOC"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cDesignation, dtEmpInfo.Rows[i]["Designation"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, dtEmpInfo.Rows[i]["GivenDesignation"].ToString());
+                        if (dtEmpInfo.Rows[i]["Designation"].ToString().ToUpper() != dtEmpInfo.Rows[i]["GivenDesignation"].ToString().ToUpper())
+                        {
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                        }
+
+                        oRU.SetText(ref sheet1, xlsRow, cLD, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+
+                        if (Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString()))
+                        {
+                            oRU.SetText(ref sheet1, xlsRow, cBudgetCode, dtEmpInfo.Rows[i]["BudgetCode"].ToString());
+                            //entity
+
+                            for (int c = 0; c < dtEntity.Rows.Count; c++)
+                            {
+                                var _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                var v = dtEmpInfo.Rows[i]["e" + _colname].ToString();
+                                colNum = cBudgetCode + c + 1;
+                                oRU.SetText(ref sheet1, xlsRow, colNum, v);
+                            }
+
+                            //position
+
+                            for (int c = 0; c < dtPosition.Rows.Count; c++)
+                            {
+                                var _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                oRU.SetText(ref sheet1, xlsRow, colNum + c + 1, dtEmpInfo.Rows[i]["p" + _colname].ToString());
+                            }
+                        }//is bc applicable
+
+                        #endregion Loop
+                        xlsRow++;
+                    }
+
+                    oRU.SetHeaderText(ref sheet1, 4, 1, "ON " + DateTime.Now.ToString("dd-MMM-yyyy"), ExcelHAlign.HAlignCenter);
+                    sheet1.Range[4, 1, 4, cLD].Merge();
+
+                    if (!string.IsNullOrEmpty(plantId))
+                        oRU.PlantHeader(ref sheet1, cLD, SheetHeader, plantId);
+                    else
+                        oRU.CompanyGroupHeader(ref sheet1, cLD, SheetHeader, companyGroupId);
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    sheet1.Name = SheetName;
+                    workbook.Version = ExcelVersion.Excel97to2003;
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                }
+                return filePath;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public string GetProbationPeriodList(string companyGroupId, string plantId, DataTable dtEmpInfo, string SheetHeader, string SheetName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Entity'",
+                    Sort = "eSequence"
+                };
+                dtEntity = dvEntity.ToTable(true, "UserName");
+
+                var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Position'",
+                    Sort = "pSequence"
+                };
+                dtPosition = dvPosition.ToTable(true, "UserName");
+
+                var dvBC = new DataView(dtEmpInfo);
+                var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                for (int i = 0; i < dtBC.Rows.Count; i++)
+                {
+                    IsBudgetCodeApplicable = Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                    if (IsBudgetCodeApplicable)
+                    {
+                        break;
+                    }
+                }
+                if (dtEmpInfo.Rows.Count > 0)
+                {
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+                    workbook = application.Workbooks.Create(1);
+                    sheet1 = workbook.Worksheets[0];
+
+                    xlsRow = 5;
+
+                    #region variable
+
+                    var cEmployeeCode = 0;
+                    var cBudgetCode = 0;
+                    var cName = 0;
+                    var cDOJ = 0;
+                    var cProbPeriod = 0;
+                    var cDOC = 0;
+                    var cDOB = 0;
+                    var cDaysToGO = 0;
+
+                    var cDesignation = 0;
+                    var cGivenDesignation = 0;
+                    var cLD = 0;
+
+                    //bc
+
+                    //po
+
+                    #endregion variable
+                    var endXlsCol = 0;
+                    var colNum = 0;
+
+                    xlsRow++;
+                    xlsCol = 1;
+                    var cSl = 0;
+
+                    #region Header
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 6); cSl = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Prob. Period (Days)"); cProbPeriod = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Tentative DOC"); cDOC = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Days To GO"); cDaysToGO = xlsCol; xlsCol++;
+                    if (IsBudgetCodeApplicable)
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); cBudgetCode = xlsCol; xlsCol++;
+
+                        for (int i = 0; i < dtEntity.Rows.Count; i++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+                        }
+                        for (int c = 0; c < dtPosition.Rows.Count; c++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[c]["UserName"].ToString(), 25); xlsCol++;
+                        }
+                    }//IsBudgetCodeApplicable
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GivenDesignation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal Designation", 25); cLD = xlsCol; xlsCol++;
+
+                    #endregion Header
+
+                    xlsCol--;
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    var slCount = 0;
+                    for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
+                    {
+                        slCount++;
+                        #region Loop
+
+                        oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cName, dtEmpInfo.Rows[i]["EmployeeName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOB, dtEmpInfo.Rows[i]["DOB"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOJ, dtEmpInfo.Rows[i]["DOJ"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cProbPeriod, dtEmpInfo.Rows[i]["ProbationPeriod"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOC, dtEmpInfo.Rows[i]["DOC"].ToString());
+                        if (!Convert.ToBoolean(dtEmpInfo.Rows[i]["IsConfirmedProbation"].ToString()) && Convert.ToDateTime(dtEmpInfo.Rows[i]["DOC"]).Date == DateTime.Now.Date)
+                        {
+                            sheet1.Range[xlsRow, cDOC].CellStyle.ColorIndex = ExcelKnownColors.Aqua;
+                            sheet1.Range[xlsRow, cDOC].CellStyle.Font.Color = ExcelKnownColors.White;
+                        }
+                        else if (!Convert.ToBoolean(dtEmpInfo.Rows[i]["IsConfirmedProbation"].ToString()) && Convert.ToDateTime(dtEmpInfo.Rows[i]["DOC"]).Date > DateTime.Now.Date)
+                        {
+                            sheet1.Range[xlsRow, cDOC].CellStyle.ColorIndex = ExcelKnownColors.Green;
+                            sheet1.Range[xlsRow, cDOC].CellStyle.Font.Color = ExcelKnownColors.White;
+                        }
+                        else if (!Convert.ToBoolean(dtEmpInfo.Rows[i]["IsConfirmedProbation"].ToString()) && Convert.ToDateTime(dtEmpInfo.Rows[i]["DOC"]).Date < DateTime.Now.Date)
+                        {
+                            sheet1.Range[xlsRow, cDOC].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cDOC].CellStyle.Font.Color = ExcelKnownColors.White;
+                        }
+
+                        oRU.SetText(ref sheet1, xlsRow, cDaysToGO, dtEmpInfo.Rows[i]["DaysToGO"].ToString());
+
+                        if (Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString()))
+                        {
+                            oRU.SetText(ref sheet1, xlsRow, cBudgetCode, dtEmpInfo.Rows[i]["BudgetCode"].ToString());
+                            //entity
+
+                            for (int c = 0; c < dtEntity.Rows.Count; c++)
+                            {
+                                var _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                var v = dtEmpInfo.Rows[i]["e" + _colname].ToString();
+                                colNum = cBudgetCode + c + 1;
+                                oRU.SetText(ref sheet1, xlsRow, colNum, v);
+                            }
+
+                            //position
+
+                            for (int c = 0; c < dtPosition.Rows.Count; c++)
+                            {
+                                var _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                oRU.SetText(ref sheet1, xlsRow, colNum + c + 1, dtEmpInfo.Rows[i]["p" + _colname].ToString());
+                            }
+                        }//is bc applicable
+                        oRU.SetText(ref sheet1, xlsRow, cDesignation, dtEmpInfo.Rows[i]["Designation"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, dtEmpInfo.Rows[i]["GivenDesignation"].ToString());
+                        if (dtEmpInfo.Rows[i]["Designation"].ToString().ToUpper() != dtEmpInfo.Rows[i]["GivenDesignation"].ToString().ToUpper())
+                        {
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                        }
+
+                        oRU.SetText(ref sheet1, xlsRow, cLD, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+
+                        #endregion Loop
+                        xlsRow++;
+                    }
+
+                    oRU.SetHeaderText(ref sheet1, 4, 1, "On " + DateTime.Now.ToString("dd-MMM-yyyy"), ExcelHAlign.HAlignCenter);
+                    sheet1.Range[4, 1, 4, endXlsCol].Merge();
+
+                    if (!string.IsNullOrEmpty(plantId))
+                        oRU.PlantHeader(ref sheet1, endXlsCol, SheetHeader, plantId);
+                    else
+                        oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, SheetHeader, companyGroupId);
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    sheet1.Name = SheetName;
+
+                    workbook.Version = ExcelVersion.Excel97to2003;
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                }
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("some reason to rethrow", ex);
+            }
+        }
+
+        public string GetProbationApprovedEmployeeList(string companyGroupId, string plantId, DataTable dtEmpInfo, string SheetHeader, string SheetName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                oRU = new ReportUtility();
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Entity'",
+                    Sort = "eSequence"
+                };
+                dtEntity = dvEntity.ToTable(true, "UserName");
+
+                var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Position'",
+                    Sort = "pSequence"
+                };
+                dtPosition = dvPosition.ToTable(true, "UserName");
+
+                var dvBC = new DataView(dtEmpInfo);
+                var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                for (int i = 0; i < dtBC.Rows.Count; i++)
+                {
+                    IsBudgetCodeApplicable = Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                    if (IsBudgetCodeApplicable)
+                    {
+                        break;
+                    }
+                }
+                if (dtEmpInfo.Rows.Count > 0)
+                {
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+                    workbook = application.Workbooks.Create(1);
+                    sheet1 = workbook.Worksheets[0];
+
+                    xlsRow = 6;
+
+                    #region variable
+                    var cEmployeeCode = 0;
+                    var cName = 0;
+                    var cDOJ = 0;
+                    var cProbPeriod = 0;
+                    var cDOC = 0;
+                    var cDOB = 0;
+                    var cBudgetCode = 0;
+                    var cDesignation = 0;
+                    var cGivenDesignation = 0;
+                    var cLD = 0;
+                    //int cGivenDesignationGroup = 0;
+                    #endregion variable
+                    var endXlsCol = 0;
+                    var colNum = 0;
+
+                    xlsRow++;
+                    xlsCol = 1;
+                    var cSl = 0;
+
+                    #region Header
+                    oRU.SetHeaderText(ref sheet1, xlsRow - 1, xlsCol, "Employee info", ExcelHAlign.HAlignCenter);
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SL", 6); cSl = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Pro. Period (Days)"); cProbPeriod = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Tentative DOC"); cDOC = xlsCol; xlsCol++;
+
+                    if (IsBudgetCodeApplicable)
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); cBudgetCode = xlsCol; xlsCol++;
+
+                        for (int i = 0; i < dtEntity.Rows.Count; i++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+                        }
+                        for (int c = 0; c < dtPosition.Rows.Count; c++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[c]["UserName"].ToString(), 25); xlsCol++;
+                        }
+                    }//IsBudgetCodeApplicable
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GivenDesignation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal Designation", 25); cLD = xlsCol; xlsCol++;
+                    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation Group", 25); cDesignationGroup = xlsCol; xlsCol++;
+                    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Given Designation Group", 25); cGivenDesignationGroup = xlsCol; xlsCol++;
+
+                    #endregion Header
+                    sheet1.Range[xlsRow - 1, cSl, xlsRow - 1, cLD].Merge();
+                    xlsCol--;
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    var slCount = 0;
+                    for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
+                    {
+                        slCount++;
+                        #region Loop
+
+                        oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cName, dtEmpInfo.Rows[i]["EmployeeName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOB, dtEmpInfo.Rows[i]["DOB"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOJ, dtEmpInfo.Rows[i]["DOJ"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cProbPeriod, dtEmpInfo.Rows[i]["ProbationPeriod"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOC, dtEmpInfo.Rows[i]["DOC"].ToString());
+                        if (Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString()))
+                        {
+                            oRU.SetText(ref sheet1, xlsRow, cBudgetCode, dtEmpInfo.Rows[i]["BudgetCode"].ToString());
+                            //entity
+
+                            for (int c = 0; c < dtEntity.Rows.Count; c++)
+                            {
+                                var _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                var v = dtEmpInfo.Rows[i]["e" + _colname].ToString();
+                                colNum = cBudgetCode + c + 1;
+                                oRU.SetText(ref sheet1, xlsRow, colNum, v);
+                            }
+
+                            //position
+
+                            for (int c = 0; c < dtPosition.Rows.Count; c++)
+                            {
+                                var _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                oRU.SetText(ref sheet1, xlsRow, colNum + c + 1, dtEmpInfo.Rows[i]["p" + _colname].ToString());
+                            }
+                        }//is bc applicable
+                        oRU.SetText(ref sheet1, xlsRow, cDesignation, dtEmpInfo.Rows[i]["Designation"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, dtEmpInfo.Rows[i]["GivenDesignation"].ToString());
+                        if (dtEmpInfo.Rows[i]["Designation"].ToString().ToUpper() != dtEmpInfo.Rows[i]["GivenDesignation"].ToString().ToUpper())
+                        {
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                        }
+
+                        oRU.SetText(ref sheet1, xlsRow, cLD, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+                        #endregion Loop
+                        xlsRow++;
+                    }
+
+                    oRU.SetHeaderText(ref sheet1, 4, 1, "ON " + DateTime.Now.ToString("dd-MMM-yyyy"), ExcelHAlign.HAlignCenter);
+                    sheet1.Range[4, 1, 4, cLD].Merge();
+
+                    if (!string.IsNullOrEmpty(plantId))
+                        oRU.PlantHeader(ref sheet1, cLD, SheetHeader, plantId);
+                    else
+                        oRU.MainCompanyGroupHeader(ref sheet1, cLD, SheetHeader, companyGroupId);
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    sheet1.Name = SheetName;
+                    workbook.Version = ExcelVersion.Excel97to2003;
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                }
+                return filePath;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public string GetAppliedForResignationEmployeeList(string companyGroupId, string plantId, DataTable dtEmpInfo, string SheetHeader, string SheetName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Entity'",
+                    Sort = "eSequence"
+                };
+                dtEntity = dvEntity.ToTable(true, "UserName");
+
+                var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Position'",
+                    Sort = "pSequence"
+                };
+                dtPosition = dvPosition.ToTable(true, "UserName");
+
+                var dvBC = new DataView(dtEmpInfo);
+                var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                for (int i = 0; i < dtBC.Rows.Count; i++)
+                {
+                    IsBudgetCodeApplicable = Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                    if (IsBudgetCodeApplicable)
+                    {
+                        break;
+                    }
+                }
+                if (dtEmpInfo.Rows.Count > 0)
+                {
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+                    workbook = application.Workbooks.Create(1);
+                    sheet1 = workbook.Worksheets[0];
+
+                    xlsRow = 5;
+
+                    #region variable
+                    var cEmployeeCode = 0;
+                    var cName = 0;
+                    var cDOJ = 0;
+                    var cResignationAppliedDate = 0;
+                    var cResignationApprovedDate = 0;
+                    var cDOC = 0;
+                    var cDOB = 0;
+                    var colNum = 0;
+                    var cDesignation = 0;
+                    var cGivenDesignation = 0;
+                    var cLD = 0;
+                    var cBudgetCode = 0;
+                    #endregion variable
+                    var endXlsCol = 0;
+
+                    xlsRow++;
+                    xlsCol = 1;
+                    var cSl = 0;
+
+                    #region Header
+                    //oRU.SetHeaderText(ref sheet1, xlsRow - 1, xlsCol, "Employee info", ExcelHAlign.HAlignCenter);
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 6); cSl = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOC"); cDOC = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Resig. Submission Date"); cResignationAppliedDate = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Applied Effective Date"); cResignationApprovedDate = xlsCol; xlsCol++;
+                    if (IsBudgetCodeApplicable)
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); cBudgetCode = xlsCol; xlsCol++;
+
+                        for (int i = 0; i < dtEntity.Rows.Count; i++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+                        }
+                        for (int c = 0; c < dtPosition.Rows.Count; c++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[c]["UserName"].ToString(), 25); xlsCol++;
+                        }
+                    }//IsBudgetCodeApplicable
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GivenDesignation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal Designation", 25); cLD = xlsCol; xlsCol++;
+
+                    #endregion Header
+
+                    xlsCol--;
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    var slCount = 0;
+
+                    for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
+                    {
+                        slCount++;
+                        #region Loop
+
+                        oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cName, dtEmpInfo.Rows[i]["EmployeeName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOB, dtEmpInfo.Rows[i]["DOB"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOJ, dtEmpInfo.Rows[i]["DOJ"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOC, dtEmpInfo.Rows[i]["empDOC"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cResignationAppliedDate, dtEmpInfo.Rows[i]["ApplicantResignationDate"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cResignationApprovedDate, dtEmpInfo.Rows[i]["RsgSelfEffectiveDate"].ToString());
+                        if (Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString()))
+                        {
+                            oRU.SetText(ref sheet1, xlsRow, cBudgetCode, dtEmpInfo.Rows[i]["BudgetCode"].ToString());
+                            //entity
+
+                            for (int c = 0; c < dtEntity.Rows.Count; c++)
+                            {
+                                var _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                var v = dtEmpInfo.Rows[i]["e" + _colname].ToString();
+                                colNum = cBudgetCode + c + 1;
+                                oRU.SetText(ref sheet1, xlsRow, colNum, v);
+                            }
+                            //position
+
+                            for (int c = 0; c < dtPosition.Rows.Count; c++)
+                            {
+                                var _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                oRU.SetText(ref sheet1, xlsRow, colNum + c + 1, dtEmpInfo.Rows[i]["p" + _colname].ToString());
+                            }
+                        }//is bc applicable
+                        oRU.SetText(ref sheet1, xlsRow, cDesignation, dtEmpInfo.Rows[i]["Designation"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, dtEmpInfo.Rows[i]["GivenDesignation"].ToString());
+                        if (dtEmpInfo.Rows[i]["Designation"].ToString().ToUpper() != dtEmpInfo.Rows[i]["GivenDesignation"].ToString().ToUpper())
+                        {
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                        }
+
+                        oRU.SetText(ref sheet1, xlsRow, cLD, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+
+                        #endregion Loop
+                        xlsRow++;
+                    }
+
+                    oRU.SetHeaderText(ref sheet1, 4, 1, "Entered On " + DateTime.Now.ToString("dd-MMM-yyyy"), ExcelHAlign.HAlignCenter);
+                    sheet1.Range[4, 1, 4, cLD].Merge();
+
+                    if (!string.IsNullOrEmpty(plantId))
+                        oRU.PlantHeader(ref sheet1, cLD, SheetHeader, plantId);
+                    else
+                        oRU.MainCompanyGroupHeader(ref sheet1, cLD, SheetHeader, companyGroupId);
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    sheet1.Name = SheetName;
+                    workbook.Version = ExcelVersion.Excel97to2003;
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                }
+                return filePath;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }//GetAppliedForResignationEmployeeList
+
+        public string GetApprovedForResignationEmployeeList(string companyGroupId, string plantId, DataTable dtEmpInfo, string SheetHeader, string SheetName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Entity'",
+                    Sort = "eSequence"
+                };
+                dtEntity = dvEntity.ToTable(true, "UserName");
+
+                var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Position'",
+                    Sort = "pSequence"
+                };
+                dtPosition = dvPosition.ToTable(true, "UserName");
+
+                var dvBC = new DataView(dtEmpInfo);
+                var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                for (int i = 0; i < dtBC.Rows.Count; i++)
+                {
+                    IsBudgetCodeApplicable = Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                    if (IsBudgetCodeApplicable)
+                    {
+                        break;
+                    }
+                }
+                if (dtEmpInfo.Rows.Count > 0)
+                {
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+                    workbook = application.Workbooks.Create(1);
+                    sheet1 = workbook.Worksheets[0];
+
+                    xlsRow = 5;
+
+                    #region variable
+                    var cEmployeeCode = 0;
+                    var cName = 0;
+                    var cDOJ = 0;
+                    var cResignationAppliedDate = 0;
+                    var cResignationApprovedDate = 0;
+                    var cDOC = 0;
+                    var cDOB = 0;
+                    var cBudgetCode = 0;
+                    //int cDesignationGroup = 0;
+                    var cDesignation = 0;
+
+                    var cGivenDesignation = 0;
+                    var cLD = 0;
+                    //int cGivenDesignationGroup = 0;
+                    #endregion variable
+                    var endXlsCol = 0;
+                    var colNum = 0;
+
+                    xlsRow++;
+                    xlsCol = 1;
+                    var cSl = 0;
+
+                    #region Header
+                    //oRU.SetHeaderText(ref sheet1, xlsRow - 1, xlsCol, "Employee info", ExcelHAlign.HAlignCenter);
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 6); cSl = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOC"); cDOC = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Resig. Applied Date"); cResignationAppliedDate = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Resig. Effective Date"); cResignationApprovedDate = xlsCol; xlsCol++;
+                    if (IsBudgetCodeApplicable)
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); cBudgetCode = xlsCol; xlsCol++;
+
+                        for (int i = 0; i < dtEntity.Rows.Count; i++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+                        }
+                        for (int c = 0; c < dtPosition.Rows.Count; c++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[c]["UserName"].ToString(), 25); xlsCol++;
+                        }
+                    }//IsBudgetCodeApplicable
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GivenDesignation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal Designation", 25); cLD = xlsCol; xlsCol++;
+
+                    #endregion Header
+
+                    xlsCol--;
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    var slCount = 0;
+
+                    for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
+                    {
+                        slCount++;
+                        #region Loop
+
+                        oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cName, dtEmpInfo.Rows[i]["EmployeeName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOB, dtEmpInfo.Rows[i]["DOB"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOJ, dtEmpInfo.Rows[i]["DOJ"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOC, dtEmpInfo.Rows[i]["empDOC"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cResignationAppliedDate, dtEmpInfo.Rows[i]["ApplicantResignationDate"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cResignationApprovedDate, dtEmpInfo.Rows[i]["resignationApprovedEffectiveDate"].ToString());
+
+                        if (Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString()))
+                        {
+                            oRU.SetText(ref sheet1, xlsRow, cBudgetCode, dtEmpInfo.Rows[i]["BudgetCode"].ToString());
+                            //entity
+
+                            for (int c = 0; c < dtEntity.Rows.Count; c++)
+                            {
+                                var _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                var v = dtEmpInfo.Rows[i]["e" + _colname].ToString();
+                                colNum = cBudgetCode + c + 1;
+                                oRU.SetText(ref sheet1, xlsRow, colNum, v);
+                            }
+
+                            //position
+
+                            for (int c = 0; c < dtPosition.Rows.Count; c++)
+                            {
+                                var _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                oRU.SetText(ref sheet1, xlsRow, colNum + c + 1, dtEmpInfo.Rows[i]["p" + _colname].ToString());
+                            }
+                        }//is bc applicable
+                        oRU.SetText(ref sheet1, xlsRow, cDesignation, dtEmpInfo.Rows[i]["Designation"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, dtEmpInfo.Rows[i]["GivenDesignation"].ToString());
+                        if (dtEmpInfo.Rows[i]["Designation"].ToString().ToUpper() != dtEmpInfo.Rows[i]["GivenDesignation"].ToString().ToUpper())
+                        {
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                        }
+
+                        oRU.SetText(ref sheet1, xlsRow, cLD, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+
+                        #endregion Loop
+                        xlsRow++;
+                    }
+
+                    oRU.SetHeaderText(ref sheet1, 4, 1, "Approved On " + DateTime.Now.ToString("dd-MMM-yyyy"), ExcelHAlign.HAlignCenter);
+                    sheet1.Range[4, 1, 4, endXlsCol].Merge();
+
+                    if (!string.IsNullOrEmpty(plantId))
+                        oRU.PlantHeader(ref sheet1, endXlsCol, SheetHeader, plantId);
+                    else
+                        oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, SheetHeader, companyGroupId);
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    sheet1.Name = SheetName;
+                    workbook.Version = ExcelVersion.Excel97to2003;
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                }
+                return filePath;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public string GetResignationToBeApprovedList(string companyGroupId, string plantId, DataTable dtEmpInfo, string SheetHeader, string SheetName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = false;
+
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Entity'",
+                    Sort = "eSequence"
+                };
+                dtEntity = dvEntity.ToTable(true, "UserName");
+
+                var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Position'",
+                    Sort = "pSequence"
+                };
+                dtPosition = dvPosition.ToTable(true, "UserName");
+                var dvBC = new DataView(dtEmpInfo);
+                var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                for (int i = 0; i < dtBC.Rows.Count; i++)
+                {
+                    IsBudgetCodeApplicable = Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                    if (IsBudgetCodeApplicable)
+                    {
+                        break;
+                    }
+                }
+                if (dtEmpInfo.Rows.Count > 0)
+                {
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+                    workbook = application.Workbooks.Create(1);
+                    sheet1 = workbook.Worksheets[0];
+
+                    xlsRow = 5;
+
+                    #region variable
+
+                    var cEmployeeCode = 0;
+                    var cBudgetCode = 0;
+                    var cName = 0;
+                    var cDOJ = 0;
+                    var cDOC = 0;
+                    var cDOB = 0;
+                    var cResignationAppliedDate = 0;
+                    var cSelfResignationDate = 0;
+                    var cDesignation = 0;
+                    var cGivenDesignation = 0;
+                    var cLD = 0;
+
+                    //bc
+
+                    //po
+
+                    #endregion variable
+                    var endXlsCol = 0;
+                    var colNum = 0;
+
+                    xlsRow++;
+                    xlsCol = 1;
+                    var cSl = 0;
+
+                    #region Header
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 6); cSl = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOC"); cDOC = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Resig. Submission Date"); cResignationAppliedDate = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Asked. Effective Date"); cSelfResignationDate = xlsCol; xlsCol++;
+                    if (IsBudgetCodeApplicable)
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); cBudgetCode = xlsCol; xlsCol++;
+
+                        for (int i = 0; i < dtEntity.Rows.Count; i++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+                        }
+
+                        for (int i = 0; i < dtPosition.Rows.Count; i++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[i]["UserName"].ToString(), 30); xlsCol++;
+                        }
+                    }//IsBudgetCodeApplicable
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GivenDesignation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal Designation", 25); cLD = xlsCol; xlsCol++;
+
+                    #endregion Header
+
+                    xlsCol--;
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    var slCount = 0;
+                    for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
+                    {
+                        slCount++;
+                        #region Loop
+
+                        oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cName, dtEmpInfo.Rows[i]["EmployeeName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOB, dtEmpInfo.Rows[i]["DOB"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOJ, dtEmpInfo.Rows[i]["DOJ"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOC, dtEmpInfo.Rows[i]["empDOC"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cResignationAppliedDate, dtEmpInfo.Rows[i]["ApplicantResignationDate"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cSelfResignationDate, dtEmpInfo.Rows[i]["RsgSelfEffectiveDate"].ToString());
+
+                        if (Convert.ToDateTime(dtEmpInfo.Rows[i]["RsgSelfEffectiveDate"]).Date <= DateTime.Now.Date)
+                        {
+                            sheet1.Range[xlsRow, cSelfResignationDate].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cSelfResignationDate].CellStyle.Font.Color = ExcelKnownColors.White;
+                        }
+                        else if (!Convert.ToBoolean(dtEmpInfo.Rows[i]["IsConfirmedProbation"].ToString()) && Convert.ToDateTime(dtEmpInfo.Rows[i]["DOC"]).Date > DateTime.Now.Date)
+                        {
+                            sheet1.Range[xlsRow, cSelfResignationDate].CellStyle.ColorIndex = ExcelKnownColors.Green;
+                            sheet1.Range[xlsRow, cSelfResignationDate].CellStyle.Font.Color = ExcelKnownColors.White;
+                        }
+
+                        if (Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString()))
+                        {
+                            oRU.SetText(ref sheet1, xlsRow, cBudgetCode, dtEmpInfo.Rows[i]["BudgetCode"].ToString());
+                            //entity
+
+                            for (int c = 0; c < dtEntity.Rows.Count; c++)
+                            {
+                                var _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                var v = dtEmpInfo.Rows[i]["e" + _colname].ToString();
+                                colNum = cBudgetCode + c + 1;
+                                oRU.SetText(ref sheet1, xlsRow, colNum, v);
+                            }
+
+                            //position
+
+                            for (int c = 0; c < dtPosition.Rows.Count; c++)
+                            {
+                                var _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                oRU.SetText(ref sheet1, xlsRow, colNum + c + 1, dtEmpInfo.Rows[i]["p" + _colname].ToString());
+                            }
+                        }//is bc applicable
+                        oRU.SetText(ref sheet1, xlsRow, cDesignation, dtEmpInfo.Rows[i]["Designation"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, dtEmpInfo.Rows[i]["GivenDesignation"].ToString());
+                        if (dtEmpInfo.Rows[i]["Designation"].ToString().ToUpper() != dtEmpInfo.Rows[i]["GivenDesignation"].ToString().ToUpper())
+                        {
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                        }
+
+                        oRU.SetText(ref sheet1, xlsRow, cLD, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+
+                        #endregion Loop
+                        xlsRow++;
+                    }
+
+                    oRU.SetHeaderText(ref sheet1, 4, 1, "On " + DateTime.Now.ToString("dd-MMM-yyyy"), ExcelHAlign.HAlignCenter);
+                    sheet1.Range[4, 1, 4, endXlsCol].Merge();
+
+                    if (!string.IsNullOrEmpty(plantId))
+                        oRU.PlantHeader(ref sheet1, endXlsCol, SheetHeader, plantId);
+                    else
+                        oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, SheetHeader, companyGroupId);
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    sheet1.Name = SheetName;
+
+                    workbook.Version = ExcelVersion.Excel97to2003;
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                }
+                return filePath;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        static int DayNum(string date, DateTime start)
+        {
+            DateTime dt = DateTime.Parse(date);
+            TimeSpan t = dt - start;
+            return (int)t.TotalDays + 1;
+        }
+        public string GetResignationDueList(string companyGroupId, string plantId, DataTable dtEmpInfo, string SheetHeader, string SheetName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = false;
+
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Entity'",
+                    Sort = "eSequence"
+                };
+                dtEntity = dvEntity.ToTable(true, "UserName");
+
+                var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Position'",
+                    Sort = "pSequence"
+                };
+                dtPosition = dvPosition.ToTable(true, "UserName");
+                var dvBC = new DataView(dtEmpInfo);
+                var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                for (int i = 0; i < dtBC.Rows.Count; i++)
+                {
+                    IsBudgetCodeApplicable = Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                    if (IsBudgetCodeApplicable)
+                    {
+                        break;
+                    }
+                }
+                if (dtEmpInfo.Rows.Count > 0)
+                {
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+                    workbook = application.Workbooks.Create(1);
+                    sheet1 = workbook.Worksheets[0];
+
+                    xlsRow = 5;
+
+                    #region variable
+
+                    var cEmployeeCode = 0;
+                    var cBudgetCode = 0;
+                    var cName = 0;
+                    var cDOJ = 0;
+
+                    var cDOC = 0;
+                    var cDOB = 0;
+                    var cDaysToGO = 0;
+                    var cResignationAppliedDate = 0;
+                    var cResignationApprovedDate = 0;
+                    var cSelfResignationDate = 0;
+                    var cDesignation = 0;
+                    var cGivenDesignation = 0;
+                    var cLD = 0;
+
+                    //bc
+
+                    //po
+
+                    #endregion variable
+                    var endXlsCol = 0;
+                    var colNum = 0;
+
+                    xlsRow++;
+                    xlsCol = 1;
+                    var cSl = 0;
+
+                    #region Header
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 6); cSl = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOC"); cDOC = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Resig. Submission Date"); cResignationAppliedDate = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Applied Effective Date"); cSelfResignationDate = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Resig. Effective Date"); cResignationApprovedDate = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Days To GO"); cDaysToGO = xlsCol; xlsCol++;
+                    if (IsBudgetCodeApplicable)
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); cBudgetCode = xlsCol; xlsCol++;
+
+                        for (int i = 0; i < dtEntity.Rows.Count; i++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+                        }
+
+                        for (int i = 0; i < dtPosition.Rows.Count; i++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[i]["UserName"].ToString(), 30); xlsCol++;
+                        }
+                    }//IsBudgetCodeApplicable
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GivenDesignation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal Designation", 25); cLD = xlsCol; xlsCol++;
+
+                    #endregion Header
+
+                    xlsCol--;
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    var slCount = 0;
+                    for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
+                    {
+                        slCount++;
+                        #region Loop
+
+                        oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cName, dtEmpInfo.Rows[i]["EmployeeName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOB, dtEmpInfo.Rows[i]["DOB"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOJ, dtEmpInfo.Rows[i]["DOJ"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOC, dtEmpInfo.Rows[i]["empDOC"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cResignationAppliedDate, dtEmpInfo.Rows[i]["ApplicantResignationDate"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cSelfResignationDate, dtEmpInfo.Rows[i]["RsgSelfEffectiveDate"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cResignationApprovedDate, dtEmpInfo.Rows[i]["resignationApprovedEffectiveDate"].ToString());
+                        if (Convert.ToDateTime(dtEmpInfo.Rows[i]["resignationApprovedEffectiveDate"]).Date <= DateTime.Now.Date)
+                        {
+                            sheet1.Range[xlsRow, cSelfResignationDate].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cSelfResignationDate].CellStyle.Font.Color = ExcelKnownColors.White;
+                        }
+
+                        oRU.SetText(ref sheet1, xlsRow, cDaysToGO, dtEmpInfo.Rows[i]["RsgDaysToGO"].ToString());
+
+                        if (Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString()))
+                        {
+                            oRU.SetText(ref sheet1, xlsRow, cBudgetCode, dtEmpInfo.Rows[i]["BudgetCode"].ToString());
+                            //entity
+
+                            for (int c = 0; c < dtEntity.Rows.Count; c++)
+                            {
+                                var _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                var v = dtEmpInfo.Rows[i]["e" + _colname].ToString();
+                                colNum = cBudgetCode + c + 1;
+                                oRU.SetText(ref sheet1, xlsRow, colNum, v);
+                            }
+
+                            //position
+
+                            for (int c = 0; c < dtPosition.Rows.Count; c++)
+                            {
+                                var _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                oRU.SetText(ref sheet1, xlsRow, colNum + c + 1, dtEmpInfo.Rows[i]["p" + _colname].ToString());
+                            }
+                        }//is bc applicable
+                        oRU.SetText(ref sheet1, xlsRow, cDesignation, dtEmpInfo.Rows[i]["Designation"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, dtEmpInfo.Rows[i]["GivenDesignation"].ToString());
+                        if (dtEmpInfo.Rows[i]["Designation"].ToString().ToUpper() != dtEmpInfo.Rows[i]["GivenDesignation"].ToString().ToUpper())
+                        {
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                        }
+
+                        oRU.SetText(ref sheet1, xlsRow, cLD, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+
+                        #endregion Loop
+                        xlsRow++;
+                    }
+
+                    oRU.SetHeaderText(ref sheet1, 4, 1, "On " + DateTime.Now.ToString("dd-MMM-yyyy"), ExcelHAlign.HAlignCenter);
+                    sheet1.Range[4, 1, 4, endXlsCol].Merge();
+
+                    if (!string.IsNullOrEmpty(plantId))
+                        oRU.PlantHeader(ref sheet1, endXlsCol, SheetHeader, plantId);
+                    else
+                        oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, SheetHeader, companyGroupId);
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    sheet1.Name = SheetName;
+
+                    workbook.Version = ExcelVersion.Excel97to2003;
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                }
+                return filePath;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public string GetSeperatedEmployeeList(string companyGroupId, string plantId, DataTable dtEmpInfo, string SheetHeader, string SheetName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Entity'",
+                    Sort = "eSequence"
+                };
+                dtEntity = dvEntity.ToTable(true, "UserName");
+
+                var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Position'",
+                    Sort = "pSequence"
+                };
+                dtPosition = dvPosition.ToTable(true, "UserName");
+
+                var dvBC = new DataView(dtEmpInfo);
+                var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                for (int i = 0; i < dtBC.Rows.Count; i++)
+                {
+                    IsBudgetCodeApplicable = Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                    if (IsBudgetCodeApplicable)
+                    {
+                        break;
+                    }
+                }
+                if (dtEmpInfo.Rows.Count > 0)
+                {
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+                    workbook = application.Workbooks.Create(1);
+                    sheet1 = workbook.Worksheets[0];
+
+                    xlsRow = 5;
+
+                    #region variable
+                    var cEmployeeCode = 0;
+                    var cName = 0;
+                    var cDOJ = 0;
+                    var cResignationAppliedDate = 0;
+                    var cResignationAppliedEffectiveDate = 0;
+                    var cResignationApprovedDate = 0;
+                    //int cEmpSeparationDate = 0;
+
+                    var cDOC = 0;
+                    var cDOB = 0;
+                    var cBudgetCode = 0;
+                    //int cDesignationGroup = 0;
+                    var cDesignation = 0;
+
+                    var cGivenDesignation = 0;
+                    var cLD = 0;
+                    //int cGivenDesignationGroup = 0;
+                    #endregion variable
+                    var endXlsCol = 0;
+                    var colNum = 0;
+
+                    xlsRow++;
+                    xlsCol = 1;
+                    var cSl = 0;
+
+                    #region Header
+                    //oRU.SetHeaderText(ref sheet1, xlsRow - 1, xlsCol, "Employee info", ExcelHAlign.HAlignCenter);
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 6); cSl = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOC"); cDOC = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Resig. Submission Date"); cResignationAppliedDate = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Applied Effective Date"); cResignationAppliedEffectiveDate = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Resig. Effective Date"); cResignationApprovedDate = xlsCol; xlsCol++;
+
+                    if (IsBudgetCodeApplicable)
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); cBudgetCode = xlsCol; xlsCol++;
+
+                        for (int i = 0; i < dtEntity.Rows.Count; i++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+                        }
+                        for (int c = 0; c < dtPosition.Rows.Count; c++)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[c]["UserName"].ToString(), 25); xlsCol++;
+                        }
+                    }//IsBudgetCodeApplicable
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GivenDesignation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal Designation", 25); cLD = xlsCol; xlsCol++;
+
+                    #endregion Header
+
+                    xlsCol--;
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    var slCount = 0;
+
+                    for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
+                    {
+                        slCount++;
+                        #region Loop
+
+                        oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cName, dtEmpInfo.Rows[i]["EmployeeName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOB, dtEmpInfo.Rows[i]["DOB"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOJ, dtEmpInfo.Rows[i]["DOJ"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cDOC, dtEmpInfo.Rows[i]["empDOC"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cResignationAppliedDate, dtEmpInfo.Rows[i]["ApplicantResignationDate"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cResignationAppliedEffectiveDate, dtEmpInfo.Rows[i]["RsgSelfEffectiveDate"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cResignationApprovedDate, dtEmpInfo.Rows[i]["resignationApprovedEffectiveDate"].ToString());
+
+                        if (Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString()))
+                        {
+                            oRU.SetText(ref sheet1, xlsRow, cBudgetCode, dtEmpInfo.Rows[i]["BudgetCode"].ToString());
+                            //entity
+
+                            for (int c = 0; c < dtEntity.Rows.Count; c++)
+                            {
+                                var _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                var v = dtEmpInfo.Rows[i]["e" + _colname].ToString();
+                                colNum = cBudgetCode + c + 1;
+                                oRU.SetText(ref sheet1, xlsRow, colNum, v);
+                            }
+
+                            //position
+
+                            for (int c = 0; c < dtPosition.Rows.Count; c++)
+                            {
+                                var _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                oRU.SetText(ref sheet1, xlsRow, colNum + c + 1, dtEmpInfo.Rows[i]["p" + _colname].ToString());
+                            }
+                        }//is bc applicable
+                        oRU.SetText(ref sheet1, xlsRow, cDesignation, dtEmpInfo.Rows[i]["Designation"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, dtEmpInfo.Rows[i]["GivenDesignation"].ToString());
+                        if (dtEmpInfo.Rows[i]["Designation"].ToString().ToUpper() != dtEmpInfo.Rows[i]["GivenDesignation"].ToString().ToUpper())
+                        {
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                            sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                        }
+
+                        oRU.SetText(ref sheet1, xlsRow, cLD, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+
+                        #endregion Loop
+                        xlsRow++;
+                    }
+
+                    oRU.SetHeaderText(ref sheet1, 4, 1, "Separated On " + DateTime.Now.ToString("dd-MMM-yyyy"), ExcelHAlign.HAlignCenter);
+                    sheet1.Range[4, 1, 4, endXlsCol].Merge();
+
+                    if (!string.IsNullOrEmpty(plantId))
+                        oRU.PlantHeader(ref sheet1, endXlsCol, SheetHeader, plantId);
+                    else
+                        oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, SheetHeader, companyGroupId);
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    sheet1.Name = SheetName;
+                    workbook.Version = ExcelVersion.Excel97to2003;
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                }
+                return filePath;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public string GetIncrementDueList(string companyGroupId, string plantId, DataTable dtEmpInfo, string SheetHeader, string SheetName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                oRU = new ReportUtility();
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                using (var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Entity'",
+                    Sort = "eSequence"
+                })
+                {
+                    dtEntity = dvEntity.ToTable(true, "UserName");
+
+                    using (var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                    {
+                        RowFilter = @"RType = 'Position'",
+                        Sort = "pSequence"
+                    })
+                    {
+                        dtPosition = dvPosition.ToTable(true, "UserName");
+
+                        using (var dvBC = new DataView(dtEmpInfo))
+                        {
+                            var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                            for (int i = 0; i < dtBC.Rows.Count; i++)
+                            {
+                                IsBudgetCodeApplicable = Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                                if (IsBudgetCodeApplicable)
+                                {
+                                    break;
+                                }
+                            }
+                            if (dtEmpInfo.Rows.Count > 0)
+                            {
+                                excelEngine = new ExcelEngine();
+                                application = excelEngine.Excel;
+                                workbook = application.Workbooks.Create(1);
+                                sheet1 = workbook.Worksheets[0];
+
+                                xlsRow = 5;
+
+                                #region variable
+
+                                var cEmployeeCode = 0;
+                                var cBudgetCode = 0;
+                                var cName = 0;
+                                var cDOJ = 0;
+                                //int cProbPeriod = 0;
+                                var cIncDueDate = 0;
+                                var cDOB = 0;
+                                var cLastIncDate = 0;
+                                var cDaysToGO = 0;
+
+                                var cDesignation = 0;
+                                var cGivenDesignation = 0;
+                                var cLD = 0;
+
+                                //bc
+
+                                //po
+
+                                #endregion variable
+
+                                var endXlsCol = 0;
+                                var colNum = 0;
+
+                                xlsRow++;
+                                xlsCol = 1;
+                                var cSl = 0;
+
+                                #region Header
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 6); cSl = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Prob. Period (Days)"); cProbPeriod = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Last Increment Date"); cLastIncDate = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Due Date"); cIncDueDate = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Days To Go"); cDaysToGO = xlsCol; xlsCol++;
+
+                                if (IsBudgetCodeApplicable)
+                                {
+                                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); cBudgetCode = xlsCol; xlsCol++;
+
+                                    for (int i = 0; i < dtEntity.Rows.Count; i++)
+                                    {
+                                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+                                    }
+                                    for (int c = 0; c < dtPosition.Rows.Count; c++)
+                                    {
+                                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[c]["UserName"].ToString(), 25); xlsCol++;
+                                    }
+                                }//IsBudgetCodeApplicable
+
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cDesignation = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GivenDesignation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal Designation", 25); cLD = xlsCol; xlsCol++;
+
+                                #endregion Header
+
+                                xlsCol--;
+                                endXlsCol = xlsCol;
+                                xlsRow++;
+                                var slCount = 0;
+                                for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
+                                {
+                                    slCount++;
+                                    #region Loop
+
+                                    oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
+
+                                    oRU.SetText(ref sheet1, xlsRow, cName, dtEmpInfo.Rows[i]["EmployeeName"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cDOB, dtEmpInfo.Rows[i]["DOB"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cDOJ, dtEmpInfo.Rows[i]["DOJ"].ToString());
+                                    //oRU.SetText(ref sheet1, xlsRow, cProbPeriod, dtEmpInfo.Rows[i]["ProbationPeriod"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cLastIncDate, dtEmpInfo.Rows[i]["IncrementEffectiveDate"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cIncDueDate, dtEmpInfo.Rows[i]["IncrementNextDueDate"].ToString());
+                                    if (Convert.ToDateTime(dtEmpInfo.Rows[i]["IncrementNextDueDate"]).Date == DateTime.Now.Date)
+                                    {
+                                        sheet1.Range[xlsRow, cIncDueDate].CellStyle.ColorIndex = ExcelKnownColors.Orange;
+                                        sheet1.Range[xlsRow, cIncDueDate].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    }
+                                    else if (Convert.ToDateTime(dtEmpInfo.Rows[i]["IncrementNextDueDate"]).Date > DateTime.Now.Date)
+                                    {
+                                        sheet1.Range[xlsRow, cIncDueDate].CellStyle.ColorIndex = ExcelKnownColors.Aqua;
+                                        sheet1.Range[xlsRow, cIncDueDate].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    }
+                                    else if (Convert.ToDateTime(dtEmpInfo.Rows[i]["IncrementNextDueDate"]).Date < DateTime.Now.Date)
+                                    {
+                                        sheet1.Range[xlsRow, cIncDueDate].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                                        sheet1.Range[xlsRow, cIncDueDate].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    }
+
+                                    oRU.SetText(ref sheet1, xlsRow, cDaysToGO, dtEmpInfo.Rows[i]["IncDaysToGO"].ToString());
+
+                                    if (Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString()))
+                                    {
+                                        oRU.SetText(ref sheet1, xlsRow, cBudgetCode, dtEmpInfo.Rows[i]["BudgetCode"].ToString());
+                                        //entity
+
+                                        for (int c = 0; c < dtEntity.Rows.Count; c++)
+                                        {
+                                            var _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                            var v = dtEmpInfo.Rows[i]["e" + _colname].ToString();
+                                            colNum = cBudgetCode + c + 1;
+                                            oRU.SetText(ref sheet1, xlsRow, colNum, v);
+                                        }
+
+                                        //position
+
+                                        for (int c = 0; c < dtPosition.Rows.Count; c++)
+                                        {
+                                            var _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                            oRU.SetText(ref sheet1, xlsRow, colNum + c + 1, dtEmpInfo.Rows[i]["p" + _colname].ToString());
+                                        }
+                                    }//is bc applicable
+                                    oRU.SetText(ref sheet1, xlsRow, cDesignation, dtEmpInfo.Rows[i]["Designation"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, dtEmpInfo.Rows[i]["GivenDesignation"].ToString());
+                                    if (dtEmpInfo.Rows[i]["Designation"].ToString().ToUpper() != dtEmpInfo.Rows[i]["GivenDesignation"].ToString().ToUpper())
+                                    {
+                                        sheet1.Range[xlsRow, cDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                                        sheet1.Range[xlsRow, cDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                                        sheet1.Range[xlsRow, cGivenDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                                        sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    }
+                                    oRU.SetText(ref sheet1, xlsRow, cLD, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+                                    #endregion Loop
+                                    xlsRow++;
+                                }
+
+                                oRU.SetHeaderText(ref sheet1, 4, 1, "On " + DateTime.Now.ToString("dd-MMM-yyyy"), ExcelHAlign.HAlignCenter);
+                                sheet1.Range[4, 1, 4, endXlsCol].Merge();
+
+                                if (!string.IsNullOrEmpty(plantId))
+                                    oRU.PlantHeader(ref sheet1, endXlsCol, SheetHeader, plantId);
+                                else
+                                    oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, SheetHeader, companyGroupId);
+
+                                #region UsedRange Alignment
+                                sheet1.UsedRange.WrapText = true;
+                                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                                #endregion UsedRange Alignment
+
+                                oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                                sheet1.Name = SheetName;
+
+                                workbook.Version = ExcelVersion.Excel97to2003;
+                                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                                workbook.SaveAs(filePath);
+                                workbook.Close();
+                                excelEngine.Dispose();
+                            }
+                            return filePath;
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public string GetAttendanceFromAppExcel(string companyGroupId, string plantId, DataTable dtEmpInfo, string SheetHeader, string SheetName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                oRU = new ReportUtility();
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                using (var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Entity'",
+                    Sort = "eSequence"
+                })
+                {
+                    dtEntity = dvEntity.ToTable(true, "UserName");
+
+                    using (var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                    {
+                        RowFilter = @"RType = 'Position'",
+                        Sort = "pSequence"
+                    })
+                    {
+                        dtPosition = dvPosition.ToTable(true, "UserName");
+
+                        using (var dvBC = new DataView(dtEmpInfo))
+                        {
+                            //var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                            //for (int i = 0; i < dtBC.Rows.Count; i++)
+                            //{
+                            //    IsBudgetCodeApplicable = Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                            //    if (IsBudgetCodeApplicable)
+                            //    {
+                            //        break;
+                            //    }
+                            //}
+                            if (dtEmpInfo.Rows.Count > 0)
+                            {
+                                excelEngine = new ExcelEngine();
+                                application = excelEngine.Excel;
+                                workbook = application.Workbooks.Create(1);
+                                sheet1 = workbook.Worksheets[0];
+
+                                xlsRow = 5;
+
+                                #region variable
+
+                                var cEmployeeCode = 0;
+                                var cBudgetCode = 0;
+                                var cName = 0;
+                                var cDOJ = 0;
+                                var cDOB = 0;
+                                var cDesignation = 0;
+                                var cGivenDesignation = 0;
+                                var cLD = 0;
+                                int cShiftInTime = 0;
+                                int cLatitude = 0;
+                                int cLongitude = 0;
+                                int cInTime = 0;
+                                int cOutTime = 0;
+                                int cDayStatus = 0;
+                                int cWorkDate;
+                                int cInLocation = 0;
+                                int cOutLocation = 0;
+
+                                //bc
+
+                                //po
+
+                                #endregion variable
+
+                                var endXlsCol = 0;
+                                var colNum = 0;
+
+                                xlsRow++;
+                                xlsCol = 1;
+                                var cSl = 0;
+
+                                #region Header
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 6); cSl = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Prob. Period (Days)"); cProbPeriod = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Work Date"); cWorkDate = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "InTime"); cInTime = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OutTime"); cOutTime = xlsCol; xlsCol++;
+                                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Latitude"); cLatitude = xlsCol; xlsCol++;
+                                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Longitude"); cLongitude = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "InLocation"); cInLocation = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OutLocation"); cOutLocation = xlsCol; xlsCol++;
+
+
+                                //if (IsBudgetCodeApplicable)
+                                //{
+                                //    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); cBudgetCode = xlsCol; xlsCol++;
+
+                                //    for (int i = 0; i < dtEntity.Rows.Count; i++)
+                                //    {
+                                //        if (dtEntity.Rows[i]["UserName"].ToString().ToUpper() == "UNIT")
+                                //        {
+                                //            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+
+                                //        }
+
+                                //    }
+                                //    for (int c = 0; c < dtPosition.Rows.Count; c++)
+                                //    {
+                                //        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[c]["UserName"].ToString(), 25); xlsCol++;
+                                //    }
+                                //}//IsBudgetCodeApplicable
+
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cDesignation = xlsCol; xlsCol++;
+                                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GivenDesignation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal Designation", 25); cLD = xlsCol; xlsCol++;
+
+                                #endregion Header
+
+                                xlsCol--;
+                                endXlsCol = xlsCol;
+                                xlsRow++;
+                                var slCount = 0;
+                                for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
+                                {
+                                    slCount++;
+                                    #region Loop
+
+                                    oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cName, dtEmpInfo.Rows[i]["EmployeeName"].ToString());
+                                    //oRU.SetText(ref sheet1, xlsRow, cDOB, dtEmpInfo.Rows[i]["DOB"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cDOJ, dtEmpInfo.Rows[i]["DOJ"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cWorkDate, dtEmpInfo.Rows[i]["PDate"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cInTime, dtEmpInfo.Rows[i]["inTime"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cOutTime, dtEmpInfo.Rows[i]["OutTime"].ToString());
+                                    //oRU.SetText(ref sheet1, xlsRow, cLatitude, dtEmpInfo.Rows[i]["Latitude"].ToString());
+                                    //oRU.SetText(ref sheet1, xlsRow, cLongitude, dtEmpInfo.Rows[i]["Longitude"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cInLocation, dtEmpInfo.Rows[i]["INLocationDesc"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cOutLocation, dtEmpInfo.Rows[i]["OutLocationDesc"].ToString());
+
+                                    //if (Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString()))
+                                    //{
+                                    //    //oRU.SetText(ref sheet1, xlsRow, cBudgetCode, dtEmpInfo.Rows[i]["BudgetCode"].ToString());
+                                    //    //entity
+
+                                    //    for (int c = 0; c < dtEntity.Rows.Count; c++)
+                                    //    {
+                                    //        if (dtEntity.Rows[c]["UserName"].ToString().ToUpper() == "UNIT")
+                                    //        {
+                                    //            var _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                    //            var v = dtEmpInfo.Rows[i]["e" + _colname].ToString();
+                                    //            colNum = cOutLocation + 1;
+                                    //            oRU.SetText(ref sheet1, xlsRow, colNum, v);
+                                    //        }
+                                    //    }
+                                    //    //position
+                                    //    //colNum = cOutLocation;// + c + 1;
+
+                                    //    for (int c = 0; c < dtPosition.Rows.Count; c++)
+                                    //    {
+                                    //        var _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                    //        oRU.SetText(ref sheet1, xlsRow, colNum + c + 1, dtEmpInfo.Rows[i]["p" + _colname].ToString());
+                                    //    }
+                                    //}//is bc applicable                                   
+
+                                    oRU.SetText(ref sheet1, xlsRow, cDesignation, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+
+                                    //oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, dtEmpInfo.Rows[i]["GivenDesignation"].ToString());
+                                    //if (dtEmpInfo.Rows[i]["Designation"].ToString().ToUpper() != dtEmpInfo.Rows[i]["GivenDesignation"].ToString().ToUpper())
+                                    //{
+                                    //    sheet1.Range[xlsRow, cDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                                    //    sheet1.Range[xlsRow, cDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    //    sheet1.Range[xlsRow, cGivenDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                                    //    sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    //}
+                                    //oRU.SetText(ref sheet1, xlsRow, cLD, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+                                    #endregion Loop
+                                    xlsRow++;
+                                }
+
+                                oRU.SetHeaderText(ref sheet1, 4, 1, "On " + DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy"), ExcelHAlign.HAlignCenter);
+                                sheet1.Range[4, 1, 4, endXlsCol].Merge();
+
+                                if (!string.IsNullOrEmpty(plantId))
+                                    oRU.PlantHeader(ref sheet1, endXlsCol, SheetHeader, plantId);
+                                else
+                                    oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, SheetHeader, companyGroupId);
+
+                                #region UsedRange Alignment
+                                sheet1.UsedRange.WrapText = true;
+                                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                                #endregion UsedRange Alignment
+
+                                oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                                sheet1.Name = SheetName;
+
+                                workbook.Version = ExcelVersion.Excel97to2003;
+                                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                                workbook.SaveAs(filePath);
+                                workbook.Close();
+                                excelEngine.Dispose();
+                            }
+                            return filePath;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string GetMissedPunchLsitExcel(string companyGroupId, string plantId, DataTable dtEmpInfo, string SheetHeader, string SheetName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                oRU = new ReportUtility();
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                using (var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                {
+                    RowFilter = "RType = 'Entity'",
+                    Sort = "eSequence"
+                })
+                {
+                    dtEntity = dvEntity.ToTable(true, "UserName");
+
+                    using (var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                    {
+                        RowFilter = @"RType = 'Position'",
+                        Sort = "pSequence"
+                    })
+                    {
+                        dtPosition = dvPosition.ToTable(true, "UserName");
+
+                        using (var dvBC = new DataView(dtEmpInfo))
+                        {
+                            var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                            for (int i = 0; i < dtBC.Rows.Count; i++)
+                            {
+                                IsBudgetCodeApplicable = Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                                if (IsBudgetCodeApplicable)
+                                {
+                                    break;
+                                }
+                            }
+                            if (dtEmpInfo.Rows.Count > 0)
+                            {
+                                excelEngine = new ExcelEngine();
+                                application = excelEngine.Excel;
+                                workbook = application.Workbooks.Create(1);
+                                sheet1 = workbook.Worksheets[0];
+
+                                xlsRow = 5;
+
+                                #region variable
+
+                                var cEmployeeCode = 0;
+                                var cBudgetCode = 0;
+                                var cName = 0;
+                                var cDOJ = 0;
+                                //int cProbPeriod = 0;
+                                var cIncDueDate = 0;
+                                var cDOB = 0;
+                                var cLastIncDate = 0;
+                                var cDaysToGO = 0;
+
+                                var cDesignation = 0;
+                                var cGivenDesignation = 0;
+                                var cLD = 0;
+
+                                //bc
+
+                                //po
+
+                                #endregion variable
+
+                                var endXlsCol = 0;
+                                var colNum = 0;
+
+                                xlsRow++;
+                                xlsCol = 1;
+                                var cSl = 0;
+
+                                #region Header
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 6); cSl = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Prob. Period (Days)"); cProbPeriod = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Last Increment Date"); cLastIncDate = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Due Date"); cIncDueDate = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Days To Go"); cDaysToGO = xlsCol; xlsCol++;
+
+                                if (IsBudgetCodeApplicable)
+                                {
+                                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); cBudgetCode = xlsCol; xlsCol++;
+
+                                    for (int i = 0; i < dtEntity.Rows.Count; i++)
+                                    {
+                                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+                                    }
+                                    for (int c = 0; c < dtPosition.Rows.Count; c++)
+                                    {
+                                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[c]["UserName"].ToString(), 25); xlsCol++;
+                                    }
+                                }//IsBudgetCodeApplicable
+
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cDesignation = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GivenDesignation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal Designation", 25); cLD = xlsCol; xlsCol++;
+
+                                #endregion Header
+
+                                xlsCol--;
+                                endXlsCol = xlsCol;
+                                xlsRow++;
+                                var slCount = 0;
+                                for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
+                                {
+                                    slCount++;
+                                    #region Loop
+
+                                    oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
+
+                                    oRU.SetText(ref sheet1, xlsRow, cName, dtEmpInfo.Rows[i]["EmployeeName"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cDOB, dtEmpInfo.Rows[i]["DOB"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cDOJ, dtEmpInfo.Rows[i]["DOJ"].ToString());
+                                    //oRU.SetText(ref sheet1, xlsRow, cProbPeriod, dtEmpInfo.Rows[i]["ProbationPeriod"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cLastIncDate, dtEmpInfo.Rows[i]["IncrementEffectiveDate"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cIncDueDate, dtEmpInfo.Rows[i]["IncrementNextDueDate"].ToString());
+                                    if (Convert.ToDateTime(dtEmpInfo.Rows[i]["IncrementNextDueDate"]).Date == DateTime.Now.Date)
+                                    {
+                                        sheet1.Range[xlsRow, cIncDueDate].CellStyle.ColorIndex = ExcelKnownColors.Orange;
+                                        sheet1.Range[xlsRow, cIncDueDate].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    }
+                                    else if (Convert.ToDateTime(dtEmpInfo.Rows[i]["IncrementNextDueDate"]).Date > DateTime.Now.Date)
+                                    {
+                                        sheet1.Range[xlsRow, cIncDueDate].CellStyle.ColorIndex = ExcelKnownColors.Aqua;
+                                        sheet1.Range[xlsRow, cIncDueDate].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    }
+                                    else if (Convert.ToDateTime(dtEmpInfo.Rows[i]["IncrementNextDueDate"]).Date < DateTime.Now.Date)
+                                    {
+                                        sheet1.Range[xlsRow, cIncDueDate].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                                        sheet1.Range[xlsRow, cIncDueDate].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    }
+
+                                    oRU.SetText(ref sheet1, xlsRow, cDaysToGO, dtEmpInfo.Rows[i]["IncDaysToGO"].ToString());
+
+                                    if (Convert.ToBoolean(dtEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString()))
+                                    {
+                                        oRU.SetText(ref sheet1, xlsRow, cBudgetCode, dtEmpInfo.Rows[i]["BudgetCode"].ToString());
+                                        //entity
+
+                                        for (int c = 0; c < dtEntity.Rows.Count; c++)
+                                        {
+                                            var _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                            var v = dtEmpInfo.Rows[i]["e" + _colname].ToString();
+                                            colNum = cBudgetCode + c + 1;
+                                            oRU.SetText(ref sheet1, xlsRow, colNum, v);
+                                        }
+
+                                        //position
+
+                                        for (int c = 0; c < dtPosition.Rows.Count; c++)
+                                        {
+                                            var _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                            oRU.SetText(ref sheet1, xlsRow, colNum + c + 1, dtEmpInfo.Rows[i]["p" + _colname].ToString());
+                                        }
+                                    }//is bc applicable
+                                    oRU.SetText(ref sheet1, xlsRow, cDesignation, dtEmpInfo.Rows[i]["Designation"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, dtEmpInfo.Rows[i]["GivenDesignation"].ToString());
+                                    if (dtEmpInfo.Rows[i]["Designation"].ToString().ToUpper() != dtEmpInfo.Rows[i]["GivenDesignation"].ToString().ToUpper())
+                                    {
+                                        sheet1.Range[xlsRow, cDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                                        sheet1.Range[xlsRow, cDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                                        sheet1.Range[xlsRow, cGivenDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                                        sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    }
+                                    oRU.SetText(ref sheet1, xlsRow, cLD, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+                                    #endregion Loop
+                                    xlsRow++;
+                                }
+
+                                oRU.SetHeaderText(ref sheet1, 4, 1, "On " + DateTime.Now.ToString("dd-MMM-yyyy"), ExcelHAlign.HAlignCenter);
+                                sheet1.Range[4, 1, 4, endXlsCol].Merge();
+
+                                if (!string.IsNullOrEmpty(plantId))
+                                    oRU.PlantHeader(ref sheet1, endXlsCol, SheetHeader, plantId);
+                                else
+                                    oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, SheetHeader, companyGroupId);
+
+                                #region UsedRange Alignment
+                                sheet1.UsedRange.WrapText = true;
+                                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                                #endregion UsedRange Alignment
+
+                                oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                                //sheet1.Name = SheetName;
+
+                                workbook.Version = ExcelVersion.Excel97to2003;
+                                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                                workbook.SaveAs(filePath);
+                                workbook.Close();
+                                excelEngine.Dispose();
+                            }
+                            return filePath;
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public string GetYesterdayMissedPunchLsitExcel(string companyGroupId, string plantId, string SheetHeader, string SheetName)
+        {
+            try
+            {
+
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                StringCollection dayStatus = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+
+
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                dayStatus = new StringCollection();
+                StringCollection myCol = new StringCollection();
+
+                String[] dayStat = new String[] { "ABSENT", "IN PUNCH MISSING", "OUT PUNCH MISSING", "ABSENT MARGIN" };
+                dayStatus.AddRange(dayStat);
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(dayStatus.Count);
+
+                for (int dsi = 0; dsi < dayStatus.Count; dsi++)
+                {
+                    var daylyAttdnEmpInfo = HRMS.GetYesterdayMissedPunchInfoDetailWithSheets(companyGroupId, plantId, dayStatus[dsi], DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy"));
+
+                    HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                    var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                    {
+                        RowFilter = "RType = 'Entity'",
+                        Sort = "eSequence"
+                    };
+                    dtEntity = dvEntity.ToTable(true, "UserName");
+
+                    var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                    {
+                        RowFilter = "RType = 'Position'",
+                        Sort = "pSequence"
+                    };
+                    dtPosition = dvPosition.ToTable(true, "UserName");
+
+                    var dvBC = new DataView(daylyAttdnEmpInfo);
+                    var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                    for (int i = 0; i < dtBC.Rows.Count; i++)
+                    {
+                        IsBudgetCodeApplicable = Convert.ToBoolean(daylyAttdnEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                        if (IsBudgetCodeApplicable)
+                        {
+                            break;
+                        }
+                    }
+                    sheet1 = workbook.Worksheets[dsi];
+                    sheet1.Name = dayStatus[dsi].ToString().Trim();
+                    if (daylyAttdnEmpInfo.Rows.Count > 0)
+                    {
+                        xlsRow = 5;
+                        #region variable
+                        var cEmployeeCode = 0; var cBudgetCode = 0; var cName = 0; var cDOJ = 0; var cDOB = 0;
+                        var cDesignation = 0; var cGivenDesignation = 0; var cLD = 0; var cLeaveType = 0;
+                        var cDayStatus = 0; var cEmpCatg = 0; var cEmpLocation = 0; var cSl = 0;
+                        var endXlsCol = 0;
+                        var colNum = 0;
+                        #endregion variable
+                        xlsRow++;
+                        xlsCol = 1;
+                        #region Header
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 6); cSl = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp Category"); cEmpCatg = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp Location"); cEmpLocation = xlsCol; xlsCol++;
+                        if (dayStatus[dsi] == "Leave")
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LeaveType"); cLeaveType = xlsCol; xlsCol++;
+                        }
+                        if (dayStatus[dsi] == "Work Off")
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Day Status"); cDayStatus = xlsCol; xlsCol++;
+                        }
+                        if (IsBudgetCodeApplicable)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); cBudgetCode = xlsCol; xlsCol++;
+
+                            for (int i = 0; i < dtEntity.Rows.Count; i++)
+                            {
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+                            }
+                            for (int c = 0; c < dtPosition.Rows.Count; c++)
+                            {
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[c]["UserName"].ToString(), 25); xlsCol++;
+                            }
+                        }//IsBudgetCodeApplicable
+
+
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cDesignation = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GivenDesignation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal Designation", 25); cLD = xlsCol; xlsCol++;
+
+                        #endregion Header
+                        var fPanRow = xlsRow + 1;//Freeze pan starting rows
+                        xlsCol--;
+                        endXlsCol = xlsCol;
+                        xlsRow++;
+                        var slCount = 0;
+                        for (int i = 0; i < daylyAttdnEmpInfo.Rows.Count; i++)
+                        {
+                            slCount++;
+                            #region Loop
+
+                            oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, daylyAttdnEmpInfo.Rows[i]["EmployeeCode"].ToString());
+
+                            oRU.SetText(ref sheet1, xlsRow, cName, daylyAttdnEmpInfo.Rows[i]["EmployeeName"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDOB, daylyAttdnEmpInfo.Rows[i]["DOB"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDOJ, daylyAttdnEmpInfo.Rows[i]["DOJ"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cEmpCatg, daylyAttdnEmpInfo.Rows[i]["empCategory"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["EmployeeLocation"].ToString());
+
+                            if (dayStatus[dsi] == "Leave")
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cLeaveType, daylyAttdnEmpInfo.Rows[i]["LeaveType"].ToString());
+                            }
+                            if (dayStatus[dsi] == "Work Off")
+                            {
+                                if (!string.IsNullOrEmpty(daylyAttdnEmpInfo.Rows[i]["DayType"].ToString()))
+                                {
+                                    oRU.SetText(ref sheet1, xlsRow, cDayStatus, daylyAttdnEmpInfo.Rows[i]["DayType"].ToString());
+                                }
+                            }
+                            if (Convert.ToBoolean(daylyAttdnEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString()))
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cBudgetCode, daylyAttdnEmpInfo.Rows[i]["BudgetCode"].ToString());
+                                //entity
+
+                                for (int c = 0; c < dtEntity.Rows.Count; c++)
+                                {
+                                    var _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                    var v = daylyAttdnEmpInfo.Rows[i]["e" + _colname].ToString();
+                                    colNum = cBudgetCode + c + 1;
+                                    oRU.SetText(ref sheet1, xlsRow, colNum, v);
+                                }
+
+                                //position
+
+                                for (int c = 0; c < dtPosition.Rows.Count; c++)
+                                {
+                                    var _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                    oRU.SetText(ref sheet1, xlsRow, colNum + c + 1, daylyAttdnEmpInfo.Rows[i]["p" + _colname].ToString());
+                                }
+                            }//is bc applicable
+
+                            oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["EmployeeLocation"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDesignation, daylyAttdnEmpInfo.Rows[i]["Designation"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, daylyAttdnEmpInfo.Rows[i]["GivenDesignation"].ToString());
+                            if (daylyAttdnEmpInfo.Rows[i]["Designation"].ToString().ToUpper() != daylyAttdnEmpInfo.Rows[i]["GivenDesignation"].ToString().ToUpper())
+                            {
+                                sheet1.Range[xlsRow, cDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                                sheet1.Range[xlsRow, cDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                                sheet1.Range[xlsRow, cGivenDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                                sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                            }
+
+                            oRU.SetText(ref sheet1, xlsRow, cLD, daylyAttdnEmpInfo.Rows[i]["LegalDesignation"].ToString());
+
+                            #endregion Loop
+                            xlsRow++;
+                        }
+                        var sheetHeaderExt = "";
+                        if (dayStatus[dsi] == "ABSENT")
+                        {
+                            sheetHeaderExt = "ABSENT With IN and OUT Punch Missing";
+                        }
+                        if (dayStatus[dsi] == "IN PUNCH MISSING")
+                        {
+                            sheetHeaderExt = "ABSENT With IN Punch Missing";
+                        }
+                        if (dayStatus[dsi] == "OUT PUNCH MISSING")
+                        {
+                            sheetHeaderExt = "Present With OUT Punch Missing";
+                        }
+                        if (dayStatus[dsi] == "ABSENTMARGIN")
+                        {
+                            sheetHeaderExt = "ABSENT With Margin";
+                        }
+                        oRU.SetHeaderText(ref sheet1, 4, 1, sheetHeaderExt + " Report", ExcelHAlign.HAlignCenter);
+                        sheet1.Range[4, 1, 4, endXlsCol].Merge();
+                        var attdnHeader = SheetHeader + " On " + DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy");
+                        if (!string.IsNullOrEmpty(plantId))
+                            oRU.PlantHeader(ref sheet1, endXlsCol, attdnHeader, plantId);
+                        else
+                            oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, attdnHeader, companyGroupId);
+
+                        #region UsedRange Alignment
+                        sheet1.UsedRange.WrapText = true;
+                        sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                        sheet1.UsedRange["A" + fPanRow].FreezePanes();
+                        #endregion UsedRange Alignment
+
+                        oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+
+                    }
+
+
+                }
+                workbook.Version = ExcelVersion.Excel97to2003;
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public string GetManualAttendanceLsitExcel(string companyGroupId, string plantId, DataTable dtEmpInfo, string SheetHeader, string SheetName)
+        {
+            try
+            {
+                #region Variable
+                var filePath = "";
+
+                //DataTable dtEntity = null;
+                //DataTable dtPosition = null;
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oru = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                //var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                oru = new ReportUtility();
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                if (dtEmpInfo.Rows.Count > 0)
+                {
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+                    workbook = application.Workbooks.Create(1);
+                    sheet1 = workbook.Worksheets[0];
+
+                    xlsRow = 5;
+                    int cSrl = 0;
+                    int cEmpCode = 0;
+                    int cEmpName = 0;
+                    int cEmpDept = 0;
+                    int cEmpIntime = 0;
+                    int cEmpOutTime = 0;
+                    int cEmpDayStatus = 0;
+                    int cEmpSecId = 0;
+                    int cEmpSubSectionId = 0;
+                    int cEmpUnitId = 0;
+                    int cEmpDesignation = 0;
+                    int CEmpLn = 0;
+                    int cEmpWD = 0;
+                    int cEmpED = 0;
+                    int cDays = 0;
+                    int endXlsCol = 0;
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Sr. No", 4);
+                    cSrl = xlsCol; xlsCol++;
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Designation", 17);
+                    cEmpDesignation = xlsCol; xlsCol++;
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Department", 25);
+                    cEmpDept = xlsCol; xlsCol++;
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Unit", 8);
+                    cEmpUnitId = xlsCol; xlsCol++;
+
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Section", 16);
+                    cEmpSecId = xlsCol; xlsCol++;
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Subsection", 14);
+                    cEmpSubSectionId = xlsCol; xlsCol++;
+
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Line", 8);
+                    CEmpLn = xlsCol; xlsCol++;
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Emp Code", 8);
+                    cEmpCode = xlsCol; xlsCol++;
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Employee Name", 23);
+                    cEmpName = xlsCol; xlsCol++;
+
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "WorkDate", 10);
+                    cEmpWD = xlsCol; xlsCol++;
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Entry Date", 10);
+                    cEmpED = xlsCol; xlsCol++;
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Day Difference", 9);
+                    cDays = xlsCol; xlsCol++;
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Day Status", 6);
+                    cEmpDayStatus = xlsCol; xlsCol++;
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "In Time", 7);
+                    cEmpIntime = xlsCol; xlsCol++;
+
+
+                    oru.SetHeaderTextWB(ref sheet1, xlsRow, xlsCol, "Out Time", 7);
+                    cEmpOutTime = xlsCol; xlsCol++;
+
+
+
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    xlsCol = 1;
+                    int strCount = 0;
+                    var days = @"""d""";
+
+                    for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
+                    {
+                        strCount++;
+                        oru.SetText(ref sheet1, xlsRow, cSrl, strCount);
+                        oru.SetText(ref sheet1, xlsRow, cEmpCode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
+                        oru.SetText(ref sheet1, xlsRow, cEmpName, dtEmpInfo.Rows[i]["EmployeeName"].ToString());
+                        oru.SetText(ref sheet1, xlsRow, cEmpDept, dtEmpInfo.Rows[i]["Department"].ToString());
+
+                        if (Convert.ToBoolean(dtEmpInfo.Rows[i]["IsManualInTime"]) == true)
+                        {
+                            sheet1.Range[xlsRow, cEmpIntime].CellStyle.Font.Color = ExcelKnownColors.Orange;
+                        }
+
+                        oru.SetText(ref sheet1, xlsRow, cEmpIntime, dtEmpInfo.Rows[i]["InTime"].ToString());
+
+                        if (Convert.ToBoolean(dtEmpInfo.Rows[i]["IsManualOutTime"]) == true)
+                        {
+                            sheet1.Range[xlsRow, cEmpOutTime].CellStyle.Font.Color = ExcelKnownColors.Orange;
+                        }
+
+                        oru.SetText(ref sheet1, xlsRow, cEmpOutTime, dtEmpInfo.Rows[i]["OutTime"].ToString());
+
+                        if (Convert.ToBoolean(dtEmpInfo.Rows[i]["IsManualDayStatus"]) == true)
+                        {
+                            sheet1.Range[xlsRow, cEmpDayStatus].CellStyle.Font.Color = ExcelKnownColors.Orange;
+                        }
+
+                        oru.SetText(ref sheet1, xlsRow, cEmpDayStatus, dtEmpInfo.Rows[i]["DayStatus"].ToString());
+                        sheet1.Range[xlsRow, cEmpDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, cEmpDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        oru.SetText(ref sheet1, xlsRow, cEmpSecId, dtEmpInfo.Rows[i]["Section"].ToString());
+                        oru.SetText(ref sheet1, xlsRow, cEmpSubSectionId, dtEmpInfo.Rows[i]["Sub_section"].ToString());
+                        oru.SetText(ref sheet1, xlsRow, CEmpLn, dtEmpInfo.Rows[i]["Line"].ToString());
+                        oru.SetText(ref sheet1, xlsRow, cEmpWD, dtEmpInfo.Rows[i]["WorkDate"].ToString());
+                        oru.SetText(ref sheet1, xlsRow, cEmpED, dtEmpInfo.Rows[i]["EntryDate"].ToString());
+
+                        var calcDate = $@"""{dtEmpInfo.Rows[i]["EntryDate"].ToString()}""";
+                        var dayFormula = "=DATEDIF(" + oru.GetColumnNameForXls(cEmpWD) + xlsRow + "," + calcDate + "," + days + ")";//
+                        oru.SetColFormula(ref sheet1, xlsRow, cDays, dayFormula, false);
+
+                        oru.SetText(ref sheet1, xlsRow, cEmpUnitId, dtEmpInfo.Rows[i]["Unit"].ToString());
+                        oru.SetText(ref sheet1, xlsRow, cEmpDesignation, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+                        //oru.SetText(ref sheet1, xlsRow, cEmpDesignation, dtEmpInfo.Rows[i]["Designation"].ToString());
+                        //oru.SetText(ref sheet1, xlsRow, cEmpUpdatedBy, dtEmpInfo.Rows[i]["UpdatedBy"].ToString());
+                        //oru.SetText(ref sheet1, xlsRow, CEmpUpdatedDate, dtEmpInfo.Rows[i]["UpdatedDate"].ToString());
+
+                        xlsRow++;
+                    }
+
+                    oru.SetHeaderText(ref sheet1, 4, 1, "On " + DateTime.Today.AddDays(-1).ToString("dd-MMM-yyyy"), ExcelHAlign.HAlignCenter);
+                    sheet1.Range[4, 1, 4, endXlsCol].Merge();
+
+                    if (!string.IsNullOrEmpty(plantId))
+                        oru.PlantHeader(ref sheet1, endXlsCol, SheetHeader, plantId);
+                    else
+                        oru.MainCompanyGroupHeader(ref sheet1, endXlsCol, SheetHeader, companyGroupId);
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    oru.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    sheet1.Name = SheetName;
+
+                    workbook.Version = ExcelVersion.Excel97to2003;
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                }
+                return filePath;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public string GetDailyAttendanceEmpInfoList(string companyGroupId, string companyId, string plantId, string SheetHeader, string SheetName, string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string empCategoryList, string designationList, string lineList, string Dstatus)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+                string yot = string.Empty;
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                StringCollection dayStatus = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+
+                dayStatus = new StringCollection();
+                StringCollection myCol = new StringCollection();
+
+                String[] dayStat = new String[] { "Absent", "Late", "Leave", "Present", "Work Off" };
+                dayStatus.AddRange(dayStat);
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(dayStatus.Count);
+                Dictionary<string, List<DataRow>> dicEmpMonthAttdnSummary = HRMS.GetMontlyAttdnSummary(companyGroupId, plantId, workDate);
+
+
+                for (int dsi = 0; dsi < dayStatus.Count; dsi++)
+                {
+                    var daylyAttdnEmpInfo = HRMS.GetDAttendanceEmployee(companyGroupId, companyId, plantId, dayStatus[dsi], workDate, shift, Entity, Dept, Ydate, Sec, SSec, empCategoryList, designationList, lineList, Dstatus,"");
+
+
+
+                    HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                    var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                    {
+                        RowFilter = "RType = 'Entity'",
+                        Sort = "eSequence"
+                    };
+                    dtEntity = dvEntity.ToTable(true, "UserName");
+
+                    var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                    {
+                        RowFilter = "RType = 'Position'",
+                        Sort = "pSequence"
+                    };
+                    dtPosition = dvPosition.ToTable(true, "UserName");
+
+                    var dvBC = new DataView(daylyAttdnEmpInfo);
+                    //var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                    //for (int i = 0; i < dtBC.Rows.Count; i++)
+                    //{
+                    //    IsBudgetCodeApplicable = Convert.ToBoolean(daylyAttdnEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                    //    if (IsBudgetCodeApplicable)
+                    //    {
+                    //        break;
+                    //    }
+                    //}
+                    sheet1 = workbook.Worksheets[dsi];
+                    sheet1.Name = dayStatus[dsi].ToString().Trim();
+
+
+
+
+                    xlsRow = 5;
+                    #region variable
+                    var cEmployeeCode = 0; var cBudgetCode = 0; var cCurrentMonthAbsent = 0; var cName = 0; var cDOJ = 0; var cDOB = 0;
+                    var cTotalAbsentORLate = 0; var cShiftInTime = 0; var cShiftOutTime = 0;
+                    var cDesignation = 0; var cGivenDesignation = 0; var cLD = 0; var cLeaveType = 0;
+                    var cDayStatus = 0; var cEmpCatg = 0; var cEmpLocation = 0; var cDepertment = 0; var cEntity = 0; var cSl = 0;
+                    var endXlsCol = 0;
+                    var colNum = 0;
+                    var cYesterdayDaystatus = 0;
+                    var cYesterdayOverStayHour = 0;
+                    var cRemarks = 0;
+                    #endregion variable
+                    xlsRow++;
+                    xlsCol = 1;
+                    #region Header
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 6); cSl = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+
+                    if (dayStatus[dsi] == "Absent")
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Total Absent"); cTotalAbsentORLate = xlsCol; xlsCol++;
+
+                    }
+                    if (dayStatus[dsi] == "Late")
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Total Late"); cTotalAbsentORLate = xlsCol; xlsCol++;
+
+                    }
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FatherName"); cDOB = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp Category"); cEmpCatg = xlsCol; xlsCol++;
+                    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp Location"); cEmpLocation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Entity"); cEntity = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Depertment"); cDepertment = xlsCol; xlsCol++;
+
+                    if (dayStatus[dsi] == "Leave")
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LeaveType"); cLeaveType = xlsCol; xlsCol++;
+                    }
+                    if (dayStatus[dsi] == "Work Off")
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Day Status"); cDayStatus = xlsCol; xlsCol++;
+                    }
+
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cLD = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shift Name", 25); cDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shift InTime", 25); cShiftInTime = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shift OutTime", 25); cShiftOutTime = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "In Time"); cDOJ = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Current Month Late", 25); cGivenDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Current Month Absent", 25); cCurrentMonthAbsent = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Yesterday Daystatus", 25); cYesterdayDaystatus = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Yesterday Over Stay Hour", 25); cYesterdayOverStayHour = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks", 25); cRemarks = xlsCol; xlsCol++;
+
+                    #endregion Header
+
+
+
+                    if (daylyAttdnEmpInfo.Rows.Count > 0)
+                    {
+
+                        var fPanRow = xlsRow + 1;//Freeze pan starting rows
+                        xlsCol--;
+                        endXlsCol = xlsCol;
+                        xlsRow++;
+                        var slCount = 0;
+                        for (int i = 0; i < daylyAttdnEmpInfo.Rows.Count; i++)
+                        {
+                            slCount++;
+                            #region Loop
+
+                            if (dayStatus[dsi] == "Absent" || dayStatus[dsi] == "Late")
+                            {
+                                if (dicEmpMonthAttdnSummary.ContainsKey(daylyAttdnEmpInfo.Rows[i]["SystemId"].ToString()))
+                                {
+                                    List<DataRow> drTotalAbsentOrLate = dicEmpMonthAttdnSummary[daylyAttdnEmpInfo.Rows[i]["SystemId"].ToString()];
+
+                                    if (dayStatus[dsi] == "Absent")
+                                    {
+                                        oRU.SetText(ref sheet1, xlsRow, cTotalAbsentORLate, Convert.ToInt32(clsStaticInfo.dbl(drTotalAbsentOrLate[0]["TotalAbsent"].ToString())));
+
+                                    }
+                                    if (dayStatus[dsi] == "Late")
+                                    {
+                                        oRU.SetText(ref sheet1, xlsRow, cTotalAbsentORLate, Convert.ToInt32(clsStaticInfo.dbl(drTotalAbsentOrLate[0]["TotalLate"].ToString())));
+
+                                    }
+                                }
+
+                            }
+                            oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, daylyAttdnEmpInfo.Rows[i]["EmployeeCode"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDepertment, daylyAttdnEmpInfo.Rows[i]["Department"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cEntity, daylyAttdnEmpInfo.Rows[i]["Entity"].ToString());
+
+                            oRU.SetText(ref sheet1, xlsRow, cName, daylyAttdnEmpInfo.Rows[i]["EmployeeName"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDOB, daylyAttdnEmpInfo.Rows[i]["FatherName"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDOJ, daylyAttdnEmpInfo.Rows[i]["Intime"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cEmpCatg, daylyAttdnEmpInfo.Rows[i]["empCategory"].ToString());
+                            //oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["EmployeeLocation"].ToString());
+
+                            if (dayStatus[dsi] == "Leave")
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cLeaveType, daylyAttdnEmpInfo.Rows[i]["LeaveType"].ToString());
+                            }
+                            if (dayStatus[dsi] == "Work Off")
+                            {
+                                if (!string.IsNullOrEmpty(daylyAttdnEmpInfo.Rows[i]["DayStatus"].ToString()))
+                                {
+                                    oRU.SetText(ref sheet1, xlsRow, cDayStatus, daylyAttdnEmpInfo.Rows[i]["DayStatus"].ToString());
+                                }
+                            }
+
+                            //oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["EmployeeLocation"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDesignation, daylyAttdnEmpInfo.Rows[i]["ShiftName"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cShiftInTime, daylyAttdnEmpInfo.Rows[i]["ShiftIn"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cShiftOutTime, daylyAttdnEmpInfo.Rows[i]["ShiftOut"].ToString());
+
+                            oRU.SetText(ref sheet1, xlsRow, cLD, daylyAttdnEmpInfo.Rows[i]["Designation"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, daylyAttdnEmpInfo.Rows[i]["CurrentMonthLate"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cCurrentMonthAbsent, daylyAttdnEmpInfo.Rows[i]["CurrentMonthAbsent"].ToString());
+                            if (!string.IsNullOrEmpty(daylyAttdnEmpInfo.Rows[i]["YesterdayOTHr"].ToString()))
+                            {
+                                oRU.GetOT(daylyAttdnEmpInfo.Rows[i]["OTConsiderOn"].ToString(), daylyAttdnEmpInfo.Rows[i]["YesterdayOTHr"].ToString(), out yot);
+                            }
+                            if (yot == "0:00")
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cYesterdayOverStayHour, "");
+                            }
+                            else
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cYesterdayOverStayHour, yot);
+                            }
+
+                            oRU.SetText(ref sheet1, xlsRow, cYesterdayDaystatus, daylyAttdnEmpInfo.Rows[i]["PrvDayStatus"].ToString());
+
+                            #endregion Loop
+                            xlsRow++;
+                        }
+
+                        oRU.SetHeaderText(ref sheet1, 4, 1, dayStatus[dsi] + " Report", ExcelHAlign.HAlignCenter);
+                        sheet1.Range[4, 1, 4, endXlsCol].Merge();
+                        var attdnHeader = SheetHeader + " On " + workDate;
+                        if (!string.IsNullOrEmpty(plantId))
+                            oRU.PlantHeader(ref sheet1, endXlsCol, attdnHeader, plantId);
+                        else
+                            oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, attdnHeader, companyGroupId);
+
+                        #region UsedRange Alignment
+                        sheet1.UsedRange.WrapText = true;
+                        sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                        sheet1.UsedRange["A" + fPanRow].FreezePanes();
+                        #endregion UsedRange Alignment
+
+                        oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+
+                    }
+
+
+                }
+                workbook.Version = ExcelVersion.Excel97to2003;
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public string GetDailyAttendanceEmpInfo(string companyGroupId, string companyId, string plantId, string SheetHeader, string SheetName, string workDate, string shift, string Entity, string Dept, string Ydate, string Sec, string SSec, string empCategoryList, string designationList, string lineList, string Dstatus, bool WithFatherName, string JobLocation)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+                string yot = string.Empty;
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                StringCollection dayStatus = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+
+                dayStatus = new StringCollection();
+                StringCollection myCol = new StringCollection();
+
+
+                var sft = Dstatus.Split(',');
+                foreach (var item in sft)
+                {
+                    if (item != "")
+                    {
+                        String[] dayStat = new String[] { item };
+                        dayStatus.AddRange(dayStat);
+
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+                        workbook = application.Workbooks.Create(dayStatus.Count);
+
+                    }
+                }
+                Dictionary<string, List<DataRow>> dicEmpMonthAttdnSummary = HRMS.GetMontlyAttdnSummary(companyGroupId, plantId, workDate);
+                for (int dsi = 0; dsi < dayStatus.Count; dsi++)
+                {
+                    var daylyAttdnEmpInfo = HRMS.GetDAttendanceEmployee(companyGroupId, companyId, plantId, dayStatus[dsi], workDate, shift, Entity, Dept, Ydate, Sec, SSec, empCategoryList, designationList, lineList, Dstatus, JobLocation);
+
+
+
+                    HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                    var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                    {
+                        RowFilter = "RType = 'Entity'",
+                        Sort = "eSequence"
+                    };
+                    dtEntity = dvEntity.ToTable(true, "UserName");
+
+                    var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                    {
+                        RowFilter = "RType = 'Position'",
+                        Sort = "pSequence"
+                    };
+                    dtPosition = dvPosition.ToTable(true, "UserName");
+
+                    var dvBC = new DataView(daylyAttdnEmpInfo);
+
+                    sheet1 = workbook.Worksheets[dsi];
+
+                    string xx = dayStatus[dsi].Replace("\"", "").Trim();
+
+                    sheet1.Name = xx;
+
+
+
+
+                    xlsRow = 5;
+                    #region variable
+                    var cEmployeeCode = 0; var cBudgetCode = 0; var cCurrentMonthAbsent = 0; var cName = 0; var cDOJ = 0; var cDOB = 0;
+                    var cTotalAbsentORLate = 0; var cShiftInTime = 0; var cShiftOutTime = 0;
+                    var cDesignation = 0; var cGivenDesignation = 0; var cLD = 0; var cLeaveType = 0;
+                    var cDayStatus = 0; var cEmpCatg = 0; var cEmpLocation = 0; var cDepertment = 0; var cEntity = 0; var cSl = 0;
+                    var endXlsCol = 0;
+                    var colNum = 0;
+                    var cYesterdayDaystatus = 0;
+                    var cYesterdayOverStayHour = 0;
+                    var cRemarks = 0;
+                    #endregion variable
+                    //xlsRow++;
+                    xlsCol = 1;
+                    #region Header
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 5); cSl = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Code", 12); cEmployeeCode = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                    if (WithFatherName == true)
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Father Name", 15); cDOB = xlsCol; xlsCol++;
+                    }
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Department", 19); cDepertment = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 17); cLD = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp. Category", 10); cEmpCatg = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp. Location", 13); cEmpLocation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shift Name", 20); cDesignation = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "In Time", 12); cDOJ = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Month Absent", 9); cCurrentMonthAbsent = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Month Late", 9); cGivenDesignation = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Yesterday Status", 10); cYesterdayDaystatus = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Yesterday OverStay", 10); cYesterdayOverStayHour = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks", 19); cRemarks = xlsCol;
+
+                    #endregion Header
+
+
+
+                    if (daylyAttdnEmpInfo.Rows.Count > 0)
+                    {
+
+                        var fPanRow = xlsRow + 1;//Freeze pan starting rows
+                        xlsCol--;
+                        endXlsCol = xlsCol;
+                        xlsRow++;
+                        var slCount = 0;
+                        for (int i = 0; i < daylyAttdnEmpInfo.Rows.Count; i++)
+                        {
+                            slCount++;
+                            #region Loop
+
+                            if (dayStatus[dsi] == "Absent" || dayStatus[dsi] == "Late")
+                            {
+                                if (dicEmpMonthAttdnSummary.ContainsKey(daylyAttdnEmpInfo.Rows[i]["SystemId"].ToString()))
+                                {
+                                    List<DataRow> drTotalAbsentOrLate = dicEmpMonthAttdnSummary[daylyAttdnEmpInfo.Rows[i]["SystemId"].ToString()];
+
+                                    if (dayStatus[dsi] == "Absent")
+                                    {
+                                        oRU.SetText(ref sheet1, xlsRow, cTotalAbsentORLate, Convert.ToInt32(clsStaticInfo.dbl(drTotalAbsentOrLate[0]["TotalAbsent"].ToString())));
+
+                                    }
+                                    if (dayStatus[dsi] == "Late")
+                                    {
+                                        oRU.SetText(ref sheet1, xlsRow, cTotalAbsentORLate, Convert.ToInt32(clsStaticInfo.dbl(drTotalAbsentOrLate[0]["TotalLate"].ToString())));
+
+                                    }
+                                }
+
+                            }
+                            oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, daylyAttdnEmpInfo.Rows[i]["EmployeeCode"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDepertment, daylyAttdnEmpInfo.Rows[i]["Department"].ToString());
+                            //oRU.SetText(ref sheet1, xlsRow, cEntity, daylyAttdnEmpInfo.Rows[i]["Entity"].ToString());
+
+                            oRU.SetText(ref sheet1, xlsRow, cName, daylyAttdnEmpInfo.Rows[i]["EmployeeName"].ToString());
+                            if (WithFatherName == true)
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cDOB, daylyAttdnEmpInfo.Rows[i]["FatherName"].ToString());
+                            }
+                            oRU.SetText(ref sheet1, xlsRow, cDOJ, daylyAttdnEmpInfo.Rows[i]["Intime"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cEmpCatg, daylyAttdnEmpInfo.Rows[i]["empCategory"].ToString());
+                            //oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["EmployeeLocation"].ToString());
+
+                            //if (dayStatus[dsi] == "Leave")
+                            //{
+                            //    oRU.SetText(ref sheet1, xlsRow, cLeaveType, daylyAttdnEmpInfo.Rows[i]["LeaveType"].ToString());
+                            //}
+                            //if (dayStatus[dsi] == "Work Off")
+                            //{
+                            //    if (!string.IsNullOrEmpty(daylyAttdnEmpInfo.Rows[i]["DayStatus"].ToString()))
+                            //    {
+                            //        oRU.SetText(ref sheet1, xlsRow, cDayStatus, daylyAttdnEmpInfo.Rows[i]["DayStatus"].ToString());
+                            //    }
+                            //}
+
+                            oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["Location"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDesignation, daylyAttdnEmpInfo.Rows[i]["ShiftName"].ToString());
+                            //oRU.SetText(ref sheet1, xlsRow, cShiftInTime, daylyAttdnEmpInfo.Rows[i]["ShiftIn"].ToString());
+                            //oRU.SetText(ref sheet1, xlsRow, cShiftOutTime, daylyAttdnEmpInfo.Rows[i]["ShiftOut"].ToString());
+
+                            oRU.SetText(ref sheet1, xlsRow, cLD, daylyAttdnEmpInfo.Rows[i]["Designation"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, daylyAttdnEmpInfo.Rows[i]["CurrentMonthLate"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cCurrentMonthAbsent, daylyAttdnEmpInfo.Rows[i]["CurrentMonthAbsent"].ToString());
+                            if (!string.IsNullOrEmpty(daylyAttdnEmpInfo.Rows[i]["YesterdayOTHr"].ToString()))
+                            {
+                                oRU.GetOT(daylyAttdnEmpInfo.Rows[i]["OTConsiderOn"].ToString(), daylyAttdnEmpInfo.Rows[i]["YesterdayOTHr"].ToString(), out yot);
+                            }
+                            if (yot == "0:00")
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cYesterdayOverStayHour, "");
+                            }
+                            else
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cYesterdayOverStayHour, yot);
+                            }
+
+                            oRU.SetText(ref sheet1, xlsRow, cYesterdayDaystatus, daylyAttdnEmpInfo.Rows[i]["PrvDayStatus"].ToString());
+
+                            #endregion Loop
+                            xlsRow++;
+                        }
+
+                        oRU.SetHeaderText(ref sheet1, 4, 1, xx + " Report", ExcelHAlign.HAlignCenter);
+                        //oRU.SetHeaderText(ref sheet1, 4, 1, xx + " Report", ExcelHAlign.HAlignCenter);
+                        sheet1.Range[4, 1, 4, endXlsCol].Merge();
+                        var attdnHeader = SheetHeader + " On " + workDate;
+                        if (!string.IsNullOrEmpty(plantId))
+                            oRU.PlantHeader(ref sheet1, endXlsCol, attdnHeader, plantId);
+                        else
+                            oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, attdnHeader, companyGroupId);
+
+                        #region UsedRange Alignment
+                        sheet1.UsedRange.WrapText = true;
+                        sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                        sheet1.UsedRange["A" + fPanRow].FreezePanes();
+                        #endregion UsedRange Alignment
+
+                        oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+
+                    }
+
+
+                }
+                workbook.Version = ExcelVersion.Excel97to2003;
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string GetYesterdayAbsentEmpInfoList(string companyGroupId, string companyId, string plantId, string SheetHeader, string SheetName)
+        {
+            try
+            {
+                #region Variable
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                StringCollection dayStatus = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                oRU = new ReportUtility();
+
+                dayStatus = new StringCollection();
+                StringCollection myCol = new StringCollection();
+
+                String[] dayStat = new String[] { "Absent" };
+                dayStatus.AddRange(dayStat);
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(dayStatus.Count);
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                for (int dsi = 0; dsi < dayStatus.Count; dsi++)
+                {
+                    var daylyAttdnEmpInfo = HRMS.GetDailyAttendanceEmpInfo(companyGroupId, companyId, plantId, dayStatus[dsi], DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy"));
+
+                    HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                    var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                    {
+                        RowFilter = "RType = 'Entity'",
+                        Sort = "eSequence"
+                    };
+                    dtEntity = dvEntity.ToTable(true, "UserName");
+
+                    var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                    {
+                        RowFilter = "RType = 'Position'",
+                        Sort = "pSequence"
+                    };
+                    dtPosition = dvPosition.ToTable(true, "UserName");
+
+                    var dvBC = new DataView(daylyAttdnEmpInfo);
+                    var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                    for (int i = 0; i < dtBC.Rows.Count; i++)
+                    {
+                        IsBudgetCodeApplicable = Convert.ToBoolean(daylyAttdnEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                        if (IsBudgetCodeApplicable)
+                        {
+                            break;
+                        }
+                    }
+                    sheet1 = workbook.Worksheets[dsi];
+                    sheet1.Name = dayStatus[dsi].ToString().Trim();
+                    if (daylyAttdnEmpInfo.Rows.Count > 0)
+                    {
+                        xlsRow = 5;
+                        #region variable
+                        var cEmployeeCode = 0; var cBudgetCode = 0; var cName = 0; var cDOJ = 0; var cDOB = 0;
+                        var cDesignation = 0; var cGivenDesignation = 0; var cLD = 0; var cLeaveType = 0;
+                        var cDayStatus = 0; var cEmpCatg = 0; var cEmpLocation = 0; var cSl = 0;
+                        var endXlsCol = 0;
+                        var colNum = 0;
+                        #endregion variable
+                        xlsRow++;
+                        xlsCol = 1;
+                        #region Header
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 6); cSl = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp Category"); cEmpCatg = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp Location"); cEmpLocation = xlsCol; xlsCol++;
+                        if (dayStatus[dsi] == "Leave")
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LeaveType"); cLeaveType = xlsCol; xlsCol++;
+                        }
+                        if (dayStatus[dsi] == "Work Off")
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Day Status"); cDayStatus = xlsCol; xlsCol++;
+                        }
+                        if (IsBudgetCodeApplicable)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); cBudgetCode = xlsCol; xlsCol++;
+
+                            for (int i = 0; i < dtEntity.Rows.Count; i++)
+                            {
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+                            }
+                            for (int c = 0; c < dtPosition.Rows.Count; c++)
+                            {
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[c]["UserName"].ToString(), 25); xlsCol++;
+                            }
+                        }//IsBudgetCodeApplicable
+
+
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cDesignation = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GivenDesignation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal Designation", 25); cLD = xlsCol; xlsCol++;
+
+                        #endregion Header
+                        var fPanRow = xlsRow + 1;//Freeze pan starting rows
+                        xlsCol--;
+                        endXlsCol = xlsCol;
+                        xlsRow++;
+                        var slCount = 0;
+                        for (int i = 0; i < daylyAttdnEmpInfo.Rows.Count; i++)
+                        {
+                            slCount++;
+                            #region Loop
+                            oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, daylyAttdnEmpInfo.Rows[i]["EmployeeCode"].ToString());
+
+                            oRU.SetText(ref sheet1, xlsRow, cName, daylyAttdnEmpInfo.Rows[i]["EmployeeName"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDOB, daylyAttdnEmpInfo.Rows[i]["DOB"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDOJ, daylyAttdnEmpInfo.Rows[i]["DOJ"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cEmpCatg, daylyAttdnEmpInfo.Rows[i]["empCategory"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["EmployeeLocation"].ToString());
+
+                            if (dayStatus[dsi] == "Leave")
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cLeaveType, daylyAttdnEmpInfo.Rows[i]["LeaveType"].ToString());
+                            }
+                            if (dayStatus[dsi] == "Work Off")
+                            {
+                                if (!string.IsNullOrEmpty(daylyAttdnEmpInfo.Rows[i]["DayType"].ToString()))
+                                {
+                                    oRU.SetText(ref sheet1, xlsRow, cDayStatus, daylyAttdnEmpInfo.Rows[i]["DayType"].ToString());
+                                }
+                            }
+                            if (Convert.ToBoolean(daylyAttdnEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString()))
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cBudgetCode, daylyAttdnEmpInfo.Rows[i]["BudgetCode"].ToString());
+                                //entity
+
+                                for (int c = 0; c < dtEntity.Rows.Count; c++)
+                                {
+                                    var _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                    var v = daylyAttdnEmpInfo.Rows[i]["e" + _colname].ToString();
+                                    colNum = cBudgetCode + c + 1;
+                                    oRU.SetText(ref sheet1, xlsRow, colNum, v);
+                                }
+
+                                //position
+
+                                for (int c = 0; c < dtPosition.Rows.Count; c++)
+                                {
+                                    var _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                    oRU.SetText(ref sheet1, xlsRow, colNum + c + 1, daylyAttdnEmpInfo.Rows[i]["p" + _colname].ToString());
+                                }
+                            }//is bc applicable
+
+                            oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["EmployeeLocation"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDesignation, daylyAttdnEmpInfo.Rows[i]["Designation"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, daylyAttdnEmpInfo.Rows[i]["GivenDesignation"].ToString());
+                            if (daylyAttdnEmpInfo.Rows[i]["Designation"].ToString().ToUpper() != daylyAttdnEmpInfo.Rows[i]["GivenDesignation"].ToString().ToUpper())
+                            {
+                                sheet1.Range[xlsRow, cDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                                sheet1.Range[xlsRow, cDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                                sheet1.Range[xlsRow, cGivenDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                                sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                            }
+
+                            oRU.SetText(ref sheet1, xlsRow, cLD, daylyAttdnEmpInfo.Rows[i]["LegalDesignation"].ToString());
+
+                            #endregion Loop
+                            xlsRow++;
+                        }
+
+                        oRU.SetHeaderText(ref sheet1, 4, 1, dayStatus[dsi] + " Report", ExcelHAlign.HAlignCenter);
+                        sheet1.Range[4, 1, 4, endXlsCol].Merge();
+                        var attdnHeader = SheetHeader + " On " + DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy");
+                        if (!string.IsNullOrEmpty(plantId))
+                            oRU.PlantHeader(ref sheet1, endXlsCol, attdnHeader, plantId);
+                        else
+                            oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, attdnHeader, companyGroupId);
+
+                        #region UsedRange Alignment
+                        sheet1.UsedRange.WrapText = true;
+                        sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                        sheet1.UsedRange["A" + fPanRow].FreezePanes();
+                        #endregion UsedRange Alignment
+                        oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    }
+                }
+                workbook.Version = ExcelVersion.Excel97to2003;
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string GetDailyDevicePunchInfoExcel(string companyGroupId, string plantId, string SheetHeader, string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+                DataTable dt;
+                string sql = @"SELECT l.Id, l.MachineID, l.MachineIP,  ISNULL(l.[Description],'') Description,inout.PTYPE,ISNULL(format(a.PDate,'dd-MMM-yyyy'),'') AS AttendanceDate, SUM( CASE WHEN ISNULL(a.Id,'')='' THEN 0 ELSE 1 END) PunchCount
+                                      FROM 
+                                    mst.AccessControllerList L
+                                    LEFT OUTER JOIN (SELECT 'IN' AS PTYPE UNION SELECT 'OUT' ) AS INOUT ON 1=1
+                                    left outer join AttdnRawData AS a ON l.Id=a.DevSystemID AND  a.PType=INOUT.PTYPE AND a.PDate BETWEEN  format(DATEADD(DAY,-7, GETDATE()),'dd-MMM-yyyy') AND format(GETDATE(),'dd-MMM-yyyy')  
+
+                                    WHERE l.IsActive=1 
+                                    GROUP BY a.PDate,l.Id, l.MachineID, l.MachineIP, l.[Description],inout.PTYPE
+
+                                    ORDER BY l.MachineID,a.PDate DESC,inout.PTYPE";
+
+                dt = _sqlRepository.GetDataTable(sql);
+
+                DataView dvDates = new DataView(dt.DefaultView.ToTable(true, "AttendanceDate"));
+
+
+
+                // var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                if (dt.Rows.Count == 0)
+                    throw new Exception("No data found");
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[0].Name = "Punch Info";
+                sheet = workbook.Worksheets[0];
+
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+                //PTYPE   AttendanceDate PunchCount
+
+                sheet[ROW, COL].Text = "Machine ID";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int colMachineID = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Machine IP";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int colMachineIP = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Description";
+                sheet[ROW, COL].ColumnWidth = 30;
+                int colDescription = COL;
+
+                Dictionary<string, int> dicDateInCol = new Dictionary<string, int>();
+                for (int i = 0; i < dvDates.Count; i++)
+                {
+                    COL++;
+                    sheet[ROW, COL].Text = "IN";
+                    sheet[ROW, COL].ColumnWidth = 6;
+                    sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    dicDateInCol.Add(dvDates[i]["AttendanceDate"].ToString() + "IN", COL);
+                    COL++;
+                    sheet[ROW, COL].Text = "OUT";
+                    sheet[ROW, COL].ColumnWidth = 6;
+                    sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    dicDateInCol.Add(dvDates[i]["AttendanceDate"].ToString() + "OUT", COL);
+                    //var attdDateData = "";
+                    //if (!string.IsNullOrEmpty(dvDates[i]["AttendanceDate"].ToString()))
+                    //{
+                    //    attdDateData = Convert.ToDateTime(dvDates[i]["AttendanceDate"].ToString()).ToString("dddd");
+                    //}
+
+                    sheet.Range[ROW - 1, COL - 1, ROW - 1, COL].Merge();
+                    if (dvDates[i]["AttendanceDate"].ToString() != "")
+                        sheet.Range[ROW - 1, COL - 1].Text = dvDates[i]["AttendanceDate"].ToString() + " (" + Convert.ToDateTime(dvDates[i]["AttendanceDate"].ToString()).ToString("dddd") + ")";
+                    sheet.Range[ROW - 1, COL - 1, ROW - 1, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+                }
+                sheet.Range[ROW - 1, COL].RowHeight = 24;
+                #endregion columns
+
+                int endCol = COL;
+
+                sheet.Range[ROW - 1, 1, ROW, endCol].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(150, 250, 150);
+                sheet.Range[ROW - 1, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW - 1, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW - 1, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW - 1, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                string machineid = "";
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    // MachineIP   Description PTYPE   AttendanceDate 
+                    if (machineid != dt.Rows[i]["MachineID"].ToString())
+                    {
+                        sheet[ROW, colMachineID].Text = dt.Rows[i]["MachineID"].ToString();
+                        sheet[ROW, colMachineIP].Text = dt.Rows[i]["MachineIP"].ToString();
+                        sheet[ROW, colDescription].Text = dt.Rows[i]["Description"].ToString();
+
+                        machineid = dt.Rows[i]["MachineID"].ToString();
+
+                        dt.DefaultView.RowFilter = "MachineID='" + dt.Rows[i]["MachineID"].ToString() + "'";
+                        for (int J = 0; J < dt.DefaultView.Count; J++)
+                        {
+                            if (dt.DefaultView[J]["PTYPE"].ToString() == "IN")
+                                sheet[ROW, dicDateInCol[dt.DefaultView[J]["AttendanceDate"].ToString() + "IN"]].Number = clsStaticInfo.dbl(dt.DefaultView[J]["PunchCount"].ToString());
+
+                            if (dt.DefaultView[J]["PTYPE"].ToString() == "OUT")
+                                sheet[ROW, dicDateInCol[dt.DefaultView[J]["AttendanceDate"].ToString() + "OUT"]].Number = clsStaticInfo.dbl(dt.DefaultView[J]["PunchCount"].ToString());
+
+                        }
+
+
+                        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                        ROW++;
+                    }
+                }
+
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                #region ******************Report Header******************
+                ROW = 1;
+                COL = 1;
+
+                ReportUtility ru = new ReportUtility();
+                Param param = new Param();
+                param.CompanyGroupId = companyGroupId;
+                //param.CompanyId = CompanyId;
+                param.PlantId = plantId;
+                var headerText = SheetHeader + " On " + DateTime.Now.ToString("dd-MMM-yyyy");
+                if (!string.IsNullOrEmpty(plantId))
+                    ru.PlantHeader(ref sheet, endCol, headerText, plantId);
+                else
+                    ru.MainCompanyGroupHeader(ref sheet, endCol, headerText, companyGroupId);
+
+                #endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                workbook.Version = ExcelVersion.Excel97to2003;
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return filePath;
+        }
+
+        public string GetDailyAttendanceSummaryExcel(string companyGroupId, string plantId, string SheetHeader, string SheetName, string fileType)
+        {
+            var filePath = "";
+
+            #region Variable
+            clsReport objRpt = null;
+            DataSet dsAttdnSummary = null;
+            DataSet dsCmp = null;
+            DataSet dsFactory = null;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet1 = null;
+            ReportUtility ru = null;
+            var FactoryName = string.Empty;
+            var CmpName = string.Empty;
+            int xlsRow = 1, xlsCol = 1, endXlsCol = 1;
+            #endregion Variable
+            try
+            {
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ru = new ReportUtility();
+                objRpt = new clsReport();
+                #region Variable
+                var para = new ParamList();
+                var leavePara = new ParamList();
+                var attdnProcessParam = new ParamList();
+                para.PlantId = plantId;
+                objRpt.SelectedPlantWiseCompany(plantId, out dsCmp);
+                objRpt.SelectedPlant(plantId, out dsFactory);
+                #endregion Variable
+
+                #region DataSet
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+                DataTable dtAttdnSummary = HRMS.GetAttendanceSummarySql(DateTime.Now.ToString("dd-MMM-yyyy"), plantId);
+                if (dtAttdnSummary.Rows.Count == 0)
+                {
+                    Exception ex = new Exception("No Data found...");
+                    throw (ex);
+                }
+                DataView dvAttendance = new DataView(dtAttdnSummary);
+                #endregion DataSet
+                var subTotalCatgOnRole = 0.00;
+                var subTotalCatgPresent = 0.00;
+                var subTotalCatgAbsent = 0.00;
+                var subTotalCatgLate = 0.00;
+                var subTotalCatgLeave = 0.00;
+                var subTotalCatgWeekOff = 0.00;
+
+                var totalCatgOnRole = 0.00;
+                var totalCatgPresent = 0.00;
+                var totalCatgAbsent = 0.00;
+                var totalCatgLate = 0.00;
+                var totalCatgLeave = 0.00;
+                var totalCatgWeekOff = 0.00;
+                var totalCatgAbsentPercentage = 0.00;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                sheet1 = workbook.Worksheets[0];
+                sheet1.IsGridLinesVisible = true;
+                xlsRow = 5;
+                xlsCol = 1;
+                var colEmpCatg = 0;
+                var colDepartment = 0;
+                var colSec = 0;
+                var colSubSec = 0;
+                var ColDesigGrp = 0;
+                var colOnRole = 0;
+                var colPresent = 0;
+                var colAbsent = 0;
+                var colLate = 0;
+                var colLeave = 0;
+                var colMaternityLeave = 0;
+                var colWeekOffHoliday = 0;
+                var colAbsPer = 0;
+                var ColLine = 0;
+                var ColReMale = 0;
+                var ColReFemale = 0;
+
+                #region------------------Column Header------------------
+                SetHeadText("Category", sheet1, xlsRow, ref xlsCol, out colEmpCatg, 9);
+                SetHeadText("Department", sheet1, xlsRow, ref xlsCol, out colDepartment, 37);
+                SetHeadText("Section", sheet1, xlsRow, ref xlsCol, out colSec, 13);
+                SetHeadText("SubSection", sheet1, xlsRow, ref xlsCol, out colSubSec, 15);
+                SetHeadText("Designation", sheet1, xlsRow, ref xlsCol, out ColDesigGrp, 25);
+                SetHeadText("Line", sheet1, xlsRow, ref xlsCol, out ColLine, 11.71);
+
+
+                SetHeadText("On Role", sheet1, xlsRow, ref xlsCol, out colOnRole, 9.14);
+                xlsCol = xlsCol - 1;
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Merge();
+                sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].BorderAround(ExcelLineStyle.Thin);
+
+                SetHeadText("Male", sheet1, xlsRow + 1, ref xlsCol, out ColReMale, 11.71);
+                SetHeadText("Female", sheet1, xlsRow + 1, ref xlsCol, out ColReFemale, 11.71);
+
+                SetHeadText("Present", sheet1, xlsRow, ref xlsCol, out colPresent, 7.29);
+                SetHeadText("Absent", sheet1, xlsRow, ref xlsCol, out colAbsent, 7);
+                SetHeadText("Late", sheet1, xlsRow, ref xlsCol, out colLate, 7);
+                SetHeadText("Leave", sheet1, xlsRow, ref xlsCol, out colLeave, 7);
+                SetHeadText("Maternity Leave", sheet1, xlsRow, ref xlsCol, out colMaternityLeave, 10);
+                SetHeadText("W.Off", sheet1, xlsRow, ref xlsCol, out colWeekOffHoliday, 15);
+                SetHeadText("Abs%", sheet1, xlsRow, ref xlsCol, out colAbsPer, 15);
+
+                int RowHeaderLimit = xlsRow;
+                #endregion------------------Column Header------------------
+
+                endXlsCol = (xlsCol - 1);
+                int RowIndex = xlsRow + 3;
+
+                #region ******************Report Header******************
+                xlsRow = 1;
+                xlsCol = 1;
+                //Param param = new Param();
+                var CompanyGroupId = companyGroupId;
+                // var CompanyId = CompanyId;
+
+                string FactoryAddress = string.Empty;
+
+                if (dsCmp.Tables[0].Rows.Count > 0)
+                {
+                    CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                }
+                else
+                {
+                    CmpName = "";
+                }
+                sheet1.Range[xlsRow, xlsCol].Text = CmpName;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 14;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 30;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                sheet1.Range[xlsRow, xlsCol].Text = "Daily Attendance Summary";
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                var strRptDateRange = "";
+                strRptDateRange = DateTime.Now.ToString("dd-MMM-yyyy");
+                sheet1.Range[xlsRow, xlsCol].Text = strRptDateRange;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                #endregion ******************Report Header******************
+
+                #region ----------------------Data-----------------------               
+                var oRU = new ReportUtility();
+                xlsRow = RowIndex;
+                xlsRow--;
+                var startXlsRow = xlsRow;
+                string _empcat = string.Empty;
+                string _department = string.Empty;
+                string _section = string.Empty;
+                string _DesignationGroup = string.Empty;
+                string _SubSection = string.Empty;
+                string _Line = string.Empty;
+                string _Gender = string.Empty;
+                var catFRow = xlsRow;
+                ArrayList al = new ArrayList();
+                var lastEmpCat = string.Empty;
+                int StartRow = xlsRow;
+                string tempId = "";
+                string temp2 = "";
+
+                for (int i = 0; i <= dtAttdnSummary.Rows.Count - 1; i++)
+                {
+                    try
+                    {
+                        subTotalCatgOnRole += Convert.ToDouble(dtAttdnSummary.Rows[i]["OnRoleEmployee"].ToString());
+                        subTotalCatgPresent += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalPresentEmployee"].ToString());
+                        subTotalCatgAbsent += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalAbsentEmployee"].ToString());
+                        subTotalCatgLate += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalLateEmployee"].ToString());
+                        subTotalCatgLeave += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalLeaveEmployee"].ToString());
+                        subTotalCatgWeekOff += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalWeekoffEmployee"].ToString());
+
+                        totalCatgOnRole += Convert.ToDouble(dtAttdnSummary.Rows[i]["OnRoleEmployee"].ToString());
+                        totalCatgPresent += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalPresentEmployee"].ToString());
+                        totalCatgAbsent += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalAbsentEmployee"].ToString());
+                        totalCatgLate += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalLateEmployee"].ToString());
+                        totalCatgLeave += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalLeaveEmployee"].ToString());
+                        totalCatgWeekOff += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalWeekoffEmployee"].ToString());
+                        var catLRow = xlsRow;
+                        if (_empcat != dtAttdnSummary.Rows[i]["EmpCategory"].ToString() && string.IsNullOrEmpty(dtAttdnSummary.Rows[i]["EmpCategory"].ToString()) == false)
+                        {
+
+                            #region Subtotal
+                            if (catFRow < xlsRow)
+                            {
+                                lastEmpCat = _empcat;
+                                al.Add(xlsRow);
+                                SetHeadText(sheet1, xlsRow, 1, " Subtotal:");
+                                sheet1.Range[xlsRow, 1, xlsRow, (colOnRole - 1)].Merge();
+                                sheet1.Range[xlsRow, colOnRole].Number = clsStaticInfo.dbl(subTotalCatgOnRole.ToString());
+                                sheet1.Range[xlsRow, colPresent].Number = clsStaticInfo.dbl(subTotalCatgPresent.ToString());//"=SUM(" + ru.GetColumnNameForXls(colPresent) + catFRow + ":" + ru.GetColumnNameForXls(colPresent) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, colAbsent].Number = clsStaticInfo.dbl(subTotalCatgAbsent.ToString());//"=SUM(" + ru.GetColumnNameForXls(colAbsent) + catFRow + ":" + ru.GetColumnNameForXls(colAbsent) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, colLate].Number = clsStaticInfo.dbl(subTotalCatgLate.ToString());//"=SUM(" + ru.GetColumnNameForXls(colLate) + catFRow + ":" + ru.GetColumnNameForXls(colLate) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, colLeave].Number = clsStaticInfo.dbl(subTotalCatgLeave.ToString());//"=SUM(" + ru.GetColumnNameForXls(colLeave) + catFRow + ":" + ru.GetColumnNameForXls(colLeave) + (xlsRow - 1) + ")";
+                                sheet1.Range[xlsRow, colWeekOffHoliday].Number = clsStaticInfo.dbl(subTotalCatgWeekOff.ToString());//"=SUM(" + ru.GetColumnNameForXls(colWeekOffHoliday) + catFRow + ":" + ru.GetColumnNameForXls(colWeekOffHoliday) + (xlsRow - 1) + ")";
+
+
+                                subTotalCatgOnRole = 0;
+                                subTotalCatgPresent = 0;
+                                subTotalCatgAbsent = 0;
+                                subTotalCatgLate = 0;
+                                subTotalCatgLeave = 0;
+                                subTotalCatgWeekOff = 0;
+                                sheet1.Range[xlsRow, colOnRole, xlsRow, colAbsPer].CellStyle.Font.Bold = true;
+
+                                xlsRow++;
+                            }
+                            #endregion
+
+                            _empcat = dtAttdnSummary.Rows[i]["EmpCategory"].ToString();
+                            SetCellText(sheet1, xlsRow, colEmpCatg, _empcat);
+
+                            _department = dtAttdnSummary.Rows[i]["Department"].ToString();
+                            SetCellText(sheet1, xlsRow, colDepartment, _department);
+
+                            _section = dtAttdnSummary.Rows[i]["Section"].ToString();
+                            SetCellText(sheet1, xlsRow, colSec, _section);
+
+
+                            _SubSection = dtAttdnSummary.Rows[i]["SubSection"].ToString();
+                            SetCellText(sheet1, xlsRow, colSubSec, _SubSection);
+
+                            _DesignationGroup = dtAttdnSummary.Rows[i]["LealDesignation"].ToString();
+                            SetCellText(sheet1, xlsRow, ColDesigGrp, _DesignationGroup);
+
+                            _Line = dtAttdnSummary.Rows[i]["Line"].ToString();
+                            SetCellText(sheet1, xlsRow, ColLine, _Line);
+
+
+                            if (catFRow < xlsRow)
+                            {
+
+                                catFRow = xlsRow;
+                            }
+                            temp2 = dtAttdnSummary.Rows[i]["EmpCategory"].ToString() + dtAttdnSummary.Rows[i]["Department"].ToString() + dtAttdnSummary.Rows[i]["Section"].ToString() + dtAttdnSummary.Rows[i]["SubSection"].ToString() + dtAttdnSummary.Rows[i]["LealDesignation"].ToString() + dtAttdnSummary.Rows[i]["Line"].ToString();
+                            if (temp2.Contains("StaffProductionSewingGeneralOfficer"))
+                            {
+
+                            }
+
+                        }
+
+                        //temp2 = dtAttdnSummary.Rows[i]["EmpCategory"].ToString() + dtAttdnSummary.Rows[i]["Department"].ToString() + dtAttdnSummary.Rows[i]["Section"].ToString() + dtAttdnSummary.Rows[i]["SubSection"].ToString() + dtAttdnSummary.Rows[i]["LealDesignation"].ToString() + dtAttdnSummary.Rows[i]["Line"].ToString();
+                        //if (temp2.Contains("StaffProductionSewingGeneralOfficer"))
+                        //{
+
+                        //}
+                        if (_department != dtAttdnSummary.Rows[i]["Department"].ToString())
+                        {
+
+                            _department = dtAttdnSummary.Rows[i]["Department"].ToString(); SetCellText(sheet1, xlsRow, colDepartment, _department);
+                            _section = dtAttdnSummary.Rows[i]["Section"].ToString(); SetCellText(sheet1, xlsRow, colSec, _section);
+                            _SubSection = dtAttdnSummary.Rows[i]["SubSection"].ToString(); SetCellText(sheet1, xlsRow, colSubSec, _SubSection);
+                            _DesignationGroup = dtAttdnSummary.Rows[i]["LealDesignation"].ToString(); SetCellText(sheet1, xlsRow, ColDesigGrp, _DesignationGroup);
+                            _Line = dtAttdnSummary.Rows[i]["Line"].ToString(); SetCellText(sheet1, xlsRow, ColLine, _Line);
+
+                        }
+                        if (_section != dtAttdnSummary.Rows[i]["Section"].ToString())
+                        {
+                            _section = dtAttdnSummary.Rows[i]["Section"].ToString(); SetCellText(sheet1, xlsRow, colSec, _section);
+                            _SubSection = dtAttdnSummary.Rows[i]["SubSection"].ToString(); SetCellText(sheet1, xlsRow, colSubSec, _SubSection);
+                            _DesignationGroup = dtAttdnSummary.Rows[i]["LealDesignation"].ToString(); SetCellText(sheet1, xlsRow, ColDesigGrp, _DesignationGroup);
+                            _Line = dtAttdnSummary.Rows[i]["Line"].ToString(); SetCellText(sheet1, xlsRow, ColLine, _Line);
+                        }
+                        else if (_SubSection != dtAttdnSummary.Rows[i]["SubSection"].ToString())
+                        {
+                            _SubSection = dtAttdnSummary.Rows[i]["SubSection"].ToString(); SetCellText(sheet1, xlsRow, colSubSec, _SubSection);
+                            _DesignationGroup = dtAttdnSummary.Rows[i]["LealDesignation"].ToString(); SetCellText(sheet1, xlsRow, ColDesigGrp, _DesignationGroup);
+                            _Line = dtAttdnSummary.Rows[i]["Line"].ToString(); SetCellText(sheet1, xlsRow, ColLine, _Line);
+                        }
+
+                        if (_DesignationGroup != dtAttdnSummary.Rows[i]["LealDesignation"].ToString())
+                        {
+                            _DesignationGroup = dtAttdnSummary.Rows[i]["LealDesignation"].ToString(); SetCellText(sheet1, xlsRow, ColDesigGrp, _DesignationGroup);
+                            _Line = dtAttdnSummary.Rows[i]["Line"].ToString(); SetCellText(sheet1, xlsRow, ColLine, _Line);
+                        }
+
+                        if (_Line != dtAttdnSummary.Rows[i]["Line"].ToString())
+                        {
+                            _Line = dtAttdnSummary.Rows[i]["Line"].ToString(); SetCellText(sheet1, xlsRow, ColLine, _Line);
+                        }
+
+
+
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    try
+                    {
+                        if (dtAttdnSummary.Rows[i]["GenderID"].ToString().ToUpper() == "MALE")
+                        {
+                            sheet1[xlsRow, ColReMale].Number = clsStaticInfo.dbl(dtAttdnSummary.Rows[i]["OnRoleEmployee"].ToString());
+                        }
+                        else
+                        {
+                            sheet1[xlsRow, ColReFemale].Number = clsStaticInfo.dbl(dtAttdnSummary.Rows[i]["OnRoleEmployee"].ToString());
+                        }
+
+
+                        if (double.IsNaN(sheet1[xlsRow, colPresent].Number) == false)
+                            sheet1[xlsRow, colPresent].Number += clsStaticInfo.dbl(dtAttdnSummary.Rows[i]["totalPresentEmployee"].ToString());
+                        else
+                            sheet1[xlsRow, colPresent].Number = clsStaticInfo.dbl(dtAttdnSummary.Rows[i]["totalPresentEmployee"].ToString());
+
+                        if (double.IsNaN(sheet1[xlsRow, colAbsent].Number) == false)
+                            sheet1[xlsRow, colAbsent].Number += clsStaticInfo.dbl(dtAttdnSummary.Rows[i]["totalAbsentEmployee"].ToString());
+                        else
+                            sheet1[xlsRow, colAbsent].Number = clsStaticInfo.dbl(dtAttdnSummary.Rows[i]["totalAbsentEmployee"].ToString());
+
+                        if (double.IsNaN(sheet1[xlsRow, colLate].Number) == false)
+                            sheet1[xlsRow, colLate].Number += clsStaticInfo.dbl(dtAttdnSummary.Rows[i]["totalLateEmployee"].ToString());
+                        else
+                            sheet1[xlsRow, colLate].Number = clsStaticInfo.dbl(dtAttdnSummary.Rows[i]["totalLateEmployee"].ToString());
+
+                        if (double.IsNaN(sheet1[xlsRow, colLeave].Number) == false)
+                            sheet1[xlsRow, colLeave].Number += clsStaticInfo.dbl(dtAttdnSummary.Rows[i]["totalLeaveEmployee"].ToString());
+                        else
+                            sheet1[xlsRow, colLeave].Number = clsStaticInfo.dbl(dtAttdnSummary.Rows[i]["totalLeaveEmployee"].ToString());
+
+                        if (double.IsNaN(sheet1[xlsRow, colMaternityLeave].Number) == false)
+                            sheet1[xlsRow, colMaternityLeave].Number += clsStaticInfo.dbl(dtAttdnSummary.Rows[i]["totalMaternithyEmployee"].ToString());
+                        else
+                            sheet1[xlsRow, colMaternityLeave].Number = clsStaticInfo.dbl(dtAttdnSummary.Rows[i]["totalMaternithyEmployee"].ToString());
+
+                        if (double.IsNaN(sheet1[xlsRow, colWeekOffHoliday].Number) == false)
+                            sheet1[xlsRow, colWeekOffHoliday].Number += clsStaticInfo.dbl(dtAttdnSummary.Rows[i]["totalWeekoffEmployee"].ToString());
+                        else
+                            sheet1[xlsRow, colWeekOffHoliday].Number = clsStaticInfo.dbl(dtAttdnSummary.Rows[i]["totalWeekoffEmployee"].ToString());
+
+                        SetCellText(sheet1, xlsRow, ColLine, Convert.ToString(dtAttdnSummary.Rows[i]["Line"].ToString()));
+
+                        var ap = Convert.ToDouble(dtAttdnSummary.Rows[i]["totalAbsentEmployee"].ToString()) / Convert.ToDouble(dtAttdnSummary.Rows[i]["OnRoleEmployee"].ToString());
+                        SetCellText(sheet1, xlsRow, colAbsPer, Convert.ToDouble(ap * 100));
+
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                    tempId = dtAttdnSummary.Rows[i]["EmpCategory"].ToString() + dtAttdnSummary.Rows[i]["Department"].ToString() + dtAttdnSummary.Rows[i]["Section"].ToString() + dtAttdnSummary.Rows[i]["SubSection"].ToString() + dtAttdnSummary.Rows[i]["LealDesignation"].ToString() + dtAttdnSummary.Rows[i]["Line"].ToString();
+                    try
+                    {
+                        var tempId2 = dtAttdnSummary.Rows[i + 1]["EmpCategory"].ToString() + dtAttdnSummary.Rows[i + 1]["Department"].ToString() + dtAttdnSummary.Rows[i + 1]["Section"].ToString() + dtAttdnSummary.Rows[i + 1]["SubSection"].ToString() + dtAttdnSummary.Rows[i + 1]["LealDesignation"].ToString() + dtAttdnSummary.Rows[i + 1]["Line"].ToString();
+                        if (tempId != tempId2)
+                            xlsRow++;
+                    }
+                    catch (Exception)
+                    {
+                        xlsRow++;
+                    }
+
+
+
+                }//for emp count
+
+                #region Last subtotal
+                //al.Add(xlsRow);
+                SetHeadText(sheet1, xlsRow, 1, " Subtotal:");
+                sheet1.Range[xlsRow, 1, xlsRow, (colOnRole - 1)].Merge();
+                sheet1.Range[xlsRow, colOnRole].Number = clsStaticInfo.dbl(dtAttdnSummary.Compute("SUM(OnRoleEmployee)", "EmpCategory='" + _empcat + "'").ToString()); //"=SUM(" + ru.GetColumnNameForXls(colOnRole) + catFRow + ":" + ru.GetColumnNameForXls(colOnRole) + (xlsRow - 1) + ")";
+                sheet1.Range[xlsRow, colPresent].Number = clsStaticInfo.dbl(dtAttdnSummary.Compute("SUM(totalPresentEmployee)", "EmpCategory='" + _empcat + "'").ToString());//Formula = "=SUM(" + ru.GetColumnNameForXls(colPresent) + catFRow + ":" + ru.GetColumnNameForXls(colPresent) + (xlsRow - 1) + ")";
+                sheet1.Range[xlsRow, colAbsent].Number = clsStaticInfo.dbl(dtAttdnSummary.Compute("SUM(totalAbsentEmployee)", "EmpCategory='" + _empcat + "'").ToString());//Formula = "=SUM(" + ru.GetColumnNameForXls(colAbsent) + catFRow + ":" + ru.GetColumnNameForXls(colAbsent) + (xlsRow - 1) + ")";
+                sheet1.Range[xlsRow, colLate].Number = clsStaticInfo.dbl(dtAttdnSummary.Compute("SUM(totalLateEmployee)", "EmpCategory='" + _empcat + "'").ToString());
+                sheet1.Range[xlsRow, colLeave].Number = clsStaticInfo.dbl(dtAttdnSummary.Compute("SUM(totalLeaveEmployee)", "EmpCategory='" + _empcat + "'").ToString());
+                sheet1.Range[xlsRow, colWeekOffHoliday].Number = clsStaticInfo.dbl(dtAttdnSummary.Compute("SUM(totalLeaveEmployee)", "EmpCategory='" + _empcat + "'").ToString());
+                sheet1.Range[xlsRow, colOnRole, xlsRow, colAbsPer].CellStyle.Font.Bold = true;
+                xlsRow++;
+                #endregion
+
+                #region Grand Total
+                SetHeadText(sheet1, xlsRow, 1, "Grand Total:");
+                sheet1.Range[xlsRow, 1, xlsRow, (colOnRole - 1)].Merge();
+
+
+                sheet1.Range[xlsRow, colOnRole].Number = clsStaticInfo.dbl(totalCatgOnRole.ToString());//= GetFormulaGrandTotal(al, colOnRole);
+                sheet1.Range[xlsRow, colPresent].Number = clsStaticInfo.dbl(totalCatgPresent.ToString());//= GetFormulaGrandTotal(al, colPresent);
+                sheet1.Range[xlsRow, colAbsent].Number = clsStaticInfo.dbl(totalCatgAbsent.ToString());//= GetFormulaGrandTotal(al, colAbsent);
+                sheet1.Range[xlsRow, colLate].Number = clsStaticInfo.dbl(totalCatgLate.ToString());//= GetFormulaGrandTotal(al, colLate);
+                sheet1.Range[xlsRow, colLeave].Number = clsStaticInfo.dbl(totalCatgLeave.ToString());//= GetFormulaGrandTotal(al, colLeave);
+                sheet1.Range[xlsRow, colWeekOffHoliday].Number = clsStaticInfo.dbl(totalCatgWeekOff.ToString());//= GetFormulaGrandTotal(al, colWeekOffHoliday);
+                sheet1.Range[xlsRow, colOnRole, xlsRow, colAbsPer].CellStyle.Font.Bold = true;
+                #endregion
+
+                #endregion ----------------------Data-----------------------
+
+                var endXlsRow = xlsRow;
+                sheet1.Range[StartRow, colAbsPer, xlsRow, colAbsPer].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet1.Range[StartRow, colAbsPer, xlsRow, colAbsPer].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet1.IsDisplayZeros = false;
+
+                #region Line Setup
+                if (RowIndex >= (xlsRow - 1))
+                {
+                    xlsRow = RowIndex + 2;
+                }
+
+                sheet1.Range[startXlsRow, 1, endXlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[startXlsRow, 1, endXlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[startXlsRow, 1, endXlsRow, endXlsCol].WrapText = true;
+                #endregion
+
+                #region Freeze Panes
+                var xx = RowHeaderLimit + 2;
+                sheet1.UsedRange["A" + xx].FreezePanes();
+                sheet1.FirstVisibleColumn = 1;
+                sheet1.FirstVisibleRow = 10;
+                #endregion
+
+                #region UsedRange Alignment
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                //sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + identity.Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+
+                sheet1.Name = "AttendanceSummary";
+                #endregion
+
+
+
+
+                if (fileType.ToUpper() == "EXCEL")
+                {
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                    return filePath;
+                }
+                if (fileType.ToUpper() == "HTML")
+                {
+                    string htmlText = ru.ExcelHtmlTable(workbook.Worksheets[0], AppDomain.CurrentDomain.BaseDirectory);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                    return htmlText;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return "";
+        }
+
+
+
+        //public string X_GetDailyAttendanceSummaryExcel(string companyGroupId, string plantId, string SheetHeader, string SheetName, string fileType)
+        //{
+        //    var filePath = "";
+
+        //    ExcelEngine excelEngine = null;
+        //    IApplication application = null;
+        //    IWorkbook workbook = null;
+        //    IWorksheet sheet1 = null;
+
+        //    int xlsRow = 0;
+        //    int xlsCol = 0;
+        //    try
+        //    {
+        //        ReportUtility ru = null;
+        //        clsReport objRpt = null;
+        //        ru = new ReportUtility();
+        //        objRpt = new clsReport();
+        //        DataTable dtAttdnSummary = null;
+        //        DataTable dtCmp = null;
+        //        DataTable dtFactory = null;
+
+        //        #region Variable
+        //        var para = new ParamList();
+        //        var leavePara = new ParamList();
+        //        var attdnProcessParam = new ParamList();
+
+        //        var subTotalCatgOnRole = 0.00;
+        //        var subTotalCatgPresent = 0.00;
+        //        var subTotalCatgAbsent = 0.00;
+        //        var subTotalCatgLate = 0.00;
+        //        var subTotalCatgLeave = 0.00;
+        //        var subTotalCatgWeekOff = 0.00;
+
+        //        var totalCatgOnRole = 0.00;
+        //        var totalCatgPresent = 0.00;
+        //        var totalCatgAbsent = 0.00;
+        //        var totalCatgLate = 0.00;
+        //        var totalCatgLeave = 0.00;
+        //        var totalCatgWeekOff = 0.00;
+        //        var totalCatgAbsentPercentage = 0.00;
+
+        //        attdnProcessParam.PlantId = plantId;
+
+        //        dtCmp = SelectedPlantWiseCompanyDataTable(plantId);
+
+        //        dtFactory = SelectedPlant(plantId);
+        //        #endregion Variable
+
+        //        #region DataSet
+        //        para.PlantId = plantId;
+        //        //Sql Salary Structure 
+        //        dtAttdnSummary = GetAttendanceSummarySql(para, DateTime.Now.ToString("dd-MMM-yyyy"), "ALL", "ALL", "ALL", "ALL", "ALL");
+
+        //        if (dtAttdnSummary.Rows.Count == 0)
+        //        {
+        //            Exception ex = new Exception("No Data found...");
+        //            throw (ex);
+        //        }
+        //        #endregion DataSet
+
+        //        excelEngine = new ExcelEngine();
+        //        application = excelEngine.Excel;
+
+        //        workbook = application.Workbooks.Create(1);
+        //        sheet1 = workbook.Worksheets[0];
+        //        sheet1.IsGridLinesVisible = true;
+
+        //        xlsRow = 4;
+        //        xlsCol = 1;
+
+        //        var colEmpCatg = 0;
+        //        var colDepartment = 0;
+        //        var colSec = 0;
+        //        var ColDesigGrp = 0;
+
+        //        var colOnRole = 0;
+        //        var colPresent = 0;
+        //        var colAbsent = 0;
+        //        var colLate = 0;
+        //        var colLeave = 0;
+        //        var colWeekOffHoliday = 0;
+        //        var colAbsPer = 0;
+        //        var endXlsCol = 0;
+
+
+
+        //        #region------------------Column Header------------------
+        //        SetHeadText("Category", sheet1, xlsRow, ref xlsCol, out colEmpCatg, 9);
+        //        SetHeadText("Department", sheet1, xlsRow, ref xlsCol, out colDepartment, 37);
+        //        SetHeadText("Section", sheet1, xlsRow, ref xlsCol, out colSec, 13);
+        //        SetHeadText("Desig. Group ", sheet1, xlsRow, ref xlsCol, out ColDesigGrp, 11.71);
+        //        SetHeadText("Recruited", sheet1, xlsRow, ref xlsCol, out colOnRole, 9.14);
+        //        SetHeadText("Present", sheet1, xlsRow, ref xlsCol, out colPresent, 7.29);
+        //        SetHeadText("Absent", sheet1, xlsRow, ref xlsCol, out colAbsent, 7);
+        //        SetHeadText("Late", sheet1, xlsRow, ref xlsCol, out colLate, 7);
+        //        SetHeadText("Leave", sheet1, xlsRow, ref xlsCol, out colLeave, 7);
+        //        SetHeadText("W.Off", sheet1, xlsRow, ref xlsCol, out colWeekOffHoliday, 15);
+        //        SetHeadText("Abs%", sheet1, xlsRow, ref xlsCol, out colAbsPer, 15);
+        //        int RowHeaderLimit = xlsRow;
+        //        #endregion------------------Column Header------------------
+        //        endXlsCol = (xlsCol - 1);
+        //        int RowIndex = xlsRow + 3;
+
+        //        #region ******************Report Header******************
+        //        xlsRow = 1;
+        //        xlsCol = 1;
+
+        //        var CmpName = "";
+        //        string FactoryAddress = string.Empty;
+
+        //        if (dtCmp.Rows.Count > 0)
+        //        {
+        //            CmpName = dtCmp.Rows[0]["CompanyName"].ToString();
+        //        }
+        //        else
+        //        {
+        //            CmpName = "";
+        //        }
+        //        sheet1.Range[xlsRow, xlsCol].Text = CmpName;
+        //        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+        //        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+        //        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 14;
+        //        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 30;
+        //        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+        //        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+        //        xlsRow += 1;
+        //        sheet1.Range[xlsRow, xlsCol].Text = "Daily Attendance Summary";
+        //        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+        //        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+        //        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+        //        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+        //        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+        //        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+        //        xlsRow += 1;
+        //        var strRptDateRange = "";
+        //        strRptDateRange = DateTime.Now.ToString("dd-MMM-yyyy");
+        //        sheet1.Range[xlsRow, xlsCol].Text = strRptDateRange;
+        //        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+        //        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+        //        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+        //        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+        //        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+        //        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+        //        #endregion ******************Report Header******************
+
+        //        #region ----------------------Data-----------------------
+
+        //        var oRU = new ReportUtility();
+
+        //        xlsRow = RowIndex;
+
+        //        xlsRow--;
+        //        xlsRow--;
+        //        var startXlsRow = xlsRow;
+
+        //        if (dtAttdnSummary.Rows.Count > 0)
+        //        {
+        //            string _empcat = string.Empty;
+        //            string _department = string.Empty;
+        //            string _section = string.Empty;
+        //            string _DesignationGroup = string.Empty;
+
+
+
+        //            var catFRow = xlsRow;
+        //            ArrayList al = new ArrayList();
+        //            var lastEmpCat = string.Empty;
+        //            for (int i = 0; i <= dtAttdnSummary.Rows.Count - 1; i++)
+        //            {
+        //                subTotalCatgOnRole += Convert.ToDouble(dtAttdnSummary.Rows[i]["OnRoleEmployee"].ToString());
+        //                subTotalCatgPresent += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalPresentEmployee"].ToString());
+        //                subTotalCatgAbsent += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalAbsentEmployee"].ToString());
+        //                subTotalCatgLate += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalLateEmployee"].ToString());
+        //                subTotalCatgLeave += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalLeaveEmployee"].ToString());
+        //                subTotalCatgWeekOff += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalWeekoffEmployee"].ToString());
+
+        //                totalCatgOnRole += Convert.ToDouble(dtAttdnSummary.Rows[i]["OnRoleEmployee"].ToString());
+        //                totalCatgPresent += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalPresentEmployee"].ToString());
+        //                totalCatgAbsent += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalAbsentEmployee"].ToString());
+        //                totalCatgLate += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalLateEmployee"].ToString());
+        //                totalCatgLeave += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalLeaveEmployee"].ToString());
+        //                totalCatgWeekOff += Convert.ToDouble(dtAttdnSummary.Rows[i]["totalWeekoffEmployee"].ToString());
+
+
+        //                var catLRow = xlsRow;
+        //                if (_empcat != dtAttdnSummary.Rows[i]["EmpCategory"].ToString() && string.IsNullOrEmpty(dtAttdnSummary.Rows[i]["EmpCategory"].ToString()) == false)
+        //                {
+        //                    _empcat = dtAttdnSummary.Rows[i]["EmpCategory"].ToString();
+
+        //                    #region Subtotal
+        //                    if (catFRow < xlsRow)
+        //                    {
+        //                        lastEmpCat = _empcat;
+        //                        al.Add(xlsRow);
+        //                        SetHeadText(sheet1, xlsRow, 1, " Subtotal:");
+        //                        sheet1.Range[xlsRow, 1, xlsRow, (colOnRole - 1)].Merge();
+        //                        sheet1.Range[xlsRow, colOnRole].Number = clsStaticInfo.dbl(subTotalCatgOnRole.ToString());
+        //                        sheet1.Range[xlsRow, colPresent].Number = clsStaticInfo.dbl(subTotalCatgPresent.ToString());//"=SUM(" + ru.GetColumnNameForXls(colPresent) + catFRow + ":" + ru.GetColumnNameForXls(colPresent) + (xlsRow - 1) + ")";
+        //                        sheet1.Range[xlsRow, colAbsent].Number = clsStaticInfo.dbl(subTotalCatgAbsent.ToString());//"=SUM(" + ru.GetColumnNameForXls(colAbsent) + catFRow + ":" + ru.GetColumnNameForXls(colAbsent) + (xlsRow - 1) + ")";
+        //                        sheet1.Range[xlsRow, colLate].Number = clsStaticInfo.dbl(subTotalCatgLate.ToString());//"=SUM(" + ru.GetColumnNameForXls(colLate) + catFRow + ":" + ru.GetColumnNameForXls(colLate) + (xlsRow - 1) + ")";
+        //                        sheet1.Range[xlsRow, colLeave].Number = clsStaticInfo.dbl(subTotalCatgLeave.ToString());//"=SUM(" + ru.GetColumnNameForXls(colLeave) + catFRow + ":" + ru.GetColumnNameForXls(colLeave) + (xlsRow - 1) + ")";
+        //                        sheet1.Range[xlsRow, colWeekOffHoliday].Number = clsStaticInfo.dbl(subTotalCatgWeekOff.ToString());//"=SUM(" + ru.GetColumnNameForXls(colWeekOffHoliday) + catFRow + ":" + ru.GetColumnNameForXls(colWeekOffHoliday) + (xlsRow - 1) + ")";
+
+        //                        sheet1.Range[xlsRow, colOnRole, xlsRow, colAbsPer].CellStyle.Font.Bold = true;
+        //                        xlsRow++;
+        //                        subTotalCatgOnRole = 0;
+        //                        subTotalCatgPresent = 0;
+        //                        subTotalCatgAbsent = 0;
+        //                        subTotalCatgLate = 0;
+        //                        subTotalCatgLeave = 0;
+        //                        subTotalCatgWeekOff = 0;
+
+        //                    }
+        //                    #endregion
+        //                    SetCellText(sheet1, xlsRow, colEmpCatg, _empcat);
+        //                    _department = dtAttdnSummary.Rows[i]["Department"].ToString();
+        //                    SetCellText(sheet1, xlsRow, colDepartment, _department);
+        //                    _section = dtAttdnSummary.Rows[i]["Section"].ToString();
+        //                    SetCellText(sheet1, xlsRow, colSec, _section);
+        //                    _DesignationGroup = dtAttdnSummary.Rows[i]["DesignationGroup"].ToString();
+        //                    SetCellText(sheet1, xlsRow, ColDesigGrp, _DesignationGroup);
+
+        //                    if (catFRow < xlsRow)
+        //                    {
+
+        //                        catFRow = xlsRow;
+        //                    }
+        //                }
+        //                else if (_department != dtAttdnSummary.Rows[i]["Department"].ToString())
+        //                {
+        //                    _department = dtAttdnSummary.Rows[i]["Department"].ToString(); SetCellText(sheet1, xlsRow, colDepartment, _department);
+        //                    _section = dtAttdnSummary.Rows[i]["Section"].ToString(); SetCellText(sheet1, xlsRow, colSec, _section);
+        //                    _DesignationGroup = dtAttdnSummary.Rows[i]["DesignationGroup"].ToString(); SetCellText(sheet1, xlsRow, ColDesigGrp, _DesignationGroup);
+        //                }
+        //                else if (_section != dtAttdnSummary.Rows[i]["Section"].ToString())
+        //                {
+        //                    _section = dtAttdnSummary.Rows[i]["Section"].ToString(); SetCellText(sheet1, xlsRow, colSec, _section);
+        //                    _DesignationGroup = dtAttdnSummary.Rows[i]["DesignationGroup"].ToString(); SetCellText(sheet1, xlsRow, ColDesigGrp, _DesignationGroup);
+        //                }
+        //                else if (_DesignationGroup != dtAttdnSummary.Rows[i]["DesignationGroup"].ToString())
+        //                {
+        //                    _DesignationGroup = dtAttdnSummary.Rows[i]["Section"].ToString(); SetCellText(sheet1, xlsRow, colSec, _section);
+        //                    _DesignationGroup = dtAttdnSummary.Rows[i]["DesignationGroup"].ToString(); SetCellText(sheet1, xlsRow, ColDesigGrp, _DesignationGroup);
+        //                }
+        //                SetCellText(sheet1, xlsRow, colOnRole, Convert.ToDouble(dtAttdnSummary.Rows[i]["OnRoleEmployee"].ToString()));
+        //                SetCellText(sheet1, xlsRow, colPresent, Convert.ToDouble(dtAttdnSummary.Rows[i]["totalPresentEmployee"].ToString()));
+        //                SetCellText(sheet1, xlsRow, colAbsent, Convert.ToDouble(dtAttdnSummary.Rows[i]["totalAbsentEmployee"].ToString()));
+        //                SetCellText(sheet1, xlsRow, colLate, Convert.ToDouble(dtAttdnSummary.Rows[i]["totalLateEmployee"].ToString()));
+        //                SetCellText(sheet1, xlsRow, colLeave, Convert.ToDouble(dtAttdnSummary.Rows[i]["totalLeaveEmployee"].ToString()));
+        //                SetCellText(sheet1, xlsRow, colWeekOffHoliday, Convert.ToDouble(dtAttdnSummary.Rows[i]["totalWeekoffEmployee"].ToString()));
+        //                var ap = Convert.ToDouble(dtAttdnSummary.Rows[i]["totalAbsentEmployee"].ToString()) / Convert.ToDouble(dtAttdnSummary.Rows[i]["OnRoleEmployee"].ToString());
+        //                SetCellText(sheet1, xlsRow, colAbsPer, Convert.ToDouble(ap * 100));
+        //                xlsRow++;
+        //            }//for emp count
+
+        //            #region Last subtotal
+        //            //al.Add(xlsRow);
+        //            SetHeadText(sheet1, xlsRow, 1, " Subtotal:");
+        //            sheet1.Range[xlsRow, 1, xlsRow, (colOnRole - 1)].Merge();
+        //            sheet1.Range[xlsRow, colOnRole].Number = clsStaticInfo.dbl(dtAttdnSummary.Compute("SUM(OnRoleEmployee)", "EmpCategory='" + _empcat + "'").ToString()); //"=SUM(" + ru.GetColumnNameForXls(colOnRole) + catFRow + ":" + ru.GetColumnNameForXls(colOnRole) + (xlsRow - 1) + ")";
+        //            sheet1.Range[xlsRow, colPresent].Number = clsStaticInfo.dbl(dtAttdnSummary.Compute("SUM(totalPresentEmployee)", "EmpCategory='" + _empcat + "'").ToString());//Formula = "=SUM(" + ru.GetColumnNameForXls(colPresent) + catFRow + ":" + ru.GetColumnNameForXls(colPresent) + (xlsRow - 1) + ")";
+        //            sheet1.Range[xlsRow, colAbsent].Number = clsStaticInfo.dbl(dtAttdnSummary.Compute("SUM(totalAbsentEmployee)", "EmpCategory='" + _empcat + "'").ToString());//Formula = "=SUM(" + ru.GetColumnNameForXls(colAbsent) + catFRow + ":" + ru.GetColumnNameForXls(colAbsent) + (xlsRow - 1) + ")";
+        //            sheet1.Range[xlsRow, colLate].Number = clsStaticInfo.dbl(dtAttdnSummary.Compute("SUM(totalLateEmployee)", "EmpCategory='" + _empcat + "'").ToString());
+        //            sheet1.Range[xlsRow, colLeave].Number = clsStaticInfo.dbl(dtAttdnSummary.Compute("SUM(totalLeaveEmployee)", "EmpCategory='" + _empcat + "'").ToString());
+        //            sheet1.Range[xlsRow, colWeekOffHoliday].Number = clsStaticInfo.dbl(dtAttdnSummary.Compute("SUM(totalLeaveEmployee)", "EmpCategory='" + _empcat + "'").ToString());
+        //            sheet1.Range[xlsRow, colOnRole, xlsRow, colAbsPer].CellStyle.Font.Bold = true;
+        //            xlsRow++;
+        //            #endregion
+
+        //            #region Grand Total
+        //            SetHeadText(sheet1, xlsRow, 1, "Grand Total:");
+        //            sheet1.Range[xlsRow, 1, xlsRow, (colOnRole - 1)].Merge();
+
+
+        //            sheet1.Range[xlsRow, colOnRole].Number = clsStaticInfo.dbl(totalCatgOnRole.ToString());//= GetFormulaGrandTotal(al, colOnRole);
+        //            sheet1.Range[xlsRow, colPresent].Number = clsStaticInfo.dbl(totalCatgPresent.ToString());//= GetFormulaGrandTotal(al, colPresent);
+        //            sheet1.Range[xlsRow, colAbsent].Number = clsStaticInfo.dbl(totalCatgAbsent.ToString());//= GetFormulaGrandTotal(al, colAbsent);
+        //            sheet1.Range[xlsRow, colLate].Number = clsStaticInfo.dbl(totalCatgLate.ToString());//= GetFormulaGrandTotal(al, colLate);
+        //            sheet1.Range[xlsRow, colLeave].Number = clsStaticInfo.dbl(totalCatgLeave.ToString());//= GetFormulaGrandTotal(al, colLeave);
+        //            sheet1.Range[xlsRow, colWeekOffHoliday].Number = clsStaticInfo.dbl(totalCatgWeekOff.ToString());//= GetFormulaGrandTotal(al, colWeekOffHoliday);
+        //            sheet1.Range[xlsRow, colOnRole, xlsRow, colAbsPer].CellStyle.Font.Bold = true;
+        //            #endregion
+        //        }
+        //        #endregion ----------------------Data-----------------------
+        //        sheet1.UsedRange.WrapText = true;
+        //        sheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+        //        sheet1.UsedRange.AutofitColumns();
+        //        sheet1.UsedRange.BorderInside(ExcelLineStyle.Hair, ExcelKnownColors.Grey_50_percent);
+        //        sheet1.UsedRange.BorderAround(ExcelLineStyle.Hair, ExcelKnownColors.Grey_50_percent);
+        //        sheet1.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+        //        sheet1.IsDisplayZeros = false;
+        //        #region ******************Report Header******************
+        //        xlsRow = 1;
+        //        xlsCol = 1;
+
+        //        Param param = new Param();
+        //        param.CompanyGroupId = companyGroupId;
+        //        //param.CompanyId = CompanyId;
+        //        param.PlantId = plantId;
+        //        var headerText = SheetHeader + " On " + DateTime.Now.ToString("dd-MMM-yyyy");
+        //        if (!string.IsNullOrEmpty(plantId))
+        //            ru.PlantHeader(ref sheet1, endXlsCol, headerText, plantId);
+        //        else
+        //            ru.MainCompanyGroupHeader(ref sheet1, endXlsCol, headerText, companyGroupId);
+
+        //        #endregion ******************Report Header******************
+
+        //        sheet1.PageSetup.TopMargin = 0.2;
+        //        sheet1.PageSetup.BottomMargin = 0.8;
+        //        sheet1.PageSetup.PrintTitleRows = "$1:$6";
+        //        sheet1.PageSetup.LeftMargin = 0.2;
+        //        sheet1.PageSetup.RightMargin = 0.2;
+        //        sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+        //        sheet1.PageSetup.FitToPagesTall = 0;
+        //        sheet1.PageSetup.FitToPagesWide = 1;
+        //        sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+        //        sheet1.PageSetup.CenterHorizontally = true;
+
+
+
+
+        //        workbook.Version = ExcelVersion.Excel2016;
+
+        //        if (fileType.ToUpper() == "EXCEL")
+        //        {
+        //            filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+        //            workbook.SaveAs(filePath);
+        //            workbook.Close();
+        //            excelEngine.Dispose();
+        //            return filePath;
+        //        }
+        //        if (fileType.ToUpper() == "HTML")
+        //        {
+        //            string htmlText = ru.ExcelHtmlTable(workbook.Worksheets[0], AppDomain.CurrentDomain.BaseDirectory);
+        //            workbook.Close();
+        //            excelEngine.Dispose();
+        //            return htmlText;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+
+        //    return "";
+        //}
+
+        public string XlsDepWiseAttnRpt(string companyGroupId, string plantId, string SheetName)
+        {
+            #region Variable
+            var filePath = "";
+
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet1 = null;
+
+            var AttdnDate = DateTime.Now.ToString("dd-MMM-yyyy");
+            //DataSet dsHeading = null;
+            DataView dvAttn = null;
+            DataSet dsCmp = null;
+
+            var xlsRow = 1; var xlsCol = 1;
+            var endXlsCol = 1;
+            var FactoryName = "";
+            var CmpName = "";
+            var sOfficeInTime = "00:00:00";
+            var sInTime = "00:00:00";
+
+            #endregion Variable
+
+            try
+            {
+                #region Variable
+
+                var sUnit = "ALL";//ddlUnit.SelectedValue.ToString().Trim();
+                var sDevi = "ALL";//ddlDivision.SelectedValue.ToString().Trim();
+                var sDept = "ALL";//ddlDepartment.SelectedValue.ToString().Trim();
+                var sSect = "ALL";//ddlSection.SelectedValue.ToString().Trim();
+                var sSbSe = "ALL";//ddlSubSection.SelectedValue.ToString().Trim();
+                var sLine = "ALL";//ddlLine.SelectedValue.ToString().Trim();
+                                  //string sSbSeStr = this.ddlSubSecStruc.SelectedValue.ToString().Trim();
+                var sEmpC = "ALL";//ddlEmpCategor.SelectedValue.ToString().Trim();
+                var sDeGr = "ALL";//ddlDesignationGroup.SelectedValue.ToString().Trim();
+                var sDesi = "ALL";//ddlDesignation.SelectedValue.ToString().Trim();
+
+                #endregion Variable
+
+                #region DataSet
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                var dataTable = HRMS.GetDailyAttnRpt(plantId, AttdnDate, sUnit, sDevi, sDept, sSect, sSbSe, sLine, sDeGr, sDesi, sEmpC);
+                using (dvAttn = new DataView(dataTable))
+                {
+                    var dtAttn = dvAttn.ToTable();
+                    //dvAttn.Table = dataTable;
+
+                    HRMS.SelectedPlantWiseCompany(plantId, out dsCmp);
+
+                    //SelectedPlant(plantId, out dsFactory);
+
+                    #endregion DataSet
+
+                    if (dvAttn.Count > 0)
+                    {
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+
+                        workbook = application.Workbooks.Create(1);
+                        sheet1 = workbook.Worksheets[0];
+                        sheet1.IsGridLinesVisible = true;
+
+                        xlsRow = 7;
+                        var intRow = 0;
+
+                        //string x = "";
+                        var strSubSec = "0";
+                        var strCount = 0;
+                        var strLateBy = "00:00:00";
+
+                        for (int i = 0; i <= dtAttn.Rows.Count - 1; i++)
+                        {
+                            xlsCol = 1;
+                            if ((string.Compare(strSubSec.ToUpper(), dvAttn[i]["SubSection"].ToString().Trim().ToUpper())) != 0)
+                            {
+                                xlsRow += intRow;
+                                intRow = 1;
+                                strCount = 0;
+
+                                sheet1.Range[xlsRow, 1].Text = "Unit :-" + dvAttn[i]["Unit"];
+                                sheet1.Range[xlsRow, 1, xlsRow, 3].Merge();
+                                sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                                sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 12;
+                                sheet1.Range[xlsRow, 1, xlsRow, 3].RowHeight = 21;
+                                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                sheet1.Range[xlsRow, 4].Text = "Section :-" + dvAttn[i]["Section"];
+                                sheet1.Range[xlsRow, 4, xlsRow, 6].Merge();
+                                sheet1.Range[xlsRow, 4].CellStyle.Font.Bold = true;
+                                sheet1.Range[xlsRow, 4].CellStyle.Font.Size = 12;
+                                sheet1.Range[xlsRow, 4, xlsRow, 6].RowHeight = 21;
+                                sheet1.Range[xlsRow, 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                sheet1.Range[xlsRow + 1, 1].Text = "Sub Section :-" + dvAttn[i]["SubSection"];
+                                sheet1.Range[xlsRow + 1, 1, xlsRow + 1, 3].Merge();
+                                sheet1.Range[xlsRow + 1, 1].CellStyle.Font.Bold = true;
+                                sheet1.Range[xlsRow + 1, 1].CellStyle.Font.Size = 12;
+                                sheet1.Range[xlsRow + 1, 1, xlsRow + 1, 3].RowHeight = 21;
+                                sheet1.Range[xlsRow + 1, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                xlsRow += 2;
+
+                                #region ------------------Column Header------------------
+                                xlsCol = 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Sl No.";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 4.70;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Employee Code";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 8.50;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Employee Name";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 39;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Shift Name";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Shift InTime";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Shift Least In Time";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "InTime";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "OutTime";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Day Status";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 8;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Late By";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.LightYellow;
+                                sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
+
+                                endXlsCol = xlsCol;
+                                xlsCol = 1;
+                                xlsRow += 1;
+                                #endregion ------------------Column Header------------------
+                            }
+                            strSubSec = dvAttn[i]["SubSection"].ToString().Trim();
+
+                            #region ----------------------Data-----------------------
+                            if (dvAttn[i]["EmployeeCode"].ToString().Trim() == "1012")
+                            {
+                            }
+                            strCount += 1;
+                            sheet1.Range[xlsRow, xlsCol].Number = strCount;
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["EmployeeCode"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["EmployeeName"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ShiftName"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ShiftInTimeShow"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["LeastInTime"].ToString().Trim();
+                            //sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["LeastEntryTime"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["InTimeShow"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["OutTimeShow"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["DayStatus"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+
+                            if (dvAttn[i]["DayStatus"].ToString().Trim() == "L")
+                            {
+                                #region Late by min
+                                sInTime = "00:00:00";
+                                if (dvAttn[i]["InTime"].ToString().Trim() != "")
+                                {
+                                    sInTime = dvAttn[i]["InTime"].ToString().Trim() + ":00";
+                                }
+                                else
+                                {
+                                    if (dvAttn[i]["OutTime"].ToString().Trim() != "")
+                                    {
+                                        sInTime = dvAttn[i]["OutTime"].ToString().Trim() + ":00";
+                                    }
+                                }
+                                sOfficeInTime = "00:00:00";
+                                strLateBy = "00:00";
+                                if (dvAttn[i]["ShiftTime"].ToString().Trim() != "")
+                                {
+                                    sOfficeInTime = dvAttn[i]["ShiftTime"].ToString().Trim() + ":00";
+                                    strLateBy = (Convert.ToDateTime(sInTime) - Convert.ToDateTime(sOfficeInTime)).ToString().Substring(0, 5);
+                                }
+                                #endregion Late by min
+                            }
+                            else
+                            {
+                                ///absent by how min
+                                #region Absent by how much min
+                                if (dvAttn[i]["DayStatus"].ToString().Trim() == "A")
+                                {
+                                    sInTime = "00:00:00";
+                                    if (dvAttn[i]["InTime"].ToString().Trim() != "")
+                                    {
+                                        sInTime = dvAttn[i]["InTime"].ToString().Trim() + ":00";
+                                        sOfficeInTime = "00:00:00";
+                                        strLateBy = "00:00";
+                                        if (dvAttn[i]["ShiftTime"].ToString().Trim() != "")
+                                        {
+                                            // var v=Convert.ToDateTime(dvAttn[i]["ShiftTime"].ToString().Trim())
+                                            sOfficeInTime = dvAttn[i]["ShiftTime"].ToString().Trim() + ":00";
+                                            strLateBy = (Convert.ToDateTime(sInTime) - Convert.ToDateTime(sOfficeInTime)).ToString().Substring(0, 5);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //if (dvAttn[i]["OutTime"].ToString().Trim() != "")
+                                        //{
+                                        //    sInTime = dvAttn[i]["OutTime"].ToString().Trim() + ":00";
+                                        //}
+                                        strLateBy = "";
+                                    }
+                                }
+                                else
+                                {
+                                    strLateBy = "";
+                                }
+                                #endregion Absent by how much min
+                            }
+
+                            sheet1.Range[xlsRow, xlsCol].Text = strLateBy;
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            xlsRow += 1;
+
+                            #endregion ----------------------Data-----------------------
+
+                            #region Line Setup
+                            sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].WrapText = true;
+                            #endregion Line Setup
+                        }
+
+                        #region UsedRange Alignment
+                        sheet1.UsedRange.WrapText = true;
+                        sheet1.UsedRange.CellStyle.Font.Size = 8;
+                        sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                        sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                        sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                        #endregion UsedRange Alignment
+
+                        #region ******************Report Header******************
+                        xlsRow = 1;
+                        xlsCol = 1;
+                        FactoryName = string.Empty;
+
+                        var FactoryAddress = string.Empty;
+
+                        if (dsCmp.Tables[0].Rows.Count > 0)
+                        {
+                            CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                        }
+                        else
+                        {
+                            CmpName = "";
+                        }
+                        sheet1.Range[xlsRow, xlsCol].Text = CmpName;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 12;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 18;
+                        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                        xlsRow += 1;
+                        if (dsCmp.Tables[0].Rows.Count > 0)
+                        {
+                            FactoryName = dsCmp.Tables[0].Rows[0]["PlantName"].ToString();
+                        }
+                        else
+                        {
+                            FactoryName = "";
+                        }
+                        sheet1.Range[xlsRow, xlsCol].Text = FactoryName;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                        xlsRow += 1;
+                        if (dsCmp.Tables[0].Rows.Count > 0)
+                        {
+                            FactoryAddress = dsCmp.Tables[0].Rows[0]["Address1"].ToString();
+                        }
+                        else
+                        {
+                            FactoryAddress = "";
+                        }
+                        sheet1.Range[xlsRow, xlsCol].Text = FactoryAddress;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                        //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                        xlsRow += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = "Daily Attendance Report";
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 18;
+                        sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                        xlsRow += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = "Attendance Date:- " + AttdnDate;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                        sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 12;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                        #endregion ******************Report Header******************
+
+                        #region Freeze Panes
+                        sheet1.IsDisplayZeros = false;
+                        sheet1.UsedRange["A7"].FreezePanes();
+                        sheet1.FirstVisibleColumn = 1;
+                        sheet1.FirstVisibleRow = 6;
+                        #endregion Freeze Panes
+
+                        #region Page Setup
+                        sheet1.PageSetup.TopMargin = 0.5;
+                        sheet1.PageSetup.BottomMargin = 0.7;
+                        sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                        sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                        sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: TS\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt");
+                        sheet1.PageSetup.LeftMargin = 0.5;
+                        sheet1.PageSetup.RightMargin = 0.2;
+                        sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                        sheet1.PageSetup.FitToPagesTall = 0;
+                        sheet1.PageSetup.FitToPagesWide = 1;
+                        sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+
+                        sheet1.Name = "Daily Attendance Information";
+                        #endregion Page Setup
+
+                        workbook.Version = ExcelVersion.Excel97to2003;
+                        var strFileName = SheetName;
+                        //string strFileName = "Vendor Master Data " + bplib.clsWebLib.DateData_DBToApp(System.DateTime.Now.Date, bplib.clsWebLib.STD_DATE_FORMAT).ToString("dd-MMM-yyyy") + "_" + System.DateTime.Now.Ticks.ToString() + ".xls";
+
+                        filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                        workbook.SaveAs(filePath);
+                        workbook.Close();
+                        excelEngine.Dispose();
+
+                        workbook.Close();
+                        excelEngine.Dispose();
+
+                        return filePath;
+                    }
+                    else
+                    {
+                        throw new Exception("No Data found...");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                excelEngine = null;
+                application = null;
+                workbook = null;
+            }
+        }
+
+        public string XlsDailyAttendanceNotificationRpt(string companyGroupId, string plantId, string SheetName)
+        {
+            #region Variable
+            var filePath = "";
+
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet1 = null;
+
+            var AttdnDate = DateTime.Now.ToString("dd-MMM-yyyy");
+            //DataSet dsHeading = null;
+            DataView dvAttn = null;
+            DataSet dsCmp = null;
+
+            var xlsRow = 1; var xlsCol = 1;
+            var endXlsCol = 1;
+            var FactoryName = "";
+            var CmpName = "";
+            var sOfficeInTime = "00:00:00";
+            var sInTime = "00:00:00";
+
+            #endregion Variable
+
+            try
+            {
+                #region Variable
+
+                var sUnit = "ALL";//ddlUnit.SelectedValue.ToString().Trim();
+                var sDevi = "ALL";//ddlDivision.SelectedValue.ToString().Trim();
+                var sDept = "ALL";//ddlDepartment.SelectedValue.ToString().Trim();
+                var sSect = "ALL";//ddlSection.SelectedValue.ToString().Trim();
+                var sSbSe = "ALL";//ddlSubSection.SelectedValue.ToString().Trim();
+                var sLine = "ALL";//ddlLine.SelectedValue.ToString().Trim();
+                                  //string sSbSeStr = this.ddlSubSecStruc.SelectedValue.ToString().Trim();
+                var sEmpC = "ALL";//ddlEmpCategor.SelectedValue.ToString().Trim();
+                var sDeGr = "ALL";//ddlDesignationGroup.SelectedValue.ToString().Trim();
+                var sDesi = "ALL";//ddlDesignation.SelectedValue.ToString().Trim();
+
+                #endregion Variable
+
+                #region DataSet
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+                var dataTable = HRMS.GetDailyAttnRpt(plantId, AttdnDate, sUnit, sDevi, sDept, sSect, sSbSe, sLine, sDeGr, sDesi, sEmpC);
+                using (dvAttn = new DataView(dataTable))
+                {
+                    var dtAttn = dvAttn.ToTable();
+                    //dvAttn.Table = dataTable;
+
+                    HRMS.SelectedPlantWiseCompany(plantId, out dsCmp);
+
+                    //SelectedPlant(plantId, out dsFactory);
+
+                    #endregion DataSet
+
+                    if (dvAttn.Count > 0)
+                    {
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+
+                        workbook = application.Workbooks.Create(1);
+                        sheet1 = workbook.Worksheets[0];
+                        sheet1.IsGridLinesVisible = true;
+
+                        xlsRow = 7;
+                        var intRow = 0;
+
+                        //string x = "";
+                        var strSubSec = "0";
+                        var strCount = 0;
+                        var strLateBy = "00:00:00";
+
+                        for (int i = 0; i <= dtAttn.Rows.Count - 1; i++)
+                        {
+                            xlsCol = 1;
+                            if ((string.Compare(strSubSec.ToUpper(), dvAttn[i]["SubSection"].ToString().Trim().ToUpper())) != 0)
+                            {
+                                xlsRow += intRow;
+                                intRow = 1;
+                                strCount = 0;
+
+                                sheet1.Range[xlsRow, 1].Text = "Unit :-" + dvAttn[i]["Unit"];
+                                sheet1.Range[xlsRow, 1, xlsRow, 3].Merge();
+                                sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                                sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 12;
+                                sheet1.Range[xlsRow, 1, xlsRow, 3].RowHeight = 21;
+                                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                sheet1.Range[xlsRow, 4].Text = "Section :-" + dvAttn[i]["Section"];
+                                sheet1.Range[xlsRow, 4, xlsRow, 6].Merge();
+                                sheet1.Range[xlsRow, 4].CellStyle.Font.Bold = true;
+                                sheet1.Range[xlsRow, 4].CellStyle.Font.Size = 12;
+                                sheet1.Range[xlsRow, 4, xlsRow, 6].RowHeight = 21;
+                                sheet1.Range[xlsRow, 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                sheet1.Range[xlsRow + 1, 1].Text = "Sub Section :-" + dvAttn[i]["SubSection"];
+                                sheet1.Range[xlsRow + 1, 1, xlsRow + 1, 3].Merge();
+                                sheet1.Range[xlsRow + 1, 1].CellStyle.Font.Bold = true;
+                                sheet1.Range[xlsRow + 1, 1].CellStyle.Font.Size = 12;
+                                sheet1.Range[xlsRow + 1, 1, xlsRow + 1, 3].RowHeight = 21;
+                                sheet1.Range[xlsRow + 1, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                xlsRow += 2;
+
+                                #region ------------------Column Header------------------
+                                xlsCol = 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Sl No.";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 4.70;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Employee Code";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 8.50;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Employee Name";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 39;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Shift Name";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Shift InTime";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Shift Least In Time";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "InTime";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "OutTime";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Day Status";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 8;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                xlsCol += 1;
+                                sheet1.Range[xlsRow, xlsCol].Text = "Late By";
+                                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.LightYellow;
+                                sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
+
+                                endXlsCol = xlsCol;
+                                xlsCol = 1;
+                                xlsRow += 1;
+                                #endregion ------------------Column Header------------------
+                            }
+                            strSubSec = dvAttn[i]["SubSection"].ToString().Trim();
+
+                            #region ----------------------Data-----------------------
+                            if (dvAttn[i]["EmployeeCode"].ToString().Trim() == "1012")
+                            {
+                            }
+                            strCount += 1;
+                            sheet1.Range[xlsRow, xlsCol].Number = strCount;
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["EmployeeCode"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["EmployeeName"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ShiftName"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["ShiftInTimeShow"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["LeastInTime"].ToString().Trim();
+                            //sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["LeastEntryTime"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["InTimeShow"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["OutTimeShow"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["DayStatus"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            xlsCol += 1;
+
+                            if (dvAttn[i]["DayStatus"].ToString().Trim() == "L")
+                            {
+                                #region Late by min
+                                sInTime = "00:00:00";
+                                if (dvAttn[i]["InTime"].ToString().Trim() != "")
+                                {
+                                    sInTime = dvAttn[i]["InTime"].ToString().Trim() + ":00";
+                                }
+                                else
+                                {
+                                    if (dvAttn[i]["OutTime"].ToString().Trim() != "")
+                                    {
+                                        sInTime = dvAttn[i]["OutTime"].ToString().Trim() + ":00";
+                                    }
+                                }
+                                sOfficeInTime = "00:00:00";
+                                strLateBy = "00:00";
+                                if (dvAttn[i]["ShiftTime"].ToString().Trim() != "")
+                                {
+                                    sOfficeInTime = dvAttn[i]["ShiftTime"].ToString().Trim() + ":00";
+                                    strLateBy = (Convert.ToDateTime(sInTime) - Convert.ToDateTime(sOfficeInTime)).ToString().Substring(0, 5);
+                                }
+                                #endregion Late by min
+                            }
+                            else
+                            {
+                                ///absent by how min
+                                #region Absent by how much min
+                                if (dvAttn[i]["DayStatus"].ToString().Trim() == "A")
+                                {
+                                    sInTime = "00:00:00";
+                                    if (dvAttn[i]["InTime"].ToString().Trim() != "")
+                                    {
+                                        sInTime = dvAttn[i]["InTime"].ToString().Trim() + ":00";
+                                        sOfficeInTime = "00:00:00";
+                                        strLateBy = "00:00";
+                                        if (dvAttn[i]["ShiftTime"].ToString().Trim() != "")
+                                        {
+                                            // var v=Convert.ToDateTime(dvAttn[i]["ShiftTime"].ToString().Trim())
+                                            sOfficeInTime = dvAttn[i]["ShiftTime"].ToString().Trim() + ":00";
+                                            strLateBy = (Convert.ToDateTime(sInTime) - Convert.ToDateTime(sOfficeInTime)).ToString().Substring(0, 5);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //if (dvAttn[i]["OutTime"].ToString().Trim() != "")
+                                        //{
+                                        //    sInTime = dvAttn[i]["OutTime"].ToString().Trim() + ":00";
+                                        //}
+                                        strLateBy = "";
+                                    }
+                                }
+                                else
+                                {
+                                    strLateBy = "";
+                                }
+                                #endregion Absent by how much min
+                            }
+
+                            sheet1.Range[xlsRow, xlsCol].Text = strLateBy;
+                            sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            xlsRow += 1;
+
+                            #endregion ----------------------Data-----------------------
+
+                            #region Line Setup
+                            sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].WrapText = true;
+                            #endregion Line Setup
+                        }
+
+                        #region UsedRange Alignment
+                        sheet1.UsedRange.WrapText = true;
+                        sheet1.UsedRange.CellStyle.Font.Size = 8;
+                        sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                        sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                        sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                        #endregion UsedRange Alignment
+
+                        #region ******************Report Header******************
+                        xlsRow = 1;
+                        xlsCol = 1;
+                        FactoryName = string.Empty;
+
+                        var FactoryAddress = string.Empty;
+
+                        if (dsCmp.Tables[0].Rows.Count > 0)
+                        {
+                            CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                        }
+                        else
+                        {
+                            CmpName = "";
+                        }
+                        sheet1.Range[xlsRow, xlsCol].Text = CmpName;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 12;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 18;
+                        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                        xlsRow += 1;
+                        if (dsCmp.Tables[0].Rows.Count > 0)
+                        {
+                            FactoryName = dsCmp.Tables[0].Rows[0]["PlantName"].ToString();
+                        }
+                        else
+                        {
+                            FactoryName = "";
+                        }
+                        sheet1.Range[xlsRow, xlsCol].Text = FactoryName;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                        xlsRow += 1;
+                        if (dsCmp.Tables[0].Rows.Count > 0)
+                        {
+                            FactoryAddress = dsCmp.Tables[0].Rows[0]["Address1"].ToString();
+                        }
+                        else
+                        {
+                            FactoryAddress = "";
+                        }
+                        sheet1.Range[xlsRow, xlsCol].Text = FactoryAddress;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                        //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                        xlsRow += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = "Daily Attendance Report";
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 18;
+                        sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                        xlsRow += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = "Attendance Date:- " + AttdnDate;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                        sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 12;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                        #endregion ******************Report Header******************
+
+                        #region Freeze Panes
+                        sheet1.IsDisplayZeros = false;
+                        sheet1.UsedRange["A7"].FreezePanes();
+                        sheet1.FirstVisibleColumn = 1;
+                        sheet1.FirstVisibleRow = 6;
+                        #endregion Freeze Panes
+
+                        #region Page Setup
+                        sheet1.PageSetup.TopMargin = 0.5;
+                        sheet1.PageSetup.BottomMargin = 0.7;
+                        sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                        sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                        sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: TS\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt");
+                        sheet1.PageSetup.LeftMargin = 0.5;
+                        sheet1.PageSetup.RightMargin = 0.2;
+                        sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                        sheet1.PageSetup.FitToPagesTall = 0;
+                        sheet1.PageSetup.FitToPagesWide = 1;
+                        sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+
+                        sheet1.Name = "Daily Attendance Information";
+                        #endregion Page Setup
+
+                        workbook.Version = ExcelVersion.Excel97to2003;
+                        var strFileName = SheetName;
+                        //string strFileName = "Vendor Master Data " + bplib.clsWebLib.DateData_DBToApp(System.DateTime.Now.Date, bplib.clsWebLib.STD_DATE_FORMAT).ToString("dd-MMM-yyyy") + "_" + System.DateTime.Now.Ticks.ToString() + ".xls";
+
+                        filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                        workbook.SaveAs(filePath);
+                        workbook.Close();
+                        excelEngine.Dispose();
+
+                        workbook.Close();
+                        excelEngine.Dispose();
+
+                        return filePath;
+                    }
+                    else
+                    {
+                        throw new Exception("No Data found...");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                excelEngine = null;
+                application = null;
+                workbook = null;
+            }
+        }
+
+        public string GetAccountDelayPosting(string companyGroupId, string plantId)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+                Library.Service.Extension.Mail.AccountsMailService account = new Library.Service.Extension.Mail.AccountsMailService();
+                DataTable dtAccountDelayPosting = account.GetDTaccountDelayPosting(companyGroupId, plantId);
+                if (dtAccountDelayPosting.Rows.Count > 0)
+                {
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+                    workbook = application.Workbooks.Create(1);
+                    sheet1 = workbook.Worksheets[0];
+
+                    xlsRow = 6;
+
+                    #region variable
+                    var cBudgetItem = 0;
+                    var cBudgetCategory = 0;
+                    var cBudgetSubCategory = 0;
+                    var cVoucherNo = 0;
+                    var cPostingPeriod = 0;
+                    var cEntryPeriod = 0;
+                    var cPostingDate = 0;
+                    var cEntryDate = 0;
+                    var cAmount = 0;
+
+
+                    #endregion variable
+                    var endXlsCol = 0;
+
+                    xlsRow++;
+                    xlsCol = 1;
+                    var cSl = 0;
+
+                    #region Header
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SL", 6); cSl = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budget Category"); cBudgetCategory = xlsCol; xlsCol++;
+
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budget SubCategory", 30); cBudgetSubCategory = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budget Item"); cBudgetItem = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Voucher No"); cVoucherNo = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Posting Period"); cPostingPeriod = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Entry Period"); cEntryPeriod = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Posting Date"); cPostingDate = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Entry Date"); cEntryDate = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Amount"); cAmount = xlsCol;
+                    #endregion Header                   
+                    xlsCol--;
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    var slCount = 0;
+                    for (int i = 0; i < dtAccountDelayPosting.Rows.Count; i++)
+                    {
+                        slCount++;
+                        #region Loop
+
+                        oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cBudgetCategory, dtAccountDelayPosting.Rows[i]["BudgetCategoryName"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cBudgetSubCategory, dtAccountDelayPosting.Rows[i]["BudgetSubCategoryName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cBudgetItem, dtAccountDelayPosting.Rows[i]["BudgetName"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cVoucherNo, dtAccountDelayPosting.Rows[i]["VoucherNo"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPostingPeriod, dtAccountDelayPosting.Rows[i]["PostingPeriod"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEntryPeriod, dtAccountDelayPosting.Rows[i]["EntryPeriod"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cPostingDate, dtAccountDelayPosting.Rows[i]["PostingDate"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cEntryDate, dtAccountDelayPosting.Rows[i]["AddedDate"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cAmount, dtAccountDelayPosting.Rows[i]["Amount"].ToString());
+
+
+                        #endregion Loop
+                        xlsRow++;
+                    }
+
+                    oRU.SetHeaderText(ref sheet1, 4, 1, "ON " + DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy"), ExcelHAlign.HAlignCenter);
+                    sheet1.Range[4, 1, 4, cAmount].Merge();
+
+                    if (!string.IsNullOrEmpty(plantId))
+                        oRU.PlantHeader(ref sheet1, cAmount, "Account Delay Posting", plantId);
+                    else
+                        oRU.CompanyGroupHeader(ref sheet1, cAmount, "Account Delay Posting", companyGroupId);
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    sheet1.Name = "Account Delay Posting";
+                    workbook.Version = ExcelVersion.Excel97to2003;
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Account Delay Posting" + ".xls");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                }
+                return filePath;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+        private void CreateSheet(ref IWorksheet sheet1, string SheetHeader, string SheetName, string plantId, string companyGroupId, string SalaryMasterId)
+        {
+            #region Variable
+
+            //clsReport objRpt = null;
+            var oRU = new ReportUtility();
+            DataSet dsSlrProc = null;
+            DataView dvSlrProc = null;
+            //System.Data.DataSet dsHeading = null;
+            DataSet dsCmp = null;
+            //System.Data.DataSet dsFactory = null;
+
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            //IWorksheet sheet1 = null;
+
+            var xlsRow = 1;
+            var xlsCol = 1;
+            var endXlsCol = 1;
+            var NumberFormatString = "#,##0;(#,##0)";
+            //string USDNumberFormatString = "#,##0.00;(#,##0.00)";
+            var FactoryName = "";
+            var CmpName = "";
+            var filePath = "";
+
+            #endregion Variable
+
+            try
+            {
+                //objRpt = new clsReport();
+
+                if (string.IsNullOrEmpty(SalaryMasterId.Trim()))
+                {
+                    throw new Exception("Please Select Salary Process ID...");
+                }
+
+                #region Variable
+
+                #endregion Variable
+
+                var toDay = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                #region DataSet
+
+                //objRpt.GetSalaryInfoSlrProcIDWise(this.ddlSlrProcID.Text.Trim(), this.ddlPlant.SelectedValue.Trim(), this.txtEmployeeCode.Text, this.ddlStatus.SelectedValue.Trim(), out dsSlrProc);
+                dvSlrProc = new DataView
+                {
+                    Table = dsSlrProc.Tables[0]
+                };
+
+                var dvEmp = new DataView
+                {
+                    Table = dsSlrProc.Tables[0]
+                };
+                var dtEmployees = dvEmp.ToTable(true, "EmpInfoSystemID", "SectionName", "DepartmentName", "DivisionName", "UnitName", "EmpCategoryName"
+                    , "DesignationName", "DesignationGroupName", "GivenDesignationName", "GivenDesignationGroup", "DOJ", "EmployeeName", "EmployeeCode", "LeaveDays", "SubSectionName", "PresentDays", "AbsentDays", "HoliDay", "WeekOff");
+                if (dtEmployees.Rows.Count == 0)
+                {
+                    var ex = new Exception("No Data found...");
+                    throw (ex);
+                }
+                //get
+
+                //objRpt.SelectedPlantWiseCompany(this.ddlPlant.SelectedValue.ToString().Trim(), out dsCmp);
+                //objRpt.SelectedPlant(this.ddlPlant.SelectedValue.ToString().Trim(), out dsFactory);
+
+                #endregion DataSet
+
+                if (dtEmployees.Rows.Count > 0)
+                {
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+
+                    workbook = application.Workbooks.Create(1);
+                    sheet1 = workbook.Worksheets[0];
+                    sheet1.IsGridLinesVisible = true;
+
+                    #region------------------Column Header------------------
+                    xlsRow = 5;
+                    xlsCol = 1;
+
+                    var ColPdDy = xlsCol;
+                    var ColAbDy = xlsCol;
+                    var ColHlDy = xlsCol;
+                    var ColWkOf = xlsCol;
+                    var ColLv = xlsCol;
+                    //1
+
+                    oRU.SetHeadText("Sr. No.", sheet1, xlsRow + 1, ref xlsCol, out int ColSr, 4);
+                    oRU.SetHeadText("ID No.", sheet1, xlsRow + 1, ref xlsCol, out int ColIDNo, 6);
+                    oRU.SetHeadText("Name", sheet1, xlsRow + 1, ref xlsCol, out int ColName, 17);
+                    oRU.SetHeadText("Date Of Joining [dd-MM-yyyy]", sheet1, xlsRow + 1, ref xlsCol, out int ColDOJ, 10.5);
+                    oRU.SetHeadText("Designation", sheet1, xlsRow + 1, ref xlsCol, out int ColDG);
+                    oRU.SetHeadText("Given Designation", sheet1, xlsRow + 1, ref xlsCol, out int ColGVDG);
+                    oRU.SetHeadText("Designation Group", sheet1, xlsRow + 1, ref xlsCol, out int ColDGG);
+                    oRU.SetHeadText("Given Designation Group", sheet1, xlsRow + 1, ref xlsCol, out int ColGVDGG);
+
+                    oRU.SetHeadText("Staff Category", sheet1, xlsRow + 1, ref xlsCol, out int ColStCt);
+                    oRU.SetHeadText("Unit", sheet1, xlsRow + 1, ref xlsCol, out int ColUnit);
+                    oRU.SetHeadText("Division", sheet1, xlsRow + 1, ref xlsCol, out int ColDvN);
+                    oRU.SetHeadText("Department", sheet1, xlsRow + 1, ref xlsCol, out int ColDpN);
+                    oRU.SetHeadText("Section", sheet1, xlsRow + 1, ref xlsCol, out int ColSec);
+                    oRU.SetHeadText("Sub Section", sheet1, xlsRow + 1, ref xlsCol, out int ColSecS);
+
+                    oRU.SetHeadText("Present", sheet1, xlsRow + 1, ref xlsCol, out ColPdDy);
+                    oRU.SetHeadText("Absent", sheet1, xlsRow + 1, ref xlsCol, out ColAbDy);
+                    oRU.SetHeadText("HoliDay", sheet1, xlsRow + 1, ref xlsCol, out ColHlDy);
+                    oRU.SetHeadText("WorkOff", sheet1, xlsRow + 1, ref xlsCol, out ColWkOf);
+                    oRU.SetHeadText("Total Leave", sheet1, xlsRow + 1, ref xlsCol, out ColLv);
+
+                    //Header Col
+                    sheet1.Range[xlsRow, ColSr].Text = "Employee Information";
+                    sheet1.Range[xlsRow, ColSr, xlsRow, ColLv].Merge();
+                    //xlsCol += 1;
+                    //6
+
+                    //int ColGrs = 0;
+                    //int ColBas = 0;
+                    //int ColHRA = 0;
+                    //int ColMdA = 0;
+
+                    //int ColFod = 0;
+                    //int ColCon = 0;
+                    //int ColLocAll = 0;
+                    //int ColMbA = 0;
+
+                    //int ColSA = 0;
+                    //int ColOTA = 0;
+                    //int ColTG = 0;
+                    //int ColAr = 0;
+
+                    //-------------------------
+                    var dvSalaryHead = new DataView(dsSlrProc.Tables[0])
+                    {
+                        Sort = "HeadType desc,Sequence"
+                    };
+                    var dtSalaryHead = dvSalaryHead.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "Sequence", "HeadCategory", "IsNetPayEffect");
+                    //***********************
+
+                    var _count_earning_head = 0;
+                    var _count_deducting_head = 0;
+                    //int _total_head_count = 0;
+
+                    //  CreateDynamicSHead(dtSalaryHead, out _total_head_count, ref sheet1, ref xlsRow, ref xlsCol, ref ColLv, out _count_earning_head, out _count_deducting_head);
+
+                    //--------------------------------------
+
+                    //Header Col
+                    sheet1.Range[xlsRow, ColLv + 1].Text = "Earning";
+                    sheet1.Range[xlsRow, ColLv + 1, xlsRow, ColLv + _count_earning_head].Merge();
+
+                    var ds = ColLv + _count_earning_head + 1;
+
+                    if (_count_deducting_head > 0)
+                    {
+                        sheet1.Range[xlsRow, ds].Text = "Deduction";
+                        sheet1.Range[xlsRow, ds, xlsRow, ds + _count_deducting_head].Merge();
+                    }
+
+                    //18
+
+                    //int ColABA = 0;
+                    //int ColConD = 0;
+                    //int ColADV = 0;
+                    //int ColTAX = 0;
+
+                    //int ColPF = 0;
+                    //int ColPFLoRe = 0;
+                    //int ColOTD = 0;
+                    //int ColStamp = 0;
+
+                    //26
+
+                    oRU.SetHeadText("Net Exchange Gain", sheet1, xlsRow + 1, ref xlsCol, out int ColNDG);
+                    oRU.SetHeadText("Net Disburseable", sheet1, xlsRow + 1, ref xlsCol, out int ColND);
+                    oRU.SetHeadText("Bank Name", sheet1, xlsRow + 1, ref xlsCol, out int ColBankName);
+                    oRU.SetHeadText("Bank Account No.", sheet1, xlsRow + 1, ref xlsCol, out int ColBankAccNo);
+
+                    sheet1.Range[xlsRow + 1, xlsCol].Text = "Signature";
+                    sheet1.Range[xlsRow + 1, xlsCol].ColumnWidth = 26;
+                    var ColSigna = xlsCol;
+                    sheet1.Range[xlsRow, ColNDG, xlsRow, ColSigna].Merge();
+
+                    //  sheet1.Range[xlsRow, 1, xlsRow + 1, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.LightYellow;
+                    sheet1.Range[xlsRow, 1, xlsRow + 1, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, 1, xlsRow + 1, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, 1, xlsRow + 1, xlsCol].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 1, xlsRow + 1, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow + 1, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    endXlsCol = xlsCol;
+                    #endregion ExcelFileCreationFunction
+
+                    var RowIndex = xlsRow;
+
+                    #region ******************Report Header******************
+                    xlsRow = 1;
+                    xlsCol = 1;
+                    var FactoryAddress = string.Empty;
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        //CmpName = dsCmp.Tables[0].Rows[0]["UserName"].ToString();
+                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                    }
+                    else
+                    {
+                        CmpName = "";
+                    }
+                    sheet1.Range[xlsRow, xlsCol].Text = CmpName;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 14;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 30;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        //FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+                        FactoryName = dsCmp.Tables[0].Rows[0]["PlantName"].ToString();
+                    }
+                    else
+                    {
+                        FactoryName = "";
+                    }
+                    sheet1.Range[xlsRow, xlsCol].Text = FactoryName;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Salary Sheet";
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    var strRptDateRange = "";
+                    //strRptDateRange = "For The Month Of " + SalaryMasterId + ", " + SalaryMasterId;
+                    sheet1.Range[xlsRow, xlsCol].Text = strRptDateRange;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    #endregion ******************Report Header******************
+
+                    #region ----------------------Data-----------------------
+
+                    #region Variable For Data
+                    var SrNo = 0;
+                    var x = "";
+                    //decimal ColGrsSlr = 0;
+                    //decimal ColBasSlr = 0;
+                    //decimal ColHRASlr = 0;
+                    //decimal ColMdASlr = 0;
+                    //decimal ColConSlr = 0;
+                    //decimal ColLocASlr = 0;
+                    //decimal ColMbASlr = 0;
+                    //decimal ColFoodAllSlr = 0;
+                    //decimal ColSASlr = 0;
+                    //decimal ColOTASlr = 0;
+                    //decimal ColTGSlr = 0;
+                    //decimal ColArSlr = 0;
+                    //decimal ColABASlr = 0;
+                    //decimal ColConDSlr = 0;
+                    //decimal ColADVSlr = 0;
+                    //decimal ColTAXSlr = 0;
+                    //decimal ColPFSlr = 0;
+                    //decimal ColPFLoReSlr = 0;
+                    //decimal ColOTDSlr = 0;
+                    //decimal ColStampSlr = 0;
+                    //decimal ColNDGSlr = 0;
+                    //decimal ColNDSlr = 0;
+                    #endregion Variable For Data
+
+                    xlsRow = RowIndex + 2;
+
+                    for (int i = 0; i <= dtEmployees.Rows.Count - 1; i++)
+                    {
+                        if ((string.Compare(x.ToUpper(), dtEmployees.Rows[i]["EmpInfoSystemID"].ToString().Trim().ToUpper())) != 0)
+                        {
+                            #region Variable Initialize For Data
+                            //ColGrsSlr = 0;
+                            //ColBasSlr = 0;
+                            //ColHRASlr = 0;
+                            //ColMdASlr = 0;
+                            //ColConSlr = 0;
+                            //ColMbASlr = 0;
+                            //ColFoodAllSlr = 0;
+                            //ColLocASlr = 0;
+                            //ColSASlr = 0;
+                            //ColOTASlr = 0;
+                            //ColTGSlr = 0;
+                            //ColArSlr = 0;
+                            //ColABASlr = 0;
+                            //ColConDSlr = 0;
+                            //ColADVSlr = 0;
+                            //ColTAXSlr = 0;
+                            //ColPFSlr = 0;
+                            //ColOTDSlr = 0;
+                            //ColStampSlr = 0;
+                            //ColNDGSlr = 0;
+                            //ColNDSlr = 0;
+                            //ColPFLoReSlr = 0;
+                            //#endregion Variable Initialize For Data
+
+                            #region empinfo col Data
+
+                            sheet1.Range[xlsRow, ColSr].Number = (1 + SrNo);
+                            sheet1.Range[xlsRow, ColSr].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, ColSr].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            oRU.SetCellText(sheet1, xlsRow, ColIDNo, dtEmployees.Rows[i]["EmployeeCode"].ToString());
+                            oRU.SetCellText(sheet1, xlsRow, ColName, dtEmployees.Rows[i]["EmployeeName"].ToString());
+                            oRU.SetCellText(sheet1, xlsRow, ColDOJ, dtEmployees.Rows[i]["DOJ"].ToString());
+                            oRU.SetCellText(sheet1, xlsRow, ColDG, dtEmployees.Rows[i]["DesignationName"].ToString());
+                            oRU.SetCellText(sheet1, xlsRow, ColGVDG, dtEmployees.Rows[i]["GivenDesignationName"].ToString());
+
+                            oRU.SetCellText(sheet1, xlsRow, ColDGG, dtEmployees.Rows[i]["DesignationGroupName"].ToString());
+                            oRU.SetCellText(sheet1, xlsRow, ColGVDGG, dtEmployees.Rows[i]["GivenDesignationGroup"].ToString());
+
+                            oRU.SetCellText(sheet1, xlsRow, ColStCt, dtEmployees.Rows[i]["EmpCategoryName"].ToString());
+                            oRU.SetCellText(sheet1, xlsRow, ColUnit, dtEmployees.Rows[i]["UnitName"].ToString());
+                            oRU.SetCellText(sheet1, xlsRow, ColDvN, dtEmployees.Rows[i]["DivisionName"].ToString());
+                            oRU.SetCellText(sheet1, xlsRow, ColDpN, dtEmployees.Rows[i]["DepartmentName"].ToString());
+                            oRU.SetCellText(sheet1, xlsRow, ColSec, dtEmployees.Rows[i]["SectionName"].ToString());
+
+                            oRU.SetCellText(sheet1, xlsRow, ColSecS, dtEmployees.Rows[i]["SubSectionName"].ToString());
+                            oRU.SetCellText(sheet1, xlsRow, ColPdDy, dtEmployees.Rows[i]["PresentDays"].ToString());
+                            oRU.SetCellText(sheet1, xlsRow, ColAbDy, dtEmployees.Rows[i]["AbsentDays"].ToString());
+                            oRU.SetCellText(sheet1, xlsRow, ColHlDy, dtEmployees.Rows[i]["HoliDay"].ToString());
+                            oRU.SetCellText(sheet1, xlsRow, ColWkOf, dtEmployees.Rows[i]["WeekOff"].ToString());
+                            oRU.SetCellText(sheet1, xlsRow, ColLv, dtEmployees.Rows[i]["LeaveDays"].ToString());
+
+                            //xlsRow += 1;
+                            SrNo += 1;
+                            #endregion empinfo col Data
+                        }
+                        x = dtEmployees.Rows[i]["EmpInfoSystemID"].ToString().Trim().ToUpper();
+
+                        var _total_head_count_body = 0;
+                        var _earningFormula = string.Empty;
+                        var _deductionFormula = string.Empty;
+                        //ReportUtility oRU = new ReportUtility();
+                        for (int ci = 0; ci < dtSalaryHead.Rows.Count; ci++)
+                        {
+                            if (dtSalaryHead.Rows[ci]["SalaryHead"].ToString().Trim().Length > 0)
+                            {
+                                //if (dtSalaryHead.Rows[ci]["HeadCategory"].ToString().ToUpper() != "CTC" && dtSalaryHead.Rows[ci]["HeadCategory"].ToString().ToUpper() != "GROSS")
+                                //{IsNetPayEffect
+                                _total_head_count_body++;
+
+                                var dvBody = new DataView(dsSlrProc.Tables[0])
+                                {
+                                    RowFilter = "SalaryHeadID='" + dtSalaryHead.Rows[ci]["SalaryHeadID"] + "' and EmpInfoSystemID='" + x + "'"
+                                };
+                                if (dvBody.Count > 0)
+                                {
+                                    //DisbusmentAmount
+                                    sheet1.Range[xlsRow, ColLv + _total_head_count_body].Number = Convert.ToDouble(dvBody[0]["DisbusmentAmount"].ToString());
+                                    //sheet1.Range[xlsRow, ColLv + _total_head_count_body].Number = Convert.ToDouble(dvBody[0]["EntryAmount"].ToString());
+                                    sheet1.Range[xlsRow, ColLv + _total_head_count_body].NumberFormat = NumberFormatString;
+                                    sheet1.Range[xlsRow, ColLv + _total_head_count_body].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                                    sheet1.Range[xlsRow, ColLv + _total_head_count_body].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    //for net disburge
+                                    var _HeadType = dvBody[0]["HeadType"].ToString();
+                                    var _IsNetPayEffect = Convert.ToBoolean(dvBody[0]["IsNetPayEffect"].ToString());
+                                    if (_HeadType == "E")
+                                    {
+                                        if (_IsNetPayEffect)
+                                        {
+                                            if (_earningFormula.Length == 0)
+                                            {
+                                                _earningFormula = oRU.GetColumnNameForXls(ColLv + _total_head_count_body) + "" + xlsRow;
+                                            }
+                                            else
+                                            {
+                                                _earningFormula += "+" + oRU.GetColumnNameForXls(ColLv + _total_head_count_body) + "" + xlsRow;
+                                            }
+                                        }
+                                    }
+                                    else//deduction
+                                    {
+                                        if (_IsNetPayEffect)
+                                        {
+                                            if (_deductionFormula.Length == 0)
+                                            {
+                                                _deductionFormula = oRU.GetColumnNameForXls(ColLv + _total_head_count_body) + "" + xlsRow;
+                                            }
+                                            else
+                                            {
+                                                _deductionFormula += "+" + oRU.GetColumnNameForXls(ColLv + _total_head_count_body) + "" + xlsRow;
+                                            }
+                                        }
+                                    }
+                                }//row found
+                                 // }//ctc , gross
+                            }//
+                        }//for dtSalaryHead
+
+                        if (_deductionFormula.Length > 0)
+                        {
+                            _deductionFormula = "+" + _deductionFormula;
+                        }
+                        var _formula_final = "=sum(" + _earningFormula + _deductionFormula + ")";
+                        oRU.SetFormula(ref sheet1, xlsRow, ColND, _formula_final, true);
+
+                        xlsRow++;
+                    }//for
+                     //}
+                    #endregion Variable Initialize For Data
+
+                    #region Line Setup
+                    sheet1.Range[RowIndex, 1, xlsRow - 1, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[RowIndex, 1, xlsRow - 1, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[RowIndex, 1, xlsRow - 1, xlsCol].WrapText = true;
+                    #endregion Line Setup
+
+                    #region Freeze Panes
+                    sheet1.UsedRange["A8"].FreezePanes();
+                    sheet1.FirstVisibleColumn = 1;
+                    sheet1.FirstVisibleRow = 7;
+                    #endregion Freeze Panes
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.CellStyle.Font.Size = 8;
+                    sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                    sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                    sheet1.Range["A3"].CellStyle.Font.Size = 10;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    #region Page Setup
+                    sheet1.PageSetup.TopMargin = 0.5;
+                    sheet1.PageSetup.BottomMargin = 0.7;
+                    sheet1.PageSetup.PrintTitleRows = "$1:$7";
+                    sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                    sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Generated By: TS" + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt");
+                    sheet1.PageSetup.LeftMargin = 0.5;
+                    sheet1.PageSetup.RightMargin = 0.2;
+                    sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                    sheet1.PageSetup.FitToPagesTall = 0;
+                    sheet1.PageSetup.FitToPagesWide = 1;
+                    sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                    sheet1.Name = "SalarySheet-";
+                    #endregion Page Setup
+                    //}
+                    workbook.Version = ExcelVersion.Excel97to2003;
+                    var strFileName = SheetName + ".xls";
+                    filePath = AppDomain.CurrentDomain.BaseDirectory + "\\" + strFileName;
+                    workbook.SaveAs(AppDomain.CurrentDomain.BaseDirectory + "/" + strFileName);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                }
+                else
+                {
+                    var ex = new Exception("No Data found...");
+                    throw (ex);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                //objRpt = null;
+                //dsHeading = null;
+                dsSlrProc = null;
+                dvSlrProc = null;
+                excelEngine = null;
+                application = null;
+                workbook = null;
+                sheet1 = null;
+            }
+        }
+
+        #endregion ----------------------Data-----------------------
+
+        #region DailyAttendanceReport
+
+
+
+        #endregion DailyAttendanceReport
+
+        #region MailServiceName
+        public string XlsMonthlyAttendanceInformation(string companyGroupId, string plantId, string sheetName)
+        {
+            #region Variable
+            string filePath = "";
+            clsReport objRpt = null;
+
+            DataSet dsMonthlyAttnSumm = null;
+            DataView dvMonthlyAttnSumm = null;
+
+            DataSet dsDaily = null;
+            DataTable dtDaily = null;
+            DataView dvDaily = null;
+
+            string _FLAG = "";
+
+            DataSet dsCmp = null;
+            DataSet dsFactory = null;
+
+            string FactoryName = "";
+            string CmpName = "";
+
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet1 = null;
+
+            int xlsRow = 1, xlsCol = 1;
+            int endXlsCol = 1;
+
+            DateTime dtFrmDt = DateTime.Now;
+            DateTime dtEndDate = DateTime.Now;
+
+            DataSet dsSLeave = null;
+            DataView dvSLeave = null;
+            DataTable dtSLeave = null;
+
+
+            #endregion Variable
+
+            try
+            {
+                objRpt = new clsReport();
+
+                #region Validation                
+                DateTime attendanceDate = DateTime.Now;
+                string m = bplib.clsWebLib.GetMonthName(attendanceDate.Month.ToString());
+
+                string y = attendanceDate.Year.ToString();
+                dtFrmDt = Convert.ToDateTime("01-" + m + "-" + y);
+                //dtFrmDt = Convert.ToDateTime(this.ddlMonthNo.Text.Trim() + "/" + "01/" + this.ddlYearNo.SelectedItem.Text.Trim());
+                string monthName = dtFrmDt.ToString("MMMM");
+                DateTime dateForTheMonth = Convert.ToDateTime("01-" + m + "-" + y);
+
+                dtEndDate = dtFrmDt.AddMonths(1).AddDays(-1);
+
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+                #endregion Validation
+
+                #region Variable
+
+                ParaMontlyAttendance objm = new global::ParaMontlyAttendance();
+
+                objm.FDate = dtFrmDt.ToString("dd-MMM-yyyy");
+                objm.TDate = dtEndDate.ToString("dd-MMM-yyyy");
+                objm.AMonth = dtFrmDt.ToString("MM");
+                objm.AYear = y;
+                objm.PlantId = plantId;
+
+
+                #endregion Variable
+
+                #region DataSet
+
+                GetMonthlyAttnSummaryRptForDetails(objm, out dsMonthlyAttnSumm);
+                dvMonthlyAttnSumm = new DataView();
+                dvMonthlyAttnSumm.Table = dsMonthlyAttnSumm.Tables[0];
+
+                _FLAG = "ALLSTATUS";
+
+
+                GetMonthlyDaily(_FLAG, objm, out dsDaily);
+                if (dsDaily.Tables.Count > 0)
+                {
+                    if (dsDaily.Tables[0].Rows.Count > 0)
+                    {
+                        dtDaily = dsDaily.Tables[0];
+                    }
+                }
+                else
+                {
+                    throw new Exception("Data not found.");
+                }
+                dvDaily = new DataView();
+
+                DataSet dsOUTTime = null;
+                DataView dvOUTTime = null;
+                GetMonthlyDaily("OUTTIME", objm, out dsOUTTime);
+                dvOUTTime = new DataView(dsOUTTime.Tables[0]);
+
+                DataSet dsManual = null;
+                DataView dvManual = null;
+                GetMonthlyDaily("MANUAL", objm, out dsManual);
+                dvManual = new DataView(dsManual.Tables[0]);
+
+                DataSet dsExtraAbsent = null;
+                DataView dvExtraAbsent = null;
+                HRMS.GetExtraAbsent(plantId, dtFrmDt.Month, dtEndDate.Year, out dsExtraAbsent);
+                dvExtraAbsent = new DataView(dsExtraAbsent.Tables[0]);
+
+                DataSet dsLeaveHalf = null;
+                DataView dvLeaveHalf = null;
+                HRMS.GetHalfLeaveInfo(plantId, dtFrmDt.ToString("dd-MMM-yyyy"), dtEndDate.ToString("dd-MMM-yyyy"), out dsLeaveHalf);
+                dvLeaveHalf = new DataView(dsLeaveHalf.Tables[0]);
+
+                DataSet dsDayType = null;
+                DataView dvDayType = null;
+                HRMS.GetDayType(out dsDayType);
+                dvDayType = new DataView(dsDayType.Tables[0]);
+
+                DataSet dsAttdnInfoExtra = null;
+                DataTable dtAttdnInfoExtra = null;
+                HRMS.GetAttendanceInfoExtra(plantId, dtFrmDt.ToString("dd-MMM-yyyy"), dtEndDate.ToString("dd-MMM-yyyy"), out dsAttdnInfoExtra);
+                dtAttdnInfoExtra = dsAttdnInfoExtra.Tables[0];
+                int earlyOut = 0;
+                int lateIn = 0;
+
+                HRMS.SelectedPlantWiseCompany(plantId, out dsCmp);
+
+                HRMS.SelectedPlant(plantId, out dsFactory);
+
+                dsSLeave = new DataSet();
+                GetShortLeave(objm, out dsSLeave);
+                dvSLeave = new DataView(dsSLeave.Tables[0]);
+
+                #endregion DataSet
+
+                if (dvMonthlyAttnSumm.Count > 0)
+                {
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+
+                    workbook = application.Workbooks.Create(1);
+                    sheet1 = workbook.Worksheets[0];
+                    sheet1.IsGridLinesVisible = true;
+
+                    xlsRow = 5;
+                    int intRow = 0;
+
+                    #region Variables
+
+                    string x = "";
+                    string strEmpType = "";
+                    int strCount = 0;
+
+                    int iSrNo = 0;
+                    int iEmpCode = 0;
+                    int iEmpName = 0;
+                    int iDOJ = 0;
+                    int iDOS = 0;
+                    int iUnit = 0;
+                    int iDepart = 0;
+                    int iSec = 0;
+                    int iSubSection = 0;
+                    int iDesig = 0;
+                    //int iGDesig = 0;
+                    int iFDate = 0;
+                    int iTDate = 0;
+                    int iTtlAPD = 0;
+                    int cPayDays = 0;
+                    int iTtlHD = 0;
+                    int iTtlWO = 0;
+                    int iTtlWOHD = 0;
+                    int iTtlPst = 0;
+                    int iTtlAbs = 0;
+                    int iTtlLte = 0;
+                    int iTtlLv = 0;
+                    int iTtlLWP = 0;
+                    int iExtraAbs = 0;
+                    int iTsl = 0;
+                    int iLateIn = 0;
+                    int iEarlyOut = 0;
+
+                    #endregion
+
+                    #region ------------------Column Header------------------
+
+                    #region ------------------Details Header-----------------
+
+                    xlsRow += 1;
+
+                    xlsCol = 1;
+                    iSrNo = xlsCol;
+                    sheet1.Range[xlsRow, iSrNo].Text = "Sl No.";
+                    sheet1.Range[xlsRow, iSrNo].ColumnWidth = 4.70;
+                    sheet1.Range[xlsRow, iSrNo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iSrNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iSrNo, xlsRow + 1, iSrNo].Merge();
+
+                    xlsCol += 1;
+                    iEmpCode = xlsCol;
+                    sheet1.Range[xlsRow, iEmpCode].Text = "Employee Code";
+                    sheet1.Range[xlsRow, iEmpCode].ColumnWidth = 8.50;
+                    sheet1.Range[xlsRow, iEmpCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iEmpCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iEmpCode, xlsRow + 1, iEmpCode].Merge();
+
+                    xlsCol += 1;
+                    iEmpName = xlsCol;
+                    sheet1.Range[xlsRow, iEmpName].Text = "Employee Name";
+                    sheet1.Range[xlsRow, iEmpName].ColumnWidth = 22;
+                    sheet1.Range[xlsRow, iEmpName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iEmpName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iEmpName, xlsRow + 1, iEmpName].Merge();
+
+                    xlsCol += 1;
+                    iDOJ = xlsCol;
+                    sheet1.Range[xlsRow, iDOJ].Text = "DOJ";
+                    sheet1.Range[xlsRow, iDOJ].ColumnWidth = 9.20;
+                    sheet1.Range[xlsRow, iDOJ].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iDOJ].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iDOJ, xlsRow + 1, iDOJ].Merge();
+
+                    xlsCol += 1;
+                    iDOS = xlsCol;
+                    sheet1.Range[xlsRow, iDOS].Text = "DOS";
+                    sheet1.Range[xlsRow, iDOS].ColumnWidth = 9.20;
+                    sheet1.Range[xlsRow, iDOS].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iDOS].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iDOS, xlsRow + 1, iDOS].Merge();
+
+                    xlsCol += 1;
+                    iUnit = xlsCol;
+                    sheet1.Range[xlsRow, iUnit].Text = "Unit";
+                    sheet1.Range[xlsRow, iUnit].ColumnWidth = 9;
+                    sheet1.Range[xlsRow, iUnit].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iUnit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iUnit, xlsRow + 1, iUnit].Merge();
+
+                    xlsCol += 1;
+                    iDepart = xlsCol;
+                    sheet1.Range[xlsRow, iDepart].Text = "Department";
+                    sheet1.Range[xlsRow, iDepart].ColumnWidth = 15;
+                    sheet1.Range[xlsRow, iDepart].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iDepart].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iDepart, xlsRow + 1, iDepart].Merge();
+
+                    xlsCol += 1;
+                    iSec = xlsCol;
+                    sheet1.Range[xlsRow, iSec].Text = "Section";
+                    sheet1.Range[xlsRow, iSec].ColumnWidth = 15;
+                    sheet1.Range[xlsRow, iSec].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iSec].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iSec, xlsRow + 1, iSec].Merge();
+
+                    xlsCol += 1;
+                    iSubSection = xlsCol;
+                    sheet1.Range[xlsRow, iSubSection].Text = "SubSection";
+                    sheet1.Range[xlsRow, iSubSection].ColumnWidth = 15;
+                    sheet1.Range[xlsRow, iSubSection].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iSubSection].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iSubSection, xlsRow + 1, iSubSection].Merge();
+
+                    xlsCol += 1;
+                    iDesig = xlsCol;
+                    sheet1.Range[xlsRow, iDesig].Text = "Designation";
+                    sheet1.Range[xlsRow, iDesig].ColumnWidth = 15;
+                    sheet1.Range[xlsRow, iDesig].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iDesig].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iDesig, xlsRow + 1, iDesig].Merge();
+
+                    //xlsCol += 1;
+                    //iGDesig = xlsCol;
+                    //sheet1.Range[xlsRow, iGDesig].Text = "Given Designation";
+                    //sheet1.Range[xlsRow, iGDesig].ColumnWidth = 15;
+                    //sheet1.Range[xlsRow, iGDesig].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    //sheet1.Range[xlsRow, iGDesig].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    List<SwapColumn> _list2 = GetColDisplayName(dsDaily);
+                    //List<SwapColumn> _list2 = new List<SwapColumn>();
+                    xlsCol = iDesig;
+                    while (dtFrmDt <= dtEndDate)
+                    {
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dtFrmDt.ToString("dd");
+                        //xlsRow++;
+                        sheet1.Range[xlsRow + 1, xlsCol].Text = dtFrmDt.ToString("ddd");
+
+                        //if (rbDayStatus.Checked)
+                        //{
+                        //    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 2.5;
+                        //}
+                        //else
+                        //{
+                        sheet1.Range[xlsRow, xlsCol].ColumnWidth = 5;
+                        //}
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        var ob = _list2.Find(r => r.ValueMember == dtFrmDt.ToString("dd"));
+                        //SwapColumn ob = new SwapColumn();
+                        if (ob != null)
+                        {
+                            ob.ColIndex = xlsCol;
+                            //ob.DisplayMember = dtFrmDt.ToString("dd-MMM-yyyy");
+                            //ob.ValueMember = dtFrmDt.ToString("dd");
+                            //_list2.Add(ob); 
+                        }//if
+                        dtFrmDt = dtFrmDt.AddDays(1);
+                    }
+                    xlsRow++;
+                    //if (chkAdditionInfo.Checked == true)
+                    //{
+
+                    xlsCol += 1;
+                    iTtlAPD = xlsCol;
+                    sheet1.Range[xlsRow - 1, iTtlAPD].Text = "Total Days";
+                    sheet1.Range[xlsRow - 1, iTtlAPD].ColumnWidth = 6;
+                    sheet1.Range[xlsRow - 1, iTtlAPD].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlAPD].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlAPD, xlsRow, iTtlAPD].Merge();
+
+                    xlsCol += 1;
+                    cPayDays = xlsCol;
+                    sheet1.Range[xlsRow - 1, cPayDays].Text = "Pay Days";
+                    sheet1.Range[xlsRow - 1, cPayDays].ColumnWidth = 6;
+                    sheet1.Range[xlsRow - 1, cPayDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow - 1, cPayDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow - 1, cPayDays, xlsRow, cPayDays].Merge();
+
+                    xlsCol += 1;
+                    iTtlHD = xlsCol;
+                    sheet1.Range[xlsRow, iTtlHD].Text = "Total HoliDay";
+                    sheet1.Range[xlsRow, iTtlHD].ColumnWidth = 7.20;
+                    sheet1.Range[xlsRow, iTtlHD].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iTtlHD].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlHD, xlsRow, iTtlHD].Merge();
+
+                    xlsCol += 1;
+                    iTtlWO = xlsCol;
+                    sheet1.Range[xlsRow - 1, iTtlWO].Text = "Total WeekOff";
+                    sheet1.Range[xlsRow - 1, iTtlWO].ColumnWidth = 7.20;
+                    sheet1.Range[xlsRow - 1, iTtlWO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlWO].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlWO, xlsRow, iTtlWO].Merge();
+
+                    xlsCol += 1;
+                    iTtlPst = xlsCol;
+                    sheet1.Range[xlsRow - 1, iTtlPst].Text = "Total Present (Late included)";
+                    sheet1.Range[xlsRow - 1, iTtlPst].ColumnWidth = 10;
+                    sheet1.Range[xlsRow - 1, iTtlPst].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlPst].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlPst, xlsRow, iTtlPst].Merge();
+
+                    xlsCol += 1;
+                    iTtlAbs = xlsCol;
+                    sheet1.Range[xlsRow - 1, iTtlAbs].Text = "Total Absent";
+                    sheet1.Range[xlsRow - 1, iTtlAbs].ColumnWidth = 6;
+                    sheet1.Range[xlsRow - 1, iTtlAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlAbs, xlsRow, iTtlAbs].Merge();
+
+                    xlsCol += 1;
+                    iTtlLte = xlsCol;
+                    sheet1.Range[xlsRow - 1, iTtlLte].Text = "Total Late";
+                    sheet1.Range[xlsRow - 1, iTtlLte].ColumnWidth = 6;
+                    sheet1.Range[xlsRow - 1, iTtlLte].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlLte].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlLte, xlsRow, iTtlLte].Merge();
+
+                    xlsCol += 1;
+                    iTtlLv = xlsCol;
+                    sheet1.Range[xlsRow - 1, iTtlLv].Text = "Leave";
+                    sheet1.Range[xlsRow - 1, iTtlLv].ColumnWidth = 7.20;
+                    sheet1.Range[xlsRow - 1, iTtlLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlLv, xlsRow, iTtlLv].Merge();
+
+                    xlsCol += 1;
+                    iTtlLWP = xlsCol;
+                    sheet1.Range[xlsRow - 1, iTtlLWP].Text = "LWP";
+                    sheet1.Range[xlsRow - 1, iTtlLWP].ColumnWidth = 7.20;
+                    sheet1.Range[xlsRow - 1, iTtlLWP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlLWP].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow - 1, iTtlLWP, xlsRow, iTtlLWP].Merge();
+
+                    xlsCol += 1;
+                    iExtraAbs = xlsCol;
+                    sheet1.Range[xlsRow - 1, iExtraAbs].Text = "Extra Absent";
+                    sheet1.Range[xlsRow - 1, iExtraAbs].ColumnWidth = 7.20;
+                    sheet1.Range[xlsRow - 1, iExtraAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow - 1, iExtraAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow - 1, iExtraAbs, xlsRow, iExtraAbs].Merge();
+
+
+                    xlsCol += 1;
+                    iLateIn = xlsCol;
+                    sheet1.Range[xlsRow - 1, iLateIn].Text = "Late In";
+                    sheet1.Range[xlsRow - 1, iLateIn].ColumnWidth = 9;
+                    sheet1.Range[xlsRow - 1, iLateIn].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow - 1, iLateIn].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow - 1, iLateIn, xlsRow, iLateIn].Merge();
+                    xlsCol += 1;
+                    iEarlyOut = xlsCol;
+                    sheet1.Range[xlsRow - 1, iEarlyOut].Text = "Early Out";
+                    sheet1.Range[xlsRow - 1, iEarlyOut].ColumnWidth = 9;
+                    sheet1.Range[xlsRow - 1, iEarlyOut].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow - 1, iEarlyOut].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow - 1, iEarlyOut, xlsRow, iEarlyOut].Merge();
+
+                    //}
+
+                    #endregion ------------------Details Header-------------------------
+
+                    sheet1.Range[xlsRow - 1, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.LightYellow;
+                    sheet1.Range[xlsRow - 1, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow - 1, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow - 1, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
+
+                    endXlsCol = xlsCol;
+                    xlsCol = 1;
+                    xlsRow += 1;
+                    int _StartRow = xlsRow;
+                    #endregion ------------------Column Header------------------
+
+                    dvDaily.Table = dtDaily;
+
+
+
+                    for (int i = 0; i <= dvMonthlyAttnSumm.Count - 1; i++)
+                    {
+                        try
+                        {
+                            xlsCol = 1;
+
+                            #region ----------------------Data-----------------------
+
+                            strCount += 1;
+                            sheet1.Range[xlsRow, iSrNo].Number = strCount;
+                            sheet1.Range[xlsRow, iSrNo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, iSrNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, iEmpCode].Text = dvMonthlyAttnSumm[i]["EmployeeCode"].ToString().Trim();
+                            //sheet1.Range[xlsRow, iEmpCode].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, iEmpCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, iEmpName].Text = dvMonthlyAttnSumm[i]["EmployeeName"].ToString().ToUpper();
+                            //sheet1.Range[xlsRow, iEmpName].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, iEmpName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, iDOJ].Text = dvMonthlyAttnSumm[i]["DOJ"].ToString().Trim();
+                            //sheet1.Range[xlsRow, iDOJ].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, iDOJ].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, iDOS].Text = dvMonthlyAttnSumm[i]["DOS"].ToString().Trim();
+                            //sheet1.Range[xlsRow, iDOS].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, iDOS].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, iUnit].Text = dvMonthlyAttnSumm[i]["Unit"].ToString().Trim();
+                            //sheet1.Range[xlsRow, iUnit].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, iUnit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, iDepart].Text = dvMonthlyAttnSumm[i]["Department"].ToString().Trim();
+                            //sheet1.Range[xlsRow, iDepart].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, iDepart].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, iSec].Text = dvMonthlyAttnSumm[i]["Section"].ToString().Trim();
+                            //sheet1.Range[xlsRow, iSec].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, iSec].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                            sheet1.Range[xlsRow, iSubSection].Text = dvMonthlyAttnSumm[i]["SubSection"].ToString().Trim();
+                            //sheet1.Range[xlsRow, iSubSection].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, iSubSection].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                            sheet1.Range[xlsRow, iDesig].Text = dvMonthlyAttnSumm[i]["LegalDG"].ToString().Trim();
+                            //sheet1.Range[xlsRow, iDesig].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, iDesig].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            //string _m = bplib.clsWebLib.GetMonthName(ddlMonthNo.Text);
+                            dtFrmDt = Convert.ToDateTime("01-" + m + "-" + y);
+                            xlsCol = iDesig;
+                            string ecode = dvMonthlyAttnSumm[i]["EmployeeCode"].ToString().Trim();
+                            string _SystemId = dvMonthlyAttnSumm[i]["EmployeePK"].ToString().Trim();
+
+
+
+                            while (dtFrmDt <= dtEndDate)
+                            {
+
+                                xlsCol += 1;
+                                var sc = _list2.Find(r => r.ValueMember == dtFrmDt.ToString("dd"));
+                                //list.Find(x => x.Id == IdToFind);
+                                //_Date_from_head = sc.DisplayMember + "-" + ddlMonthNo.Items[ddlMonthNo.SelectedIndex].Text + "-" + ddlYearNo.Items[ddlYearNo.SelectedIndex].Text;
+                                #region OUTTime
+                                dvOUTTime.RowFilter = "EmployeePK = '" + _SystemId + "' ";
+                                dvManual.RowFilter = "EmployeePK = '" + _SystemId + "' ";
+
+                                #endregion
+
+                                dvDaily.RowFilter = "EmployeePK = '" + _SystemId + "' ";
+
+                                //dvDaily.RowFilter = "EmployeePK = '" + _SystemId + "' AND PDate = '" + dtFrmDt.ToString("dd-MMM-yyyy") + "'";
+                                if (dvDaily.Count > 0)
+                                {
+                                    bool HasOUTtime = true;
+                                    bool IsHalfLeave = false;
+                                    bool IsManual = false;
+                                    bool IsExtraAbsent = false;
+                                    bool IsShortLeave = false;
+                                    //var _day_status = dvDaily[0]["DayStatus"].ToString().Trim();
+                                    var _day_status = "";
+                                    var _day_status_modified = "";
+
+                                    var _col_index = xlsCol;
+                                    if (sc != null)
+                                    {
+                                        _day_status = dvDaily[0][sc.DisplayMember].ToString().Trim().Replace(",", Environment.NewLine);
+                                        _day_status_modified = _day_status;
+                                        if (_day_status.Contains("LV"))
+                                        {
+                                            _day_status_modified = _day_status.Remove(2, _day_status.Length - 2);
+                                        }
+                                        _col_index = sc.ColIndex;
+
+                                        if (_FLAG == "ALLSTATUS")
+                                        {
+                                            sheet1.Range[xlsRow, _col_index].Text = _day_status;
+                                            sheet1.Range[xlsRow, _col_index].RowHeight = 52;
+
+                                        }
+                                        dvSLeave.RowFilter = "EmployeeSystemID='" + _SystemId + "' and PDate='" + sc.DisplayMember + "'";
+                                        if (dvSLeave.Count > 0)
+                                        {
+                                            IsShortLeave = true;
+                                        }
+
+
+                                        dvExtraAbsent.RowFilter = "EmpSystemID='" + _SystemId + "' and WorkingDate='" + sc.DisplayMember + "'";
+                                        if (dvExtraAbsent.Count > 0)
+                                        {
+                                            IsExtraAbsent = true;
+                                        }
+
+                                        dvLeaveHalf.RowFilter = "EmpSystemID='" + _SystemId + "' and WorkDate='" + sc.DisplayMember + "'";
+                                        if (dvLeaveHalf.Count > 0)
+                                        {
+                                            IsHalfLeave = true;
+                                        }
+
+                                        if (dvOUTTime.Count > 0)
+                                        {
+                                            string strdaystat = "";
+                                            int funn = strdaystat.IndexOf(",");
+                                            if (funn != -1)
+                                            {
+                                                _day_status = _day_status.Substring(0, funn);
+                                            }
+                                            //_day_status = _day_status.Substring(0, funn);
+                                            string s = _day_status;
+
+                                            if (_FLAG == "ALLSTATUS" && !string.IsNullOrEmpty(_day_status))
+                                            {
+                                                try
+                                                {
+                                                    //s = s.Substring(0, s.IndexOf("\r"));
+                                                    s = s.Split('\r')[0];
+                                                }
+                                                catch (Exception ex)
+                                                {
+
+                                                    throw ex;
+                                                }
+                                            }
+                                            dvDayType.RowFilter = "DayType='" + s + "'";
+
+                                            if (dvDayType.Count > 0)
+                                            {
+                                                HasOUTtime = !string.IsNullOrEmpty(dvOUTTime[0][sc.DisplayMember].ToString().Trim());
+                                            }
+                                        }
+
+                                        ///manual
+                                        if (dvManual.Count > 0)
+                                        {
+                                            if (!string.IsNullOrEmpty(dvManual[0][sc.DisplayMember].ToString().Trim()))
+                                            {
+                                                IsManual = true;
+                                            }
+                                        }
+                                    }
+
+
+
+                                    sheet1.Range[xlsRow, _col_index].Text = (_day_status_modified == "L" ? "P" : _day_status_modified);
+
+
+                                    #region  ----   DayStatus---
+                                    string vv = string.Empty;
+                                    if (sc != null)
+                                    {
+                                        vv = dvDaily[0][sc.DisplayMember].ToString().Trim();
+                                    }
+
+                                    int fn = vv.IndexOf(",");
+                                    if (fn != -1)
+                                    {
+                                        _day_status = vv.Substring(0, fn);
+                                    }
+                                    #endregion ----DayStaus---
+
+                                    sheet1.Range[xlsRow, _col_index].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                    sheet1.Range[xlsRow, _col_index].VerticalAlignment = ExcelVAlign.VAlignTop;
+                                    sheet1.Range[xlsRow, _col_index].ColumnWidth = 6;
+
+
+                                    if (!HasOUTtime)
+                                    {
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Violet;
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    }
+                                    else if (_day_status == "P")
+                                    {
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Green;
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    }
+                                    else if (_day_status == "A")
+                                    {
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Red;
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    }
+                                    else if (_day_status == "L" || _day_status == "LVL" || _day_status == "WL" || _day_status == "HL")
+                                    {
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Blue;
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    }
+                                    else if (_day_status.Contains("LV"))
+                                    {
+
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Yellow;
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.Black;
+                                    }
+
+                                    if (IsManual)
+                                    {
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Orange;
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
+                                    }
+
+                                    if (IsHalfLeave)
+                                    {
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.Yellow;
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Font.Bold = true;
+                                    }
+
+                                    if (IsExtraAbsent)
+                                    {
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.Red;
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Font.Bold = true;
+                                    }
+                                    if (IsShortLeave)
+                                    {
+                                        sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.Magenta;
+                                    }
+                                }//if count
+                                dtFrmDt = dtFrmDt.AddDays(1);
+                            }
+
+
+                            decimal _ExtraAbsent = 0;
+
+                            dvExtraAbsent.RowFilter = "EmpSystemID='" + _SystemId + "' ";
+                            _ExtraAbsent = dvExtraAbsent.Count;
+
+
+
+
+
+                            ReportUtility ru = new ReportUtility();
+                            sheet1.Range[xlsRow, iTtlAPD].Text = dvMonthlyAttnSumm[i]["TotalProcDate"].ToString().Trim();
+                            sheet1.Range[xlsRow, iTtlAPD].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, iTtlAPD].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+
+                            var DaysInaMonth = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString().Trim());
+                            var TotalAbsent = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim());
+                            var TotalLWP = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim());
+
+                            double _pay_days = Convert.ToDouble(DaysInaMonth) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(_ExtraAbsent));
+
+                            sheet1.Range[xlsRow, cPayDays].Text = _pay_days.ToString();
+                            sheet1.Range[xlsRow, cPayDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, cPayDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, iTtlHD].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalHoliDay"].ToString().Trim()));
+                            sheet1.Range[xlsRow, iTtlHD].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, iTtlHD].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                            sheet1.Range[xlsRow, iTtlWO].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString().Trim()));
+                            sheet1.Range[xlsRow, iTtlWO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, iTtlWO].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            double _pre = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalPresent"].ToString().Trim()));
+                            double _Late = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLate"].ToString().Trim()));
+
+                            double TPresentAndLate = _pre + _Late;
+                            sheet1.Range[xlsRow, iTtlPst].Number = TPresentAndLate;
+                            sheet1.Range[xlsRow, iTtlPst].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, iTtlPst].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, iTtlAbs].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim()));
+                            sheet1.Range[xlsRow, iTtlAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, iTtlAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, iTtlLte].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLate"].ToString().Trim()));
+                            sheet1.Range[xlsRow, iTtlLte].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, iTtlLte].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, iTtlLWP].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim()));
+                            sheet1.Range[xlsRow, iTtlLWP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, iTtlLWP].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, iExtraAbs].Number = Convert.ToDouble(_ExtraAbsent);
+                            sheet1.Range[xlsRow, iExtraAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, iExtraAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, iTtlLv].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLv"].ToString().Trim()));
+                            sheet1.Range[xlsRow, iTtlLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, iTtlLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            earlyOut = dtAttdnInfoExtra.Select("InfoType = 'EARLYOUT' AND EmpSystemId = '" + _SystemId + "'").Length;
+
+                            lateIn = dtAttdnInfoExtra.Select("InfoType = 'LATEIN' AND EmpSystemId = '" + _SystemId + "'").Length;
+                            //}
+
+                            xlsRow += 1;
+
+                            #endregion ----------------------Data-----------------------
+
+                        }
+                        catch (Exception ex)
+                        {
+
+                            throw ex;
+                        }
+
+                    }
+
+                    #region Line Setup
+                    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[_StartRow, 1, xlsRow - 1, endXlsCol].WrapText = true;
+                    #endregion
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.CellStyle.Font.Size = 8;
+                    sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                    sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    #region ******************Report Header******************
+                    xlsRow = 1;
+                    xlsCol = 1;
+
+                    FactoryName = string.Empty;
+
+                    string FactoryAddress = string.Empty;
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                    }
+                    else
+                    {
+                        CmpName = "";
+                    }
+                    sheet1.Range[xlsRow, xlsCol].Text = CmpName;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 12;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].RowHeight = 30;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    //sheet1.Range[xlsRow, 1].CellStyle.Rotation
+
+                    // start color indication  by Mirza
+                    sheet1.Range[xlsRow, endXlsCol - 4, xlsRow, endXlsCol - 1].Merge();
+                    sheet1.Range[xlsRow, endXlsCol - 4].Text = "Color Indication";
+                    sheet1.Range[xlsRow, endXlsCol - 4].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, endXlsCol - 4].CellStyle.Interior.Color = System.Drawing.Color.LightGray;
+                    sheet1.Range[xlsRow, endXlsCol - 4].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, endXlsCol - 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    sheet1.Range[xlsRow + 1, endXlsCol - 4].Text = "Present";
+                    sheet1.Range[xlsRow + 1, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Green;
+                    sheet1.Range[xlsRow + 1, endXlsCol - 4].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow + 1, endXlsCol - 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    sheet1.Range[xlsRow + 1, endXlsCol - 2].Text = "Absent";
+                    sheet1.Range[xlsRow + 1, endXlsCol - 1].CellStyle.Interior.Color = System.Drawing.Color.Red;
+                    sheet1.Range[xlsRow + 1, endXlsCol - 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow + 1, endXlsCol - 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    sheet1.Range[xlsRow + 2, endXlsCol - 4].Text = "Leave";
+                    sheet1.Range[xlsRow + 2, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Yellow;
+                    sheet1.Range[xlsRow + 2, endXlsCol - 4].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow + 2, endXlsCol - 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    sheet1.Range[xlsRow + 2, endXlsCol - 2].Text = "Half Day Leave";
+                    sheet1.Range[xlsRow + 2, endXlsCol - 2].WrapText = true;
+                    sheet1.Range[xlsRow + 2, endXlsCol - 2].CellStyle.Font.Size = 8;
+                    sheet1.Range[xlsRow + 2, endXlsCol - 1].CellStyle.Font.Color = ExcelKnownColors.Yellow;
+                    sheet1.Range[xlsRow + 2, endXlsCol - 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow + 2, endXlsCol - 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    sheet1.Range[xlsRow + 2, endXlsCol - 1].Text = "Yellow Font";
+                    sheet1.Range[xlsRow + 2, endXlsCol - 1].WrapText = true;
+                    sheet1.Range[xlsRow + 2, endXlsCol - 1].CellStyle.Font.Size = 8;
+                    sheet1.Range[xlsRow + 2, endXlsCol - 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow + 2, endXlsCol - 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+
+                    sheet1.Range[xlsRow + 3, endXlsCol - 2].Text = "Late";
+                    sheet1.Range[xlsRow + 3, endXlsCol - 1].CellStyle.Interior.Color = System.Drawing.Color.Blue;
+
+                    sheet1.Range[xlsRow + 3, endXlsCol - 4].Text = "Out T Miss:";
+                    sheet1.Range[xlsRow + 3, endXlsCol - 4].WrapText = true;
+                    sheet1.Range[xlsRow + 3, endXlsCol - 4].CellStyle.Font.Size = 8;
+                    sheet1.Range[xlsRow + 3, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Violet;
+
+                    sheet1.Range[xlsRow + 4, endXlsCol - 4].Text = "Manual Attdn:";
+                    sheet1.Range[xlsRow + 4, endXlsCol - 4].WrapText = true;
+                    sheet1.Range[xlsRow + 4, endXlsCol - 4].CellStyle.Font.Size = 8;
+                    sheet1.Range[xlsRow + 4, endXlsCol - 3].CellStyle.Interior.Color = System.Drawing.Color.Orange;
+
+                    sheet1.Range[xlsRow + 4, endXlsCol - 2].Text = "Short Leave";
+                    sheet1.Range[xlsRow + 4, endXlsCol - 2].WrapText = true;
+                    sheet1.Range[xlsRow + 4, endXlsCol - 2].CellStyle.Font.Size = 8;
+                    sheet1.Range[xlsRow + 4, endXlsCol - 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow + 4, endXlsCol - 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    sheet1.Range[xlsRow + 4, endXlsCol - 1].Text = "Maganta Font";
+                    sheet1.Range[xlsRow + 4, endXlsCol - 1].WrapText = true;
+                    sheet1.Range[xlsRow + 4, endXlsCol - 1].CellStyle.Font.Size = 8;
+                    sheet1.Range[xlsRow + 4, endXlsCol - 1].CellStyle.Font.Color = ExcelKnownColors.Magenta;
+                    sheet1.Range[xlsRow + 4, endXlsCol - 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow + 4, endXlsCol - 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    sheet1.Range[xlsRow, endXlsCol - 5, xlsRow + 4, endXlsCol - 1].BorderAround(ExcelLineStyle.Hair);
+
+                    // END color indication  by Mirza
+
+                    xlsRow += 1;
+                    if (dsFactory.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+                    }
+                    else
+                    {
+                        FactoryName = "";
+                    }
+                    sheet1.Range[xlsRow, xlsCol].Text = FactoryName;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].RowHeight = 20;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    if (dsFactory.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
+                    }
+                    else
+                    {
+                        FactoryAddress = "";
+                    }
+                    sheet1.Range[xlsRow, xlsCol].Text = FactoryAddress;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].Merge();
+                    //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].RowHeight = 26;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    string _sheetHeaderName = "Monthly Attendance Information";
+
+                    sheet1.Range[xlsRow, xlsCol].Text = _sheetHeaderName;
+
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].Merge();
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 11;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].RowHeight = 20;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Year No:- " + y + " and Month:- " + dtEndDate.ToString("MMMM");
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].Merge();
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 9;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].RowHeight = 20;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    #endregion ******************Report Header******************
+
+                    #region Freeze Panes
+                    sheet1.IsDisplayZeros = false;
+                    sheet1.UsedRange["A8"].FreezePanes();
+                    sheet1.FirstVisibleColumn = 1;
+                    sheet1.FirstVisibleRow = 6;
+                    #endregion
+
+                    #region Page Setup
+                    sheet1.PageSetup.TopMargin = 0.5;
+                    sheet1.PageSetup.BottomMargin = 0.7;
+                    sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                    sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+
+                    sheet1.PageSetup.LeftMargin = 0.5;
+                    sheet1.PageSetup.RightMargin = 0.2;
+                    sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                    sheet1.PageSetup.FitToPagesTall = 0;
+                    sheet1.PageSetup.FitToPagesWide = 1;
+                    sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                    sheet1.IsDisplayZeros = false;
+
+                    sheet1.Name = sheetName;
+                    #endregion
+
+                    workbook.Version = ExcelVersion.Excel97to2003;
+                    string strFileName = sheetName + bplib.clsWebLib.DateData_DBToApp(DateTime.Now.Date, bplib.clsWebLib.STD_DATE_FORMAT).ToString("dd-MMM-yyyy") + ".xls";
+
+                    workbook.Version = ExcelVersion.Excel97to2003;
+
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, strFileName + ".xls");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+
+                    workbook.Close();
+                    excelEngine.Dispose();
+                }
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        #endregion
+
+        public void GetMonthlyDaily(string IsDayStatus, ParaMontlyAttendance objm, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            string _show_col = " isnull(DayStatus, '') ";
+            string _show_man = " AD.DayStatus, ";
+            try
+            {
+
+                if (IsDayStatus == "OUTTIME")
+                {
+                    _show_col = " isnull(OutTime, '') ";
+                }
+                else if (IsDayStatus == "INTIME")
+                {
+                    _show_col = " isnull(InTime, '') ";
+                }
+                else if (IsDayStatus == "ALLSTATUS")
+                {
+                    _show_col = " ISNULL(ISNULL(DayStatus,'')+','+ ISNULL(ShiftName,'')+','+ISNULL(InTime,'')+','+ISNULL(OutTime,'')+','+ ISNULL(LEAVE,''), '') ";
+
+                }
+
+                else
+                {
+                    _show_col = "ISNULL(CASE WHEN ISNULL(DayStatus, '') = 'LV' THEN ISNULL(DayStatus, '')+'-'+ISNULL(LEAVE,'') ELSE ISNULL(DayStatus, '') END,'') ";
+                }
+
+
+                if (IsDayStatus == "MANUAL")
+                {
+                    _show_man = @" DayStatus= case when  AD.IsManualDayStatus=1 then 'MANUAL'
+
+                                            when AD.IsManualInTime = 1 then 'MANUAL'
+
+                                            when AD.IsManualOutTime = 1 then 'MANUAL'
+											else '' end, ";
+                }
+
+                strSql = @"DECLARE @sql_ nvarchar(max)
+
+                                    select  EmployeePK,WorkDate," + _show_col + @" Duration
+                                    INTO #tempOT
+                                    from 
+                                    (
+                                    SELECT A.* FROM
+	                                (SELECT E.systemId EmployeePK,E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ,
+                                            D.UserName Designation, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
+                                            S.UserName Section, SB.UserName SubSection, L.UserName Line,  REPLACE(CONVERT(VARCHAR(11), AD.WorkDate, 113), ' ', '-') PDate,
+                                            " + _show_man + @" CONVERT(VARCHAR(5), AD.InTime, 108) InTime, ARIN.DeviceID InDeviceID, CONVERT(VARCHAR(5), AD.OutTime, 108) OutTime,
+                                            AROUT.DeviceID OutDeviceID, AD.OTHr, LT.UserName LvShortName
+											,AD.WorkDate, DD.UserName GivenDesignation,SD.UserName ShiftName,LTY.Code LEAVE 
+                                    FROM dbo.EmployeeInformation E
+                                                INNER JOIN dbo.AttdnProcessData AD ON E.SystemID = AD.EmpSystemID
+                                                LEFT JOIN dbo.AttdnRawData ARIN ON AD.InTimeRowID = ARIN.RowID
+                                                LEFT JOIN dbo.AttdnRawData AROUT ON AD.OutTimeRowID = AROUT.RowID
+                                                LEFT JOIN dbo.LeaveType LT ON AD.LTSystemID = LT.Id
+                                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
+                                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
+                                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
+                                                LEFT JOIN ORG.Section S ON E.SectionID = S.Id
+                                                LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
+                                                LEFT JOIN ORG.Line L ON E.LineID = L.Id
+                                                LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
+												LEFT JOIN HKP.Designation DD ON E.GivenDesignationId = DD.Id
+                                                LEFT JOIN dbo.ShiftDefination SD ON AD.ShiftSystemID = SD.SystemID
+                                               --LEFT JOIN dbo.LeaveTransaction LTT ON AD.EmpSystemID = LTT.EmpSystemID
+												--LEFT JOIN dbo.LeaveTransactionDetails LTD ON LTT.SystemID = LTD.LvTrnsSystemID
+												LEFT JOIN dbo.LeaveType LTY ON AD.LTSystemID = LTY.Id
+                                    WHERE AD.PlantID = '" + objm.PlantId + @"' AND AD.WorkDate BETWEEN '" + objm.FDate + @"' AND '" + objm.TDate + @"' 
+                                    AND (E.EmployeeStatus != 'Separated' or E.DOS >= '" + objm.FDate + @"' or E.DOS is null) AND E.DOJ <=  '" + objm.TDate + @"' ";
+
+                //if (objm.UnitId != "ALL")
+                //{
+                //    strSql = strSql + @" AND E.UnitID = '" + objm.UnitId + "'";
+                //}
+                //if (objm.DivisionId != "ALL")
+                //{
+                //    strSql = strSql + @" AND E.DivisionID = '" + objm.DivisionId + "'";
+                //}
+                //if (objm.DepartmentId != "ALL")
+                //{
+                //    strSql = strSql + @" AND E.DepartmentID = '" + objm.DepartmentId + "'";
+                //}
+                //if (objm.SectionId != "ALL")
+                //{
+                //    strSql = strSql + @" AND E.SectionID = '" + objm.SectionId + "'";
+                //}
+                //if (objm.SubsectionId != "ALL")
+                //{
+                //    strSql = strSql + @" AND E.SubSectionID = '" + objm.SubsectionId + "'";
+                //}
+                //if (objm.LineId != "ALL")
+                //{
+                //    strSql = strSql + @" AND E.LineID = '" + objm.LineId + "'";
+                //}
+                ////if (sSbSeStr != "ALL")
+                ////{
+                ////    strSql = strSql + @" AND E.SubSecStrucSystemID = '" + sSbSeStr + "'";
+                ////}
+                //if (objm.EmpCat != "ALL")
+                //{
+                //    strSql = strSql + @" AND E.EmployeeCategorySystemID = '" + objm.EmpCat + "'";
+                //}
+                //if (objm.DesignationGroupId != "ALL")
+                //{
+                //    strSql = strSql + @" AND E.DesignationGroupID = '" + objm.DesignationGroupId + "'";
+                //}
+                //if (objm.DesignationId != "ALL")
+                //{
+                //    strSql = strSql + @" AND E.DesignationSystemID = '" + objm.DesignationId + "'";
+                //}
+
+                strSql = strSql + @") A
+                         GROUP BY A.EmployeeCode, A.EmployeeName, A.DOJ, A.Designation, A.Unit, A.Division, A.Department,
+		                            A.Section, A.SubSection, A.Line, A.PDate, A.DayStatus, A.InTime, A.InDeviceID, A.OutTime,
+                                    A.OutDeviceID, A.OTHr, A.LvShortName,WorkDate,GivenDesignation ,A.EmployeePK,ShiftName, LEAVE 
+
+
+                            ) TT
+	                            DECLARE @sql nvarchar(max),
+                                    @col nvarchar(max)
+
+                            SELECT @col = (
+                                SELECT DISTINCT ','+QUOTENAME(REPLACE(CONVERT(VARCHAR(11), WorkDate, 113), ' ', '-'))	
+                                FROM #tempOT 
+                                FOR XML PATH ('')
+                            )
+
+                            SELECT @sql = N'
+                            (SELECT *
+                            FROM #tempOT
+                            PIVOT (
+                                MAX([Duration]) FOR [WorkDate] IN ('+STUFF(@col,1,1,'')+')
+                            ) as pvt)'
+
+                            EXEC sp_executesql @sql
+                            drop table #tempOT
+                            ";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
+        public void GetMonthlyAttnSummaryRptForDetails(ParaMontlyAttendance objm, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+
+            try
+            {
+                //strSql = @"SELECT A.* FROM
+                //                    (SELECT E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ, E.EmpType,
+                //                            D.DesignationName Designation, U.UnitName Unit, Dv.DivisionName Division, Dp.DepartmentName Department,
+                //                            S.SectionName Section, SB.SubSectionName SubSection, L.LineName Line, REPLACE(CONVERT(VARCHAR(11), ADM.FromDate, 113), ' ', '-') FromDate,
+                //                            REPLACE(CONVERT(VARCHAR(11), ADM.ToDate, 113), ' ', '-') ToDate, ADM.MonthNo, ADM.YearNo,
+                //                            ADM.TotalProcDate, ADM.TotalPresent, ADM.TotalLate, ADM.TotalAbsent, ADM.TotalLv, ADM.TotalMLv, ADM.TotalOTHr,
+                //                            ADM.TotalNormalOTHr, ADM.TotalExtraOTHr, ADM.TotalHoliDay, ADM.TotalWeekOff, ADM.TotalWeekOffHoliDay
+                //                    FROM dbo.EmployeeInformation E
+                //                                INNER JOIN dbo.AttdnDataMonthlySummary ADM ON E.SystemID = ADM.EmpSystemID
+                //                                LEFT JOIN dbo.Unit U ON E.UnitID = U.SystemID
+                //                                LEFT JOIN dbo.Division Dv ON E.DivisionID = Dv.SystemID
+                //                                LEFT JOIN dbo.Department Dp ON E.DepartmentID = Dp.SystemID
+                //                                LEFT JOIN dbo.Section S ON E.SectionID = S.SystemID
+                //                                LEFT JOIN dbo.SubSection SB ON E.SubSectionID = SB.SystemID
+                //                                LEFT JOIN dbo.Line L ON E.LineID = L.SystemID
+                //                                LEFT JOIN dbo.Designation D ON E.DesignationSystemID = D.SystemID
+                //                    WHERE ADM.PlantID = '" + sPlantID + @"' AND ADM.MonthNo = " + iMonthNo + @" AND ADM.YearNo = " + iYearNo + @" ";
+                strSql = @"SELECT A.* FROM
+                                    (SELECT E.SystemId EmployeePK,CONVERT (int,E.EmployeeCode) EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ, REPLACE(CONVERT(VARCHAR(11), E.DOS, 113), ' ', '-') DOS, E.EmpType,
+                                            D.UserName Designation,ISNULL( LG.UserName, '') LegalDG, DG.UserName GivenDesignation, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
+                                            S.UserName Section, SB.UserName SubSection, L.UserName Line, REPLACE(CONVERT(VARCHAR(11), ADM.FromDate, 113), ' ', '-') FromDate,
+                                            REPLACE(CONVERT(VARCHAR(11), ADM.ToDate, 113), ' ', '-') ToDate, ADM.MonthNo, ADM.YearNo,
+                                            ADM.TotalProcDate, ADM.TotalPresent, ADM.TotalLate, ADM.TotalAbsent, ADM.TotalLv, ADM.TotalLWP, ADM.TotalMLv, ADM.TotalOTHr,
+                                            ADM.TotalNormalOTHr, ADM.TotalExtraOTHr, ADM.TotalHoliDay, ADM.TotalWeekOff, ADM.TotalWeekOffHoliDay,SLeave.ShortLeave
+                                    FROM dbo.EmployeeInformation E
+                                                INNER JOIN dbo.AttdnDataMonthlySummary ADM ON E.SystemID = ADM.EmpSystemID
+                                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
+                                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
+                                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
+                                                LEFT JOIN ORG.Section S ON E.SectionID = S.Id
+                                                LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
+                                                LEFT JOIN ORG.Line L ON E.LineID = L.Id
+                                                LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
+                                                LEFT JOIN HKP.Designation DG ON DG.Id=E.GivenDesignationId
+                                                LEFT JOIN HKP.LegalDesignation LG ON LG.Id = E.LegalDesignationId
+                                            left join (
+												select EmpSystemID,sum(CountedShortLeave) ShortLeave,DATEPART(year,workdate) _year,DATEPART(month,workdate) _month
+												 from AttdnProcessData
+													where PlantID='" + objm.PlantId + @"' --and DATEPART(year,workdate)=2018 and DATEPART(month,workdate)=9
+													group by EmpSystemID,DATEPART(year,workdate),DATEPART(month,workdate)
+													--having sum(CountedShortLeave)>2
+												) SLeave on adm.MonthNo=SLeave._month and adm.YearNo=SLeave._year and e.SystemId=SLeave.EmpSystemID
+
+                                    WHERE ADM.PlantID = '" + objm.PlantId + @"' AND ADM.MonthNo = '" + objm.AMonth + @"' AND ADM.YearNo = '" + objm.AYear + @"'
+AND (E.EmployeeStatus='Active' OR Year(DOS) >= '" + objm.AYear + @"' AND MONTH(DOS) >= '" + objm.AMonth + @"')";
+
+
+                strSql = strSql + @") A
+                        GROUP BY A.EmployeeCode, A.EmployeeName, A.DOJ,A.DOS, A.EmpType, A.Designation, A.GivenDesignation,A.Unit, A.Division, A.Department,
+		                            A.Section, A.SubSection, A.Line, A.FromDate, A.ToDate, A.MonthNo, A.YearNo,
+                                    A.TotalProcDate, A.TotalPresent, A.TotalLate, A.TotalAbsent, A.TotalLv,A.TotalLWP, A.TotalMLv, A.TotalOTHr,
+                                    A.TotalNormalOTHr, A.TotalExtraOTHr, A.TotalHoliDay, A.TotalWeekOff, A.TotalWeekOffHoliDay,A.EmployeePK,A.ShortLeave,A.LegalDG
+                        ORDER BY  A.EmployeeCode";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+        List<SwapColumn> GetColDisplayName(DataSet dslocal)
+        {
+            List<SwapColumn> list = null;
+            try
+            {
+                list = new List<SwapColumn>();
+                for (int i = 0; i < dslocal.Tables[0].Columns.Count; i++)
+                {
+                    var c = dslocal.Tables[0].Columns[i].ColumnName;
+                    if (c.ToUpper() != "EMPLOYEEPK")
+                    {
+                        string _date = Convert.ToDateTime(c).ToString("dd-MMM-yyyy");
+                        string _day = Convert.ToDateTime(c).ToString("dd");
+                        SwapColumn ob = new SwapColumn();
+                        ob.DisplayMember = _date;
+                        ob.ValueMember = _day;
+                        list.Add(ob);
+                    }//if
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void GetShortLeave(ParaMontlyAttendance objm, out DataSet dsRef)
+        {
+            string strSQL;
+
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT	 A.SystemId EmployeeSystemId
+                                ,A.EmployeeCode
+                            	,A.EmployeeName	
+                            	,REPLACE(CONVERT(VARCHAR(11), A.PDate, 113), ' ', '-') PDate
+                            	,A.DayStatus
+                                ,A.ShortLeave
+                            FROM(
+                                SELECT E.SystemId
+                                    ,E.EmployeeCode
+                                    , E.EmployeeName
+                                    , AR.WorkDate PDate
+                                    , AR.DayStatus
+                                    , AR.CountedShortLeave ShortLeave
+
+                                FROM dbo.EmployeeInformation E
+                                INNER JOIN dbo.AttdnProcessData AR ON E.SystemID = AR.EmpSystemID
+                                left join EmpDateWiseShiftAssign es on es.EmpSystemID = E.SystemId
+                                AND AR.WorkDate = ES.WorkDate
+
+                                WHERE 
+                                     AR.WorkDate BETWEEN '" + objm.FDate + @"'
+                                        AND '" + objm.TDate + @"' AND (EmployeeStatus = 'Active' OR Convert(date,DOS) >= Convert(Date,'" + objm.FDate + @"')) and AR.CountedShortLeave >= 1
+                                ) A
+                            GROUP BY A.SystemId 
+                                ,A.EmployeeCode
+                            	,A.EmployeeName                       	
+                            	,PDate
+                            	,A.DayStatus 
+                                ,a.ShortLeave
+                            ORDER BY A.EmployeeCode
+                            	,A.PDate";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//end function
+        private void SetHeadText(string text, IWorksheet sheet, int xlsRow, ref int xlsCol, out int ColIndex)
+        {
+            ColIndex = 0;
+            sheet.Range[xlsRow, xlsCol].Text = text;
+            sheet.Range[xlsRow, xlsCol].ColumnWidth = 10;
+            ColIndex = xlsCol;
+            xlsCol += 1;
+        }
+
+        private void SetHeadText(string text, IWorksheet sheet, int xlsRow, ref int xlsCol, out int ColIndex, double width)
+        {
+            ColIndex = 0;
+            sheet.Range[xlsRow, xlsCol].Text = text;
+            sheet.Range[xlsRow, xlsCol].ColumnWidth = width;
+            sheet.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+            sheet.Range[xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.AliceBlue;
+            sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Thin);
+            sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            ColIndex = xlsCol;
+            xlsCol += 1;
+        }
+
+        private void SetHeadText(IWorksheet sheet, int xlsRow, int xlsCol, string text)
+        {
+            sheet.Range[xlsRow, xlsCol].Text = text;
+            sheet.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+            sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+        }
+
+        private string GetFormulaGrandTotal(ArrayList al, int col)
+        {
+            string _formula = string.Empty;
+            ReportUtility ru = new ReportUtility();
+            try
+            {
+                for (int i = 0; i < al.Count; i++)
+                {
+                    if (_formula.Length == 0)
+                    {
+                        _formula = "=" + ru.GetColumnNameForXls(col) + al[i];
+                    }
+                    else
+                    {
+                        _formula += "+" + ru.GetColumnNameForXls(col) + al[i];
+                    }
+                }
+                return _formula;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private void SetCellText(IWorksheet sheet, int xlsRow, int xlsCol, string Text)
+        {
+            //if (string.IsNullOrEmpty(Text) == false)
+            //{
+            sheet.Range[xlsRow, xlsCol].Text = Text;
+            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+            //}
+        }
+
+        private void SetCellText(IWorksheet sheet, int xlsRow, int xlsCol, double Value)
+        {
+            string NumberFormatString = "#,##0;(#,##0)";
+            //if (string.IsNullOrEmpty(Value.to) == false)
+            //{
+            // if (dvSlrProc[i]["SalaryHeadID"].ToString() == "SHD2017-1" & string.IsNullOrEmpty(dvSlrProc[i]["SalaryHeadID"].ToString()) == false)
+            // ColBasSlr += Convert.ToDecimal(dvSlrProc[i]["DisbusmentAmount"].ToString());
+
+            sheet.Range[xlsRow, xlsCol].Number = Value;
+            sheet.Range[xlsRow, xlsCol].NumberFormat = NumberFormatString;
+            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //}
+        }
+
+        public IWorkbook GetDailyAttendanceDataForView(string companyGroupId, string companyId, string plantId, string SheetHeader, string SheetName, string workDate)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                StringCollection dayStatus = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+
+
+
+                dayStatus = new StringCollection();
+                StringCollection myCol = new StringCollection();
+
+                String[] dayStat = new String[] { "Absent", "Late", "Leave", "Present", "Work Off" };
+                dayStatus.AddRange(dayStat);
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(dayStatus.Count);
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                Dictionary<string, List<DataRow>> dicEmpMonthAttdnSummary = HRMS.GetMontlyAttdnSummary(companyGroupId, plantId, workDate);
+
+
+                for (int dsi = 0; dsi < dayStatus.Count; dsi++)
+                {
+                    var daylyAttdnEmpInfo = HRMS.GetDailyAttendanceEmpInfo(companyGroupId, companyId, plantId, dayStatus[dsi], workDate);
+
+
+
+                    HRMS.GetEntityPosition(companyGroupId, out DataSet dsEntityPosition);
+
+                    var dvEntity = new DataView(dsEntityPosition.Tables[0])
+                    {
+                        RowFilter = "RType = 'Entity'",
+                        Sort = "eSequence"
+                    };
+                    dtEntity = dvEntity.ToTable(true, "UserName");
+
+                    var dvPosition = new DataView(dsEntityPosition.Tables[0])
+                    {
+                        RowFilter = "RType = 'Position'",
+                        Sort = "pSequence"
+                    };
+                    dtPosition = dvPosition.ToTable(true, "UserName");
+
+                    var dvBC = new DataView(daylyAttdnEmpInfo);
+                    var dtBC = dvBC.ToTable(true, "IsPositionCodeApplicable");
+                    for (int i = 0; i < dtBC.Rows.Count; i++)
+                    {
+                        IsBudgetCodeApplicable = Convert.ToBoolean(daylyAttdnEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString());
+                        if (IsBudgetCodeApplicable)
+                        {
+                            break;
+                        }
+                    }
+                    sheet1 = workbook.Worksheets[dsi];
+                    sheet1.Name = dayStatus[dsi].ToString().Trim();
+                    if (daylyAttdnEmpInfo.Rows.Count > 0)
+                    {
+                        xlsRow = 5;
+                        #region variable
+                        var cEmployeeCode = 0; var cBudgetCode = 0; var cName = 0; var cDOJ = 0; var cDOB = 0;
+                        var cTotalAbsentORLate = 0;
+                        var cDesignation = 0; var cGivenDesignation = 0; var cLD = 0; var cLeaveType = 0;
+                        var cDayStatus = 0; var cEmpCatg = 0; var cEmpLocation = 0; var cSl = 0;
+                        var endXlsCol = 0;
+                        var colNum = 0;
+                        #endregion variable
+                        xlsRow++;
+                        xlsCol = 1;
+                        #region Header
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 6); cSl = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCode"); cEmployeeCode = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                        if (dayStatus[dsi] == "Absent")
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Total Absent"); cTotalAbsentORLate = xlsCol; xlsCol++;
+
+                        }
+                        if (dayStatus[dsi] == "Late")
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Total Late"); cTotalAbsentORLate = xlsCol; xlsCol++;
+
+                        }
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp Category"); cEmpCatg = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp Location"); cEmpLocation = xlsCol; xlsCol++;
+                        if (dayStatus[dsi] == "Leave")
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LeaveType"); cLeaveType = xlsCol; xlsCol++;
+                        }
+                        if (dayStatus[dsi] == "Work Off")
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Day Status"); cDayStatus = xlsCol; xlsCol++;
+                        }
+                        if (IsBudgetCodeApplicable)
+                        {
+                            oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); cBudgetCode = xlsCol; xlsCol++;
+
+                            for (int i = 0; i < dtEntity.Rows.Count; i++)
+                            {
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtEntity.Rows[i]["UserName"].ToString(), 25); xlsCol++;
+                            }
+                            for (int c = 0; c < dtPosition.Rows.Count; c++)
+                            {
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, dtPosition.Rows[c]["UserName"].ToString(), 25); xlsCol++;
+                            }
+                        }//IsBudgetCodeApplicable
+
+
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", 25); cDesignation = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GivenDesignation", 25); cGivenDesignation = xlsCol; xlsCol++;
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal Designation", 25); cLD = xlsCol; xlsCol++;
+
+                        #endregion Header
+                        var fPanRow = xlsRow + 1;//Freeze pan starting rows
+                        xlsCol--;
+                        endXlsCol = xlsCol;
+                        xlsRow++;
+                        var slCount = 0;
+                        for (int i = 0; i < daylyAttdnEmpInfo.Rows.Count; i++)
+                        {
+                            slCount++;
+                            #region Loop
+
+                            if (dayStatus[dsi] == "Absent" || dayStatus[dsi] == "Late")
+                            {
+                                if (dicEmpMonthAttdnSummary.ContainsKey(daylyAttdnEmpInfo.Rows[i]["SystemId"].ToString()))
+                                {
+                                    List<DataRow> drTotalAbsentOrLate = dicEmpMonthAttdnSummary[daylyAttdnEmpInfo.Rows[i]["SystemId"].ToString()];
+
+                                    if (dayStatus[dsi] == "Absent")
+                                    {
+                                        oRU.SetText(ref sheet1, xlsRow, cTotalAbsentORLate, Convert.ToInt32(clsStaticInfo.dbl(drTotalAbsentOrLate[0]["TotalAbsent"].ToString())));
+
+                                    }
+                                    if (dayStatus[dsi] == "Late")
+                                    {
+                                        oRU.SetText(ref sheet1, xlsRow, cTotalAbsentORLate, Convert.ToInt32(clsStaticInfo.dbl(drTotalAbsentOrLate[0]["TotalLate"].ToString())));
+
+                                    }
+                                }
+
+                            }
+                            oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, daylyAttdnEmpInfo.Rows[i]["EmployeeCode"].ToString());
+
+                            oRU.SetText(ref sheet1, xlsRow, cName, daylyAttdnEmpInfo.Rows[i]["EmployeeName"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDOB, daylyAttdnEmpInfo.Rows[i]["DOB"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDOJ, daylyAttdnEmpInfo.Rows[i]["DOJ"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cEmpCatg, daylyAttdnEmpInfo.Rows[i]["empCategory"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["EmployeeLocation"].ToString());
+
+                            if (dayStatus[dsi] == "Leave")
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cLeaveType, daylyAttdnEmpInfo.Rows[i]["LeaveType"].ToString());
+                            }
+                            if (dayStatus[dsi] == "Work Off")
+                            {
+                                if (!string.IsNullOrEmpty(daylyAttdnEmpInfo.Rows[i]["DayType"].ToString()))
+                                {
+                                    oRU.SetText(ref sheet1, xlsRow, cDayStatus, daylyAttdnEmpInfo.Rows[i]["DayType"].ToString());
+                                }
+                            }
+                            if (Convert.ToBoolean(daylyAttdnEmpInfo.Rows[i]["IsPositionCodeApplicable"].ToString()))
+                            {
+                                oRU.SetText(ref sheet1, xlsRow, cBudgetCode, daylyAttdnEmpInfo.Rows[i]["BudgetCode"].ToString());
+                                //entity
+
+                                for (int c = 0; c < dtEntity.Rows.Count; c++)
+                                {
+                                    var _colname = dtEntity.Rows[c]["UserName"].ToString();
+                                    var v = daylyAttdnEmpInfo.Rows[i]["e" + _colname].ToString();
+                                    colNum = cBudgetCode + c + 1;
+                                    oRU.SetText(ref sheet1, xlsRow, colNum, v);
+                                }
+
+                                //position
+
+                                for (int c = 0; c < dtPosition.Rows.Count; c++)
+                                {
+                                    var _colname = dtPosition.Rows[c]["UserName"].ToString();
+                                    oRU.SetText(ref sheet1, xlsRow, colNum + c + 1, daylyAttdnEmpInfo.Rows[i]["p" + _colname].ToString());
+                                }
+                            }//is bc applicable
+
+                            oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["EmployeeLocation"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cDesignation, daylyAttdnEmpInfo.Rows[i]["Designation"].ToString());
+                            oRU.SetText(ref sheet1, xlsRow, cGivenDesignation, daylyAttdnEmpInfo.Rows[i]["GivenDesignation"].ToString());
+                            if (daylyAttdnEmpInfo.Rows[i]["Designation"].ToString().ToUpper() != daylyAttdnEmpInfo.Rows[i]["GivenDesignation"].ToString().ToUpper())
+                            {
+                                sheet1.Range[xlsRow, cDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                                sheet1.Range[xlsRow, cDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                                sheet1.Range[xlsRow, cGivenDesignation].CellStyle.ColorIndex = ExcelKnownColors.Red;
+                                sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
+                            }
+
+                            oRU.SetText(ref sheet1, xlsRow, cLD, daylyAttdnEmpInfo.Rows[i]["LegalDesignation"].ToString());
+
+                            #endregion Loop
+                            xlsRow++;
+                        }
+
+                        oRU.SetHeaderText(ref sheet1, 4, 1, dayStatus[dsi] + " Report", ExcelHAlign.HAlignCenter);
+                        sheet1.Range[4, 1, 4, endXlsCol].Merge();
+                        var attdnHeader = SheetHeader + " On " + workDate;
+                        if (!string.IsNullOrEmpty(plantId))
+                            oRU.PlantHeader(ref sheet1, endXlsCol, attdnHeader, plantId);
+                        else
+                            oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, attdnHeader, companyGroupId);
+
+                        #region UsedRange Alignment
+                        sheet1.UsedRange.WrapText = true;
+                        sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                        sheet1.UsedRange["A" + fPanRow].FreezePanes();
+                        #endregion UsedRange Alignment
+
+                        oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+
+                    }
+
+
+                }
+                workbook.Version = ExcelVersion.Excel97to2003;
+                //filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                //workbook.SaveAs(filePath);
+                //workbook.Close();
+                //excelEngine.Dispose();
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #region Account
+        public IWorkbook GetAutoMailLastFewDaysPayableCreatedData(string CompanyGroupId, string CompanyId, string PlantId)  //, bool checkbox
+        {
+            try
+            {
+                // var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                ExcelEngine excelEngine = new ExcelEngine();
+                //Instantiate the Excel application object
+                IApplication application = excelEngine.Excel;
+                Library.Service.Extension.Mail.AccountsMailService account = new Library.Service.Extension.Mail.AccountsMailService();
+                ReportUtility ru = new ReportUtility();
+                //Set the default application version
+                application.DefaultVersion = ExcelVersion.Excel2013;
+
+                //Load the existing Excel workbook into IWorkbook
+                IWorkbook workbook = application.Workbooks.Create(1);
+
+                //Get the first worksheet in the workbook into IWorksheet
+                IWorksheet worksheet = workbook.Worksheets[0];
+                DataTable dtAutoMailReportList = account.GetAutoMailLastFewDaysPayableCreatedData(CompanyGroupId, CompanyId, PlantId);
+                DataTable dtCompanyCurrency = _sqlRepository.GetDataTable(@"select CR.* from org.Company c
+                                                        inner join scs.Currency CR ON CR.Id=c.BaseCurrencyId
+                                                        where C.Id='" + CompanyId + "'");
+
+                if (dtAutoMailReportList.Rows.Count == 0)
+                    throw new Exception("No data found");
+
+                worksheet.Name = "DateRangeWisePayableList";
+
+                int COL = 1; int ROW = 5;
+                int startCol = COL;
+
+                worksheet[ROW, COL].Text = "SL. No";
+                int colSLNO = COL;
+                worksheet[ROW, COL].ColumnWidth = 5;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Vendor/Employee";
+                int colPartyPlantName = COL;
+                worksheet[ROW, COL].ColumnWidth = 25;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Type";
+                int colType = COL;
+                worksheet[ROW, COL].ColumnWidth = 25;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Voucher No";
+                int colVoucherNo = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Posting Date";
+                int colPostingDate = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                COL++;
+
+                worksheet[ROW, COL].Text = "Entry Date";
+                int colVoucherDate = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                COL++;
+
+                worksheet[ROW, COL].Text = "DocRef No";
+                int colDocRefNo = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Doc Date";
+                int colDocDate = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                COL++;
+
+                worksheet[ROW, COL].Text = "GRN No.";
+                int colGRNNo = COL;
+                worksheet[ROW, COL].ColumnWidth = 10;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                COL++;
+
+                worksheet[ROW, COL].Text = "GRN Date.";
+                int colGRNDate = COL;
+                worksheet[ROW, COL].ColumnWidth = 10;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                COL++;
+
+                worksheet[ROW, COL].Text = "Tran. Currency";
+                int colCurrencyCode = COL;
+                worksheet[ROW, COL].ColumnWidth = 10;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Tran. Payable";
+                int colPayable = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Payable " + '(' + dtCompanyCurrency.Rows[0]["Code"].ToString() + ')';
+                int colBooksPayable = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Narration";
+                int colNarration = COL;
+                worksheet[ROW, COL].ColumnWidth = 60;
+                worksheet[ROW, COL].CellStyle.Font.Bold = true;
+                //COL++;
+
+                int endCol = COL;
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                // sheet1.Range[xlsRow - 1, 1, xlsRow + 1, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+
+                worksheet.Range[ROW, 1, ROW, endCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                worksheet.Range[ROW, 1, ROW, endCol].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                //worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Black;
+                //worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+                ROW++;
+
+                for (int i = 0; i < dtAutoMailReportList.Rows.Count; i++)
+                {
+                    worksheet[ROW, colSLNO].Number = (i + 1);
+
+                    worksheet[ROW, colGRNNo].Text = dtAutoMailReportList.Rows[i]["GRNNo"].ToString();
+                    worksheet[ROW, colVoucherNo].Text = dtAutoMailReportList.Rows[i]["VoucherNo"].ToString();
+                    worksheet[ROW, colDocRefNo].Text = dtAutoMailReportList.Rows[i]["DocRefNo"].ToString();
+
+                    //worksheet[ROW, colDocDate].Text = dtAutoMailReportList.Rows[i]["DocDate"].ToString();
+
+                    worksheet[ROW, colDocDate].DateTime = Convert.ToDateTime(dtAutoMailReportList.Rows[i]["DocDate"].ToString());
+                    worksheet[ROW, colDocDate].NumberFormat = "dd-MMM-yyyy";
+                    // worksheet.Range[ROW, colDocDate].NumberFormat = "hh:mm AM/PM";
+                    //sheet1.Range[xlsRow, iInTime].NumberFormat = "hh:mm AM/PM";
+                    //sheet1.Range[xlsRow, iInTime].DateTime = Convert.ToDateTime(dvBioDvAC[i]["InTimeShow"].ToString());
+
+                    worksheet[ROW, colVoucherDate].DateTime = Convert.ToDateTime(dtAutoMailReportList.Rows[i]["EntryDate"].ToString());
+                    worksheet[ROW, colVoucherDate].NumberFormat = "dd-MMM-yyyy";
+                    worksheet[ROW, colPostingDate].DateTime = Convert.ToDateTime(dtAutoMailReportList.Rows[i]["PostingDate"].ToString());
+                    worksheet[ROW, colPostingDate].NumberFormat = "dd-MMM-yyyy";
+
+                    worksheet[ROW, colPayable].Number = clsStaticInfo.dbl(dtAutoMailReportList.Rows[i]["Payable"].ToString());
+                    worksheet[ROW, colPayable].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    worksheet[ROW, colNarration].Text = dtAutoMailReportList.Rows[i]["Narration"].ToString();
+                    if (dtAutoMailReportList.Rows[i]["GRNDate"].ToString() != "")
+                    {
+                        worksheet[ROW, colGRNDate].DateTime = Convert.ToDateTime(dtAutoMailReportList.Rows[i]["GRNDate"].ToString());
+                        worksheet[ROW, colGRNDate].NumberFormat = "dd-MMM-yyyy";
+                    }
+                    else
+                    {
+                        worksheet[ROW, colGRNDate].Text = dtAutoMailReportList.Rows[i]["GRNDate"].ToString();
+
+                    }
+
+                    worksheet[ROW, colCurrencyCode].Text = dtAutoMailReportList.Rows[i]["CurrencyCode"].ToString();
+                    worksheet[ROW, colPartyPlantName].Text = dtAutoMailReportList.Rows[i]["ParticularName"].ToString();
+                    worksheet[ROW, colType].Text = dtAutoMailReportList.Rows[i]["Type"].ToString();
+                    worksheet[ROW, colBooksPayable].Number = clsStaticInfo.dbl(dtAutoMailReportList.Rows[i]["PayableBooks"].ToString());
+                    worksheet[ROW, colBooksPayable].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                    worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                    ROW++;
+
+                }
+
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.CellStyle.Font.Size = 8f;
+
+
+
+                //Library.Service.Helpers.ReportUtility reportUtility = new Library.Service.Helpers.ReportUtility();
+
+                ru.PlantHeader(ref worksheet, endCol, "Last 10 Days Payable List Created", PlantId);
+                ru.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                // worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                worksheet.IsGridLinesVisible = false;
+
+                #region Freeze Panes
+
+                worksheet.IsDisplayZeros = false;
+                worksheet.UsedRange["A6"].FreezePanes();
+                worksheet.FirstVisibleColumn = 1;
+                worksheet.FirstVisibleRow = 6;
+
+                #endregion Freeze Panes
+
+
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+        public IWorkbook GetAutoMailLastFewDaysPaymentMadeReportData(string CompanyGroupId, string CompanyId, string PlantId)  //, bool checkbox
+        {
+            // var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Library.Service.Extension.Mail.AccountsMailService account = new Library.Service.Extension.Mail.AccountsMailService();
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            ReportUtility ru = new ReportUtility();
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            DataTable dtAutoMailReportList = account.GetAutoMailLastFewDaysPaymentMadeReportData(CompanyGroupId, CompanyId, PlantId);
+
+            DataTable dtCompanyCurrency = _sqlRepository.GetDataTable(@"select CR.* from org.Company c
+                                                        inner join scs.Currency CR ON CR.Id=c.BaseCurrencyId
+                                                        where C.Id='" + CompanyId + "'");
+
+            if (dtAutoMailReportList.Rows.Count == 0)
+                throw new Exception("No data found");
+
+            worksheet.Name = "DateRangeWisePaymentList";
+
+            int COL = 1; int ROW = 5;
+            int startCol = COL;
+
+            worksheet[ROW, COL].Text = "SL. No";
+            int colSLNO = COL;
+            worksheet[ROW, COL].ColumnWidth = 5;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Vendor/Employee";
+            int colPartyPlantName = COL;
+            worksheet[ROW, COL].ColumnWidth = 25;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Type";
+            int colType = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Voucher No";
+            int colVoucherNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Posting Date";
+            int colPostingDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+            COL++;
+
+            worksheet[ROW, COL].Text = "Entry Date";
+            int colVoucherDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+            COL++;
+
+            worksheet[ROW, COL].Text = "DocRef No";
+            int colDocRefNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Doc Date";
+            int colDocDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+            COL++;
+
+            worksheet[ROW, COL].Text = "GRN No.";
+            int colGRNNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "GRN Date.";
+            int colGRNDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Tran. Currency";
+            int colCurrencyCode = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Tran. Payment";
+            int colTranPaymentAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Payment" + '(' + dtCompanyCurrency.Rows[0]["Code"].ToString() + ')';
+            //worksheet[ROW, COL].Text = "Payable " + '(' + dtCompanyCurrency.Rows[0]["Code"].ToString() + ')';
+            int colBooksPayment = COL;
+
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Narration";
+            int colNarration = COL;
+            worksheet[ROW, COL].ColumnWidth = 60;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //COL++;
+
+            //int colTaskDetail = 0;
+            //if (checkbox == true)
+            //{
+            //    COL++;
+            //    colTaskDetail = COL;
+
+            //    worksheet[ROW, COL].Text = "Sub Task";
+            //    worksheet[ROW, COL].ColumnWidth = 40;
+            //    worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //}
+            //COL++;
+
+            //worksheet[ROW, COL].Text = "SubTaskStatus";
+            //int colSubTaskStatus  = COL;
+            //worksheet[ROW, COL].ColumnWidth = 15;
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            ////COL++;
+
+            int endCol = COL;
+            worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            worksheet.Range[ROW, 1, ROW, endCol].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
+
+            //worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Black;
+            //worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+            ROW++;
+
+            for (int i = 0; i < dtAutoMailReportList.Rows.Count; i++)
+            {
+                worksheet[ROW, colSLNO].Number = (i + 1);
+
+                //worksheet[ROW, colSequence].Number = clsStaticInfo.dbl(dtAutoMailReportList.Rows[i]["Sequence"].ToString());
+                //worksheet[ROW, colSequence].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                //worksheet[ROW, colGRNNo].Text = dtAutoMailReportList.Rows[i]["GRNNo"].ToString();
+                if (dtAutoMailReportList.Rows[i]["GRNDate"].ToString() != "")
+                {
+                    worksheet[ROW, colGRNDate].DateTime = Convert.ToDateTime(dtAutoMailReportList.Rows[i]["GRNDate"].ToString());
+                    worksheet[ROW, colGRNDate].NumberFormat = "dd-MMM-yyyy";
+                }
+                else
+                {
+                    worksheet[ROW, colGRNDate].Text = dtAutoMailReportList.Rows[i]["GRNDate"].ToString();
+
+                }
+                worksheet[ROW, colVoucherNo].Text = dtAutoMailReportList.Rows[i]["VoucherNo"].ToString();
+                worksheet[ROW, colDocRefNo].Text = dtAutoMailReportList.Rows[i]["DocRefNo"].ToString();
+
+                worksheet[ROW, colDocDate].DateTime = Convert.ToDateTime(dtAutoMailReportList.Rows[i]["DocDate"].ToString());
+                worksheet[ROW, colDocDate].NumberFormat = "dd-MMM-yyyy";
+
+                worksheet[ROW, colVoucherDate].DateTime = Convert.ToDateTime(dtAutoMailReportList.Rows[i]["EntryDate"].ToString());
+                worksheet[ROW, colVoucherDate].NumberFormat = "dd-MMM-yyyy";
+
+                worksheet[ROW, colPostingDate].DateTime = Convert.ToDateTime(dtAutoMailReportList.Rows[i]["PostingDate"].ToString());
+                worksheet[ROW, colPostingDate].NumberFormat = "dd-MMM-yyyy";
+
+                //worksheet[ROW, colDocDate].Text = dtAutoMailReportList.Rows[i]["DocDate"].ToString();
+                //worksheet[ROW, colVoucherDate].Text = dtAutoMailReportList.Rows[i]["EntryDate"].ToString();
+                //worksheet[ROW, colPostingDate].Text = dtAutoMailReportList.Rows[i]["PostingDate"].ToString();
+                worksheet[ROW, colBooksPayment].Number = clsStaticInfo.dbl(dtAutoMailReportList.Rows[i]["BooksPayment"].ToString());
+                worksheet[ROW, colBooksPayment].NumberFormat = clsStaticInfo.NumberFormat(2);
+                worksheet[ROW, colNarration].Text = dtAutoMailReportList.Rows[i]["Narration"].ToString();
+                worksheet[ROW, colType].Text = dtAutoMailReportList.Rows[i]["Type"].ToString();
+                // worksheet[ROW, colType].Text = dtAutoMailReportList.Rows[i]["TranPaymentAmount"].ToString();
+                worksheet[ROW, colTranPaymentAmount].Number = clsStaticInfo.dbl(dtAutoMailReportList.Rows[i]["TranPaymentAmount"].ToString());
+                worksheet[ROW, colTranPaymentAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                worksheet[ROW, colCurrencyCode].Text = dtAutoMailReportList.Rows[i]["CurrencyCode"].ToString();
+                worksheet[ROW, colPartyPlantName].Text = dtAutoMailReportList.Rows[i]["ParticularName"].ToString();
+
+                //if (checkbox == true)
+                //{
+
+                //    worksheet[ROW, colTaskDetail].Text = dtIssueReportList.Rows[i]["TaskDetail"].ToString();
+
+                //}
+
+                // worksheet[ROW, colPurchasePrice].NumberFormat = clsStaticInfo.NumberFormat();
+                // worksheet[ROW, colScantionAmount].Number = clsStaticInfo.dbl(dtAllLoanRegisterList.Rows[i]["ScantionAmount"].ToString());
+                //worksheet[ROW, colFGComponent].Number = clsStaticInfo.dbl(dtIssueReportList.Rows[i]["FGComponent"].ToString());
+
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            //Library.Service.Helpers.ReportUtility reportUtility = new Library.Service.Helpers.ReportUtility();
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.CellStyle.Font.Size = 8f;
+            //ReportUtility reportUtility = new ReportUtility();
+            ru.PlantHeader(ref worksheet, endCol, " Last 10 Days Payment List Created", PlantId);
+            ru.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            // worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.IsGridLinesVisible = false;
+
+            #region Freeze Panes
+
+            worksheet.IsDisplayZeros = false;
+            worksheet.UsedRange["A6"].FreezePanes();
+            worksheet.FirstVisibleColumn = 1;
+            worksheet.FirstVisibleRow = 6;
+
+            #endregion Freeze Panes
+
+
+
+            return workbook;
+        }
+
+
+        #endregion
+        #region TNA REPORT
+        public IWorkbook GetTNAStatusReport(string CompanyGroupId, string CompanyId, string PlantId, string PlantName, string EmployeeId, string UserName, Dictionary<string, object> Filter, List<Dictionary<string, object>> FilterFields)
+        {
+            #region declare
+            Library.Service.Extension.Mail.TNAService TNA = new Library.Service.Extension.Mail.TNAService();
+
+            clsReport objRpt = null;
+            ReportUtility oru = new ReportUtility();
+
+            DataTable dtTNA = null;
+
+            DataSet dsCmp = null;
+
+            DataSet dsFactory = null;
+
+            clsStaticInfo objStatic = null;
+            objStatic = new clsStaticInfo();
+            string FactoryAddress = string.Empty;
+            string OTConsiderOn = string.Empty;
+            #endregion
+
+            try
+            {
+                objRpt = new clsReport();
+
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                var workbook = oru.GetWorkbook(ref excelEngine, 1);
+
+                #region Get Data Query
+                TNA.GetTNAStatusReportsData(out dtTNA, Filter, FilterFields);
+                if (dtTNA.Rows.Count == 0)
+                    throw new Exception("No data found");
+                Dictionary<string, List<DataRow>> dicComments = TNA.GetSqlTaskComments(Filter, FilterFields);
+                #endregion
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+                string FactoryName = "";
+                string CmpName = "";
+
+                var isl = 0;
+                var SLNo = 1;
+
+                int colTaskType = 0;
+                int colTask = 0;
+                int colAssignBy = 0;
+                int colAssignTo = 0;
+                int colDueDate = 0;
+                int colCommitmentDate = 0;
+                int colMasterOrderNo = 0;
+                int colStyleNo = 0;
+                int colSONo = 0;
+                int colPRNo = 0;
+                int colSubCategory = 0;
+                int colCategory = 0;
+                int colEarlyBy = 0;
+                int colLateBy = 0;
+                int colClosingDate = 0;
+
+                objRpt.SelectedPlantWiseCompany(PlantId, out dsCmp);
+
+                objRpt.SelectedPlant(PlantId, out dsFactory);
+
+                workbook = application.Workbooks.Create(1);
+
+                #region Task List
+
+                IWorksheet sheet1 = null;
+
+                sheet1 = workbook.Worksheets[0];
+                xlsRow = 6;
+
+                #region ------------------Column Header------------------
+                isl = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "SL";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 7;
+                xlsCol += 1;
+                int TaskSequence = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Task Seq";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 8;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol += 1;
+                colDueDate = xlsCol;
+                sheet1.Range[xlsRow, colDueDate].Text = "Due Date";
+                sheet1.Range[xlsRow, colDueDate].ColumnWidth = 12;
+                xlsCol += 1;
+                int colExpectedCompletionDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Expec. Compl. Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol += 1;
+                int colCurrentStatus = xlsCol;
+                sheet1.Range[xlsRow, colCurrentStatus].Text = "Current Status";
+                sheet1.Range[xlsRow, colCurrentStatus].ColumnWidth = 12;
+
+                xlsCol += 1;
+                colTaskType = xlsCol;
+                sheet1.Range[xlsRow, colTaskType].Text = "Task Type";
+                sheet1.Range[xlsRow, colTaskType].ColumnWidth = 10;
+
+                xlsCol += 1;
+                colTask = xlsCol;
+                sheet1.Range[xlsRow, colTask].Text = "Task";
+                sheet1.Range[xlsRow, colTask].ColumnWidth = 70;
+
+                xlsCol += 1;
+                colAssignTo = xlsCol;
+                sheet1.Range[xlsRow, colAssignTo].Text = "Assigned To";
+                sheet1.Range[xlsRow, colAssignTo].ColumnWidth = 25;
+                xlsCol += 1;
+                int colLastChat = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Last Activity";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 14;
+
+                xlsCol += 1;
+                colCategory = xlsCol;
+                sheet1.Range[xlsRow, colCategory].Text = "Category";
+                sheet1.Range[xlsRow, colCategory].ColumnWidth = 14;
+
+                xlsCol += 1;
+                colSubCategory = xlsCol;
+                sheet1.Range[xlsRow, colSubCategory].Text = "Sub Category";
+                sheet1.Range[xlsRow, colSubCategory].ColumnWidth = 14;
+
+
+
+                xlsCol += 1;
+                colAssignBy = xlsCol;
+                sheet1.Range[xlsRow, colAssignBy].Text = "Assigned By";
+                sheet1.Range[xlsRow, colAssignBy].ColumnWidth = 25;
+
+
+
+
+                xlsCol += 1;
+                colCommitmentDate = xlsCol;
+                sheet1.Range[xlsRow, colCommitmentDate].Text = "Commitment Date";
+                sheet1.Range[xlsRow, colCommitmentDate].ColumnWidth = 12;
+
+
+                xlsCol += 1;
+                colClosingDate = xlsCol;
+                sheet1.Range[xlsRow, colClosingDate].Text = "Closing Date";
+                sheet1.Range[xlsRow, colClosingDate].ColumnWidth = 12;
+                xlsCol += 1;
+                int colClosedBy = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Closed By";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
+
+                xlsCol += 1;
+                colEarlyBy = xlsCol;
+                sheet1.Range[xlsRow, colEarlyBy].Text = "Early By";
+                sheet1.Range[xlsRow, colEarlyBy].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[xlsRow, colEarlyBy].ColumnWidth = 9;
+
+                xlsCol += 1;
+                colLateBy = xlsCol;
+                sheet1.Range[xlsRow, colLateBy].Text = "Late By";
+                sheet1.Range[xlsRow, colEarlyBy].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[xlsRow, colLateBy].ColumnWidth = 9;
+
+                xlsCol += 1;
+                int colBuyer = xlsCol;
+                sheet1.Range[xlsRow, colBuyer].Text = "Buyer";
+                sheet1.Range[xlsRow, colBuyer].ColumnWidth = 12;
+
+                xlsCol += 1;
+                int colDepartment = xlsCol;
+                sheet1.Range[xlsRow, colDepartment].Text = "Department";
+                sheet1.Range[xlsRow, colDepartment].ColumnWidth = 12;
+
+                xlsCol += 1;
+                int colDivision = xlsCol;
+                sheet1.Range[xlsRow, colDivision].Text = "Division";
+                sheet1.Range[xlsRow, colDivision].ColumnWidth = 12;
+
+                xlsCol += 1;
+                colMasterOrderNo = xlsCol;
+                sheet1.Range[xlsRow, colMasterOrderNo].Text = "Master Order No";
+                sheet1.Range[xlsRow, colMasterOrderNo].ColumnWidth = 16;
+
+                xlsCol += 1;
+                colStyleNo = xlsCol;
+                sheet1.Range[xlsRow, colStyleNo].Text = "Line Item";
+                sheet1.Range[xlsRow, colStyleNo].ColumnWidth = 30;
+
+                xlsCol += 1;
+                colSONo = xlsCol;
+                sheet1.Range[xlsRow, colSONo].Text = "SO No";
+                sheet1.Range[xlsRow, colSONo].ColumnWidth = 30;
+                xlsCol += 1;
+                int colSOQty = xlsCol;
+                sheet1.Range[xlsRow, colSOQty].Text = "SO Qty";
+                sheet1.Range[xlsRow, colSOQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[xlsRow, colSOQty].ColumnWidth = 10;
+
+                xlsCol += 1;
+                colPRNo = xlsCol;
+                sheet1.Range[xlsRow, colPRNo].Text = "PR No";
+                sheet1.Range[xlsRow, colPRNo].ColumnWidth = 30;
+
+
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.LightYellow;
+
+                xlsRow++;
+
+                #endregion ------------------Column Header------------------
+                int StartRow = xlsRow;
+
+                IStyle color1 = workbook.Styles.Add("E6F0FF"); color1.Interior.Color = System.Drawing.ColorTranslator.FromHtml("#E6F0FF");
+                IStyle color2 = workbook.Styles.Add("FFF4E6"); color2.Interior.Color = System.Drawing.ColorTranslator.FromHtml("#FFF4E6");
+                IStyle color3 = workbook.Styles.Add("F5FFE6"); color3.Interior.Color = System.Drawing.ColorTranslator.FromHtml("#F5FFE6");
+                IStyle color4 = workbook.Styles.Add("52b3d9"); color4.Interior.Color = System.Drawing.ColorTranslator.FromHtml("#52b3d9");
+                IStyle color5 = workbook.Styles.Add("2ecc71"); color5.Interior.Color = System.Drawing.ColorTranslator.FromHtml("#2ecc71");
+
+                //Add rich-text Excel comment
+                IFont fontCaption = workbook.CreateFont();
+                fontCaption.Size = 8f;
+                IFont fontRegular = workbook.CreateFont();
+                fontRegular.Italic = true;
+                fontRegular.Size = 6f;
+                for (int i = 0; i < dtTNA.Rows.Count; i++)
+                {
+                    #region ----------------------Data-----------------------
+                    sheet1.Range[xlsRow, isl].Text = SLNo.ToString();
+                    sheet1.Range[xlsRow, TaskSequence].Number = clsStaticInfo.dbl(dtTNA.Rows[i]["Sequence"].ToString());
+                    sheet1.Range[xlsRow, colTaskType].Text = dtTNA.Rows[i]["TaskType"].ToString();
+                    sheet1.Range[xlsRow, colTask].Text = dtTNA.Rows[i]["Task"].ToString();
+                    sheet1.Range[xlsRow, colAssignBy].Text = dtTNA.Rows[i]["AssignBy"].ToString();
+                    sheet1.Range[xlsRow, colAssignTo].Text = dtTNA.Rows[i]["AssignTo"].ToString();
+                    sheet1.Range[xlsRow, colClosedBy].Text = dtTNA.Rows[i]["ClosedBy"].ToString();
+
+                    clsStaticInfo.SetDate(sheet1[xlsRow, colDueDate], dtTNA.Rows[i]["DueDate"].ToString());
+                    clsStaticInfo.SetDate(sheet1[xlsRow, colExpectedCompletionDate], dtTNA.Rows[i]["TempEndDate"].ToString());
+                    clsStaticInfo.SetDate(sheet1[xlsRow, colClosingDate], dtTNA.Rows[i]["ClosingDate"].ToString());
+                    clsStaticInfo.SetDate(sheet1[xlsRow, colCommitmentDate], dtTNA.Rows[i]["CommitmentDate"].ToString());
+
+                    sheet1.Range[xlsRow, colLastChat].Text = dtTNA.Rows[i]["LastChat"].ToString();
+
+
+                    sheet1.Range[xlsRow, colBuyer].Text = dtTNA.Rows[i]["Buyer"].ToString();
+                    sheet1.Range[xlsRow, colDepartment].Text = dtTNA.Rows[i]["Department"].ToString();
+                    sheet1.Range[xlsRow, colDivision].Text = dtTNA.Rows[i]["Division"].ToString();
+                    sheet1.Range[xlsRow, colCurrentStatus].Text = dtTNA.Rows[i]["CurrentStatus"].ToString();
+
+                    sheet1.Range[xlsRow, colSOQty].Number = clsStaticInfo.dbl(clsStaticInfo.dbl(dtTNA.Rows[i]["SOQty"].ToString()).ToString("F0"));
+
+                    sheet1.Range[xlsRow, colMasterOrderNo].Text = dtTNA.Rows[i]["MasterOrderId"].ToString();
+
+                    sheet1.Range[xlsRow, colStyleNo].Text = dtTNA.Rows[i]["StyleNo"].ToString();
+
+                    sheet1.Range[xlsRow, colSONo].Text = dtTNA.Rows[i]["SONo"].ToString();
+
+                    sheet1.Range[xlsRow, colPRNo].Text = dtTNA.Rows[i]["PRNo"].ToString();
+
+                    sheet1.Range[xlsRow, colSubCategory].Text = dtTNA.Rows[i]["SubCategory"].ToString();
+
+                    sheet1.Range[xlsRow, colCategory].Text = dtTNA.Rows[i]["Category"].ToString();
+
+                    double earlyOrLate = clsStaticInfo.dbl(dtTNA.Rows[i]["EarlyOrLateBy"].ToString());
+
+                    double earlyBy = 0;
+                    double lateBy = 0;
+                    if (earlyOrLate < 0)
+                    {
+                        earlyBy = Math.Abs(earlyOrLate);
+                    }
+                    else if (earlyOrLate > 0)
+                    {
+                        lateBy = Math.Abs(earlyOrLate);
+                    }
+
+
+                    try
+                    {
+
+
+                        //today's task
+                        DateTime DueDate = Convert.ToDateTime(dtTNA.Rows[i]["DueDate"].ToString());
+                        DateTime CurrentDate = Convert.ToDateTime(DateTime.Now.ToString("dd-MMM-yyyy"));
+                        if (DueDate == CurrentDate)
+                            sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle = color1;//.Interior.Color = System.Drawing.ColorTranslator.FromHtml("#E6F0FF");
+
+
+                        //overdue
+                        if (DueDate < CurrentDate)
+                            sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle = color2;//.Interior.Color = System.Drawing.ColorTranslator.FromHtml("#FFF4E6");
+
+                        //overdue
+                        if (DueDate > CurrentDate)
+                            sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle = color3;//.Interior.Color = System.Drawing.ColorTranslator.FromHtml("#F5FFE6");
+
+
+
+
+                        if (dtTNA.Rows[i]["CurrentStatus"].ToString().ToUpper() == "CLOSED")
+                        {
+                            DateTime ClosingDate = Convert.ToDateTime(dtTNA.Rows[i]["ClosingDate"].ToString());
+                            //late closed
+                            if (DueDate < ClosingDate)
+                                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle = color4;//.Interior.Color = System.Drawing.ColorTranslator.FromHtml("#52b3d9");
+
+
+
+                            //early closed
+                            if (DueDate >= ClosingDate)
+                                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle = color5;//.Interior.Color = System.Drawing.ColorTranslator.FromHtml("#2ecc71");
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    #region Comments
+
+                    if (dicComments.ContainsKey(dtTNA.Rows[i]["TaskMasterId"].ToString()))
+                    {
+                        IRange range = sheet1[xlsRow, colTask];
+                        ICommentShape shape = range.AddComment();
+
+                        for (int COMM = 0; COMM < dicComments[dtTNA.Rows[i]["TaskMasterId"].ToString()].Count; COMM++)
+                        {
+                            DataRow drTempComment = dicComments[dtTNA.Rows[i]["TaskMasterId"].ToString()][COMM];
+                            shape.RichText.Append(drTempComment["CommentedBy"].ToString() + " says :" + drTempComment["CommentText"].ToString(), fontCaption);
+                            shape.RichText.Append(" " + drTempComment["CreatedTime"].ToString() + Environment.NewLine + Environment.NewLine, fontRegular);
+                            shape.IsTextLocked = false;
+                            shape.AutoSize = false;
+
+                            shape.Height += 30;
+                            shape.Width = 300;
+                        }
+
+                    }
+
+                    #endregion Comments
+
+                    sheet1.Range[xlsRow, colEarlyBy].Number = earlyBy;
+                    sheet1.Range[xlsRow, colLateBy].Number = lateBy;
+
+                    xlsRow++;
+                    SLNo++;
+                }
+                sheet1.Range[6, 1, xlsRow - 1, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[6, 1, xlsRow - 1, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[6, 1, xlsRow - 1, endXlsCol].WrapText = true;
+                sheet1.Range[StartRow, 1, xlsRow - 1, endXlsCol].CellStyle.Font.Size = 8f;
+                sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
+                //Specify first condition
+
+                sheet1.Range[StartRow, colClosingDate, xlsRow, colClosingDate].CellStyle.NumberFormat = "dd-MMM-yyyy";
+                sheet1.Range[StartRow, colCommitmentDate, xlsRow, colCommitmentDate].CellStyle.NumberFormat = "dd-MMM-yyyy";
+                sheet1.Range[StartRow, colDueDate, xlsRow, colDueDate].CellStyle.NumberFormat = "dd-MMM-yyyy";
+                sheet1.Range[StartRow, colExpectedCompletionDate, xlsRow, colExpectedCompletionDate].CellStyle.NumberFormat = "dd-MMM-yyyy";
+                #endregion ----------------------Data-----------------------
+
+                #region ******************Report Header******************
+                xlsRow = 1;
+                FactoryName = string.Empty;
+
+                if (dsCmp.Tables[0].Rows.Count > 0)
+                {
+                    CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                }
+                else
+                {
+                    CmpName = "";
+                }
+                sheet1.Range[xlsRow, xlsCol].Text = CmpName;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 12;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 17;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dsFactory.Tables[0].Rows.Count > 0)
+                {
+                    FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+                }
+                else
+                {
+                    FactoryName = "";
+                }
+                sheet1.Range[xlsRow, xlsCol].Text = FactoryName;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 18;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dsFactory.Tables[0].Rows.Count > 0)
+                {
+                    FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
+                }
+                else
+                {
+                    FactoryAddress = "";
+                }
+                sheet1.Range[xlsRow, xlsCol].Text = FactoryAddress;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 22;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                sheet1.Range[xlsRow, xlsCol].Text = "TNA List: ";
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                #endregion ******************Report Header******************
+
+
+                #region Freeze Panes
+
+                sheet1.IsDisplayZeros = false;
+                sheet1.UsedRange["A7"].FreezePanes();
+                sheet1.FirstVisibleColumn = 1;
+                sheet1.FirstVisibleRow = 6;
+
+                #endregion Freeze Panes
+
+                #region UsedRange Alignment
+                sheet1.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet1.IsDisplayZeros = false;
+                sheet1.UsedRange.WrapText = true;
+                sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + UserName + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                sheet1.Name = "Task List";
+                #endregion Page Setup
+
+                #endregion  ManualOutTime
+
+
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #endregion
+    }
+}

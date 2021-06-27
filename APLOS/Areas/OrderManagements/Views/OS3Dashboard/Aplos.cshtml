@@ -1,0 +1,143 @@
+﻿
+<style type="text/css">
+    #myDIV {
+        width: 100%;
+        text-align: center;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        background: #a2f1ff;
+        color: #080076;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    .modal-table {
+        position: relative;
+        height: 300px;
+        overflow: auto;
+    }
+
+    .table-responsive {
+        display: block;
+    }
+
+    td, th {
+        padding: 10px;
+    }
+</style>
+<div id="MainDiv">
+    <div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="col-md-4"><span style="font-size: 19px;margin-left: -15%;margin-bottom:10px;"><span class="glyphicon glyphicon-stats"></span>&nbsp;{{title}}</span></div>
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div id="filters">
+
+                    </div>
+
+
+                    <div class="col-md-1 text-right">
+                        <button type="button" class="btn single-btn" ng-click="filterComplete()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i> Generate </button>
+                    </div>
+                    <div class="col-md-1  text-right" style="margin-left:20px;margin-top:10px;">
+                        <button type="button" class="btn single-btn" ng-click="clearFilters()"><i class="glyphicon glyphicon-repeat"></i> Clear Filters </button>
+                    </div>
+                    <div class="col-md-5" style="margin-left:50px;margin-top:10px;">
+                        <div class="row"><select id="dropdown4" ej-dropdownlist e-datasource="list3" e-text="Based On Production Date" e-value="ProductionD" e-change="change3" e-width="300px" e-height="30px"></select></div>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+
+            <div class="row" style="margin:10px; margin-top:20px;">
+                <div class="col-lg-3" style="margin-top:20px;">
+                    <span style="margin-top:25px; margin-left:10px"><b>Selection Criteria </b></span>
+                    <div class="row" style="margin-left:10px;margin-top:5px;"><select id="dropdown1" ej-dropdownlist e-datasource="list" e-text="Delivery Date" e-value="Delivery" e-change="change"></select></div>
+                </div>
+                <div class="col-lg-3" style="margin-top:20px;">
+                    <span style="margin-top:25px; margin-left:10px"><b>Value Criteria </b></span>
+                    <div class="row" style="margin-left:10px;margin-top:5px;"><select id="dropdown2" ej-dropdownlist e-datasource="list1" e-text="No Of SO" e-value="SO" e-change="change1"></select></div>
+                </div>
+                <div class="col-lg-3" style="margin-top:20px;">
+                    <span style="margin-top:25px; margin-left:10px"><b>Dependent Date(Analysis) </b></span>
+                    <div class="row" style="margin-left:10px;margin-top:5px;"><select id="dropdown3" ej-dropdownlist e-datasource="list2" e-text="Delivery Date" e-value="DeliveryD" e-change="change2"></select></div>
+                </div>
+                <div class="col-md-1  text-right" style="margin-top:20px;">
+                    <button type="button" class="btn single-btn" ng-click="setAll()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i></button>
+                </div>
+
+            </div>
+
+
+            <div class="row" style="margin:10px;">
+                <div id="slabGrid"></div>
+            </div>
+
+
+
+
+
+
+
+
+            <div class="row" style="margin:10px;">
+
+                <div class=" col-lg-12 " style="height:300px;border : solid; border-color:transparent;  box-shadow: 3px 7px 5px grey; position:relative">
+                    <div style="overflow:hidden">
+                        <canvas id="slabChart" height="300"></canvas>
+                    </div>
+
+                </div>
+            </div>
+
+
+
+
+
+
+        </div>
+
+
+        <div class="modal fade site-modal in" id="clickModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">&times;</button>
+                        <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">SO Details</h1>
+                    </div>
+                    <div class="modal-body" style="min-height:300px; min-width:100%;">
+                        <div class="row" style="margin: 20px; font-style:italic"> </div>
+                        <p style="margin:10px;">
+                            The Selection that are made are :<b> {{Detail1}} : {{Detail2}} : {{Detail3}}</b>.
+                        <p>
+
+                            <div id="slabClickGrid"></div>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-dismiss="modal" ng-click="closeModal()">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+
+    </div>
+
+
+</div>
+
+
+

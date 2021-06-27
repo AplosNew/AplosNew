@@ -1,0 +1,291 @@
+﻿<togglable name="Costing Item"></togglable>
+<div class="form-elements form-horizontal" ng-form="costingItemNewForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Costing Component<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select ng-disabled="costingItemNew.isSystemGenerated" class="form-control" ng-model="costingItemNew.CostingComponentId" data-ng-change="selectedSegment(costingItemNew.CostingComponentId)" name="CostingComponent" ng-options="item.Value as item.Text for item in CostingComponentList" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                    @*<input ej-dropdownlist e-enablefiltersearch="false" e-change="selectedSegment" e-datasource="CostingComponentList" e-value="costingItemNew.CostingComponentId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />*@
+
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <span style="display:{{costingItemNew.isSystemGenerated?'inherit':'none'}}" ng-disabled="costingItemNew.isSystemGenerated">**System generated item</span>
+        </div>
+    </div>
+    <div class="row" ng-hide="costingItemNew.CostingComponentId=='' || costingItemNew.CostingComponentId==null">
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" n-decimals="2" name="Sequence" ng-model="costingItemNew.Sequence" class="form-control text-right" required>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Short Name" ng-model="costingItemNew.ShortName" class="form-control" maxlength="15" required autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Define Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="User Name" ng-model="costingItemNew.UserName" class="form-control" required autocomplete="off" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Costing Category<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="costingItemNew.CostingCategoryId" name="Costing Category" ng-options="item.Value as item.Text for item in CostingCategoryList">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors ng-show="ThisSegment==='DirectMaterial'?true:false">
+                <label class="col-sm-4 control-label">Costing Sub Category</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select @*ng-required="ThisSegment==='DirectMaterial'?true:false"*@ class="form-control" ng-model="costingItemNew.CostingSubCategoryId" name="Costing Sub Category" ng-options="item.Id as item.UserName for item in CostingSubCategoryList">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors ng-show="ThisSegment==='DirectMaterial'?true:false">
+                <label class="col-sm-4 control-label">Material Group</label>
+                <div class="col-sm-8 show-message">
+                    <input ej-dropdownlist e-datasource="MaterialGroupList" e-enablefiltersearch="true" e-value="costingItemNew.MaterialGroupMasterId" e-fields-value="Id" e-fields-text="MaterialGroup" e-width="100%" />
+                </div>
+            </div>
+            <div class="form-group" show-errors ng-show="ThisSegment==='DirectMaterial'?true:false">
+                <label class="col-sm-4 control-label">Min. Quantity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-required="ThisSegment==='DirectMaterial'?true:false" name="Minimum Quantity" n-decimals="2" ng-model="costingItemNew.MinimumOfQuantity" class="form-control text-right">
+                </div>
+            </div>
+
+
+            <div class="form-group" show-errors ng-show="ThisSegment==='DirectMaterial'?true:false">
+                <label class="col-sm-4 control-label">Wastage % <sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-required="ThisSegment==='DirectMaterial'?true:false" name="Wastage" n-decimals="2" ng-model="costingItemNew.Wastage" class="form-control text-right">
+                </div>
+            </div>
+            <div class="form-group" show-errors ng-show="ThisSegment==='DirectProcess'?true:false">
+                <label class="col-sm-4 control-label">Internal Rate<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-required="ThisSegment==='DirectProcess'?true:false" name="Internal Rate" n-decimals="2" ng-model="costingItemNew.InternalRate" class="form-control text-right">
+                </div>
+            </div>
+            <div class="form-group" show-errors ng-show="ThisSegment==='DirectProcess'?true:false">
+                <label class="col-sm-4 control-label">Value Loss %<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-required="ThisSegment==='DirectProcess'?true:false" name="Value Loss Percentage" n-decimals="2" ng-model="costingItemNew.ValueLossPercentage" class="form-control text-right">
+                </div>
+            </div>
+
+
+            <!--budget activity -->
+            <div class="form-group div_budget">
+                <label class="col-sm-4 control-label">Budget</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="Budget" ng-model="costingItemNew.BudgetName" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="GetCOAICodeList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="costingItemNew.Description" maxlength="250"></textarea>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input ng-disabled="costingItemNew.isSystemGenerated" type="text" name="Code" ng-model="costingItemNew.Code" class="form-control" required autocomplete="off" maxlength="10">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input ng-disabled="costingItemNew.isSystemGenerated" type="text" name="Standard Name" ng-model="costingItemNew.StandardName" class="form-control" maxlength="50" autocomplete="off">
+                </div>
+            </div>
+
+
+
+            <div class="form-group" show-errors ng-show="ThisSegment==='DirectMaterial'?true:false">
+                <label class="col-sm-4 control-label">Unit of Measurement<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select ng-required="ThisSegment==='DirectMaterial'?true:false" class="form-control text-right" ng-model="costingItemNew.UnitOfMeasurementId" name="UnitOfMeasurment" ng-options="item.Value as item.Text for item in UnitOfMeasurementList">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group" show-errors ng-show="ThisSegment==='DirectMaterial'?true:false">
+                <label class="col-sm-4 control-label">PO Issue Deadline <sup>*</sup></label>
+                <div class="col-sm-7 show-message">
+                    <input ng-required="ThisSegment==='DirectMaterial'?true:false" type="text" only-numbers name="Standard Name" ng-model="costingItemNew.POIssueDeadLine" class="form-control" maxlength="50" autocomplete="off">
+                </div>
+                <label style="text-align:left;padding-left:0px" class="col-sm-1 control-label">Day<span style="text-transform:lowercase">(s)</span></label>
+            </div>
+            <div class="form-group" ng-show="ThisSegment==='DirectMaterial'?true:false">
+                <label class="col-sm-4 control-label">Purchase Group</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="costingItemNew.PurchaseGroupId" name="PurchaseGroup" ng-options="item.Id as item.UserName for item in PurchaseGroupList">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors ng-show="ThisSegment==='DirectProcess'?true:false">
+                <label class="col-sm-4 control-label">External Rate<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-required="ThisSegment==='DirectProcess'?true:false" name="External Rate" n-decimals="2" ng-model="costingItemNew.ExternalRate" class="form-control text-right">
+                </div>
+            </div>
+            <div class="form-group" show-errors ng-show="ThisSegment=='DirectMaterial' || ThisSegment=='DirectProcess'">
+                <label class="col-sm-4 control-label">Cost Applicable on (Process)<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select ng-required="ThisSegment=='DirectMaterial' || ThisSegment=='DirectProcess'" class="form-control" ng-model="costingItemNew.ProcessId" ng-change="GetSubProcess();" name="Process" ng-options="item.Value as item.Text for item in ProcessList">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors ng-show="ThisSegment=='DirectMaterial' || ThisSegment=='DirectProcess'">
+                <label class="col-sm-4 control-label">Sub Process</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select @*ng-required="ThisSegment=='DirectMaterial' || ThisSegment=='DirectProcess'"*@ class="form-control" ng-model="costingItemNew.SubProcessId" name="Sub Process" ng-options="item.Id as item.UserName for item in SubProcessList">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group div_budget">
+                <label class="col-sm-4 control-label">Activity</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="costingItemNew.ActivityId" ng-options="item.ActivityId as item.ActivityName for item in activityList">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="2" ng-model="costingItemNew.Remarks" maxlength="250"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Active</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" class="css-checkbox" ng-model="costingItemNew.Active">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button ng-disabled="costingItemNew.isSystemGenerated" data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Sequence</th>
+                <th>Code</th>
+                <th>Short Name</th>
+                <th>Standard Name</th>
+                <th>User Name</th>
+                <th>Costing Category</th>
+                <th>Costing Component</th>
+                <th>Unit of Measurement</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in costingItemList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.Sequence}}</td>
+                <td>{{x.Code}}</td>
+                <td>{{x.ShortName}}</td>
+                <td>{{x.StandardName}}</td>
+                <td>{{x.UserName}}</td>
+                <td>{{x.CostingCategory}}</td>
+                <td>{{x.CostingComponent}}</td>
+                <td>{{x.UnitOfMeasurment}}</td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>
+
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")

@@ -1,0 +1,960 @@
+﻿<togglable name="Issue/Task Manager"></togglable>
+<!-- Md. Monir Hossain-->
+<div class="form-elements form-horizontal" ng-form name="issueTransactionNewForm">
+    <div class="row">
+        <input type="hidden" ng-model="issueTransactionNew.Id">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-3 control-label">Create Issue/Task Type<sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="issueTransactionNew.IssueType" ng-change="ChangeIssueStatus(issueTransactionNew.IssueType)" name="IssueType" required tabindex="1">
+                                <option value="New" selected>New</option>
+                                <option value="Standard">Standard</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" ng-show="issueTransactionNew.IssueType=='Standard'">
+                    <label class="col-sm-4 control-label">Issue Standard<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="issueTransactionNew.IssueStandardId" ng-change="ChangeIssueStandard(issueTransactionNew.IssueStandardId)" name="IssueStandardId" ng-options="item.Value as item.Text for item in issueStandardList" tabindex="2">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 ">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">{{standardStatus}}</legend>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm- col-md-3 control-label">Issue/Task<sup>*</sup></label>
+                        <div class="col-sm-9 col-md-9 show-message">
+                            <input type="text" name="Issue" ng-model="issueTransactionNew.Issue" class="form-control" required tabindex="3" autocomplete="off" maxlength="120">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm- col-md-3 control-label">Current Status/Details <sup>*</sup></label>
+                        <div class="col-sm-9 col-md-9 show-message">
+                            <textarea required class="form-control" name="IssueDetail" rows="3" ng-model="issueTransactionNew.IssueDetail" maxlength="1024" tabindex="4"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group" show-errors>
+                        <label class="col-sm- col-md-3 control-label">Issue/Task Category<sup>*</sup></label>
+                        <div class="col-sm-9 col-md-9 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="issueTransactionNew.TaskCategoryId" name="TaskCategoryId" ng-options="item.Id as item.UserName for item in taskCategoryList" required tabindex="5">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm- col-md-3 control-label">Issue Sub Category </label>
+                        <div class="col-sm-9 col-md-9 ">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="issueTransactionNew.TaskSubCategoryId" name="TaskSubCategoryId" ng-options="item.Id as item.UserName for item in taskSubCategoryList" tabindex="6">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 col-md-3 control-label">Issue Group </label>
+                        <div class="col-sm-9 col-md-9 ">
+                            <div class="input-group">
+                                <input type="text" name="IssueGroupName" ng-model="issueTransactionNew.IssueGroupName" class="form-control" readonly tabindex="7">
+                                <span class="input-group-btn">
+                                    <button ng-click="getIssueGroups();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="showIssueGroupPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 col-md-3 control-label">
+                            <a ej-tooltip e-content="The story point depends on the required time of completion of the task.">
+                                Story Point
+                            </a>
+                        </label>
+                        <div class="col-sm-9 col-md-9 ">
+                            <div class="input-group">
+                                <input type="text" e-minvalue="0" e-maxvalue="1000" e-watermarktext="Story Point" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" e-value="issueTransactionNew.StoryPoint" e-width="100" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Is Expiry Applicable</label>
+                        <div class="col-sm-1">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="issueTransactionNew.IsExpiry" tabindex="8" ng-change="setEnableDate();">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" name="Expiry Date" ng-disabled="ExpiryDateFlag" ng-model="issueTransactionNew.ExpiryDate" datepicker class="form-control" tabindex="6">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-3 col-md-3 control-label">Customer</label>
+                        <div class="col-sm-9 col-md-9">
+                            <div class="input-group">
+                                <input type="text" name="Customer" ng-model="issueTransactionNew.Customer" autocomplete="off" tabindex="9" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="showPartyPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-3 col-md-3 control-label">Issue Importance<sup>*</sup></label>
+                        <div class="col-sm-9 col-md-9 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="issueTransactionNew.IssueImportanceId" name="IssueImportanceId" ng-options="item.Value as item.Text for item in issueImportanceList" required tabindex="8">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-3 col-md-3 control-label">Final Status<sup>*</sup></label>
+                        <div class="col-sm-9 col-md-9 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="issueTransactionNew.FinalStatus" name="IssueStatus" required tabindex="9">
+                                    <option value="ToStart">To Start</option>
+                                    <option value="ToClose">To Close</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 col-md-3 control-label">Remarks </label>
+                        <div class="col-sm-9 col-md-9">
+                            <textarea class="form-control" rows="2" ng-model="issueTransactionNew.Remarks" maxlength="250" tabindex="10"></textarea>
+                        </div>
+                    </div>
+                    <div id="div_IssueDate" class="form-group">
+                        <label class="col-sm-3 col-md-3 control-label">Issue Creation Date</label>
+                        <div class="col-sm-9 col-md-9 ">
+                            <input @*ng-change="checkIssueDate()"*@ id="IssueDate" type="text" name="IssueDate" ng-model="issueTransactionNew.IssueDate" class="form-control" tabindex="11" readonly>
+                        </div>
+                    </div>
+                    <br /><br /><br />
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Cost (If Applicable)</label>
+                        <div class="col-sm-3" style="padding-right:0px;">
+                            <input type="text" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="issueTransactionNew.CostIfAny" e-width="100" />
+                        </div>
+                        <div class="col-sm-2 input-group" style="padding-left:0px;">
+                            <label class="control-label">{{currency}}</label>
+                        </div>
+                    </div>
+
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border"></legend>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-2 col-md-2 control-label">Observed By<sup>*</sup></label>
+                        <div class="col-sm-10 col-md-10 show-message">
+                            <input type="text" name="ObservedBy" ng-model="issueTransactionNew.ObservedBy" class="form-control" required autocomplete="off" tabindex="12" maxlength="100">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-2 col-md-2 control-label">Assign By<sup>*</sup></label>
+                        <div class="col-sm-10 col-md-10 show-message">
+                            <div class="input-group">
+                                <input type="text" name="AssignBy" ng-model="issueTransactionNew.AssignBy" tabindex="13" class="form-control" readonly required>
+                                <span class="input-group-btn">
+                                    <button ng-click="showAuthorisePersonListPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="clearAuthorisedEmployee()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-2 col-md-2 control-label">Assign To <sup>*</sup></label>
+                        <div class="col-sm-10 col-md-10 show-message">
+                            <div class="input-group">
+                                <input type="text" name="AssignToName" ng-model="issueTransactionNew.AssignToName" tabindex="14" class="form-control" readonly required>
+                                <span class="input-group-btn">
+                                    <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="clearEmployee()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-3 col-md-3 control-label">Mentor<sup>*</sup></label>
+                        <div class="col-sm-9 col-md-9 show-message">
+                            <div class="input-group ">
+                                <input type="text" name="Mentor" ng-model="issueTransactionNew.Mentor" tabindex="15" class="form-control" readonly required>
+                                <span class="input-group-btn">
+                                    <button ng-click="showMentorPersonListPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="clearMentorEmployee()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="div_IssueRequireDate" class="form-group" show-errors>
+                        <label class="col-sm-3 col-md-3 control-label">Required Date<sup>*</sup></label>
+                        <div class="col-sm-9 col-md-9 show-message">
+                            <input required datepicker ng-change="checkIssueRequiredDate()" id="RequiredDate" type="text" name="RequiredDate" ng-model="issueTransactionNew.RequiredDate" class="form-control" tabindex="16">
+                        </div>
+                    </div>
+                    <div id="div_IssueCloseDate" class="form-group" show-errors>
+                        <label class="col-sm-3 col-md-3 control-label">Issue/Task Closing Date</label>
+                        <div class="col-sm-9 col-md-9 show-message">
+                            <input datepicker ng-change="checkIssueCloseDate();" id="CloseDate" type="text" name="CloseDate" ng-model="issueTransactionNew.CloseDate" class="form-control" tabindex="17">
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </div>
+        <div class="clearfix"></div>
+        <div style="padding:0px 0px 0px 15px">
+            <div class="col-xs-12 col-sm-3 col-md-3">
+                <div class="form-group">
+                    <label>
+                        <input tabindex="18" type="checkbox" class="form-check-input" id="IsUpdateApplicable" ng-model="issueTransactionNew.IsUpdateApplicable">
+                        <label class="form-check-label" for="IsUpdateApplicable">Recurring/Update Applicable</label>
+                    </label>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <fieldset class="scheduler-border" ng-show="issueTransactionNew.IsUpdateApplicable" style="background-color:#F0F0F0">
+                <legend class="scheduler-border"></legend>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">Recurring<sup></sup></label>
+                        <div class="col-sm-1">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input tabindex="19" type="checkbox" ng-model="issueTransactionNew.IsUpdateRecurring" ng-change="checkUpdateFrequencyTypeAndDay()">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div ng-show="!issueTransactionNew.IsUpdateRecurring">
+                            <label class="col-sm-1 control-label">One Time</label>
+                            <div class="col-sm-1 ">
+                                <input datepicker id="UpdateOneTimeDateTime" type="text" name="UpdateOneTimeDateTime" ng-model="issueTransactionNew.UpdateOneTimeDateTime" class="form-control" tabindex="21">
+                            </div>
+                        </div>
+
+                        <label class="col-sm-1 control-label">Res Person</label>
+
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <input type="text" name="UpdateResponsiblePerson" ng-model="issueTransactionNew.UpdateResponsiblePerson" tabindex="23" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="showUpdateResponsiblePersonListPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div ng-show="(issueTransactionNew.UpdateAuditTaskSchedulerMasterId != null)" class="col-xs-12 col-sm-12 col-md-12">
+                    <a href="" @*ng-click="checkUpdateFrequencyTypeAndDay()"*@ style="color:blue"> {{updateTaskScheduleDetails}} </a>
+                </div>
+            </fieldset>
+        </div>
+        <div class="clearfix"></div>
+        <div style="padding:0px 0px 0px 15px">
+            <div class="col-xs-12 col-sm-3 col-md-3">
+                <div class="form-group">
+                    <label>
+                        <input tabindex="24" type="checkbox" class="form-check-input" id="IsInternalApplicable" ng-model="issueTransactionNew.IsInternalApplicable">
+                        <label class="form-check-label" for="IsInternalApplicable">Internal Audit Applicable</label>
+                    </label>
+
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <fieldset class="scheduler-border" ng-show="issueTransactionNew.IsInternalApplicable" style="background-color:#F0F0F0">
+                <legend class="scheduler-border"></legend>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">Recurring</label>
+                        <div class="col-sm-1 ">
+
+                            <div class="checkbox-site">
+                                <label>
+                                    <input tabindex="25" type="checkbox" ng-model="issueTransactionNew.IsInternalRecurring" ng-change="checkInternalFrequencyTypeAndDay()">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div ng-show="!issueTransactionNew.IsInternalRecurring">
+                            <label class="col-sm-1 control-label">One Time</label>
+                            <div class="col-sm-1 ">
+
+                                <input datepicker id="InternalOneTimeDateTime" type="text" name="InternalOneTimeDateTime" ng-model="issueTransactionNew.InternalOneTimeDateTime" class="form-control" tabindex="27">
+                            </div>
+                        </div>
+                        <label class="col-sm-1 control-label">Res Person</label>
+                        <div class="col-sm-2 ">
+                            <div class="input-group">
+                                <input type="text" name="InternalResponsiblePerson" ng-model="issueTransactionNew.InternalResponsiblePerson" tabindex="29" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="showInternalResponsiblePersonListPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div ng-show="(issueTransactionNew.InternalAuditTaskSchedulerMasterId != null)" class="col-xs-12 col-sm-12 col-md-12">
+                    <a href="" ng-click="checkInternalFrequencyTypeAndDay()" style="color:blue">{{internalTaskScheduleDetails}} </a>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="clearfix"></div>
+        <div style="padding:0px 0px 0px 15px">
+            <div class="col-xs-12 col-sm-3 col-md-3">
+                <div class="form-group">
+
+                    <label>
+                        <input tabindex="30" type="checkbox" class="form-check-input" id="IsFollowUpApplicable" ng-model="issueTransactionNew.IsFollowUpApplicable">
+                        <label class="form-check-label" for="IsFollowUpApplicable">FollowUp Audit Applicable</label>
+                    </label>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <fieldset class="scheduler-border" ng-show="issueTransactionNew.IsFollowUpApplicable" style="background-color:#F0F0F0">
+                <legend class="scheduler-border"></legend>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">Recurring</label>
+                        <div class="col-sm-1">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input tabindex="31" type="checkbox" ng-model="issueTransactionNew.IsFollowUpRecurring" ng-change="checkFollowUpFrequencyTypeAndDay()">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div ng-show="!issueTransactionNew.IsFollowUpRecurring">
+                            <label class="col-sm-1 control-label">One Time</label>
+                            <div class="col-sm-1">
+                                <input datepicker id="FollowUpOneTimeDateTime" type="text" name="FollowUpOneTimeDateTime" ng-model="issueTransactionNew.FollowUpOneTimeDateTime" class="form-control" tabindex="33">
+                            </div>
+                        </div>
+                        <label class="col-sm-1 control-label">Res Person</label>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <input type="text" name="FollowUpResponsiblePerson" ng-model="issueTransactionNew.FollowUpResponsiblePerson" tabindex="35" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="showFollowUpResponsiblePersonListPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div ng-show="(issueTransactionNew.FollowUpAuditTaskSchedulerMasterId != null)" class="col-xs-12 col-sm-12 col-md-12">
+                    <a href="" style="color:blue"> {{followUpTaskScheduleDetails}} </a>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="clearfix"></div>
+        <div style="padding:0px 0px 0px 15px">
+            <div class="col-xs-12 col-sm-3 col-md-3">
+                <div class="form-group">
+                    <label>
+                        <input tabindex="36" type="checkbox" class="form-check-input" id="IsExternalApplicable" ng-model="issueTransactionNew.IsExternalApplicable">
+                        <label class="form-check-label" for="IsExternalApplicable">External Audit Applicable</label>
+                    </label>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <fieldset class="scheduler-border" ng-show="issueTransactionNew.IsExternalApplicable" style="background-color:#F0F0F0">
+                <legend class="scheduler-border"></legend>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">Recurring</label>
+                        <div class="col-sm-1">
+
+                            <div class="checkbox-site">
+                                <label>
+                                    <input tabindex="8" type="checkbox" ng-model="issueTransactionNew.IsExternalRecurring" ng-change="checkExternalFrequencyTypeAndDay()">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div ng-show="!issueTransactionNew.IsExternalRecurring">
+                            <label class="col-sm-1 control-label">One Time</label>
+                            <div class="col-sm-1">
+
+                                <input datepicker id="ExternalOneTimeDateTime" type="text" name="ExternalOneTimeDateTime" ng-model="issueTransactionNew.ExternalOneTimeDateTime" class="form-control" tabindex="19">
+                            </div>
+                        </div>
+                        <label class="col-sm-1 control-label">Internal Res Person</label>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <input type="text" name="ExternalResponsiblePersonName" ng-model="issueTransactionNew.ExternalResponsiblePersonName" tabindex="16" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="showExternalResponsiblePersonListPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <label class="col-sm-2 control-label">External Res Person <sup>*</sup></label>
+                    <div class="col-sm-2">
+                        <div class="input-group">
+                            <input type="text" name="ExternalResponsiblePerson" ng-model="issueTransactionNew.ExternalResponsiblePerson" class="form-control" autocomplete="off" maxlength="50">
+                        </div>
+                    </div>
+
+                    <label class="col-sm-2 control-label">Email</label>
+                    <div class="col-sm-2">
+                        <div class="input-group">
+                            <input type="text" ng-keyup="checkEmailValidity()" name="ExternalRespPersonEmail" ng-model="issueTransactionNew.ExternalRespPersonEmail" class="form-control" autocomplete="off" maxlength="100">
+                            <span style="color:red" ng-show="isEmailValidate">Invalid Email</span>
+                        </div>
+                    </div>
+
+
+                    <label class="col-sm-2 control-label"> Designation</label>
+                    <div class="col-sm-2">
+                        <div class="input-group">
+                            <input type="text" name="ExternalRespPersonDesignation" ng-model="issueTransactionNew.ExternalRespPersonDesignation" class="form-control" autocomplete="off" maxlength="50">
+                        </div>
+                    </div>
+                </div>
+                <div ng-show="(issueTransactionNew.ExternalAuditTaskSchedulerMasterId != null)" class="col-xs-12 col-sm-12 col-md-12">
+                    <a href="" style="color:blue"> {{externalTaskScheduleDetails}} </a>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-show="Action == 'Save'" ng-click="Save()" ng-disabled="savebtndisable" class="btn" tabindex="37"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                <li> <button ng-show="Action == 'Update'" ng-click="Update()" ng-disabled="savebtndisable" class="btn" tabindex="38"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
+                <li> <button ng-click="confirmRelease();" ng-disabled="issueTransactionNew.IsReleased" class="btn" tabindex="31" style="background-color:{{colorOfReleseButton}}"><i class="glyphicon glyphicon-floppy-disk"></i> Release</button></li>
+                <li> <button ng-click="AddSubTaskconfirmRelease();" ng-disabled="isSubTaskDisabled" class="btn" tabindex="39"><i class="glyphicon glyphicon-floppy-disk"></i> AddSubTask</button></li>
+                @*<li> <button ng-show="Action == 'Update'" ng-click="AddSubTaskWhenUpdateconfirmRelease();" ng-disabled="isSubTaskDisabled" class="btn" tabindex="31"><i class="glyphicon glyphicon-floppy-disk"></i> Add SubTask</button></li>*@
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="40"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="41"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Documents</legend>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+
+                            <btton ng-click="addAttachment();" ng-disabled="issueTransactionNew.Id===null" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></btton>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>File Name</th>
+                                        <th>Description</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in issueTransactionDocumentList ">
+                                        <td ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></td>
+                                        <td>{{x.Description}}</td>
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="GetDocumentData(x, $index);" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
+                                                        <i class="glyphicon glyphicon-pencil"></i>
+                                                    </button>
+                                                    <button data-toggle="modal" data-target="#confirmQualificationDelete" ng-click="confirmQualificationDelete(x)" class="btn btn-action tooltip-here" data-placement="top" title="Document Delete" tooltip>
+                                                        <i class="glyphicon glyphicon-remove"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="clearfix"></div>
+        <div class="col-xs-12 col-sm-12 col-md-12" style="padding: 10px;">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="address" role="tab" data-toggle="tab2">Assign To </a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Update" role="tab" data-toggle="tab2">Update Audit </a></li>
+                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="address" role="tab" data-toggle="tab2">Follow UpAudit </a></li>
+                    <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="address" role="tab" data-toggle="tab2">Internal UpAudit </a></li>
+                    <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="address" role="tab" data-toggle="tab2">External UpAudit </a></li>
+                    <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" aria-controls="address" role="tab" data-toggle="tab2">Sub Task </a></li>
+
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Due Date</th>
+                                    <th>Responsible Person</th>
+                                    <th>Commitment Date</th>
+                                    <th>Revised Commitment Date</th>
+                                    <th>IsDone</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in ListOfAuditOfReleasedIssueTransaction">
+                                    <td>{{x.DueDate | dateFiltering}}</td>
+                                    <td>{{x.ResponsiblePerson}}</td>
+                                    <td>{{x.CommitmentDate | dateFiltering}}</td>
+                                    <td>{{x.RevisedCommitmentDate | dateFiltering}}</td>
+
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="x.IsDone">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Due Date</th>
+                                    <th>Responsible Person</th>
+                                    <th>Commitment Date</th>
+                                    <th>Revised Commitment Date</th>
+                                    <th>IsDone</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in ListOfAuditOfReleasedIssueTransaction">
+                                    <td>{{x.DueDate | dateFiltering}}</td>
+                                    <td>{{x.ResponsiblePerson }}</td>
+                                    <td>{{x.CommitmentDate | dateFiltering}}</td>
+                                    <td>{{x.RevisedCommitmentDate | dateFiltering}}</td>
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="x.IsDone">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Due Date</th>
+                                    <th>Responsible Person</th>
+                                    <th>Commitment Date</th>
+                                    <th>Revised Commitment Date</th>
+                                    <th>IsDone</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in ListOfAuditOfReleasedIssueTransaction">
+                                    <td>{{x.DueDate | dateFiltering}}</td>
+                                    <td>{{x.ResponsiblePerson}}</td>
+                                    <td>{{x.CommitmentDate | dateFiltering}}</td>
+                                    <td>{{x.RevisedCommitmentDate | dateFiltering}}</td>
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="x.IsDone">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Due Date</th>
+                                    <th>Responsible Person</th>
+                                    <th>Commitment Date</th>
+                                    <th>Revised Commitment Date</th>
+                                    <th>IsDone</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in ListOfAuditOfReleasedIssueTransaction">
+                                    <td>{{x.DueDate | dateFiltering}}</td>
+                                    <td>{{x.ResponsiblePerson}}</td>
+                                    <td>{{x.CommitmentDate | dateFiltering}}</td>
+                                    <td>{{x.RevisedCommitmentDate | dateFiltering}}</td>
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="x.IsDone">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Due Date</th>
+                                    <th>Responsible Person</th>
+                                    <th>Commitment Date</th>
+                                    <th>Revised Commitment Date</th>
+                                    <th>IsDone</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in ListOfAuditOfReleasedIssueTransaction">
+                                    <td>{{x.DueDate | dateFiltering}}</td>
+                                    <td>{{x.ResponsiblePerson}}</td>
+                                    <td>{{x.CommitmentDate | dateFiltering}}</td>
+                                    <td>{{x.RevisedCommitmentDate | dateFiltering}}</td>
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="x.IsDone">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <td>Task Detail</td>
+                                    <th>Due Date</th>
+                                    <th>Responsible Person</th>
+                                    <th>IsDone</th>
+                                    <th>
+                                        Action
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in taskManagerSubTasks">
+                                    <td>{{x.TaskDetail}}</td>
+                                    <td>{{x.RequiredDate=(x.RequiredDate | dateFiltering)}}</td>
+                                    <td>{{x.ResponsiblePerson}}</td>
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="x.IsDone">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button data-toggle="modal" ng-click="IssueSubTaskPopUpForUpdate(x)" class="btn"><i class="glyphicon glyphicon-pencil"></i> </button>
+                                        <button data-toggle="modal" ng-click="DeleteIssueSubTaskConfirmation(x)" class="btn"><i class="glyphicon glyphicon-trash"></i> </button>
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>IssueID</th>
+                <th>Issue</th>
+                <th>Issue Group</th>
+                <th>Issue Date</th>
+                <th>Detail</th>
+                <th>Category</th>
+                <th>SubCategory</th>
+                <th>Final Status</th>
+                <th>Importance</th>
+                <th>Mentor</th>
+                <th>Customer</th>
+                <th>Required Date</th>
+                <th>Issue/Task Closing Date</th>
+                <th>Expiry Date</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in issueTransactions |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+
+                <td>{{x.Id}}</td>
+                <td>{{x.Issue}}</td>
+                <td>{{x.IssueGroupName}}</td>
+                <td>{{x.IssueDate | dateFiltering}}</td>
+                <td>{{x.IssueDetail}}</td>
+                <td>{{x.TaskCategory}}</td>
+                <td>{{x.TaskSubCategory}}</td>
+                <td>{{x.FinalStatus}}</td>
+                <td>{{x.IssueImportance}}</td>
+                <td>{{x.Mentor}}</td>
+                <td>{{x.Customer}}</td>
+                <td>{{x.RequiredDate| dateFiltering}}</td>
+                <td>{{x.CloseDate| dateFiltering}}</td>
+                <td>{{x.ExpiryDate| dateFiltering}}</td>
+                <td>{{x.Remarks}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="buyerSearchModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <i class="glyphicon glyphicon-info-sign"></i>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="buyerParameters.searchBy">
+                                            <option ng-repeat="option in searchByBuyerList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="buyerParameters.search" ng-enter="getBuyerData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getBuyerData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Buyer</th>
+                                <th>Department</th>
+                                <th>Division</th>
+                                <th>Product Master</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in buyerList | itemsPerPage:buyerParameters.pageSize" total-items="buyerParameters.total_count" ng-dblclick="buyerCloseListPopUp(x)">
+                                <td>{{x.BuyerName}}</td>
+                                <td>{{x.DepartmentName}}</td>
+                                <td>{{x.DivisionName}}</td>
+                                <td>{{x.ProductMasterName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'buyerList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getBuyerData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")
+
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_EmployeePopUp.cshtml")
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_ResponsiblePersonPopUp.cshtml")
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_AuthorisedPersonPopUp.cshtml")
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_MentorPersonPopUp.cshtml")
+
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_UpdateResponsiblePersonPopUp.cshtml")
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_InternalResponsiblePersonPopUp.cshtml")
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_ExternalResponsiblePersonPopUp.cshtml")
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_FollowUpResponsiblePersonPopUp.cshtml")
+
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_IssueSelectedBuyerListPopUp.cshtml")
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_BuyerPopUp.cshtml")
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_IssueSubTaskPopUp.cshtml")
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_IssueSubTaskPopUpForUpdate.cshtml")
+
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_IssueSubTaskResponsiblePersonPopUp.cshtml")
+
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_IssueGroupAddPopUp.cshtml")
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_IssueGroupResponsiblePersonPopUp.cshtml")
+@Html.Partial("~/Areas/IssueTracker/Views/Shared/_IssueGroupListPopUp.cshtml")
+
+<div class="modal fade site-modal in" id="DocumentPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Add Document</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-elements">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Description</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="issueTransactionDocuments.Description" maxlength="250" tabindex="10"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-elements">
+                        @*<div class="form-group">
+                                <div class="inputBtnSection common-btn">
+                                    <label class="fileUpload col-sm-4 ">
+                                        <input id="uploadBtn" type="file" name="file[]" accept=".xlsx,.xlx,.doc,.docx,.jpg,.png,.gif,.pdf" class="upload" />
+                                        <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
+                                    </label>
+                                    <div class="col-sm-6" style="width: 198px;">
+                                        <input type="text" id="uploadFile" name="uploadFile" class="disableInputField form-control" disabled="disabled" style="width: 183px;" />
+                                    </div>
+                                    <div class="col-sm-2" style="padding-left:0px;">
+                                        <button ng-click="RemoveDoc();" class="btn" style="height: 31px;width: 88px;padding-left: 8px;background: #242841;"><i class="fa fa-chain-broken" aria-hidden="true"></i> Detach</button>
+                                    </div>
+                                </div>
+                            </div>*@
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Upload</label>
+                            <div class="col-sm-8">
+                                <div id="UploadDefault" e-dialogtext-title="Document" e-autoupload="true" e-begin="onBeginUpload" e-filesize="10971520" ej-uploadbox e-saveurl="uploadUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf" e-error="errorPicUpload" e-complete="LoadIssueDocumentsData"></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveDocuments();" ng-disabled="issueTransactionDocuments.Id===null" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        <li> <button ng-click="Close();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic data-modalid="confirmQualificationDelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteDocument()"></confirm-archive-generic>
+
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Release()"></confirm-archive-generic>
+<confirm-archive-generic modalid="AddSubtaskconfirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="AddSubTask()" data-ng-click-left-button="confirmRelease()"></confirm-archive-generic>
+<confirm-archive-generic modalid="DeleteIssueSubTaskPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteIssueSubTask()"></confirm-archive-generic>
+<confirm-archive-generic modalid="DeleteGroupPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteGroup()"></confirm-archive-generic>
+<confirm-archive-generic modalid="AddSubtaskWhenUpdateconfirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="AddSubTask()"></confirm-archive-generic>
+@Html.Partial("~/Areas/TaskScheduler/Views/TaskSchedule/Aplos.cshtml")
+
+

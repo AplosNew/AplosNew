@@ -1,0 +1,82 @@
+﻿<table id="screenMain">
+    <tr>
+        <td>
+            <h3 class="site-heading  class=" form-horizontal form-elements"">
+                <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  QR Code
+            </h3>
+        </td>
+        @*<td class="text-right" style="width:70px;">
+                <span style="font-size:3em; color:green;" ng-hide="ShowFilterScreen==false" ng-click="filterComplete();" class="glyphicon glyphicon-circle-arrow-right"></span>
+                <span style="font-size:3em; color:blueviolet;" ng-hide="ShowFilterScreen==true" ng-click="ShowFilterScreen=true; HideGrid=true;" class="glyphicon glyphicon-circle-arrow-left"></span>
+
+            </td>*@
+
+    </tr>
+</table>
+<div class="col-xs-12" style="padding:10px;padding-bottom:30px;">
+    <div id="tabQRCode" ej-tab e-headersize="40px">
+        <ul>
+            <li><a href="#tabEmployee">Employee</a></li>
+            <li><a href="#tabOperation">operation</a></li>
+        </ul>
+        <div id="tabEmployee">
+            <div class="row">
+                <div id="gridEmployee" ng-init="chkinit()" ej-grid e-datasource="EmployeeList" e-gridlines="horizontal"
+                     e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                       <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                        <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                        <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+                    </div>
+                </div>
+                <script type="text/x-jsrender" id="empimage">
+                    <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
+                </script>
+            </div>
+        </div>
+        <div id="tabOperation">
+            <div class="row">
+                <div id="gridOperation" ng-init="chkinit()" ej-grid e-datasource="OperationList" e-gridlines="both"
+                     e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="OperationVariationCode" e-headertext="Op. Var. Code" e-width="20"></div>
+                        <div e-column e-field="OperationVariationName" e-headertext="Op. Var. Name" e-width="80"></div>
+                        <div e-column e-field="OperationName" e-headertext="Operation Name" e-width="80"></div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+
+            <ul class="common-btn list-inline text-left">
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="QR Code for Operation Variation" ng-click="OperationQRCode();" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-file"></i> Operations</button>
+                    </div>
+                </li>
+
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="QR Code for all active employees" ng-click="EmployeeQRCode();" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-file"></i> Employee</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</div>

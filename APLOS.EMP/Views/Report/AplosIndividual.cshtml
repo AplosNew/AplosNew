@@ -1,0 +1,102 @@
+﻿@{
+    ViewBag.Title = "Individual";
+    Layout = "~/Views/Shared/_EmployeeAccessLayout.cshtml";
+}
+<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Report: Individual Status<label style="float:right"></label>
+</h3>
+<div class="form-elements form-horizontal row" ng-form name="report">
+
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee</label>
+            <div class="col-sm-8 input-group" style="padding-left:15px;padding-right:15px">
+                <span class="input-group-addon" placeholder="Id">{{ReportParam.Id}}</span>
+                <input type="text" class="form-control" ng-model="ReportParam.Name" placeholder="Employee Name" readonly>
+                <span class="input-group-btn">
+                    <button ng-click="getEmployeeData();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="common-btn">
+            <ul class="list-inline">
+                <li> <button ng-click="GetIndividualInfo();" class="btn" style="margin-top: -20px;"><i class="glyphicon glyphicon-print"></i> View </button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="employeemodal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in searchbyEmployeelist|orderBy:'name'" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="loadEmployeeData();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadEmployeeData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Code</th>
+                                <th>Employee Name</th>
+                                <th>Email</th>
+                                <th>Mobile</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeData  |itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
+                                ng-dblclick="getuserAccess(x);" pagination-id="metaData.name + 'employeeData'">
+                                <td>{{x.Id}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.Name}}</td>
+                                <td>{{x.Email}}</td>
+                                <td>{{x.Mobile}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'employeeData'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadEmployeeData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>
+
+
+
+

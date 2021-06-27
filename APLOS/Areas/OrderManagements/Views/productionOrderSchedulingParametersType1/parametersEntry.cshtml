@@ -1,0 +1,637 @@
+﻿
+<div class="form-element-ctrl form-horizontal">
+    <div class="row" style="margin-right:10px;margin-left:10px;">
+        <div class="row">
+            <div class="col-xs-4 col-sm-4 col-md-4">
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Prd.Order ID</label>
+                    <div class="col-sm-8">
+                        <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="productionOrderModel.Id" maxlength="250" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Ord. Qty(Saved)</label>
+                    <div class="col-sm-8">
+                        <input type="text" ng-disabled="true" style="color:{{productionOrderModel.SavedQuantity!=productionOrderModel.POQuantity?'red':'black'}}" class="form-control" rows="2" ng-model="productionOrderModel.SavedQuantity" maxlength="250" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Prod. Sub Cat.</label>
+                    <div class="col-sm-8">
+                        <span class="tooltipAplos">
+                            <span class="tooltipAplostext">{{displayModel.ProductSubCategory}}</span>
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.ProductSubCategory" maxlength="250" />
+                        </span>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Product Category</label>
+                    <div class="col-sm-8">
+                        <span class="tooltipAplos">
+                            <span class="tooltipAplostext">{{displayModel.ProductCategory}}</span>
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.ProductCategory" maxlength="250" />
+                        </span>
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Pro. Ord. Qty</label>
+                    <div class="col-sm-8">
+                        <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="productionOrderModel.POQuantity" maxlength="250" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Customer</label>
+                    <div class="col-sm-8">
+                        <span class="tooltipAplos">
+                            <span class="tooltipAplostext">{{productionOrderModel.Customer}}</span>
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="productionOrderModel.Customer" maxlength="250" />
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Entity</label>
+                    <div class="col-sm-8">
+
+                        <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="productionOrderModel.EntityName" maxlength="250" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Product</label>
+                    <div class="col-sm-8">
+                        <span class="tooltipAplos">
+                            <span class="tooltipAplostext">{{displayModel.ProductName}}</span>
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.ProductName" maxlength="250" />
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">SO Desc</label>
+                    <div class="col-sm-8">
+                        <span class="tooltipAplos">
+                            <span class="tooltipAplostext">{{displayModel.SODesc}}</span>
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.SODesc" maxlength="250" />
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Customer Ref</label>
+                    <div class="col-sm-8">
+                        <span class="tooltipAplos">
+                            <span class="tooltipAplostext">{{displayModel.BuyerRefNo}}</span>
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.BuyerRefNo" maxlength="250" />
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Plan. Ord. Qty</label>
+                    <div class="col-sm-8">
+
+                        <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="productionOrderModel.SOQuantity" maxlength="250" />
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Produced Qty</label>
+                    <div class="col-sm-8">
+                        <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="productionOrderModel.ProductionQtyAtPR" maxlength="250" />
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Master Order</label>
+                    <div class="col-sm-8">
+                        <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.MasterOrderId" maxlength="250" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Material</label>
+                    <div class="col-sm-8">
+                        <span class="tooltipAplos">
+                            <span class="tooltipAplostext">{{displayModel.Material}}</span>
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.Material" maxlength="250" />
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Article</label>
+                    <div class="col-sm-8">
+                        <span class="tooltipAplos">
+                            <span class="tooltipAplostext">{{displayModel.Article}}</span>
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.Article" maxlength="250" />
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Actual Plan Qty</label>
+                    <div class="col-sm-8">
+                        <input type="text" ej-numerictextbox e-minvalue="0" e-decimalplaces="0" e-enablertl="false" e-value="model.Qty" e-width="100" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Production Status</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select name="Production Status" class="form-control" ng-model="model.ProductionStatusId"
+                                    ng-options="item.Value as item.Text for item in productionStatusList" tabindex="2">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Remaining Qty</label>
+                    <div class="col-sm-8">
+                        <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="productionOrderModel.ToBePlanQty" maxlength="250" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-xs-4 col-sm-4 col-md-4">
+
+                <div class="form-group">
+                    <div class="col-sm-8 control-label"><a ej-tooltip e-content="Planning simulation will consider daily production hours from workcenter master instead of planning calendar" e-width="width">Consider Plan hour from WC</a></div>
+                    <div class="col-sm-4">
+                        <input type="checkbox" ej-checkbox e-value="model.ConsiderHourFromWorkCenter" e-checked="model.ConsiderHourFromWorkCenter" class="nodetext" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <div class="col-sm-8 control-label"><a ej-tooltip e-content="Planning simulation will consider no of workstations from workcenter to distribute quantity proportionately based on current production order workstations" e-width="width">Consider Actual WorkStations</a></div>
+                    <div class="col-sm-4">
+                        <input type="checkbox" ej-checkbox e-value="model.ConsiderWorkStationsFromWorkCenter" e-checked="model.ConsiderWorkStationsFromWorkCenter" class="nodetext" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+            </div>
+
+        </div>
+    </div>
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">General Parameters</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Work Center Preference</a></li>
+            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Running Order Parameters</a></li>
+            <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);actionCompleteSelected()" href="" data-toggle="tab">Material</a></li>
+
+        </ul>
+    </div>
+    <div class="tab-content" id="OuterContainer">
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div class="row">
+
+
+                <div class="col-xs-5 col-sm-5 col-md-5">
+                    <div class="form-group">
+                        <a ej-tooltip e-content="this value is coming from  planning parameters-product master efficiency " e-width="width">
+                            <label class="col-sm-5 control-label">Workstations</label>
+                        </a>
+                        <div class="col-sm-7">
+                            <div class="select-style">
+                                <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.NoOfWorkStation" maxlength="250" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <a ej-tooltip e-content="this value is coming from  planning parameters-product master efficiency " e-width="width">
+                            <label class="col-sm-5 control-label">Efficiency</label>
+                        </a>
+                        <div class="col-sm-7">
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.Efficiency" maxlength="250" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <a ej-tooltip e-content="this value is coming from  planning parameters-product master efficiency " e-width="width">
+                            <label class="col-sm-5 control-label">SPT</label>
+                        </a>
+                        <div class="col-sm-7">
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.SPT" maxlength="250" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <a ej-tooltip e-content=" value from planning parameters-product master efficiency " e-width="width">
+                            <label class="col-sm-5 control-label">Pln. Work. Hours/Per Day</label>
+                        </a>
+                        <div class="col-sm-7">
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.PlanWorkingHoursPerDay" maxlength="250" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <a ej-tooltip e-content=" value is coming from product master " e-width="width">
+                            <label class="col-sm-5 control-label">First Day Output/Hour</label>
+                        </a>
+                        <div class="col-sm-7">
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.FirstDayOutPut" maxlength="250" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <a ej-tooltip e-content=" value is coming from product master " e-width="width">
+                            <label class="col-sm-5 control-label">Increment Value</label>
+                        </a>
+                        <div class="col-sm-2">
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.IncrementValue" maxlength="250" />
+                        </div>
+                        <div class="col-sm-5 text-left">
+                            <input type="radio" ng-model="displayModel.IncrementType" value="FIXED">
+                            <span>FIXED</span>
+                            <input type="radio" ng-model="displayModel.IncrementType" value="PERCENTAGE">
+                            <span>PERCENTAGE</span>
+
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <a ej-tooltip e-content=" value is coming from product master " e-width="width">
+                            <label class="col-sm-5 control-label">Day To Reach The Target</label>
+                        </a>
+                        <div class="col-sm-7">
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.DayToReachTheTarget" maxlength="250" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <a ej-tooltip e-content="Minimum date among all sales orders in current production order " e-width="width">
+                            <label class="col-sm-5 control-label">LSD</label>
+                        </a>
+                        <div class="col-sm-7">
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.LSD" maxlength="250" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <a ej-tooltip e-content="Maximum date among all sales orders in current production order " e-width="width">
+                            <label class="col-sm-5 control-label">Commitment Date</label>
+                        </a>
+                        <div class="col-sm-7">
+                            <input type="text" ng-disabled="true" class="form-control" rows="2" ng-model="displayModel.CommitmentDate" maxlength="250" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <a ej-tooltip e-content="minimum  Main RM In house Date among all sales orders in current production order " e-width="width">
+                            <label class="col-sm-5 control-label">Main RM In house Date</label>
+                        </a>
+                        <div class="col-sm-7">
+                            <input e-dateformat="dd-MMM-yyyy" e-enabled="false" ej-datepicker e-value="displayModel.MainRawMaterialInhouseDate" e-width="100%" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <a ej-tooltip e-content="Maximum Other RM In house Date among all sales orders in current production order " e-width="width">
+                            <label class="col-sm-5 control-label">Other RM Inhouse Date</label>
+                        </a>
+                        <div class="col-sm-7">
+                            <input e-dateformat="dd-MMM-yyyy" e-enabled="false" ej-datepicker e-value="displayModel.OtherRawMaterialInhouseDate" e-width="100%" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            Recommended Work Center
+                            <div id="GridWorkCenterProduct" ng-init="chkinit()" ej-grid e-datasource="productWorkCenterList"
+                                 e-allowpaging="true" e-enabletouch="false" e-responsive="true">
+                                <div e-columns>
+
+                                    <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                    <div e-column e-field="UserName" e-headertext="Work Center" e-width="180"></div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-1 col-sm-2 col-md-1">
+
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Workstations<sup>*</sup></label>
+                        <div class="col-sm-3">
+                            <div class="select-style">
+                                <input type="number" inputmode="numeric" ng-change="calculations()" class="form-control" rows="2" ng-model="model.NoOfWorkStation" maxlength="4" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Efficiency %<sup>*</sup></label>
+                        <div class="col-sm-3">
+                            <input type="number" ng-disabled="SPTEfficiencySlab.length>0" inputmode="numeric" ng-change="calculations()" class="form-control" rows="2" ng-model="model.Efficiency" maxlength="250" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">SPT<sup>*</sup></label>
+                        <div class="col-sm-3">
+                            <input type="number" inputmode="numeric" ng-change="AutoEfficiencyPercentageOnSPT();" class="form-control" rows="2" ng-model="model.SPT" maxlength="250" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Plan Working Hours/Per Day<sup>*</sup></label>
+                        <div class="col-sm-3">
+                            <input type="number" inputmode="numeric" ng-change="calculations()" class="form-control" rows="2" ng-model="model.PlanWorkingHoursPerDay" maxlength="250" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">First Day Output/Hour<sup>*</sup></label>
+                        <div class="col-sm-3">
+                            <input type="number"  ng-disabled="SPTEfficiencySlab.length>0" ng-change="calculations()" inputmode="numeric" class="form-control" rows="2" ng-model="model.FirstDayOutPut" maxlength="250" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Increment Value<sup>*</sup></label>
+                        <div class="col-sm-3">
+                            <input type="number"  ng-disabled="SPTEfficiencySlab.length>0" ng-change="calculations()" inputmode="numeric" class="form-control" rows="2" ng-model="model.IncrementValue" maxlength="250" />
+                        </div>
+                        <div class="col-sm-5 text-left">
+                            <input type="radio" ng-change="calculations()" ng-disabled="SPTEfficiencySlab.length>0" ng-model="model.IncrementType" value="FIXED">
+                            <span>FIXED</span>
+                            <input type="radio" ng-change="calculations()" ng-disabled="SPTEfficiencySlab.length>0" ng-model="model.IncrementType" value="PERCENTAGE">
+                            <span>PERCENTAGE</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Day To Reach The Target</label>
+                        <div class="col-sm-8">
+                            <input type="text" e-enabled="false" ej-numerictextbox e-decimalplaces="0" e-enablertl="false" e-value="model.DayToReachTheTarget" e-width="100" />
+
+                            @*<input type="text" ng-disabled="true" class="form-control"  rows="2" ng-model="model.DayToReachTheTarget" maxlength="250" />*@
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <input e-dateformat="dd-MMM-yyyy" e-change="selectSigleDate" ej-datepicker e-value="model.LSD" e-width="100%" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Commitment Date<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <input e-dateformat="dd-MMM-yyyy" e-change="selectSigleDate" ej-datepicker e-value="model.CommitmentDate" e-width="100%" />
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Main RM Inhouse Date<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <input e-dateformat="dd-MMM-yyyy" e-change="selectSigleDate" ej-datepicker e-value="model.MainRawMaterialInhouseDate" e-width="100%" />
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Other RM Inhouse Date<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <input e-dateformat="dd-MMM-yyyy" e-change="selectSigleDate" ej-datepicker e-value="model.OtherRawMaterialInhouseDate" e-width="100%" />
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Priority<sup>*</sup></label>
+                        <div class="col-sm-3">
+                            <input type="number" inputmode="numeric" class="form-control" rows="2" ng-model="model.ProductionPriority" maxlength="250" />
+                        </div>
+                        <div class="col-sm-5">
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @*<a id="test" ej-tooltip e-content="targetperhourtooltip" e-width="width">*@
+                        <label class="col-sm-4 control-label">Target/Hour at {{model.Efficiency}}% eff.</label>
+                        @*</a>*@
+                        <div class="col-sm-8">
+                            <input type="text" e-enabled="false" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="model.TargetPerHour" e-width="100" />
+
+                            @*<input type="text" ng-disabled="true" class="form-control"  rows="2" ng-model="model.TargetPerHour" maxlength="250" />*@
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @*<a id="test" ej-tooltip e-content="targetperdaytooltip" e-width="width">*@
+                        <label class="col-sm-4 control-label">Target/Day at {{model.Efficiency}}% eff.</label>
+                        @*</a>*@
+                        <div class="col-sm-8">
+                            <input type="text" e-enabled="false" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="model.TargetPerDay" e-width="100" />
+
+                            @*<input type="text" ng-disabled="true" class="form-control"  rows="2" ng-model="model.TargetPerDay" maxlength="250" />*@
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">100% Efficiency/Day</label>
+                        <div class="col-sm-8">
+                            <input type="text" e-enabled="false" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="EfficiencyPercentage" e-width="100" />
+
+                            @*<input type="text" ng-disabled="true" class="form-control"  rows="2" ng-model="EfficiencyPercentage" maxlength="250" />*@
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <a ej-tooltip e-content=" initially this value is coming from entity wise configuration " e-width="width">
+                            <label class="col-sm-4 control-label">Min. Workcenter Days<sup>*</sup></label>
+                        </a>
+                        <div class="col-sm-3">
+                            <input type="number" inputmode="numeric" ng-change="calculations()" class="form-control" rows="2" ng-model="model.MinimumLineDays" maxlength="250" placeholder="Hint: 10 Days" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <a ej-tooltip e-content="linedaystooltip" e-width="width">
+                            <label class="col-sm-4 control-label">Required Workcenter Days</label>
+                        </a>
+                        <div class="col-sm-8">
+                            <input type="text" e-enabled="false" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="model.RequiredLineDays" e-width="100" />
+
+                            @*<input type="text" ng-disabled="true" class="form-control"  rows="2" ng-model="model.RequiredLineDays" maxlength="250" />*@
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <a ej-tooltip e-content="requiredNoOfLines" e-width="width">
+                            <label class="col-sm-4 control-label">Required No. Workcenter</label>
+                        </a>
+                        <div class="col-sm-8">
+                            <input type="text" e-enabled="false" ej-numerictextbox e-decimalplaces="2" e-enablertl="false" e-value="model.RequiredNoOfLines" e-width="100" />
+
+                            @*<input type="text" ng-disabled="true" class="form-control"  rows="2" ng-model="model.RequiredNoOfLines" maxlength="250" />*@
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Allocated Workcenter<sup>*</sup></label>
+                        <div class="col-sm-3">
+                            <input type="number" inputmode="numeric" class="form-control" rows="2" ng-model="model.AllocatedLines" maxlength="250" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Production Display Color<sup>*</sup></label>
+                        <div class="col-sm-8 text-left">
+
+                            <input ej-colorpicker e-value="model.Color" e-modeltype="palette" />
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="row" ng-form="tabFrom4">
+                <div class="col-xs-12 col-sm-6 col-md-6" style="height:48px;">
+                    <ul class="common-btn list-inline text-left">
+                        <li><button ng-click="workCenterPopUp('PREFERENCE');" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Work Center</button></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <input type="radio" ng-model="model.WCPreferenceType" value="INCLUDE">
+                    <span>INCLUDE</span>
+                    <input type="radio" ng-model="model.WCPreferenceType" value="EXCLUDE">
+                    <span>EXCLUDE</span>
+                </div>
+                <div class="col-md-12">
+                    <div id="GridWorkCenter" ng-init="chkinit()" ej-grid e-datasource="productionWorkCenterList" e-rowdatabound="rowDataBoundWorkCenter"
+                         e-allowpaging="true" e-enabletouch="false" e-responsive="true">
+                        <div e-columns>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="150"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="120"></div>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                            <div e-column e-field="UserName" e-headertext="Work Center" e-width="180"></div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+
+            <div class="row" ng-form="tabFrom4">
+
+                @*<label class="col-sm-4 control-label">Running</label>
+                    <div class="col-sm-8">
+                        <input type="checkbox" class="nodetext" ej-checkbox e-size="medium" e-id="chkRunning" />
+                    </div>*@
+
+                <div class="col-sm-12" style="height:10px;">
+                </div>
+                <label class="col-sm-4 control-label">Running Order Block Size (Day)</label>
+                <div class="col-sm-8">
+                    <input type="text" ej-numerictextbox e-minvalue="1" e-decimalplaces="0" e-enablertl="false" e-value="model.RunningOrderBlockSize" e-width="100" />
+                </div>
+
+            </div>
+            <div class="row" ng-form="tabFrom4">
+
+                <div class="col-xs-12 col-sm-6 col-md-6" style="height:48px;">
+                    <ul class="common-btn list-inline text-left" style="height:48px;">
+                        <li><button ng-click="workCenterPopUp('RUNNING');" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Work Center</button></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-12">
+                    <div id="GridWorkCenterForRunningHeaven" ng-init="chkinit()" ej-grid e-datasource="runningWorkCenterList" @*e-rowdatabound="rowDataBoundWorkCenter"*@
+                         e-allowpaging="true" e-allowselection="false" e-enabletouch="true" e-responsive="true">
+                        <div e-columns>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="150"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="120"></div>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                            <div e-column e-field="UserName" e-headertext="Work Center" e-width="180"></div>
+                            <div e-column e-template="#RunningOrderLineWiseQty" e-headertext="Quantity" e-width="50"></div>
+
+                            <div e-column e-template="#appliedFor" e-headertext="Residual Value" e-width="40"></div>
+
+                        </div>
+                    </div>
+                    <script type="text/template" id="RunningOrderLineWiseQty">
+                        <input type="text" ej-numerictextbox e-minvalue="0" e-decimalplaces="0" e-enablertl="false" e-value="data.Qty" e-width="100" />
+                    </script>
+                    <script type="text/template" id="appliedFor">
+                        <input type="checkbox" e-value="data.isResidualApplicable" e-checked="data.isResidualApplicable" ej-checkbox class="nodetext" e-change="$parent.changeRunningOrderResidual" />
+                    </script>
+                </div>
+
+            </div>
+        </div>
+
+        <div role="tabpanel"  class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+            <div class="row">
+
+                <div id="GridSOItemSelected" ng-init="chkinit()" ej-grid e-datasource="recipeMaterialListSelected" e-allowscrolling="true"
+                     @*e-showsummary="true" e-summaryrows="summaryRows"*@ e-actioncomplete="syncfusiongriddatabound"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="MasterOrderNo" e-headertext="M. Order No" e-width="120"></div>
+                        <div e-column e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
+                        <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
+                        <div e-column e-field="OrderStatusName" e-headertext="Ord. Status" e-width="80"></div>
+                        <div e-column e-field="LSD" e-headertext="LSD" e-width="80"></div>
+                        <div e-column e-field="DeliveryDate" e-headertext="Del. Date" e-width="80"></div>
+                        <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180" e></div>
+                        <div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
+
+                        <div e-column e-field="SalesOrderId" e-headertext="SO. ID" e-width="120"></div>
+                        <div e-column e-field="Customer" e-headertext="Customer" e-width="180"></div>
+                        <div e-column e-field="BuyerOrderNo" e-headertext="Customer Order#" e-width="100"></div>
+                        <div e-column e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
+
+                        <div e-column e-field="BuyerReferenceNo" e-headertext="Customer Item#" e-width="100"></div>
+                        <div e-column e-field="OwnReferenceNo" e-headertext="Own Item#" e-width="100"></div>
+
+                        <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
+                        <div e-column e-field="ProductionGrouping" e-headertext="Product Grouping" e-width="120" e></div>
+
+                        <div e-column e-field="CommitmentDate" e-headertext="Commi.Date" e-width="80"></div>
+                        <div e-column e-field="DestinationName" e-headertext="Dest." e-width="80"></div>
+                        <div e-column e-field="ShipmentModeName" e-headertext="Ship.Mode" e-width="80"></div>
+                        <div e-column e-field="PONumber" e-headertext="PO No" e-width="80"></div>
+
+                        <div e-column e-field="OrderCategoryName" e-headertext="Ord. Cat." e-width="80"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="row">
+        <div class="col-xs-6 col-sm-6 col-md-6">
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-save"></i> {{Action}}</button></li>
+                    <li><button ng-click="Clear();closeEntryDialog();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Cancel</button></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    @*<ej-dialog id="workCenterPopUp" title="Work Center" e-enablemodal="false" e-position-y="0" e-zindex="999999" e-showoninit="false" e-width="500" e-open="enableBtn">*@
+
+
+</div>
+
+
+

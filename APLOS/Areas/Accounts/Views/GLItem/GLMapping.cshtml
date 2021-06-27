@@ -1,0 +1,124 @@
+﻿<togglable name="GL Mapping"></togglable>
+<div class="form-element-ctrl form-horizontal" ng-form="partyMappingNewForm">
+	<div class="col-xs-12 col-sm-6 col-md-6">
+		<div class="form-group" show-errors>
+			<label class="col-sm-3 control-label">Party Type<sup>*</sup></label>
+			<div class="col-sm-9 show-message">
+				<div class="select-style">
+					<select class="form-control" name="Party Type" ng-model="glMapping.PartyType" ng-options="item.Value as item.Text for item in partyTypeList" ng-change="getDataList();" required>
+						<option value=""></option>
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="clearfix"></div>
+<div class="form-elements form-horizontal" ng-form="partyMappingNewForm">
+	<div class="col-xs-12 col-sm-6 col-md-6">
+		<div class="form-group" show-errors>
+			<label class="col-sm-3 control-label">Old GLId<sup>*</sup></label>
+			<div class="col-sm-9 show-message">
+				<input ng-readonly="glMapping.Id!=null" required maxlength="60" type="text" name="OldGLId" ng-model="glMapping.OldGLId" class="form-control">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">Old GL Code</label>
+			<div class="col-sm-9">
+				<input type="text" ng-readonly="glMapping.Id!=null" name="OldPartyName" ng-model="glMapping.OldGLCode" class="form-control">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">Old GL Name</label>
+			<div class="col-sm-9">
+				<input type="text" ng-readonly="glMapping.Id!=null" name="OldPartyName" ng-model="glMapping.OldGLName" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="col-xs-12 col-sm-6 col-md-6">
+		<div class="form-group">
+			<label class="col-sm-3 control-label">GL</label>
+			<div class="col-sm-9">
+				<div class="input-group">
+					<input required type="text" name="Party" ng-model="glMapping.GLGeneralInfoName" class="form-control" readonly>
+					<span class="input-group-btn">
+						<button ng-click="popUp();" class="btn single-small-btn" tabindex="5"><i class="glyphicon glyphicon-search"></i></button>
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">Budget</label>
+			<div class="col-sm-9">
+				<input type="text" readonly name="OldPartyName" ng-model="glMapping.BudgetName" class="form-control">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">Activity</label>
+			<div class="col-sm-9">
+				<input type="text" readonly name="OldPartyName" ng-model="glMapping.ActivityName" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="common-btn">
+		<ul class="list-inline text-right">
+			<li><button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+			<li><button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+		</ul>
+	</div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+	<div class="col-xs-12 col-sm-12 col-sm-12">
+		<div class="search-form">
+			<div class="row">
+				<div class="col-xs-12 col-sm-3 col-md-3">
+					<div class="select-style">
+						<select ng-model="$root.parameters.searchBy">
+							<option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+						</select>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-7 col-md-7">
+					<input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+				</div>
+				<div class="col-xs-12 col-sm-2 col-md-2">
+					<button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Old GLId</th>
+				<th>Old GLCode</th>
+				<th>Old GLName</th>
+				<th>GL</th>
+				<th>Budget</th>
+				<th>Activity</th>
+				<th>Remove</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr dir-paginate="x in glMappingList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+				<td>{{x.OldGLId}}</td>
+				<td>{{x.OldGLCode}}</td>
+				<td>{{x.OldGLName}}</td>
+				<td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
+				<td>{{x.BudgetCode}} -{{x.BudgetName}}</td>
+				<td>{{x.ActivityCode}} - {{x.ActivityName}}</td>
+				<td class="text-right">
+					<button ng-click="valuePassInDelModal($index, x)" class="btn-action tooltip-here" data-placement="top" title="Delete">
+						<i class="glyphicon glyphicon-remove"></i>
+					</button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>
+<confirm-archive-generic data-modalid="confirmDocumentdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_GLMappingPopUp.cshtml")

@@ -1,0 +1,659 @@
+﻿<togglable name="Plant Wise Human Resource Management System Setting"></togglable>
+<div class="form-horizontal" ng-form name="PlantWiseHRMSSettingNewForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" style="padding-right: 52px;">Company<sup>*</sup></label>
+                <div class="col-sm-8 show-message" style="padding-left: 20px;padding-right: 31px;">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="PlantWiseHRMSSetting.CompanyId" ng-change="getData();companyOnChange();"
+                                ng-options="item.Value as item.Text for item in companyList" id="CompanyId"
+                                name="Company" required tabindex="1" @*ng-disabled="PlantWiseHRMSSetting.SystemID != null"*@>
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+        </div>
+    </div>
+    <div class="clearfix"></div>
+
+    <div class="form-elements ">
+
+        <div class="col-xs-12">
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" style="margin-left: 28px;">Plant<sup>*</sup></label>
+                    <div class="col-sm-8 show-message" style="margin-left: -43px;">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="PlantWiseHRMSSetting.PlantID"
+                                    ng-options="item.Value as item.Text for item in plantList" id="plantId" ng-change="getPlant()"
+                                    name="Plant" required tabindex="1" >
+                                <option></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                
+            </div>
+        </div>
+
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Shift & Salary Parameter</legend>
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-10 control-label">Shift Based Punch Flag</label>
+                        <div class="col-sm-2" style="margin-left: -163px; padding-top: 8px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" name="ShiftBasedPunchFlag" ng-model="PlantWiseHRMSSetting.ShiftBasedPunchFlag" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-10 control-label">Process Salary For Separated With Zero Present</label>
+                        <div class="col-sm-2" style="margin-left: -125px; padding-top: 8px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" name="ProcessSalaryForSeparatedWithZeroPresent" ng-model="PlantWiseHRMSSetting.ProcessSalaryForSeparatedWithZeroPresent" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Employee Parameter</legend>
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-10 control-label">Is Employee Code Open Field</label>
+                        <div class="col-sm-2" style="margin-left: -163px; padding-top: 8px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" name="IsEmployeeCodeOpenField" ng-model="PlantWiseHRMSSetting.IsEmployeeCodeOpenField" tabindex="8" ng-change="EmployeeCodeOpenField();">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Employee Code Check Level</label>
+                        <div class="col-sm-8" style=" padding-left: 95px; padding-right: 17px;">
+                            <div class="select-style">
+                                <select id="EmployeeCodeStart" class="form-control" ng-model="PlantWiseHRMSSetting.EmployeeCodeCheckLevel" name="EmployeeCodeStart" tabindex="1">
+                                    <option value=""></option>
+                                    <option Value="CompanyGroup">CompanyGroup</option>
+                                    <option Value="Company">Company</option>
+                                    <option Value="Plant">Plant</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-10 control-label">Is City Mandatory</label>
+                        <div class="col-sm-2" style="margin-left: -163px; padding-top: 8px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" name="IsCityMandatory" ng-model="PlantWiseHRMSSetting.IsCityMandatory" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+     
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                <div class="col-md-12" ng-show="PlantWiseHRMSSetting.IsEmployeeCodeOpenField== false">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Employee Code Start</label>
+                        <div class="col-sm-4" style="margin-left: 41px; padding-right: 22px;">
+                            <div class="select-style">
+                                <select id="EmployeeCodeStart" class="form-control" ng-model="PlantWiseHRMSSetting.EmployeeCodeStart" name="EmployeeCodeStart" tabindex="1">
+                                    <option value=""></option>
+                                    <option Value="AutoIncrement">AutoIncrement</option>
+                                    <option Value="EmpSystemId">EmpSystemId</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4" style=" margin-left: -77px; padding-left: 68px; padding-right: 0px;" ng-show="PlantWiseHRMSSetting.EmployeeCodeStart == 'AutoIncrement'">
+                            <input type="text" ng-model="PlantWiseHRMSSetting.EmpCodeStartValue" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-10 control-label">Call Attendance After Profile Entry</label>
+                        <div class="col-sm-2" style="margin-left: -202px; padding-top: 8px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" name="CallAttendanceAfterProfileEntry" ng-model="PlantWiseHRMSSetting.CallAttendanceAfterProfileEntry" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 ">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-5 control-label">Plant Prefix for Employee<sup>*</sup></label>
+                        <div class="col-sm-5 show-message" style="padding-right: 64px;">
+                            <input type="text" required name="Plant Prefix for Employee" ng-model="PlantWiseHRMSSetting.PlantPrefix" class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <div class="col-sm-2" ng-show="PlantWiseHRMSSetting.EmployeeCodeStart == 'AutoIncrement'">
+                            <div class="form-group">
+                                <label class="col-sm-10 control-label" style="margin-left: -75px;">Is Auto?</label>
+                                <div class="col-sm-2" style="margin-left: -20px; padding-top: 8px;">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" name="IsEmployeeCodeOpenField" ng-model="PlantWiseHRMSSetting.IsAutoEmpCodeWithPrefix" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-10 control-label">Is Reference Mandatory</label>
+                        <div class="col-sm-2" style="margin-left: -163px; padding-top: 8px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" name="IsReferenceRequired" ng-model="PlantWiseHRMSSetting.IsReferenceRequired" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">DOJ & DOC Parameter</legend>
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="col-md-12">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-7 control-label">Date Of Confirmation On<sup>*</sup></label>
+                        <div class="col-sm-5 show-message" style=" margin-left: -40px; padding-right: 0px;">
+                            <div class="select-style">
+                                <select id="DOCBaseON" class="form-control" ng-model="PlantWiseHRMSSetting.DOCBaseON" name="Date Of Confirmation On" ng-change="FormulaValue();" required tabindex="1">
+                                    <option value=""></option>
+                                    <option Value="Day">Day</option>
+                                    <option Value="Month">Month</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-10 control-label">Is Past DOJ Allowed</label>
+                        <div class="col-sm-2" style="margin-left: -162px; padding-top: 8px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" name="IsPastDOJAllowed" ng-model="PlantWiseHRMSSetting.IsPastDOJAllowed" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="col-md-12">
+                    <div class="form-group" ng-show="PlantWiseHRMSSetting.DOCBaseON.length > 0">
+                        <label class="col-sm-4 control-label">Confirmation {{PlantWiseHRMSSetting.DOCBaseON}}</label>
+                        <div class="col-sm-8" style="padding-left: 56px;">
+                            <input type="text" ng-model="PlantWiseHRMSSetting.DOCCount" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 ">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Past DOJ Days</label>
+                        <div class="col-sm-6" style="padding-right: 45px; margin-left: 41px;">
+                            <input type="text" ng-model="PlantWiseHRMSSetting.PastDOJDaysAllowed" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="margin-left: -48px;">Allowed</label>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">OT Parameter</legend>
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">OT Based on Plant Settings</label>
+                        <div class="col-sm-6 ">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="IsOTOverHalfDay" ng-model="PlantWiseHRMSSetting.IsOTOverHalfDay" value="true">
+                                    <span class="cr"><i class="cr-icon"></i></span>Yes
+                                </label>
+                                <label>
+                                    <input type="radio" name="IsOTOverHalfDay" ng-model="PlantWiseHRMSSetting.IsOTOverHalfDay" value="false">
+                                    <span class="cr"><i class="cr-icon"></i></span>No
+                                </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" ng-show="PlantWiseHRMSSetting.IsOTOverHalfDay == 'true'">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">OT Based on Per Minute</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox-site" style=" padding-left: 82px;">
+                                <label style="padding-top: 8px;">
+                                    <input type="checkbox" name="IsOTBasedOnPerMinute" ng-model="PlantWiseHRMSSetting.IsOTBasedOnPerMinute" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 " ng-show="PlantWiseHRMSSetting.IsOTBasedOnPerMinute == false && PlantWiseHRMSSetting.IsOTOverHalfDay =='true' ">
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">Considerable Minimum OT Limit<sup>*</sup></label>
+                        <div class="col-sm-5 " style="margin-left: 41px; padding-right: 46px;">
+                            <input type="text" name="Considerable Minimum OT Limit" ng-model="PlantWiseHRMSSetting.MinimumOTMinute" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="margin-left: -45px;"> Minutes</label>
+                    </div>
+                </div>
+                <div class="col-md-12" ng-show="PlantWiseHRMSSetting.IsOTBasedOnPerMinute == false && PlantWiseHRMSSetting.IsOTOverHalfDay =='true'">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"> Is Round Option Applicable</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox-site" style=" padding-left: 82px;">
+                                <label style="padding-top: 8px;">
+                                    <input type="checkbox" name="IsRoundOptionApplicable" ng-model="PlantWiseHRMSSetting.IsRoundOptionApplicable" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 " ng-show="PlantWiseHRMSSetting.IsRoundOptionApplicable == true && PlantWiseHRMSSetting.IsOTOverHalfDay =='true' && PlantWiseHRMSSetting.IsOTBasedOnPerMinute == false" ">
+                    <div class="form-group">
+                        <label class="col-sm-7 control-label">Round Figure For OT<sup>*</sup></label>
+                        <div class="col-sm-5 " style="margin-left: -40px;padding-right: 0px;">
+                            <input type="text" name="Round Figure For OT" ng-model="PlantWiseHRMSSetting.RoundFigureForOT" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="col-md-12 ">
+                    <br />
+                    <br />
+                </div>
+                <div class="col-md-12 ">
+                    <br />
+                    <br />
+                </div>
+                <div class="col-md-12 " ng-show="PlantWiseHRMSSetting.IsOTBasedOnPerMinute == false && PlantWiseHRMSSetting.IsOTOverHalfDay =='true'" style=" padding-top: 8px;">
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">Payable Minimum OT<sup>*</sup></label>
+                        <div class="col-sm-5 " style=" padding-right: 0px;">
+                            <input type="text" name="Payable Minimum OT" ng-model="PlantWiseHRMSSetting.PayableMinimumOT" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="padding-left: 27px;"> Minutes</label>
+                    </div>
+                </div>
+                <div class="col-md-12" ng-show="PlantWiseHRMSSetting.IsRoundOptionApplicable == true && PlantWiseHRMSSetting.IsOTOverHalfDay =='true' && PlantWiseHRMSSetting.IsOTBasedOnPerMinute == false" ">
+                    <div class="form-group">
+                        <label class="col-sm-7 control-label">OT Fraction Calculation<sup>*</sup></label>
+                        <div class="col-sm-5 " style="margin-left: -82px; padding-right: 0px; ">
+                            <div class="select-style">
+                                <select id="OTFractionCalculation" class="form-control" ng-model="PlantWiseHRMSSetting.OTFractionCalculation" name="OTFractionCalculation" tabindex="1">
+                                    <option value=""></option>
+                                    <option Value="ROUND">ROUND</option>
+                                    <option Value="ROUND UP">ROUND UP</option>
+                                    <option Value="ROUND DOWN">ROUND DOWN</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr style="width:100%;text-align:left;margin-left:0; border-top: 1px solid black;">
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">OT Confirmation Auto</label>
+                        <div class="col-sm-6">
+                            <div class="checkbox-site">
+                                <label style=" padding-top: 7px;">
+                                    <input type="checkbox" name="IsOTConfirmationAuto" ng-model="PlantWiseHRMSSetting.IsOTConfirmationAuto" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Out-Missing Validation Required For All</label>
+                        <div class="col-sm-6" style="padding-top: 7px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" name="IsOutMissingValidationRequired" ng-model="PlantWiseHRMSSetting.IsOutMissingValidationRequired" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">OT Based on Preallocation</label>
+                        <div class="col-sm-6">
+                            <div class="checkbox-site">
+                                <label style="padding-top: 7px;">
+                                    <input type="checkbox" name="IsPreallocationBasedOT" ng-model="PlantWiseHRMSSetting.IsPreallocationBasedOT" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="col-md-12">
+                    <div class="form-group" ng-show="PlantWiseHRMSSetting.IsOTConfirmationAuto == false"> 
+                        <label class="col-sm-6 control-label">OT Confirmation Not Required</label>
+                        <div class="col-sm-2">
+                            <div class="checkbox-site">
+                                <label style=" padding-top: 7px;margin-left: -40px;">
+                                    <input type="checkbox" name="IsOTConfirmationAfterLock" ng-model="PlantWiseHRMSSetting.IsOTConfirmationAfterLock" tabindex="8" ng-change="Lock();">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                        <label class="col-sm-4 control-label" style=" margin-left: -83px;">(During Day Lock)</label>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group" ng-show="PlantWiseHRMSSetting.IsOTConfirmationAuto == false">
+                        <label class="col-sm-6 control-label">Auto Zero OT Confirm </label>
+                        <div class="col-sm-6">
+                            <div class="checkbox-site">
+                                <label style=" padding-top: 7px;margin-left: -40px;">
+                                    <input type="checkbox" name="IsOTConfirmationAuto" ng-model="PlantWiseHRMSSetting.IsOTConfirmationAutoForZero" tabindex="8" ng-disabled="PlantWiseHRMSSetting.IsOTConfirmationAfterLock == true">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-7 control-label">OT Entry Consider On<sup>*</sup></label>
+                        <div class="col-sm-5 show-message" style=" padding: 0 15px 0px 0px; margin-left: -66px;">
+                            <div class="select-style">
+                                <select id="OTConsiderOn" required class="form-control" ng-model="PlantWiseHRMSSetting.OTConsiderOn" name="OT Entry Consider On" tabindex="1">
+                                    <option value=""></option>
+                                    <option Value="Hour Minute Value">Hour Minute Value</option>
+                                    <option Value="Decimal Value">Decimal Value</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Alert Parameter</legend>
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="col-md-12 ">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-5 control-label">Probation Period Alert Before<sup>*</sup></label>
+                        <div class="col-sm-5 show-message" style=" padding-left: 56px;padding-right: 9px;">
+                            <input type="text" required name="Probation Period Alert Before" ng-model="PlantWiseHRMSSetting.ProbationPeriodAlertBeforeDays" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label">Days</label>
+                    </div>
+                </div>
+                <div class="col-md-12 ">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Resignation Alert Before</label>
+                        <div class="col-sm-6" style=" padding-left: 96px;padding-right: 9px;">
+                            <input type="text" ng-model="PlantWiseHRMSSetting.ResignationAlertBeforeDays" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label">Days</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="col-md-12 ">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Increment Alert Before</label>
+                        <div class="col-sm-7" style="padding-left: 56px;">
+                            <input type="text" ng-model="PlantWiseHRMSSetting.IncrementAlertBeforeDays" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-1 control-label">Days</label>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Attandance Parameter</legend>
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-7 control-label">Default Week Off</label>
+                        <div class="col-sm-5" style="padding-left: 0px; margin-left: -26px; ">
+                            <div class="select-style">
+                                <select id="DefaultWeekOff" class="form-control" ng-model="PlantWiseHRMSSetting.DefaultWeekOff" name="DefaultWeekOff" tabindex="1">
+                                    <option value=""></option>
+                                    <option Value="Saturday">Saturday</option>
+                                    <option Value="Sunday">Sunday</option>
+                                    <option Value="Monday">Monday</option>
+                                    <option Value="Tuesday">Tuesday</option>
+                                    <option Value="Wednesday">Wednesday</option>
+                                    <option Value="Thursday">Thursday</option>
+                                    <option Value="Friday">Friday</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-10 control-label">No Punch On Holiday</label>
+                        <div class="col-sm-2" style="margin-left: -163px; padding-top: 8px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" name="NoPunchOnHoliday" ng-model="PlantWiseHRMSSetting.NoPunchOnHoliday" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-10 control-label">No Punch On Leave</label>
+                        <div class="col-sm-2" style="margin-left: -163px; padding-top: 8px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" name="NoPunchOnHoliday" ng-model="PlantWiseHRMSSetting.NoPunchOnLeave" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 ">
+                    <div class="form-group">
+                        <div class="col-md-9" style="padding-left: 0px; padding-right: 0px;">
+                            <label class="col-sm-7 control-label">Long Term absenteeism Days</label>
+                            <div class="col-sm-5" style="padding-left: 44px;">
+                                <input type="text" ng-model="PlantWiseHRMSSetting.LongTermAbesnteeism" only-numbers class="form-control" maxlength="100" tabindex="2">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="col-sm-10 control-label" style=" margin-left: -35px;">Is Auto</label>
+                            <div class="col-sm-2" style="padding-top: 8px;margin-left: -15px;">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" name="IsLongAbsenteeismAuto" ng-model="PlantWiseHRMSSetting.IsLongAbsenteeismAuto" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-10 control-label">Remote Attendance Approval Required</label>
+                        <div class="col-sm-2" style="margin-left: -180px; padding-top: 8px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" name="IsRemoteAttendanceApprovalRequired" ng-model="PlantWiseHRMSSetting.IsRemoteAttendanceApprovalRequired" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-md-5 control-label">Sandwich Absenteeism Applicable on</label>
+                        <div class="col-md-4">
+                            <div class="col-sm-7" style="margin-left: 8px;padding-top: 8px;">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" name="IsSandwichAbsentInWeekend" ng-model="PlantWiseHRMSSetting.IsSandwichAbsentInWeekend" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-5 control-label" style="margin-left: -45px;">weekend</label>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="col-sm-7" style="margin-left: -50px; padding-top: 9px;">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" name="IsSandwichAbsentInHoliday" ng-model="PlantWiseHRMSSetting.IsSandwichAbsentInHoliday" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-5 control-label" style="margin-left: -20px;">Holiday</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-10 control-label">No Punch On Weekoff</label>
+                        <div class="col-sm-2" style="margin-left: -180px;padding-top: 8px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" name="NoPunchOnWeekoff" ng-model="PlantWiseHRMSSetting.NoPunchOnWeekoff" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 ">
+                    <div class="form-group">
+                        <div class="col-md-9" style="padding-left: 0px; padding-right: 0px;">
+                            <label class="col-sm-7 control-label">To Be separated(TBS)</label>
+                            <div class="col-sm-5" style="padding-left: 29px;">
+                                <input type="text" ng-model="PlantWiseHRMSSetting.TBSDays" only-numbers class="form-control" maxlength="100" tabindex="2">
+                            </div>
+                        </div>
+                        <div class="col-md-3" style="margin-left: -28px;">
+                            <label class="col-sm-7 control-label">Is Auto</label>
+                            <div class="col-sm-5" style="padding-top: 8px;">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" name="IsTBSAuto" ng-model="PlantWiseHRMSSetting.IsTBSAuto" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-10 control-label">Is Priority Of Holiday Over WeekOff</label>
+                        <div class="col-sm-2" style="margin-left: -178px;padding-top: 8px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" name="IsPriorityOfHolidayOverWeekOff" ng-model="PlantWiseHRMSSetting.IsPriorityOfHolidayOverWeekOff" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="5"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                @*<li> <button ng-click="Clear();" class="btn" tabindex="5"><i class="glyphicon glyphicon-floppy-disk"></i> Clear</button></li>*@
+            </ul>
+        </div>
+    </div>
+
+    <div class="table-responsive modal-table aplos-grid-toggle">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Plant Name</th>
+                    <th>Plant Prefix For Employee</th>
+                    <th>Date Of Confirmation On</th>
+                    <th>OT Entry Consider On</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in MasterList" ng-dblclick="get(x);">
+                    <td>{{x.PlantName}}</td>
+                    <td>{{x.PlantPrefix}}</td>
+                    <td>{{x.DOCBaseON}}</td>
+                    <td>{{x.OTConsiderOn}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+

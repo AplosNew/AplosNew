@@ -1,0 +1,1709 @@
+﻿@*<h3 class="site-heading"><span class="glyphicon glyphicon-th-list"></span> Bill of Meterial</h3>*@
+<togglable name="Bill of Material (BOM)"></togglable>
+<div class="form-horizontal form-elements" ng-form name="bomNewForm" id="mainDiv">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Material">Finish Goods<sup>*</sup></label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <input type="text" ng-model="bomNew.FGMaterialMaster" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="getMaterial()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="bomNew.Description" tabindex="7" maxlength="250"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Article">Finish Goods Article<sup>*</sup></label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <input type="text" ng-model="bomNew.FGArticle" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="getArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearArticle();" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Product</label>
+                <label class="col-sm-8 control-label">{{bomNew.ProductMasterName}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Finish Goods UoM<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select name="UOM" class="form-control" ng-model="bomNew.UnitOfMeasurementId" ng-options="item.Value as item.Text for item in unitOfMeasurementList" tabindex="13"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" ng-show="FGmsg!=null">
+                <label class="col-sm-4 control-label"></label>
+                <label class="col-sm-8 control-label" style="color:blue;font-size: 11px;margin-bottom: -12px;font-style: italic;"> This Finish Goods <span style="text-transform:lowercase">{{FGmsg}}</span> SKU.</label>
+            </div>
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="SaveMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{bom.Id==null?'Save':'Update'}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                @*<li> <button ng-click="Copy();" class="btn" tabindex="9"><i class="glyphicon glyphicon-copy"></i> Copy</button></li>*@
+            </ul>
+        </div>
+        <div class="clearfix"></div>
+
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Details</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Attachments</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="col-xs-12">
+
+                    <div class="common-btn" id="DetailAdd">
+                        <ul class="list-inline text-left">
+                            <li>
+                                <btton ng-click="ShowDetailPopup();" tooltip data-placement="top" title="Add Detail" ng-disabled="bomNew.Id===null" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></btton>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="content-container-fluid" style="color: black;" ng-show="detailDataList.length>0">
+                        <div style="color:black;" id="Grid1" ej-grid e-datasource="detailDataList" e-allowsorting="true" e-allowscrolling="true"
+                             e-allowfiltering="true" e-gridlines="vertical" e-allowResizing="true" e-allowrowdraganddrop="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionComplete" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="140"></div>
+
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="60"></div>
+                                <div e-column e-field="Seq" e-headertext="Seq" e-width="30" e-visible="false"></div>
+                                <div e-column e-field="RMMaterialMaster" e-headertext="Raw Material" e-width="150"></div>
+                                <div e-column e-field="RMArticle" e-headertext="Raw Article" e-width="150"></div>
+                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                <div e-column e-field="Process" e-headertext="Process" e-width="80"></div>
+                                <div e-column e-field="Consumption" e-headertext="Consumption" e-width="50"></div>
+                                <div e-column e-field="UnitOfMeasurement" e-headertext="UnitOfMeasurement" e-width="50"></div>
+                                <div e-column e-field="WastagePer" e-headertext="Wastage Percentage" e-width="50"></div>
+                                <div e-column e-field="SKU1" e-headertext="SKU1" e-width="70"></div>
+                                <div e-column e-field="SKU2" e-headertext="SKU2" e-width="70"></div>
+                                <div e-column e-field="SKU3" e-headertext="SKU3" e-width="70"></div>
+                                <div e-column e-field="SKUCommon" e-headertext="SKU Common" e-width="70"></div>
+                                <div e-column e-field="Description" e-headertext="Description" e-width="150"></div>
+                                <div e-column e-field="IsConsumptionDetail" e-headertext="IsConsumptionDetail" e-width="80"></div>
+                                <div e-column e-field="CreatedBy" e-headertext="CreatedBy" e-width="80"></div>
+                                <div e-column e-field="CreationDate" e-headertext="Creation Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="ShowActionButtonsBOM">
+                        <button style="color: #f3f3ec;background-color: #1c1f32;" ng-disabled="data.IsConsumptionDetail==false" title="Consumption" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.GetConsumption(this);" style="margin: -6px;"></i></button>
+                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.GetRawMaterialDetail(this);" style="margin: -6px;"></i></button>
+                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Detail" class="btn"><i class="glyphicon glyphicon-eye-open" ng-click="$parent.GetMatrixDetail(this);" style="margin: -6px;"></i></button>
+                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeBoMDetail(this);" style="margin: -6px;"></i></button>
+                    </script>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-elements">
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Upload</label>
+                            <div class="col-sm-8">
+                                <div id="UploadDefault" e-dialogtext-title="Document" e-autoupload="true" e-begin="onBeginUpload" e-filesize="10971520" ej-uploadbox e-saveurl="uploadUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf" e-error="errorPicUpload" e-complete="LoadIssueDocumentsData"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-elements">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Description<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="bomDocuments.Description" maxlength="250" tabindex="10"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="SaveDocuments();" ng-disabled="bomDocuments.Id===null" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>File Name</th>
+                                        <th>Description</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in issueTransactionDocumentList ">
+                                        <td ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></td>
+                                        <td>{{x.Description}}</td>
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="GetDocumentData(x, $index);" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
+                                                        <i class="glyphicon glyphicon-pencil"></i>
+                                                    </button>
+                                                    <button data-toggle="modal" data-target="#confirmQualificationDelete" ng-click="confirmQualificationDelete(x)" class="btn btn-action tooltip-here" data-placement="top" title="Document Delete" tooltip>
+                                                        <i class="glyphicon glyphicon-remove"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</div>
+<div class="aplos-grid-toggle">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="content-container-fluid" style="color: black;">
+                <div style="color:black;" id="Grid" ej-grid e-datasource="masterDataList" e-recorddoubleclick="Get"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                    <div e-columns>
+                        <div e-column e-template="#ShowActionButtonsBOMGrid" e-allowfiltering="false" e-headertext="Copy" e-width="16px"></div>
+
+                        <div e-column e-field="Id" e-headertext="Id" e-width="20"></div>
+                        <div e-column e-field="MaterialGroup" e-headertext="Material Group" e-width="50"></div>
+                        <div e-column e-field="FGMaterialMaster" e-headertext="FG Material" e-width="80"></div>
+                        <div e-column e-field="FGArticle" e-headertext="FG Article" e-width="80"></div>
+                        <div e-column e-field="ProductMasterName" e-headertext="Product Master" e-width="80"></div>
+                        <div e-column e-field="Description" e-headertext="Description" e-width="100"></div>
+                    </div>
+                </div>
+                <script type="text/ng-template" id="ShowActionButtonsBOMGrid">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left small">
+                            <li>
+                                <button ng-click="$parent.openPopupAngular('confirmBOMCopy');$parent.SelectedBOMRowForCopy(data);" title="Copy" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                    <i class="glyphicon glyphicon-copy" style="color:white;"></i>
+                                </button>
+                            </li>
+
+                        </ul>
+                    </div>
+                </script>
+
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
+@*@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")*@
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
+
+<div class="modal fade site-modal in" id="detailpopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form="detailFormNew">
+            <div class="modal-header">
+                Raw Material Detail
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center form-horizontal form-elements">
+                <div class="row">
+                    <div class="form-horizontal form-elements">
+                        <div class="form-group" style="margin-left: 0px;">
+                            <label class="col-sm-3 control-label" style="font-size: 11px;margin-top: -18px;font-style: italic;">FG Material: <span style="color:blue;font-size: 11px;font-style: italic;">{{bomNew.FGMaterialMaster}}</span></label>
+                            <label class="col-sm-3 control-label" style="font-size: 11px;margin-top: -18px;font-style: italic;">FG Article: <span style="color:blue;font-size: 11px;font-style: italic;"> {{bomNew.FGArticle}}</span></label>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" hidden>
+                                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="number" name="Sequence" ng-model="bomDetailNew.Sequence" class="form-control" tabindex="1">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Material">Raw Material<sup>*</sup></label>
+                                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                    <input type="text" ng-model="bomDetailNew.RMMaterialMaster" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="getRMaterialMasterSearchData()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Consumption<sup>*</sup></label>
+                                <div class="col-sm-6" style="padding-right:0px">
+                                    <input type="text" n-decimals="4" name="Consumption" ng-model="bomDetailNew.Consumption" class="form-control" tabindex="12">
+                                </div>
+                                <div class="col-sm-2" style="padding-left:0px">
+                                    <div class="select-style">
+                                        <select name="UOM" class="form-control" ng-model="bomDetailNew.UoMId" ng-options="item.Value as item.Text for item in uOMList" tabindex="13"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Customer Specification</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Customer Specification" ng-model="bomDetailNew.CustomerSpec" class="form-control" maxlength="100" tabindex="12">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Vendor">Vendor</label>
+                                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                    <input type="text" ng-model="bomDetailNew.PartyName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showPartyPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearVendor()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Description</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="bomDetailNew.Description" tabindex="7" maxlength="250"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Destination Specific</label>
+                                <div class="col-sm-2" style="padding-top: 7px;    margin-left: -9px;">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="bomDetailNew.IsDestinationSpecific" tabindex="8" ng-change="UnCheckDestination();">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" style=" padding-right: 5px;">
+                                    @*<div class="select-style">
+                                            <select name="Destination" id="DestinationId" ng-disabled="bomDetailNew.IsDestinationSpecific == false " class="form-control" ng-model="bomDetailNew.DestinationId" ng-options="item.Value as item.Text for item in destinationList" tabindex="15">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>*@
+                                    <input id="destinationList" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-enabled="bomDetailNew.IsDestinationSpecific == true" e-multiselectmode="visualmode" e-datasource="destinationList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Article">Raw Article<sup>*</sup></label>
+                                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                    <input type="text" ng-model="bomDetailNew.RMArticle" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="getRMArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearRMArticle();" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Production Process<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="bomDetailNew.ProcessId" name="Process" ng-options="item.Value as item.Text for item in processList" required>
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Vendor Specification</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Vendor  Specification" ng-model="bomDetailNew.VendorSpec" class="form-control" maxlength="100" tabindex="12">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Wastage(%)</label>
+                                <div class="col-sm-8">
+                                    <input type="text" n-decimals="2" name="Wastage Percentage" ng-model="bomDetailNew.WastagePer" class="form-control" tabindex="12">
+                                </div>
+                            </div>
+                            @*<div class="form-group" ng-show="msg!=null">
+                                    <label class="col-sm-4 control-label"></label>
+                                    <label class="col-sm-8 control-label" style="color:blue;font-size: 11px;margin-bottom: -12px;font-style: italic;"> This Raw Material <span style="text-transform:lowercase">{{msg}}</span> SKU.</label>
+                                </div>*@
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Is Consumption Detail</label>
+                                <div class="col-sm-1">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="bomDetailNew.IsConsumptionDetail" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <label class="col-sm-7 control-label" ng-show="msg!=null" style="color:blue;font-size: 11px;margin-bottom: -12px;font-style: italic;"> This Raw Material <span style="text-transform:lowercase">{{msg}}</span> SKU.</label>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">SalesOrder Specific Material</label>
+                                <div class="col-sm-2">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="bomDetailNew.SalesOrderSpecificMaterial" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <label class="col-sm-4 control-label">PO Specific</label>
+                                <div class="col-sm-2" style="padding-top: 7px;    margin-left: -70px;">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="bomDetailNew.IsPOSpecific" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-show="showradiodiv">
+                                <div class="col-sm-8 radio">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" name="SKUCommon" ng-show="showradiocommon" ng-model="bomDetailNew.Specific" ng-change="SpecificClick();">
+                                            <span class="cr"><i class="cr-icon"></i></span><span ng-show="showradiocommon">Common</span>
+                                        </label>
+                                        <label>
+                                            <input type="checkbox" name="SKUCommon" ng-show="showradiomatrix" ng-model="bomDetailNew.SKUMatrix" ng-change="MatrixClick();">
+                                            <span class="cr"><i class="cr-icon"></i></span><span ng-show="showradiomatrix">SKU Matrix</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <btton ng-click="ShowBOMSKUMappingPopup();" ng-show="matrixrad===false" ng-disabled="bomDetailNew.Id==null" class="btn single-small-btn"><i class="glyphicon glyphicon-th"></i></btton>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!--detailModel Entry Right-->
+                        <hr ng-show="rmchar1.CharacteristicsId.length>0;" />
+                        <div class="col-xs-12 col-sm-6 col-md-6" ng-show="rmchar1.CharacteristicsId.length>0;">
+                            <div ng-show="showradiodiv">
+                                <div class="form-group" ng-show="matrixrad">
+                                    <label class="col-sm-4 control-label">{{rmchar1.Name}}<sup ng-show="matrixrad">*</sup></label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input type="text" ng-model="rmchar1.FreeText" class="form-control"
+                                                   ng-keyup="nullByFreeText('rmchar1')" disabled>
+                                            <span class="input-group-btn">
+                                                <button ng-click="findCharValueSearchData(rmchar1, 'rmchar1')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="clearCharValueField('rmchar1');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                <button ng-click="AddSKU('1st',null);" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></button>
+                                            </span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6" ng-show="rmchar2.CharacteristicsId.length>0;">
+                            <div ng-show="showradiodiv">
+                                <div class="form-group" ng-show="matrixrad">
+                                    <label class="col-sm-4 control-label">{{rmchar2.Name}}<sup ng-show="matrixrad">*</sup></label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input type="text" ng-model="rmchar2.FreeText" class="form-control"
+                                                   ng-keyup="nullByFreeText('rmchar2')" disabled>
+                                            <span class="input-group-btn">
+                                                <button ng-click="findCharValueSearchData(rmchar2, 'rmchar2')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="clearCharValueField('rmchar2');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                <button ng-click="AddSKU('2nd',null);" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></button>
+                                            </span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6" ng-show="rmchar3.CharacteristicsId.length>0;">
+                            <div ng-show="showradiodiv">
+                                <div class="form-group" ng-show="matrixrad">
+                                    <label class="col-sm-4 control-label">{{rmchar3.Name}}<sup ng-show="matrixrad">*</sup></label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input type="text" ng-model="rmchar3.FreeText" class="form-control"
+                                                   ng-keyup="nullByFreeText('rmchar3')" disabled>
+                                            <span class="input-group-btn">
+                                                <button ng-click="findCharValueSearchData(rmchar3, 'rmchar3')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="clearCharValueField('rmchar3');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                <button ng-click="AddSKU('3rd',null);" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></button>
+                                            </span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveDetail();" ng-disabled="bomNew.Id===null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        <li> <button ng-click="ClearDetail();" ng-disabled="bomNew.Id===null" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        <li> <button ng-click="CloseDetail();" class="btn" tabindex="9"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="rmaterialmastersearchpopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Raw {{materialTitle}}
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="mmPopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchbyMaterialMasterDatalist" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="mmPopUpParameters.search" ng-enter="loadMMData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadMMData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped text-left">
+                        <thead>
+                            <tr>
+                                <th>Material Type</th>
+                                <th>Material Group</th>
+                                <th>Product</th>
+                                <th>Code</th>
+                                <th>Material Name</th>
+                                <th>Base UoM</th>
+                                <th>Id</th>
+                                <th>HSN Code</th>
+                                <th>WithSKU</th>
+                                <th>IsAsset</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in materialmasterSearchData  |itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'materialmasterSearchData'"
+                                total-items="mmPopUpParameters.total_count" ng-dblclick="setRMaterialMasterData(x);">
+                                <td>{{x.MaterialTypeName}}</td>
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.ProductMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.BaseUoM}}</td>
+                                <td>{{x.Id}}</td>
+                                <td>{{x.HSNCode}}</td>
+                                <td>{{x.WithSKU?'Yes':'No'}}</td>
+                                <td>{{x.IsAsset?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'materialmasterSearchData'"
+                                             max-size="2"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadMMData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="rarticleSearchPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Article<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="articlePopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="articlePopUpParameters.search" ng-enter="loadArticleData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadArticleData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Material Group</th>
+                                <th>Material Code</th>
+                                <th>Material</th>
+                                <th>Article Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in dataPlate |itemsPerPage:articlePopUpParameters.pageSize" total-items="articlePopUpParameters.total_count"
+                                pagination-id="metaData.name + 'dataPlate'" ng-dblclick="selectRMarticle(x);">
+                                <td>{{x.MaterialGroup}}</td>
+                                <td>{{x.MaterialCode}}</td>
+                                <td>{{x.MaterialMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="2"
+                                             pagination-id="metaData.name + 'dataPlate'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadArticleData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="matrixPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Matrix  <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="tab-design" id="tab_show">
+                    <div class="site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);GetFGCharacteristicsValueCbo(bomNew.FGMaterialMasterId,BOMSKUMapping.FGFirstCharacteristicsId,BOMSKUMapping.ValueAssignmentLevel);get1RMCharacteristicsList(bomDetailNew.RMMaterialMasterId)" href="" aria-controls="FG SKU1" role="tab" data-toggle="tab">{{BOMSKUMapping.FGName1}}</a></li>
+                            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);Get2FGCharacteristicsValueCbo(bomNew.FGMaterialMasterId,BOMSKUMapping.FGSecondCharacteristicsId,BOMSKUMapping.ValueAssignmentLevel2);get2RMCharacteristicsList(bomDetailNew.RMMaterialMasterId)" href="" aria-controls="FG SKU2" role="tab" data-toggle="tab">{{BOMSKUMapping.FGName2}}</a></li>
+                            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);GetFGCharacteristicsValueCbo(bomNew.FGMaterialMasterId,BOMSKUMapping.FGThirdCharacteristicsId,BOMSKUMapping.ValueAssignmentLevel3);" href="" aria-controls="FG SKU3" role="tab" data-toggle="tab">{{BOMSKUMapping.FGName3}}</a></li>
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        <div class="col-xs-12">
+                            <div class="form-group" style="margin-left: -56px;">
+                                <label class="col-sm-4 control-label" style="font-size: 11px;margin-top: -18px;font-style: italic;">RM: <span style="color:blue;font-size: 11px;font-style: italic;">{{bomDetailNew.RMMaterialMaster}}</span></label>
+                                <label class="col-sm-8 control-label" style="font-size: 11px;margin-top: -18px;font-style: italic;">RM Article: <span style="color:blue;font-size: 11px;font-style: italic;"> {{bomDetailNew.RMArticle}}</span></label>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                            <div ng-form="SKU1Form" ng-scroll="auto">
+                                <div class="row form-elements form-horizontal">
+                                    <div class="col-xs-12">
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group" style="margin-left: -30px;">
+                                                <label class="col-sm-4 control-label">RM SKU</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select class="form-control" id="RMFirstCharacteristics" ng-model="BOMSKUMapping.RMFirstCharacteristicsId" name="Characteristics" ng-change="GetRMCharacteristicsValueCbo(bomDetailNew.RMMaterialMasterId,BOMSKUMapping.RMFirstCharacteristicsId);"
+                                                                ng-options="item.Value as item.Text for item in rm1characteristicsList" ng-disabled="bomSKU1MappingDataList.length>0">
+                                                            <option value=""></option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Consumption Specific To SKU</label>
+                                                <div class="col-sm-8">
+                                                    <div class="checkbox-site">
+                                                        <label>
+                                                            <input type="checkbox" ng-model="bomDetailNew.ConsumptionSpecificToSKU1" @*ng-disabled="bomSKU1MappingDataList.length>0"*@ />
+                                                            <span style="margin-top: 5px;" class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">{{BOMSKUMapping.FGName1}}<span style="font-size:11px">(FG)</span></label>
+                                            <div class="col-sm-8">
+                                                <input ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-datasource="FGCharacteristicsValueList" ng-model="BOMSKUMapping.FGFirstCharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">{{RMName}}<span style="font-size:11px">(RM)</span></label>
+                                            <div class="col-sm-6">
+                                                <input ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-datasource="RMCharacteristicsValueList" ng-model="BOMSKUMapping.RMFirstCharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                            </div>
+                                            <div class="col-sm-2" style="padding-left:0%">
+                                                <div class="common-btn">
+                                                    <ul class="list-inline text-right">
+                                                        <li> <button ng-click="AddSKU('1st','mat');" tooltip="Add SKU" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i></button></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Is Common</label>
+                                            <div class="col-sm-8">
+                                                <div class="checkbox-site">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="BOMSKUMapping.IsFirstCharacteristicCommon" ng-disabled="bomSKU1MappingDataList.length>0" />
+                                                        <span style="margin-top: 5px;" class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Description</label>
+                                            <div class="col-sm-8">
+                                                <textarea class="form-control" rows="2" ng-model="BOMSKUMapping.Description" tabindex="7" maxlength="250"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-1 col-md-1">
+                                        <div class="common-btn">
+                                            <ul class="list-inline text-right">
+                                                <li> <button ng-click="SaveBOMSKU1Mapping();" ng-disabled="disablebtnSave1==true" tooltip="Add SKU Mapping" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-save"></i></button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive modal-table" style="overflow:scroll">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>FG SKU</th>
+                                            <th>RM SKU</th>
+                                            @*<th>Con. Specific To SKU</th>*@
+                                            <th>Is Common</th>
+                                            <th>Description</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in bomSKU1MappingDataList">
+
+                                            <td>{{x.FGSKU1}}-{{x.FGSKU1Value}}</td>
+                                            <td @*ng-show="Sequence===1"*@>{{x.RMSKU1}}-{{x.RMSKU1Value}}</td>
+                                            @*<td ng-show="Sequence===2">{{x.RMSKU1}}-{{x.RMSKU2Value}}</td>*@
+                                            @*<td>{{x.ConsumptionSpecificToSKU1?'Yes':'No'}}</td>*@
+                                            <td>{{x.IsFirstCharacteristicCommon?'Yes':'No'}}</td>
+                                            <td>{{x.Description}}</td>
+                                            <td>
+                                                <btton ng-click="RemoveMatrix(x);" tooltip="Remove" class="btn single-small-btn"><i class="glyphicon glyphicon-trash"></i></btton>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                            <div ng-form="SKU2Form" ng-scroll="auto">
+                                <div class="row form-elements form-horizontal">
+                                    <div class="col-xs-12">
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group" style="margin-left: -30px;">
+                                                <label class="col-sm-4 control-label">RM SKU</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select class="form-control" id="RMCharacteristics" ng-model="BOMSKUMapping.RMSecondCharacteristicsId" name="Characteristics" ng-change="GetRMSKU2CharacteristicsValueCbo(bomDetailNew.RMMaterialMasterId,BOMSKUMapping.RMSecondCharacteristicsId);"
+                                                                ng-options="item.Value as item.Text for item in rm2characteristicsList" ng-disabled="bomSKU2MappingDataList.length>0">
+                                                            <option value=""></option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Consumption Specific To SKU</label>
+                                                <div class="col-sm-8">
+                                                    <div class="checkbox-site">
+                                                        <label>
+                                                            <input type="checkbox" ng-model="bomDetailNew.ConsumptionSpecificToSKU2" @*ng-disabled="bomSKU2MappingDataList.length>0"*@ />
+                                                            <span style="margin-top: 5px;" class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">{{BOMSKUMapping.FGName2}}<span style="font-size:11px">(FG)</span></label>
+                                            <div class="col-sm-8">
+                                                @*<div class="select-style">
+                                                        <select class="form-control" ng-model="BOMSKUMapping.FGSecondCharacteristicsValueId" name="Characteristics Value" ng-options="item.Value as item.Text for item in FGCharacteristicsValue2List">
+                                                            <option value=""></option>
+                                                        </select>
+                                                    </div>*@
+                                                <input ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-datasource="FGCharacteristicsValue2List" ng-model="BOMSKUMapping.FGSecondCharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        @*<div class="form-group" ng-show="RMSequence===1">
+                                                <label class="col-sm-4 control-label">{{RM2Name}}<span style="font-size:11px">(RM)</span></label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="BOMSKUMapping.RMFirstCharacteristicsValueId" name="Characteristics Value" ng-options="item.Value as item.Text for item in RMSKU2CharacteristicsValueList">
+                                                            <option value=""></option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>*@
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">{{RM2Name}}<span style="font-size:11px">(RM)</span></label>
+                                            <div class="col-sm-6">
+                                                @*<div class="select-style">
+                                                        <select class="form-control" ng-model="BOMSKUMapping.RMSecondCharacteristicsValueId" name="Characteristics Value" ng-options="item.Value as item.Text for item in RMSKU2CharacteristicsValueList">
+                                                            <option value=""></option>
+                                                        </select>
+                                                    </div>*@
+                                                <input ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-datasource="RMSKU2CharacteristicsValueList" ng-model="BOMSKUMapping.RMSecondCharacteristicsValueId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                            </div>
+                                            <div class="col-sm-2" style="padding-left:0%">
+                                                <div class="common-btn">
+                                                    <ul class="list-inline text-right">
+                                                        <li> <button ng-click="AddSKU('2nd','mat');" ng-disabled="disablebtnSave1==true" tooltip="Add SKU" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i></button></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Is Common</label>
+                                            <div class="col-sm-8">
+                                                <div class="checkbox-site">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="BOMSKUMapping.IsSecondCharacteristicCommon" ng-disabled="bomSKU2MappingDataList.length>0" />
+                                                        <span style="margin-top: 5px;" class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Description</label>
+                                            <div class="col-sm-8">
+                                                <textarea class="form-control" rows="2" ng-model="BOMSKUMapping.Description" tabindex="7" maxlength="250"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-1 col-md-1">
+                                        <div class="common-btn">
+                                            <ul class="list-inline text-right">
+                                                <li> <button ng-click="SaveBOMSKU2Mapping();" ng-disabled="disablebtnSave2==true" tooltip="Add SKU Mapping" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-save"></i></button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-responsive modal-table" style="overflow:scroll">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+
+                                                <th>FG SKU</th>
+                                                <th>RM SKU</th>
+                                                @*<th>Con. Specific To SKU</th>*@
+                                                <th>Is Common</th>
+                                                <th>Description</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in bomSKU2MappingDataList">
+
+                                                <td>{{x.FGSKU2}}-{{x.FGSKU2Value}}</td>
+
+                                                @*<td ng-show="RMSequence===1">{{x.RMSKU2}}-{{x.RMSKU1Value}}</td>*@
+                                                <td @*ng-show="RMSequence===2"*@>{{x.RMSKU2}}-{{x.RMSKU2Value}}</td>
+                                                @*<td>{{x.ConsumptionSpecificToSKU2?'Yes':'No'}}</td>*@
+                                                <td>{{x.IsSecondCharacteristicCommon?'Yes':'No'}}</td>
+                                                <td>{{x.Description}}</td>
+                                                <td>
+                                                    <btton ng-click="RemoveMatrix(x);" class="btn single-small-btn"><i class="glyphicon glyphicon-trash"></i></btton>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="matrixDetailPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> SKU Matrix<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>FGSKU1</th>
+                                <th>FGSKU2</th>
+                                <th>FGSKU3</th>
+                                <th>RMSKU1</th>
+                                <th>RMSKU2</th>
+                                <th>RMSKU3</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in bomSKUMappingDataList">
+                                <td>{{x.FGSKU1}}-{{x.FGSKU1Value}}</td>
+                                <td>{{x.FGSKU2}}-{{x.FGSKU2Value}}</td>
+                                <td>{{x.FGSKU3}}-{{x.FGSKU3Value}}</td>
+
+                                <td>{{x.RMSKU1}}-{{x.RMSKU1Value}}</td>
+                                <td>{{x.RMSKU2}}-{{x.RMSKU2Value}}</td>
+                                <td>{{x.RMSKU3}}-{{x.RMSKU3Value}}</td>
+
+                                <td>{{x.Description}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<confirm-archive-generic modalid="confirmProcessPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteMatrix();" data-ng-click-left-button="getFGCharacteristicsList(bomNew.FGMaterialMasterId);"></confirm-archive-generic>
+
+<div class="modal fade site-modal in" id="consumptionpopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form="detailconsumptionFormNew">
+            <div class="modal-header">
+                Detail Consumption
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center form-horizontal form-elements">
+                <div class="row">
+                    <div class="form-horizontal form-elements">
+
+                        <div class="col-xs-12">
+                            <div class="form-group" style="margin-left: -17px;">
+                                <label class="col-sm-3 control-label" style="font-size: 11px;margin-top: -18px;font-style: italic;">FG Material: <span style="color:blue;font-size: 11px;font-style: italic;">{{bomNew.FGMaterialMaster}}</span></label>
+                                <label class="col-sm-3 control-label" style="font-size: 11px;margin-top: -18px;font-style: italic;">FG Article: <span style="color:blue;font-size: 11px;font-style: italic;"> {{bomNew.FGArticle}}</span></label>
+
+                                <label class="col-sm-3 control-label" style="font-size: 11px;margin-top: -18px;font-style: italic;">RM: <span style="color:blue;font-size: 11px;font-style: italic;">{{bomDetailNew.RMMaterialMaster}}</span></label>
+                                <label class="col-sm-3 control-label" style="font-size: 11px;margin-top: -18px;font-style: italic;">RM Article: <span style="color:blue;font-size: 11px;font-style: italic;"> {{bomDetailNew.RMArticle}}</span></label>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Material">Raw Material<sup>*</sup></label>
+                                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                    <input type="text" ng-model="detailConsumption.RMMaterialMaster" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="getCRMaterialMasterSearchData()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Consumption<sup>*</sup></label>
+                                <div class="col-sm-6" style="padding-right:0px">
+                                    <input type="text" n-decimals="4" name="Consumption" ng-model="detailConsumption.Consumption" class="form-control" tabindex="12">
+                                </div>
+                                <div class="col-sm-2" style="padding-left:0px">
+                                    <div class="select-style">
+                                        <select name="UOM" class="form-control" ng-model="detailConsumption.UoMId" ng-options="item.Value as item.Text for item in cuOMList" tabindex="13"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Customer Specification</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Customer Specification" ng-model="detailConsumption.CustomerSpec" class="form-control" maxlength="100" tabindex="12">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Vendor">Vendor</label>
+                                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                    <input type="text" ng-model="detailConsumption.PartyName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showVendorPartyPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearVendorConsumption()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Description</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="detailConsumption.Description" tabindex="7" maxlength="250"></textarea>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Article">Raw Article<sup>*</sup></label>
+                                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                                    <input type="text" ng-model="detailConsumption.RMArticle" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="getCRMArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearCRMArticle();" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Production Process<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="detailConsumption.ProcessId" name="Process" ng-options="item.Value as item.Text for item in processList" required>
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Vendor Specification</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Vendor  Specification" ng-model="detailConsumption.VendorSpec" class="form-control" maxlength="100" tabindex="12">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Wastage(%)</label>
+                                <div class="col-sm-8">
+                                    <input type="text" n-decimals="2" name="Wastage Percentage" ng-model="detailConsumption.WastagePer" class="form-control" tabindex="12">
+                                </div>
+                            </div>
+                            <div class="form-group" ng-show="msg!=null">
+                                <label class="col-sm-4 control-label"></label>
+                                <label class="col-sm-8 control-label" style="color:blue;font-size: 11px;margin-bottom: -12px;font-style: italic;"> This Raw Material <span style="text-transform:lowercase">{{msg}}</span> SKU.</label>
+                            </div>
+                            <div class="form-group" ng-show="cshowradiodiv">
+                                <div class="col-sm-8 radio">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" name="SKUCommon" ng-show="cshowradiocommon" ng-model="detailConsumption.Specific" ng-change="CSpecificClick();">
+                                            <span class="cr"><i class="cr-icon"></i></span><span ng-show="cshowradiocommon">Specific</span>
+                                        </label>
+                                        <label>
+                                            <input type="checkbox" name="SKUCommon" ng-show="cshowradiomatrix" ng-model="detailConsumption.SKUMatrix" ng-change="CMatrixClick();">
+                                            <span class="cr"><i class="cr-icon"></i></span><span ng-show="cshowradiomatrix">SKU Matrix</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <btton ng-click="ShowDetailConsumptionSKUMappingPopup();" ng-show="cmatrixrad===false" ng-disabled="detailConsumption.Id==null" class="btn single-small-btn"><i class="glyphicon glyphicon-th"></i></btton>
+                                </div>
+                            </div>
+                        </div>
+                        <!--detailModel Entry Right-->
+                        <hr ng-show="crmchar1.CharacteristicsId.length>0;" />
+                        <div class="col-xs-12 col-sm-6 col-md-6" ng-show="crmchar1.CharacteristicsId.length>0;">
+                            <div ng-show="cshowradiodiv">
+                                <div class="form-group" ng-show="cmatrixrad">
+                                    <label class="col-sm-4 control-label">{{crmchar1.Name}}<sup ng-show="cmatrixrad">*</sup></label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input type="text" ng-model="crmchar1.FreeText" class="form-control"
+                                                   ng-keyup="nullByFreeText('crmchar1')" disabled>
+                                            <span class="input-group-btn">
+                                                <button ng-click="findCharValueSearchData(crmchar1, 'crmchar1')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="clearCharValueField('crmchar1');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6" ng-show="crmchar2.CharacteristicsId.length>0;">
+                            <div ng-show="cshowradiodiv">
+                                <div class="form-group" ng-show="cmatrixrad">
+                                    <label class="col-sm-4 control-label">{{crmchar2.Name}}<sup ng-show="cmatrixrad">*</sup></label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input type="text" ng-model="crmchar2.FreeText" class="form-control"
+                                                   ng-keyup="nullByFreeText('crmchar2')" disabled>
+                                            <span class="input-group-btn">
+                                                <button ng-click="findCharValueSearchData(crmchar2, 'crmchar2')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="clearCharValueField('crmchar2');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6" ng-show="crmchar3.CharacteristicsId.length>0;">
+                            <div ng-show="cshowradiodiv">
+                                <div class="form-group" ng-show="cmatrixrad">
+                                    <label class="col-sm-4 control-label">{{crmchar3.Name}}<sup ng-show="cmatrixrad">*</sup></label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input type="text" ng-model="crmchar3.FreeText" class="form-control"
+                                                   ng-keyup="nullByFreeText('crmchar3')" disabled>
+                                            <span class="input-group-btn">
+                                                <button ng-click="findCharValueSearchData(crmchar3, 'crmchar3')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="clearCharValueField('crmchar3');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveDetailConsumption();" ng-disabled="bomDetailNew.Id===null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        <li> <button ng-click="ClearDetailConsumption();" ng-disabled="bomDetailNew.Id===null" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="clearfix"></div>
+            <div class="content-container-fluid" style="color: black;">
+                <div style="color:black;" id="DetailConsumptionGrid" ej-grid e-datasource="DetailConsumptionDataList" e-allowsorting="true" e-allowscrolling="true"
+                     e-allowfiltering="true" e-gridlines="vertical" e-allowResizing="true" e-allowrowdraganddrop="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="DetailConsumptionActionComplete" e-allowselection="true">
+                    <div e-columns>
+                        <div e-column e-headertext="Actions" e-template="#ShowActionButtonsDC" e-width="140"></div>
+                        <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="60"></div>
+                        <div e-column e-field="RMMaterialMaster" e-headertext="Raw Material" e-width="150"></div>
+                        <div e-column e-field="RMArticle" e-headertext="Raw Article" e-width="150"></div>
+                        <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                        <div e-column e-field="Process" e-headertext="Process" e-width="80"></div>
+                        <div e-column e-field="Consumption" e-headertext="Consumption" e-width="50"></div>
+                        <div e-column e-field="UnitOfMeasurement" e-headertext="UnitOfMeasurement" e-width="50"></div>
+                        <div e-column e-field="WastagePer" e-headertext="Wastage Percentage" e-width="50"></div>
+                        <div e-column e-field="SKU1" e-headertext="SKU1" e-width="70"></div>
+                        <div e-column e-field="SKU2" e-headertext="SKU2" e-width="70"></div>
+                        <div e-column e-field="SKU3" e-headertext="SKU3" e-width="70"></div>
+                        <div e-column e-field="SKUCommon" e-headertext="SKU Common" e-width="70"></div>
+                        <div e-column e-field="Description" e-headertext="Description" e-width="150"></div>
+                    </div>
+                </div>
+            </div>
+            <script type="text/ng-template" id="ShowActionButtonsDC">
+                <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.GetDetailConsumption(this);" style="margin: -6px;"></i></button>
+                <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeBoMDetailConsumption(this);" style="margin: -6px;"></i></button>
+            </script>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="ConsumptionMatrixPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Matrix  <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="tab-design" id="tab_show">
+                    <div class="site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: isSet1(1) }"><a ng-click="setTab1(1);GetDCCharacteristicsValueCbo(DetailConsumptionSKUMapping.RMFirstCharacteristicsId,DetailConsumptionSKUMapping.ValueAssignmentLevel);getDC1RMCharacteristicsList(detailConsumption.RMMaterialMasterId);" href="" aria-controls="RM SKU1" role="tab" data-toggle="tab">{{DetailConsumptionSKUMapping.RMName1}}</a></li>
+                            <li role="presentation" ng-class="{ active: isSet1(2) }"><a ng-click="setTab1(2);GetDCCharacteristicsValue2Cbo(DetailConsumptionSKUMapping.RMSecondCharacteristicsId,DetailConsumptionSKUMapping.ValueAssignmentLevel2);getDC2RMCharacteristicsList(detailConsumption.RMMaterialMasterId);" href="" aria-controls="RM SKU2" role="tab" data-toggle="tab">{{DetailConsumptionSKUMapping.RMName2}}</a></li>
+                            <li role="presentation" ng-class="{ active: isSet1(3) }"><a ng-click="setTab1(3);GetDCCharacteristicsValueCbo(DetailConsumptionSKUMapping.RMThirdCharacteristicsId,DetailConsumptionSKUMapping.ValueAssignmentLevel3);" href="" aria-controls="RM SKU3" role="tab" data-toggle="tab">{{DetailConsumptionSKUMapping.RMName3}}</a></li>
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        <div class="col-xs-12">
+                            <div class="form-group" style="margin-left: -56px;">
+                                <label class="col-sm-3 control-label" style="font-size: 11px;margin-top: -18px;font-style: italic;">RM: <span style="color:blue;font-size: 11px;font-style: italic;">{{bomDetailNew.RMMaterialMaster}}</span></label>
+                                <label class="col-sm-3 control-label" style="font-size: 11px;margin-top: -18px;font-style: italic;">RM Article: <span style="color:blue;font-size: 11px;font-style: italic;"> {{bomDetailNew.RMArticle}}</span></label>
+
+                                <label class="col-sm-3 control-label" style="font-size: 11px;margin-top: -18px;font-style: italic;">Consumption Material: <span style="color:blue;font-size: 11px;font-style: italic;">{{detailConsumption.RMMaterialMaster}}</span></label>
+                                <label class="col-sm-3 control-label" style="font-size: 11px;margin-top: -18px;font-style: italic;">Consumption Article: <span style="color:blue;font-size: 11px;font-style: italic;"> {{detailConsumption.RMArticle}}</span></label>
+
+
+                            </div>
+                        </div>
+
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet1(1), active: isSet1(1) }">
+                            <div class="row form-elements form-horizontal">
+                                <div class="col-xs-12">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group" style="margin-left: -30px;">
+                                            <label class="col-sm-4 control-label">Sub SKU</label>
+                                            <div class="col-sm-8">
+                                                <div class="select-style">
+                                                    <select class="form-control" id="CRMFirstCharacteristics" ng-model="DetailConsumptionSKUMapping.SubFirstCharacteristicsId" name="Characteristics" ng-change="GetCRMCharacteristicsValueCbo(DetailConsumptionSKUMapping.SubFirstCharacteristicsId);"
+                                                            ng-options="item.Value as item.Text for item in crm1characteristicsList" ng-disabled="bomDetailConsumptionSKU1MappingDataList.length>0">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">{{DetailConsumptionSKUMapping.RMName1}}<span style="font-size:11px">(RM)</span></label>
+                                        <div class="col-sm-8">
+                                            <div class="select-style">
+                                                <select class="form-control" ng-model="DetailConsumptionSKUMapping.RMFirstCharacteristicsValueId" name="Characteristics Value" ng-options="item.Value as item.Text for item in DCCharacteristicsValueList">
+                                                    <option value=""></option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">{{CRMName}}<span style="font-size:11px">(Sub)</span></label>
+                                        <div class="col-sm-8">
+                                            <div class="select-style">
+                                                <select class="form-control" ng-model="DetailConsumptionSKUMapping.SubFirstCharacteristicsValueId" name="Characteristics Value" ng-options="item.Value as item.Text for item in CRMCharacteristicsValueList">
+                                                    <option value=""></option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @*<div class="form-group" ng-show="CSequence===2">
+                                            <label class="col-sm-4 control-label">{{CRMName}}<span style="font-size:11px">(Sub)</span></label>
+                                            <div class="col-sm-8">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="DetailConsumptionSKUMapping.SubSecondCharacteristicsValueId" name="Characteristics Value" ng-options="item.Value as item.Text for item in CRMCharacteristicsValueList">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>*@
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Is Common</label>
+                                        <div class="col-sm-8">
+                                            <div class="checkbox-site">
+                                                <label>
+                                                    <input type="checkbox" ng-model="DetailConsumptionSKUMapping.IsFirstCharacteristicCommon" ng-disabled="bomDetailConsumptionSKU1MappingDataList.length>0" />
+                                                    <span style="margin-top: 5px;" class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Description</label>
+                                        <div class="col-sm-8">
+                                            <textarea class="form-control" rows="2" ng-model="DetailConsumptionSKUMapping.Description" tabindex="7" maxlength="250"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 col-sm-1 col-md-1">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="SaveDetailConsumptionSKU1Mapping();" ng-disabled="disablebtnDCSave1==true" tooltip="Add SKU Mapping" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-save"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>RM SKU</th>
+                                            <th>Sub SKU</th>
+                                            <th>Is Common</th>
+                                            <th>Description</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in bomDetailConsumptionSKU1MappingDataList">
+
+                                            <td>{{x.RMSKU1}}-{{x.RMSKU1Value}}</td>
+                                            <td ng-show="CSequence===1">{{x.SUBSKU1}}-{{x.SUBSKU1Value}}</td>
+                                            <td ng-show="CSequence===2">{{x.SUBSKU1}}-{{x.SUBSKU2Value}}</td>
+                                            <td>{{x.IsFirstCharacteristicCommon?'Yes':'No'}}</td>
+                                            <td>{{x.Description}}</td>
+                                            <td>
+                                                <btton ng-click="RemoveDetailConsumptionMatrix(x);" tooltip="Remove" class="btn single-small-btn"><i class="glyphicon glyphicon-trash"></i></btton>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet1(2), active: isSet1(2) }">
+                            <div ng-form="SKU2Form">
+                                <div class="row form-elements form-horizontal">
+                                    <div class="col-xs-12">
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group" style="margin-left: -30px;">
+                                                <label class="col-sm-4 control-label">Sub SKU</label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select class="form-control" id="CRMCharacteristics" ng-model="DetailConsumptionSKUMapping.SubSecondCharacteristicsId" name="Characteristics" ng-change="GetCRMSKU2CharacteristicsValueCbo(DetailConsumptionSKUMapping.SubSecondCharacteristicsId);"
+                                                                ng-options="item.Value as item.Text for item in crm2characteristicsList" ng-disabled="bomDetailConsumptionSKU2MappingDataList.length>0">
+                                                            <option value=""></option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">{{DetailConsumptionSKUMapping.RMName2}}<span style="font-size:11px">(RM)</span></label>
+                                            <div class="col-sm-8">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="DetailConsumptionSKUMapping.RMSecondCharacteristicsValueId" name="Characteristics Value" ng-options="item.Value as item.Text for item in DCCharacteristicsValue2List">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        @*<div class="form-group" ng-show="CRMSequence===1">
+                                                <label class="col-sm-4 control-label">{{CRM2Name}}<span style="font-size:11px">(Sub)</span></label>
+                                                <div class="col-sm-8">
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="DetailConsumptionSKUMapping.SubFirstCharacteristicsValueId" name="Characteristics Value" ng-options="item.Value as item.Text for item in CRMSKU2CharacteristicsValueList">
+                                                            <option value=""></option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>*@
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">{{CRM2Name}}<span style="font-size:11px">(Sub)</span></label>
+                                            <div class="col-sm-8">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="DetailConsumptionSKUMapping.SubSecondCharacteristicsValueId" name="Characteristics Value" ng-options="item.Value as item.Text for item in CRMSKU2CharacteristicsValueList">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Is Common</label>
+                                            <div class="col-sm-8">
+                                                <div class="checkbox-site">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="DetailConsumptionSKUMapping.IsSecondCharacteristicCommon" ng-disabled="bomDetailConsumptionSKU2MappingDataList.length>0" />
+                                                        <span style="margin-top: 5px;" class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Description</label>
+                                            <div class="col-sm-8">
+                                                <textarea class="form-control" rows="2" ng-model="DetailConsumptionSKUMapping.Description" tabindex="7" maxlength="250"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-1 col-md-1">
+                                        <div class="col-xs-12 col-sm-1 col-md-1">
+                                            <div class="common-btn">
+                                                <ul class="list-inline text-right">
+                                                    <li> <button ng-click="SaveDetailConsumptionSKU2Mapping();" ng-disabled="disablebtnDCSave2==true" tooltip="Add SKU Mapping" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-save"></i></button></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+
+                                                <th>RM SKU</th>
+                                                <th>Sub SKU</th>
+                                                <th>Is Common</th>
+                                                <th>Description</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in bomDetailConsumptionSKU2MappingDataList">
+
+                                                <td>{{x.RMSKU2}}-{{x.RMSKU2Value}}</td>
+
+                                                <td ng-show="CRMSequence===1">{{x.SUBSKU2}}-{{x.SUBSKU1Value}}</td>
+                                                <td ng-show="CRMSequence===2">{{x.SUBSKU2}}-{{x.SUBSKU2Value}}</td>
+                                                <td>{{x.IsSecondCharacteristicCommon?'Yes':'No'}}</td>
+                                                <td>{{x.Description}}</td>
+                                                <td>
+                                                    <btton ng-click="RemoveDetailConsumptionMatrix(x);" class="btn single-small-btn"><i class="glyphicon glyphicon-trash"></i></btton>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet1(3), active: isSet1(3) }">
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
+<div class="modal fade site-modal in" id="VpartyPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form="partyForm">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">{{partyType}} List</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="partyParameters.searchBy">
+                                            <option value="PartyCode">{{partyType}} Code</option>
+                                            <option value="UserName">{{partyType}} Name</option>
+                                            <option ng-repeat="option in partySearchByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="partyParameters.search" ng-enter="getPartyList()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPartyList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>{{partyType}}</th>
+                                <th>Account Group</th>
+                                <th ng-show="partyGLType!=null">GL</th>
+                                <th ng-show="partyGLType!=null && companyConfig.IsVoucherFromBudget">Budget</th>
+                                <th ng-show="partyGLType!=null && companyConfig.IsVoucherFromBudget">Activity</th>
+                                <th>Currency</th>
+                                <th>Country</th>
+                                <th>State</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in partyList |itemsPerPage:partyParameters.pageSize" pagination-id="metaData.name + 'partyList'" total-items="partyParameters.total_count"
+                                ng-click="selectPartyPopUpRow($index, x.Id);" ng-class="{selected : x.Id == partySelected}" ng-dblclick="closeVendorPartyPopUp()">
+                                <td>{{x.Code}} - {{x.UserName}}</td>
+                                <td>{{x.PartyAccountGroupName}}</td>
+                                <td ng-show="partyGLType!=null && partyGLType=='Reconciliation'">{{x.ReconciliationGLCode}} - {{x.ReconciliationGLName}}</td>
+                                <td ng-show="partyGLType!=null && partyGLType=='Reconciliation' && companyConfig.IsVoucherFromBudget">{{x.ReconciliationBudgetName}}</td>
+                                <td ng-show="partyGLType!=null && partyGLType=='Reconciliation' && companyConfig.IsVoucherFromBudget">{{x.ReconciliationActivityName}}</td>
+                                <td ng-show="partyGLType!=null && partyGLType=='DownPayment'">{{x.DownPaymentGLCode}} - {{x.DownPaymentGLName}}</td>
+                                <td ng-show="partyGLType!=null && partyGLType=='DownPayment' && companyConfig.IsVoucherFromBudget">{{x.DownPaymentBudgetName}}</td>
+                                <td ng-show="partyGLType!=null && partyGLType=='DownPayment' && companyConfig.IsVoucherFromBudget">{{x.DownPaymentActivityName}}</td>
+                                <td ng-show="partyGLType!=null && partyGLType=='Suspense'">{{x.SuspenseGLCode}} - {{x.SuspenseGLName}}</td>
+                                <td ng-show="partyGLType!=null && partyGLType=='Suspense' && companyConfig.IsVoucherFromBudget">{{x.SuspenseBudgetName}}</td>
+                                <td ng-show="partyGLType!=null && partyGLType=='Suspense' && companyConfig.IsVoucherFromBudget">{{x.SuspenseActivityName}}</td>
+                                <td>{{x.CurrencyCode? x.CurrencyCode : '-'}}</td>
+                                <td>{{x.CountryName}}</td>
+                                <td>{{x.StateCode}} - {{x.StateName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="5" pagination-id="metaData.name + 'partyList'" direction-links="true" boundary-links="true" on-page-change="getPartyList(newPageNumber)"></dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeVPartyPopUp()">Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="crmaterialmastersearchpopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Raw {{materialTitle}}
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="mmPopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchbyMaterialMasterDatalist" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="mmPopUpParameters.search" ng-enter="loadMMData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadMMData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped text-left">
+                        <thead>
+                            <tr>
+                                <th>Material Type</th>
+                                <th>Material Group</th>
+                                <th>Product</th>
+                                <th>Code</th>
+                                <th>Material Name</th>
+                                <th>Base UoM</th>
+                                <th>Id</th>
+                                <th>HSN Code</th>
+                                <th>WithSKU</th>
+                                <th>IsAsset</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in materialmasterSearchData  |itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'materialmasterSearchData'"
+                                total-items="mmPopUpParameters.total_count" ng-dblclick="setCRMaterialMasterData(x);">
+                                <td>{{x.MaterialTypeName}}</td>
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.ProductMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.BaseUoM}}</td>
+                                <td>{{x.Id}}</td>
+                                <td>{{x.HSNCode}}</td>
+                                <td>{{x.WithSKU?'Yes':'No'}}</td>
+                                <td>{{x.IsAsset?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'materialmasterSearchData'"
+                                             max-size="2"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadMMData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="crarticleSearchPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Article<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="articlePopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="articlePopUpParameters.search" ng-enter="loadArticleData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadArticleData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Material Group</th>
+                                <th>Material Code</th>
+                                <th>Material</th>
+                                <th>Article Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in dataPlate |itemsPerPage:articlePopUpParameters.pageSize" total-items="articlePopUpParameters.total_count"
+                                pagination-id="metaData.name + 'dataPlate'" ng-dblclick="selectCRMarticle(x);">
+                                <td>{{x.MaterialGroup}}</td>
+                                <td>{{x.MaterialCode}}</td>
+                                <td>{{x.MaterialMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="2"
+                                             pagination-id="metaData.name + 'dataPlate'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadArticleData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic modalid="confirmBOMCopy" title="Confirmation" message="Selected BOM template will be copied. Do you proceed?" data-ng-click-right-button="CopyBOM();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDetailPopUp" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteDetailConsumptionMatrix();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmBoMDetailPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteBomDetail();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmBoMDetailConsumptionPopUp" title="Confirmation" message={{message_detailConsumptionconfirmation}} data-ng-click-right-button="DeleteBomDetailConsumption();"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmQualificationDelete" title="Confirmation" message={{message_confirmation_doc}} data-ng-click-right-button="DeleteDocument()"></confirm-archive-generic>
+
+
+<div class="modal fade site-modal in" id="SKUpopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> {{SKU}} - {{SKULevel}}<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="form-horizontal form-elements" ng-form="skuForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" n-decimals="2" name="Sequence" ng-model="characteristicsvalueNew.Sequence" class="form-control text-right" required tabindex="2">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Short Name" maxlength="15" ng-model="characteristicsvalueNew.ShortName" class="form-control" required tabindex="4">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">User Define Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="User Name" maxlength="50" ng-model="characteristicsvalueNew.UserName" class="form-control" required tabindex="6">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="characteristicsvalueNew.Remarks" name="Remarks" maxlength="250" tabindex="8" ng-trim="false"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Code" maxlength="10" ng-model="characteristicsvalueNew.Code" class="form-control" required tabindex="3">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Standard Name" maxlength="50" ng-model="characteristicsvalueNew.StandardName" class="form-control" tabindex="5" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Description</label>
+                            <div class="col-sm-8">
+                                <textarea type="text" maxlength="250" rows="2" ng-model="characteristicsvalueNew.Description" class="form-control" tabindex="7"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Is Default</label>
+                            <div class="col-sm-2">
+                                <div class="checkbox-site">
+                                    <label class="control-label">
+                                        <input type="checkbox" ng-model="characteristicsvalueNew.IsDefault">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-3 control-label">Active</label>
+                            <div class="col-sm-2">
+                                <div class="checkbox-site">
+                                    <label class="control-label">
+                                        <input type="checkbox" ng-model="characteristicsvalueNew.Active">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="SaveBOMSKUState();" class="btn" tabindex="38"><i class="glyphicon glyphicon-plus"></i> Save</button></li>
+                            <li><button ng-click="clearMasterCharacteristicsValue();" class="btn" tabindex="39"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            <li><button ng-click="CloseCharacteristicsValuePopUp();" class="btn" tabindex="40"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

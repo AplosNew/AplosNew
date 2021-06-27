@@ -1,0 +1,263 @@
+﻿<div class="text-info">
+    <h3>Long Absenteeism Assign {{Policy}}</h3>
+</div>
+<div class="form-elements form-horizontal" ng-form name="disciplinaryActionCategoryNewForm" id="MainDivId"></div>
+
+<div ng-form id="longabsent" name="longabsentNewForm" class="form-elements  form-horizontal">
+
+    <div class="tab-design" id="tab_show">
+
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="assignabsent" role="tab" data-toggle="tab">Absenteeism Assign</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="unassignabsent" role="tab" data-toggle="tab">Absenteeism Unassign</a></li>
+            </ul>
+        </div>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+                <div id="Gridunassigned" ng-init="chkinit()" ej-grid e-datasource="unassigned" e-templaterefresh="refreshTemplateUnassigned"
+                     e-recorddoubleclick="ViewEmployeeStatus" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>
+                        <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                        <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                        <div e-column e-field="designation" e-headertext="Designation" e-width="50"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-width="50"></div>
+                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="50"></div>
+                        <div e-column e-field="AbsentDays" e-headertext="Absent" e-width="40" e-textalign="right"></div>
+                        <div e-column e-field="FirstAbsentDate" e-headertext="First Absent Date" e-width="80"></div>
+                    </div>
+                </div>
+
+
+                <ul class="common-btn list-inline text-left">
+                    <li><button ng-click="Assign();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="10"></i> Assign As Long Absent</button></li>
+                </ul>
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+
+                <div id="Gridassigned" ng-init="chkinit()" ej-grid e-datasource="assigned" e-templaterefresh="refreshTemplateassigned"
+                     e-recorddoubleclick="ViewEmployeeStatus" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-headertext="" e-headertemplateid="#headerTemplateA" e-template="#checkboxTemplateA" e-textalign="center" e-width="20"></div>
+                        <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                        <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                        <div e-column e-field="designation" e-headertext="Designation" e-width="50"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-width="50"></div>
+                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="50"></div>
+                        <div e-column e-field="AbsentDays" e-headertext="Absent" e-width="40" e-textalign="right"></div>
+                        <div e-column e-field="Status" e-headertext="Status" e-width="50"></div>
+                        <div e-column e-field="FirstAbsentDate" e-headertext="First Absent Date" e-width="80"></div>
+                        <div e-column e-template="#add" e-headertext="Take Disciplinary Action" e-width="70"></div>
+                    </div>
+                </div>
+
+                <script type="text/template" id="add">
+                    <li><button ng-click="$parent.AddFunction($event);" class="btn"><i class="glyphicon glyphicon-plus" tabindex="10"></i>Take DA</button></li>
+                </script>
+
+                <ul class="common-btn list-inline text-left">
+                    <li><button ng-click="UnAssign();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="10"></i> Unassign Long Absenteeism</button></li>
+                </ul>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script type="text/x-jsrender" id="checkboxTemplate">
+        <input type="checkbox" ng-model="{{:Id}}" class="rowCheckbox" value="{{:Id}}" />
+    </script>
+    <script type="text/x-jsrender" id="headerTemplate">
+        <input type="checkbox" id="headchk" />
+    </script>
+
+    <script type="text/x-jsrender" id="checkboxTemplateA">
+        <input type="checkbox" ng-model="{{:Id}}" class="rowCheckboxA" value="{{:Id}}" />
+    </script>
+    <script type="text/x-jsrender" id="headerTemplateA">
+        <input type="checkbox" id="headchkA" />
+    </script>
+    <script type="text/x-jsrender" id="empimage">
+        <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
+    </script>
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <ej-dialog id="dialogProductionPlanView" title=" Attendance Detail" e-enablemodal="true" e-position-y="0" e-target="#longabsent" e-showoninit="false" e-close="onDialogClose" e-minwidth="900px" e-open="enableBtn">
+
+            <div class="form-element-ctrl form-horizontal">
+                <div id="gridDetail" ng-init="chkinit()" ej-grid e-datasource="attendanceStatus"
+                     e-allowfiltering="false" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                     e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="50"></div>
+                        <div e-column e-field="InTime" e-headertext="In Time" e-width="70"></div>
+                        <div e-column e-field="OutTime" e-headertext="Out Time" e-width="70"></div>
+                        <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="40"></div>
+                        <div e-column e-field="Category" e-headertext="Day Category" e-width="40"></div>
+                        <div e-column e-field="ShiftDesc" e-headertext="Shift" e-width="70"></div>
+                    </div>
+                </div>
+            </div>
+
+        </ej-dialog>
+    </div>
+</div>
+
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmlngPopUp" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="removeRow()">
+</confirm-archive-generic>
+
+
+<ej-dialog id="LongAbsenteeismInfo"
+           title="Employee Disciplinary Action"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target="#MainDivId"
+           e-close="onDialogClose"
+           e-minwidth="800"
+           e-minheight="380"
+           e-open="enableBtn">
+    <div class="row form-horizontal form-elements" ng-form>
+
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Employee Name:</label>
+                    <label class="col-sm-6 control-label">{{EmployeeName}} </label>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Employee Code:</label>
+                    <label class="col-sm-6 control-label">{{EmployeeCode}} </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Category<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="LeaveTypeID" class="form-control" ng-change="getLetterDescription()" ng-model="LongAbsModel.DisciplinaryActionCategoryId" name="Leave Type" required tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in Actionlist" value="{{option.Id}}">{{option.UserName}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <input type="text" name="User Name" ng-model="LongAbsModel.Description" class="form-control" ng-change="ChangeDuration()" tabindex="2" maxlength="50">
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group" ng-show="ShowcaseLetter=='Yes'">
+                    <label class="col-sm-4 control-label">Show Cause Letter:</label>
+                    <label class="col-sm-6 control-label">{{ShowcaseLetter}} </label>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group" ng-show="ShowcaseLetter=='Yes'">
+                    <label class="col-sm-4 control-label">Letter Name:</label>
+                    <label class="col-sm-6 control-label">{{UserName}} ({{Sequence}} of {{count}})</label>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">designation:</label>
+                    <label class="col-sm-6 control-label">{{designation}} </label>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Department:</label>
+                    <label class="col-sm-6 control-label">{{Department}} </label>
+                </div>
+            </div>
+
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-5 control-label">Incidence Date</label>
+                    <div class="col-sm-7">
+                        <input type="text" ej-datepicker e-width="80%" e-dateformat="dd-MMM-yyyy" e-value="LongAbsModel.EntryDate" e-diabled />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-5 control-label">Letter Issue Date</label>
+                    <div class="col-sm-7">
+                        <input type="text" ej-datepicker e-width="80%" e-dateformat="dd-MMM-yyyy" e-value="LongAbsModel.LetterIssueDate" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-5 control-label">Next Letter Due Date</label>
+                    <div class="col-sm-7">
+                        <input type="text" ej-datepicker e-width="80%" e-dateformat="dd-MMM-yyyy" e-value="LongAbsModel.NextLetterDueDate" />
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+            <div class="col-sm-12">
+                <div class="form-group" ng-show="ShowcaseLetter=='Yes'">
+                    <label class="col-sm-4 control-label">Letter Format<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select id="LeaveTypeID" class="form-control" ng-model="LongAbsModel.LettersFormat" name="Leave Type" required tabindex="1">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in LetterFormatList" value="{{option.Id}}">{{option.LetterName}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-sm-12">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="saveChild();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>                  
+                </ul>
+            </div>
+        </div>
+
+        <confirm-archive-generic modalid="confirmPopUpChild" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="DeleteChild();"></confirm-archive-generic>
+    </div>
+
+</ej-dialog>

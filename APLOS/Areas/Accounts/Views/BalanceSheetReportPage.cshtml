@@ -1,0 +1,66 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Balance Sheet Report</h3>
+<div class="form-elements form-horizontal" ng-form id="form" name="form">
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors id="div_FromDate">
+            <label class="col-sm-3 control-label">As On Date<sup>*</sup></label>
+            <div class="col-sm-9  show-message">
+                <input type="text" name="Date" ng-model="report.FromDate" datepicker class="form-control datepicker" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Up To<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <div class="select-style">
+                    <select id="currencyTransactionId" class="form-control" name="CurrencyTransaction" ng-model="report.IsUpToLevel" ng-change="LevelAssaign(report.IsUpToLevel)" required tabindex="3">
+                        <option ng-repeat="option in upToLevelList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        @*<div class="form-group">
+            <label class="col-sm-3 control-label">Budget</label>
+            <div class="checkbox-site">
+                <label class="col-sm-9">
+                    <input type="checkbox" id="IsBudgetLevel" ng-model="report.IsBudgetLevel" ng-click="uncheck()">
+                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Activity</label>
+            <div class="checkbox-site">
+                <label class="col-sm-9">
+                    <input type="checkbox" id="IsActivityLevel" ng-model="report.IsActivityLevel" ng-disabled="!report.IsBudgetLevel" ng-checked="report.IsActivityLevel">
+                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Account Group</label>
+            <div class="checkbox-site">
+                <label class="col-sm-9">
+                    <input type="checkbox" id="IsActivityLevel" ng-model="report.isACGroupLevel" ng-disabled="!report.IsActivityLevel" ng-checked="report.isACGroupLevel">
+                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                </label>
+            </div>
+        </div>*@
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Format<sup>*</sup></label>
+            <div class="col-sm-9 radio">
+                <label>
+                    <input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
+                    <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
+                </label>
+                <label>
+                    <input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
+                    <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+        </ul>
+    </div>
+</div>

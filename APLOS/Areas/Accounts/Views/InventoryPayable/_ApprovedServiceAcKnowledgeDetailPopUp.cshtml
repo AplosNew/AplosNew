@@ -1,0 +1,39 @@
+﻿<style>
+    .modellgModify {
+        width: 1500px;
+    }
+</style>
+<div class="modal fade site-modal in" id="GRNpopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Service Acknowledgement <button type="button" class="close" ng-click="closeGRNPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        @*style="color:black;overflow:scroll"*@
+                        <div style="color:black;" id="GRNGrid" ej-grid e-datasource="approvedGRNList" e-recorddoubleclick="selectDoubleClick"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true"  e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="PartyName" e-headertext="Party" e-width="130"></div>
+                                <div e-column e-field="Id" e-headertext="Acknowledgement No" e-width="70"></div>
+                                <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="80"></div>
+                                <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="80" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-field="TransactionAmount" e-headertext="Amount (TRN)" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="BaseAmount" e-headertext="Amount (BC)" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="POId" e-headertext="PO No" e-width="60"></div>
+                                <div e-column e-field="PORefNo" e-headertext="PO Ref No" e-width="80"></div>
+                                <div e-column e-field="PODate" e-headertext="PO Date" e-width="80" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeGRNPopUp();" class="btn"> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

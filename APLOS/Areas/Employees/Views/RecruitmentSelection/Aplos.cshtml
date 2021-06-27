@@ -1,0 +1,134 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Recruitment Selection
+</h3>
+<div ng-form name="preRecruitmentEmployeeForm" class="form-horizontal form-element-ctrl">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Plant</label>
+        <div class="col-sm-4 pdr3" style="padding-left: 5px;">
+            <div class="select-style">
+                <select id="PlantId" class="form-control" ng-model="preRecruitmentEmployee.PlantId" name="Plant" ng-change="LoadData(preRecruitmentEmployee.PlantId)">
+                    <option value="">--Select--</option>
+                    <option ng-repeat="option in plantList" value="{{option.Value}}">{{option.Text}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-2"><button ng-click="RefreshBody(preRecruitmentEmployee.PlantId);" ng-disabled="preRecruitmentEmployee.PlantId==null" class="btn"><i class="glyphicon glyphicon-refresh"></i></button></div>
+    </div>
+    <div class="form-group" show-errors>
+        <label class="col-sm-2 control-label">Sender Name<sup>*</sup></label>
+        <div class="col-sm-4 show-message pdr3" style="padding-left: 5px;">
+            <input type="text" ng-model="emailSetup.SenderName" name="Sender Name" class="form-control" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Sender Email<sup>*</sup></label>
+        <div class="col-sm-4 pdr3" style="padding-left: 5px;">
+            <input type="email" name="SenderEmail" ng-model="emailSetup.SenderEmail" class="form-control" placeholder="example@gmail.co">
+            <span class="msg-error" ng-show="preRecruitmentEmployeeForm.SenderEmail.$error.email">
+                Not valid email!
+            </span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">CC</label>
+        <div class="col-sm-4 pdr3" style="padding-left: 5px;">
+            <input type="text" class="form-control" ng-model="emailSetup.CC">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Expired Days<sup>*</sup></label>
+        <div class="col-lg-4 pdr3" style="padding-left:5px;">
+            <input type="number" ng-model="preRecruitmentEmployee.ExpiredDays" class="form-control"/>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="SelectionParameters.searchBy">
+                            <option ng-repeat="option in searchDataByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="SelectionParameters.search" ng-enter="LoadDataList()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="LoadDataList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-elements form-horizontal" ng-show="recruitmentSelections.length>0">
+    <label>Total :{{SelectionParameters.total_count}}</label>
+    <input type="hidden" ng-model="preRecruitmentEmployee.Id">
+        <div class="table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>
+                            @*Select*@
+                            <div class="checkbox-site text-center">
+                                <input type="checkbox" ng-click="CheckAll($event);">
+                            </div>
+                        </th>
+                        <th>Candidate Id</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Date of Birth</th>
+                        <th>Budget Id</th>
+                        <th>Entity</th>
+                        <th>Position</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th>Given Designation</th>
+                        <th>App Added Date</th>
+                        <th style="width: 100px;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr dir-paginate="e in recruitmentSelections |itemsPerPage:SelectionParameters.pageSize" total-items="SelectionParameters.total_count">
+                        <td class="text-right table-td">
+                            <div class="checkbox-site">
+                                <input type="checkbox" ng-model="e.Active" ng-click="selectChValueId($event,e)">
+                            </div>
+                        </td>
+                        <td>{{e.Id}}</td>
+                        <td>{{e.FullName | uppercase}}</td>
+                        <td>{{e.Email}}</td>
+                        <td>{{e.DOB | dateFiltering}}</td>
+                        <td>{{e.BudgetId}}</td>
+                        <td>{{e.EntityName}}</td>
+                        <td>{{e.PositionName}}</td>
+                        <td>{{e.Department}}</td>
+                        <td>{{e.Designation}}</td>
+                        <td>{{e.GivenDesignation}}</td>
+                        <td>{{e.AppAddedDateTime | dateFiltering}}</td>
+                        <td>
+                            <div class="select-style">
+                                <select name="Selection Status" ng-model="e.SelectionStatus" class="form-control" ng-change="pushValue(e)" ng-disabled="!e.Active" style="height: 28px;width: 100px;">
+                                   
+                                    <option ng-repeat="option in selectionstatusList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <dir-pagination-controls max-size="100"
+                                     direction-links="true"
+                                     boundary-links="true"
+                                     on-page-change="LoadDataList(newPageNumber)">
+            </dir-pagination-controls>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" ng-disabled="tempIdList.length===0" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            </ul>
+        </div>
+</div>

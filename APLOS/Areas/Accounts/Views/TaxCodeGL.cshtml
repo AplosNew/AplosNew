@@ -1,0 +1,210 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Tax Code Account Determinate
+</h3>
+<div class="form-elements" ng-form id="taxCodeGL" name="taxCodeGLForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Country<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Country" submit-required="true" ng-model="taxCodeGL.CountryId" required
+                                ng-options="item.Value as item.Text for item in countryList">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-3 control-label">COA<sup>*</sup></label>
+                <div class="col-sm-9 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="taxCodeGL.COAId" ng-options="item.Value as item.Text for item in COAList" id="COAId" name="COA" required tabindex="1">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="showAll('assing');setActiveBtn('assing');" class="btn ng-binding"><i class="glyphicon glyphicon-search"></i> All Assign</button></li>
+                    <li>
+                        <button ng-click="showAll('notassing');setActiveBtn('notassing');" class="btn ng-binding"><i class="glyphicon glyphicon-search"></i> Not Assign</button>
+                    </li>
+                    <li>
+                        <button ng-click="showAll('all');" class="btn ng-binding"><i class="glyphicon glyphicon-search"></i> All</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="table-responsive modal-table col-xs-12" ng-show="taxCodeGLWithCombineList.length>0">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th style="vertical-align: middle; text-align:center" rowspan="2">Apply</th>
+                            <th style="vertical-align: middle; text-align:center" rowspan="2">Tax Code</th>
+                            <th style="vertical-align: middle; text-align:center" rowspan="2">Creditable</th>
+                            <th style="vertical-align: middle; text-align:center" rowspan="2">Merge</th>
+                            <th style="vertical-align: middle; text-align:center" rowspan="2">Withhold</th>
+                            <th style="text-align:center" colspan="3">Withhold </th>
+                            <th style="text-align:center" colspan="3">Creditable</th>
+                            <th style="text-align:center" colspan="3">Expenses</th>
+                        </tr>
+                        <tr>
+                            <th>GL</th>
+                            <th>Budget</th>
+                            <th>Activity</th>
+                            <th>GL</th>
+                            <th>Budget</th>
+                            <th>Activity</th>
+                            <th>GL</th>
+                            <th>Budget</th>
+                            <th>Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr dir-paginate="x in taxCodeGLWithCombineList|itemsPerPage:$root.pageSize" total-items="$root.total_count">
+                            <td>
+                                <input type="radio" name="taxCodeId" ng-model="Flag" value="true" ng-click='selectChValueId(x)'>
+                            </td>
+                            <td>{{x.TaxCodeName}}</td>
+                            <td>{{x.IsCreditable? 'Yes':'No'}}</td>
+                            <td>{{x.IsMerge? 'Yes':'No'}}</td>
+                            <td>{{x.IsWithhold? 'Yes':'No'}}</td>
+                            <td>{{x.WithholdCreditableGLCode}} - {{x.WithholdCreditableGLText}}</td>
+                            <td>{{x.WithholdCreditableBudgetName}}</td>
+                            <td>{{x.WithholdCreditableActivityName}}</td>
+                            <td>{{x.CreditableGLCode}} - {{x.CreditableGLText}}</td>
+                            <td>{{x.CreditableBudgetName}}</td>
+                            <td>{{x.CreditableActivityName}}</td>
+                            <td>{{x.ExpensesGLCode}} - {{x.ExpensesGLText}}</td>
+                            <td>{{x.ExpensesBudgetName}}</td>
+                            <td>{{x.ExpensesActivityName}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+            </div>
+        </div>
+        <div class="col-xs-12 form-element-ctrl form-horizontal">
+            <br /><br />
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <fieldset class="scheduler-border" ng-show="withholdEnable">
+                    <legend class="scheduler-border">Withhold </legend>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">GL<sup>*</sup></label>
+                        <div class="col-sm-7 pdr3">
+                            <input type="text" class="form-control" ng-model="LiabilityGLInof" readonly>
+                        </div>
+                        <button name="submit" class="single-btn" ng-click="getLiabilityTypeList();"><i class="fa fa-search"></i></button>
+                        <button ng-click="refreshLiabilityGL();" class="single-btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Budget</label>
+                        <div class="col-sm-9">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="taxCodeGL.WithholdCreditableBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in liabilityBudgetList" id="BudgetId"
+                                        name="Budget" tabindex="1" ng-change="getLiabilityActivity()">
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Activity</label>
+                        <div class="col-sm-9">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="taxCodeGL.WithholdCreditableActivityId" ng-options="item.ActivityId as item.ActivityName for item in liabilityActivityList" id="ActivityId"
+                                        name="Activity" tabindex="1">
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="scheduler-border" ng-show="expensesEnable">
+                    <legend class="scheduler-border">Expenses</legend>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">GL<sup>*</sup></label>
+                        <div class="col-sm-6 pdr3">
+                            <input type="text" class="form-control" ng-model="ExpenseGLInfo" readonly>
+                        </div>
+                        <button name="submit" class="single-btn" ng-click="GetExpenseGlList();"><i class="fa fa-search"></i></button>
+                        <button ng-click="refreshExpenseGL();" class="single-btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Budget</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="taxCodeGL.ExpensesGLBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in expenseBudgetList" id="BudgetId"
+                                        name="Budget" tabindex="1" ng-change="getExpenseActivity()">
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Activity</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="taxCodeGL.ExpensesGLActivityId" ng-options="item.ActivityId as item.ActivityName for item in expenseActivityList" id="ActivityId"
+                                        name="Activity" tabindex="1">
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <fieldset class="scheduler-border" ng-show="creditableEnable">
+                    <legend class="scheduler-border">Creditable</legend>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">GL</label>
+                        <div class="col-sm-7 pdr3">
+                            <input type="text" class="form-control" ng-model="CreditableGLInof" readonly>
+                        </div>
+                        <button name="submit" class="single-btn" ng-click="getCreditableTypeList();"><i class="fa fa-search"></i></button>
+                        <button ng-click="refreshCreditableGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Budget</label>
+                        <div class="col-sm-9">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="taxCodeGL.CreditableGLBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in creditableBudgetList" id="BudgetId"
+                                        name="Budget" tabindex="1" ng-change="getCreditableActivity()">
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Activity</label>
+                        <div class="col-sm-9">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="taxCodeGL.CreditableGLActivityId" ng-options="item.ActivityId as item.ActivityName for item in creditableActivityList" id="ActivityId"
+                                        name="Activity" tabindex="1">
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>@*ng-disabled="SaveDisable"*@
+                    <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_CreditableTaxGL.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_ExpensesTaxGL.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_WithholdTaxGL.cshtml")

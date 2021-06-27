@@ -1,0 +1,146 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Consecutive Working Hours</h3>
+<div class="form-elements form-horizontal" ng-form="modelForm">
+
+    <div class="row">
+        <div class="form-elements form-horizontal" ng-form="modelForm">
+            <div class="col-md-12 col-sm-6 col-md-6">
+                <label class="col-sm-4 control-label"></label>
+                <div class="col-sm-8 text-right">
+                    <div class="radio">
+                        <label style="position:relative;"><input type="radio" name="status" ng-model="dataBasedOn" value="Daily" ng-change="isDataBasedOn()"><span class="cr"><i class="cr-icon"></i></span>For the Day</label>
+                        <label style="position:relative;"><input type="radio" name="status" ng-model="dataBasedOn" value="Period" ng-change="isDataBasedOn()"><span class="cr"><i class="cr-icon"></i></span>For the Period</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+
+
+    <div class="row">
+        <div class="form-elements form-horizontal" ng-form="modelForm">
+            <div class="col-md-12 col-sm-6 col-md-6">
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Form Date" ng-model="workingHoursFromDate" datepicker class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Comparator<sup>*</sup></label>
+                    <div class="col-sm-8">
+
+                        <div class="select-style">
+                            <select class="dtd form-control " ng-model="workingHoursComparator">
+                                <option value=">=">>=</option>
+                                <option value="<="><=</option>
+                                <option value="=">=</option>
+                                <option value=">">></option>
+                                <option value="<"><</option>
+                            </select>
+                        </div>
+
+
+                    </div>
+                </div>
+
+
+
+            </div>
+            <div class="col-md-12 col-sm-6 col-md-6">
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Form Date" ng-model="workingHoursToDate" datepicker class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Hours<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Form Date" ng-model="workingHours" class="form-control">
+                    </div>
+                </div>
+
+
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="GetGruopWiseDateWiseWorkingHours();" class="btn"> <i class="glyphicon glyphicon-refresh"></i> Generate</button></li>
+                        <li><button ng-click="PrintEmployeeWorkHourReport();" class="btn"> <i class="glyphicon glyphicon-download"></i> Download</button></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+        <div id="conPresentDiv">
+            <div  ng-show="timeShow" class="col-xs-12 col-sm-12 col-md-12">
+
+                <div id="GridWorkingHours" ej-grid
+                     e-datasource="WorkingHoursList"
+                     e-allowscrolling="true"
+                     e-pageSettings-pageSize="15"
+                     e-allowfiltering="true"
+                     e-allowpaging="true"
+                     e-enabletouch="false"
+                     e-responsive="true"
+                     e-allowselection="true"
+                     e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="50"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="LegalDesignation" e-headertext="Designation" e-allowediting="false" e-width="50"></div>
+                        <div e-column e-field="EmployeeCategorys" e-headertext="Emp Category" e-allowediting="false" e-width="80"></div>
+
+                        <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="DOJS" e-headertext="D O J" e-allowediting="false" e-width="40"></div>
+                        <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="DOSs" e-headertext="D O S" e-allowediting="false" e-width="40"></div>
+                        <div e-column e-format="{0:dd-MMM-yyyy hh:mm:ss tt}" e-type="datetime" e-field="InTime" e-headertext="In Time" e-allowediting="false" e-width="70"></div>
+                        <div e-column e-format="{0:dd-MMM-yyyy hh:mm:ss tt}" e-type="datetime" e-field="OutTime" e-headertext="Out Time" e-allowediting="false" e-width="70"></div>
+
+                        <div e-column e-type="numeric" e-format="{0:N2}" e-field="WorkHour" e-headertext="WorkHour" e-allowediting="false" e-width="30"></div>
+                    </div>
+
+                </div>
+
+
+                
+            </div>
+
+            <div ng-show="timeNotShow" class="col-xs-12 col-sm-12 col-md-12">
+
+                <div  id="GridWorkingHours" ej-grid
+                     e-datasource="WorkingHoursPeriodList"
+                     e-allowscrolling="true"
+                     e-pageSettings-pageSize="15"
+                     e-allowfiltering="true"
+                     e-allowpaging="true"
+                     e-enabletouch="false"
+                     e-responsive="true"
+                     e-allowselection="true"
+                     e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="50"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="LegalDesignation" e-headertext="Designation" e-allowediting="false" e-width="50"></div>
+                        <div e-column e-field="EmployeeCategorys" e-headertext="Emp Category" e-allowediting="false" e-width="80"></div>
+
+                        <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="DOJS" e-headertext="D O J" e-allowediting="false" e-width="40"></div>
+                        <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="DOSs" e-headertext="D O S" e-allowediting="false" e-width="40"></div>
+
+                        <div e-column e-type="numeric" e-format="{0:N2}" e-field="WorkHour" e-headertext="WorkHour" e-allowediting="false" e-width="30"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>
+

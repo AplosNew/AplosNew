@@ -1,0 +1,166 @@
+﻿
+<div class="modal fade site-modal in" id="itemDetailPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <table>
+                    <tr>
+                        <td>
+                            <span style="font-size:1.2em;">
+                                <span class="col-sm-12 col-sm-12" ng-show="Segment=='DirectMaterial'">
+                                    {{TooltipModel.Particulars}}
+                                </span>
+                                <span class="col-sm-12 col-sm-12" ng-show="Segment=='Operation' || Segment=='DirectProcess'">
+                                    {{TooltipModel.UserName}}
+                                </span>
+                                <span class="col-sm-12 col-sm-12" ng-show="Segment=='SalesExpense' || Segment=='ValueLoss' || Segment=='Profit'">
+                                    {{TooltipModel.UserName}} {{' Type('+TooltipModel.Type+')'}}
+                                </span><span>{{CostingStage=='PRE'?'(Procurement Costing)':'(Pre Costing)'}}</span>
+                            </span>
+                        </td>
+                        <td style="width:40px;"><button type="button" class="close" ng-click="closePopup('itemDetailPopUp');">&times;</button></td>
+                    </tr>
+
+
+                </table>
+            </div>
+            <div class="modal-body">
+
+                @*<div class="form-elements form-horizontal">*@
+
+                <div class="row" ng-show="Segment=='DirectMaterial'">
+                    <table style="font-size:2em!important;padding:10px!important;">
+                        <tr>
+                            <td style="width:20%;">Consumption</td>
+                            <td style="width:30%">{{TooltipModel.Consumption| number:4}}</td>
+                            <td style="width:20%">Value Loss</td>
+                            <td style="width:30%"> {{TooltipModel.ValueLoss| number:4}}</td>
+
+                        </tr>
+                        <tr>
+                            <td style="width:20%">Min. Qty</td>
+                            <td style="width:30%"> {{TooltipModel.MinimumOfQuantity| number:4}}</td>
+                            <td style="width:20%">Rate</td>
+                            <td style="width:30%"> {{TooltipModel.Rate| number:4}}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:20%">Gross Cons.</td>
+                            <td style="width:30%"> {{TooltipModel.GrossConsumption| number:4}}</td>
+                            <td style="width:20%">Gross Amount</td>
+                            <td style="width:30%"> {{TooltipModel.GrossAmount| number:4}}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:20%">Sourcing Type</td>
+                            <td style="width:30%"> {{TooltipModel.SourcingType}}</td>
+                            <td style="width:20%">Resp. Person</td>
+                            <td style="width:30%"> {{TooltipModel.ResponsiblePersoin}}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:20%">Material</td>
+                            <td style="width:30%"> {{TooltipModel.MaterialMasterName}}</td>
+                            <td style="width:20%">Article</td>
+                            <td style="width:30%"> {{TooltipModel.ArticleName}}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:20%">Usage</td>
+                            <td style="width:30%"> {{TooltipModel.Usage}}</td>
+                            <td style="width:20%">Vendor</td>
+                            <td style="width:30%"> {{TooltipModel.Vendor}}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:20%">Remarks</td>
+                            <td style="width:30%"> {{TooltipModel.Remarks}}</td>
+                            <td style="width:20%">Purchase Grp</td>
+                            <td style="width:30%"> {{TooltipModel.PurchaseGroupId}}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:20%">PO Issue Deadline</td>
+                            <td style="width:30%"> {{TooltipModel.POIssueDeadLine}}</td>
+                            <td style="width:20%">UD Applicable</td>
+                            <td style="width:30%"> {{TooltipModel.IsUDApplicable}}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="row" ng-show="Segment=='Operation'">
+                    <table style="font-size:2em!important;padding:10px!important;">
+                        <tr>
+                            <td style="width:20%">value</td>
+                            <td style="width:30%"> {{TooltipModel.Value| number:4}}</td>
+                            <td style="width:20%">Resp. Person</td>
+                            <td style="width:30%"> {{TooltipModel.ResponsiblePersoin}}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:20%">Description</td>
+                            <td style="width:30%"> {{TooltipModel.Description}}</td>
+                            <td style="width:20%"></td>
+                            <td style="width:30%"></td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+                <div class="row" ng-show="Segment=='DirectProcess'">
+                    <table style="font-size:2em!important;padding:10px!important;">
+                        <tr>
+                            <td style="width:20%">value</td>
+                            <td style="width:30%"> {{TooltipModel.Value| number:4}}</td>
+                            <td style="width:20%">Rate</td>
+                            <td style="width:30%"> {{TooltipModel.Rate}}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:20%">Amount</td>
+                            <td style="width:30%"> {{TooltipModel.Amount| number:4}}</td>
+                            <td style="width:20%">Execution Type</td>
+                            <td style="width:30%"> {{TooltipModel.ExecutionType}}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:20%">Resp. Person</td>
+                            <td style="width:30%"> {{TooltipModel.ResponsiblePersoin}}</td>
+                            <td style="width:20%">Description</td>
+                            <td style="width:30%"> {{TooltipModel.Description}}</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+                <div class="row" ng-show="Segment=='SalesExpense' || Segment=='ValueLoss' || Segment=='Profit'">
+                    <table style="font-size:2em!important;padding:10px!important;">
+                        <tr>
+                            <td style="width:20%">value</td>
+                            <td style="width:30%"> {{TooltipModel.Value| number:4}}{{TooltipModel.Type=='Fixed'?'':'%'}}</td>
+                            <td style="width:20%">Amount</td>
+                            <td style="width:30%"> {{TooltipModel.Amount| number:4}}</td>
+                        </tr>
+                        <tr>
+                            <td style="width:20%">Resp. Person</td>
+                            <td style="width:30%"> {{TooltipModel.ResponsiblePersoin}}</td>
+                            <td style="width:20%">Description</td>
+                            <td style="width:30%"> {{TooltipModel.Description}}</td>
+                        </tr>
+
+
+                    </table>
+                </div>
+
+
+
+                <div class="row text-right">
+                    <div class="common-btn" style="padding-right:10px!important;">
+                        <ul class="list-inline ">
+                            <li>
+                                <button ng-click="closePopup('itemDetailPopUp');" class="btn"><i class=""></i> Close</button>
+                            </li>
+                        </ul>
+
+                    </div>
+
+                </div>
+                @*</div>*@
+            </div>
+        </div>
+    </div>
+</div>

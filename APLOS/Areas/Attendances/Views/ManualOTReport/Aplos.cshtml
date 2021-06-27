@@ -1,0 +1,128 @@
+﻿@*<togglable name="{{title}}"></togglable>*@
+@*<span name="{{title}}"></span>*@
+@*<title>OT Manual Report</title>*@
+<togglable name="{{FormTitle}}"></togglable>
+<style>
+
+    .filled {
+        background-color: #ff0000 !important;
+    }
+</style>
+<link href="~/Scripts/BootstrapTimePicker/css/bootstrap-timepicker.css" rel="stylesheet" />
+<script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
+<script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script>
+@*To Accept only Numbers*@
+<script>
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+</script>
+<br />
+
+<div class="form-elements form-horizontal" ng-form name="OTManualReportForm">
+    <div class="row" ng-form name="General">
+        <input type="hidden" ng-model="OTManualReport.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="OTManualReport.PlantId" ng-change="GetEntity();" ng-disabled="enable"
+                                ng-options="item.Value as item.Text for item in PlantList" tabindex="1" name="Plant" required>
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name=" From Date" ng-disabled="enable" ng-model="OTManualReport.FromDate" datepicker class="form-control" required tabindex="3">
+
+                </div>
+            </div>
+
+        
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Entity</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="OTManualReport.EntityId" ng-disabled="enable"
+                                ng-options="item.Value as item.Text for item in EntityList" tabindex="2">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="To Date" ng-model="OTManualReport.ToDate" datepicker class="form-control" ng-disabled="enable" required tabindex="4" ng-change="ValidateToDate();">
+
+                </div>
+            </div>
+
+        </div>
+        <br />
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="SearchOTEmpReport()" ng-disabled="enable" class="btn" tabindex="5"><i class="glyphicon glyphicon-search"></i>Search</button></li>
+            </ul>
+        </div>
+        <div class="col-xs-12">
+            <div style="color:black;" id="SearchedOTManualReportsTab" ej-grid e-datasource="SearchedOTManualReportsList"
+                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                 e-allowselection="false" e-filtersettings-filterType="excel">
+                <div e-columns>
+                   
+                    <div e-column e-type="string" e-field="Plant" e-headertext="Plant" e-width="20"></div>
+                    <div e-column e-type="string" e-field="EntityName" e-headertext="Entity" e-width="15"></div>
+                    <div e-column e-type="string" e-field="Code" e-headertext="Employee Code" e-width="15"></div>
+                    <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="20"></div>
+                    <div e-column e-type="string" e-field="Division" e-headertext="Division" e-width="15"></div>
+                    <div e-column e-type="string" e-field="DepartmentName" e-headertext="Department" e-width="15"></div>
+                    <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="15"></div>
+                    <div e-column e-type="string" e-field="SubSection" e-headertext="Sub-Section" e-width="20"></div>
+                    <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="20"></div>
+                    <div e-column e-type="string" e-field="APDEmpWorkDate" e-headertext="Work Date" e-width="20"></div>
+                    <div e-column e-type="string" e-field="EmpShift" e-headertext="Shift" e-width="20"></div>
+                    <div e-column e-type="string" e-field="APDEmpInDateAndTime" e-headertext="In Date And Time" e-width="20"></div>
+                    <div e-column e-type="string" e-field="APDEmpOutDateAndTime" e-headertext="Out Date And Time" e-width="20"></div>
+                    <div e-column e-type="string" e-field="OverStay" e-headertext="Over Stay" e-width="15"></div>
+                    <div e-column e-type="string" e-field="ManualOT" e-headertext="OT" e-width="15"></div>
+
+                    <div e-column e-type="string" e-field="ExcessOT" e-headertext="Excess OT" e-width="15"></div>
+                    <div e-column e-type="string" e-field="LessOT" e-headertext="Less OT" e-width="15"></div>
+                    <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="20"></div>
+                    <div e-column e-type="string" e-field="LateByMin" e-headertext="Late By Minutes" e-width="15"></div>
+                    <div e-column e-type="string" e-field="WorkingMin" e-headertext="Working Minutes" e-width="15"></div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="GenerateReport()" class="btn" tabindex="6"><i class="glyphicon glyphicon-floppy-disk"></i>Generate</button></li>
+
+                <li> <button ng-click="Clear()" class="btn" tabindex="7"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+
+    </div>
+    <confirm-modal></confirm-modal>
+    <br />
+</div>

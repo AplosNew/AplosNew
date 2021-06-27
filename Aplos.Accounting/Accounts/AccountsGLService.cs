@@ -1,0 +1,542 @@
+﻿using Library.Core;
+using Library.Data;
+using Library.Data.Sql;
+using Library.Service.ChartOfAccounts;
+using Library.Service.Enums;
+using Library.Service.Logs;
+using Library.Service.Properties;
+using Library.Service.Taxations;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+
+namespace Library.Accounting.Accounts
+{
+    public class AccountsGLService
+    {
+        private readonly ISqlRepository _sqlRepository;
+        public AccountsGLService(ISqlRepository sqlRepository
+            )
+        {
+            _sqlRepository = sqlRepository;
+        }
+
+        public GridModel GetAllGLBudgetActivity(GridParameter parameters, string companyGroupId, string companyId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT  distinct AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                    , B.BudgetMasterId, B.RefNo, B.BudgetCode, B.BudgetName, A.ActivityId, A.ActivityCode, A.ActivityName--, GLTY.AccountType
+                                    FROM [HKP].[GLGeneralInfo] AS GLGI
+                                    LEFT JOIN [HKP].[GLCompanyGroup] AS GLCG ON GLCG.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[GLAccountType] AS GLTY ON GLTY.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+                                    LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
+                                    LEFT JOIN (SELECT BM.Id AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, BM.GLGeneralInfoId, BM.RefNo
+	                                    FROM [HKP].[Budget] AS B
+                                        LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.BudgetId=B.Id
+                                    ) AS B ON B.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN (SELECT A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, BA.BudgetMasterId
+	                                    FROM [HKP].[Activity] AS A
+	                                    LEFT JOIN [MST].[BudgetMasterActivity] AS BA ON BA.ActivityId=A.Id
+                                    ) AS A ON A.BudgetMasterId=B.BudgetMasterId
+                                    WHERE GLGI.Archive=0 AND GLGI.Active=1 AND GLCG.CompanyGroupId='" + companyGroupId + "' AND GLCI.CompanyId='" + companyId + "'";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        public GridModel GetNonReconAssetLiabilityGLBudgetActivityList(GridParameter parameters, string companyGroupId, string companyId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, B.BudgetMasterId, B.RefNo, B.BudgetCode, B.BudgetName
+                                    , A.ActivityId, A.ActivityCode, A.ActivityName
+                                    FROM [HKP].[GLGeneralInfo] AS GLGI
+                                    LEFT JOIN [HKP].[GLCompanyGroup] AS GLCG ON GLCG.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+                                    LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
+                                    LEFT JOIN (SELECT BM.Id AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, BM.GLGeneralInfoId, BM.RefNo
+	                                    FROM [HKP].[Budget] AS B
+                                        LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.BudgetId=B.Id
+                                    ) AS B ON B.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN (SELECT A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, BA.BudgetMasterId
+	                                    FROM [HKP].[Activity] AS A
+	                                    LEFT JOIN [MST].[BudgetMasterActivity] AS BA ON BA.ActivityId=A.Id
+                                    ) AS A ON A.BudgetMasterId=B.BudgetMasterId
+                                    WHERE GLGI.Archive=0 AND GLGI.Active=1 AND GLCG.CompanyGroupId='" + companyGroupId + "' AND GLCI.CompanyId='" + companyId + @"' 
+                                    AND GLGI.Id NOT IN (SELECT GLAT.GLGeneralInfoId FROM [HKP].[GLAccountType] as GLAT WHERE GLAT.GLGeneralInfoId<>'') AND ACT.Id IN ('Asset','Liability')";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        private static string GetGLSQL()
+        {
+            return @"SELECT GLGI.COAId, C.UserName AS COA, GLGI.AccountGroupId, AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                        FROM [HKP].[GLGeneralInfo] AS GLGI
+                        JOIN [HKP].[GLCompanyGroup] AS GLCG ON glcg.GLGeneralInfoId=GLGI.Id
+                        LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+                        LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
+                        LEFT JOIN [HKP].[GLAccountType] AS GLAT ON GLAT.GLGeneralInfoId=GLGI.Id
+                        LEFT JOIN [HKP].[COA] AS C ON C.Id=GLGI.COAId
+                        WHERE GLGI.Active=1 AND GLGI.Archive=0 ";
+        }
+        public GridModel GetAssetLiabilityGLListTaxRecon(GridParameter parameters, string coaId)
+        {
+            try
+            {
+                parameters.CmdText = GetGLSQL() + " AND GLGI.COAId = '" + coaId + "' AND ACT.Id IN ('" + AccountTypeEnum.Asset + "','" + AccountTypeEnum.Liability + "') AND GLGI.IsPostingAutomaticOnly=0 " +
+                    "AND GLGI.Id  IN (SELECT GLAT.GLGeneralInfoId FROM [HKP].[GLAccountType] as GLAT WHERE GLAT.GLGeneralInfoId<>'' AND GLAT.AccountType='Tax') ";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        public GridModel GetExpenseGLList(GridParameter parameters, string coaId)
+        {
+            try
+            {
+                parameters.CmdText = GetGLSQL() + " AND GLGI.COAId = '" + coaId + "' AND ACT.Id in ('" + AccountTypeEnum.Expense + "','"+ AccountTypeEnum.Asset + @"')
+                    AND GLGI.Id NOT IN (SELECT GLAT.GLGeneralInfoId FROM [HKP].[GLAccountType] as GLAT WHERE GLAT.GLGeneralInfoId<>'')";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public GridModel GetExpenseGLTaxRecon(GridParameter parameters, string coaId)
+        {
+            try
+            {
+                parameters.CmdText = GetGLSQL() + " AND GLGI.COAId = '" + coaId + "' AND ACT.Id='" + AccountTypeEnum.Expense  +"' "+ 
+                    "AND GLGI.Id IN(SELECT GLAT.GLGeneralInfoId FROM [HKP].[GLAccountType] as GLAT WHERE GLAT.GLGeneralInfoId <> '' AND GLAT.AccountType = 'Tax') ";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        public GridModel GetCreditableGLTaxRecon(GridParameter parameters, string coaId, string companyGroupId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT DISTINCT glgi.COAId, GLGI.Id AS CreditableGL, GLGI.Id AS GLGeneralInfoId, GLGI.UserName AS CreditableGLItem, GLGI.UserName AS GLGeneralInfoName,
+                                    GLGI.AccountCode AS CreditableGLCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.AccountGroupId, ag.UserName AS AccountGroupName, c.UserName AS COA
+                                    FROM HKP.[GLGeneralInfo] AS GLGI
+                                    LEFT JOIN HKP.[GLCompanyInfo] AS GLCI ON glci.GLGeneralInfoId = GLGI.Id
+                                    LEFT JOIN  HKP.[AccountGroup] AS AG ON AG.Id = GLGI.AccountGroupId
+                                    LEFT JOIN HKP.AccountType AS ACT ON ACT.Id = AG.AccountTypeId
+                                    LEFT JOIN  HKP.[GLCompanyGroup] AS GLCG  ON GLCG.GLGeneralInfoId = GLGI.Id
+                                    LEFT JOIN  HKP.[COA] AS c ON c.Id = GLGI.COAId
+                                    WHERE ACT.Id='" + AccountTypeEnum.Asset + @"'
+                                    AND GLGI.COAId='" + coaId + "' AND GLGI.Archive = 0 AND GLCG.CompanyGroupId='" + companyGroupId + @"'
+                                    AND GLGI.Active=1 AND  GLGI.Id  IN (SELECT GLAT.GLGeneralInfoId FROM [HKP].[GLAccountType] as GLAT WHERE GLAT.GLGeneralInfoId<>'' AND GLAT.AccountType = 'Tax')";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        public GridModel GetWithHoldGLSetupTaxRecon(GridParameter parameters, string coaId, string comgroupid)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT DISTINCT  glgi.COAId, glgi.Id AS WithholdCreditableGL, glgi.Id AS GLGeneralInfoId, glgi.UserName AS GLGeneralInfoName,
+                                      glgi.UserName AS WithHoldGLItem, glgi.AccountCode AS GLGeneralInfoCode, glgi.AccountCode AS WithHoldGLCode, glgi.AccountGroupId,
+                                      ag.UserName AS AccountGroupName, c.UserName AS COA
+                                    FROM HKP.[GLGeneralInfo] AS glgi
+                                    LEFT JOIN HKP.[AccountGroup] AS ag ON AG.Id=glgi.AccountGroupId
+                                    LEFT JOIN HKP.AccountType AS ACT ON ACT.Id=AG.AccountTypeId
+                                    LEFT JOIN HKP.[GLCompanyGroup] AS glcg  ON glcg.GLGeneralInfoId = glgi.Id
+                                    LEFT JOIN HKP.[COA] AS c ON c.Id=glgi.COAId
+                                    WHERE ACT.Id='" + AccountTypeEnum.Liability + @"'
+                                    AND glgi.COAId='" + coaId + @"' AND glcg.CompanyGroupId='" + comgroupid + @"'  AND glgi.Archive=0 AND glgi.Active=1 AND  GLGI.Id  IN (SELECT GLAT.GLGeneralInfoId FROM [HKP].[GLAccountType] as GLAT WHERE GLAT.GLGeneralInfoId<>'' AND GLAT.AccountType = 'Tax')";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        public GridModel GetInvoiceGLBudgetList(GridParameter parameters, string companyGroupId, string companyId, string AccountType)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT GLGI.COAId, C.UserName AS COA, GLGI.AccountGroupId, AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                    , BU.BudgetMasterId, BU.BudgetCode, BU.BudgetName,BU.RefNo, A.ActivityId, A.ActivityCode, A.ActivityName
+                                    FROM [HKP].[GLGeneralInfo] AS GLGI
+                                    LEFT JOIN HKP.[GLCompanyInfo]AS GLCI ON GLCI.GLGeneralInfoId = GLGI.Id
+                                    LEFT JOIN HKP.[AccountGroup]  AS AG ON AG.Id = GLGI.AccountGroupId
+                                    LEFT JOIN HKP.[AccountType]  AS ACT ON ACT.Id = AG.AccountTypeId
+                                    LEFT JOIN HKP.[GLCompanyGroup] AS glcg ON glcg.GLGeneralInfoId = GLGI.Id
+                                    LEFT JOIN HKP.[COA] AS C ON C.Id = GLGI.COAId
+                                    LEFT JOIN (SELECT BM.Id AS BudgetMasterId,BM.RefNo, B.Code AS BudgetCode, B.UserName AS BudgetName, BM.GLGeneralInfoId FROM HKP.Budget AS B
+                                        LEFT JOIN [MST].[BudgetMaster] AS BM ON B.Id=BM.BudgetId
+                                    ) AS BU ON BU.GLGeneralInfoId=GLGI.Id
+                                    LEFT OUTER JOIN (SELECT A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, BM.Id AS BudgetMasterId  FROM HKP.Activity AS A
+										LEFT OUTER JOIN [MST].[BudgetMasterActivity] AS BA ON A.Id= BA.ActivityId
+										LEFT OUTER JOIN [MST].[BudgetMaster] AS BM ON BA.BudgetMasterId=BM.Id
+										LEFT OUTER JOIN HKP.Budget AS B ON BM.BudgetId = B.Id
+									) AS A ON A.BudgetMasterId=BU.BudgetMasterId
+                                    WHERE glcg.CompanyGroupId='" + companyGroupId + @"' AND GLCI.CompanyId='" + companyId + @"' AND ACT.Id in ('" + AccountType + @"','Asset','Liability') AND GLGI.Active = 1 AND GLGI.Archive = 0
+                                    AND GLGI.Id NOT IN(SELECT BM.GLGeneralInfoId FROM [MST].[BankMaster] AS BM  WHERE BM.GLGeneralInfoId <> '')
+                                    AND GLGI.Id NOT IN(SELECT CM.GLGeneralInfoId FROM [MST].[CashMaster] AS CM  WHERE CM.GLGeneralInfoId <> '') 
+                                    AND  GLGI.Id NOT IN (SELECT GLAT.GLGeneralInfoId FROM [HKP].[GLAccountType] as GLAT WHERE GLAT.GLGeneralInfoId<>'')";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        public List<Dictionary<string, object>> GetAdditionalTaxCbo(DateTime postingDate, string companyId)
+        {
+            try
+            {
+                var sql = @"SELECT DISTINCT TC.Id, TC.UserName,TCY.[Type],TCD.ValueOfFixed,TC.TaxCategoryId
+                        FROM [MST].[TaxCodeYear] AS TCY
+                        LEFT JOIN [MST].[TaxCode] AS TC ON TC.Id = TCY.TaxCodeId
+                        LEFT JOIN [MST].[TaxCodeGL] AS TCGL ON TC.Id = TCGL.TaxCodeId
+					    LEFT JOIN [SCS].[TaxYear] AS TY ON TY.Id=TCY.TaxYearId
+						LEFT JOIN [SCS].[TaxYearPeriod] AS TYP ON TYP.TaxYearId=TY.Id
+                        LEFT JOIN [ORG].Company AS CO ON CO.COAId=TCGL.COAId
+                        LEFT JOIN MST.TaxCategory TCA ON TCA.Id=TC.TaxCategoryId
+						LEFT JOIN MST.TaxCodeDetail TCD ON TCD.TaxCodeId=TC.Id AND TCD.TaxCodeYearId=TCY.Id
+                        WHERE TC.InputOrOutput='" + TaxCodeInputOutput.Input + @"'
+						AND TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + companyId + @"' 
+                         AND TCA.TaxCategoryType='TCS'
+                    --UNION ALL
+						-- SELECT DISTINCT TC.Id, TC.UserName AS Text
+                        --FROM [MST].[TaxCodeYear] AS TCY
+                        --LEFT JOIN [MST].[TaxCode] AS TC ON TC.Id = TCY.TaxCodeId
+                        --LEFT JOIN [MST].[TaxCodeGL] AS TCGL ON TC.Id = TCGL.TaxCodeId
+					   -- LEFT JOIN [SCS].[TaxYear] AS TY ON TY.Id=TCY.TaxYearId
+						--LEFT JOIN [SCS].[TaxYearPeriod] AS TYP ON TYP.TaxYearId=TY.Id
+                       -- LEFT JOIN [ORG].Company AS CO ON CO.COAId=TCGL.COAId
+                       -- LEFT JOIN MST.TaxCategory TCA ON TCA.Id=TC.TaxCategoryId
+                       -- WHERE TC.InputOrOutput='Input'
+						--AND TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + companyId + @"' 
+                        -- AND TC.IsRCM=0
+                    ";
+                var data = _sqlRepository.GetDataCollection(sql);
+                if (null == data)
+                    throw new CustomException(ResourcesCore.FYNotFound);
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public List<Dictionary<string, object>> GetAdditionalTaxOutputCbo(DateTime postingDate, string companyId)
+        {
+            try
+            {
+                var sql = @"SELECT DISTINCT TC.Id, TC.UserName,TCY.[Type],TCD.ValueOfFixed,TC.TaxCategoryId
+                        FROM [MST].[TaxCodeYear] AS TCY
+                        LEFT JOIN [MST].[TaxCode] AS TC ON TC.Id = TCY.TaxCodeId
+                        LEFT JOIN [MST].[TaxCodeGL] AS TCGL ON TC.Id = TCGL.TaxCodeId
+					    LEFT JOIN [SCS].[TaxYear] AS TY ON TY.Id=TCY.TaxYearId
+						LEFT JOIN [SCS].[TaxYearPeriod] AS TYP ON TYP.TaxYearId=TY.Id
+                        LEFT JOIN [ORG].Company AS CO ON CO.COAId=TCGL.COAId
+                        LEFT JOIN MST.TaxCategory TCA ON TCA.Id=TC.TaxCategoryId
+						LEFT JOIN MST.TaxCodeDetail TCD ON TCD.TaxCodeId=TC.Id AND TCD.TaxCodeYearId=TCY.Id
+                        WHERE TC.InputOrOutput='" + TaxCodeInputOutput.Output + @"'
+						AND TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + companyId + @"' 
+                         AND TCA.TaxCategoryType='TCS'
+                    ";
+                var data = _sqlRepository.GetDataCollection(sql);
+                if (null == data)
+                    throw new CustomException(ResourcesCore.FYNotFound);
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public List<Dictionary<string, object>> GetTDSCbo(DateTime postingDate, string companyId)
+        {
+            try
+            {
+                var sql = @"SELECT DISTINCT TC.Id, TC.UserName,TCY.[Type],TCD.ValueOfFixed,TC.TaxCategoryId
+                        FROM [MST].[TaxCodeYear] AS TCY
+                        LEFT JOIN [MST].[TaxCode] AS TC ON TC.Id = TCY.TaxCodeId
+                        LEFT JOIN [MST].[TaxCodeGL] AS TCGL ON TC.Id = TCGL.TaxCodeId
+					    LEFT JOIN [SCS].[TaxYear] AS TY ON TY.Id=TCY.TaxYearId
+						LEFT JOIN [SCS].[TaxYearPeriod] AS TYP ON TYP.TaxYearId=TY.Id
+                        LEFT JOIN [ORG].Company AS CO ON CO.COAId=TCGL.COAId
+                        LEFT JOIN MST.TaxCategory TCA ON TCA.Id=TC.TaxCategoryId
+						LEFT JOIN MST.TaxCodeDetail TCD ON TCD.TaxCodeId=TC.Id AND TCD.TaxCodeYearId=TCY.Id
+                        WHERE TC.InputOrOutput='" + TaxCodeInputOutput.Input + @"'
+						AND TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + companyId + @"' 
+                         AND TCA.TaxCategoryType='TDS'
+                    ";
+                var data = _sqlRepository.GetDataCollection(sql);
+                if (null == data)
+                    throw new CustomException(ResourcesCore.FYNotFound);
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        private Dictionary<string, object> GetCompanyCOAId(string companyId)
+        {
+            var cmdText = @"select COAId from org.Company where Id = '" + companyId + "'";
+            return _sqlRepository.GetData(cmdText);
+        }
+        public Dictionary<string, object> GetTaxCodeById(string companyId, string taxCodeId, string invoiceTaxId, DateTime postingDate)
+        {
+            try
+            {
+
+                var coaId = GetCompanyCOAId(companyId);
+                var sql = @"SELECT tc.Id AS TaxCodeId, tc.TaxCategoryId, tc.Code, tc.UserName, tc.Description, tc.ManuallyEditable,
+                            tc.IsMerge, tc.IsCreditable, tc.IsWithhold, vit.TaxAmount, vit.TaxAutoAmount, 0 Sequence,tc.IsRCM,
+                            tgl.CreditableGLId, tgl.ExpensesGLId, tgl.WithholdCreditableGLId, vit.Id,TCY.[Type],TCY.ValueOfFixed
+                            FROM MST.TaxCode AS tc
+                            LEFT JOIN(SELECT T.TaxCodeId,T.[Type],TCD.ValueOfFixed FROM  MST.TaxCodeYear T LEFT JOIN SCS.TaxYear TY ON T.TaxYearId=TY.Id
+							LEFT JOIN MST.TaxCodeDetail TCD ON TCD.TaxCodeYearId=T.Id
+							WHERE TY.StartDate<='" + postingDate.ToDbDate() + "' AND TY.EndDate >='" + postingDate.ToDbDate() + @"'
+							  ) TCY ON TCY.TaxCodeId=tc.Id 
+                            LEFT OUTER JOIN (SELECT vt.TaxAmount, vt.TaxAutoAmount, vt.TaxCodeId, vt.Id
+                            FROM TRN.InvoiceTax AS vt
+                            WHERE vt.Id = '" + invoiceTaxId + @"') AS vit
+                            ON vit.TaxCodeId = tc.Id
+                            LEFT  JOIN (SELECT tcg.CreditableGLId, tcg.WithholdCreditableGLId, tcg.ExpensesGLId, tcg.TaxCodeId
+                            FROM MST.TaxCodeGL AS tcg WHERE tcg.COAId = '" + coaId["COAId"].ToString() + @"') AS tgl
+                            ON tgl.TaxCodeId = tc.Id WHERE tc.Id = '" + taxCodeId + "'";
+                return _sqlRepository.GetData(sql, taxCodeId);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public IEnumerable<object> GetTaxCodeInputVATGST(DateTime postingDate, string companyId)
+        {
+            try
+            {
+                var sql = @"SELECT DISTINCT TC.Id, TC.UserName AS Text, TC.IsWithhold, TC.IsCreditable, TC.IsMerge
+                        FROM [MST].[TaxCodeYear] AS TCY
+                        LEFT JOIN [MST].[TaxCode] AS TC ON TC.Id = TCY.TaxCodeId
+                        LEFT JOIN [MST].[TaxCodeGL] AS TCGL ON TC.Id = TCGL.TaxCodeId
+					    LEFT JOIN [SCS].[TaxYear] AS TY ON TY.Id=TCY.TaxYearId
+						LEFT JOIN [SCS].[TaxYearPeriod] AS TYP ON TYP.TaxYearId=TY.Id
+                        LEFT JOIN MST.TaxCategory TCT ON TCT.Id=TC.TaxCategoryId
+                        LEFT JOIN [ORG].Company AS CO ON CO.COAId=TCGL.COAId
+                        WHERE TC.InputOrOutput='" + TaxCodeInputOutput.Input + @"' AND TCT.TaxCategoryType IN ('GST','VAT')
+						AND TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + companyId + "'";
+                var data = _sqlRepository.GetCombo(sql, "Id", "Text");
+                if (null == data)
+                    throw new CustomException(ResourcesCore.FYNotFound);
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public IEnumerable<object> GetTaxCodeOutputVATGST(DateTime postingDate, string companyId)
+        {
+            try
+            {
+                var sql = @"SELECT DISTINCT TC.Id, TC.UserName AS Text, TC.IsWithhold, TC.IsCreditable, TC.IsMerge
+                        FROM [MST].[TaxCodeYear] AS TCY
+                        LEFT JOIN [MST].[TaxCode] AS TC ON TC.Id = TCY.TaxCodeId
+                        LEFT JOIN [MST].[TaxCodeGL] AS TCGL ON TC.Id = TCGL.TaxCodeId
+					    LEFT JOIN [SCS].[TaxYear] AS TY ON TY.Id=TCY.TaxYearId
+						LEFT JOIN [SCS].[TaxYearPeriod] AS TYP ON TYP.TaxYearId=TY.Id
+                        LEFT JOIN MST.TaxCategory TCT ON TCT.Id=TC.TaxCategoryId
+                        LEFT JOIN [ORG].Company AS CO ON CO.COAId=TCGL.COAId
+                        WHERE TC.InputOrOutput='" + TaxCodeInputOutput.Output + @"' AND TCT.TaxCategoryType IN ('GST','VAT')
+						AND TYP.StartDate <='" + postingDate.ToDbDate() + "' AND TYP.EndDate >='" + postingDate.ToDbDate() + "' AND CO.Id='" + companyId + "'";
+                var data = _sqlRepository.GetCombo(sql, "Id", "Text");
+                if (null == data)
+                    throw new CustomException(ResourcesCore.FYNotFound);
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        public GridModel GetGLListByCOA(GridParameter parameters, string coaId, AccountTypeEnum accountType, ReconcileAccountEnum glAccountType)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT GLGI.COAId, C.UserName AS COAName, GLGI.AccountGroupId, AG.Code AS AccountGroupCode, AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId
+                                        , GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName--, BM.BudgetMasterId, BM.BudgetCode, BM.BudgetName, BMA.ActivityId, BMA.ActivityCode, BMA.ActivityName
+                                        FROM HKP.[GLGeneralInfo] AS GLGI
+                                        JOIN HKP.[GLCompanyGroup] AS GLCG ON GLCG.GLGeneralInfoId=GLGI.Id
+                                        LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+                                        LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
+                                        LEFT JOIN [HKP].[GLAccountType] AS GLAT ON GLAT.GLGeneralInfoId=GLGI.Id
+                                        LEFT JOIN [HKP].[COA] AS C ON C.Id=GLGI.COAId
+                                        --LEFT JOIN (
+	                                        --SELECT BM.GLGeneralInfoId, BM.Id AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName FROM [MST].[BudgetMaster] AS BM
+	                                        --LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                        --)AS BM ON BM.GLGeneralInfoId=GLGI.Id
+                                        --LEFT JOIN (
+	                                        --SELECT BMA.BudgetMasterId, A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName FROM [MST].[BudgetMasterActivity] AS BMA
+	                                        --LEFT JOIN [HKP].[Activity] AS A ON A.Id=BMA.ActivityId
+                                        --) AS BMA ON BMA.BudgetMasterId=BM.BudgetMasterId
+                                        WHERE GLGI.Archive=0 AND GLGI.Active=1 AND GLGI.COAId='" + coaId + "' AND ACT.Id='" + accountType + "' AND GLAT.AccountType='" + glAccountType + "'";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        public GridModel GetReconeGLPartyAccountGroup(GridParameter parameters, string coaId, AccountTypeEnum accountType, ReconcileAccountEnum glAccountType)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT GLGI.COAId, C.UserName AS COAName, GLGI.AccountGroupId, AG.Code AS AccountGroupCode, AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId
+                                        , GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, BM.BudgetMasterId, BM.BudgetCode, BM.BudgetName, BMA.ActivityId, BMA.ActivityCode, BMA.ActivityName
+                                        FROM HKP.[GLGeneralInfo] AS GLGI
+                                        JOIN HKP.[GLCompanyGroup] AS GLCG ON GLCG.GLGeneralInfoId=GLGI.Id
+                                        LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+                                        LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
+                                        LEFT JOIN [HKP].[GLAccountType] AS GLAT ON GLAT.GLGeneralInfoId=GLGI.Id
+                                        LEFT JOIN [HKP].[COA] AS C ON C.Id=GLGI.COAId
+                                        LEFT JOIN (
+	                                        SELECT BM.GLGeneralInfoId, BM.Id AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName FROM [MST].[BudgetMaster] AS BM
+	                                        LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                        )AS BM ON BM.GLGeneralInfoId=GLGI.Id
+                                        LEFT JOIN (
+	                                        SELECT BMA.BudgetMasterId, A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName FROM [MST].[BudgetMasterActivity] AS BMA
+	                                        LEFT JOIN [HKP].[Activity] AS A ON A.Id=BMA.ActivityId
+                                        ) AS BMA ON BMA.BudgetMasterId=BM.BudgetMasterId
+                                        WHERE GLGI.Archive=0 AND GLGI.Active=1 AND GLGI.COAId='" + coaId + "' AND ACT.Id='" + accountType + "' AND GLAT.AccountType='" + glAccountType + "'";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        public List<Dictionary<string, object>> GetExpensesBookingCbo(string companyGroupId, string companyId)
+        {
+            try
+            {
+                var sql = @"SELECT ETT.Id AS EmployeeTransactionTypeId, ETT.UserName AS EmployeeTransactionTypeName
+                            , EGL.AdvanceGLId, EGL.AdvanceGLCode, EGL.AdvanceGLName
+                            , EGL.AdvanceBudgetMasterId, EGL.AdvanceBudgetCode, EGL.AdvanceBudgetName
+                            , EGL.AdvanceActivityId, EGL.AdvanceActivityCode, EGL.AdvanceActivityName
+                            , EGL.PayableGLId, EGL.PayableGLCode, EGL.PayableGLName
+                            , EGL.PayableBudgetMasterId, EGL.PayableBudgetCode, EGL.PayableBudgetName
+                            , EGL.PayableActivityId, EGL.PayableActivityCode, EGL.PayableActivityName
+                            , ETT.AdvanceType
+                            FROM [HKP].[EmployeeTransactionType] ETT
+                            LEFT JOIN(
+	                        SELECT ETTGL.EmployeeTransactionTypeId, ETTGL.AdvanceGLId, AGGI.AccountCode AS AdvanceGLCode, AGGI.UserName AS AdvanceGLName
+	                        , ETTGL.AdvanceBudgetMasterId, AB.Code AS AdvanceBudgetCode, AB.UserName AS AdvanceBudgetName
+	                        , ETTGL.AdvanceActivityId, AA.Code AS AdvanceActivityCode, AA.UserName AS AdvanceActivityName
+	                        , ETTGL.PayableGLId, PGGI.AccountCode AS PayableGLCode, PGGI.UserName AS PayableGLName
+	                        , ETTGL.PayableBudgetMasterId, PB.Code AS PayableBudgetCode, PB.UserName AS PayableBudgetName
+	                        , ETTGL.PayableActivityId, PA.Code AS PayableActivityCode, PA.UserName AS PayableActivityName, ETTGL.IsExpensesBooking
+	                        FROM [HKP].[EmployeeTransactionTypeGL] AS ETTGL
+	                        LEFT JOIN [HKP].[GLGeneralInfo] AS AGGI ON AGGI.Id=ETTGL.AdvanceGLId
+	                        LEFT JOIN [MST].[BudgetMaster] AS ABM ON ABM.Id=ETTGL.AdvanceBudgetMasterId
+	                        LEFT JOIN [HKP].[Budget] AS AB ON AB.Id=ABM.BudgetId
+	                        LEFT JOIN [HKP].[Activity] AS AA ON AA.Id=ETTGL.AdvanceActivityId
+	                        LEFT JOIN [HKP].[GLGeneralInfo] AS PGGI ON PGGI.Id=ETTGL.PayableGLId
+	                        LEFT JOIN [MST].[BudgetMaster] AS PBM ON PBM.Id=ETTGL.PayableBudgetMasterId
+	                        LEFT JOIN [HKP].[Budget] AS PB ON PB.Id=PBM.BudgetId
+	                        LEFT JOIN [HKP].[Activity] AS PA ON PA.Id=ETTGL.PayableActivityId
+	                        LEFT JOIN [ORG].[Company] AS C ON C.COAId=ETTGL.COAId
+	                        WHERE C.Id='" + companyId + @"'
+                        )AS EGL ON EGL.EmployeeTransactionTypeId=ETT.Id
+                        WHERE ETT.Active=1 AND ETT.CompanyGroupId='" + companyGroupId + "' AND EGL.IsExpensesBooking=1";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+
+        public GridModel GetRevenueExpenseGLBudget(GridParameter parameters, string companyId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT  BM.GLGeneralInfoId GLGeneralInfoId,BM.Id BudgetMasterId,
+						 AG.UserName AS AccountGroupName, GLGI.AccountCode AS GLGeneralInfoCode
+						 , GLGI.UserName AS GLGeneralInfoName, BM.RefNo, B.Code BudgetCode, B.UserName BudgetName
+						FROM [MST].[BudgetMaster] AS BM 
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GLGI ON BM.GLGeneralInfoId=GLGI.Id
+						LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+						 LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
+						WHERE ACT.Id IN ('" + AccountTypeEnum.Revenue + @"','" + AccountTypeEnum.Expense + "')";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+    }
+}

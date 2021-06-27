@@ -1,0 +1,199 @@
+﻿<togglable name="{{title}}"></togglable>
+
+<div class="form-horizontal" id="MainDivId">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" style="margin-left: -95px;">Company<sup>*</sup></label>
+                <div class="col-sm-8 show-message" style="margin-left: 95px;">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.CompanyId" ng-change="companyOnChange();"
+                                ng-options="item.Value as item.Text for item in companyList" id="plantId" ng-disabled="ModelNew.SystemID != null"
+                                name="Company" required tabindex="1">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" style="margin-left: -120px;">Plant<sup>*</sup></label>
+                <div class="col-sm-8 show-message" style="margin-left: 120px;">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.PlantID"
+                                ng-options="item.Value as item.Text for item in plantList" ng-disabled="ModelNew.SystemID != null" id="plantId" ng-change="getData();LoadCurrency();"
+                                name="Plant" required tabindex="1">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-elements" ng-form name="ModelNewForm">
+        <input type="hidden" ng-model="ModelNew.SystemID">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Currency Rule Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="CurrencyRuleName" ng-model="ModelNew.CurrencyRuleName" class="form-control" required tabindex="5" maxlength="50">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="ModelNew.CurrencyDescription" tabindex="7" maxlength="250"></textarea>
+                </div>
+            </div>
+        </div>
+        <hr style="width:100%;text-align:left;margin-left:0; border-top: 1px solid black;">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group ">
+                <label class="col-sm-4 control-label">Salary Head</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select ng-model="CurrencyDetail.SalaryHeadID" id="SalaryHead" class="form-control" name="SalaryHead" ng-options="item.Value as item.Text for item in salaryHeadList" tabindex="5">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Fraction Calculation</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="OTDT" class="form-control" ng-model="CurrencyDetail.RoundOption" name="RoundOption" required tabindex="1">
+                            <option value=""></option>
+                            <option value="ROUND">ROUND</option>
+                            <option value="ROUND UP">ROUND UP</option>
+                            <option value="ROUND DOWN">ROUND DOWN</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label"></label>
+                <div class="col-sm-8 radio">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="CurrencyDetail.IntegerInDisb" ng-change="setRadioIntegerValue();">
+                            <span class="cr"><i class="cr-icon glyphicon "></i></span>
+                        </label>
+                        <label class="control-label">Integer in Disbursement</label>
+                    </div>
+                </div>
+                <div class="col-sm-8 pull-right radio">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="CurrencyDetail.IsDecimalInDisb" ng-change="setRadioDecimalValue();">
+                            <span class="cr"><i class="cr-icon glyphicon "></i></span>
+                        </label>
+                        <label class="control-label">Decimal in Disbursement</label>
+                    </div>
+                </div>
+                <div class="col-sm-8 " ng-show="RadioDecimalValue">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Decimal Number</label>
+                        <div class="col-sm-8 show-message" style="padding-right:150px;">
+                            <div class="select-style">
+                                <select id="OTDT" class="form-control" ng-model="CurrencyDetail.DecimalNo" name="DecimalNo" required tabindex="1">
+                                    <option value=""></option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Amount Entry Currency</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="AmtEntryCurrency" class="form-control" ng-model="CurrencyDetail.AmtEntryCurrency" name="AmtEntryCurrency" ng-options="item.CurrencyCode as item.Currency for item in CurrencyList" required tabindex="1">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Amount Disbursement Currency</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="AmtDisbusmentCurrency" class="form-control" ng-model="CurrencyDetail.AmtDisbusmentCurrency" name="AmtDisbusmentCurrency" ng-options="item.CurrencyCode as item.Currency for item in CurrencyList" required tabindex="1">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Amount Definition Currency</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="AmtDefinitionCurrency" class="form-control" ng-model="CurrencyDetail.AmtDefinitionCurrency" name="OTDayType" ng-options="item.CurrencyCode as item.Currency for item in CurrencyList" required tabindex="1">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li><button ng-click="Submit();ClearDescription('')" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Submit</button></li>
+            </ul>
+        </div>
+        <div class="col-xs-12">
+            <div id="Grid1" ej-grid e-datasource="DetailList" e-allowsorting="true" e-allowscrolling="true"
+                 e-allowfiltering="true" @*e-recorddoubleclick="recorddoubleclickDetails"*@ e-allowpaging="true" e-gridlines="vertical" e-allowResizing="true"
+                 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="false">
+                <div e-columns>
+                    <div e-column e-field="ID" e-headertext="ID" e-width="3" e-isprimarykey="true" e-visible="false"></div>
+                    <div e-column e-field="SalaryHead" e-headertext="Salary Head" e-width="3"></div>
+                    <div e-column e-field="AmtEntryCurrencyName" e-headertext="Amount Entry Currency" e-width="3"></div>
+                    <div e-column e-field="AmtDisbusmentCurrencyName" e-headertext="Amount Disbusment Currency" e-width="3"></div>
+                    <div e-column e-field="AmtDefinitionCurrencyName" e-headertext="Amount Definition Currency" e-width="3"></div>
+                    <div e-column e-field="RoundOption" e-headertext="Fraction Calculation" e-width="3"></div>
+                    <div e-column e-field="Delete" e-width="3">
+                        <button data-toggle="modal" class="btn" ng-click="$parent.RemoveDetail(this);" tabindex="10">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="table-responsive aplos-grid-toggle">
+        <div style="color:black;" id="Grid" ej-grid e-datasource="ModelList" e-recorddoubleclick="getDetail"
+             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+
+            <div e-columns>
+                <div e-column e-field="ID" e-headertext="ID" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                <div e-column e-field="CurrencyRuleName" e-headertext="Currency Rule Name" e-width="5"></div>
+                <div e-column e-field="CurrencyDescription" e-headertext="Currency Description" e-width="5"></div>
+                <div e-column e-field="Delete" e-width="3">
+                    <button data-toggle="modal" class="btn" ng-click="$parent.RemoveMaster(this);" tabindex="10"><i class="glyphicon glyphicon-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmProcessPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteChild();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmMasterPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteMaster();"></confirm-archive-generic>

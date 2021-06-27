@@ -1,0 +1,399 @@
+﻿<togglable name="Reject Payable"></togglable>
+<div class="form-elements form-horizontal" ng-form="modelNewForm">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">General Infromation</legend>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Doc Ref & Date<sup>*</sup></label>
+                <div class="col-sm-9 show-message">
+                    <div class="input-group">
+                        <span class="input-group-addon">{{modelNew.DocRefNo}}</span>
+                        <input type="text" ng-model="modelNew.DocDate" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="shortageData();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Voucher Type<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Voucher Type" ng-disabled="voucherTypeList.length==1" ng-model="modelNew.VoucherTypeId"
+                                ng-options="item.Value as item.Text for item in voucherTypeList" tabindex="2">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" style="margin-bottom: 0px;" ng-hide="modelNew.EmployeeId==null">
+                <label class="col-sm-3 control-label"><b>EmployeeCode :</b></label>
+                <label class="col-sm-9 control-label"><b>{{modelNew.EmployeeCode}}</b></label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Vendor :</label>
+                <label class="col-sm-9 control-label">{{modelNew.PartyCode}} - {{modelNew.PartyName}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Invoicing By :</label>
+                <label class="col-sm-9 control-label">{{modelNew.InvoicingBy}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Invoicing Address :</label>
+                <label class="col-sm-9 control-label" style="white-space: pre-line;">{{modelNew.InvoicingByAddress}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Gate Entry No :</label>
+                <label class="col-sm-9 control-label">{{modelNew.GateEntryNo}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">GRN No :</label>
+                <label class="col-sm-9 control-label">{{modelNew.Id}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Payment Term :</label>
+                <label class="col-sm-9 control-label">{{modelNew.PaymentTermName}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Base on due date :</label>
+                <label class="col-sm-9 control-label">{{modelNew.BaseOnDueDate}}</label>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" style="margin-bottom: 0px;" ng-hide="modelNew.EmployeeId==null">
+                <label class="col-sm-3 control-label"><b>Employee Name :</b></label>
+                <label class="col-sm-9 control-label"><b>{{modelNew.EmployeeName}}</b></label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Party Account Group :</label>
+                <label class="col-sm-9 control-label">{{modelNew.PartyAccountGroupName}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Delivery By :</label>
+                <label class="col-sm-9 control-label">{{modelNew.DeliveryBy}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Delivery Address :</label>
+                <label class="col-sm-9 control-label" style="white-space: pre-line;">{{modelNew.DeliveryByAddress}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Gate Entry Date :</label>
+                <label class="col-sm-9 control-label">{{modelNew.EntryDate}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">GRN Date :</label>
+                <label class="col-sm-9 control-label">{{modelNew.GRNDate}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Currency :</label>
+                <label class="col-sm-9 control-label">{{modelNew.CurrencyCode}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Due Date :</label>
+                <label class="col-sm-9 control-label">{{modelNew.MatureDate}}</label>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-xs-12 col-sm-6 col-md-6" ng-show="modelNew.EmployeeId">
+            <div id="div_TransactionType" class="form-group">
+                <label class="col-sm-3 control-label">Transaction Type<sup>*</sup></label>
+                <div class="col-sm-9 show-message">
+                    <div class="select-style">
+                        <select ng-change="glPushInList();" name="Transaction Type" class="form-control" ng-model="modelNew.EmployeeTransactionTypeId">
+                            <option value=""></option>
+                            <option ng-repeat="option in employeeTransactionTypeList" value="{{option.EmployeeTransactionTypeId}}">{{option.EmployeeTransactionTypeName}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <div class="clearfix"></div>
+    <fieldset class="scheduler-border" ng-show="inventoryReceivedList.length">
+        <legend class="scheduler-border">GRN Info</legend>
+        <div class="table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Material Group</th>
+                        <th>Material Master</th>
+                        <th>Article</th>
+                        <th>Char1</th>
+                        <th>Char2</th>
+                        <th>Char3</th>
+                        <th>Qty</th>
+                        <th>Rate</th>
+                        <th>Amount (TRN)</th>
+                        <th>Tax</th>
+                        @*<th>Service Charge</th>*@
+                        @*<th>Service Tax</th>*@
+                        <th>Amount (BC)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in inventoryReceivedList">
+                        <td>{{x.MaterialGroupMasterName}}</td>
+                        <td>{{x.UserName}}</td>
+                        <td>{{x.StandardName}}</td>
+                        <td>{{x.FirstCharacteristicsValue}}</td>
+                        <td>{{x.SecondCharacteristicsValue}}</td>
+                        <td>{{x.ThirdCharacteristicsValue}}</td>
+                        <td class="text-right">{{x.ShortageQty}}  {{x.TransactionUoM}}</td>
+                        <td class="text-right">{{x.TransactionRate| setDecimal:currencyPrecision| number}}  {{x.CurrencyName}}</td>
+                        <td class="text-right">{{x.TrnAmount| setDecimal:currencyPrecision| number}}</td>
+                        <td class="text-right">{{x.TaxAmount| setDecimal:currencyPrecision| number}}</td>
+                        @*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>*@
+                        @*<td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
+                        <td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number}}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" class="text-right"><strong>Total : </strong></td>
+                        <td class="text-right" ng-hide="sumORnot"></td>
+                        <td class="text-right" ng-show="sumORnot"><strong>{{inventoryReceivedList | sumByKey : 'TransactionQty' }}</strong></td>
+                        <td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'TransactionRate'| setDecimal:currencyPrecision| number }}</strong></td>
+                        <td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision| number }}</strong></td>
+                        <td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'TaxAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                        @*<td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'ServiceCharge'| setDecimal:currencyPrecision | number}}</strong></td>*@
+                        @*<td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'ServiceTax'| setDecimal:currencyPrecision | number}}</strong></td>*@
+                        <td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'BaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </fieldset>
+    <div class="clearfix"></div>
+    <fieldset class="scheduler-border" ng-show="newList.length">
+        <legend class="scheduler-border">Journal</legend>
+        <div class="table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>GL</th>
+                        <th>Budget</th>
+                        <th>Activity</th>
+                        <th>Dr</th>
+                        <th>Cr</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in newList| orderBy:'MaterialGroupMasterId'| groupBy: 'MaterialGroupMasterId'" ng-hide="modelNew.IsWrittenOff">
+                        <td>
+                            <span ng-hide="newList[$index].TrnType=='Dr'">{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</span>
+                            <div class="input-group" style="margin-top: -7px;margin-bottom: -7px;" ng-hide="newList[$index].TrnType=='Cr'">
+                                <input type="text" ng-model="x.GLName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button class="btn single-small-btn" ng-click="getGLPopUP($index);"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    <button class="btn single-small-btn" ng-click="refreshGL($index);"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <span ng-hide="newList[$index].TrnType=='Dr'">{{x.BudgetName}}</span>
+                            <div class="select-style" ng-hide="newList[$index].TrnType=='Cr'">
+                                <select class="form-control" ng-model="x.BudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in x.budgetList" ng-change="getActivity($index);"></select>
+                            </div>
+                        </td>
+                        <td>
+                            <span ng-hide="newList[$index].TrnType=='Dr'">{{x.ActivityName}}</span>
+                            <div class="select-style" ng-hide="newList[$index].TrnType=='Cr'">
+                                <select class="form-control" ng-model="x.ActivityId" ng-options="item.ActivityId as item.ActivityName for item in x.activityList">
+                                    <option></option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>{{x.Dr}}</td>
+                        <td>{{x.Cr}}</td>
+                    </tr>
+                    <tr ng-repeat="x in newList| orderBy:'MaterialGroupMasterId'| groupBy: 'MaterialGroupMasterId'" ng-show="modelNew.IsWrittenOff">
+                        <td>{{X.GLGeneralInfoCode}} - {{X.GLGeneralInfoName}}</td>
+                        <td>{{x.BudgetName}}</td>
+                        <td>{{x.ActivityName}}</td>
+                        <td>{{x.Dr}}</td>
+                        <td>{{x.Cr}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            @*<table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>GL</th>
+                            <th>Budget</th>
+                            <th>Activity</th>
+                            <th>Dr</th>
+                            <th>Cr</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in newList| orderBy:'MaterialGroupMasterId'| groupBy: 'MaterialGroupMasterId'">
+                            <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                            <td>{{x.BudgetName}}</td>
+                            <td>{{x.ActivityName}}</td>
+                            <td class="text-right">{{x.Dr | number| setDecimal:2}}</td>
+                            <td class="text-right">{{x.Cr | number| setDecimal:2}}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"></td>
+                            <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:2}}</strong></td>
+                            <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:2}}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>*@
+        </div>
+    </fieldset>
+    <div class="clearfix"></div>
+    <div class="common-btn">
+        <ul class="common-btn list-inline text-right">
+            <li> <button ng-click="Post();" class="btn"> Post</button></li>
+            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+
+<div class="aplos-grid-toggle">
+    @*<div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="$root.parameters.searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData();">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+    @*<div class="table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Vendor</th>
+                        <th>Account Group</th>
+                        <th>Employee</th>
+                        <th>GRN No</th>
+                        <th>GRN Date</th>
+                        <th>Vendor DocNo</th>
+                        <th>Invoice No</th>
+                        <th>Invoice Date</th>
+                        <th>Print</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr dir-paginate="x in products |itemsPerPage:$root.pageSize" total-items="$root.total_count" pagination-id="metaData.name + 'products'">
+                        <td>{{x.PartyCode}} - {{x.PartyName}}</td>
+                        <td>{{x.PartyAccountGroupName}}</td>
+                        <td>{{x.EmployeeName}}</td>
+                        <td>{{x.Id}}</td>
+                        <td>{{x.GRNDate | date:'dd-MMM-yyyy'}}</td>
+                        <td>{{x.DocRefNo}}</td>
+                        <td>{{x.InvoiceNo}}</td>
+                        <td>{{x.InvoiceDate}}</td>
+                        <td>
+                            <ul class="list-inline action-list">
+                                <li> <button ng-click="getPabyableJournal(x, 'Pdf');" class="btn"><i class="fa fa-file-pdf-o"></i></button></li>
+                                <li> <button ng-click="getPabyableJournal(x, 'Excel');" class="btn"><i class="fa fa-file-excel-o"></i></button></li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'products'"
+                                     direction-links="true" boundary-links="true"
+                                     on-page-change="getData(newPageNumber)">
+            </dir-pagination-controls>
+        </div>*@
+    <div class="content-container-fluid" style="color:black;">
+        <div style="color:black;" id="Grid" ej-grid e-datasource="ShortageList"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+             e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel"
+             e-enabletouch="true" e-allowselection="true"
+             @*e-detailstemplate="detailTemp"
+             e-detailsdatabound="detailgrid"*@
+             e-scrollsettings="scroll">
+            <div e-columns>
+                <div e-column e-field="PartyPlantName" e-headertext="Party" e-width="80"></div>
+                <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="80"></div>
+                <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="80"></div>
+                <div e-column e-field="DocDate" e-headertext="DocDate" e-width="80"></div>
+                <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="80"></div>
+                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                <div e-column e-field="Amount" e-headertext="Amount" e-width="50"></div>
+                @*<div e-column e-headertext="Print" e-commands="command" e-isunbound=true e-textalign="center" e-width="50"></div>*@
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- #region Inventory Receive Data -->
+@Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_InventoryRejectPayablePopUp.cshtml")
+<!-- #endregion -->
+<!-- #region GL -->
+<div class="modal fade site-modal in" id="gltListPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Down Payment GL<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="glListParameters.searchBy">
+                                            <option ng-repeat="option in searchGLByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="glListParameters.search" ng-enter="getGLData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getGLData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive  modal-table ">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Account Group</th>
+                                <th>GL </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in glList |itemsPerPage:glListParameters.pageSize" pagination-id="metaData.name + 'glList'" total-items="glListParameters.total_count" ng-dblclick="setGL(x)">
+                                <td>{{x.AccountGroupName}}</td>
+                                <td>{{x.GLGeneralInfoName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'glList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getGLData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer  common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeGltListPopUp()">Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->

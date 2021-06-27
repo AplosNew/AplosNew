@@ -1,0 +1,166 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Gate Entry Register/Returnable/Non-Returnable</h3>
+
+<div class="row">
+    <div class="form-elements form-horizontal" ng-form id="from" name="from">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">For the Period</legend>
+                <div>
+                    <div class="form-group" show-errors id="div_FromDate">
+                        <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Date" ng-model="report.FromDate" datepicker class="form-control" required tabindex="3">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors id="div_WDToDate">
+                        <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Date" ng-model="report.ToDate" datepicker class="form-control" required tabindex="4">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-elements form-horizontal">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="GetGateentryRegister();" class="btn"><i class="glyphicon glyphicon-download"></i>View</button></li>
+                        </ul>
+                    </div>
+
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="Test">
+
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+        <div id="PR">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li> <button id="go2" class="btn" ng-click="GatenntryRegisterListPdf();"><i class="glyphicon glyphicon-download"></i> Export To Pdf</button></li>
+                    <li><button ng-click="GateEntryReportExcel();" class="btn"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                </ul>
+            </div>
+            <div class="content-container-fluid" style="color:black;">
+
+                <div style="color:black;" id="GridPrint" ej-grid e-datasource="GateenRegisterList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
+                     e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+
+                    <div e-columns>
+
+                        <div e-column e-field="GateEntryFor" e-headertext="Gate Entry For" e-width="150" textAlign='Left'></div>
+                        @*<div e-column e-field="CompanyGroup" e-headertext="Company Group" e-width="150" textAlign='Left'></div>*@
+                        @*<div e-column e-field="Company" e-headertext="Company" e-width="150" textAlign='Left'></div>*@
+                        <div e-column e-field="PlantName" e-headertext="Plant ame" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GateEntryNo" e-headertext="Gate Entry/Gate Pass#" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GRNNo" e-headertext="GRN No" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="EntryDate" e-headertext="Entry Date" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="PartyName" e-headertext="Party Name" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="Description" e-headertext="Description" e-width="300" textAlign='Left'></div>
+                        <div e-column e-field="PackageQty" e-headertext="Package Qty" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ModeofTransport" e-headertext="Mode of Transport" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="Bill" e-headertext="Bill" e-width="100" textAlign='Left'></div>
+                        <div e-column e-field="MobileNo" e-headertext="Mobile No" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GateEntryTime" e-headertext="Gate Entry Time" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GateEntryBy" e-headertext="Gate Entry By" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GateEntryType" e-headertext="Gate Entry Type" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="LocalImported" e-headertext="Local Imported" e-width="150" textAlign='Left'></div>
+
+
+                        <div e-column e-field="GatePassDetailId" e-headertext="Gate Pass Detail Id" e-width="150" textAlign='Left'></div>
+                        @*<div e-column e-field="GatePassMasterId" e-headertext="Mater Id" e-width="150" textAlign='Left'></div>*@
+                        @*<div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="150" textAlign='Left'></div>*@
+                        @*<div e-column e-field="Plant" e-headertext="Plant" e-width="150" textAlign='Left'></div>*@
+                        <div e-column e-field="GatePassType" e-headertext="Gate Pass Type" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GatePassStatus" e-headertext="Gate Pass Status" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GPMReturnableDate" e-headertext="Returnable Date" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="EntryDate" e-headertext="Gate Pass Entry Date" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="Material" e-headertext="Material" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="Article" e-headertext="Article" e-width="150" textAlign='Left'></div>
+                        @*<div e-column e-field="FirstCharacteristics" e-headertext="First Characteristics" e-width="150" textAlign='Left'></div>*@
+                        <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="150" textAlign='Left'></div>
+                        @*<div e-column e-field="SecondCharacteristics" e-headertext="Second Characteristics" e-width="150" textAlign='Left'></div>*@
+                        <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="150" textAlign='Left'></div>
+                        @*<div e-column e-field="ThirdCharacteristics" e-headertext="Third Characteristics" e-width="150" textAlign='Left'></div>*@
+                        <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="MaterialDetail" e-headertext="Material Detail" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="TransactionQty" e-headertext="Transaction Qty" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="UOM" e-headertext="UOM" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GPMRemarks" e-headertext="GPM-Remarks" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GPDRemarks" e-headertext="GPD-Remarks" e-width="150" textAlign='Left'></div>
+                        @*<div e-column e-field="IsReturnable" e-headertext="Returnable" e-width="150" textAlign='Left'></div>*@
+                        <div e-column e-field="GPDReturnableDate" e-headertext="Returnable Date" e-width="150" textAlign='Left'></div>
+                        @*<div e-column e-field="IsMutilated" e-headertext="Mutilated" e-width="150" textAlign='Left'></div>*@
+                        <div e-column e-field="Rate" e-headertext="Rate" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ChallanNo" e-headertext="Challan No" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ChallanNoDetailId" e-headertext="Challan No Detail" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="PurposeofGatePass" e-headertext="Purpose of Gate Pass" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ConsignmentNo" e-headertext="Consignment No" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GPDDriverName" e-headertext="GP Driver Name" e-width="150" textAlign='Left'></div>
+
+                        <div e-column e-field="FromEmployee" e-headertext="From Employee" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="Through" e-headertext="Through" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="CourierName" e-headertext="Courier Name" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="RunnerEmployeeId" e-headertext="Runner Employee Id" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ToType" e-headertext="To Type" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ToParty" e-headertext="To Party" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ToBuyer" e-headertext="To Buyer" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ToPlant" e-headertext="To Plant" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ToUnit" e-headertext="To Unit" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ToDivision" e-headertext="To Division" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ToDepartment" e-headertext="To Department" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="DepartmentEmployee" e-headertext="Department Employee" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="OtherCompanyName" e-headertext="Other Company Name" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GatePassPersonName" e-headertext="Gate Pass Person ame" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GatePassMobileNo" e-headertext="Gate Pass Mobile No" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="Address" e-headertext="Address" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GPMRemarks" e-headertext="Remarks Master" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="CheckedByEmployee" e-headertext="Checked By Employee" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="CheckedByStatus" e-headertext="Checked By Status" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="CheckedHoldRejectReason" e-headertext="Checked Hold Reject Reason" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ApprovedByEmployee" e-headertext="Approved By Employee" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ApprovedHoldRejectReason" e-headertext="Approved Hold Reject Reason" e-width="150" textAlign='Left'></div>
+                        @*<div e-column e-field="SenderSecurityEmployee" e-headertext="Sender Security Employee" e-width="150" textAlign='Left'></div>*@
+                        @*<div e-column e-field="SenderSecurityApprovedStatus" e-headertext="Sender Security Approved Status" e-width="150" textAlign='Left'></div>*@
+                        <div e-column e-field="ReceiverSecurityEmployee" e-headertext="Receive Security Employee" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ReceiverSecurityApprovedStatus" e-headertext="Receiver Security Approved Status" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="VendorBuyerOtherCompanyReceivedStatus" e-headertext="Vendor Buyer Other Company Received Status" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GPMChallanNo" e-headertext="Challa No Master" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="TransportAgentMobileNo" e-headertext="Transport Agent Mobile No" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="TransportAgentName" e-headertext="Transport Agent Name" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="VehicleNo" e-headertext="Vehicle No" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GateOutStatus" e-headertext="Gate Out Status" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GateRegisterType" e-headertext="Gat eRegister Type" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="ReceivedChallanNo" e-headertext="Received Challan No" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="InvoiceNo" e-headertext="Invoice No" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="PurposeofGatePass" e-headertext="Purpose of GatePass Master" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="GPMConsignmentNo" e-headertext="Consignment No Master" e-width="150" textAlign='Left'></div>
+                        <div e-column e-field="DriverName" e-headertext="Driver Master" e-width="150" textAlign='Left'></div>
+
+
+					</div>
+
+                </div>
+
+            </div>
+        </div>
+    </fieldset>
+
+
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            @*<li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+            @*<li><button ng-click="GatenntryRegisterList();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Gatenntry Report</button></li>*@
+        </ul>
+    </div>
+</div>
+

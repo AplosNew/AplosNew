@@ -1,0 +1,89 @@
+﻿<div class="modal fade site-modal in" id="LoanTakenOBPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="glPopUpForm">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Loan Taken</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="LoanTakenGLListParameters.searchBy">
+                                            <option ng-repeat="option in searchmMGLByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="LoanTakenGLListParameters.search" ng-enter="GetLoanTakenGLData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetLoanTakenGLData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    @*<table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Type </th>
+                    <th>Particulars </th>
+                    <th>GL</th>
+                    <th>Budget</th>
+                    <th>Activity</th>
+                    <th>RefNo</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in LoanTakenGLList |itemsPerPage:LoanTakenGLListParameters.pageSize" pagination-id="metaData.name + 'LoanTakenGLList'" total-items="LoanTakenGLListParameters.total_count"
+                    ng-dblclick="setLoanTakenGLListSelected(x, $index)" ng-class="{selected : x.LoanOpeningBalanceDetailId === rowSelected}">
+                    <td>{{x.PartyType}}</td>
+                    <td>{{x.ParticularName}}</td>
+                    <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                    <td>{{x.BudgetName}}</td>
+                    <td>{{x.ActivityName}}</td>
+                    <td>{{x.RefNo}}</td>
+                    <td>{{x.CompanyCurrencyAmountCr}}</td>
+                </tr>
+            </tbody>
+        </table>*@
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>VoucherNo</th>
+                                <th>Source Type</th>
+                                <th>Posting Date</th>
+                                <th>Doc Date</th>
+                                <th>Doc Ref</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in LoanTakenGLList |itemsPerPage:LoanTakenGLListParameters.pageSize" pagination-id="metaData.name + 'LoanTakenGLList'" total-items="LoanTakenGLListParameters.total_count"
+                                ng-dblclick="setLoanTakenGLListSelected(x, $index)" ng-class="{selected : x.LoanOpeningBalanceDetailId === rowSelected}">
+                                <td>{{x.VoucherNo}}</td>
+                                <td>{{x.TransactionType}}</td>
+                                <td>{{x.PostingDate | dateFiltering}}</td>
+                                <td>{{x.DocDate | dateFiltering}}</td>
+                                <td>{{x.DocRefNo}}</td>
+                                <td class="text-right">{{x.Amount | number:4}}</td>
+                                <td>{{x.IsPark?'Park':'Post'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'LoanTakenGLList'" direction-links="true" boundary-links="true" on-page-change="GetLoanTakenGLData(newPageNumber)"></dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeLoanTakenGLListPopUp()">OK</button>
+            </div>
+        </div>
+    </div>
+</div>

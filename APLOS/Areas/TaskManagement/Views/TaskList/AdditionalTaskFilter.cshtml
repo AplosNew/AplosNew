@@ -1,0 +1,72 @@
+﻿<div class="form-elements">
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-4 col-sm-6">
+            <div>Assigned By</div>
+            <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="UserList"
+                   e-template="AutoCompleteEmployeeInfo"
+                   e-value="AdditionalFilter.AssignedBy" e-minpopupheight="300" e-filtertype="contains" e-fields-value="Id" e-fields-text="EmployeeName" e-width="100%" />
+
+        </div>
+        <div class="col-xs-12 col-sm-4 col-sm-6">
+            <div>Assigned To</div>
+            @*<input type="text" ej-autocomplete e-datasource="UserList" e-watermarktext="Assign By Name"
+                e-autofocus="true" e-template="AutoCompleteEmployeeInfo"
+                e-value="AdditionalFilter.AssignedTo" e-filtertype="contains" e-fields-value="EmployeeName" e-fields-text="EmployeeName" e-width="100%" />*@
+            <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="UserList"
+                   e-autofocus="true" e-template="AutoCompleteEmployeeInfo"
+                   e-value="AdditionalFilter.AssignedTo" e-minpopupheight="300" e-filtertype="contains" e-fields-value="Id" e-fields-text="EmployeeName" e-width="100%" />
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-4 col-sm-4">
+            <div>Due Date</div>
+            <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="AdditionalFilter.DueDate" e-width="100%" />
+        </div>
+        <div class="col-xs-12 col-sm-4 col-sm-4">
+            <div>Commitment Date</div>
+            <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="AdditionalFilter.CommitmentDate" e-width="100%" />
+        </div>
+        <div class="col-xs-12 col-sm-4 col-sm-4">
+            <div>Task Status</div>
+            <input ej-dropdownlist e-enablefiltersearch="false" e-enabled="true" e-datasource="TaskCurrentStatusFilter" e-value="AdditionalFilter.CurrentStatus" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-4 col-sm-4">
+            <div>Category</div>
+            <input type="text" class="form-control" rows="2" ng-model="AdditionalFilter.Category" maxlength="250" />
+        </div>
+        <div class="col-xs-12 col-sm-4 col-sm-4">
+            <div>Sub Category</div>
+            <input type="text" class="form-control" rows="2" ng-model="AdditionalFilter.SubCategory" maxlength="250" />
+        </div>
+        <div class="col-xs-12 col-sm-4 col-sm-4">
+
+            <div>Department</div>
+            <input ej-dropdownlist e-enablefiltersearch="true" e-minpopupheight="300" e-datasource="DepartmentList" e-value="AdditionalFilter.DepartmentId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+        </div>
+        <div class="col-xs-12 col-sm-6 col-sm-6" style="padding-top:20px;">
+            <ul class="common-btn list-inline text-left" style="padding: 0px;">
+                <li><button ng-click="ClearAdditionalFilterScreen();" class="btn"><i class="glyphicon glyphicon-erase"></i> Clear</button></li>
+            </ul>
+
+
+        </div>
+        <div class="col-xs-12 col-sm-6 col-sm-6" style="padding-top:20px;">
+
+            <ul class="common-btn list-inline text-right" style="padding: 0px;">
+                <li><button ng-click="SubmitAdditionalFilter();" class="btn"><i class="glyphicon glyphicon-filter"></i> Apply</button></li>
+            </ul>
+
+        </div>
+    </div>
+</div>
+

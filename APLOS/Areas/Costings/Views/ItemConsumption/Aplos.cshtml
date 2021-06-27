@@ -1,0 +1,248 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-horizontal form-elements" id="mainContainer">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Product Master</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.ProductMasterId" @*ng-change="getData();"*@
+                                name="ProductMasterId" ng-options="item.Value as item.Text for item in ProductMasterList">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <textarea type="text" ng-model="ModelNew.Description" class="form-control"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Costing Item</label>
+                <div class="input-group">
+                    <div class="col-sm-2">
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="showCostingItemListWithOperationPopUp();" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                    <div class="col-sm-10" style="margin-left: 0px;">
+                        <input type="text" ng-model="ModelNew.CostingItemName" disabled class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">GSM</label>
+                <div class="col-sm-8">
+                    <input type="number" step="any" ng-model="ModelNew.GSMValue" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="common-btn">                
+                <ul class="list-inline text-left">
+                    <li><button ng-click="ClearComponent();" ng-show="ModelNew.Id != null" class="btn"><i class="glyphicon glyphicon-plus"></i>Add New Component</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">            
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Component Name</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-model="ComponentNew.ComponentName" class="form-control" required tabindex="5">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Area Type</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ComponentNew.AreaType" ng-change="AreaTypeValidation();">
+                            <option value=""></option>
+                            <option value="Rectangular">Rectangular</option>
+                            <option value="Triangle">Triangle</option>
+                            <option value="Circle">Circle</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">No. Of Parts</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-model="ComponentNew.NoOfParts" class="form-control" required tabindex="5" maxlength="50">
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="row " style="padding-left: 15px;margin-right: -2px;" >
+        <div class="aplos-grid" ng-show="ComponentList.length>0">
+            <div id="GridList" ej-grid e-datasource="ComponentList" e-allowfiltering="true"
+                 e-allowscrolling="true" e-recorddoubleclick="GetComponentDetails"
+                 e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="ComponentName" e-headertext="Component Name" e-width="80px"></div>
+                    <div e-column e-field="AreaType" e-headertext="Area Type" e-width="50px"></div>
+                    <div e-column e-field="NoOfParts" e-headertext="No. Of Parts" e-width="50px"></div>
+                    <div e-column e-headertext="Actions" e-template="#ShowAction" e-width="15px"></div>
+                </div>
+            </div>
+        </div>
+        <script type="text/template" id="ShowAction">
+            <button style="color: #f3f3ec;background-color: #1c1f32;" data-toggle="modal" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.RemoveComponents(this);"></i></button>
+        </script>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="ComponentNew.AreaType == ''">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Parameter 1</legend>
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-12 table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Parameter</th>
+                                            <th>Actual</th>
+                                            <th>Allowance</th>
+                                            <th>With Allowance</th>
+                                            <th>Number of Components</th>
+                                            <th>Total</th>
+                                            <th>Add</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="item in Height">
+                                            <td><input type="text" ng-model="item.Parameter" class="form-control" /></td>
+                                            <td><input type="number" step="any" ng-change="Calculation(item)" ng-model="item.Actual" class="form-control" style="width:80px;" /></td>
+                                            <td><input type="number" step="any" ng-change="Calculation(item)" ng-model="item.Allowance" class="form-control" style="width:80px;" /></td>
+                                            <td><input type="number" step="any" ng-disabled="true" ng-model="item.WithAllowance" class="form-control" style="width:80px;" /></td>
+                                            <td><input type="number" step="any" ng-change="Calculation(item)" ng-model="item.Number" class="form-control" style="width:80px;" /></td>
+                                            <td><input type="number" step="any" ng-disabled="true" ng-model="item.Total" class="form-control" style="width:80px;" /></td>
+                                            <td class="text-right" ng-hide="disable">
+                                                <ul class="list-inline">
+                                                    <li><button ng-click="SubmitH(item);Clear();" ng-show="$index==Height.length-1" class="btn btn-action "><i class="glyphicon glyphicon-plus"></i></button></li>
+                                                    <li><button ng-click="Remove($index);" class="btn btn-action "><i class="glyphicon glyphicon-minus"></i></button></li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <b style="color:blue">**All Values are in Centimeter</b>
+            </fieldset>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="ComponentNew.AreaType == 'Circle' || ComponentNew.AreaType == ''">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Parameter 2</legend>
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-12 table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Parameter</th>
+                                            <th>Actual</th>
+                                            <th>Allowance</th>
+                                            <th>With Allowance</th>
+                                            <th>Number of Components</th>
+                                            <th>Total</th>
+                                            <th>Add</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="item in Width">
+                                            <td><input type="text" ng-model="item.Parameter" class="form-control" /></td>
+                                            <td><input type="number" step="any" ng-change="Calculation(item)" ng-model="item.Actual" class="form-control" style="width:80px;" /></td>
+                                            <td><input type="number" step="any" ng-change="Calculation(item)" ng-model="item.Allowance" class="form-control" style="width:80px;" /></td>
+                                            <td><input type="number" step="any" ng-disabled="true" ng-model="item.WithAllowance" class="form-control" style="width:80px;" /></td>
+                                            <td><input type="number" step="any" ng-change="Calculation(item)" ng-model="item.Number" class="form-control" style="width:80px;" /></td>
+                                            <td><input type="number" step="any" ng-disabled="true" ng-model="item.Total" class="form-control" style="width:80px;" /></td>
+                                            <td class="text-right" ng-hide="disable">
+                                                <ul class="list-inline">
+                                                    <li><button ng-click="SubmitW(item);Clear();" ng-show="$index==Width.length-1" class="btn btn-action "><i class="glyphicon glyphicon-plus"></i></button></li>
+                                                    <li><button ng-click="RemoveW($index);" class="btn btn-action "><i class="glyphicon glyphicon-minus"></i></button></li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <b style="color:blue">**All Values are in Centimeter</b>
+            </fieldset>
+        </div>
+
+
+        <div class="col-xs-12 col-sm-12 col-md-12 text-right">
+            <div class="common-btn">
+                <ul class="list-inline small">
+                    <li><button ng-click="Save();" class="btn small"><i class="glyphicon glyphicon-saved"></i> Save</button></li>
+                    <li><button ng-click="ClearMaster();" class="btn small"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="aplos-grid-toggle">
+    <div id="Grid" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-allowfiltering="true"
+         e-allowscrolling="true" e-recorddoubleclick="getDetails"
+         e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-field="ProductName" e-headertext="Product Name" e-width="15px"></div>
+            <div e-column e-field="CostingItemName" e-headertext="Costing Item" e-width="15px"></div>
+            <div e-column e-field="Description" e-headertext="Description" e-width="100px" ></div>
+            <div e-column e-headertext="Actions" e-template="#Show" e-width="10px"></div>
+        </div>
+    </div>
+</div>
+<script type="text/template" id="Show">
+    <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i></button>
+</script>
+
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmPopUpDetails" title="Confirmation" message="{{message_confirmation}}" data-ng-click-right-button="DeleteComponents();"></confirm-archive-generic>
+
+
+<!-- #region Costingitem With operation popup -->
+<div class="modal fade site-modal in" id="costingItemListWithOperationPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Costing Items <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div id="GridItemListForOperations" ej-grid e-datasource="CostingItemList" e-gridlines="vertical" e-recorddoubleclick="setData"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="20"></div>
+                            <div e-column e-type="string" e-field="UserName" e-headertext="Item Name" e-width="100"></div>
+                            <div e-column e-type="string" e-field="CostingCategory" e-headertext="Category" e-width="60"></div>
+                            <div e-column e-type="string" e-field="CostingComponent" e-headertext="Component" e-width="60"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->

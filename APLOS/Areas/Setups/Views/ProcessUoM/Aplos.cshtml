@@ -1,0 +1,188 @@
+﻿<togglable name="Process UoM"></togglable>
+<div ng-form id="brandNew" name="form" class="form-elements form-horizontal">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" id="processId" name="Process" ng-model="brandNew.ProcessId" required
+                            ng-options="item.Value as item.Text for item in processList" tabindex="1">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Base UoM<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" id="baseUoMId" name="Base UoM" ng-model="brandNew.BaseUoMId" ng-disabled="mgmAlternativeUoMList.length>0"
+                           ng-change="valueSetInAltUoM();" ng-options="item.Value as item.Text for item in uomList" tabindex="2" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Capacity</legend>
+            <div class="col-xs-12 col-sm-4 col-md-4 pdr3">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" maxlength="15" name="Name" ng-model="brandNew.CapacityName" class="form-control" required tabindex="3">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4 pdl3 pdr3">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">First UoM<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="brandNew.CapacityFirstUoMId" name="First UoM" id="capacityFirstUoMId"
+                                    ng-options="item.Value as item.Text for item in uomList" required tabindex="4">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4 pdr3">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Second UoM</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="brandNew.CapacitySecondUoMId" id="capacitySecondUoMId"
+                                    ng-options="item.Value as item.Text for item in uomList" tabindex="5">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <div class="col-xs-12">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Alternative UoM</legend>
+            <div class="col-xs-12 col-sm-10 col-md-10" style="padding-right: 0px;">
+                <div class="form-group">
+                    <div class="col-sm-1">
+                        <input type="number" class="form-control text-center" value="1" readonly>
+                    </div>
+                    <label class="col-sm-2 control-label" style="margin-left:-20px;margin-right:-44px;">Alternative UoM</label>
+                    <div class="col-sm-3">
+                        <div class="select-style">
+                            <select ng-model="alternativeUoMNew.AlternativeUoMId" class="form-control" name="Unit of masurement"
+                                    id="altUOMId" ng-options="item.Value as item.Text for item in uomList" tabindex="6">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <label class="col-sm-1 control-label" style="margin-left:-20px;margin-right:-58px;">Is</label>
+                    <div class="col-sm-2">
+                        <input type="text" n-decimals="5" name="Base uom factor" ng-model="alternativeUoMNew.BaseUoMFactor" class="form-control text-right" tabindex="7" maxlength="50">
+                    </div>
+                    <div class="col-sm-2" style="margin-left:-30px;">
+                        <input type="text" name="Base uom" ng-model="alternativeUoMNew.BaseUoMName" class="form-control" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left: 0px;margin-left:-248px;">
+                <button ng-click="addAlternativeUoM();" class="btn single-small-btn" tabindex="8"><i class=""></i> {{AltUomAction}}</button>
+            </div>
+        </fieldset>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="table-responsive modal-table" ng-show="alternativeUoMList.length>0">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Alternative UoM Factor</th>
+                        <th>Alternative UoM</th>
+                        <th>Base UoM Factor</th>
+                        <th>Base UoM</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in alternativeUoMList">
+                        <td class="text-center">
+                            <ul class="list-inline action-list">
+                                <li><button ng-click="GetMGMAlternativeUoM(x.Id, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button></li>
+                                <li><button ng-click="valuePassInDelModal(x.AlternativeUoMId, $index, x.AlternativeUoMName)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                            </ul>
+                        </td>
+                        <td>{{x.AlternativeUoMFactor}}</td>
+                        <td>{{x.AlternativeUoMName}}</td>
+                        <td>{{x.BaseUoMFactor}}</td>
+                        <td>{{x.BaseUoMName}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class=" aplos-grid-toggle">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="$root.parameters.searchBy">
+                                <option ng-repeat="option in searchList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Process</th>
+                    <th>Base UoM</th>
+                    <th>Capacity Name</th>
+                    <th>First UoM</th>
+                    <th>Second UoM</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in brands|itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-click="Get(x.Id, $index);">
+                    <td>{{x.ProcessName}}</td>
+                    <td>{{x.BaseUoMName}}</td>
+                    <td>{{x.CapacityName}}</td>
+                    <td>{{x.CapacityFirstUoMName}}</td>
+                    <td>{{x.CapacitySecondUoMName}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="mmaltuom" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>

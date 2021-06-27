@@ -1,0 +1,396 @@
+﻿<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Machine Budget</h3>
+<div class="form-elements form-horizontal" ng-form="form">
+    <div class="col-md-12 divborder mark">
+       
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Material (Mst)<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input type="text" name="Mterial (Mst)" ng-model="modelNew.UserName" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Short Name :</label>
+                <label class="col-sm-8 control-label">{{modelNew.ShortName}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">BaseUoM :</label>
+                <label class="col-sm-8 control-label">{{modelNew.BaseUom}}</label>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Skill :</label>
+                <label class="col-sm-8 control-label">{{Skill}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Code :</label>
+                <label class="col-sm-8 control-label">{{modelNew.Code}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Asset Master :</label>
+                <label class="col-sm-8 control-label">{{modelNew.AssetMaster}}</label>
+            </div>
+        </div>
+    </div>
+     <div class="clearfix common-btn">
+        <ul class="list-inline text-right"> 
+            <li><button ng-click="GetMachineBudgetIndexReport();" class="btn" title="Report"><i class="glyphicon glyphicon-cloud-download"></i>Download</button></li>
+        </ul>
+    </div>
+    <div class="clearfix">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Article</a></li>
+            <li ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Process</a></li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="row" ng-form name="formTab1">
+                <div class="col-md-12 table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>ShortName</th>
+                                <th>Standard Name</th>
+                                <th>UserName</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in skillProcessList" ng-class="{selected : x.Id==null}">
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div class="row" ng-form name="formTab2">
+                <div class="col-md-12 table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>ShortName</th>
+                                <th>Standard Name</th>
+                                <th>UserName</th>
+                                <th>RPM</th>
+                                <th>M/C Allowance</th>
+                                <th>Stitch Code</th>
+                                <th>Budget</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in modelList">
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.RPM}}</td>
+                                <td>{{x.MachineAllowance}}</td>
+                                <td>{{x.StitchCode}}</td>
+                                <td>
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="GetBudgetPopUp(x);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="row" hidden>
+        <div class="col-xs-12 col-sm-6 col-sm-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Skill</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select ng-model="modelNew.SkillId" id="SkillId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in skillList"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #region Material Master -->
+<div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Material (Mst)<button type="button" class="close" data-dismiss="modal">&times;</button> </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr><th ng-repeat="x in popUpList">{{x.Text}}</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count"
+                                pagination-id="metaData.name + 'popUpDataList'" ng-dblclick="selectDoubleClick(x)">
+                                <td ng-repeat="hh in popUpList">{{x[hh.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'popUpDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getPopUpData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="closePopUp()" class="btn">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region Process -->
+<div class="modal fade site-modal in" id="processPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="CloseProcessPopUp()">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Process</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="processParameters.searchBy">
+                                            <option ng-repeat="option in searchProcessByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="processParameters.search" ng-enter="getProcessData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getProcessData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Sequence</th>
+                                <th>Code</th>
+                                <th>ShortName</th>
+                                <th>Standard Name</th>
+                                <th>User Name</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in processList|itemsPerPage:processParameters.pageSize"
+                                pagination-id="metaData.name + 'processList'" total-items="processParameters.total_count">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label class="control-label">
+                                            <input type="checkbox" ng-model="x.Flag" ng-click="checkedOrUnchecked($event,x)">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.Sequence}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.Active?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'processList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getProcessData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="addProcess()" class="btn">Done</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<confirm-archive-generic modalid="confirmationPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
+
+
+<div class="modal fade site-modal in" id="budgetpopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form="machineBudgetForm">
+            <div class="modal-header">
+                Machine Budget
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center form-horizontal form-elements">
+                <div class="row">
+                    <div class="form-horizontal form-elements">
+                        <div class="col-xs-6 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select id="Company" class="form-control" ng-model="machineBudget.CompanyId" name="Company" ng-change="getPlant();" required tabindex="1">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in companyList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-show="MachineBudgetLevel=='Entity'">
+                                <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="machineBudget.EntityId" id="entityId" name="Entity" tabindex="3">
+                                            <option value="ALL">ALL</option>
+                                            <option ng-repeat="option in EntityList" value="{{option.Id}}">{{option.UserName}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Sample Machine Qty</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Sample Machine Qty" n-decimals="2" ng-model="machineBudget.SampleMachineQty" class="form-control" maxlength="100" tabindex="5">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Training Machine Qty</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Training Machine Qty" n-decimals="2" ng-model="machineBudget.TrainingMachineQty" class="form-control" maxlength="100" tabindex="7">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Plant<sup>*</sup> </label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select id="PlantId" class="form-control" ng-model="machineBudget.PlantId" name="Plant" ng-change="getEntityWithChange();GetMachineBudgetLevel(machineBudget.PlantId);" required tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Production Machine Qty</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Production Machine Qty" n-decimals="2" ng-model="machineBudget.ProductionMachineQty" class="form-control" maxlength="100" tabindex="4">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Rent Machine Qty</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Rent Machine Qty" n-decimals="2" ng-model="machineBudget.RentMachineQty" class="form-control" maxlength="100" tabindex="6">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Other Machine Qty</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Other Machine Qty" n-decimals="2" ng-model="machineBudget.OtherMachineQty" class="form-control" maxlength="100" tabindex="8">
+                                </div>
+                            </div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="SaveBudget();" class="btn"><i class="glyphicon glyphicon-plus"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12 table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Actions</th>
+                                <th>Company</th>
+                                <th>Plant</th>
+                                <th>Entity</th>
+                                <th>Production Machine Qty</th>
+                                <th>Sample Machine Qty</th>
+                                <th>Training Machine Qty</th>
+                                <th>Rent Machine Qty</th>
+                                <th>Other Machine Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in budgetList">
+                                <td class="text-right table-td">
+                                    <ul class="list-inline action-list">
+                                        <li><button ng-click="GetMachine(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Edit"><i class="glyphicon glyphicon-pencil"></i></button></li>
+                                        <li><button ng-click="removeLineItem(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                    </ul>
+                                </td>
+                                <td>{{x.Company}}</td>
+                                <td>{{x.Plant}}</td>
+                                <td>{{x.Entity}}</td>
+                                <td>{{x.ProductionMachineQty}}</td>
+                                <td>{{x.SampleMachineQty}}</td>
+                                <td>{{x.TrainingMachineQty}}</td>
+                                <td>{{x.RentMachineQty}}</td>
+                                <td>{{x.OtherMachineQty}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmProcessPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteBudget();"></confirm-archive-generic>

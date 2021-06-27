@@ -1,0 +1,574 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Testing Standard
+</h3>
+<div class="form-elements" ng-form id="testingStandardNew" name="testingStandardForm">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li> <button ng-click="Clear();" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus"></i> AddNew</button></li>
+                    <li> <button ng-click="getTestingStandard()" class="btn" tabindex="10"><i class="glyphicon glyphicon-search"></i> Search</button></li>
+                </ul>
+            </div>
+        </div>
+        <input type="hidden" ng-model="testingStandardNew.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Code" maxlength="15" ng-model="testingStandardNew.Code" class="form-control" required tabindex="1">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="UserName" maxlength="15" ng-model="testingStandardNew.UserName" class="form-control" required tabindex="3">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="testingStandardNew.Description" maxlength="250" tabindex="5"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="ShortName" maxlength="15" ng-model="testingStandardNew.ShortName" class="form-control" required tabindex="2">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Code" maxlength="15" ng-model="testingStandardNew.StandardName" class="form-control" required tabindex="4">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                </ul>
+                </div>
+            <div class="tab-design" id="tab_show">
+                <div class="site-tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Testing</a></li>
+                        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Buyer</a></li>
+                    </ul>
+                </div>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li > <button ng-disabled="testingStandardNew.Id===null" ng-click="ShowTestingDeailForm();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> Add Testing</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-xs-12" ng-show="TestingStandardDetailSavedList[0].Id !=null">
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Action</th>
+                                                <th>Code</th>
+                                                <th>Short Name</th>
+                                                <th>Standard Name</th>
+                                                <th>User Name</th>
+                                                <th>Category</th>
+                                                <th>Value</th>
+                                                <th>Originating Process</th>
+                                                <th>Testing Process</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in TestingStandardDetailSavedList">
+                                                <td class="text-right table-td">
+                                                    <ul class="list-inline action-list">
+                                                        <li>
+                                                            <button ng-click="valuePassInTestingStandardDetailSavedListSavedDelModal($index, x)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                                <i class="glyphicon glyphicon-remove"></i>
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                                <td>{{x.Code}}</td>
+                                                <td>{{x.ShortName}}</td>
+                                                <td>{{x.StandardName}}</td>
+                                                <td>{{x.UserName}}</td>
+                                                <td>{{x.TestingCategoryName}}</td>
+                                                <td>{{x.Value}}</td>
+                                                <td>{{x.OriginatingProcess}}</td>
+                                                <td>{{x.TestingProcess}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                        <div class="row">
+
+                            <div class="col-sm-12">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li > <button ng-click="ShowTestingBuyerForm();" ng-disabled="testingStandardNew.Id===null" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i>Add Buyer</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-xs-12" ng-show="TestingStandardBuyerSavedList[0].Id !=null">
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Action</th>
+                                                <th>Code</th>
+                                                <th>Short Name</th>
+                                                <th>Standard Name</th>
+                                                <th>User Name</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in TestingStandardBuyerSavedList">
+                                                <td class="text-right table-td">
+                                                    <ul class="list-inline action-list">
+                                                        <li>
+                                                            <button ng-click="valuePassInBuyerSavedDelModal($index, x.Id)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                                <i class="glyphicon glyphicon-remove"></i>
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                                <td>{{x.Code}}</td>
+                                                <td>{{x.ShortName}}</td>
+                                                <td>{{x.StandardName}}</td>
+                                                <td>{{x.UserName}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+</div>
+<div class="modal fade site-modal in" id="testingStandardPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Testing Standard</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="testingStandardListParameters.searchBy">
+                                            <option ng-repeat="option in searchByTestingStandardList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="testingStandardListParameters.search" ng-enter="GetTestingStandardListData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetTestingStandardListData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>User Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in testingStandards |itemsPerPage:testingStandardListParameters.pageSize" total-items="testingStandardListParameters.total_count" ng-dblclick="GetTestingStandardInfo(x);">
+                                <td class="text-right table-td">
+                                    <ul class="list-inline action-list">
+                                        <li>
+                                            <button ng-click="valuePassInTestingStandardSavedListDelModal($index, x.Id)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="GetTestingStandardListData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="testingSelectdCloseListPopUp();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="testingStandardDetailFormPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i>Testing</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-elements" ng-form id="testingStandard" name="testingStandardDetailForm">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Testing Category<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="TestingStandardDetail.TestingCategoryId"
+                                                ng-options="item.Value as item.Text for item in testingCategoryList" id="TestingCategoryId"
+                                                name="Testing Category" required tabindex="1"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <div class="col-sm-8 show-message">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li> <button ng-click="GetTestingDeailList();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> Testing</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+                        </div>
+                        <div class="col-xs-12">
+
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Action</th>
+                                            <th>Code</th>
+                                            <th>Short Name</th>
+                                            <th>Standard Name</th>
+                                            <th>User Name</th>
+                                            <th>Category</th>
+                                            <th>Value</th>
+                                            <th>Originating Process</th>
+                                            <th>Testiong Process</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in testingSelectedList">
+                                            <td class="text-right table-td">
+                                                <ul class="list-inline action-list">
+                                                    <li>
+                                                        <button ng-click="valuePassInTestingDelModal($index, x.Id)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                            <i class="glyphicon glyphicon-remove"></i>
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                            <td>{{x.Code}}</td>
+                                            <td>{{x.ShortName}}</td>
+                                            <td>{{x.StandardName}}</td>
+                                            <td>{{x.UserName}}</td>
+                                            <td>{{x.TestingCategoryName}}</td>
+                                            <td>
+                                                <input type="text" class="form-control" ng-model="x.Value" />
+                                            </td>
+                                            <td>
+                                                <div class="select-style">
+                                                    <select name="Originating Process" class="form-control" ng-model="x.OriginatingProcessId" ng-options="item.Value as item.Text for item in processList">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="select-style">
+                                                    <select name="Testing Process" class="form-control" ng-model="x.TestingProcessId" ng-options="item.Value as item.Text for item in processList">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="TestingDeailSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="testingPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="testingForm">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Testing</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="TestingDeailListParameters.searchBy">
+                                            <option ng-repeat="option in searchByTestingDeailList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="TestingDeailListParameters.search" ng-enter="GetTestingListDatas()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetTestingListDatas()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>User Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in TestingDeailList |itemsPerPage:TestingDeailListParameters.pageSize" total-items="TestingDeailListParameters.total_count"   pagination-id="metaData.name + 'TestingDeailList'">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" id="{{x.Id}}" ng-model="x.Flag" ng-checked="x.Flag" ng-click="selectTestingChValue($event,x)">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                     pagination-id="metaData.name + 'TestingDeailList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="GetTestingListDatas(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="testingSelectdCloseListPopUp();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*Buyer*@
+<div class="modal fade site-modal in" id="testingStandardBuyerFormPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i>Buyer</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-elements" ng-form id="testingStandard" name="testingStandardBuyerForm">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+                            <div class="form-group" show-errors>
+                                <div class="col-sm-8 show-message">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li> <button ng-click="GetTestingBuyerList();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> Buyer</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+                        </div>
+                        <div class="col-xs-12">
+
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Action</th>
+                                            <th>Code</th>
+                                            <th>Short Name</th>
+                                            <th>Standard Name</th>
+                                            <th>User Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in buyerSelectedList">
+                                            <td class="text-right table-td">
+                                                <ul class="list-inline action-list">
+                                                    <li>
+                                                        <button ng-click="valuePassInBuyerDelModal($index, x.Id)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                            <i class="glyphicon glyphicon-remove"></i>
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                            <td>{{x.Code}}</td>
+                                            <td>{{x.ShortName}}</td>
+                                            <td>{{x.StandardName}}</td>
+                                            <td>{{x.UserName}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="TestingBuyerSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="buyerPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="testingForm">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Buyer</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="BuyerListParameters.searchBy">
+                                            <option ng-repeat="option in searchByBuyerList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="BuyerListParameters.search" ng-enter="GetBuyerListDatas()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetBuyerListDatas()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>User Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in BuyerList |itemsPerPage:BuyerListParameters.pageSize" total-items="BuyerListParameters.total_count"  pagination-id="metaData.name + 'BuyerList'">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" id="{{x.Id}}"  ng-model="x.Flag" ng-checked="x.Flag"  ng-click="selectBuyerChValue($event,x)">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                     pagination-id="metaData.name + 'BuyerList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="GetBuyerListDatas(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="buyerSelectdCloseListPopUp();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeleteTestingStandardSavedItem()">
+</confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmGenericPopUpForTestingDeailSaved" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeleteTestingStandardDetailSavedItem()">
+</confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmGenericPopUpForTestingDeail" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeleteTestingStandardDetailItem()">
+</confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmGenericPopUpForBuyerSaved" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeleteTestingStandardBuyerSavedItem()">
+</confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmGenericPopUpForBuyer" title="Confirmation"
+                         message={{message_confirmation}} data-ng-click-right-button="DeleteTestingStandardBuyerTempItem()">
+</confirm-archive-generic>
+<confirm-modal></confirm-modal>

@@ -1,0 +1,308 @@
+﻿
+<style>
+
+    .loaderr {
+        width: 300px;
+        height: 200px;
+        background-color: #0780BA;
+        color: #fff;
+        padding: 100px;
+        font-size: 25px;
+    }
+
+    .e-grid .e-headercelldiv {
+        font-weight: bold;
+        font-size: 10px;
+        display: block;
+        border: 0 none;
+        height: 29px;
+        line-height: 29px;
+        margin: -7px;
+        padding: 0 .7em;
+        text-align: left;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-family: "Arial Narrow";
+    }
+
+    .e-grid .e-rowcell {
+        border-width: 1px 0 0 1px;
+        padding: .7em;
+        line-height: 10px;
+        white-space: nowrap;
+        width: auto;
+        vertical-align: middle;
+    }
+    /*.e-gridheader .e-headercell {
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }*/
+    .e-grid.e-wrap .e-columnheader .e-headercelldiv {
+        margin-bottom: 2px;
+        margin-top: 0;
+        font-size: 9px;
+    }
+    /*.e-filterset:before {
+        color: Green;
+    }*/
+
+
+
+
+    e-grid .e-columnheader .wrap .e-headercelldiv {
+        height: Auto;
+    }
+
+    .e-grid .e-excelfilter .e-btncontainer input {
+        padding: .2em .4em .3em;
+    }
+
+    .e-grid.e-dlgcontainer .e-dlgBtns .e-clear {
+        padding: 3px;
+    }
+
+    .e-grid.e-dlgcontainer .e-dlgBtns .e-filter {
+        padding: 3px;
+    }
+
+    ::-ms-clear {
+        display: none;
+    }
+
+    .e-grid.filtered .e-filteredicon {
+        color: red;
+    }
+</style>
+
+<style>
+    .e-filterset:before {
+        /*content: "";*/
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        /*background: #a2f1ff;
+        color: #080076;
+        min-height: 100%;
+        border-bottom-color: #8B4513;*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+</style>
+
+
+<script>
+
+
+
+    function chkChange(Id, UserName) {
+        debugger;
+        $("#message").text(Id);
+        $("#PartyCode").text(Id);
+        $("#Vendor").val(UserName);
+        $('#partyPopUp').modal('hide');
+        //alert('Session==' + UserName);
+        PartyId = $("#PartyCode").text();
+        //$scope.getPartyPlantList(Id);  
+    }
+    function getMasterId(Id) {
+        debugger;
+        $("#masterId").text(Id);
+
+    }
+</script>
+
+
+<togglable name="Purchase Order Closed"></togglable>
+
+
+
+
+@*Taufik create list start*@
+<div class="tab-design" id="tab_show">
+    @*  *@
+<div class="site-tab">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" ng-class="{ active: isSet1(2) }"><a ng-click="setTab1(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Po Unlocked</a></li>
+        <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Po Locked</a></li>
+        @*<li role="presentation" ng-class="{ active: isSet3(3) }"><a ng-click="setTab3(3)" href="" aria-controls="address" role="tab" data-toggle="tab">All Po Approved List </a></li>*@
+        @*<li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="address" role="tab" data-toggle="tab">To be Separated</a></li>*@
+    </ul>
+</div>
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet1(1), active: isSet1(1) }">
+        @*Index Grid*@
+
+
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+            <div>
+                @*<div id='Grid1'></div>*@
+                @*e-allowselection="true" e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel" e-enabletouch="false">This is for double click+*@
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="GriddataPOClose"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel" e-enabletouch="true"
+                         e-detailstemplate="detailTemp"
+                         e-detailsdatabound="detailgrid">
+                        <div e-columns>
+
+                            <div e-column e-field="SiNo" e-headertext="SI" e-width="40" e-filter="false"></div>
+                            <div e-column e-field="PartyName" e-headertext="Vendor" e-width="80"></div>
+                            <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="80"></div>
+                            <div e-column e-field="Id" e-headertext="PO No" e-width="80"></div>
+                            <div e-column e-field="PODate" e-headertext="PO Date" e-width="80"></div>
+                            <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="80"></div>
+                            <div e-column e-field="TransactionQty" e-headertext="Qty" e-width="50"></div>
+                            <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="80"></div>
+                            <div e-column e-field="BaseAmount" e-headertext="Total Amount" e-width="80"></div>
+                            <div e-column e-field="CtnId" e-headertext="Appr.No" e-width="60"></div>
+                            <div e-column e-headertext="" e-commands="commandPoClose" e-isunbound=true e-textalign="center" e-width="120"></div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                <script id="tabGridContents" type="text/x-jsrender">
+                    <div class="tabcontrol" id="Test">
+                        <ul>
+                            <li><a href="#gridTab{{:Id}}">PO Details</a></li>
+                        </ul>
+                        <div id="gridTab{{:Id}}">
+                            <div id="detailGrid"></div>
+                        </div>
+                    </div>
+                </script>
+            </div>
+        </fieldset>
+
+
+
+
+
+    </div>
+
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
+        @*Index Grid*@
+
+
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+            <div>
+                @*<div id='Grid2'></div>*@
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridUc" ej-grid e-datasource="GriddataPOlock"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel" e-enabletouch="true"
+                         e-detailstemplate="detailTemp"
+                         e-detailsdatabound="detailgrid">
+                        <div e-columns>
+
+                            <div e-column e-field="SiNo" e-headertext="SI" e-width="40" e-filter="false"></div>
+                            <div e-column e-field="PartyName" e-headertext="Vendor" e-width="80"></div>
+                            <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="80"></div>
+                            <div e-column e-field="Id" e-headertext="PO No" e-width="80"></div>
+                            <div e-column e-field="PODate" e-headertext="PO Date" e-width="80"></div>
+                            <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="80"></div>
+                            <div e-column e-field="TransactionQty" e-headertext="Qty" e-width="50"></div>
+                            <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="80"></div>
+                            <div e-column e-field="BaseAmount" e-headertext="Total Amount" e-width="80"></div>
+                            <div e-column e-field="CtnId" e-headertext="Appr.No" e-width="60"></div>
+                            <div e-column e-headertext="" e-commands="commandPoUnlock" e-isunbound=true e-textalign="center" e-width="120"></div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                <script id="tabGridContents" type="text/x-jsrender">
+                    <div class="tabcontrol" id="Test">
+                        <ul>
+                            <li><a href="#gridTab{{:Id}}">PO Details</a></li>
+                        </ul>
+                        <div id="gridTab{{:Id}}">
+                            <div id="detailGrid"></div>
+                        </div>
+                    </div>
+                </script>
+            </div>
+        </fieldset>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet3(3), active: isSet3(3) }">
+        @*Index Grid*@
+
+
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+            <div>
+                @*<div id='Grid2'></div>*@
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPOListforPoclosedui" ej-grid e-datasource="GriddataPOListforPoclosedui"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel" e-enabletouch="true">
+                        <div e-columns>
+
+                            <div e-column e-field="SiNo" e-headertext="SI" e-width="40" e-filter="false"></div>
+                            <div e-column e-field="PartyName" e-headertext="Vendor" e-width="80"></div>
+                            <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="80"></div>
+                            <div e-column e-field="Id" e-headertext="PO No" e-width="80"></div>
+                            <div e-column e-field="PODate" e-headertext="PO Date" e-width="80"></div>
+                            <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="80"></div>
+                            <div e-column e-field="TransactionQty" e-headertext="Qty" e-width="50"></div>
+                            <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="80"></div>
+                            <div e-column e-field="BaseAmount" e-headertext="Total Amount" e-width="80"></div>
+                            <div e-column e-field="CtnId" e-headertext="Appr.No" e-width="60"></div>
+                            <div e-column e-headertext="" e-commands="commandAllPoList" e-isunbound=true e-textalign="center" e-width="120"></div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </fieldset>
+    </div>
+
+
+
+
+
+
+
+
+</div>
+</div>
+@*Taufik create list End*@
+
+
+
+
+
+
+
+
+<confirm-archive-generic modalid="poapprovealertlock" title="Confirmation" message={{message}} data-ng-click-right-button="PoUnlock();"></confirm-archive-generic>
+<confirm-archive-generic modalid="POPUnlock" title="Confirmation" message={{message}} data-ng-click-right-button="Poclosed();"></confirm-archive-generic>
+<confirm-archive-generic modalid="AllPoListmi" title="Confirmation" message={{message}} data-ng-click-right-button="PoListinClose();"></confirm-archive-generic>
+

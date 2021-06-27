@@ -1,0 +1,208 @@
+﻿<togglable name="Menu Master"></togglable>
+<div class="form-elements form-horizontal" ng-form id="menuMaster" name="menuMasterForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Menu Item Group<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" name="MenuItem Group" required ng-model="menuMaster.MenuItemGroup"
+                            ng-options="item.Value as item.Text for item in menuItemGroupList">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Module<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" name="Module" required ng-model="menuMaster.ModuleId" ng-change="onChangeModule(menuMaster.ModuleId)"
+                            ng-options="item.Value as item.Text for item in moduleList">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Submodule</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="menuMaster.SubModuleId" ng-options="item.Value as item.Text for item in subModuleList"></select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Menu Frame<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" name="MenuFrame" required ng-required="true" ng-model="menuMaster.MenuFrameId"
+                            ng-options="item.Value as item.Text for item in menuFrameList">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Menu Group</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="menuMaster.MenuGroupId" ng-options="item.Value as item.Text for item in menuGroupList"></select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Menu Subgroup</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="menuMaster.MenuSubGroupId" ng-options="item.Value as item.Text for item in menuSubGroupList"></select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">External Menu</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input tabindex="9" type="checkbox" ng-model="menuMaster.IsExternalMenu">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Panel Name<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <div class="select-style">
+                    <select class="form-control" name="Group Name" ng-model="menuMaster.PanelName" tabindex="6" required>
+                        <option value="">--Select--</option>
+                        <option value="Application">Application</option>
+                        <option value="Master">Master</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Description</label>
+            <div class="col-sm-8">
+                <textarea maxlength="250" class="form-control" rows="4" ng-model="menuMaster.Description" tabindex="2"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea maxlength="250" class="form-control" rows="4" ng-model="menuMaster.Remarks" tabindex="4"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Active</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input tabindex="9" type="checkbox" ng-model="menuMaster.Active">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="table-responsive nochange-table" ng-show="tableShow">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Sequence</th>
+                    <th>Menu Id</th>
+                    <th>Interface No</th>
+                    <th>Code</th>
+                    <th>User Code</th>
+                    <th>Standard Name</th>
+                    <th>User Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="y in menuItems|orderBy:'UserName'">
+                    <td>
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="y.Active" ng-checked="y.Active" />
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </td>
+                    <td>{{y.Sequence}}</td>
+                    <td>{{y.MenuId}}</td>
+                    <td>{{y.InterfaceNo}}</td>
+                    <td>{{y.Code}}</td>
+                    <td>{{y.UserCode}}</td>
+                    <td>{{y.StandardName}}</td>
+                    <td>{{y.UserName}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="onShowenuItem(menuMaster.MenuItemGroup, menuMaster.ModuleId, menuMaster.MenuFrameId);" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button></li>
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Menu Frame</th>
+                <th>Menu Group</th>
+                <th>Menu Subgroup</th>
+                <th>Menu Item</th>
+                <th>Menu Id</th>
+                <th>Menu Sequence</th>
+                <th>Active</th>
+                <th class="text-right">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in menuMasters |itemsPerPage:$root.pageSize" total-items="$root.total_count">
+                <td>{{x.MenuFrame}}</td>
+                <td>{{x.MenuGroup? x.MenuGroup :'-'}}</td>
+                <td>{{x.MenuSubGroup? x.MenuSubGroup :'-'}}</td>
+                <td>{{x.MenuItem}}</td>
+                <td>{{x.MenuId}}</td>
+                <td>{{x.Sequence}}</td>
+                <td>{{x.Active? 'Yes':'No'}}</td>
+                <td class="text-right">
+                    <ul class="list-inline action-list">
+                        <li><a href="{{bootPoint}}menu-master-edit/{{x.Id}}" class="btn btn-action tooltip-here" data-toggle="tooltip" data-placement="top" title="Edit" tooltip><i class="glyphicon glyphicon-pencil"></i></a></li>
+                        @*<li><a href="{{bootPoint}}#" class="btn btn-action tooltip-here" data-toggle="tooltip" data-placement="top" title="Field" tooltip><i class="glyphicon glyphicon-pencil"></i> Field</a></li>*@
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+</div>

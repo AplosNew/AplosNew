@@ -1,0 +1,183 @@
+﻿<h4>Delete Account CutOffDate Back Data</h4>
+<div class="form-elements form-horizontal" ng-form="form0">
+    <div class="col-xs-12 col-sm-4 col-md-4 form-element-ctrl form-horizontal">
+        <div class="form-group">
+            <label class="col-sm-4 col-md-4 control-label">Company Group</label>
+            <div class="col-sm-8 col-md-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="voucher.CompanyGroupId" ng-options="item.Value as item.Text for item in companyGroupList" ng-change="getCompany()" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="div_PostingDate" class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Posting Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input required datepicker id="postingDate" type="text" name="Posting Date" disabled ng-model="voucher.PostingDate" class="form-control" tabindex="1">
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <div class="select-style">
+                    <select name="Company" ng-model="voucher.CompanyId" class="col-sm-3 form-control"
+                            ng-options="item.Value as item.Text for item in companyList" required ng-change="getCutOffDate();" tabindex="1"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4 form-element-ctrl form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="Plant" ng-model="voucher.PlantId" class="col-sm-3 form-control"
+                            ng-options="item.Value as item.Text for item in plantList" required ng-change="getCutOffBackDateData()" tabindex="2"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+
+    <div class="tab-design">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Delation Data</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Service" role="tab" data-toggle="tab">Employee Payable  Ater Posting</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="Transaction" role="tab" data-toggle="tab">Vendor Payable After Posting</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" >
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table ">
+                    <table class="table table-striped table-bordered">
+
+                        <thead>
+                            <tr>
+                                <th>Source Type </th>
+                                <th class="text-center">Dr</th>
+                                <th class="text-center">Cr</th>
+                                <th class="text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in voucherDetailList">
+                                <td>{{x.SourceType}}</td>
+                                <td><input type="text" class="form-control text-right" ng-disabled="x.DrDisable" id="vdDrAmount" ng-model="x.DrAmount " n-decimals="2" tabindex="11" ng-change="checkDrAmount($index)" autocomplete="off"></td>
+                                <td><input type="text" class="form-control text-right" ng-disabled="x.CrDisable" id="vdCrAmount" ng-model="x.CrAmount " n-decimals="2" tabindex="12" ng-change="checkCrAmount($index)" autocomplete="off"></td>
+                                <td class="text-right">
+                                    <button ng-click="post($index)" data-toggle="modal" ng-disabled="x.Id" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                        <i class="glyphicon">Delete</i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td class="text-right">Total</td>
+                                <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'DrAmount' }}</b></td>
+                                <td class="text-right"><b>{{ (voucherDetailList ) | sumByKey:'CrAmount' }}</b></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="clearfix"></div>
+                 @*Mr. Taufiq u do you report from here*@
+                <div class="common-btn">
+                    <ul class="common-btn list-inline text-right">
+                        <li> <button id="go3" class="btn" ng-click="PaybleVSPaymentReportExcel();"><i class="glyphicon glyphicon-download"></i> Report</button></li>
+                    </ul>
+                </div>
+                <div class="common-btn">
+                    <ul class="common-btn list-inline text-right">
+                        <li> <button ng-click="deleteEmployeePayable();" class="btn"> Delete</button></li>
+                    </ul>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="table-responsive modal-table ">
+                    <table class="table table-striped table-bordered">
+
+                        <thead>
+                            <tr>
+                                <th>Voucher No</th>
+                                <th>Doc Ref No</th>
+                                <th>Payable PostingDate</th>
+                                <th>Payment PostingDate</th>
+                                <th class="text-center">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in employeePayableDetailList">
+                                <td>{{x.VoucherNo}}</td>
+                                <td>{{x.DocRefNo}}</td>
+                                <td>{{x.PayablePostingDate}}</td>
+                                <td>{{x.PaymentPostingDate}}</td>
+                                <td class="text-right">{{x.Amount}}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td class="text-right" colspan="4">Total</td>
+                                <td class="text-right"><b>{{ (employeePayableDetailList ) | sumByKey:'Amount' }}</b></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="clearfix"></div>
+                <div class="common-btn">
+                    <ul class="common-btn list-inline text-right">
+                        <li> <button ng-click="deleteVendorPayable();" class="btn"> Delete</button></li>
+                    </ul>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="table-responsive modal-table ">
+                    <table class="table table-striped table-bordered">
+
+                        <thead>
+                            <tr>
+                                <th>Voucher No</th>
+                                <th>Doc Ref No</th>
+                                <th>Payable PostingDate</th>
+                                <th>Payment PostingDate</th>
+                                <th class="text-center">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in vendorPayableDetailList">
+                                <td>{{x.VoucherNo}}</td>
+                                <td>{{x.DocRefNo}}</td>
+                                <td>{{x.PayablePostingDate}}</td>
+                                <td>{{x.PaymentPostingDate}}</td>
+                                <td class="text-right">{{x.Amount}}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td class="text-right" colspan="4">Total</td>
+                                <td class="text-right"><b>{{ (vendorPayableDetailList ) | sumByKey:'Amount' }}</b></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+            <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(data)"></confirm-archive-generic>

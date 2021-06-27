@@ -1,0 +1,65 @@
+﻿<style>
+    .modellgModify1 {
+        width: 450px;
+    }
+</style>
+<div class="modal fade site-modal in" id="vendorPayableODMT30VoucherPrintPopUp" role="dialog" data-backdrop="static">
+
+    <div class="modal-dialog modellgModify1">
+        <div class="modal-content">
+            <div class="modal-header"> {{AgingDueTypeSetOff}} <button type="button" class="close" ng-click="closePartyAgingDueVoucherAmount();">&times;</button></div>
+            @*<div class="modal-header">{{AgingDueType}}<button type="button" class="close" ng-click="closePartyAgingDueAmount();">&times;</button></div>*@
+
+            <div class="modal-body form-elements form-horizontal">
+
+                <table class="table  table-hover doc_dashboardpieTable">
+
+                    <tbody>
+                        <tr style="cursor:pointer;">
+                            <td class="doc_dashboardpieTableTD">Debit Note:</td>
+                            <td class="doc_dashboardpieTableTDR hoverItem">{{booksDebitNote|number:2}}</td>
+
+                            @*<div e-column e-type="numeric" e-format="{0:0.00}" e-field="Onword60" e-headertext="Onword 60" e-width="60" e-textalign="right" style="height: 20px;"></div>*@
+
+                            @*<td ng-click="showPartyWiseDueAmountPopUp('ODueMoreThan30Pai')" class="doc_dashboardpieTableTDR hoverItem">{{ODueMoreThan30Pai|number}}</td>*@
+                        </tr>
+                        <tr ng-click="GetModalDueDoc();" style="cursor:pointer;">
+                            <td class="doc_dashboardpieTableTD">Discount:</td>
+                            <td class="doc_dashboardpieTableTDR hoverItem">{{booksDiscount|number:2}}</td>
+                        </tr>
+                        <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                            <td class="doc_dashboardpieTableTD">Tax:</td>
+                            <td class="doc_dashboardpieTableTDR hoverItem">{{booksTax|number:2}}</td>
+                        </tr>
+
+                        <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;">
+                            <td class="doc_dashboardpieTableTD">Payment:</td>
+                            <td ng-click="GetSetOffDetailPopUp()" class="doc_dashboardpieTableTDR hoverItem">{{booksPayment|number:2}}</td>
+                            @*<td ng-click="showPartyWiseDueAmountPopUp('ODueMoreThan30Pai')" class="doc_dashboardpieTableTDR hoverItem">{{ODueMoreThan30Pai|number}}</td>*@
+
+                        </tr>
+                        <tr ng-click="GetModalCompletedDoc();" style="cursor:pointer;" class="font-weight-bold">
+                            <td class="doc_dashboardpieTableTD font-weight-bold">Total:</td>
+                            <td @*ng-click="showPartyWiseDueAmountPopUp('ODueMoreThan30Pai')"*@ class="doc_dashboardpieTableTDR hoverItem font-weight-bold">{{booksSetOffTotal|number:2}}</td>
+
+                        </tr>
+                        @*<div e-column e-type="number" e-format="{0:N2}" e-field="SetOff" e-template="#SetOffDetailTemplate" e-headertext="SetOff" e-width="60" e-textalign="right" style="height: 20px;"></div>*@
+
+
+                    </tbody>
+                </table>
+
+            </div>
+
+            <ul class="common-btn list-inline text-right">
+                <li><button ng-click="closePartyAgingDueVoucherAmount();" class="btn">Close</button></li>
+            </ul>
+            @*<script type="text/template" id="SetOffDetailTemplate">
+                <a href="" ng-click="$parent.GetSetOffDetailPopUp(data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.SetOff|number:2}}</span></a>
+            </script>*@
+        </div>
+    </div>
+
+   
+</div>
+

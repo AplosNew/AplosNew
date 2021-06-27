@@ -1,0 +1,283 @@
+﻿<togglable name="Candidate Document Add/Remove"></togglable>
+<style>
+    #accordion section, #accordion .pointer, #accordion h1, #accordion p {
+        -webkit-transition: all 0.20s ease-in-out;
+        -moz-transition: all 0.5s ease-in-out;
+        transition: all 0.5s ease-in-out;
+    }
+
+    #accordion {
+        margin-bottom: 30px;
+    }
+
+        #accordion h1 {
+            line-height: 1.2;
+            font-size: 15px;
+            background-color: #3e445a;
+            margin: 0;
+            padding: 10px 10px 10px 30px;
+        }
+
+            #accordion h1 a {
+                color: #fff;
+            }
+
+        #accordion section {
+            overflow: hidden;
+        }
+
+        #accordion p {
+            padding: 0 10px;
+            color: #fff;
+        }
+
+        #accordion section.ac_hidden p:not(.pointer) {
+            color: #fff;
+        }
+
+        #accordion section.ac_hidden {
+            height: 44px;
+        }
+
+        #accordion .pointer {
+            padding: 0;
+            margin: 10px 0 0 6px;
+            line-height: 20px;
+            width: 13px;
+            position: absolute;
+        }
+
+        #accordion section:not(.ac_hidden) h1 {
+            background-color: #204d74;
+        }
+
+        #accordion section:not(.ac_hidden) .pointer {
+            display: block;
+            -webkit-transform: rotate(90deg);
+            -moz-transform: rotate(90deg);
+            -o-transform: rotate(90deg);
+            transform: rotate(90deg);
+            padding: 0;
+        }
+
+    #drpdwnfont {
+        color: #95a5a6;
+    }
+
+    html {
+        overflow: scroll;
+    }
+
+    .filled {
+        background-color: #0dbe67 !important;
+    }
+</style>
+<div class="form-horizontal" ng-form name="candidateInformationForm" ng-scroll="auto">
+    <input type="hidden" ng-model="candidateInformation.Id">
+    <div class="form-elements">
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Document</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row" ng-form name="candidateInformationForm1">
+                        <div ng-form name="candidateInformationForm2">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Full Name</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="Full Name" ng-model="candidateInformation.FullName" class="form-control" maxlength="100" tabindex="2" disabled>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Phone<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="Phone" ng-model="candidateInformation.CellPhnNo" class="form-control" tabindex="6" disabled>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Email<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <input type="email" name="Email" maxlength="50" ng-model="candidateInformation.EmailId" class="form-control" placeholder="example@gmail.co" tabindex="7" disabled>
+                                        <span class="msg-error" ng-show="candidateInformationForm2.EmailId.$error.email">
+                                            Not valid email!
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Date Of Birth<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="candidateInformation.DOB" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="8" disabled>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Gender</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="candidateInformation.Gender" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" disabled>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">{{Nid}}<sup>*</sup></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="NationalID" ng-model="candidateInformation.NationalID" class="form-control" maxlength="30" tabindex="10" disabled>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Agreed DOJ</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="candidateInformation.AgreedDOJ" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="11" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="common-btn">
+                        <button ng-click="AddDocument();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Document</button>
+                    </div><br />
+                    <div class="clearfix"></div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped" ng-show="documentdataList.length>0">
+                            <thead>
+                                <tr>
+                                    <th>Document Name</th>
+                                    <th>Emp Type</th>
+                                    <th>Candidate Category</th>
+                                    <th>Optional Or Mandatory</th>
+                                    <th>Skill Based</th>
+                                    <th>Dependate Date</th>
+                                    <th>Due Date</th>
+                                    <th>File Name</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="d in documentdataList">
+                                    <td>{{d.DocumentName}}</td>
+                                    <td>{{d.EmpType}}</td>
+                                    <td>{{d.EmployeeCategory}}</td>
+                                    <td>{{d.OptionalOrMandatory}}</td>
+                                    <td>{{d.IsSkillBased?'Yes':'No'}}</td>
+                                    <td>{{d.DependateDate}}</td>
+                                    <td>{{d.DueDate | dateFiltering}}</td>
+                                    <td ng-click="DocDownload(d)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{d.FileName}}" target="_self">{{d.FileName}}</a></td>
+                                    <td>
+                                        <button ng-click="Delete(d, $index);" ng-class="getColor(d)" class="btn"><i class="glyphicon glyphicon-trash"></i>  Delete</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Candidate Name</th>
+                <th>Agreed DOJ</th>
+                <th>DOB</th>
+                <th>Department</th>
+                <th>Designation</th>
+                <th>Given Designation</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in candidates |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.FullName | uppercase}}</td>
+                <td>{{x.AgreedDOJ | dateFiltering}}</td>
+                <td>{{x.DOB | dateFiltering}}</td>
+                <td>{{x.Department}}</td>
+                <td>{{x.Designation}}</td>
+                <td>{{x.GivenDesignation}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#accordion section h1").click(function (e) {
+            if (!$(this).closest('section').hasClass('ac_hidden')) {
+                $(this).closest("section").addClass("ac_hidden");
+            } else {
+                $(this).closest("section").siblings().addClass("ac_hidden");
+                $(this).closest("section").removeClass("ac_hidden");
+            }
+            e.preventDefault();
+        });
+    });
+</script>
+<div class="modal fade site-modal in" id="DocumentPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" name="documentForm">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Document List</h4>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Document Name</th>
+                                <th>Optional Or Mandatory</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="d in documentList">
+                                <td class="text-right table-td">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="d.Active" checked="{{d.Active}}" ng-click="selectValue($event,d)">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{d.DocumentName}}</td>
+                                <td>{{d.OptionalOrMandatory}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveNewDocument();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmgenericPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="removeDoc()"> </confirm-archive-generic>

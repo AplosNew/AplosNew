@@ -1,0 +1,1793 @@
+﻿<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    #processbuyer .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+        font-size: 10px;
+    }
+
+    #addoperation .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+        font-size: 10px;
+        word-wrap: break-word !important;
+    }
+
+    #addoperation .e-grid .e-rowcell {
+        line-height: 14px;
+        font-size: 11px;
+        padding: 1px 2px 0px 2px !important;
+    }
+
+    #processbuyer .e-grid .e-rowcell {
+        line-height: 14px;
+        font-size: 11px;
+        padding: 1px 2px 0px 2px !important;
+    }
+
+    #addoperation .e-grid .e-headercelldiv {
+        font-size: 9px;
+        height: 20px;
+        line-height: 10px;
+    }
+
+    #processbuyer .e-grid .e-headercelldiv {
+        font-size: 9px;
+        height: 20px;
+        line-height: 10px;
+    }
+
+    #processbuyer .glyphicon {
+        top: -6px;
+    }
+
+    #addoperation .glyphicon {
+        top: -6px;
+    }
+</style>
+<togglable name="Bulletin"></togglable>
+<div class="form-elements form-horizontal" id="bulletin">
+    <div ng-form name="BulletinForm">
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Bulletin ID<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="Bulletin Id" disabled ng-model="bulletinTemplateNew.Id" class="form-control">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Bulletin Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Bulletin Name" ng-model="bulletinTemplateNew.BulletinName" class="form-control" required tabindex="1" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Size Group<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select name="Size Group" class="form-control" ng-model="bulletinTemplateNew.SizeGroupId" ng-options="item.Value as item.Text for item in sizeGroupList" tabindex="5" required>
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="By Whom" ng-model="bulletinTemplateNew.ByWhom" class="form-control" required tabindex="3" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Alternative Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Alternative Name" ng-model="bulletinTemplateNew.AlternativeName" class="form-control" required tabindex="2" maxlength="50" />
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Product Master<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select name="Product Master" class="form-control" ng-model="bulletinTemplateNew.ProductMasterId" ng-options="item.Value as item.Text for item in productMasterList" tabindex="4" required>
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Upload Picture</label>
+                <div class="col-sm-8">
+                    <img id="uploadSigsrc" ng-src="{{PicFileName}}" style="border: 1px dashed; height: 150px; width: 140px;" />
+                    <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"></div>
+                </div>
+                @*<div class="col-sm-4">
+                        <div id="UploadDefault" e-dialogtext-title="Product Picture" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg" e-error="errorPBPicUpload"></div>
+                    </div>*@
+            </div>
+
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{bulletinTemplateNew.Id==null?'Save':'Update'}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <li> <button ng-click="Copy();" class="btn" tabindex="9"><i class="glyphicon glyphicon-copy"></i> Copy</button></li>
+        </ul>
+    </div>
+    <div class="col-xs-12" id="processbuyer">
+        <div class="col-sm-12 col-sm-6 col-md-6">
+            <fieldset class="scheduler-border" id="ProcessH">
+                <legend class="scheduler-border">Process</legend>
+                <div class="common-btn" style="margin-top: -20px;">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="AddNewProcess();" class="btn" tabindex="9" ng-disabled="bulletinTemplateNew.Id===null"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i> Add New Process</button></li>
+                    </ul>
+                </div>
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridProcess" ej-grid e-datasource="processList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="getProcess" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-actioncomplete="actionCompleteUnassign">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="Process" e-headertext="Process Name" e-width="80"></div>
+                            <div e-column e-field="RequiredStdTarget" e-headertext="Required Std.Target" e-width="80"></div>
+                            <div e-column e-field="MaxNoOfWS" e-headertext="Max No Of WS" e-width="80"></div>
+                            <div e-column e-field="PlannedHoursPerDay" e-headertext="Planned Hours PerDay" e-width="60"></div>
+                            <div e-column e-headertext="Actions" e-width="70">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.EditProcess($event);" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeProcess($event);" style="margin: -6px;"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-sm-12 col-sm-6 col-md-6">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Buyer</legend>
+                <div class="common-btn" style="margin-top: -20px;">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="AddNewBuyer();" class="btn" tabindex="9" ng-disabled="bulletinTemplateNew.Id===null"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i> Add New Buyer</button></li>
+                    </ul>
+                </div>
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridBuyer" ej-grid e-datasource="buyerList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="Buyer" e-headertext="BuyerName" e-width="80"></div>
+                            <div e-column e-field="BuyerStyleRefNo" e-headertext="Buyer Style Ref No" e-width="80"></div>
+                            <div e-column e-field="OwnStyleRefNo" e-headertext="Own Style Ref No" e-width="60"></div>
+                            <div e-column e-headertext="Actions" e-width="50">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.EditBuyer($event);" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeBuyer($event);" style="margin: -6px;"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="col-xs-12" id="addoperation" style="font-size:12px">
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-8 control-label" title="Sum of all Total SPT by process" style="color:blue"> Total SPT: {{TotalSPT}}</label>
+                <label class="col-sm-8 control-label" title="Sum of all Total MP by process" style="color:blue"> Total MP: {{TotalManpower}}</label>
+                <label class="col-sm-8 control-label" title="Sum of all Alloted Work station by process" style="color:blue"> Total Wk Station: {{TotalWorkStation}}</label>
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-8 control-label" title="Sum of MC Total SPT by process" style="color:blue"> MC Total SPT: {{MCtotalspt}}</label>
+                <label class="col-sm-8 control-label" title="Sum of MC Total MP by process" style="color:blue"> MC Total MP: {{MCtotalMP}}</label>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-8 control-label" title="Sum of Non MC Total SPT by process" style="color:blue"> Non MC Total SPT: {{NonMCtotalspt}}</label>
+                <label class="col-sm-8 control-label" title="Sum of Non MC Total MP by process" style="color:blue"> Non MC Total MP: {{NonMCtotalMP}}</label>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-8 control-label" title="Total SPT/Total Manpower" style="color:blue">Pitch Time: {{PitchTime}}</label>
+                <label class="col-sm-8 control-label" title="(Total Manpower * 60)/Total SPT" style="color:blue">Pdn 100% Efficiency/Hr: {{ProductionEfficiencyPerHour}}</label>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-8 control-label" title="Max of Avg Allotted Time" style="color:blue">Max. Allotted Time: {{MaxAllottedTime}}</label>
+                <label class="col-sm-12 control-label" title="Production at 100% Efficiency/Hour x Planned Hours/day" style="color:blue">Pdn 100% Efficiency/Day: {{ProductionEfficiencyPerDay}}</label>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-8 control-label" title="Pitch Time/Max. Allotted Time" style="color:blue">Organization Efficiency: {{OrganizationEfficiency}}</label>
+                <label class="col-sm-8 control-label" title="Production at 100% Efficiency/Hour x Organization Efficiency" style="color:blue">Line Target/Hour: {{LineTargetPerHour}}</label>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Operation</a></li>
+                <li ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);getSavedMacnineOperationData();" href="" data-toggle="tab">Consumption</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="col-xs-12">
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button style="margin-left: 5px;" ng-click="AddOperation();" ng-disabled="bulletinTemplateNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Add {{Process}} Operation</button></li>
+                            <li><button style="margin-left: 5px;" ng-click="AddMultiCode();" ng-disabled="bulletinTemplateNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Multi Code</button></li>
+                        </ul>
+                    </div>
+
+                    @*<div class="col-xs-8">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" style="padding-left: 190px;">Code</label>
+                                <div class="col-sm-4">
+                                    <input type="text" name="OperationVaiationCode" ng-model="bulletinTemplateDetailNew.OperationCode" ng-enter="Go()" ng-disabled="bulletinTemplateNew.Id===null" class="form-control" required tabindex="1">
+                                </div>
+                                <div class="col-xs-4">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button style="margin-left: 5px;" ng-click="Go();" ng-disabled="bulletinTemplateNew.Id===null" class="btn"><i class="glyphicon glyphicon-ok-circle" style="top: 1px;"></i> GO</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>*@
+                    @*<div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button style="margin-left: 5px;" ng-click="ShowCodePOpUp();" ng-disabled="bulletinTemplateNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                            </ul>
+                        </div>*@
+                    <label style="color: blue;font-size: 12px">OperationTarget/Hr: (60 / OperationSPT)</label> || <label style="color: blue;font-size: 12px">Required ManPower: (Planned Target/Hr / OperationTarget/Hr)</label>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-xs-12">
+                    <div style="color:black;" id="GridBulOperation" ej-grid e-datasource="operationList" e-recorddoubleclick="GetOperationVaiationCode" @*e-recorddoubleclick="GetOperationVaiationCode" e-allowpaging="true" *@
+                         e-allowfiltering="true" e-allowResizing="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-templaterefresh="refreshTemplateDelOperation"
+                         e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="60" style="height: 20px;"></div>
+                            <div e-column e-template="#Sequence" e-headertext="Sequence" e-width="50" style="height: 20px;"></div>
+                            <div e-column e-field="OperationVariation" e-headertext="Operation Variation" e-width="110" style="height: 20px;"></div>
+                            <div e-column e-headertext="Machine" e-width="40">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-search" ng-click="$parent.openMachinePopup($event);" style="margin: -6px;"></i></button>
+                            </div>
+                            <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OperationSPT" e-headertext="Operation SPT" e-width="50" style="height: 20px;"></div>
+                            <div e-column e-field="VASSAMSOURCE" e-headertext="SAM Source" e-width="50"></div>
+                            <div e-column e-template="#AddSPT" e-headertext="Add.SPT" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#TotalSPT" e-headertext="Total Operation SPT" e-width="50" style="height: 20px;"></div>
+
+                            <div e-column e-template="#RequiredManPower" e-headertext="Required ManPower" e-width="50" style="height: 20px;"></div>
+                            <div e-column e-template="#AllotedManpower" e-headertext="Alloted Manpower" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#AllotedWorkstation" e-headertext="Alloted Work Station" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#OperationGroup" e-headertext="Operation Group" e-width="40" style="height: 20px;"></div>
+                            <div e-column e-template="#AvgAllotedTime" e-headertext="Avg Alloted Time" e-width="50" style="height: 20px;"></div>
+                            <div e-column e-template="#OperationTarget" e-headertext="OperationTarget/Hr" e-width="50" style="height: 20px;"></div>
+
+                            <div e-column e-template="#OperationCategory" e-headertext="Operation Category" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#FZZone" e-headertext="FG Zone" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#FZComponent" e-headertext="FG Component" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#Attachment" e-headertext="Attachment" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#GaugeFolder" e-headertext="Gauge Folder" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#OperationConsumption" e-headertext="Operation Consumption" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#OperationType" e-headertext="Operation Type" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#Quality" e-headertext="Quality Level" e-width="40" style="height: 20px;"></div>
+
+                            @*<div e-column e-template="#SPI" e-headertext="SPI" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-template="#NoOfStitch" e-headertext="No Of Rows" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-template="#OperationLength" e-headertext="Operation Length-cm" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-template="#FabWdth" e-headertext="Fabric Width-inch" e-width="50" style="height: 20px;"></div>*@
+                            @*<div e-column e-template="#StitchCode" e-headertext="Stitch Code" e-width="80" style="height: 20px;"></div>*@
+                            <div e-column e-template="#Frequency" e-headertext="Frequency" e-width="40" style="height: 20px;"></div>
+
+
+
+                            <div e-column e-template="#Remark" e-headertext="Remark" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-field="IsMaxAllottedTime" e-headertext="IsMaxAllottedTime" e-width="80" style="height: 20px;" e-visible="false"></div>
+                            <div e-column e-field="MaterialMaster" e-headertext="Machine Master" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-headertext="Actions" e-width="50">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeProcessOperation($event);" style="margin: -6px;"></i></button>
+                            </div>
+                            <div e-column e-headertext="" @*e-headertemplateid="#headerDelTemplate"*@ e-template="#checkboxDelTemplate" e-textalign="center" e-width="30"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxDelTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.DelFlag" />
+                    </script>
+                    @*<script type="text/x-jsrender" id="headerDelTemplate">
+                            <input type="checkbox" id="headchk" />
+                        </script>*@
+                    <script type="text/template" id="Sequence">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Sequence" e-width="80" />
+                        </div>
+                    </script>
+                    <script type="text/template" id="OperationGroup">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ng-model="data.OperationGroup" style="color:black;" class="form-control" />
+                        </div>
+                    </script>
+                    <script type="text/template" id="OperationCategory">
+                        @*<div class="col-sm-10" style="padding:0px; width:90px;margin:-12px;">
+                                <input ej-dropdownlist e-datasource="$parent.OperationCategoryList" e-value="data.OperationCategoryId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                            </div>*@
+                        <div class="select-style">
+                            <select class="form-control" ng-model="data.OperationCategoryId" name="Operation Category">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in $parent.OperationCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </script>
+                    <script type="text/template" id="FZZone">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="data.FGZoneId" name="FGZone">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in $parent.FGZoneList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </script>
+                    <script type="text/template" id="FZComponent">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="data.FGComponentId" name="FGComponent">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in $parent.FGComponentList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </script>
+                    <script type="text/template" id="AddSPT">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdditionalSPT" e-change="data.TotalSPT=data.AdditionalSPT+data.OperationSPT" e-width="80" />
+                        </div>
+                    </script>
+                    <script type="text/template" id="TotalSPT">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            @*<input type="text" ng-model="data.TotalSPT| number : 2" disabled style="color:black;" class="form-control" />*@
+                            @*<input type="text" ng-model="data.TotalSPT" n-decimals="2" disabled style="color:black;" class="form-control" />*@
+                            <span>{{data.TotalSPT| number:2}}</span>
+                        </div>
+                    </script>
+                    @*<script type="text/template" id="TotalSPT">
+                            <div class="col-sm-10" style="padding:0px; width:70px; color:black">
+                                <input type="text" ej-numerictextbox e-decimalplaces="2" style="color:black;" e-enabled="false" e-value="data.TotalSPT" e-width="80" />
+                            </div>
+                        </script>*@
+
+                    <script type="text/template" id="AllotedWorkstation">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AllotedWorkstation" e-width="80" />
+                            @*<input type="text" ng-model="data.AllotedWorkstation" only-numbers style="color:black;" class="form-control" />*@
+                        </div>
+                    </script>
+                    <script type="text/template" id="AllotedManpower">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AllotedManpower" e-width="80" />
+                        </div>
+                    </script>
+                    <script type="text/template" id="AvgAllotedTime">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ng-model="data.AvgAllotedTime" disabled style="color:black; background-color:{{data.IsMaxAllottedTime==true?'Red':'#d8d7d7'}}" class="form-control" />
+                        </div>
+                    </script>
+                    <script type="text/template" id="OperationTarget">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ng-model="data.OperationTargetPerHr" disabled style="color:black;" class="form-control" />
+                        </div>
+                    </script>
+                    <script type="text/template" id="RequiredManPower">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ng-model="data.RequiredManPower" disabled style="color:black;" class="form-control" />
+                        </div>
+                    </script>
+
+
+                    <script type="text/template" id="Attachment">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="data.AttachmentId" name="Attachment">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in $parent.attachmentList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </script>
+                    <script type="text/template" id="GaugeFolder">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="data.GaugeFolderId" name="Gauge Folder">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in $parent.gaugeFolderList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </script>
+                    <script type="text/template" id="OperationConsumption">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="data.OperationConsumptionId" name="OperationConsumptionId">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in $parent.OperationConsumptionList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </script>
+                    <script type="text/template" id="OperationType">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="data.OperationTypeId" name="OperationTypeId">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in $parent.OperationTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </script>
+                    <script type="text/template" id="Quality">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ng-model="data.QualityLevel" style="color:black;" class="form-control" />
+                        </div>
+                    </script>
+                    <script type="text/template" id="Frequency">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ng-model="data.Frequency" style="color:black;" class="form-control" />
+                        </div>
+                    </script>
+                    <script type="text/template" id="Remark">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ng-model="data.Remark" ng-maxlength="150" style="color:black;" class="form-control" />
+                        </div>
+                    </script>
+                </div>
+                <div class="clearfix"></div><br />
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button style="margin-left: 5px;" ng-click="CalculateGroup();" class="btn"><i class="fa fa-calculator"></i> Calculate Avg. All. Time</button></li>
+                        <li><button style="margin-left: 5px;" ng-click="SaveOperation();" class="btn"><i class="glyphicon glyphicon-floppy-save" style="top:1px"></i> Save</button></li>
+                        <li><button style="margin-left: 5px;" ng-click="removeMultiOperation();" class="btn"><i class="glyphicon glyphicon-trash" style="top:1px"></i> Delete Selected Operations</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="col-xs-12">
+                    <div class="col-xs-4">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Fab Width(inch)</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="FabricWidth" n-decimals="4" ng-model="FabWidth" ng-enter="SetToAll()" ng-disabled="bulletinTemplateNew.Id===null" class="form-control" tabindex="1">
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="SetToAll();" ng-disabled="bulletinTemplateNew.Id===null" class="btn"><i class="glyphicon glyphicon-ok-circle" style="top: 1px;"></i> Set to All</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-4">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Wastage(%)</label>
+                            <div class="col-sm-8">
+                                <input type="text" n-decimals="4" ng-model="WastagePercentage" class="form-control" tabindex="4">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-4">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Extra Order(%)</label>
+                            <div class="col-sm-8">
+                                <input type="text" n-decimals="4" ng-model="ExtraOrderPercentage" class="form-control" tabindex="4">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GetMaterialSummary();" class="btn"><i class="glyphicon glyphicon-list" style="top: 1px;"></i> Material Summary</button></li>
+                            <li> <button ng-click="GetThreadConsumptionReport();" class="btn"><i class="glyphicon glyphicon-download" style="top: 1px;"></i></button></li>
+                        </ul>
+
+                    </div>
+                </div>
+
+                <div class="col-xs-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridBulMacOperation" ej-grid e-datasource="machineOperationList" e-gridlines="vertical" e-allowscrolling="true" e-showstackedheader="true" e-allowResizing="true" e-enabletouch="true">
+                            <div e-stackedheaderrows>
+                                <div e-stackedheaderrow>
+                                    <div e-stackedheadercolumns>
+                                        <div e-stackedheadercolumn e-headertext="General" e-text-align="center" e-column="Id,Operation,OperationVariation,MachineName,StitchCode,SPI,NoOfStitch,OperationLength,FabricWidth,SPIConsumption,Consumption"></div>
+                                        <div e-stackedheadercolumn e-headertext="Needle" e-text-align="center" e-column="NeedleM,NeedlePer,NeedleConsumption,N,NeedleMaterialMaster,NeedleArticle"></div>
+                                        <div e-stackedheadercolumn e-headertext="Bobbin" e-text-align="center" e-column="BobbinM,BobbinPer,BobbinConsumption,B,BobbinMaterialMaster,BobbinArticle"></div>
+                                        <div e-stackedheadercolumn e-headertext="Looper" e-text-align="center" e-column="LooperM,LooperPer,LooperConsumption,L,LooperMaterialMaster,LooperArticle"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false"></div>
+                                <div e-column e-field="Operation" e-headertext="Operation" e-width="100" style="height: 20px;"></div>
+                                <div e-column e-field="OperationVariation" e-headertext="Operation Variation" e-width="120" style="height: 20px;"></div>
+                                <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="80" style="height: 20px;"></div>
+                                @*<div e-column e-field="StitchCode" e-headertext="Stitch Code" e-width="110" style="height: 20px;"></div>*@
+                                @*<div e-column e-template="#StitchCode" e-headertext="Stitch Code" e-width="110" style="height: 20px;"></div>*@
+                                <div e-column e-field="StitchCode" e-headertext="Stitch Code" e-width="100">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="data.StitchCodeId" name="Stitch Code">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in $parent.stitchCodeList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                @*<div e-column e-field="SPI" e-headertext="SPI" e-width="30" style="height: 20px;"></div>
+                                    <div e-column e-field="NoOfStitch" e-headertext="No Of Rows" e-width="30" style="height: 20px;"></div>
+                                    <div e-column e-field="OperationLength" e-headertext="Operation Length-cm" e-width="30" style="height: 20px;"></div>
+                                    <div e-column e-field="FabricWidth" e-headertext="Fabric Width-inch" e-width="50" style="height: 20px;"></div>*@
+                                <div e-column e-field="SPI" e-template="#SPI" e-headertext="SPI" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-field="NoOfStitch" e-template="#NoOfStitch" e-headertext="No Of Rows" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-field="OperationLength" e-template="#OperationLength" e-headertext="Operation Length-cm" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-field="FabricWidth" e-template="#FabricWidth" e-headertext="Fabric Width-inch" e-width="50" style="height: 20px;"></div>
+
+                                <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="SPIConsumption" e-headertext="SPI Consumption" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="Consumption" e-headertext="Consumption-mt" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-field="NeedleM" e-template="#Needle" e-headertext="Description" e-width="100" style="height: 20px;"></div>
+                                <div e-column e-type="numeric" e-format="{0:0}" e-field="NeedlePer" e-headertext=" Needle Per" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="NeedleConsumption" e-headertext=" Consumption" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-field="N" e-headertext="N_Material" e-width="100">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="$parent.getNeedleMaterialMasterSearchData($event);" ng-disabled="data.NeedleConsumption==0" tooltip="Add Needle Material Master" class="btn" style="top: 1px;"><i class="glyphicon glyphicon-search" style="top: 1px;"></i></button></li>
+                                            <li> <button ng-click="$parent.ClearNeedleMaterialMasterSearchData($event);" ng-disabled="data.NeedleConsumption==0" tooltip="Clear" class="btn" style="top: 1px;"><i class="glyphicon glyphicon-refresh" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div e-column e-field="NeedleMaterialMaster" e-headertext="Material Master" e-width="110" style="height: 20px;"></div>
+                                <div e-column e-field="NeedleArticle" e-headertext="Article" e-width="110" style="height: 20px;"></div>
+                                <div e-column e-field="BobbinM" e-template="#Bobbin" e-headertext="Description" e-width="100" style="height: 20px;"></div>
+                                <div e-column e-type="numeric" e-format="{0:0}" e-field="BobbinPer" e-headertext=" Bobbin Per" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="BobbinConsumption" e-headertext=" Consumption" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-field="B" e-headertext="B_Material" e-width="100">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="$parent.getBobbinMaterialMasterSearchData($event);" ng-disabled="data.BobbinConsumption==0" tooltip="Add Bobbin Material Master" class="btn" style="top: 1px;"><i class="glyphicon glyphicon-search" style="top: 1px;"></i></button></li>
+                                            <li> <button ng-click="$parent.ClearBobbinMaterialMasterSearchData($event);" ng-disabled="data.BobbinConsumption==0" tooltip="Clear" class="btn" style="top: 1px;"><i class="glyphicon glyphicon-refresh" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div e-column e-field="BobbinMaterialMaster" e-headertext="Material Master" e-width="110" style="height: 20px;"></div>
+                                <div e-column e-field="BobbinArticle" e-headertext="Article" e-width="110" style="height: 20px;"></div>
+                                <div e-column e-field="LooperM" e-template="#Looper" e-headertext="Description" e-width="100" style="height: 20px;"></div>
+                                <div e-column e-type="numeric" e-format="{0:0}" e-field="LooperPer" e-headertext=" Looper Per" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="LooperConsumption" e-headertext=" Consumption" e-width="50" style="height: 20px;"></div>
+                                <div e-column e-field="L" e-headertext="L_Looper" e-width="100">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="$parent.getLooperMaterialMasterSearchData($event);" ng-disabled="data.LooperConsumption==0" tooltip="Add Looper Material Master" class="btn"><i class="glyphicon glyphicon-search" style="top: 1px;"></i></button></li>
+                                            <li> <button ng-click="$parent.ClearLooperMaterialMasterSearchData($event);" ng-disabled="data.LooperConsumption==0" tooltip="Clear" class="btn"><i class="glyphicon glyphicon-refresh" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div e-column e-field="LooperMaterialMaster" e-headertext="Material Master" e-width="110" style="height: 20px;"></div>
+                                <div e-column e-field="LooperArticle" e-headertext="Article" e-width="110" style="height: 20px;"></div>
+                            </div>
+                            <script type="text/template" id="Needle">
+                                <div class="col-sm-10" style="padding:0px; width:90px;">
+                                    <input type="text" ng-model="data.NeedleDescription" ng-maxlength="100" style="color:black;" class="form-control" />
+                                </div>
+                            </script>
+                            <script type="text/template" id="Bobbin">
+                                <div class="col-sm-10" style="padding:0px; width:90px;">
+                                    <input type="text" ng-model="data.BobbinDescription" ng-maxlength="100" style="color:black;" class="form-control" />
+                                </div>
+                            </script>
+                            <script type="text/template" id="Looper">
+                                <div class="col-sm-10" style="padding:0px; width:90px;">
+                                    <input type="text" ng-model="data.LooperDescription" ng-maxlength="100" style="color:black;" class="form-control" />
+                                </div>
+                            </script>
+                            @*<script type="text/template" id="StitchCode">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="data.StitchCodeId" name="Stitch Code">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in $parent.stitchCodeList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </script>*@
+                            <script type="text/template" id="SPI">
+                                <div class="col-sm-10" style="padding:0px; width:70px;">
+                                    <input type="text" ej-numerictextbox e-decimalplaces="0" e-value="data.SPI" e-width="80" />
+                                </div>
+                            </script>
+                            <script type="text/template" id="FabricWidth">
+                                <div class="col-sm-10" style="padding:0px; width:70px;">
+                                    <input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.FabricWidth" e-width="80" />
+                                </div>
+                            </script>
+                            <script type="text/template" id="NoOfStitch">
+                                <div class="col-sm-10" style="padding:0px; width:70px;">
+                                    <input type="text" ej-numerictextbox e-decimalplaces="0" e-value="data.NoOfStitch" e-width="80" />
+                                </div>
+                            </script>
+                            <script type="text/template" id="OperationLength">
+                                <div class="col-sm-10" style="padding:0px; width:70px;">
+                                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.OperationLength" e-width="80" />
+                                </div>
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div><br />
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button style="margin-left: 5px;" ng-click="SaveThreadOperation();" class="btn"><i class="glyphicon glyphicon-floppy-save" style="top:1px"></i> Save</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="aplos-grid-toggle">
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="GetBulletinTamplateIndexReport();" class="btn" title="Report"><i class="glyphicon glyphicon-download"></i> Bulletin Template</button></li>
+
+        </ul>
+    </div>
+    <div class="content-container-fluid" style="color:black;">
+        <div style="color:black;" id="Gridbulletin" ej-grid e-datasource="bulletinMasters" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+             e-allowResizing="true" e-recorddoubleclick="Get" e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Bulletin ID" e-headertext-color="black" e-textalign="left" e-width="40"></div>
+                <div e-column e-field="BulletinName" e-headertext="Bulletin Name" e-width="80"></div>
+                <div e-column e-field="AlternativeName" e-headertext="Alternative Name" e-width="80"></div>
+                <div e-column e-field="ProductMaster" e-headertext="Product Master" e-width="50"></div>
+                <div e-column e-field="SizeGroup" e-headertext="Size Group" e-width="20"></div>
+                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                <div e-column e-field="BuyerItemRefNo" e-headertext="Buyer Style RefNo" e-width="50"></div>
+                <div e-column e-field="OwnStyleRefNo" e-headertext="Own Style RefNo" e-width="50"></div>
+                <div e-column e-field="Process" e-headertext="Process" e-width="80"></div>
+                @*<div e-column e-headertext="Print" e-width="100">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Details" class="btn"><i class="fa fa-file-excel-o" ng-click="$parent.onClickExcelPrints(this);"></i></button>
+                    <ul class="list-inline action-list">
+                        <li><a class="btn btn-action" href="IE/bulletintemplate/GetBulletinTamplateDetailReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&bulletinTemplateId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                    </ul>
+                      
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Summary" class="btn"><i class="fa fa-file-excel-o" ng-click="$parent.DownloadBTSummaryReport(this);"></i></button>
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" title="Bulletin Summary" class="btn"><i class="fa fa-file-excel-o" ng-click="$parent.BulSummaryExcelPrints(this);"></i></button>
+                        
+                </div>*@
+
+                <div style="float:left;" e-column e-headertext="Print" e-width="200">
+                    <ul class="common-btn list-inline text-left">
+                        <li>
+                            <div ej-tooltip e-showshadow="true" e-content="Detail" ng-click="$parent.onClickExcelPrints(this);" e-width="width">
+                                <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
+                            </div>
+                        </li>
+                        <li>
+                            <ul class="list-inline action-list">
+                                <li><a class="btn btn-action" title="Detail" href="IE/bulletintemplate/GetBulletinTamplateDetailReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&bulletinTemplateId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div ej-tooltip e-showshadow="true" e-content="Summary" ng-click="$parent.DownloadBTSummaryReport(this);" e-width="width">
+                                <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
+                            </div>
+                        </li>
+                        <li>
+                            <ul class="list-inline action-list">
+                                <li><a class="btn btn-action" title="Summary" href="IE/bulletintemplate/GetBulletinTamplateSummaryReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&bulletinTemplateId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div ej-tooltip e-showshadow="true" e-content="Bulletin Summary" ng-click="$parent.BulSummaryExcelPrints(this);" e-width="width">
+                                <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-excel-o"></i></button>
+                            </div>
+                        </li>
+                        <li>
+                            <ul class="list-inline action-list">
+                                <li><a class="btn btn-action" title="Bulletin Summary" href="IE/bulletintemplate/GetBulTamplateSummaryReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&bulletinTemplateId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<!-- #region Process -->
+<div class="modal fade site-modal in" id="ProcessPoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Process<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div ng-form="ProcessForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label" title="Process Name" data-placement="top">Production Process</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Process Name" class="form-control" ng-model="bulletinProcessNew.ProcessId" ng-options="item.Value as item.Text for item in processCboList" ng-change="getProcessQtyAndNoWSData();" required>
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Max No Of WS</label>
+                            <div class="col-sm-8">
+                                <input type="text" ng-model="bulletinProcessNew.MaxNoOfWS" name="Max No Of WS" n-decimals="4" class="form-control text-right">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label" title="Required Std Target/Hr">Required Std Target/Hr<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="bulletinProcessNew.RequiredStdTarget" name="Required Std Target" n-decimals="4" class="form-control text-right" required>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label" title="Planned Hours PerDay">Planned Hours PerDay<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="bulletinProcessNew.PlannedHoursPerDay" name="Planned Hours PerDay" n-decimals="4" class="form-control text-right" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveProcess();" class="btn"><i class=""></i> {{bulletinProcessNew.Id==null?'Save':'Update'}}</button></li>
+                            <li> <button ng-click="CloseProcess();" class="btn">Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion Process-->
+<!-- #region Buyer -->
+<div class="modal fade site-modal in" id="BuyerPoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Buyer<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div ng-form="BuyerForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Buyer Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Buyer Name" class="form-control" ng-model="bulletinBuyerNew.BuyerId" ng-options="item.Value as item.Text for item in buyerCboList" required>
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Own Style Ref No<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="bulletinBuyerNew.OwnStyleRefNo" name="Own Style Ref No" required class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Buyer Style Ref No<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="bulletinBuyerNew.BuyerStyleRefNo" name="Buyer Style Ref No" required class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveBuyer();" class="btn"><i class=""></i> {{bulletinBuyerNew.Id==null?'Save':'Update'}}</button></li>
+                            <li> <button ng-click="CloseBuyer();" class="btn">Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion Buyer-->
+<!-- #region Operation  e-allowtextwrap="true"-->
+<div class="row">
+    <div class="form-group">
+        <ej-dialog id="OperationPoUp" title="Operation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#addoperation"
+                   e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn">
+            <div class="row">
+                <div id="GridOperation" ej-grid e-datasource="searchdata" e-templaterefresh="refreshTemplateemployee"
+                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
+                    <div e-columns>
+                        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                        <div e-column e-field="OperationVariationId" e-headertext="OperationVariationId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false"></div>
+                        <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="40"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
+                        <div e-column e-field="OperationVariation" e-headertext="Operation Variation" e-width="100"></div>
+                        <div e-column e-field="Article" e-headertext="Article" e-width="80"></div>
+                        <div e-column e-field="Skill" e-headertext="Skill" e-width="80"></div>
+                        <div e-column e-field="OperationCategory" e-headertext="Category" e-width="40"></div>
+                        <div e-column e-field="Frequency" e-headertext="Frequency" e-width="40"></div>
+                        <div e-column e-field="SubOperationSAM" e-headertext="SubOperation SAM" e-width="50"></div>
+                        <div e-column e-field="AdditionalSAM" e-headertext="Add.SAM" e-width="50"></div>
+                        <div e-column e-field="SPI" e-headertext="SPI" e-width="50"></div>
+                        <div e-column e-field="VASSAMSOURCE" e-headertext="SAM Source" e-width="50"></div>
+                        <div e-column e-field="TotalSAM" e-headertext="Total SAM" e-width="50"></div>
+                        <div e-column e-field="OperationLength" e-headertext="Operation Length" e-width="50"></div>
+                        <div e-column e-field="StitchCode" e-headertext="Stitch Code" e-width="50"></div>
+
+                    </div>
+                </div>
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseOperation();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </ej-dialog>
+    </div>
+</div>
+
+<!-- #endregion Operation-->
+<confirm-archive-generic modalid="confirmProcessPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteProcess();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmBuyerPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteBuyer();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmProcessOperationPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteProcessOperation();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmMultiOperationPopUp" title="Confirmation" message={{message_multi_confirmation}} data-ng-click-right-button="DeleteMultiOperation();"></confirm-archive-generic>
+
+<!-- #region Machine -->
+<div class="modal fade site-modal in" id="MachinePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closeMachinePopUp()">&times;</button>
+                <h4 class="modal-title">Machine</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-elements form-horizontal" ng-form="machineForm">
+
+                    <div class="col-xs-12 col-sm-4 col-md-4 pdl3">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Machine Master<sup ng-show="operationVariationNew.IsMachineRequired=='M'">*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="Machine" ng-model="operationVariationNew.MaterialName" class="form-control" disabled>
+                                    <span class="input-group-btn">
+                                        <button ng-click="materialPopUp();" ng-disabled="IsMachineChangeableinBulletinTemplate==false" class="btn single-small-btn" tabindex="21"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label tooltip-here" title="Basic Process Time" tooltip>BPT</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" n-decimals="2" ng-model="operationVariationNew.BasicProcessTime" class="form-control text-right" disabled>
+                                    <span class="input-group-addon">Minutes</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Personal Allowance</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" n-decimals="2" ng-model="operationVariationNew.PersonalAllowance" class="form-control text-right" disabled>
+                                    <span class="input-group-addon">%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">SubOperation SAM</label>
+                            <div class="col-sm-8">
+                                <input type="text" n-decimals="4" name="SubOperationSAM" ng-model="operationVariationNew.SubOperationSAM" class="form-control text-right" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4 pdl3">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Machine<sup ng-show="operationVariationNew.IsMachineRequired=='M'">*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Machine" ng-model="operationVariationNew.ArticleName" class="form-control" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label tooltip-here" title="Associate Process Time" tooltip>APT</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" n-decimals="2" ng-model="operationVariationNew.AssociateProcessTime" class="form-control text-right" disabled>
+                                    <span class="input-group-addon">Minutes</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Machine Allowance</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" n-decimals="2" disabled name="Machine Allowance" ng-model="operationVariationNew.MachineAllowance" class="form-control text-right">
+                                    <span class="input-group-addon">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Additional SAM</label>
+                            <div class="col-sm-8">
+                                <label class="control-label">{{operationVariationNew.AdditionalSAMSymbol}} {{operationVariationNew.AdditionalSAM}}</label>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4 pdl3">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Skill</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="Skill" ng-model="operationVariationNew.SkillName" class="form-control" disabled>
+                                    <span class="input-group-btn">
+                                        <button ng-click="skillPoUp();" ng-disabled="IsMachineChangeableinBulletinTemplate==false" class="btn single-small-btn" tabindex="22"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group"> <label class="col-sm-12 control-label" hidden></label></div>
+                        <div class="form-group"> <label class="col-sm-12 control-label" hidden></label></div>
+                        <div class="form-group"> <label class="col-sm-12 control-label" hidden></label></div>
+                        <div class="form-group"> <label class="col-sm-12 control-label" hidden></label></div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-5 control-label">Additional Allowance<sup>*</sup></label>
+                            <div class="col-sm-7 show-message">
+                                <div class="input-group">
+                                    <input type="text" n-decimals="2" name="Additional Allowance" ng-model="operationVariationNew.AdditionalAllowance" disabled class="form-control text-right" ng-required>
+                                    <span class="input-group-addon">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" title="Original SAM" tooltip>Total SAM</label>
+                            <div class="col-sm-8">
+                                <input type="text" n-decimals="4" name="Total SAM" ng-model="operationVariationNew.TotalSAM" class="form-control text-right" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="UpdateMachine()" class="btn">{{ActionMachine}}</button></li>
+                            <li> <button ng-click="closeMachinePopUp()" class="btn">Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region Material -->
+<div class="modal fade site-modal in" id="materialId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closeMaterial()">&times;</button>
+                <h4 class="modal-title">Machine Master</h4>
+            </div>
+            <div class="modal-body">
+                <div class="">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="materialParameters.searchBy">
+                                                <option ng-repeat="option in materialList" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="materialParameters.search" ng-enter="getMaterialData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="getMaterialData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Material Group</th>
+                                    <th>Code</th>
+                                    <th>Short Name</th>
+                                    <th>Standard Name</th>
+                                    <th>Material Master</th>
+                                    <th>Asset Master</th>
+                                    <th>Budget</th>
+                                    <th>Machine</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in materialDataList|itemsPerPage:materialParameters.pageSize"
+                                    total-items="materialParameters.total_count" pagination-id="metaData.name + 'materialDataList'">
+                                    <td>{{x.MaterialGroupMaster}}</td>
+                                    <td>{{x.Code}}</td>
+                                    <td>{{x.ShortName}}</td>
+                                    <td>{{x.StandardName}}</td>
+                                    <td>{{x.MaterialMasterName}}</td>
+                                    <td>{{x.AssetMaster}}</td>
+                                    <td>{{x.BudgetName}}</td>
+                                    <td>
+                                        <ul class="list-inline action-list">
+                                            <li><button ng-click="articlePopUp(x.MaterialMasterId, x.MaterialMasterName, $index);" class="btn btn-action"><i class="glyphicon glyphicon-list"></i></button></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <dir-pagination-controls max-size="10"
+                                                 pagination-id="metaData.name + 'materialDataList'"
+                                                 direction-links="true"
+                                                 boundary-links="true"
+                                                 on-page-change="getMaterialData(newPageNumber)">
+                        </dir-pagination-controls>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="closeMaterial()" class="btn">Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region Article -->
+<modal-table modalid="articleId"
+             data-title="Article"
+             data-search-parameters="articleParameters"
+             data-exclued-column-list="excluedList"
+             data-field-list="articleList"
+             data-data-list="articleDataList"
+             data-search-function="getarticleData"
+             data-single-click=""
+             data-double-click="selectArticle(data)"
+             data-left-button="false"
+             data-right-button="true"
+             data-ng-click-left-button=""
+             data-ng-click-cancel="closeArticle()">
+</modal-table>
+<!-- #endregion -->
+<!-- #region Skill -->
+<div class="modal fade site-modal in" id="skillId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Skill<button type="button" class="close" ng-click="closeSkill()">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="skillParameters.searchBy">
+                                            <option ng-repeat="option in skillList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="skillParameters.search" ng-enter="getSkillData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getSkillData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Skill Category</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>UserName</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in skillDataList|itemsPerPage:skillParameters.pageSize" ng-dblclick="selectSkill(x);"
+                                total-items="skillParameters.total_count" pagination-id="metaData.name + 'skillDataList'">
+                                <td>{{x.SkillCategoryName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'skillDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getSkillData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="closeSkill()" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+
+<div class="modal fade site-modal in" id="PitchPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closePitchPopUp()">&times;</button>
+                <h4 class="modal-title">{{Process}}</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-elements form-horizontal">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Total SPT/Total Manpower">Pitch Time:</label>
+                                <label class="col-sm-8 control-label" title="Total SPT/Total Manpower" style="padding-left: 60px;"><b>{{PitchTime}}</b></label>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Max of Avg Allotted Time">Max. Allotted Time:</label>
+                                <label class="col-sm-8 control-label" title="Max of Avg Allotted Time" style="padding-left: 60px;"><b>{{MaxAllottedTime}}</b></label>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Pitch Time/Max. Allotted Time">Organization Efficiency:</label>
+                                <label class="col-sm-8 control-label" title="Pitch Time/Max. Allotted Time" style="padding-left: 60px;"><b>{{OrganizationEfficiency}}</b></label>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="(Total Manpower * 60)/Total SPT">Production 100% Efficiency Per Hour:</label>
+                                <label class="col-sm-8 control-label" title="(Total Manpower * 60)/Total SPT" style="padding-left: 135px;"><b>{{ProductionEfficiencyPerHour}}</b></label>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Production at 100% Efficiency per Hour x Planned Hours per day">Production 100% Efficiency Per Day:</label>
+                                <label class="col-sm-8 control-label" title="Production at 100% Efficiency per Hour x Planned Hours per day" style="padding-left: 135px;"><b>{{ProductionEfficiencyPerDay}}</b></label>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Production at 100% Efficiency per Hour x Organization Efficiency">Line Target per Hour:</label>
+                                <label class="col-sm-8 control-label" title="Production at 100% Efficiency per Hour x Organization Efficiency" style="padding-left: 135px;"><b>{{LineTargetPerHour}}</b></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- #region Needle -->
+
+<div class="modal fade site-modal in" id="NeedlematerialMasterbyTypePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Machine Master
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="mmPopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchbyMaterialMasterDatalist" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="mmPopUpParameters.search" ng-enter="loadMMData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadMMData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped text-left">
+                        <thead>
+                            <tr>
+                                <th>Material Type</th>
+                                <th>Material Group</th>
+                                <th>Product</th>
+                                <th>Code</th>
+                                <th>Material Name</th>
+                                <th>Id</th>
+                                <th>HSN Code</th>
+                                <th>WithSKU</th>
+                                <th>IsAsset</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in materialmasterSearchData  |itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'materialmasterSearchData'"
+                                total-items="mmPopUpParameters.total_count" ng-dblclick="setNeedleMaterialMasterData(x);">
+                                <td>{{x.MaterialTypeName}}</td>
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.ProductMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.Id}}</td>
+                                <td>{{x.HSNCode}}</td>
+                                <td>{{x.WithSKU?'Yes':'No'}}</td>
+                                <td>{{x.IsAsset?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'materialmasterSearchData'"
+                                             max-size="2"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadMMData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="NeedlearticleSearchPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Article<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="articlePopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="articlePopUpParameters.search" ng-enter="loadArticleData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadArticleData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Material Group</th>
+                                <th>Material Code</th>
+                                <th>Material</th>
+                                <th>Article Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in dataPlate |itemsPerPage:articlePopUpParameters.pageSize" total-items="articlePopUpParameters.total_count"
+                                pagination-id="metaData.name + 'dataPlate'" ng-dblclick="selectNeedlearticle(x);">
+                                <td>{{x.MaterialGroup}}</td>
+                                <td>{{x.MaterialCode}}</td>
+                                <td>{{x.MaterialMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="2"
+                                             pagination-id="metaData.name + 'dataPlate'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadArticleData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- #endregion -->
+<!-- #region Bobbin -->
+<div class="modal fade site-modal in" id="BobbinmaterialMasterbyTypePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Machine Master
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="mmPopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchbyMaterialMasterDatalist" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="mmPopUpParameters.search" ng-enter="loadMMData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadMMData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped text-left">
+                        <thead>
+                            <tr>
+                                <th>Material Type</th>
+                                <th>Material Group</th>
+                                <th>Product</th>
+                                <th>Code</th>
+                                <th>Material Name</th>
+                                <th>Id</th>
+                                <th>HSN Code</th>
+                                <th>WithSKU</th>
+                                <th>IsAsset</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in materialmasterSearchData  |itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'materialmasterSearchData'"
+                                total-items="mmPopUpParameters.total_count" ng-dblclick="setBobbinMaterialMasterData(x);">
+                                <td>{{x.MaterialTypeName}}</td>
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.ProductMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.Id}}</td>
+                                <td>{{x.HSNCode}}</td>
+                                <td>{{x.WithSKU?'Yes':'No'}}</td>
+                                <td>{{x.IsAsset?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'materialmasterSearchData'"
+                                             max-size="2"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadMMData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="BobbinarticleSearchPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Article<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="articlePopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="articlePopUpParameters.search" ng-enter="loadArticleData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadArticleData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Material Group</th>
+                                <th>Material Code</th>
+                                <th>Material</th>
+                                <th>Article Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in dataPlate |itemsPerPage:articlePopUpParameters.pageSize" total-items="articlePopUpParameters.total_count"
+                                pagination-id="metaData.name + 'dataPlate'" ng-dblclick="selectBobbinarticle(x);">
+                                <td>{{x.MaterialGroup}}</td>
+                                <td>{{x.MaterialCode}}</td>
+                                <td>{{x.MaterialMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="2"
+                                             pagination-id="metaData.name + 'dataPlate'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadArticleData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- #endregion -->
+<!-- #region Looper -->
+<div class="modal fade site-modal in" id="LoopermaterialMasterbyTypePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Machine Master
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="mmPopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchbyMaterialMasterDatalist" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="mmPopUpParameters.search" ng-enter="loadMMData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadMMData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped text-left">
+                        <thead>
+                            <tr>
+                                <th>Material Type</th>
+                                <th>Material Group</th>
+                                <th>Product</th>
+                                <th>Code</th>
+                                <th>Material Name</th>
+                                <th>Id</th>
+                                <th>HSN Code</th>
+                                <th>WithSKU</th>
+                                <th>IsAsset</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in materialmasterSearchData  |itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'materialmasterSearchData'"
+                                total-items="mmPopUpParameters.total_count" ng-dblclick="setLooperMaterialMasterData(x);">
+                                <td>{{x.MaterialTypeName}}</td>
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.ProductMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.Id}}</td>
+                                <td>{{x.HSNCode}}</td>
+                                <td>{{x.WithSKU?'Yes':'No'}}</td>
+                                <td>{{x.IsAsset?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'materialmasterSearchData'"
+                                             max-size="2"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadMMData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="LooperarticleSearchPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Article<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="articlePopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="articlePopUpParameters.search" ng-enter="loadArticleData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadArticleData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Material Group</th>
+                                <th>Material Code</th>
+                                <th>Material</th>
+                                <th>Article Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in dataPlate |itemsPerPage:articlePopUpParameters.pageSize" total-items="articlePopUpParameters.total_count"
+                                pagination-id="metaData.name + 'dataPlate'" ng-dblclick="selectLooperarticle(x);">
+                                <td>{{x.MaterialGroup}}</td>
+                                <td>{{x.MaterialCode}}</td>
+                                <td>{{x.MaterialMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="2"
+                                             pagination-id="metaData.name + 'dataPlate'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadArticleData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- #endregion -->
+
+<div class="modal fade site-modal in" id="SeqPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closeSeqPopUp()">&times;</button>
+                <h4 class="modal-title">Operation Sequence</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-elements form-horizontal">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Sequence</label>
+                                <div class="col-sm-8">
+                                    <input type="number" name="Sequence" ng-model="bulletinTemplateDetailNew.Sequence" class="form-control" required tabindex="1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    @*<li><button style="margin-left: 5px;" ng-click="closeSeqPopUp();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Close</button></li>*@
+                                    <li><button style="margin-left: 5px;" ng-click="UpdateSequence();" class="btn"><i class="glyphicon glyphicon-plus" style="top:1px"></i> Save</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="OperationVaiationCodePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closeOperationVaiationCodePopUp()">&times;</button>
+                <h4 class="modal-title">Operation Variation Code</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-elements form-horizontal">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Code</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="OperationVaiationCode" ng-model="bulletinTemplateDetailNew.OperationCode" class="form-control" required tabindex="1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li><button style="margin-left: 5px;" ng-click="UpdateOperationVaiationCode();" class="btn"><i class="glyphicon glyphicon-plus" style="top:1px"></i> Update</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="OperationVaiationCodesPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closeOperationVaiationCodesPopUp()">&times;</button>
+                <h4 class="modal-title">Operation Variation Code</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-elements form-horizontal">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Code</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="OperationVaiationCode" ng-model="bulletinTemplateDetailNew.OperationCode" class="form-control" required tabindex="1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li><button style="margin-left: 5px;" ng-click="AddCode();" class="btn"><i class="glyphicon glyphicon-plus" style="top:1px"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in operationCodelist">
+                                    <td>{{x.OperationCode}}</td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="MaterialSummaryPoUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form="MaterialSummaryForm">
+            <div class="modal-header">
+                Material Summary
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="color:black;" id="GridThreadMatrix" ej-grid e-datasource="threadMatrixList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-summaryrows="MaterialSummaryRows">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                        <div e-column e-field="Thread" e-headertext="Thread" e-width="100"></div>
+                        <div e-column e-field="NeedleConsumption" e-headertext="Needle Consumption" e-textalign="right" e-width="50"></div>
+                        <div e-column e-field="BobbinConsumption" e-headertext="Bobbin Consumption" e-textalign="right" e-width="50"></div>
+                        <div e-column e-field="LooperConsumption" e-headertext="Looper Consumption" e-textalign="right" e-width="50"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="AddMultiOperationCodePoUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content" ng-form="MultiOperationForm">
+            <div class="modal-header">
+                Operation Variation Code
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-elements form-horizontal">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Code</label>
+                                <div class="col-sm-6">
+                                    <input type="text" name="OperationVaiationCode" ng-model="bulletinTemplateDetailNew.OperationCode" ng-enter="Go()" ng-disabled="bulletinTemplateNew.Id===null" class="form-control" required tabindex="1">
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button style="margin-left: 5px;" ng-click="Go();" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Go</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="color:black;" id="GridMultiCode" ej-grid e-datasource="MultiCodeList" e-gridlines="vertical" e-allowpaging="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+                                <div e-columns>
+                                    @*<div e-column e-field="Sequenc" e-headertext="Sequence" e-width="30"></div>*@
+                                    <div e-column e-template="#Sequenc" e-headertext="Sequence" e-width="50" style="height: 20px;"></div>
+                                    <div e-column e-field="OperationCode" e-headertext="Operation Vaiation Code" e-width="50"></div>
+                                </div>
+                                <script type="text/template" id="Sequenc">
+                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                        <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Sequenc" e-width="80" />
+                                    </div>
+                                </script>
+                            </div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li><button style="margin-left: 5px;" ng-click="UpdateMultiCode();" ng-disabled="bulletinTemplateNew.Id===null" class="btn"><i class="glyphicon glyphicon-ok-circle" style="top: 1px;"></i> Update</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>
+
+

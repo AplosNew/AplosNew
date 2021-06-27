@@ -1,0 +1,356 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Attendance Reports</h3>
+<div class="form-elements form-horizontal" ng-form="modelForm">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="assign" role="tab" data-toggle="tab">Daily Attendance Report</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="assigned" role="tab" data-toggle="tab">Monthly Shift Report</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="assigned" role="tab" data-toggle="tab">Monthly Attendance Report</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="assigned" role="tab" data-toggle="tab">Employee Job Card</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="form-elements form-horizontal" ng-form="modelForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        @*<div class="form-group">
+                                <label class="col-sm-4 control-label">Work Date<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Work Date" ng-model="dailyComplianceReport.WorkDate" datepicker class="form-control">
+                                    <p ng-show="dateMessageTo" style="color:red" class="show-message">{{dateMessageTo}}</p>
+                                </div>
+                            </div>*@
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Work Date<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <input type="text" name="Work Date" ng-model="dailyComplianceReport.WorkDate" datepicker class="form-control">
+                                <p ng-show="dateMessageTo" style="color:red" class="show-message">{{dateMessageTo}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-6" style="margin:1px;">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li><button ng-click="GetDailyComplianceReport();" class="btn"> <i class="glyphicon glyphicon-download"></i> Download</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="form-elements form-horizontal" ng-form="modelForm">
+                    <div class="col-xs-6 col-sm-3 col-md-3">
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Year<sup>*</sup></label>
+                                <div class="col-sm-7">
+                                    <div class="select-style">
+                                        <select id="YearId" class="form-control" ng-model="monthlyShiftReport.YearId" name="YearId" required tabindex="1">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in yearList" value="{{option.Text}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-3 col-md-3">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Month<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select id="MonthId" class="form-control" ng-model="monthlyShiftReport.MonthId" name="MonthId" required tabindex="1">
+                                        <option value="">--Select--</option>
+                                        <option Value="01">Jan</option>
+                                        <option Value="02">Feb</option>
+                                        <option Value="03">Mar</option>
+                                        <option Value="04">Apr</option>
+                                        <option Value="05">May</option>
+                                        <option Value="06">Jun</option>
+                                        <option Value="07">Jul</option>
+                                        <option Value="08">Aug</option>
+                                        <option Value="09">Sep</option>
+                                        <option Value="10">Oct</option>
+                                        <option Value="11">Nov</option>
+                                        <option Value="12">Dec</option>
+                                    </select>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-3 col-md-3">
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Shift<sup></sup></label>
+                                <div class="col-sm-8">
+                                    <input id="ddlCompShiftList" ej-dropdownlist e-create="createComplianceShift" e-headertemplate='<input class="temp1" type="checkbox" id="checkComplianceShift" />' e-multiselectmode="visualmode" e-datasource="shiftList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-3 col-md-3">
+                        <div class="form-group">
+                            <div class="col-xs-6" style="margin:1px;">
+                                <div class="common-btn">
+                                    <button ng-click="GetMonthlyShiftReport();" class="btn"> <i class="glyphicon glyphicon-download"></i> Download</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="form-elements form-horizontal" ng-form="modelForm">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-3 col-md-3">
+                            <div class="radio">
+                                <label>
+                                    Day Status<input type="radio" name="status" ng-model="attendanceReportStatus" value="DayStatus" checked="checked">
+                                    <span class="cr"><i class="cr-icon"></i></span>
+                                </label>
+                                <label>
+                                    All Status Info
+                                    <input type="radio" name="status" ng-model="attendanceReportStatus" value="AllStatusInfo"><span class="cr"><i class="cr-icon"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-elements form-horizontal" ng-form="modelForm">
+                    <div class="col-xs-6 col-sm-3 col-md-3">
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Year<sup>*</sup></label>
+                                <div class="col-sm-7">
+                                    <div class="select-style">
+                                        <select id="YearId" class="form-control" ng-model="monthlyShiftReport.YearId" name="YearId" required tabindex="1">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in yearList" value="{{option.Text}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-3 col-md-3">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Month<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select id="MonthId" class="form-control" ng-model="monthlyShiftReport.MonthId" name="MonthId" required tabindex="1">
+                                        <option value="">--Select--</option>
+                                        <option Value="01">Jan</option>
+                                        <option Value="02">Feb</option>
+                                        <option Value="03">Mar</option>
+                                        <option Value="04">Apr</option>
+                                        <option Value="05">May</option>
+                                        <option Value="06">Jun</option>
+                                        <option Value="07">Jul</option>
+                                        <option Value="08">Aug</option>
+                                        <option Value="09">Sep</option>
+                                        <option Value="10">Oct</option>
+                                        <option Value="11">Nov</option>
+                                        <option Value="12">Dec</option>
+                                    </select>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-3 col-md-3">
+                        <div class="form-group">
+                            <div class="col-xs-6" style="margin:1px;">
+                                <div class="common-btn">
+                                    <button ng-click="GetDailyAttdnReportMonthy();" class="btn"> <i class="glyphicon glyphicon-download"></i> Download</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <div class="form-elements form-horizontal" ng-form="modelForm">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee Select</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" placeholder="Selected Employees" readonly="readonly" rows="3" ng-model="EmpJobCardReport.employeeCodeString"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class=" common-btn col-sm-4 "></label>
+                            <div class="col-sm-3">
+                                <ul class="common-btn list-inline text-right">
+                                    <li><button class="single-btn" ng-click="popUp();"><i class="glyphicon  glyphicon-search "></i> Search</button> </li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-3">
+                                <ul class="common-btn list-inline text-right">
+                                    <li><button class="single-btn" ng-click="Clear();"><i class="glyphicon  glyphicon-refresh "></i> Clear</button> </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <input type="text" name="Form Date" ng-model="EmpJobCardReport.FromDate" datepicker class="form-control">
+                                <p ng-show="dateMessageFrom" style="color:red" class="show-message">{{dateMessageFrom}}</p>
+                                <p ng-show="dateMessageFrom2" style="color:red" class="show-message">{{dateMessageFrom2}}</p>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <input type="text" name="To Date" ng-model="EmpJobCardReport.ToDate" datepicker class="form-control">
+                                <p ng-show="dateMessageTo" style="color:red" class="show-message">{{dateMessageTo}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="common-btn col-xs-12 col-sm-8 col-md-6">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="GetEmployeeJobCardReport();" class="btn"> <i class="glyphicon glyphicon-download"></i> Download</button></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="loader" data-loader>
+        Please wait
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+    </div>
+    <div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Employee List
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="row form-element-ctrl form-horizontal">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <div ng-dropdown-multiselect="" options="divisionNewList" selected-model="divisionIds"
+                                         extra-settings="multiSelectSettings" translation-texts="example4customTexts" events="multi4events"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <div ng-dropdown-multiselect="" options="departmentNewList" selected-model="departmentIds"
+                                         extra-settings="multiSelectSettings" translation-texts="example3customTexts" events="multi3events"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <div ng-dropdown-multiselect="" options="sectionNewList" selected-model="sectionIds"
+                                         extra-settings="multiSelectSettings" translation-texts="example5customTexts" events="multi5events"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <div ng-dropdown-multiselect="" options="employeeCategoryNewList" selected-model="employeeCategoryIds"
+                                         extra-settings="multiSelectSettings" translation-texts="example6customTexts" events="multi6events"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <div ng-dropdown-multiselect="" options="givenDesignationNewList" selected-model="givenDesignationIds"
+                                         extra-settings="multiSelectSettings" translation-texts="example7customTexts" events="multi7events"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row form-element-ctrl form-horizontal">
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Employee Code</label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="ShortName" ng-model="paidHoursEmployeeAssignNew.EmployeeCode" class="form-control" maxlength="15" tabindex="3">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Employee Name</label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="ShortName" ng-model="paidHoursEmployeeAssignNew.EmployeeName" class="form-control" maxlength="15" tabindex="3">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="common-btn">
+                                <button type="button" ng-click="getSearchData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p>Employee Count:{{employeeParameters.total_count}}</p>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Employee Code</th>
+                                    <th>Employee Name</th>
+                                    <th>Employee Category</th>
+                                    <th>Given Designation</th>
+                                    <th>Division</th>
+                                    <th>Department</th>
+                                    <th>Section</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count" pagination-id="metaData.name + 'employeeList'">
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label class="control-label">
+                                                <input type="checkbox" id="{{x.SystemId}}" ng-model="x.Flag" ng-checked="x.Flag">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>{{x.EmployeeCode}}</td>
+                                    <td>{{x.EmployeeName}}</td>
+                                    <td>{{x.EmployeeCategory}}</td>
+                                    <td>{{x.GivenDesignation}}</td>
+                                    <td>{{x.Division}}</td>
+                                    <td>{{x.Department}}</td>
+                                    <td>{{x.Section}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <dir-pagination-controls max-size="10"
+                                                 pagination-id="metaData.name + 'employeeList'"
+                                                 direction-links="true"
+                                                 boundary-links="true"
+                                                 on-page-change="getEmployeeData(newPageNumber)">
+                        </dir-pagination-controls>
+                    </div>
+                </div>
+                <div class="modal-footer common-btn">
+                    <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

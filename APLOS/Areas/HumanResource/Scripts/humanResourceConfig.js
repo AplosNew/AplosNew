@@ -1,0 +1,515 @@
+﻿HumanResourceConfig.$inject = ['$routeProvider', '$locationProvider'];
+function HumanResourceConfig($routeProvider, $locationProvider) {
+    $routeProvider
+        .when('/legal-salary-grade', {
+            templateUrl: 'humanresource/legalsalarygrade',
+            controller: 'legalSalaryGradeController'
+        })
+        .when('/legal-salary-grade-designation', {
+            templateUrl: 'humanresource/legalsalarygradedesignation',
+            controller: 'legalSalaryGradeDesignationController'
+        })
+        .when('/legal-salary-structure', {
+            templateUrl: 'humanresource/legalsalarystructure',
+            controller: 'legalSalaryStructureController'
+        })
+        .when('/legal-salary-report', {
+            templateUrl: 'humanresource/legalsalarystructure/legalsalaryreportpage',
+            controller: 'legalSalaryReportController'
+        })
+        .when('/salary-fixation-setting', {
+            templateUrl: 'humanresource/salaryfixationsetting',
+            controller: 'salaryFixationSettingController'
+        })
+        .when('/short-leave-policy', {
+            templateUrl: 'humanresource/shortleavepolicy',
+            controller: 'shortLeavePolicyController'
+        })
+        .when('/salary-fixation', {
+            templateUrl: 'humanresource/salaryfixation',
+            controller: 'salaryFixationController'
+        })
+        .when('/salary-fixation-mail', {
+            templateUrl: 'humanresource/salaryfixation/aplosmail',
+            controller: 'salaryFixationController'
+        })
+        .when('/designation-configuration', {
+            templateUrl: 'humanresource/designationMasterConfiguration/aplos',
+            controller: 'designationMasterConfigurationController'
+        })
+        .when('/annual-non-cash', {
+            templateUrl: 'humanresource/annualnoncash',
+            controller: 'annualNonCashController'
+        })
+        .when('/disciplinary-action-category', {
+            templateUrl: 'humanresource/DisciplinaryActionCategory/aplos',
+            controller: 'disciplinaryActionCategoryController'
+        })
+        .when('/employee-disciplinary-action', {
+            templateUrl: 'humanresource/employeeDisciplinaryAction/aplos',
+            controller: 'employeeDisciplinaryActionController'
+        })
+        .when('/disciplinary-action-transaction', {
+            templateUrl: 'humanresource/employeeDisciplinaryAction/DisciplinaryActionTransaction',
+            controller: 'employeeDisciplinaryActionTransactionController'
+        })
+        .when('/employee-shift-assign', {
+            templateUrl: 'humanresource/EmployeeShiftAssign/aplos',
+            controller: 'employeeShiftAssignController'
+        })
+        .when('/work-Group', {
+            templateUrl: 'humanresource/WorkGroup/aplos',
+            controller: 'workGroupController'
+        })
+        .when('/maternity-leave-policy', {
+            templateUrl: 'humanresource/maternityleavepolicy/MaternityLeavePolicyNew',
+            controller: 'maternityLeavePolicyNewController'
+        })
+
+        .when('/maternity-leave-transaction', {
+            templateUrl: 'humanresource/MaternityLeaveTransaction/Aplos',
+            controller: 'MaternityLeaveTransactionController'
+        })
+        .when('/rest', {
+            templateUrl: 'humanresource/rest/aplos',
+            controller: 'restController'
+        })
+        .when('/complied-shift', {
+            templateUrl: 'humanresource/CompliedShift/aplos',
+            controller: 'compliedshiftController'
+        })
+        .when('/complied-shift-Grouping', {
+            templateUrl: 'humanresource/CompliedShiftGrouping/aplos',
+            controller: 'compliedShiftGroupingController'
+        })
+        .when('/complied-shift-assignment', {
+            templateUrl: 'humanresource/compliedshiftassignment/Aplos',
+            controller: 'compliedShiftAssignmentController'
+        })
+        .when('/complied-shift-rotation', {
+            templateUrl: 'humanresource/CompliedShiftAssignment/ShiftRotation',
+            controller: 'complianceShiftRotationController'
+        })
+        .when('/compliance-attendance-report', {
+            templateUrl: 'humanresource/compliedshiftassignment/daily',
+            controller: 'dailyComplianceReportController'
+        })
+        .when('/leave-report', {
+            templateUrl: 'humanresource/maternityLeaveTransaction/leave',
+            controller: 'leaveInformationController'
+        })
+        .when('/salary-report', {
+            templateUrl: 'humanresource/SalaryReport',
+            controller: 'salaryReportController'
+        })
+        .when('/leave-encashment', {
+            templateUrl: 'humanresource/maternityLeaveTransaction/LvEncash',
+            controller: 'leaveEncashmentController'
+        })
+        .when('/employee-attendance', {
+            templateUrl: 'humanresource/AttendanceReport/attend',
+            controller: 'attendanceReportController'
+        })
+
+        .when('/employee-promotion', {
+            templateUrl: 'humanresource/employeepromotion/aplos',
+            controller: 'employeePromotionController'
+        })
+        .when('/promotion', {
+            templateUrl: 'humanresource/employeepromotion/promotion',
+            controller: 'employeePromotionController'
+        })
+        .when('/promotion-new', {
+            templateUrl: 'humanresource/EmployeepromotionNew/promotion',
+            controller: 'employeePromotionNewController'
+        })
+        .when('/promotion-increment', {
+            templateUrl: 'humanresource/EmployeePromotionAndIncrement/Aplos',
+            controller: 'EmployeePromotionAndIncrementController'
+        })
+        .when('/salary-process-allowance', {
+            templateUrl: 'humanresource/PayrollReports/SalaryProcessedReportCompliance',
+            controller: 'salaryProcessedReportComplianceController'
+        })
+
+
+        .when('/welfare-summary-report', {
+            templateUrl: 'humanresource/WelfareSummaryReport/aplos',
+            controller: 'welfareSummaryReportController'
+        })
+
+        //.when('/salary-Register', {
+        //    templateUrl: 'humanresource/PayRegisterBDReport/',
+        //    controller: 'payRegisterBDReportController'
+        //})
+        .when('/special-followup-report', {
+            templateUrl: 'humanresource/SpecialFollowUPReport/',
+            controller: 'SpecialFollowUpReportController'
+        })
+
+        //.when('/bonus-sheet', {
+        //    templateUrl: 'humanresource/BonusSheet/',
+        //    controller: 'bonusSheetController'
+        //})
+
+        .when('/long-absenteeism', {
+            templateUrl: 'humanresource/LongAbsenteeismAssign/Aplos',
+            controller: 'longAbsenteeismAssignController'
+        })
+
+
+        .when('/bonus-sheet', {
+            templateUrl: 'humanresource/SFBonusSheetReport/Aplos',
+            controller: 'SFBonusSheetReportController'
+        })
+        .when('/bonus-sheet-grid', {
+            templateUrl: 'humanresource/SFBonusSheetReport/GridAplos',
+            controller: 'SFBonusSheetGridReportController'
+        })
+        .when('/manpower-attendance-summary', {
+            templateUrl: 'humanresource/ManpowerAttendanceSummary/',
+            controller: 'manpowerAttendanceSummaryController'
+        })
+        .when('/c-manpower-attendance-summary', {
+            templateUrl: 'humanresource/ManpowerAttendanceSummary/CustomAttdnSummary',
+            controller: 'manpowerAttendanceSummaryController'
+        })
+
+        .when('/manpower-attendanceGroup-summary', {
+            templateUrl: 'humanresource/ManpowerAttendanceSummary/AttendanceGroup',
+            controller: 'manpowerAttendanceGroupSummaryController'
+        })
+
+        .when('/shift-report', {
+            templateUrl: 'humanresource/AttendanceManagement/',
+            controller: 'attendanceManagementController'
+        })
+
+        .when('/individual-job-card', {// remarks: 
+            templateUrl: 'humanresource/AttendanceManagement/JobCard',
+            controller: 'jobCardReportController'
+        })
+
+        .when('/job-card', {// remarks
+            templateUrl: 'humanresource/AttendanceManagement/ComplianceJobCard',
+            controller: 'compliancejobCardReportController'
+        })
+
+        .when('/ot-final', {
+            templateUrl: 'humanresource/AttendanceManagement/OtFinal',
+            controller: 'otFinalController'
+        })
+        .when('/salary-top-sheet', {
+            templateUrl: 'humanresource/SalaryTopSheet',
+            controller: 'salaryTopSheetController'
+        })
+        .when('/dynamic-top-sheet', {
+            templateUrl: 'humanresource/SalaryTopSheet/DynamicTopSheet',
+            controller: 'dynamicSalaryTopSheetController'
+        })
+
+        .when('/top-sheet-details', {
+            templateUrl: 'humanresource/SalaryTopSheet/TopSheetDetails',
+            controller: 'dynamicSalaryTopSheetController'
+        })
+
+        .when('/daily-day-status', {
+            templateUrl: 'humanresource/dailydaystatus/',
+            controller: 'dailyDayStatusController'
+        })
+
+        .when('/pay-reg-bd-rep-struct', {
+            templateUrl: 'humanresource/PayRegisterBDReportWithStructure/',
+            controller: 'payRegisterBDReportWithStructureController'
+        })
+        .when('/attendance-lock', {
+            templateUrl: 'humanresource/HrmsSettings/PlantWiseAttendanceLock',
+            controller: 'PlantWiseAttendanceLockController'
+        })
+        .when('/attendance-unlock-plant', {
+            templateUrl: 'humanresource/HrmsSettings/PlantWiseAttendanceUnLock',
+            controller: 'PlantWiseAttendanceUnLockController'
+        })
+        //.when('/attendance-unlock', {
+        //    templateUrl: 'humanresource/HrmsSettings/EmployeeAndPlantWiseAttendanceUnLock',
+        //    controller: 'EmployeeAndPlantWiseAttendanceUnLockController'
+        //})
+        .when('/individual-attendance-lock', {
+            templateUrl: 'humanresource/HrmsSettings/IndividualAttendanceLock',
+            controller: 'IndividualAttendanceLockController'
+        })
+        .when('/attendance-unlock', {
+            templateUrl: 'humanresource/HrmsSettings/DateRangeWiseAttendanceUnLock',
+            controller: 'DateRangeWiseAttendanceUnLockController'
+        })
+
+
+        .when('/individual-attendance-unlock', {
+            templateUrl: 'humanresource/HrmsSettings/IndividualAttendanceUnLock',
+            controller: 'IndividualAttendanceUnLockController'
+        })
+        .when('/tbs-assign', {
+            templateUrl: 'humanresource/TBSAssign/',
+            controller: 'tbsAssignController'
+        })
+        .when('/attendance-process-data', {
+            templateUrl: 'humanresource/AttendanceProcessData/',
+            controller: 'attendanceProcessDataController'
+        })
+        .when('/attendance-process-data-entity', {
+            templateUrl: 'humanresource/AttendanceProcessDataEntityWise/',
+            controller: 'attendanceProcessDataEntityWiseController'
+        })
+        .when('/weekoff-change', {
+            templateUrl: 'humanresource/WeekOffChange/Aplos',
+            controller: 'WeekOffChangeController'
+        })
+        .when('/trim-in-time', {
+            templateUrl: 'humanresource/TrimInTime/Aplos',
+            controller: 'TrimInTimeController'
+        })
+        .when('/manual-out-time', {
+            templateUrl: 'humanresource/AttendanceManagement/ManualOutTime',
+            controller: 'manualOutTimeController'
+        })
+        .when('/tiffin-bill', {
+            templateUrl: 'humanresource/AttendanceManagement/TiffinBill',
+            controller: 'attendanceManagementController'
+        })
+        .when('/manual-attendance-approval', {
+            templateUrl: 'humanresource/ManualAttendanceConfirmation',
+            controller: 'ManualAttendanceConfirmationController'
+        })
+        .when('/manual-day-status', {
+            templateUrl: 'humanresource/attendanceProcessDataManualStatus',
+            controller: 'attendanceProcessDataManualStatusController'
+        })
+        .when('/salary-structure-report',
+            {
+                templateUrl: 'humanresource/payrollReports/Aplos',
+                controller: 'salaryStructureSheetController'
+            })
+        .when('/salary-structure-report-daily',
+            {
+                templateUrl: 'humanresource/payrollReports/SalaryStructureDaily',
+                controller: 'salaryStructureSheetDailyController'
+            })
+        .when('/salary-structure-and-Processed-report',
+            {
+                templateUrl: 'humanresource/PayrollReports/SalaryStructureAndProcessedReport',
+                controller: 'salaryStructureAndProcessedReportController'
+            })
+        .when('/salary-Processed-report',
+            {
+                templateUrl: 'humanresource/PayrollReports/SalaryProcessedReport',
+                controller: 'salaryProcessedReportController'
+            })
+        .when('/bulk-leave-entry',
+            {
+                templateUrl: 'humanresource/BulkLeaveEntry',
+                controller: 'BulkLeaveEntryController'
+            })
+        .when('/payregisternew',
+            {
+                templateUrl: 'humanresource/PayRegisterBDReport/PayRegisterNew',
+                controller: 'payRegisterBDReportNewController'
+            })
+        .when('/payregistercom',
+            {
+                templateUrl: 'humanresource/PayRegisterBDReport/PayRegisterCom',
+                controller: 'payRegisterBDReportComController'
+            })
+        .when('/payregistercontr',
+            {
+                templateUrl: 'humanresource/PayRegisterBDReport/PayRegisterContractor',
+                controller: 'payRegisterBDReportContractorController'
+            })
+        .when('/leave-with-wages-registers', {
+            templateUrl: 'humanresource/AttendanceManagement/LeaveWithWagesRegisters',
+            controller: 'leaveWithWagesRegistersController'
+        })
+        .when('/welfare-reports', {
+            templateUrl: 'humanresource/WelfareReports/Aplos',
+            controller: 'welfareReportsController'
+        })
+        .when('/leaves-check-list-report', {
+            templateUrl: 'humanresource/AttendanceManagement/leaveschecklistreport',
+            controller: 'leavesChecklistReportController'
+        })
+        .when('/bonus-register', {
+            templateUrl: 'humanresource/BonusRegisterReports',
+            controller: 'bonusRegisterReportController'
+        })
+        .when('/ptax-report', {
+            templateUrl: 'humanresource/ProfessionalTaxReports',
+            controller: 'professionalTaxReportsController'
+        })
+        .when('/leave-wages-registers', {
+            templateUrl: 'HumanResource/LeaveWithWeagesRegisters/Aplos',
+            controller: 'leaveWithWagesRegistersController'
+        })
+        .when('/national-festival-leave', {
+            templateUrl: 'humanresource/AttendanceManagement/NationalFestival',
+            controller: 'nationalFestivalController'
+        })
+        .when('/preallocated-ot', {
+            templateUrl: 'humanresource/preallocatedot/Aplos',
+            controller: 'preallocatedOTController'
+        })
+        .when('/attendance-raw-data', {
+            templateUrl: 'humanresource/AttendanceManagement/RawDataReport',
+            controller: 'attendanceRawController'
+        })
+
+        .when('/pre-allocated-report', {
+            templateUrl: 'humanresource/PreallocatedOT/preallocatedotreport',
+            controller: 'preallocatedOTReportController'
+        })
+
+        .when('/tiffin-bill-report', {
+            templateUrl: 'humanresource/AttendanceManagement/TiffinBillReport',
+            controller: 'tiffinBillReportController'
+        })
+
+        .when('/tiffin-bill-summary-report', {
+            templateUrl: 'humanresource/AttendanceManagement/TiffinBillSummaryReports',
+            controller: 'tiffinBillReportSummaryController'
+        })
+        .when('/maternity-leave-report', {
+            templateUrl: 'humanresource/AttendanceManagement/MaternityLeaveReport',
+            controller: 'maternityLeaveReportController'
+        })
+        .when('/actual-ot-and-plan-report', {
+            templateUrl: 'humanresource/AttendanceManagement/ActualOTAndPlan',
+            controller: 'actualOTAndPlantController'
+        })
+        .when('/final-sattlement-report', {
+            templateUrl: 'humanresource/AttendanceManagement/FinalSettlementReport',
+            controller: 'finalSettlementReportController'
+        })
+        .when('/late-attendance-posting', {
+            templateUrl: 'humanresource/AttendanceManagement/LateAttendancePosting',
+            controller: 'lateAttendancePostingController'
+        })
+        .when('/separated-employee-salary-structure',
+            {
+                templateUrl: 'humanresource/payrollReports/SeparatedEmployeeSalaryStructure',
+                controller: 'separatedsalaryStructureController'
+            })
+
+        .when('/daily-attendance-summary',
+            {
+                templateUrl: 'humanresource/DailyAttendanceSummary/Aplos',
+                controller: 'dailyAttendanceSummaryController'
+            })
+        .when('/daily-attendance-summary-noline',
+            {
+                templateUrl: 'humanresource/DailyAttendanceSummary/DailyAttendanceSummaryNoLine',
+                controller: 'dailyAttendanceSummaryNoLineController'
+            })
+
+        .when('/attendance-summary-status',
+            {
+                templateUrl: 'humanresource/AttendanceManagement/AttendanceSummaryStatus',
+                controller: 'attendanceSummaryStatusController'
+            })
+        .when('/workers-Late-Status',
+            {
+                templateUrl: 'humanresource/AttendanceManagement/WorkersLateStatus',
+                controller: 'workersLateStatusController'
+            })
+        .when('/shift-summary',
+            {
+                templateUrl: 'humanresource/ShiftSummary/Aplos',
+                controller: 'shiftSummaryController'
+            })
+        .when('/ot-adjustment',
+            {
+                templateUrl: 'humanresource/OTAdjustment/Aplos',
+                controller: 'OTAdjustmentController'
+            })
+        .when('/salary-lock',
+            {
+                templateUrl: 'humanresource/SalaryLock/Aplos',
+                controller: 'salaryLockController'
+            })
+        .when('/salary-summary-report2',
+            {
+                templateUrl: 'humanresource/PayrollReports/SalarySummaryReport',
+                controller: 'salaryProcessedReportSummaryController'
+            })
+
+        .when('/rest-type',
+            {
+                templateUrl: 'humanresource/RestType/Aplos',
+                controller: 'RestTypeController'
+            })
+        .when('/manpowerbudget-dashboard', {
+            templateUrl: 'humanresource/ManpowerBudgetDashboard/Aplos',
+            controller: 'manpowerBudgetDashboardController'
+        })
+        .when('/plant-wise-hrms-setting', {
+            templateUrl: 'humanresource/PlantWiseHRMSSetting/Aplos',
+            controller: 'PlantWiseHRMSSettingController'
+        })
+        .when('/mp-budgeted-desig-report', {
+            templateUrl: 'humanresource/ManpowerBudgetDesignationReport/Aplos',
+            controller: 'manpowerBudgetDesignationReportController'
+        })
+        .when('/salary-sheet-budgetary-ot',
+            {
+                templateUrl: 'humanresource/PayrollReports/SalarySheetBudgetaryOT',
+                controller: 'salaryProcessedReportBudgetaryController'
+            })
+        .when('/shift-change-section-wise', {
+            templateUrl: 'humanresource/ShiftChangeSectionWise/Aplos',
+            controller: 'ShiftChangeSectionWiseController'
+        })
+        .when('/salary-structure-report-plant-wise', {
+            templateUrl: 'humanresource/PayrollReports/SalaryStructureReportPlantWise',
+            controller: 'salaryStructureReportPlantWiseController'
+        })
+        .when('/daily-day-status-report', {
+            templateUrl: 'humanresource/DailyDayStatusReport/Aplos',
+            controller: 'DailyDayStatusReportController'
+        })
+        .when('/ot-planning', {
+            templateUrl: 'humanresource/OTPlanning/Aplos',
+            controller: 'OTPlanningController'
+        })
+        .when('/salary-proc-extctc', {
+            templateUrl: 'humanresource/PayrollReports/SalaryProcessedReportExtraOTCTC',
+            controller: 'salaryProcessedReportExtraOTCTCController'
+        })
+        .when('/yearly-salarystatement-report', {
+            templateUrl: 'humanresource/PayrollReports/YearlySalaryProcessedReport',
+            controller: 'yearlySalaryProcessedReportController'
+        })
+
+        .when('/black-list', {
+            templateUrl: 'humanresource/BlackList/',
+            controller: 'BlackListController'
+        })
+        .when('/con-attdn-status', {
+            templateUrl: 'humanresource/ConsecutiveAttendaceAndOT/',
+            controller: 'consecutiveAttendaceController'
+        })
+        .when('/con-work-hours', {
+            templateUrl: 'humanresource/ConsecutiveAttendaceAndOT/OTHours',
+            controller: 'consecutiveOTHoursController'
+        })
+        .when('/bonus-form-c', {
+            templateUrl: 'humanresource/BonusRegisterReports/BonusC',
+            controller: 'bonusReportCController'
+        })
+        .when('/bonus-prv', {
+            templateUrl: 'humanresource/BonusRegisterReports/BonusProvison',
+            controller: 'bonusProvisionReportController'
+        })
+        .when('/employee-addition-deduction', {
+            templateUrl: 'humanresource/EmployeeAdditionDeduction/Aplos',
+            controller: 'EmployeeAdditionDeductionController'
+        })
+
+        ;
+}

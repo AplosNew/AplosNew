@@ -1,0 +1,44 @@
+﻿<table id="screenMain">
+    <tr>
+        <td>
+            <h3 class="site-heading form-horizontal form-elements">
+                <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Operation QR Code
+            </h3>
+        </td>
+        @*<td class="text-right" style="width:70px;">
+                <span style="font-size:3em; color:green;" ng-hide="ShowFilterScreen==false" ng-click="filterComplete();" class="glyphicon glyphicon-circle-arrow-right"></span>
+                <span style="font-size:3em; color:blueviolet;" ng-hide="ShowFilterScreen==true" ng-click="ShowFilterScreen=true; HideGrid=true;" class="glyphicon glyphicon-circle-arrow-left"></span>
+
+            </td>*@
+
+    </tr>
+</table>
+<div class="row">
+    <div class="form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+
+            <ul class="common-btn list-inline text-left">
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="QR Code for Operation Variation" ng-click="OperationQRCode();" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-file"></i> Download QR Code</button>
+                    </div>
+                </li>
+
+
+            </ul>
+        </div>
+    </div>
+
+</div>
+<div id="gridOperation" ng-init="chkinit()" ej-grid e-datasource="OperationList" e-gridlines="both"
+     e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+     e-allowselection="true" e-filtersettings-filterType="excel">
+    <div e-columns>
+        <div e-column e-type="string" e-field="OperationVariationCode" e-headertext="Op. Var. Code" e-width="20"></div>
+        <div e-column e-type="string" e-field="OperationVariationName" e-headertext="Op. Var. Name" e-width="80"></div>
+        <div e-column e-type="string" e-field="OperationName" e-headertext="Operation Name" e-width="80"></div>
+
+    </div>
+</div>
+

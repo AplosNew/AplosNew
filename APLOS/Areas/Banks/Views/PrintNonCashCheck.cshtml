@@ -1,0 +1,203 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Non Cash Cheque Print</h3>
+<div class="form-elements form-horizontal" ng-form name="printNonCashCheckNewForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        @*<div class="form-group">
+            <label class="col-sm-4 control-label">Voucher Number</label>
+            <div class="col-sm-7 pdr3">
+                <input type="text" ng-model="printNonCashCheckNew.VoucherNo" class="form-control" disabled>
+            </div>
+            <button ng-click="getVoucher();" style="margin-left:-5px;" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+        </div>*@
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Voucher Number/Posted Voucher</label>
+            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                <input type="text" ng-model="printNonCashCheckNew.VoucherNo" class="form-control" readonly>
+                <span class="input-group-btn">
+                    <button ng-click="getVoucher();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                </span>
+            </div>
+        </div>
+        @*<div class="form-group">
+            <label class="col-sm-2 control-label">Date</label>
+            <div class="col-sm-5 pdr3">
+                <input type="text" ng-model="checkLotNew.Date" class="form-control">
+            </div>
+        </div>*@
+
+        <div id="div_PostingDate" class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Posting Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input required datepicker @*"getFiscalYearPeriod(voucher.PostingDate);checkPostingDate();"*@ id="postingDate" type="text" name="Posting Date" ng-model="printNonCashCheckNew.PostingDate" class="form-control text-left" disabled>
+            </div>
+        </div>
+
+        <div id="div_CheckDate" class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Check Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input required datepicker @*id="postingDate"*@ type="text" name="Check Date" ng-model="printNonCashCheckNew.CheckDate" class="form-control" tabindex="1">
+            </div>
+        </div>
+
+        @*<div class="col-xs-4">
+            <div class="form-group" id="div_ToDate">
+                <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-7 show-message">
+                    <input type="text" name="To Date" ng-model="ModelNew.ToDate" datepicker class="form-control" required>
+                </div>
+            </div>
+        </div>*@
+
+        @*<div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="@*reportParameters.ToDate" />
+                </div>
+            </div>
+        </div>*@
+
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Amount</label>
+            <div class="col-sm-4 pdr3">
+                <input type="text" ng-model="printNonCashCheckNew.Amount" class="form-control text-right" disabled>
+            </div>
+            <div class="col-sm-4 pdl3" style="margin-left:-7px;">
+                <input type="text" ng-model="printNonCashCheckNew.CurrencyCode" class="form-control" disabled>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Check Template</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" ng-model="printNonCashCheckNew.CheckTemplate" name="Check Template" class="form-control text-right" required disabled>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Party</label>
+            <div class="col-sm-8">
+                <input type="text" ng-model="printNonCashCheckNew.Party" class="form-control text-right" disabled>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Other Beneficiary<sup></sup></label>
+
+            <div class="col-sm-1" style="padding-top: 4px;">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" class="css-checkbox" ng-model="printNonCashCheckNew.Active" ng-change="CheckandUncheck();">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+            <div class="col-sm-7 show-message">
+                <input type="text" name="Standard Name" maxlength="100" ng-model="printNonCashCheckNew.OtherBeneficiary" class="form-control" ng-disabled="printNonCashCheckNew.Active==false" @*tabindex="4"*@>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Bank Ac<sup></sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="Benificiary Bank" class="form-control" ng-model="printNonCashCheckNew.PartyBankId" ng-options="item.Id as item.Bank for item in partyBankList" ng-change="SelectBank(printNonCashCheckNew.PartyBankId);" @*required*@ tabindex="1">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+        @*<div class="form-group">
+            <label class="col-sm-4 control-label">Active</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" class="css-checkbox" ng-model="sopDocumentSubCategoryNew.Active">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>*@
+
+
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Bank Information</legend>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Bank</label>
+                <label class="col-sm-7 control-label">: <b>{{printNonCashCheckNew.BankName}}</b></label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Branch</label>
+                <label class="col-sm-7 control-label">: {{printNonCashCheckNew.BankBranch}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Account</label>
+                <label class="col-sm-7 control-label">: {{printNonCashCheckNew.BankAccount}}</label>
+            </div>
+
+            @*<div class="form-group">
+                    <label class="col-sm-3 control-label">Date</label>
+                    <label class="col-sm-7 control-label">: {{printNonCashCheckNew.Date}}</label>
+                </div>*@
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Bank GL</label>
+                <label class="col-sm-7 control-label">: {{printNonCashCheckNew.BankGL}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Bank Currency</label>
+                <label class="col-sm-7 control-label">: {{printNonCashCheckNew.BankCurrency}}</label>
+            </div>
+        </fieldset>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-2 col-md-2 control-label pdr3" style="width:102px;">Check Lot No</label>
+            <div class="col-sm-4 col-md-4 pdl3">
+                <div class="select-style">
+                    <select class="form-control" ng-model="printNonCashCheckNew.CheckLotId" ng-change="getCheckLotDetail(printNonCashCheckNew.CheckLotId)"
+                            ng-options="item.Value as item.Text for item in checkLotList" ng-disabled="printNonCashCheckNew.BankMasterId==null">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+            <label class="col-sm-2 col-md-2 control-label pdr3">Check No</label>
+            <div class="col-sm-3 col-md-3 pdl3">
+                <div class="select-style">
+                    <select class="form-control" ng-model="printNonCashCheckNew.CheckLotDetailId" ng-disabled="checkNo"
+                            ng-options="item.Value as item.Text for item in checkLotDetailList">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Print();" ng-disabled="printNonCashCheckNew.CheckLotDetailId==null" class="btn" tabindex="10"><i class="glyphicon glyphicon-print"></i>Check Print</button></li>
+            <li><button ng-click="VoucherPrint();" @*ng-disabled="printNonCashCheckNew.CheckLotDetailId==null"*@ class="btn" tabindex="10"><i class="glyphicon glyphicon-print"></i>Voucher Print</button></li>
+            @*<li><button ng-click="Print();" ng-disabled="printNonCashCheckNew.CheckLotDetailId==null" class="btn" tabindex="10"><i class="glyphicon glyphicon-print"></i>Check Print</button></li>*@
+            <li><button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<modal-table modalid="voucherListPopUp"
+             data-title={{voucherTitle}}
+             data-search-parameters="voucherParameters"
+             data-exclued-column-list=""
+             data-field-list="voucherList"
+             data-data-list="voucherDataList"
+             data-search-function="getVoucherData"
+             data-single-click="selectSingleClick(data)"
+             data-double-click="selectDoubleClick(data)"
+             data-right-button="true"
+             data-left-button="true"
+             data-ng-click-left-button="selectByButton()"
+             data-ng-click-cancel="closeVoucherPopUp()">
+</modal-table>

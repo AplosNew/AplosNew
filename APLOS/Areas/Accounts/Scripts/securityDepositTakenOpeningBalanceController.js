@@ -1,0 +1,47 @@
+﻿'use strict';
+securityDepositTakenOpeningBalanceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', '$controller'];
+function securityDepositTakenOpeningBalanceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, $controller) {
+    $rootScope.title = 'Security Taken Opening Balance';
+    $scope.url = 'accounts/OpeningBalance';
+    $scope.listUrl = $scope.url + '/GetSecurityTakenList';
+    $scope.saveUrl = $scope.url + '/InsertSecurityTaken';
+    $scope.updateUrl = $scope.url + '/UpdateSecurityTaken';
+    $scope.interplantList = [];
+    $scope.partyType = 'Party';
+    $scope.isAdvance = null;
+    $controller('partyBaseController', { $scope: $scope, $http: $http });
+    $scope.sourceType = 'Security';
+
+    $controller('currencyBaseController', { $scope: $scope, $http: $http });
+    $controller('baseOpeningBalanceController', { $scope: $scope, $http: $http });
+
+    cboService.getCboOtherFinancingType($scope.sourceType, function (result) {
+        $scope.financingTypeList = result;
+        if ($scope.financingTypeList.length === 1) {
+            $scope.openingBalance.FinancingTypeId = $scope.financingTypeList[0].FinancingTypeId;
+            $scope.getTransactionTypeGL($scope.openingBalance.FinancingTypeId);
+        }
+    });
+
+    $scope.advanceCA = null;
+    $scope.getTransactionTypeGL = function (id) {
+        if (!baseService.isUndefinedOrNull(id)) {
+            $scope.advanceCA = $.grep($scope.financingTypeList, function (item) {
+                return item.FinancingTypeId === id;
+            })[0];
+            if (manualValidation('div_TransactionType', baseService.isUndefinedOrNull($scope.advanceCA.LiabilityGLId), 'Transaction Type GL not found!')) {
+                $scope.advanceCA = null;
+                $scope.openingBalanceDetailList = [];
+            }
+            else if ($scope.companyConfig.IsVoucherFromBudget
+                && manualValidation('div_TransactionType', baseService.isUndefinedOrNull($scope.advanceCA.LiabilityBudgetMasterId), 'Transaction Type Budget not found!')) {
+                $scope.advanceCA = null;
+                $scope.openingBalanceDetailList = [];
+            }
+        }
+        else {
+            manualValidation('div_TransactionType', false, '');
+            $scope.advanceCA = null;
+        }
+    };
+}

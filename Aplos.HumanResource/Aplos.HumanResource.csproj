@@ -1,0 +1,279 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1BCBB17E-2613-43A1-A634-B38419425BEF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Library.HumanResource</RootNamespace>
+    <AssemblyName>Aplos.HumanResource</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AplosAttendance, Version=20.9.17.3, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\AplosAttendance.dll</HintPath>
+    </Reference>
+    <Reference Include="AplosShiftProcess, Version=2102.27.2103.15, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\AplosShiftProcess.dll</HintPath>
+    </Reference>
+    <Reference Include="ConnectionManager">
+      <HintPath>..\APLOS\Library\ConnectionManager.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Core, Version=1.0.2.6, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Library.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Crosscutting, Version=1.0.2.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Library.Crosscutting.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Data, Version=1.1.3.3, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Library.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Model.Core, Version=1.7.6.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Library.Model.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.Service.Core, Version=2.3.5.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Library.Service.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Library.ViewModel.Core, Version=1.1.6.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Library.ViewModel.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebForms">
+      <HintPath>..\APLOS\Library\Microsoft.ReportViewer.WebForms.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp, Version=106.11.7.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.106.11.7\lib\net452\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Compression.Base, Version=18.1460.0.52, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Syncfusion.Compression.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.DocIO.Base, Version=18.1460.0.52, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Syncfusion.DocIO.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.DocToPdfConverter.Base, Version=18.1460.0.52, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Syncfusion.DocToPdfConverter.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.EJ">
+      <HintPath>..\APLOS\Library\Syncfusion.EJ.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.ExcelToPdfConverter.Base, Version=18.1460.0.52, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Syncfusion.ExcelToPdfConverter.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Pdf.Base, Version=18.1460.0.52, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Syncfusion.Pdf.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Pdf.Windows">
+      <HintPath>..\APLOS\Library\Syncfusion.Pdf.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Presentation.Base, Version=18.1460.0.52, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Syncfusion.Presentation.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.PresentationToPdfConverter.Base, Version=18.1460.0.52, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Syncfusion.PresentationToPdfConverter.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.XlsIO.Base, Version=18.1460.0.52, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\APLOS\Library\Syncfusion.XlsIO.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.7\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.7\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Zen.Barcode.Core">
+      <HintPath>..\APLOS\Library\Zen.Barcode.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApopAPI\clsDataContext.cs" />
+    <Compile Include="ApopAPI\clsStdLib.cs" />
+    <Compile Include="Attendance\AttendanceFromAppReportService.cs" />
+    <Compile Include="Attendance\clsAuditReportSummery.cs" />
+    <Compile Include="Attendance\clsFinalAttendanceProcess.cs" />
+    <Compile Include="Attendance\clsMonthlyAttandanceSummery.cs" />
+    <Compile Include="Attendance\clsWeekOffProcess.cs" />
+    <Compile Include="Attendance\Compliance\AttendanceProcessFinalAplos.cs" />
+    <Compile Include="Attendance\DailyAttandanceSummeryReport.cs" />
+    <Compile Include="Attendance\DailyAttendanceReport.cs" />
+    <Compile Include="Attendance\DownloadApi.cs" />
+    <Compile Include="Attendance\ExceptionOTProcess.cs" />
+    <Compile Include="Attendance\Manual\clsManualAttendanceFileUpload.cs" />
+    <Compile Include="Attendance\Manual\clsManualAttendanceUploadUtility.cs" />
+    <Compile Include="Attendance\Manual\clsManualAttendanceWithShift.cs" />
+    <Compile Include="Attendance\Manual\clsManulAttendanceUpload.cs" />
+    <Compile Include="Attendance\MonthlyGoodWorkReport.cs" />
+    <Compile Include="Dashboard\FarmingData.cs" />
+    <Compile Include="Dashboard\HRDashboardtrService.cs" />
+    <Compile Include="Dashboard\ManPowerBudgetDashboardService.cs" />
+    <Compile Include="Dashboard\HRDashboardService.cs" />
+    <Compile Include="Dashboard\MachineMapping.cs" />
+    <Compile Include="Dashboard\SkillMapping.cs" />
+    <Compile Include="Employee\clsESICPolicy.cs" />
+    <Compile Include="Employee\clsOverTimePolicy.cs" />
+    <Compile Include="Employee\EmployeeBankAccountInfo.cs" />
+    <Compile Include="Employee\EmployeeProfile.cs" />
+    <Compile Include="Employee\BankInformationUploadXL\clsTemplateDownloadBankInformation.cs" />
+    <Compile Include="Employee\BankInformationUploadXL\clsTemplateReadBankInformation.cs" />
+    <Compile Include="Employee\BankInformationUploadXL\clsTemplateSaveBankInformation.cs" />
+    <Compile Include="Employee\BankInformationUploadXL\BankInformationUploadTemplate.cs" />
+    <Compile Include="Employee\EmpUtilityService.cs" />
+    <Compile Include="Employee\IndividualGratuityPolicy.cs" />
+    <Compile Include="Employee\MyAppPaySlipService.cs" />
+    <Compile Include="Leave\clsLeaveBalance.cs" />
+    <Compile Include="Leave\clsLeaveEncashment.cs" />
+    <Compile Include="Leave\clsLeaveInfo.cs" />
+    <Compile Include="Leave\clsLeaveSandwich.cs" />
+    <Compile Include="Leave\clsLeaveSandwichOnHoliday.cs" />
+    <Compile Include="Leave\LeaveApplicationData.cs" />
+    <Compile Include="Leave\LeaveUploadXL\clsTemplateDownloadLeave.cs" />
+    <Compile Include="Leave\LeaveUploadXL\clsTemplateReadLeave.cs" />
+    <Compile Include="Leave\LeaveUploadXL\clsTemplateSaveLeave.cs" />
+    <Compile Include="Leave\LeaveUploadXL\LeaveUploadTemplate.cs" />
+    <Compile Include="Payroll\Allowance\clsDiscreteAllowanceReport.cs" />
+    <Compile Include="Payroll\Allowance\SalaryHeadWiseAmountTransaction.cs" />
+    <Compile Include="Payroll\Allowance\SalaryHeadWiseDailyService.cs" />
+    <Compile Include="Payroll\Allowance\SalaryHeadWiseFixedService.cs" />
+    <Compile Include="Payroll\Arrear\ArrearProcess.cs" />
+    <Compile Include="Payroll\clsEmpAdvanceDeduction.cs" />
+    <Compile Include="Payroll\clsFinalSettlement.cs" />
+    <Compile Include="Payroll\IncrementReportSummary\IncrementReportSummary.cs" />
+    <Compile Include="Payroll\IncrementReport\IncrementReport.cs" />
+    <Compile Include="Payroll\Reports\PayrollReportsService.cs" />
+    <Compile Include="Payroll\SalaryProcess\clsAdvanceProcess.cs" />
+    <Compile Include="Payroll\SalaryProcess\clsSalaryLock.cs" />
+    <Compile Include="Payroll\SalaryProcess\clsEmpExtraSalaryAmt.cs" />
+    <Compile Include="Payroll\SalaryProcess\clsExternalDataUpload.cs" />
+    <Compile Include="Payroll\SalaryProcess\clsTemplateDownloadExternalData.cs" />
+    <Compile Include="Payroll\SalaryStructure\clsSalaryStructureUpload.cs" />
+    <Compile Include="Payroll\SalaryStructure\clsTemplateDownloadSalaryStructure.cs" />
+    <Compile Include="Payroll\Setting\BonusProcess.cs" />
+    <Compile Include="Payroll\Setting\clsBonusPolicyMonthlyRetain.cs" />
+    <Compile Include="Payroll\Setting\clsBankCashPercentageSettinng.cs" />
+    <Compile Include="Payroll\Setting\clsBonusProcess.cs" />
+    <Compile Include="Payroll\Setting\clsCurrencyRule.cs" />
+    <Compile Include="Payroll\Tax\cIncomeTaxCalculation.cs" />
+    <Compile Include="Payroll\Tax\clsSalaryStructure.cs" />
+    <Compile Include="Payroll\Tax\cTaxableIncome.cs" />
+    <Compile Include="Payroll\Tax\DeductionInvestmentMasterService.cs" />
+    <Compile Include="Payroll\Tax\IncomeTaxPolicy.cs" />
+    <Compile Include="Payroll\Tax\TaxSavingGroupService.cs" />
+    <Compile Include="Payroll\Tax\TaxSavingItemService.cs" />
+    <Compile Include="Report\Attendance\clsMonthlyAttendanceInformation.cs" />
+    <Compile Include="Report\OT\WeekOFFandHolidayOT.cs" />
+    <Compile Include="Report\Payroll\ProfessionalTaxReport.cs" />
+    <Compile Include="Payroll\Tax\TaxOB.cs" />
+    <Compile Include="PlantWiseHRMS\clsPlantWiseHRMSSetting.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Report\Attendance\clsMissedPunchReport.cs" />
+    <Compile Include="Report\Employee\BudgetedDesignationReport.cs" />
+    <Compile Include="Report\Employee\clsMailGeneric.cs" />
+    <Compile Include="Report\OT\MHourlyOT.cs" />
+    <Compile Include="Report\Payroll\clsPayRegister.cs" />
+    <Compile Include="Report\Payroll\PayrollReports.cs" />
+    <Compile Include="SalaryProcessActive\clsSalaryProcessAplosListR.cs" />
+    <Compile Include="ShiftChange\clsShiftChangeSectionWise.cs" />
+    <Compile Include="ShiftChange\EmployeeAdditionDeductionService.cs" />
+    <Compile Include="SmsSend\clsSMSSendNotification.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="OT\" />
+    <Folder Include="Report\Leave\" />
+    <Folder Include="Report\Shift\" />
+    <Folder Include="Shift\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\APLOS.Domain\Aplos.Model.csproj">
+      <Project>{7F2FCB85-B5BD-457E-AE20-8793D0C72F20}</Project>
+      <Name>Aplos.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aplos.Service.Extension\Aplos.Service.Extension.csproj">
+      <Project>{20086D6A-E384-4DE1-8486-6EB0FDCA39F9}</Project>
+      <Name>Aplos.Service.Extension</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\APLOS.Service\Aplos.Service.csproj">
+      <Project>{AA817A3E-2BF1-4F54-9008-2DF78294C1C8}</Project>
+      <Name>Aplos.Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aplos.ViewModel\Aplos.ViewModel.csproj">
+      <Project>{A40084DF-AD53-44C7-805E-93769E586805}</Project>
+      <Name>Aplos.ViewModel</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

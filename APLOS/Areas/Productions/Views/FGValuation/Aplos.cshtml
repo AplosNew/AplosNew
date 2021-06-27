@@ -1,0 +1,59 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> FG Valuation</h3>
+<div class="form-elements form-horizontal" ng-form="modelForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="col-md-4">
+                <div class="form-group" show-errors id="div_FromDate">
+                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <input type="text" name="Form Date" ng-model="model.FromDate" datepicker class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group" show-errors id="div_ToDate">
+                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <input type="text" name="To Date" ng-model="model.ToDate" datepicker class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="LoadData();" class="btn"><i class="glyphicon glyphicon-ok"></i> Load</button></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div style="color:black;" id="Grid" ej-grid e-datasource="valuationList" e-gridlines="vertical" e-allowfiltering="true"
+                     e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="POId" e-headertext="POId" e-width="20"></div>
+                        <div e-column e-field="FPQty" e-headertext="FPQty" e-width="20"></div>
+                        <div e-column e-field="FPAmount" e-headertext="FP Value" e-width="20"></div>
+                        <div e-column e-field="WIPQty" e-headertext="WIPQty" e-width="20"></div>
+                        <div e-column e-field="WIPAmount" e-headertext="WIP Value" e-width="20"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    
+</div>
+
+
+
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+    <div class="bounce3"></div>
+</div>
+

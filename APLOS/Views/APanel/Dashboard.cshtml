@@ -1,0 +1,29 @@
+﻿<script type="text/javascript">
+    var companyGroupLogo = virtualPath.LogoOrImage + getCookie();
+    var b = document.getElementById("d_img");
+    b.setAttribute("src", companyGroupLogo);
+    function getCookie() {
+        var name = 'gImage' + '=';
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0)
+                return c.substring(name.length, c.length);
+        }
+        return "";
+    }
+</script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12 company-name-login">
+            <img id="d_img" class="logo ng-scope" style="width: 100%;display: block; max-width: 300px;max-height: 300px;">
+        </div>
+        @*<img id="d_img" class="logo" style="height: 300px;margin-left: 245px;width: 600px;">*@
+        <div class="col-md-12" style="font-size: 70px;color: #343852;font-weight: 500;padding-bottom: 2%;margin-left: 42%;padding-top: 2%;">aPOP</div>
+        <div class="col-md-12" style="font-size: 20px;color: #343852;font-weight: 500;padding-bottom: 0.5%;margin-left:37%;">a Process Optimization Platform</div>
+    </div>
+</div>

@@ -1,0 +1,329 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Commercial Dashboard</h3>
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="row">
+            <div class="form-elements form-horizontal" ng-form id="form" name="form">
+
+                <div class="col-xs-12 col-sm-8 col-md-8">
+                    <fieldset class="scheduler-border">
+                        <div class="form-group" show-errors>
+                            <div class="col-sm-12 radio">
+                                <label>
+                                    <input type="radio" name="source2" ng-model="LCGrid.Type" value="Search" @*ng-change="typeChange('AsOnDate')"*@>
+                                    <span class="cr" tabindex="1"><i class="cr-icon"></i></span>Search
+                                </label>
+                                <label>
+                                    <input type="radio" name="source2" ng-model="LCGrid.Type" value=SearchByDate @*ng-change="viewChange('ForThePeriod')"*@>
+                                    <span class="cr" tabindex="2"><i class="cr-icon"></i></span>Search by Date
+                                </label>
+                            </div>
+                        </div>
+                        <legend class="scheduler-border">{{legendTitle}}</legend>
+                        <div class="form-group" ng-show="LCGrid.Type=='Search'">
+                            <label class="col-sm-2 control-label"><sup></sup></label>
+                            <div class="row text-right">
+                                <div class="col-xs-12 col-sm-12 col-sm-12">
+                                    <div class="search-form">
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                                <div class="select-style">
+                                                    <select value="Material" ng-model="LCsearchBy">
+                                                        <option ng-repeat="option in LCFilterList" value="{{option.value}}">{{option.name}}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-5 col-md-5">
+                                                <input type="text" class="form-control" placeholder="Search" ng-model="LCsearch" ng-enter="LoadLCGrid()">
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                                <button type="button" ng-click="LoadLCGrid()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" id="div_FromDate" ng-show="LCGrid.Type=='SearchByDate'">
+                            <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                            <div class="col-sm-7 show-message">
+                                <input type="text" name="Date" ng-model="LCGrid.FromDate" datepicker class="form-control" tabindex="3">
+                            </div>
+                        </div>
+                        <div ng-show="LCGrid.Type=='SearchByDate'" class="form-group" id="div_WDToDate">
+                            <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                            <div class="col-sm-7 show-message">
+                                <input type="text" name="Date" ng-model="LCGrid.ToDate" datepicker class="form-control" tabindex="4">
+                            </div>
+                        </div>
+
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="LoadLCGrid(); " ng-show="LCGrid.Type=='SearchByDate'" class="btn"><i class="glyphicon glyphicon-circle-arrow-down"></i> View</button></li>
+                            </ul>
+                        </div>
+                    </fieldset>
+
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="=row">
+            <div style="color:black;" id="GridPurchaseLC" ej-grid e-datasource="PurchaseLCList"
+                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                <div e-columns>
+                    <div e-column e-type="string" e-field="LCNo" e-headertext="LC No." e-width="150"></div>
+                    <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="120"></div>
+                    <div e-column e-type="date" e-field="OpeningDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Opening Date" e-width="80"></div>
+                    <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="220"></div>
+                    <div e-column e-type="number" e-field="Value" e-textalign="right" e-format="{0:N2}" e-headertext="Value" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
+                    <div e-column e-type="string" e-field="LCANo" e-headertext="LCA No" e-width="50"></div>
+                    <div e-column e-type="string" e-field="LCType" e-headertext="LC Type" e-width="50"></div>
+                    <div e-column e-type="number" e-field="Tenure" e-textalign="right" e-headertext="Tenure(Days)" e-width="50"></div>
+                    <div e-column e-type="string" e-field="BenificiaryBank" e-headertext="Benificiary Bank" e-width="80"></div>
+                    <div e-column e-template="#templatePOValue" e-headertext="PO Value" e-width="80"></div>
+                    <div e-column e-template="#templateAcceptanceValue" e-headertext="Acceptance Value" e-width="80"></div>
+                    <div e-column e-template="#templateGRNValue" e-headertext="GRN Value" e-width="80"></div>
+                    <div e-column e-template="#templateLoadValue" e-headertext="Loan" e-width="80"></div>
+                    @*<div e-column e-type="number" e-field="POValue" e-textalign="right" e-format="{0:N2}" e-headertext="PO Value" e-width="100"></div>*@
+                    @*<div e-column e-type="number" e-field="AcceptanceValue" e-textalign="right" e-format="{0:N2}" e-headertext="Acceptance Value" e-width="120"></div>
+                        <div e-column e-type="number" e-field="GRNValue" e-textalign="right" e-format="{0:N2}" e-headertext="GRN Value" e-width="100"></div>*@
+                    @*<div e-column e-type="number" e-field="PaymentMade" e-textalign="right" e-format="{0:N2}" e-headertext="Payment Made" e-width="100"></div>*@
+                    <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="200"></div>
+
+                    <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="220"></div>
+                    <div e-column e-type="string" e-field="PINo" e-headertext="PI No." e-width="90"></div>
+                    <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLC No." e-width="90"></div>
+                    <div e-column e-type="string" e-field="UDNo" e-headertext="UD No." e-width="90"></div>
+                    <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="90"></div>
+                    @*<div e-column e-type="string" e-field="LCId" e-headertext="LC" e-width="90"></div>*@
+                </div>
+            </div>
+        </div>
+        <script type="text/template" id="templatePOValue">
+            <div class="text-right" style="width:100%">
+                <a style="text-decoration:underline;color:blue; cursor:grabbing;" ng-click="$parent.LoadPOList(data);">{{data.POValue |number:2}}</a>
+            </div>
+        </script>
+
+        <script type="text/template" id="templateGRNValue">
+            <div class="text-right" style="width:100%">
+                <a style="text-decoration:underline;color:blue; cursor:grabbing;" ng-click="$parent.LoadGRNList(data);">{{data.GRNValue |number:2}}</a>
+            </div>
+        </script>
+        <script type="text/template" id="templateAcceptanceValue">
+            <div class="text-right" style="width:100%">
+                <a style="text-decoration:underline;color:blue; cursor:grabbing;" ng-click="$parent.LoadACList(data);">{{data.AcceptanceValue |number:2}}</a>
+            </div>
+        </script>
+        <script type="text/template" id="templateLoadValue">
+            <div class="text-right" style="width:100%">
+                <a style="text-decoration:underline;color:blue; cursor:grabbing;" ng-click="$parent.LoadLoanList(data);">{{data.Loan |number:2}}</a>
+            </div>
+        </script>
+        <ul>
+            <li>
+                <button class="btn" ng-click="getPurcheseLcReport();" style="background-color:cornflowerblue;"><i class="glyphicon glyphicon-file"></i>Purchase LC Report</button>
+            </li>
+        </ul>
+
+    </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="POPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">PO<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12 col-md-2 col-md-2">Vendor</div>
+                            <div class="col-md-12 col-md-10 col-md-10">:{{SelectedLCRow.Vendor}}</div>
+                            <div class="col-md-12 col-md-2 col-md-2">LC No.</div>
+                            <div class="col-md-12 col-md-4 col-md-4">:{{SelectedLCRow.LCNo}}</div>
+
+                            <div class="col-md-12 col-md-2 col-md-2">Opening Date</div>
+                            <div class="col-md-12 col-md-4 col-md-4">
+                                <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
+                            </div>
+                            <div class="col-md-12 col-md-2  col-md-2">Value</div>
+                            <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Value|number:2}}</div>
+                            <div class="col-md-12 col-md-2  col-md-2">Currency</div>
+                            <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
+                        </div>
+
+                        <div style="color:black;" id="GridPurchaseLCPO" ej-grid e-datasource="PurchaseLCPOList"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="PONo" e-headertext="PO No." e-width="50"></div>
+                                <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="80"></div>
+                                <div e-column e-type="string" e-field="VendorRefNo" e-headertext="Vendor RefNo." e-width="100"></div>
+                                <div e-column e-type="string" e-field="TotalValue" e-textalign="right" e-format="{0:N2}" e-headertext="Total Value" e-width="100"></div>
+
+                                <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-type="number" e-field="AcceptanceValue" e-textalign="right" e-format="{0:N2}" e-headertext="AcceptanceValue" e-width="100"></div>
+
+                                <div e-column e-type="string" e-field="GRNValue" e-textalign="right" e-format="{0:N2}" e-headertext="GRN Value" e-width="80"></div>
+
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="GRNPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">GRN<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class=" col-md-12">
+                        <div class="row">
+                            <div class="col-md-12 col-md-2 col-md-2">Vendor</div>
+                            <div class="col-md-12 col-md-10 col-md-10">:{{SelectedLCRow.Vendor}}</div>
+                            <div class="col-md-12 col-md-2 col-md-2">LC No.</div>
+                            <div class="col-md-12 col-md-4 col-md-4">:{{SelectedLCRow.LCNo}}</div>
+
+                            <div class="col-md-12 col-md-2 col-md-2">Opening Date</div>
+                            <div class="col-md-12 col-md-4 col-md-4">
+                                <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
+                            </div>
+                            <div class="col-md-12 col-md-2  col-md-2">Value</div>
+                            <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Value|number:2}}</div>
+                            <div class="col-md-12 col-md-2  col-md-2">Currency</div>
+                            <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
+                        </div>
+
+
+                        <div style="color:black;" id="GridPurchaseLCGRN" ej-grid e-datasource="PurchaseLCGRNList"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="50"></div>
+                                <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="80"></div>
+                                <div e-column e-type="string" e-field="VendorRefNo" e-headertext="Vendor RefNo." e-width="100"></div>
+                                <div e-column e-type="string" e-field="GRNValue" e-textalign="right" e-format="{0:N2}" e-headertext="GRN Value" e-width="100"></div>
+
+                                <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-type="string" e-field="GateName" e-headertext="Gate Name" e-width="50"></div>
+                                <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No." e-width="50"></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="ACPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Acceptence<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12 col-md-2 col-md-2">Vendor</div>
+                            <div class="col-md-12 col-md-10 col-md-10">:{{SelectedLCRow.Vendor}}</div>
+                            <div class="col-md-12 col-md-2 col-md-2">LC No.</div>
+                            <div class="col-md-12 col-md-4 col-md-4">:{{SelectedLCRow.LCNo}}</div>
+                            <div class="col-md-12 col-md-2 col-md-2">Opening Date</div>
+                            <div class="col-md-12 col-md-4 col-md-4">
+                                <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
+                            </div>
+                            <div class="col-md-12 col-md-2  col-md-2">Value</div>
+                            <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Value|number:2}}</div>
+                            <div class="col-md-12 col-md-2  col-md-2">Currency</div>
+                            <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
+                        </div>
+                        <div style="color:black;" id="GridPurchaseLCAC" ej-grid e-datasource="PurchaseLCACList"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="PONo" e-headertext="PO No." e-width="50"></div>
+                                <div e-column e-type="date" e-field="PODate" e-format="{0:dd-MMM-yyyy}" e-headertext="PO Date" e-width="50"></div>
+                                <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="Acceptance No." e-width="50"></div>
+                                <div e-column e-type="date" e-field="AcceptanceDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Acceptance Date" e-width="80"></div>
+                                <div e-column e-type="string" e-field="AcceptanceValue" e-textalign="right" e-format="{0:N2}" e-headertext="Acceptence Value" e-width="100"></div>
+                                <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="50"></div>
+                                <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="50"></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="LoanPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Acceptence<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12 col-md-2 col-md-2">Vendor</div>
+                            <div class="col-md-12 col-md-10 col-md-10">:{{SelectedLCRow.Vendor}}</div>
+                            <div class="col-md-12 col-md-2 col-md-2">LC No.</div>
+                            <div class="col-md-12 col-md-4 col-md-4">:{{SelectedLCRow.LCNo}}</div>
+                            <div class="col-md-12 col-md-2 col-md-2">Opening Date</div>
+                            <div class="col-md-12 col-md-4 col-md-4">
+                                <input type="text" ng-disabled="true" datepicker name="OpeningDate" ng-model="SelectedLCRow.OpeningDate" class="form-control">
+                            </div>
+                            <div class="col-md-12 col-md-2  col-md-2">Value</div>
+                            <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Value|number:2}}</div>
+                            <div class="col-md-12 col-md-2  col-md-2">Currency</div>
+                            <div class="col-md-12 col-md-4  col-md-4">:{{SelectedLCRow.Currency}}</div>
+                        </div>
+                        <div style="color:black;" id="GridPurchaseLCLoan" ej-grid e-datasource="PurchaseLCLoanList"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="LoanNo" e-headertext="Loan No." e-width="50"></div>
+                                <div e-column e-type="date" e-field="LoanDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Loan Date" e-width="50"></div>
+                                <div e-column e-type="string" e-field="Amount"  e-format="{0:N2}" e-headertext="Loan" e-width="50"></div>
+                                <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="Acceptance No." e-width="50"></div>
+                                <div e-column e-type="date" e-field="AcceptanceDate" e-headertext="Acceptance Date" e-width="50"></div>
+                                <div e-column e-type="string" e-field="VoucherNo" e-headertext="Voucher No." e-width="50"></div>                           
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

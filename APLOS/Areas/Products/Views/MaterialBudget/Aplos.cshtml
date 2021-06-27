@@ -1,0 +1,827 @@
+﻿
+<style>
+    .e-filterset:before {
+        /*content: "";*/
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        /*background: #a2f1ff;
+        color: #080076;
+        min-height: 100%;
+        border-bottom-color: #8B4513;*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+</style>
+
+<style>
+    body {
+        color: #000000;
+        font-family: Sans-Serif;
+        padding: 30px;
+        background-color: #f6f6f6;
+    }
+
+    a {
+        text-decoration: none;
+        color: #000000;
+    }
+
+        a:hover {
+            color: #222222
+        }
+
+    /* Dropdown */
+
+    .dropdown {
+        display: inline-block;
+        position: relative;
+    }
+
+    .dd-button {
+        display: inline-block;
+        border: 1px solid gray;
+        border-radius: 4px;
+        padding: 10px 30px 10px 20px;
+        background-color: #ffffff;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+        .dd-button:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid black;
+        }
+
+        .dd-button:hover {
+            background-color: #eeeeee;
+        }
+
+
+    .dd-input {
+        display: none;
+    }
+
+    .dd-menu {
+        position: absolute;
+        top: 100%;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 0;
+        margin: 2px 0 0 0;
+        box-shadow: 0 0 6px 0 rgba(0,0,0,0.1);
+        background-color: #ffffff;
+        list-style-type: none;
+    }
+
+    .dd-input + .dd-menu {
+        display: none;
+    }
+
+    .dd-input:checked + .dd-menu {
+        display: block;
+    }
+
+    .dd-menu li {
+        padding: 10px 20px;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+        .dd-menu li:hover {
+            background-color: #f6f6f6;
+        }
+
+        .dd-menu li a {
+            display: block;
+            margin: -10px -20px;
+            padding: 10px 20px;
+        }
+
+        .dd-menu li.divider {
+            padding: 0;
+            border-bottom: 1px solid #cccccc;
+        }
+
+    .select2-search--dropdown .select2-search__field {
+        padding: 4px;
+        width: 450px;
+        box-sizing: border-box;
+    }
+</style>
+
+<togglable name="Material Budget"></togglable>
+
+@*Index Grid*@
+<div class="aplos-grid-toggle">
+    <div class="row text-right" hidden>
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="$root.parameters.searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData();">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+        <div>
+            @*<div id='Grid'></div>*@
+            <div class="content-container-fluid" style="color:black;">
+                @*e-allowselection="true"*@
+                <div style="color:black;" id="Grid" ej-grid e-datasource="ReqList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                     e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                    <div e-columns>
+
+                        @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                        @*<div e-column e-field="CompanyGroup" e-headertext="CompanyGroup" e-width="80"></div>
+        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
+
+        <div e-column e-field="ShortName" e-headertext="ShortName" e-width="80"></div>
+        <div e-column e-field="StandardName" e-headertext="StandardName" e-width="80"></div>*@
+
+                        <div e-column e-field="Id" e-headertext="M.BudgetNo" e-width="80"></div>
+                        <div e-column e-field="EntityName" e-headertext="EntityName" e-width="80"></div>
+                        <div e-column e-field="MaterialGroupMasterName" e-headertext="Material Group Name" e-width="80"></div>
+                        <div e-column e-field="UserName" e-headertext="Material" e-width="50"></div>
+                        <div e-column e-field="StandardName" e-headertext="Article" e-width="50"></div>
+                        <div e-column e-field="FirstCharacteristicsValue" e-headertext="Sku1" e-width="50"></div>
+                        <div e-column e-field="SecondCharacteristicsValue" e-headertext="Sku2" e-width="50"></div>
+                        <div e-column e-field="ThirdCharacteristicsValue" e-headertext="Sku3" e-width="50"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="80"></div>
+                        <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
+                        <div e-column e-field="BudgetPeriod" e-headertext="BudgetPeriod" e-width="70"></div>
+                        <div e-column e-field="BudgetQty" e-headertext="BudgetQty" e-width="60"></div>
+                        <div e-column e-field="ProcurementFrequencyCategory" e-headertext="ProcurementFreqCate" e-width="120"></div>
+                        <div e-column e-field="ProcurementsPlanDay" e-headertext="ProcurementsPlanDay" e-width="120"></div>
+
+
+
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </fieldset>
+
+
+
+
+
+
+
+</div>
+
+
+
+
+@*@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")*@
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
+
+
+<div class="form-horizontal form-elements" ng-form="productNewForm">
+    <div class="modal-body form-elements form-horizontal">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border"> Material Budget </legend>
+
+
+
+            @*<div class="form-group" id="div_docNo1">
+                    <label class="col-sm-4 control-label">Material Budget Id<sup>*</sup></label>
+                    <div class="col-sm-8 show-message pdr3">
+                        <input type="text" name="Material Budget Id" ng-model="productNew.Id" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'MaterialBudgetId');" maxlength="20" tabindex="2" autocomplete="off" readonly>
+                    </div>
+                </div>*@
+
+
+
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" id="div_docNo1">
+                    <label class="col-sm-4 control-label">Material Budget Id<sup>*</sup></label>
+                    <div class="col-sm-8 show-message pdr3">
+                        <input type="text" name="Material Budget Id" ng-model="productNew.Id" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'MaterialBudgetId');" maxlength="20" tabindex="2" autocomplete="off" readonly>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Budget Activity<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" ng-model="detailModel.ActivityName" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button tabindex="1" ng-click="GetCOAICodeList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" id="div_mm">
+                    <label class="col-sm-4 control-label">Material</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" ng-model="detailModel.MaterialMasterName" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button tabindex="1" ng-click="getMaterialMasterbyTypePopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select id="paymentTermId" class="form-control" name="Entity" ng-model="detailModel.EntityId" tabindex="1" required>
+                                <option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
+
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+
+
+
+
+                @*<div class="form-group" id="div_currency1">
+                        <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
+                        <div class="col-sm-8 show-message pdr3">
+                            <div class="select-style">
+                                <select class="form-control" id="QualityApproval" name="Quality Approval*" ng-model="detailModel.EmployeeId" required>
+                                    <option value=""></option>
+                                    <option ng-repeat="option in EmployeeList" value="{{option.Value}}">{{option.Text}}</option>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>*@
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" name="EmployeeName" ng-model="detailModel.EmployeeName" class="form-control" readonly required>
+                            <span class="input-group-btn">
+                                <button ng-click="showEmployeeListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="clearEmployee()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-group" id="div_ar" ng-show="hasArticle">
+                    <label class="col-sm-4 control-label">Article</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" name="Finished Goods" ng-model="detailModel.ArticleName" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button tabindex="1" ng-click="getArticleSearchList(detailModel.MaterialMasterId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Material Group</label>
+                    <label class="col-sm-8 control-label">{{detailModel.MaterialGroupMasterName}}</label>
+                </div>
+                <div class="form-group" ng-show="detailModel.IsProductMstRequired">
+                    <label class="col-sm-4 control-label">Prd Master</label>
+                    <label class="col-sm-8 control-label">{{detailModel.ProductMasterName}}</label>
+                </div>
+
+                <div class="form-group" id="div_country">
+                    <label class="col-sm-4 col-md-4 control-label">Country<sup ng-show="detailModel.IsOriginApplicable">*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select name="Country" id="Country" ng-disabled="!detailModel.IsOriginApplicable" ng-model="detailModel.CountryId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in countryList">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Budget Qty <sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input type="text" n-decimals="{{currencyPrecision}}" name="Transaction Qty" maxlength="18" ng-model="detailModel.BudgetQty" class="form-control text-right" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Procurement Plan Day <sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input type="text" ng-disabled="true" n-decimals="{{currencyPrecision}}" name="Procurement Plan Day" maxlength="18" ng-model="detailModel.ProcurementsPlanDay" class="form-control text-right" required>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+
+                <div class="form-group" ng-hide="true">
+                    <label class="col-sm-4 control-label">Material Detail</label>
+                    <div class="col-sm-8">
+                        <textarea maxlength="250" name="Material Detail" class="form-control" rows="1" ng-model="detailModel.MaterialDetail" tabindex="7"></textarea>
+                    </div>
+                </div>
+
+
+
+                <div class="form-group" id="div_country" ng-hide="true">
+                    <label class="col-sm-4 col-md-4 control-label">Future Req App. <sup ng-show="detailModel.IsOriginApplicable">*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="checkbox-site">
+                            <div class="col-sm-1">
+                                <label>
+                                    <input type="checkbox" ng-model="detailModel.FutureReqApp">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-group" id="div_currency1" ng-hide="true">
+                    <label class="col-sm-4 control-label">Local/Imported<sup>*</sup></label>
+                    <div class="col-sm-8 show-message pdr3">
+                        <div class="select-style">
+                            <select class="form-control" id="QualityApproval" name="Quality Approval*" ng-model="detailModel.LocalImported">
+                                <option value=""></option>
+                                <option value="Local">Local</option>
+                                <option value="Imported">Imported</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Base UoM</label>
+                    <label class="col-sm-8 control-label">{{detailModel.BaseUoM}}</label>
+                </div>
+                <div class="form-group" ng-show="detailModel.IsOurStyleRequired">
+                    <label class="col-sm-4 control-label">OurStyle</label>
+                    <label class="col-sm-8 control-label">{{detailModel.OurStyleName}}</label>
+                </div>
+                <div class="form-group" id="div_country">
+                    <label class="col-sm-4 col-md-4 control-label">Budget Period <sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select name="Budget Type " id="BudgetPeriod" ng-change="BudgetPeriodChange();" ng-model="detailModel.BudgetPeriod" class="col-sm-3 form-control">
+                                <option value=""></option>
+                                <option value="Daily">Daily</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="Bi-Weekly">Bi-Weekly</option>
+                                <option value="Quartely">Quartely</option>
+                                <option value="Bi-Annualy">Bi-Annualy</option>
+                                <option value="Annually">Annually</option>
+                                <option value="NA">NA</option>
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Procurement Freq.Category<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Procurement Freq.Category" maxlength="18" ng-model="detailModel.ProcurementFrequencyCategory" class="form-control text-right" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Remarks</label>
+                    <div class="col-sm-8">
+                        <textarea maxlength="250" name="Remarks" class="form-control" rows="1" ng-model="detailModel.Remarks" tabindex="7"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group" id="div_toCrate" ng-hide="true">
+                    <label class="col-sm-4 control-label">To Currency Rate<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Currency Rate" n-decimals="{{currencyPrecision}}" ng-model="detailModel.ToCurrencyRate" disabled class="form-control text-right" placeholder="0.00"
+                               ng-keyup="calculateTaxCategory();" />
+                    </div>
+                </div>
+
+                <div class="form-group" ng-hide="true">
+                    <label class="col-sm-4 control-label">Reason</label>
+                    <div class="col-sm-8">
+                        <textarea maxlength="250" name="Reason" class="form-control" rows="1" ng-model="detailModel.Reason" tabindex="7"></textarea>
+                    </div>
+                </div>
+                <div class="form-group" ng-hide="true">
+                    <label class="col-sm-4 control-label">Required Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="DeliveryDate" ng-model="detailModel.DeliveryDate" datepicker class="form-control">
+                    </div>
+                </div>
+                @*<div class="form-group" id="div_currency12122">
+                        <label class="col-sm-4 control-label">Need Special App <sup>*</sup></label>
+                        <div class="col-sm-8 show-message pdr3">
+                            <div class="select-style">
+                                <select class="form-control" id="Need SpecialApp" ng-model="detailModel.NeedSpecialAppId">
+                                    <option value=""></option>
+                                    <option ng-repeat="option in EmployeeList" value="{{option.Value}}">{{option.Text}}</option>
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>*@
+
+
+                @*<div class="form-group">
+                        <label class="col-sm-4 control-label">Stock Qty Own</label>
+                        <div class="col-sm-8">
+                            <input type="text" n-decimals="{{currencyPrecision}}" name="Transaction Qty" maxlength="18" ng-model="detailModel.OwnQty" class="form-control text-right" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Stock Qty Other</label>
+                        <div class="col-sm-8">
+                            <input type="text" n-decimals="{{currencyPrecision}}" name="Transaction Qty" maxlength="18" ng-model="detailModel.OtherQty" class="form-control text-right" readonly>
+                        </div>
+                    </div>*@
+
+            </div>
+        </fieldset>
+        <!--detailModel Entry Right-->
+        <hr ng-show="char1.CharacteristicsId.length>0;" />
+        <div class="col-xs-12 col-sm-6 col-md-6" ng-show="char1.CharacteristicsId.length>0;">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">{{char1.Name}}<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" ng-model="char1.FreeText" class="form-control"
+                               ng-keyup="nullByFreeText('char1')" disabled ng-required="char1.IsMandatory">
+                        <span class="input-group-btn">
+                            <button ng-click="findCharValueSearchData(char1, 'char1')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="clearCharValueField('char1');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                        </span>
+                    </div>
+                    <p class="msg-error" ng-show="IsMandatoryButNull(char1.IsMandatory, char1.FreeText)">value is required.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6" ng-show="char2.CharacteristicsId.length>0;">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">{{char2.Name}}<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" ng-model="char2.FreeText" class="form-control"
+                               ng-keyup="nullByFreeText('char2')" disabled ng-required="char2.IsMandatory">
+                        <span class="input-group-btn">
+                            <button ng-click="findCharValueSearchData(char2, 'char2')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="clearCharValueField('char2');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                        </span>
+                    </div>
+                    <p class="msg-error" ng-show="IsMandatoryButNull(char2.IsMandatory, char2.FreeText)">value is required.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6" ng-show="char3.CharacteristicsId.length>0;">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">{{char3.Name}}<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" ng-model="char3.FreeText" class="form-control"
+                               ng-keyup="nullByFreeText('char3')" disabled ng-required="char3.IsMandatory">
+                        <span class="input-group-btn">
+                            <button ng-click="findCharValueSearchData(char3, 'char3')" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="clearCharValueField('char3');" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                        </span>
+                    </div>
+                    <p class="msg-error" ng-show="IsMandatoryButNull(char3.IsMandatory, char3.FreeText)">value is required.</p>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        @*<div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" id="div_mm">
+                    <label class="col-sm-4 control-label">Activity</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" ng-model="detailModel.UserName" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button tabindex="1" ng-click="getMaterialMasterbyTypePopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+
+        <hr style="width:100%;" />
+        <div class="col-xs-4 col-sm-4 col-md-4" ng-hide="true">
+            <div class="form-group" id="div_qty">
+                <label class="col-sm-4 control-label">Required Qty<sup>*</sup></label>
+                <div class="col-sm-4 show-message" style="padding-right:0px;">
+                    <input type="text" n-decimals="{{currencyPrecision}}" name="Transaction Qty" maxlength="18" ng-model="detailModel.TransactionQty" class="form-control text-right" ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_qty', 'detailModel','TransactionQty');">
+                </div>
+                <div class="col-sm-4 show-message" style="padding-left:0px;">
+                    <div class="select-style">
+                        <select name="Transaction UoM" class="form-control" ng-model="detailModel.TransactionUoMId" ng-options="item.Value as item.Text for item in uoMList" ng-change="manualValidationAddRemove('div_uom', 'detailModel','TransactionUoMId');">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-4 col-sm-4 col-md-4" ng-hide="true">
+            <div class="form-group" id="div_Rt">
+                <label class="col-sm-5 control-label">Estimated Rate/Unit<sup>*</sup></label>
+                @*<label class="col-sm-6 control-label">{{detailModel.EstimatedRate| number| setDecimal:currencyPrecision}} {{detailModel.CurrencyName}}</label>*@
+                <div class="col-sm-7 show-message">
+                    <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
+                        <input type="text" name="Rate" n-decimals="{{currencyPrecision}}" ng-model="detailModel.EstimatedRate" class="form-control text-right" placeholder=""
+                               ng-keyup="calculateTaxCategoryRate();manualValidationAddRemove('div_Rt', 'detailModel','TransactionRate');" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-4 col-sm-4 col-md-4" ng-hide="true">
+            <div class="form-group" id="div_tamnt">
+                <label class="col-sm-5 control-label" data-placement="top" title="Cost and Manufacture">Total Amount<sup>*</sup></label>
+                <div class="col-sm-7 show-message">
+                    <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
+                        <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="detailModel.TotalAmount" class="form-control text-right" placeholder=""
+                               ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','TotalAmount');" disabled />
+                    </div>
+                    <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
+                        <input type="text" ng-model="detailModel.CurrencyName" class="form-control" disabled />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+        <div class="col-md-12 text-left" style="padding-top: 17px;">
+            <ul class="common-btn list-inline text-right">
+                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{productNew.Id.length>0?'Update':'Save'}}</button></li>
+                <li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+
+
+
+    @*<fieldset class="scheduler-border">
+            <legend class="scheduler-border"></legend>
+
+            <div class="col-md-12">
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">EntityId <sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
+                            <div class="select-style">
+                                <select class="form-control" id="MachineCategory" name="Machine Category" ng-model="modelNew.MachineCategoryId" ng-options="item.Value as item.Text for item in MachineCategoryList" tabindex="3" required>
+
+                                    <option value="">---Please Select---</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">EmployeeId <sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
+                            <div class="select-style">
+                                <select class="form-control" id="MachineSubCategory" name="MachineSub Category" ng-model="modelNew.MachineSubCategoryId" ng-options="item.Value as item.Text for item in MachineSuvCategoryList" tabindex="3" required>
+
+                                    <option value="">---Please Select---</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">BudgetActivityId<sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
+                            <div class="select-style">
+                                <select class="form-control" id="Skill" name="Skill" ng-model="modelNew.SkillId" ng-options="item.Value as item.Text for item in SkillList"
+                                        tabindex="6">
+                                    <option value="">---Please Select---</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="clearfix"></div>
+            <div class="clearfix"></div>
+            <div class="col-md-12">
+
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Budget Qty  <sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Budget Qty" ng-model="modelNew.BudgetQty" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Procurement Frequency Category <sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Procurement Frequency Category   " ng-model="modelNew.ProcurementFrequencyCategory   " class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">ProcurementsPlanDay<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="ProcurementsPlanDay  " ng-model="modelNew.ProcurementsPlanDay" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-12">
+
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">BudgetId <sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
+                            <div class="select-style">
+                                <select class="form-control" id="MachineCategory" name="Machine Category" ng-model="modelNew.MachineCategoryId" ng-options="item.Value as item.Text for item in MachineCategoryList" tabindex="3" required>
+
+                                    <option value="">---Please Select---</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+                <div class="col-md-4">
+                    <div class="form-group" id="" show-errors>
+                        <label class="col-sm-4 control-label">Budget Period  <sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Budget Period" ng-model="modelNew.BudgetPeriod" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-12">
+
+                <div class="col-md-4">
+
+                    <div class="form-group" id="div_mm">
+                        <label class="col-sm-4 control-label">Material</label>
+                        <div class="col-sm-8 show-message">
+                            <div class="input-group">
+                                <input type="text" ng-model="detailModel.MaterialMasterName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button tabindex="1" ng-click="getMaterialMasterbyTypePopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                <div class="col-md-4">
+
+
+
+                    <div class="form-group" id="div_mm">
+                        <label class="col-sm-4 control-label">Article</label>
+                        <div class="col-sm-8 show-message">
+                            <div class="input-group">
+                                <input type="text" ng-model="detailModel.MaterialMasterName" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button tabindex="1" ng-click="getMaterialMasterbyTypePopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+                    <div class="form-group" id="">
+                        <label class="col-sm-4 control-label">Remarks</label>
+                        <div class="col-sm-8 show-message ">
+                            <textarea class="form-control" rows="3" ng-model="modelNew.Remarks" maxlength="500" tabindex="6"></textarea>
+
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="clearfix"></div>
+            <div class="clearfix"></div>
+            <div class="col-md-12">
+                <div class="col-md-4" show-errors>
+                    <div class="form-group" id="">
+                        <label class="col-sm-4 control-label">Active<sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
+                            <input type="checkbox" name="Active" ng-model="modelNew.Active" checked="checked" />
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+            </div>
+            <div class="col-md-12 text-right" style="padding-top: 17px;">
+
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </fieldset>*@
+</div>
+
+<div class="clearfix"></div>
+
+
+
+@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+
+
+
+
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteManpower();"></confirm-archive-generic>
+

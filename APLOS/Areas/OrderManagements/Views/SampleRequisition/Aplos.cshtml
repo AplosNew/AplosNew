@@ -1,0 +1,444 @@
+﻿<togglable name="Sample Requisition"></togglable>
+<div class="form-horizontal form-elements" ng-form name="sampleRequisitionNewForm">
+    <div class="row" ng-form name="sampleRequisitionFormTab1">
+        <input type="hidden" ng-model="sampleRequisitionNew.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Paid Status</label>
+                <div class="col-sm-8">
+                    <input type="radio" name="paid" value="paid" ng-model="sampleRequisitionNew.PaidStatus" checked> Paid
+                    <input type="radio" name="unpaid" value="unpaid" ng-model="sampleRequisitionNew.PaidStatus"> UnPaid
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select name="PlantId" class="form-control" ng-change="getEntityAndSalesOrg();" ng-model="sampleRequisitionNew.PlantId" ng-disabled="sampleRequisitionNew.CustomerName!=null"
+                                    ng-options="item.Value as item.Text for item in plantList" required tabindex="1">
+                                <option></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" name="Customer" ng-model="sampleRequisitionNew.CustomerName" class="form-control" readonly required>
+                            <span class="input-group-btn">
+                                <button ng-click="getCustomerPopUp();" class="btn single-small-btn" tabindex="5"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="clearCustomer()" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-refresh"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="sampleRequisitionNew.PaidStatus==='paid'">
+                    <label class="col-sm-4 control-label">Payment Term</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select name="Payment Term" class="form-control" ng-model="sampleRequisitionNew.PaymentTermId" ng-disabled="!sampleRequisitionNew.IsChangeable"
+                                    ng-options="item.Value as item.Text for item in paymentTermList" tabindex="8">
+                                <option></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" id="reqRefDateId">
+                    <label class="col-sm-4 control-label">Request Ref. Date</label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" ng-model="sampleRequisitionNew.RequestReferenceDate" ng-change="rangeDateValidation('reqRefDateId',false);" datepicker class="form-control" tabindex="10">
+                    </div>
+                </div>
+                <div class="form-group" id="deliveryDateId">
+                    <label class="col-sm-4 control-label">BuyerRequirement Date</label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" ng-model="sampleRequisitionNew.BuyerRequirementDate" ng-change="rangeDateValidation('deliveryDateId',true);" datepicker class="form-control" tabindex="12">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select name="EntityId" ng-disabled="sampleRequisitionNew.PlantId==null" ng-model="sampleRequisitionNew.EntityId" class="col-sm-3 form-control"
+                                    ng-options="item.Value as item.Text for item in entityList" required tabindex="2">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Buyer<sup ng-show="buyerApplicable">*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select name="Buyer" class="form-control" ng-model="sampleRequisitionNew.BuyerId" tabindex="7"
+                                    ng-options="item.Value as item.Text for item in buyerList" ng-required="buyerApplicable">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group"  ng-show="sampleRequisitionNew.PaidStatus==='paid'">
+                    <label class="col-sm-4 control-label">Currency</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select name="Currency" class="form-control" ng-model="sampleRequisitionNew.CurrencyId" tabindex="9" ng-change="InsertCurrencyInTbl();" id="curId"
+                                    ng-options="item.Value as item.Text for item in currencyList">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Ref. Doc No</label>
+                    <div class="col-sm-8">
+                        <input type="text" ng-model="sampleRequisitionNew.ReferenceDocNo" class="form-control" tabindex="11">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">DevelopmentCategory</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select name="DevelopmentCategory" class="form-control" ng-model="sampleRequisitionNew.DevelopmentCategory"
+                                    ng-options="item.Value as item.Text for item in developmentCategoryList">
+                                <option></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-disabled="sampleRequisitionNew.CustomerName==null" ng-click="ShowSubMaterialFormPopUp();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Line Item</button></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- #region Detail -->
+            <div class="col-xs-12 col-sm-12 col-md-12" ng-show="subMaterialList.length>0">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Material Group(Mst.)</th>
+                                <th>MaterialMaster</th>
+                                <th>SubMaterial</th>
+                                <th>Name</th>
+                                <th>Qty</th>
+                                <th>UoM</th>
+                                <th>Rate</th>
+                                <th>Currency</th>
+                                <th>DeliveryDate</th>
+                                <th>Confirmed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in subMaterialList">
+                                <td class="text-center">
+                                    <ul class="list-inline action-list">
+                                        <li>
+                                            <button ng-click="materialAttributeValueEdit(x)" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
+                                                <i class="glyphicon glyphicon-pencil"></i>
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button ng-click="MaterialAttributeValueDelete($index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td>{{x.MaterialGroupMasterName}}</td>
+                                <td>{{x.MaterialMasterName}}</td>
+                                <td>{{x.SubMaterialName}}</td>
+                                <td>{{x.Name}}</td>
+                                <td>{{x.Qty}}</td>
+                                <td>{{x.UoMName}}</td>
+                                <td>{{x.Rate}}</td>
+                                <td>{{x.CurrencyName}}</td>
+                                <td>{{x.DeliveryDate}}</td>
+                                <td>{{x.IsConfirmed?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- #endregion -->
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchsampleRequisitionList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Plant</th>
+                <th>Entity</th>
+                <th>Buyer</th>
+                <th>Customer</th>
+                <th>Currency</th>
+                <th>Request Ref. Date</th>
+                <th>Ref. DocNo</th>
+                <th>Buyer Requirement Date</th>
+                <th>Paid Status</th>
+                <th>Id</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in soMasterList|itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.Plant}}</td>
+                <td>{{x.Entity}}</td>
+                <td>{{x.Buyer}}</td>
+                <td>{{x.CustomerName}}</td>
+                <td>{{x.Currency}}</td>
+                <td>{{x.RequestReferenceDate}}</td>
+                <td>{{x.ReferenceDocNo}}</td>
+                <td>{{x.BuyerRequirementDate}}</td>
+                <td>{{x.PaidStatus}}</td>
+                <td>{{x.Id}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>
+<!-- #region Customer -->
+<modal-table modalid="customerPopUp"
+             data-title={{customerTitle}}
+             data-search-parameters="customerParameters"
+             data-exclued-column-list="Code"
+             data-field-list="customerList"
+             data-data-list="customerDataList"
+             data-search-function="getCustomerData"
+             data-single-click="customerSingleClick(data)"
+             data-double-click="customerDoubleClick(data)"
+             data-right-button="true"
+             data-left-button="true"
+             data-ng-click-left-button="customerByButton()"
+             data-ng-click-cancel="closeCustomer()">
+</modal-table>
+<!-- #endregion -->
+<!-- #region PartnerFunction -->
+<div class="modal fade site-modal in" id="pfpopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Select Partner Function
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped text-left">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Partner Function</th>
+                                <th>Assignment Type</th>
+                                <th>Account Type</th>
+                                <th>Customer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in pfPopUpList">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label class=" control-label">
+                                            <input type="checkbox" ng-model="x.IsSelectedID">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.AssignmentType}}</td>
+                                <td>{{x.AccountType}}</td>
+                                <td>{{x.Customer}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="selectPFByButton();" class="btn"><i class=""></i> Select</button></li>
+                        <li> <button type="button" class="btn btn-default" ng-click="closePFPopUp();">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region subMaterial -->
+<div class="modal fade site-modal in" id="subMaterialPoUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Material Group (Mst)<button type="button" class="close" ng-click="CloseSubMaterialPopUp();" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-element-ctrl form-horizontal">
+                <input type="hidden" ng-model="subMaterialNew.Id" />
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Material Group (Mst)<sup>*</sup></label>
+                        <div class="col-sm-6 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                            <input type="text" name="Material Group (Mst)" ng-model="subMaterialNew.MaterialGroupMasterName" class="form-control" required readonly>
+                            <span class="input-group-btn">
+                                <button class="btn single-small-btn" ng-click="materialGroupMstPopUp()"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                <button class="btn single-small-btn" ng-click="materialGroupClear()"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div ng-show="attributeList.length>0">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Material Attribute</th>
+                                        <th>Material Attribute Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in attributeList">
+                                        <td> {{x.MaterialAttributeName}}</td>
+                                        <td>
+                                            <div class="col-sm-8 input-group" style="margin-top:-7px;">
+                                                <input type="text" ng-model="x.MaterialAttributeValueFreeText" class="col-sm-2 form-control" ng-keyup="idNullByFreeText(x.MaterialAttributeId, $index)"
+                                                       ng-disabled="x.FlagDisable" name="Material attribute value">
+                                                <span class="input-group-btn">
+                                                    <button class="btn single-small-btn" ng-disabled="!x.IsPreDefinedField" style="margin-top:-5px;margin-bottom:-5px;"
+                                                            ng-click="materialAttributeValuePoUp(x.MaterialAttributeId, $index)" tabindex="4">
+                                                        <i class="cr-icon glyphicon glyphicon-search"></i>
+                                                    </button>
+                                                    <button class="btn single-small-btn" ng-click="materialAttributeValueClear($index)" style="margin-top:-5px;margin-bottom:-5px;"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                                </span>
+                                            </div>
+
+                                            @*<input type="text" ng-model="x.MaterialAttributeValueFreeText" class="col-sm-2 form-control" ng-keyup="idNullByFreeText(x.MaterialAttributeId, $index)"
+                                                       style="width:400px;margin-top:-5px;margin-bottom:-5px;" ng-disabled="x.FlagDisable" name="Material attribute value">
+                                                <button class="btn single-small-btn" ng-disabled="!x.IsPreDefinedField" style="margin-top:-5px;margin-bottom:-5px;"
+                                                        ng-click="materialAttributeValuePoUp(x.MaterialAttributeId, $index)" tabindex="4">
+                                                    <i class="cr-icon glyphicon glyphicon-search"></i>
+                                                </button>
+                                                <button class="btn single-small-btn" ng-click="materialAttributeValueClear($index)" style="margin-top:-5px;margin-bottom:-5px;"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>*@
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4" style="margin-top:10px;">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Qty<sup>*</sup></label>
+                            <div class="col-sm-5" style="padding-right:0px;padding-left:24px;">
+                                <input type="text" only-numbers ng-model="subMaterialNew.Qty" class="form-control text-right" tabindex="21">
+                            </div>
+                            <div class="col-sm-5" style="padding-left:0px">
+                                <div class="select-style">
+                                    <select ng-model="subMaterialNew.UoMId" class="form-control" name="BaseUOM" tabindex="22"
+                                            id="uOMId" ng-disabled="materialMasterAlternativeUOMs.length>0" ng-options="item.Value as item.Text for item in subMaterialUOMList">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4" style="margin-top:10px;">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Rate<sup>*</sup></label>
+                            <div class="col-sm-5" style="padding-right:0px;padding-left: 24px;">
+                                <input type="text" n-decimals="4" ng-model="subMaterialNew.Rate" class="form-control text-right" tabindex="23">
+                            </div>
+                            <div class="col-sm-5" style="padding-left:0px;">
+                                <div class="select-style">
+                                    <select name="Currency" class="form-control" ng-model="subMaterialNew.CurrencyId" id="currencyId"
+                                            ng-options="item.Value as item.Text for item in currencyList" disabled>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4" style="margin-top:10px;">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Delivery Date</label>
+                            <div class="col-sm-8">
+                                <input type="text" ng-model="subMaterialNew.DeliveryDate" datepicker class="form-control" tabindex="24">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Test Std</label>
+                            <div class="col-sm-9" style="padding-left:1px;">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="subMaterialNew.TestingStandardId"
+                                            ng-options="item.Value as item.Text for item in testingStdList" tabindex="26">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-8 col-md-8">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" style="margin-right: -36px;">Remarks</label>
+                            <div class="col-sm-10">
+                                <textarea ng-model="subMaterialNew.Remarks" class="form-control" rows="2" name="Remarks" maxlength="250" ng-trim="false" tabindex="26"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li><button tabindex="27" ng-click="AddSubMaterial();" class="btn" ng-disabled="attributeList.length==0">{{subMaterialCaption}}</button></li>
+                        <li><button tabindex="28" type="button" class="btn btn-default" ng-click="CloseSubMaterialPopUp();">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="subMaterial" title="Confirmation" message={{subMaterialMessage}}
+                         data-ng-click-right-button="removeSubMaterialRow()"></confirm-archive-generic>
+<!-- #endregion -->
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialGroupMstPopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_AttributeValuePopUp.cshtml")
+<confirm-archive-generic data-modalid="pfDelPopUp" title="Confirmation" message={{pf_message}} data-ng-click-right-button="removePf()"></confirm-archive-generic>

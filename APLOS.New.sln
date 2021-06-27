@@ -1,0 +1,153 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31005.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aplos.Model", "APLOS.Domain\Aplos.Model.csproj", "{7F2FCB85-B5BD-457E-AE20-8793D0C72F20}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aplos.Service", "APLOS.Service\Aplos.Service.csproj", "{AA817A3E-2BF1-4F54-9008-2DF78294C1C8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Snippet", "Snippet", "{5ADF7DB0-B4E8-446B-B789-FB651226F488}"
+	ProjectSection(SolutionItems) = preProject
+		Snippet\code.cs = Snippet\code.cs
+		Snippet\commonHtml.html = Snippet\commonHtml.html
+		Snippet\js.js = Snippet\js.js
+		Snippet\sqlQuery.sql = Snippet\sqlQuery.sql
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aplos.ViewModel", "Aplos.ViewModel\Aplos.ViewModel.csproj", "{A40084DF-AD53-44C7-805E-93769E586805}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APLOS.EMP", "APLOS.EMP\APLOS.EMP.csproj", "{E2381B06-F2EB-4843-84BC-309B8D84A960}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APLOS", "APLOS\APLOS.csproj", "{01A63870-F982-40C3-B513-947C85F649A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aplos.Accounting", "Aplos.Accounting\Aplos.Accounting.csproj", "{D2AE9A12-73C5-496B-AD1C-44937193DE1D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aplos.HumanResource", "Aplos.HumanResource\Aplos.HumanResource.csproj", "{1BCBB17E-2613-43A1-A634-B38419425BEF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aplos.Planning", "Aplos.Planning\Aplos.Planning.csproj", "{65CFDD09-6311-46C0-8F03-72BB02776B05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aplos.OrderManagement", "Aplos.OrderManagement\Aplos.OrderManagement.csproj", "{9C0E1666-FDCB-445F-B987-8C535339D3BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aplos.MaterialManagement", "Aplos.MaterialManagement\Aplos.MaterialManagement.csproj", "{0B400080-24FC-44B5-8273-DA4094624D91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aplos.General", "Aplos.General\Aplos.General.csproj", "{2F6215E5-C24C-4435-9AD1-25E1A1F469BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aplos.Service.Extension", "Aplos.Service.Extension\Aplos.Service.Extension.csproj", "{20086D6A-E384-4DE1-8486-6EB0FDCA39F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aplos.SchedulingServices", "Aplos.SchedulingServices\Aplos.SchedulingServices.csproj", "{FA72C0C8-C14D-4894-9986-11F891BA400C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7F2FCB85-B5BD-457E-AE20-8793D0C72F20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F2FCB85-B5BD-457E-AE20-8793D0C72F20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F2FCB85-B5BD-457E-AE20-8793D0C72F20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F2FCB85-B5BD-457E-AE20-8793D0C72F20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA817A3E-2BF1-4F54-9008-2DF78294C1C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA817A3E-2BF1-4F54-9008-2DF78294C1C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA817A3E-2BF1-4F54-9008-2DF78294C1C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA817A3E-2BF1-4F54-9008-2DF78294C1C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A40084DF-AD53-44C7-805E-93769E586805}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A40084DF-AD53-44C7-805E-93769E586805}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A40084DF-AD53-44C7-805E-93769E586805}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A40084DF-AD53-44C7-805E-93769E586805}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2381B06-F2EB-4843-84BC-309B8D84A960}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2381B06-F2EB-4843-84BC-309B8D84A960}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2381B06-F2EB-4843-84BC-309B8D84A960}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2381B06-F2EB-4843-84BC-309B8D84A960}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01A63870-F982-40C3-B513-947C85F649A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01A63870-F982-40C3-B513-947C85F649A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01A63870-F982-40C3-B513-947C85F649A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01A63870-F982-40C3-B513-947C85F649A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2AE9A12-73C5-496B-AD1C-44937193DE1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2AE9A12-73C5-496B-AD1C-44937193DE1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2AE9A12-73C5-496B-AD1C-44937193DE1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2AE9A12-73C5-496B-AD1C-44937193DE1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BCBB17E-2613-43A1-A634-B38419425BEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BCBB17E-2613-43A1-A634-B38419425BEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BCBB17E-2613-43A1-A634-B38419425BEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BCBB17E-2613-43A1-A634-B38419425BEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65CFDD09-6311-46C0-8F03-72BB02776B05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65CFDD09-6311-46C0-8F03-72BB02776B05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65CFDD09-6311-46C0-8F03-72BB02776B05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65CFDD09-6311-46C0-8F03-72BB02776B05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C0E1666-FDCB-445F-B987-8C535339D3BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C0E1666-FDCB-445F-B987-8C535339D3BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C0E1666-FDCB-445F-B987-8C535339D3BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C0E1666-FDCB-445F-B987-8C535339D3BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B400080-24FC-44B5-8273-DA4094624D91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B400080-24FC-44B5-8273-DA4094624D91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B400080-24FC-44B5-8273-DA4094624D91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B400080-24FC-44B5-8273-DA4094624D91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F6215E5-C24C-4435-9AD1-25E1A1F469BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F6215E5-C24C-4435-9AD1-25E1A1F469BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F6215E5-C24C-4435-9AD1-25E1A1F469BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F6215E5-C24C-4435-9AD1-25E1A1F469BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20086D6A-E384-4DE1-8486-6EB0FDCA39F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20086D6A-E384-4DE1-8486-6EB0FDCA39F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20086D6A-E384-4DE1-8486-6EB0FDCA39F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20086D6A-E384-4DE1-8486-6EB0FDCA39F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA72C0C8-C14D-4894-9986-11F891BA400C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA72C0C8-C14D-4894-9986-11F891BA400C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA72C0C8-C14D-4894-9986-11F891BA400C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA72C0C8-C14D-4894-9986-11F891BA400C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DE9E9D38-8341-432E-B4F2-22EF29E7ADA2}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 14
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = http://118.179.203.179:8080/tfs/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = APLOS.Service\\Aplos.Service.csproj
+		SccProjectName1 = APLOS.Service
+		SccLocalPath1 = APLOS.Service
+		SccProjectUniqueName2 = Aplos.ViewModel\\Aplos.ViewModel.csproj
+		SccProjectName2 = Aplos.ViewModel
+		SccLocalPath2 = Aplos.ViewModel
+		SccProjectUniqueName3 = APLOS.Domain\\Aplos.Model.csproj
+		SccProjectName3 = APLOS.Domain
+		SccLocalPath3 = APLOS.Domain
+		SccProjectUniqueName4 = APLOS.EMP\\APLOS.EMP.csproj
+		SccProjectName4 = APLOS.EMP
+		SccLocalPath4 = APLOS.EMP
+		SccProjectUniqueName5 = APLOS\\APLOS.csproj
+		SccProjectName5 = APLOS
+		SccLocalPath5 = APLOS
+		SccProjectUniqueName6 = Aplos.Accounting\\Aplos.Accounting.csproj
+		SccProjectName6 = Aplos.Accounting
+		SccLocalPath6 = Aplos.Accounting
+		SccProjectUniqueName7 = Aplos.HumanResource\\Aplos.HumanResource.csproj
+		SccProjectName7 = Aplos.HumanResource
+		SccLocalPath7 = Aplos.HumanResource
+		SccProjectUniqueName8 = Aplos.Planning\\Aplos.Planning.csproj
+		SccProjectName8 = Aplos.Planning
+		SccLocalPath8 = Aplos.Planning
+		SccProjectUniqueName9 = Aplos.OrderManagement\\Aplos.OrderManagement.csproj
+		SccProjectName9 = Aplos.OrderManagement
+		SccLocalPath9 = Aplos.OrderManagement
+		SccProjectUniqueName10 = Aplos.MaterialManagement\\Aplos.MaterialManagement.csproj
+		SccProjectName10 = Aplos.MaterialManagement
+		SccLocalPath10 = Aplos.MaterialManagement
+		SccProjectUniqueName11 = Aplos.General\\Aplos.General.csproj
+		SccProjectName11 = Aplos.General
+		SccLocalPath11 = Aplos.General
+		SccProjectUniqueName12 = Aplos.Service.Extension\\Aplos.Service.Extension.csproj
+		SccProjectName12 = Aplos.Service.Extension
+		SccLocalPath12 = Aplos.Service.Extension
+		SccProjectUniqueName13 = Aplos.SchedulingServices\\Aplos.SchedulingServices.csproj
+		SccProjectName13 = Aplos.SchedulingServices
+		SccLocalPath13 = Aplos.SchedulingServices
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
+EndGlobal

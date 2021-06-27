@@ -1,0 +1,200 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Employee Bank Account Information
+</h3>
+<div class="form-elements form-horizontal" ng-form name="leaveApplicationNewForm">
+    <div class="clearfix"></div>
+    <input type="hidden" ng-model="leaveApplicationNew.Id">
+    <input type="text" ng-model="leaveApplicationNew.Id" hidden />
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee Select<sup>*</sup></label>
+            <div class="input-group">
+                <div class="col-sm-2">
+                    <span class="input-group-btn">
+                        <button name="submit" ng-click="getPopUpData();" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee Code :</label>
+            <div class="col-sm-8">
+                <label>{{leaveApplicationNew.EmployeeCode}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee Name :</label>
+            <div class="col-sm-8">
+                <label>{{leaveApplicationNew.EmployeeName}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee DOJ :</label>
+            <div class="col-sm-8">
+                <label>{{leaveApplicationNew.DOJ}}</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Designation :</label>
+            <div class="col-sm-8">
+                <label>{{leaveApplicationNew.LegalDesignation}}</label>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <div class="col-sm-8">
+                <div>
+                    <img id="uploadImageSrc" ng-src="{{imageSrc}}" style="margin-left: 250px; border: 1px solid; height: 200px; width: 200px;" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0; border-top: 1px solid black;">
+
+    <div class="col-xs-12">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Bank Select<sup>*</sup></label>
+                <div class="input-group">
+                    <div class="col-sm-2">
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="getBankPopUpData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Bank Name :</label>
+                <div class="col-sm-8">
+                    <label>{{BankInfo.BankName}}</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Branch Name :</label>
+                <div class="col-sm-8">
+                    <label>{{BankInfo.BranchName}}</label>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">IFSC Code</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="PolicyName" ng-model="EmployeeBankInfo.IFSCCode" class="form-control" required tabindex="5" maxlength="50">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Payment Mode</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select id="OTDT" class="form-control" ng-model="EmployeeBankInfo.PaymentMode" name="OTDayType" required tabindex="1">
+                            <option value=""></option>
+                            <option Value="Bank">Bank</option>
+                            <option Value="Cash">Cash</option>
+                            <option Value="Check">Check</option>
+                            <option Value="Transfer">Transfer</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Salary Percentage</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" only-numbers name="PolicyName" ng-model="EmployeeBankInfo.SalaryPercentage" class="form-control" required tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Account No</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="PolicyName" ng-model="EmployeeBankInfo.BankAccNo" class="form-control" required tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">MICR Code</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="PolicyName" ng-model="EmployeeBankInfo.MICRCode" class="form-control" required tabindex="5" maxlength="50">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+    <div class="clearfix"></div>
+    @*<div class="table-responsive aplos-grid-toggle">
+        <div class="col-xs-12 col-sm-12 col-sm-12" style="padding-left: 0px; padding-right:0px;">
+            <div style="color:black;" ej-grid e-datasource="MasterList"
+                 e-allowfiltering="true" e-pageSettings-pageSize="5" e-allowpaging="true" e-allowsorting="true" e-pagesettings-pagesize="20"
+                 e-allowselection="true" e-recorddoubleclick="getDetail" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="RowID" e-headertext="System ID" e-width="60"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="60"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="60"></div>
+                    <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-width="60"></div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+</div>
+<div class="modal fade site-modal in" id="BankNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Bank List
+                <button type="button" class="close" ng-click="closeBankPopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Grid2" ej-grid e-datasource="BankList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setBankdata" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="BankId" e-headertext="BankId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="BranchId" e-headertext="BranchId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="BankName" e-headertext="Bank Name" e-width="80"></div>
+                            <div e-column e-field="BranchName" e-headertext="Branch Name" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeBankPopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>

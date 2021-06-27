@@ -1,0 +1,68 @@
+﻿
+
+<div id="Test">
+    <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Sales Register/Report</h3>
+    <div class="form-elements form-horizontal" ng-form="from0">
+        <div class="col-xs-12 col-sm-9 col-md-9">
+
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Select Options</legend>
+                <div class="col-xs-12 ">
+                    <div class="form-group">
+                        <label class="col-sm-4 col-xs-4 control-label" title="Select Option" tooltip>Select Option<sup>*</sup></label>
+                        <div class="radio col-sm-8 col-xs-8" style="margin-left: -61px" >
+                            <label>
+                                <input type="radio" name="As On Date" ng-click="change('AsOnDate')" ng-model="productNew.AsOnDate" value="AsOnDate">
+                                <span class="cr" tabindex="14"><i class="cr-icon"></i></span>As On Date
+                            </label>
+                            <label>
+                                <input type="radio" name="As On Date" ng-click="change('ForThePeriod')" ng-model="productNew.AsOnDate" value="ForThePeriod" ng-checked="true">
+                                <span class="cr" tabindex="15"><i class="cr-icon"></i></span>For The Period
+                            </label>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="col-xs-12 ">
+                    <div class="form-group" show-errors id="div_FromDate">
+                        <label class="col-sm-3 control-label" ng-hide="productNew.AsOnDate==='AsOnDate'">From Date<sup>*</sup></label>
+                        <div class="col-sm-5 show-message">
+                            <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control" ng-hide="productNew.AsOnDate==='AsOnDate'">  @*ng-disabled="productNew.AsOnDate==='AsOnDate'"*@
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors id="div_ToDate">
+                        <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                        <div class="col-sm-5  show-message">
+                            <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="3" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 col-xs-4 control-label" title="Select Option" tooltip>Select Option<sup>*</sup></label>
+                        <div class="radio col-sm-8 col-xs-8" style="margin-left: -61px">
+                            <label>
+                                <input type="radio" name="Summery" ng-click="change2('Summery')" ng-model="productNew.Summery" value="Summery" ng-checked="true">
+                                <span class="cr" tabindex="14"><i class="cr-icon"></i></span>Summery
+                            </label>
+                            <label>
+                                <input type="radio" name="Details" ng-click="change2('Details')" ng-model="productNew.Summery" value="Details">
+                                <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Details
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+
+                <li> <button id="" class="btn" ng-click="InventorySalesRepoReportPdf();"><i class="glyphicon glyphicon-download"></i> Export To Pdf</button></li>
+                <li> <button id="" class="btn" ng-click="InventorySalesReportExcels();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+            </ul>
+        </div>
+        <div class="clearfix"></div>
+
+    </div>
+</div>
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")

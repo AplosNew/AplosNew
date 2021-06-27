@@ -1,0 +1,400 @@
+﻿<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        /*background-color: #1c1f32;*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+</style>
+
+<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">PurchaseLC No<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="Purchase LCNo" ng-model="ModelNew.PurchaseLCNo" class="form-control" readonly required tabindex="9">
+                    <span class="input-group-btn">
+                        <button ng-click="GetLC();" class="btn single-small-btn" tabindex="9"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Amount</label>
+            <div class="col-sm-4 show-message">
+                <input type="text" n-decimals="2" name="Amount" ng-model="ModelNew.Amount" class="form-control" maxlength="15" disabled tabindex="8">
+            </div>
+            <label class="col-sm-1 control-label" style="padding-left: 0px;">Currency</label>
+            <div class="col-sm-3 show-message">
+                <input type="text" name="Currency" ng-model="ModelNew.Currency" class="form-control" maxlength="15" disabled tabindex="8">
+            </div>
+
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Invoice No<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Invoice No" ng-model="ModelNew.InvoiceNo" class="form-control" maxlength="15" autocomplete="off" required tabindex="1">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Pass Book No</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Pass Book No" ng-model="ModelNew.PassBookNo" class="form-control" maxlength="15" autocomplete="off" required tabindex="1">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">BL/AWB No</label>
+            <div class="col-sm-8">
+                <input type="text" name="BL/AWBNo" ng-model="ModelNew.BLAWBNo" class="form-control" maxlength="15" autocomplete="off" tabindex="3">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Vechile No</label>
+            <div class="col-sm-8">
+                <input type="text" name="Vechile No" ng-model="ModelNew.VechileNo" class="form-control" maxlength="15" autocomplete="off" tabindex="14">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Vessel Sales Detail</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="2" ng-model="ModelNew.VesselSalesDetail" tabindex="8" maxlength="250"></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">CNF Agent</label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <input type="text" name="CNF Agent" ng-model="ModelNew.CNFAgentName" tabindex="11" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showPartyPopUp('CNF');" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                        @*<button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>*@
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label" title="Negotiable Doc Dispatch No">Neg. Doc Dispatch No</label>
+            <div class="col-sm-8">
+                <input type="text" name="Negotiable Doc Dispatch No" ng-model="ModelNew.NegotiableDocDispatchNo" class="form-control" autocomplete="off" tabindex="10" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Shipment Mode</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select name="Shipment Mode" class="form-control" ng-model="ModelNew.ShipmentModeId" ng-options="item.Value as item.Text for item in shipmentModeList">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Packing Description</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="2" ng-model="ModelNew.PackingDescription" tabindex="8" maxlength="250"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Material Description</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="2" ng-model="ModelNew.MaterialDescription" tabindex="12" maxlength="250"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Vendor</label>
+            <div class="col-sm-8">
+                <input type="text" name="Vendor" ng-model="ModelNew.Vendor" disabled class="form-control" tabindex="4">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Opening Date</label>
+            <div class="col-sm-8">
+                <input type="text" name="Opening Date" ng-model="ModelNew.LCDate" datepicker disabled class="form-control" tabindex="4">
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Invoice Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Invoice Date" ng-model="ModelNew.InvoiceDate" datepicker class="form-control" required tabindex="2">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Customs Entry No</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Customs Entry No" ng-model="ModelNew.CustomsEntryNo" class="form-control" maxlength="15" autocomplete="off" required tabindex="1">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">BL/AWB Date</label>
+            <div class="col-sm-8">
+                <input type="text" name="BL/AWB Date" ng-model="ModelNew.BLAWBDate" datepicker class="form-control" tabindex="4">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Vessel TrackingNo</label>
+            <div class="col-sm-8">
+                <input type="text" name="Vessel TrackingNo" ng-model="ModelNew.VesselTrackingNo" class="form-control" autocomplete="off" tabindex="5" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Vessel Detail</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="2" ng-model="ModelNew.VesselDetail" tabindex="8" maxlength="250"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label" title="Expected time of arrival">ETA</label>
+            <div class="col-sm-8">
+                <input type="text" name="ETA" ng-model="ModelNew.ETA" datepicker class="form-control" tabindex="6">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Transport Agent</label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <input type="text" name="Transport Agent" ng-model="ModelNew.TransportAgentName" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showPartyPopUp('Transport');" class="btn single-small-btn" tabindex="13"><i class="glyphicon glyphicon-search"></i></button>
+                        @*<button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>*@
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label" title="Negotiable Doc Dispatch Date">Neg. Doc Dispatch Date</label>
+            <div class="col-sm-8">
+                <input type="text" name="Negotiable Doc Dispatch Date" ng-model="ModelNew.NegotiableDocDispatchDate" datepicker class="form-control" tabindex="6">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Port Of Arrival</label>
+            <div class="col-sm-8">
+
+                <div class="select-style">
+                    <select name="Port Of Arrival" class="form-control" ng-model="ModelNew.PortOfArrival" ng-options="item.Value as item.Text for item in portList" tabindex="12">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Transport Document Detail</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="2" ng-model="ModelNew.TransportDocumentDetail" tabindex="8" maxlength="250"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+    <div class="row" ng-show="ModelNew.Id!==null">
+        <div class="col-xs-12">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Attachments</legend>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 ">
+                                <input id="uploadBtn" type="file" name="file[]" class="upload" />
+                                <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Invoice</i></span>
+                            </label>
+                            <div class="col-sm-6">
+                                @*<input type="text" id="uploadFile" ng-model="ModelNew.InvoiceAttachment" name="uploadFile" />*@
+                                @*<label class="control-label" id="uploadFile" ng-model="ModelNew.InvoiceAttachment" name="uploadFile">
+                                    <a href="{{dwonloadUrl}}" ng-click="FileDownload(Resignation)" style="text-decoration:underline" download="{{ModelNew.InvoiceAttachment}}" target="_self">{{ModelNew.InvoiceAttachment}}</a>
+                                    </label>*@
+                                <input type="text" id="uploadFile1" ng-model="ModelNew.InvoiceAttachment" name="uploadFile1" class="disableInputField form-control" disabled="disabled" />
+                            </div>
+                            <div class="col-sm-2" style="padding-left:0px;">
+                                <button ng-click="SaveInvoiceFile('Invoice');" class="btn" style="padding-left: 8px;background: #242841;"><i class="glyphicon glyphicon-floppy-disk"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 ">
+                                <input id="uploadBtn1" type="file" name="file[]" class="upload" />
+                                <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Vessel</i></span>
+                            </label>
+                            <div class="col-sm-6">
+                                <input type="text" id="uploadFile1" ng-model="ModelNew.VesselAttachment" name="uploadFile1" class="disableInputField form-control" disabled="disabled" />
+                            </div>
+                            <div class="col-sm-2" style="padding-left:0px;">
+                                <button ng-click="SaveInvoiceFile('Vessel');" class="btn" style="padding-left: 8px;background: #242841;"><i class="glyphicon glyphicon-floppy-disk"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 ">
+                                <input id="uploadBtn2" type="file" name="file[]" class="upload" />
+                                <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> CNF</i></span>
+                            </label>
+                            <div class="col-sm-6">
+                                <input type="text" id="uploadFile2" ng-model="ModelNew.CNFAgentDocument" name="uploadFile2" class="disableInputField form-control" disabled="disabled" />
+                            </div>
+                            <div class="col-sm-2" style="padding-left:0px;">
+                                <button ng-click="SaveInvoiceFile('CNF');" class="btn" style="padding-left: 8px;background: #242841;"><i class="glyphicon glyphicon-floppy-disk"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+
+                    <div class="form-group">
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 ">
+                                <input id="uploadBtn3" type="file" name="file[]" class="upload" />
+                                <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> BL/AWB</i></span>
+                            </label>
+                            <div class="col-sm-6">
+                                <input type="text" id="uploadFile3" ng-model="ModelNew.BLAWBAttachment" name="uploadFile3" class="disableInputField form-control" disabled="disabled" />
+                            </div>
+                            <div class="col-sm-2" style="padding-left:0px;">
+                                <button ng-click="SaveInvoiceFile('BLAWB');" class="btn" style="padding-left: 8px;background: #242841;"><i class="glyphicon glyphicon-floppy-disk"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 ">
+                                <input id="uploadBtn4" type="file" name="file[]" class="upload" />
+                                <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Packing</i></span>
+                            </label>
+                            <div class="col-sm-6">
+                                <input type="text" id="uploadFile4" ng-model="ModelNew.PackingListAttachment" name="uploadFile4" class="disableInputField form-control" disabled="disabled" />
+                            </div>
+                            <div class="col-sm-2" style="padding-left:0px;">
+                                <button ng-click="SaveInvoiceFile('Packing');" class="btn" style="padding-left: 8px;background: #242841;"><i class="glyphicon glyphicon-floppy-disk"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 ">
+                                <input id="uploadBtn5" type="file" name="file[]" class="upload" />
+                                <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Transport</i></span>
+                            </label>
+                            <div class="col-sm-6">
+                                <input type="text" id="uploadFile5" ng-model="ModelNew.TransportDocumentAttachment" name="uploadFile5" class="disableInputField form-control" disabled="disabled" />
+                            </div>
+                            <div class="col-sm-2" style="padding-left:0px;">
+                                <button ng-click="SaveInvoiceFile('Transport');" class="btn" style="padding-left: 8px;background: #242841;"><i class="glyphicon glyphicon-floppy-disk"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+</div>
+@*<div class="row text-right aplos-grid-toggle">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="InvoiceNo" e-headertext="InvoiceNo" e-width="2"></div>
+            <div e-column e-field="InvoiceDate" e-headertext="InvoiceDate" e-width="2"></div>
+            <div e-column e-field="BLAWBNo" e-headertext="BLAWBNo" e-width="2"></div>
+            <div e-column e-field="BLAWBDate" e-headertext="BLAWBDate" e-width="2"></div>
+            <div e-column e-field="ShipMode" e-headertext="ShipMode" e-width="2"></div>
+            <div e-column e-field="Port" e-headertext="Port" e-width="2"></div>
+            <div e-column e-field="CNFAgentName" e-headertext="CNFAgent" e-width="2"></div>
+            <div e-column e-field="TransportAgentName" e-headertext="TransportAgent" e-width="2"></div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
+<div class="modal fade site-modal in" id="ContractPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Purchase LC</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="Grid456" ej-grid e-datasource="LcList" e-allowsorting="true"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                             e-recorddoubleclick="recorddoubleclickLC" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="PurchaseLCNO" e-headertext="LC Id" e-width="80" e-visible="false"></div>
+                                <div e-column e-field="ContractId" e-headertext="ContractId" e-width="100" e-visible="false"></div>
+                                <div e-column e-field="LCRef" e-headertext="LC No" e-width="100"></div>
+                                <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
+                                <div e-column e-field="UDNo" e-headertext="UD No" e-width="100"></div>
+                                <div e-column e-field="MasterLCRef" e-headertext="MasterLC Ref" e-width="100"></div>
+                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="100"></div>
+                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                <div e-column e-field="LCOpeningDate" e-headertext="LCOpening Date" e-width="100"></div>
+                                <div e-column e-field="LCExpiryDate" e-headertext="LCExpiry Date" e-width="100"></div>
+                                <div e-column e-field="LCOpeningBank" e-headertext="LCOpening Bank" e-width="100"></div>
+                                <div e-column e-field="AcceptanceFirst" e-headertext="Acceptance First" e-width="100"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="CloseContractPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

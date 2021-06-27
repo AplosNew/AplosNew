@@ -1,0 +1,38 @@
+﻿<style>
+    .modellgModify {
+        width: 800px;
+    }
+</style>
+<div class="modal fade site-modal in" id="FAAccDepPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Total Accumulated Depreciation Amount<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+
+                    <div id="Posting1">
+                        <div class="content-container-fluid">
+                            <div style="color:black;" id="Grid22" ej-grid e-datasource="FAAccDepList" e-actioncomplete="actionCompleteSelected31"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                                 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                                <div e-columns>
+                                    <div e-column e-field="GLName" e-headertext="GL" e-width="180"></div>
+                                    <div e-column e-field="BugetName" e-headertext="BugetName" e-width="180"></div>
+                                    <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="100"></div>
+                                    <div e-column e-field="ADBaseAmount" e-headertext="Amount" e-width="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="closeFAAccDepPopup();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

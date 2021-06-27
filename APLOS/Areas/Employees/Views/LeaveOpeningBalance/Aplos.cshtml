@@ -1,0 +1,210 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Leave Opening Balance</h3>
+<div id="leaveOpeningBalance" class="form-horizontal" ng-form name="leaveOpeningBalanceNewForm">
+    <input type="hidden" ng-model="leaveOpeningBalanceOb.Id">
+    <div class="form-group">
+        <div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Calendar <sup>*</sup></label>
+                <div class="col-sm-8  show-message">
+                    <div class="select-style">
+                        <select name="Calendar" ng-model="leaveOpeningBalanceOb.YearlyCalendarId" class="col-sm-3 form-control"
+                                ng-options="item.Value as item.Text for item in yearlyCalendarList" required></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label"></label>
+                <div class="col-sm-5 show-message pdr3" style="Width:260px;">
+                    <input type="hidden" ng-model="manPowerbudgetmasterNew.PositionId" class="form-control" disabled required>
+                    <input type="text" hidden name="Position" ng-model="leaveOpeningBalanceOb.EmployeeName" class="form-control" disabled required>
+                    <button class="btn" ng-click="popUp();"><i class="glyphicon glyphicon-search"></i> Search Employee</button>
+                    <button class="btn" ng-click="clear()"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Employee Code</label>
+                <div class="col-sm-8  show-message">
+                    <div class="select-style">
+                        <input type="text" class="form-control" ng-model="leaveOpeningBalanceOb.EmployeeCode" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Employee Name</label>
+                <div class="col-sm-8  show-message">
+                    <div class="select-style">
+                        <input type="text" class="form-control" ng-model="leaveOpeningBalanceOb.EmployeeName" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Given Designation</label>
+                <div class="col-sm-8  show-message">
+                    <div class="select-style">
+                        <input type="text" class="form-control" readonly ng-model="leaveOpeningBalanceOb.GivenDesignation">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Department</label>
+                <div class="col-sm-8  show-message">
+                    <div class="select-style">
+                        <input type="text" class="form-control" readonly ng-model="leaveOpeningBalanceOb.Department">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Date of Join</label>
+                <div class="col-sm-8  show-message">
+                    <div class="select-style">
+                        <input type="text" class="form-control" ng-model="leaveOpeningBalanceOb.DOJ" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Budget Code</label>
+                <div class="col-sm-8  show-message">
+                    <div class="select-style">
+                        <input type="text" class="form-control" readonly ng-model="leaveOpeningBalanceOb.BudgetCode">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl form-horizontal">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Leave Policy</label>
+                <div class="col-sm-8  show-message">
+                    <div class="select-style">
+                        <input type="text" class="form-control" readonly ng-model="leaveOpeningBalanceOb.PolicyName">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="row form-elements">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>LeaveType</th>
+                            <th>Carry Forward Opening Balance</th>
+                            <th>Current Year Earned Days Opening Balance</th>
+                            <th>Current Year Availed Opening Balance</th>
+                            @*<th>Remove</th>*@
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in leaveTypeList">
+                            <td>{{x.LeaveType}}</td>
+                            <td><input name="CarryForwardOpeningBalance" ng-model="x.CarryForwardOpeningBalance" n-decimals="4" /></td>
+                            <td><input name="CurrentYearEarnedDaysOpeningBalance" ng-model="x.CurrentYearEarnedDaysOpeningBalance" n-decimals="4" /></td>
+                            <td><input name="CurrentYearAvailedOpeningBalance" ng-model="x.CurrentYearAvailedOpeningBalance" n-decimals="4" /></td>
+                            @*<td class="text-right">
+                                    <button ng-click="valuePassInDelModal($index,x)" class="btn-action tooltip-here"
+                                            data-placement="top" title="Delete">
+                                        <i class="glyphicon glyphicon-remove"></i>
+                                    </button>
+                                </td>*@
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<confirm-archive-generic data-modalid="confirmDocumentdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
+<div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in searchEmployeeByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>Employee Name</th>
+                                <th>Given Designation</th>
+                                <th>Department</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
+                                ng-click="selectEmployeePopUp($index, x.SystemId)" ng-class="{selected : x.SystemId == selectedEmployee}" ng-dblclick="closeEmployeePopUp(x);" pagination-id="metaData.name + 'employeeList'">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.GivenDesignation}}</td>
+                                <td>{{x.Department}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'employeeList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getEmployeeData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,61 @@
+﻿<div class="modal fade site-modal in" id="articleSearchPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Article<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="articlePopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="articlePopUpParameters.search" ng-enter="loadArticleData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadArticleData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Material Group</th>
+                                <th>Material Code</th>
+                                <th>Material</th>
+                                <th>Article Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in dataPlate |itemsPerPage:articlePopUpParameters.pageSize" total-items="articlePopUpParameters.total_count"
+                                pagination-id="metaData.name + 'dataPlate'" ng-dblclick="selectarticle(x);">
+                                <td>{{x.MaterialGroup}}</td>
+                                <td>{{x.MaterialCode}}</td>
+                                <td>{{x.MaterialMasterName}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="2"
+                                             pagination-id="metaData.name + 'dataPlate'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="loadArticleData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

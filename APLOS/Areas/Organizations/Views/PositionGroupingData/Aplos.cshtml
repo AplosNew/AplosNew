@@ -1,0 +1,105 @@
+﻿<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+</style>
+<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">User Define Group1</label>
+            <div class="col-sm-8">
+                <input type="text" name="User Define Group1" maxlength="50" ng-model="ModelNew.UserDefineGroup1" class="form-control" tabindex="20">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">User Define Group3</label>
+            <div class="col-sm-8">
+                <input type="text" name="User Define Group3" maxlength="50" ng-model="ModelNew.UserDefineGroup3" class="form-control" tabindex="22">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">User Define Group5</label>
+            <div class="col-sm-8">
+                <input type="text" name="User Define Group5" maxlength="50" ng-model="ModelNew.UserDefineGroup5" class="form-control" tabindex="22">
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">User Define Group2</label>
+            <div class="col-sm-8">
+                <input type="text" name="User Define Group2" maxlength="50" ng-model="ModelNew.UserDefineGroup2" class="form-control" tabindex="21">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">User Define Group4</label>
+            <div class="col-sm-8">
+                <input type="text" name="User Define Group4" maxlength="50" ng-model="ModelNew.UserDefineGroup4" class="form-control" tabindex="24">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">User Define Group6</label>
+            <div class="col-sm-8">
+                <input type="text" name="User Define Group6" maxlength="50" ng-model="ModelNew.UserDefineGroup6" class="form-control" tabindex="22">
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="UserDefineGroup1" e-headertext="UserDefineGroup1" e-width="2"></div>
+            <div e-column e-field="UserDefineGroup2" e-headertext="UserDefineGroup2" e-width="2"></div>
+            <div e-column e-field="UserDefineGroup3" e-headertext="UserDefineGroup3" e-width="2"></div>
+            <div e-column e-field="UserDefineGroup4" e-headertext="UserDefineGroup4" e-width="2"></div>
+            <div e-column e-field="UserDefineGroup5" e-headertext="UserDefineGroup5" e-width="2"></div>
+            <div e-column e-field="UserDefineGroup6" e-headertext="UserDefineGroup6" e-width="2"></div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>

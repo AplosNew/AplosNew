@@ -1,0 +1,204 @@
+﻿@*<style>
+    .k-grid-header .k-header {
+        height: 15px;
+        padding: 0;
+        /*background-color:black;
+        color:white;*/
+    }
+
+    .k-grid tbody tr {
+        line-height: 14px;
+    }
+
+    .k-grid tbody td {
+        padding: 5px;
+    }
+
+    .k-grid {
+        font-size: 14px;
+    }
+    /*.k-grid .k-header .k-button {
+            background-color: red;
+        }*/
+    .k-grid-toolbar {
+        background-color: #1c1f32;
+        background-image: none;
+    }
+
+        .k-grid-toolbar a {
+            float: right;
+        }
+</style>
+
+<script>
+
+    $(document).ready(function () {
+
+        var dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "/Products/PurchaseOrder/GetListByParty",
+                    dataType: "json",
+                    data: {}
+                }
+            },
+            pageSize: 5
+        });
+        $("#grid1").kendoGrid({
+            //toolbar: ["excel"],
+            //excel: {
+            //    fileName: "PO.xlsx",
+            //    filterable: true
+            //},
+            dataSource: dataSource,
+            //height: 300,
+            //groupable: false,
+            //reorderable: true,
+            filterable: true,
+            sortable: true,
+            //resizable: true,
+            //selectable: "multiple",
+            //columnMenu: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },    
+           // change: onChange,  
+            columns: [
+                //{
+                //    field: " RowSl",
+                //    title: "Sl"
+                //},
+                {
+                    width: "100px",
+                    //title: "<input type='checkbox'/>",
+                    template: function (dataItem) {
+                        return '<input type="checkbox" id="chk' + dataItem.Id + '" onclick="chkChange(' + dataItem.Id + ')"/>';
+                    }
+                },
+                {
+                    width: "100px",
+                    //title: "<input type='checkbox'/>",
+                    template: function (dataItem) {
+                        return '<button type="button" id="chk' + dataItem.Id + '" onclick="chkChange(' + dataItem.Id + ')" style="width:100px;background-color: white;color:Black;text-align:left; border: none;">' + dataItem.Id + '</button>';
+                    }
+                },
+                {
+                    field: "UserName",
+                    title: "Vendor",
+                    width:"250px"
+                },
+                {
+                    field: "PartyAccountGroupName",
+                    title: "Account Group"
+                },
+                {
+                    field: "CountryName",
+                    title: "Country",
+                },
+
+                {
+                    field: "StateName",
+                    title: "State"
+                },
+                {
+                    field: "Currency",
+                    title: "Currency"
+                },
+                {
+                    field: "TotalPartyPlant",
+                    title: "Total Party Plan"               
+                
+                }]
+        });
+
+        
+        
+    });
+    function chkChange(Id) {
+       
+       // var grid = $("#grid").data("kendoGrid");
+       // var selectedItem = grid.dataItem(grid.select());  
+        //$("#message").text(Id);  
+        alert('fff' + Id);
+            
+        //if ($("#chk" + SLno).prop('checked') == true) {
+        //    $('#txtBalQty' + SLno).prop("disabled", false);
+        //}
+        //else {
+        //    $('#txtBalQty' + SLno).prop("disabled", true);
+        //}
+    }
+</script>*@
+
+
+
+<div class="modal fade site-modal in" id="partyPopUp" role="dialog" data-backdrop="static">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content" ng-form name="partyForm">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">{{partyType}} List</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row text-right">
+                                <div class="col-xs-12 col-sm-12 col-sm-12">
+                                    <div class="search-form">
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                                <div class="select-style">
+                                                    <select ng-model="partyParameters.searchBy">
+                                                        <option ng-repeat="option in partySearchByList" value="{{option.value}}">{{option.name}}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                                <input type="text" class="form-control" placeholder="Search" ng-model="partyParameters.search" ng-enter="getPartyList()">
+                                            </div>
+                                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                                <button type="button" ng-click="getPartyList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                           
+                            <div class="table-responsive modal-table" >
+
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>{{partyType}}</th>
+                                            <th>Account Group</th>
+                                            <th>Country</th>
+                                            <th>State</th>
+                                            <th>Currency</th>
+                                            <th>Total Party Plant</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr dir-paginate="x in partyList |itemsPerPage:partyParameters.pageSize" pagination-id="metaData.name + 'partyList'" total-items="partyParameters.total_count"
+                                            ng-click="selectPartyPopUpRow($index, x.Id);" ng-class="{selected : x.Id == partySelected}" ng-dblclick="closePartyPopUp($index, x.Id)">
+                                            <td>{{x.Code}} - {{x.UserName}}</td>
+                                            <td>{{x.PartyAccountGroupName}}</td>
+                                            <td>{{x.CountryName}}</td>
+                                            <td>{{x.StateName}}</td>
+                                            <td>{{x.CurrencyCode? x.CurrencyCode : '-'}}</td>
+                                            <td>{{x.TotalPartyPlant}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <dir-pagination-controls max-size="5"
+                                                         pagination-id="metaData.name + 'partyList'"
+                                                         direction-links="true" boundary-links="true"
+                                                         on-page-change="getPartyList(newPageNumber)">
+                                </dir-pagination-controls>
+                            </div>
+                        </div>
+                        <div class="modal-footer common-btn">
+                            <button type="button" class="btn btn-default" ng-click="closePartyPopUp()">Select</button>
+                        </div>
+                    </div>
+                </div>
+            </div>

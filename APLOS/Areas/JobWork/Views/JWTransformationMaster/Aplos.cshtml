@@ -1,0 +1,535 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal">
+    <div class="row" ng-form name="ModelNewForm">
+        <input type="hidden" ng-model="ModelNew.Id">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Job Work Activity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.JWActivityId" name="Job Work Activity" required>
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in jobWorkActivityList" value="{{option.Id}}">{{option.UserName}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Production Process<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.ProcessId" name="Production Process" required>
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in productionPrcoessList" value="{{option.Id}}">{{option.UserName}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group " show-errors>
+                <label class="col-sm-4 control-label">JW Item <sup>*</sup></label>
+                <div class="col-sm-5 show-message">
+                    <div class="input-group">
+                        <input type="text" ng-model="ModelNew.OutputMaterial" class="form-control" readonly  name="JW Item "  required>
+                        <span class="input-group-btn">
+                            <button ng-click="getMaterialPOPUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">UOM<sup></sup></label>
+                        <div class="col-sm-8">
+                            <input type="text"  ng-model="ModelNew.UOM" class="form-control"  tabindex="6"  readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Material</label>
+                <div class="col-sm-8  ">
+                    <input type="text" name="Material " ng-model="ModelNew.Material" class="form-control"  tabindex="10"  readonly>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Rate Applicable<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.RateApplicableOn" name="Rate Applicable" required>
+                            <option value="">--Select--</option>
+                            <option value="Input">Input</option>
+                            <option value="Output">Output</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Min Rate<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" name="Min Rate" ng-model="ModelNew.MinRate" class="form-control" required tabindex="10" maxlength="10">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Max Rate<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" name="Max Rate" ng-model="ModelNew.MaxRate" class="form-control" required tabindex="10" maxlength="10">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Cycle Time (Days)<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" name="Cycle Time" ng-model="ModelNew.CycleTimeDays" class="form-control" required tabindex="10" maxlength="10">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.CurrencyId" name="Currency " required>
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in currencyList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Responsible Person<sup></sup></label>
+                <div class="col-sm-8 ">
+                    <div class="input-group">
+                        <input type="text" name="Responsible Person" ng-model="ModelNew.ResponsiblePersonName" class="form-control" readonly>
+                        <input type="hidden" name="Responsible Person Id" ng-model="ModelNew.ResponsiblePersonId" />
+                        <span class="input-group-btn">
+                            <button ng-click="showAllEmployeeListPopUp()" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="closeResponsiblePersonPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea name="Remarks" class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                </div>
+            </div>            
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+    <div class="row"> </div>
+    <div class="row" >
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Input Material</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab"> By Product</a></li>
+            </ul>
+        </div>
+        <div class="tab-content" >
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div ng-form name="tabFirstForm">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="openInputMaterialPOPUP()" ng-disabled="insertflag != true"   class="btn" tabindex="10"><i class="glyphicon glyphicon-plus"></i> Input Material</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="InputMaterialItemList" e-recorddoubleclick="GetInputMaterial" e-load="loadGridEdit"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Material" e-headertext="Material" e-width="2"></div>
+                        <div e-column e-field="MaterialSpecification" e-headertext="Material Specification" e-width="5"></div>
+                        <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="3"></div>
+                        <div e-column e-field="WastagePercentage" e-headertext="WastagePercentage" e-width="5"></div>
+                        <div e-column e-field="NetConsumptionOROutputUnit" e-headertext="NetConsumptionOROutputUnit" e-width="5"></div>
+                        <div e-column e-field="Rejection" e-headertext="Rejection" e-width="5"></div>
+                        <div e-column e-field="ValueLoss" e-headertext="ValueLoss" e-width="5"></div>
+                        <div e-column e-field="GrossConsumption" e-headertext="GrossConsumption" e-width="5"></div>
+
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel"  class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div ng-form name="tabFirstForm">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="openByProductPOPUP()" ng-disabled="insertflag != true"   class="btn" tabindex="10"><i class="glyphicon glyphicon-plus"></i> By Product</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ByProductItemList" e-recorddoubleclick="GetByProduct" e-load="loadGridEdit"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Material" e-headertext="Material" e-width="2"></div>
+                        <div e-column e-field="MaterialSpecification" e-headertext="Material Specification" e-width="5"></div>
+                        <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="3"></div>
+                        <div e-column e-field="WastagePercentage" e-headertext="WastagePercentage" e-width="5"></div>
+                        <div e-column e-field="NetConsumptionOROutputUnit" e-headertext="NetConsumptionOROutputUnit" e-width="5"></div>
+                        <div e-column e-field="Rejection" e-headertext="Rejection" e-width="5"></div>
+                        <div e-column e-field="ValueLoss" e-headertext="ValueLoss" e-width="5"></div>
+                        <div e-column e-field="WastagePercentage" e-headertext="GrossQty/InputUnit" e-width="5"></div>
+                        <div e-column e-field="StandardRateORUnit" e-headertext="StandardRateORUnit" e-width="5"></div>
+                        <div e-column e-field="Currency" e-headertext="CurrencyId" e-width="5"></div>  
+                    </div>
+                </div>
+            </div>
+        </div>    
+    </div>
+</div>
+
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="JWActivity" e-headertext="Activity" e-width="2"></div>
+            <div e-column e-field="OutputMaterial" e-headertext="Output Material" e-width="3"></div>
+            <div e-column e-field="Material" e-headertext="Material" e-width="3"></div>
+            <div e-column e-field="UOM" e-headertext="UOM" e-width="5"></div>
+            <div e-column e-field="Process" e-headertext="Process" e-width="5"></div>
+            <div e-column e-field="Currency" e-headertext="CURR" e-width="5"></div>
+            <div e-column e-field="MinRate" e-headertext="MinRate" e-width="5"></div>
+            <div e-column e-field="MaxRate" e-headertext="MaxRate" e-width="5"></div>
+            <div e-column e-field="CycleTimeDays" e-headertext="CycleTimeDays" e-width="5"></div>
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="inputMaterialPoPUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Input Material
+                <button type="button" class="close" ng-click="closeInputMaterialPOPUP();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-elements form-horizontal">
+                    <div class="row" ng-form name="ModelinputMaterialForm">
+                        <input type="hidden" ng-model="ModelNewInputMaterial.Id">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">JW Item <sup></sup></label>
+                                <div class="col-sm-5 ">
+                                    <div class="input-group">
+                                        <input type="text" name="Item  " ng-model="ModelNewInputMaterial.Material" class="form-control" required readonly>
+                                        <span class="input-group-btn">
+                                            <button ng-click="getMaterialPOPUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 ">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">UOM<sup></sup></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" ng-model="ModelNewInputMaterial.UOM" class="form-control" tabindex="6" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Material Specification<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" ng-model="ModelNewInputMaterial.MaterialSpecification" name="Input Material Specification " class="form-control" required tabindex="6" maxlength="10">
+
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Net Consumption / Output Unit<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" ng-model="ModelNewInputMaterial.NetConsumptionOROutputUnit" name="Net Consumption / Output Unit"  ng-change="GrossQtyORInputUnit()"  class="form-control" tabindex="6" required maxlength="10">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Wastage Percentage<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" ng-model="ModelNewInputMaterial.WastagePercentage" name="Wastage Percentage" class="form-control" required tabindex="6" maxlength="10">
+
+                                </div>
+                            </div>
+
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Rejection<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" name="Input Material Rejection" ng-model="ModelNewInputMaterial.Rejection"   ng-change="GrossQtyORInputUnit()" class="form-control" required tabindex="6" maxlength="10">
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Value Loss<sup></sup></label>
+                                <div class="col-sm-8">
+                                    <input type="number" ng-model="ModelNewInputMaterial.ValueLoss" ng-change="GrossQtyORInputUnit()" class="form-control" tabindex="10" maxlength="10">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Gross Consumption<sup></sup></label>
+                                <div class="col-sm-8">
+                                    <input type="number" ng-model="ModelNewInputMaterial.GrossConsumption" readonly class="form-control" tabindex="10" maxlength="10">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Responsible Person<sup></sup></label>
+                                <div class="col-sm-8 ">
+                                    <div class="input-group">
+                                        <input type="text" name="Responsible Person" ng-model="ModelNewInputMaterial.ResponsiblePersonName" class="form-control" readonly>
+                                        <input type="hidden" ng-model="ModelNewInputMaterial.ResponsiblePersonId" />
+                                        <span class="input-group-btn">
+                                            <button ng-click="showAllEmployeeListPopUp()" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="closeResponsiblePersonPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                           
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="ModelNewInputMaterial.Remarks" maxlength="250" tabindex="6"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="saveInputMaterial();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{inputMaterialAction}}</button></li>
+                            <li> <button data-toggle="modal" ng-click="DeleteInputMaterial()" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            <li> <button ng-click="inputMaterialClear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer common-btn">
+                    <button ng-click="closeInputMaterialPOPUP();" class="btn"><i class=""></i> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="byProductMaterialPoPUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                By Prodcut Material
+                <button type="button" class="close" ng-click="closeByProductPOPUP();">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-elements form-horizontal">
+                    <div class="row" ng-form name="ByProdcutMaterialForm">
+                        <input type="hidden" ng-model="ModelNewByProdcuct.Id">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">JW Item <sup></sup></label>
+                                <div class="col-sm-5 ">
+                                    <div class="input-group">
+                                        <input type="text" name="Item " ng-model="ModelNewByProdcuct.Material" class="form-control" required readonly>
+                                        <span class="input-group-btn">
+                                            <button ng-click="getMaterialPOPUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 ">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">UOM<sup></sup></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" ng-model="ModelNewByProdcuct.UOM" class="form-control" tabindex="6"  readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Material Specification<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" ng-model="ModelNewByProdcuct.MaterialSpecification" name="Material Specification" required class="form-control" tabindex="6" maxlength="10">
+
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Std. Qty / Input Unit<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" ng-model="ModelNewByProdcuct.StandardQtyORInputUnit" name="Std. Qty / Input Unit" required class="form-control" tabindex="6" maxlength="10">
+
+                                </div>
+                            </div>
+
+
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Rejection<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" ng-model="ModelNewByProdcuct.Rejection" name="Rejection" required class="form-control" tabindex="6" >
+
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Value Loss<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" ng-model="ModelNewByProdcuct.ValueLoss" name="ValueLoss" ng-change="GrossConsumptionByProduct()" required class="form-control" tabindex="6" >
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Gross Qty / Input Unit<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" ng-model="ModelNewByProdcuct.GrossQuantityOrInputUnit" name="Gross Qty / Input Unit" readonly required class="form-control" tabindex="6" maxlength="10">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Standard Rate / Unit<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" name="Standard Rate/ Unit" ng-model="ModelNewByProdcuct.StandardRateORUnit" class="form-control" required tabindex="6" maxlength="10">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Currency <sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" name="Currency" required ng-model="ModelNewByProdcuct.CurrencyId">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in currencyList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Responsible Person<sup></sup></label>
+                                <div class="col-sm-8 ">
+                                    <div class="input-group">
+                                        <input type="text" name="Responsible Person" ng-model="ModelNewByProdcuct.ResponsiblePersonName" class="form-control" readonly>
+                                        <input type="hidden" name="EmployeeId" ng-model="ModelNewByProdcuct.ResponsiblePersonId" />
+                                        <span class="input-group-btn">
+                                            <button ng-click="showAllEmployeeListPopUp()" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="closeResponsiblePersonPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="ModelNewByProdcuct.Remarks" maxlength="250" tabindex="6"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="saveByProduct();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{byProductAction}}</button></li>
+                            <li> <button data-toggle="modal" ng-click="DeleteByPrduct()" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            <li> <button ng-click="byProductClear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer common-btn">
+                    <button ng-click="closeByProductPOPUP();" class="btn"><i class=""></i> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="materialMasterbyTypePopupNew" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                JW Item  List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive modal-table">
+                    <div id="Gridemployees" ng-init="chkinit()" ej-grid e-datasource="jwItemList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowscrolling="true" e-recorddoubleclick="getMaterial">
+                        <div e-columns>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                            <div e-column e-field="UserName" e-headertext="Item" e-width="5"></div>
+                            <div e-column e-field="UOM" e-headertext="UOM" e-width="5"></div>
+                            <div e-column e-field="MaterialMaster" e-headertext="Material" e-width="5"></div>
+                            <div e-column e-field="ResponsiblePersonName" e-headertext="Resp. Person" e-width="5"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer common-btn">
+                    <button ng-click="closeMaterialPOPUp();" class="btn"><i class=""></i> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="inputMaterialMasterPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                JW Item  List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive modal-table">
+                    <div id="Gridemployees" ng-init="chkinit()" ej-grid e-datasource="jwItemList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowscrolling="true" e-recorddoubleclick="getMaterial">
+                        <div e-columns>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                            <div e-column e-field="UserName" e-headertext="Item" e-width="5"></div>
+                            <div e-column e-field="UOM" e-headertext="UOM" e-width="5"></div>
+                            <div e-column e-field="MaterialMaster" e-headertext="Material" e-width="5"></div>
+                            <div e-column e-field="ResponsiblePersonName" e-headertext="Resp. Person" e-width="5"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer common-btn">
+                    <button ng-click="closeMaterialPOPUp();" class="btn"><i class=""></i> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="responsiblePersonPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive modal-table">
+                    <div id="Gridemployees" ng-init="chkinit()" ej-grid e-datasource="employeeList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowscrolling="true" e-recorddoubleclick="getEmp">
+                        <div e-columns>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="DOB" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Division" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer common-btn">
+                    <button ng-click="closeResponsiblePersonPopUp();" class="btn"><i class=""></i> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete()"></confirm-archive-generic>

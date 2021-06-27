@@ -1,0 +1,420 @@
+﻿<togglable name="Purchase Organization"></togglable>
+<div ng-form name="purchaseOrganisationForm">
+    <div class="form-elements  form-horizontal">
+        <input type="hidden" ng-model="purchaseOrganisation.Id">
+        <input type="hidden" ng-model="addressMaster.Id">
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General Info</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Address Info</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="contact" role="tab" data-toggle="tab">Contact Info</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="mapping" role="tab" data-toggle="tab">Mapping</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row" ng-form name="purchaseOrganisationTab1Form">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="number" ng-model="purchaseOrganisation.Sequence" class="form-control" required tabindex="1">
+                                    <span class="msg-error" ng-show="purchaseOrganisationForm.Sequence.$error.number">
+                                        Not valid number!
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input maxlength="15" type="text" name="Short Name" ng-model="purchaseOrganisation.ShortName" class="form-control" required tabindex="3">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input maxlength="50" type="text" name="User Name" ng-model="purchaseOrganisation.UserName" class="form-control" required tabindex="5">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Description</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="purchaseOrganisation.Description" tabindex="7" ng-trim="false" maxlength="250"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Active</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="purchaseOrganisation.Active" tabindex="9">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input maxlength="10" type="text" name="Code" ng-model="purchaseOrganisation.Code" class="form-control" required tabindex="2">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input maxlength="50" type="text" name="Standard Name" ng-model="purchaseOrganisation.StandardName" class="form-control" required tabindex="4">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Trade Tax Registration No</label>
+                                <div class="col-sm-8">
+                                    <input maxlength="20" type="text" name="VAT Registration No" ng-model="purchaseOrganisation.VATResistrationNo" class="form-control" tabindex="6">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea maxlength="250" class="form-control" rows="3" ng-model="purchaseOrganisation.Remarks" tabindex="8" ng-trim="false"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="row" ng-form name="purchaseOrganisationTab2Form">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Continent<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select name="Continent" ng-model="addressMaster.ContinentId" ng-change="onContinentChange(addressMaster.ContinentId)" class="col-sm-3 form-control"
+                                                ng-options="item.Value as item.Text for item in ContinentList" tabindex="1" required></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">State<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select name="State" ng-model="addressMaster.StateId" class="col-sm-3 form-control"
+                                                ng-options="item.Value as item.Text for item in StateList" tabindex="3" required></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Area</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" submit-="true" ng-model="addressMaster.AreaId"
+                                                ng-options="item.Value as item.Text for item in AreaList" tabindex="5"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Thana</label>
+                                <div class="col-sm-8">
+                                    <input name="Thana" maxlength="50" type="text" ng-model="addressMaster.Thana" class="form-control" tabindex="7">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Ward</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Ward" maxlength="50" ng-model="addressMaster.Ward" class="form-control" tabindex="9">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Phone</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Phone" maxlength="20" ng-model="addressMaster.Phone" class="form-control" tabindex="11">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Website</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Website" maxlength="50" ng-model="addressMaster.Website" class="form-control" tabindex="13">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Address Line1<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <textarea class="form-control" rows="3" ng-model="addressMaster.Address1" name="Address Line1" maxlength="300" tabindex="15" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Country<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select name="Country" ng-model="addressMaster.CountryId" ng-change="onCountryCityChange(addressMaster.CountryId);onCountryChange(addressMaster.CountryId)" class="col-sm-3 form-control"
+                                                ng-options="item.Value as item.Text for item in CountryList" tabindex="2" required></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">City<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select name="City" ng-model="addressMaster.CityId" ng-change="onCityChange(addressMaster.CityId)" class="col-sm-3 form-control"
+                                                ng-options="item.Value as item.Text for item in CityList" tabindex="4" required></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Circle</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Circle" maxlength="50" ng-model="addressMaster.Circle" class="form-control" tabindex="6">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Village</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Village" maxlength="100" ng-model="addressMaster.Village" class="form-control" tabindex="8">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Postcode</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Postcode" maxlength="50" ng-model="addressMaster.Postcode" class="form-control" tabindex="10">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Email</label>
+                                <div class="col-sm-8">
+                                    <input type="email" name="Email" maxlength="50" ng-model="addressMaster.Email" class="form-control" placeholder="example@gmail.co" tabindex="12">
+                                    <span class="msg-error" ng-show="purchaseOrganisationTab2Form.Email.$error.email">
+                                        Not valid email!
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Address Line2</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="addressMaster.Address2" name="Address2" maxlength="300" tabindex="14"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Contact Person Name">Person Name</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="ContactPerson" maxlength="100" ng-model="contactMaster.ContactPerson" class="form-control" tabindex="1">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Phone1</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Phone1" maxlength="20" ng-model="contactMaster.Phone1" class="form-control" tabindex="3">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Mobile</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Mobile" maxlength="20" ng-model="contactMaster.Phone3" class="form-control" tabindex="5">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Email1</label>
+                                <div class="col-sm-8">
+                                    <input type="email" name="Email1" maxlength="50" ng-model="contactMaster.Email1" class="form-control" placeholder="example@gmail.co" tabindex="7">
+                                    <span class="msg-error" ng-show="purchaseOrganisationForm.Email1.$error.email">
+                                        Not valid email!
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Email3</label>
+                                <div class="col-sm-8">
+                                    <input type="email" name="Email3" maxlength="50" ng-model="contactMaster.Email3" class="form-control" placeholder="example@gmail.co" tabindex="9">
+                                    <span class="msg-error" ng-show="purchaseOrganisationForm.Email3.$error.email">
+                                        Not valid email!
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Contact Person Designation">Designation</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="ContactPersonDesignation" maxlength="30" ng-model="contactMaster.ContactPersonDesignation" class="form-control" tabindex="2">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Phone2</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Phone2" maxlength="20" ng-model="contactMaster.Phone2" class="form-control" tabindex="4">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Fax</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Fax" maxlength="50" ng-model="contactMaster.Fax" class="form-control" tabindex="6">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Email2</label>
+                                <div class="col-sm-8">
+                                    <input type="email" name="Email2" maxlength="50" ng-model="contactMaster.Email2" class="form-control" placeholder="example@gmail.co" tabindex="8">
+                                    <span class="msg-error" ng-show="purchaseOrganisationForm.Email2.$error.email">
+                                        Not valid email!
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Website</label>
+                                <div class="col-sm-8">
+                                    <input type="text" maxlength="50" ng-model="contactMaster.Website" class="form-control" tabindex="10">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button class="btn" ng-click="addRow()"><i class="glyphicon glyphicon-plus"></i>{{ContactAction}}</button></li>
+                            <li> <button ng-click="ClearContact();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear Contact Form</button></li>
+                        </ul>
+                    </div>
+                    <div class="table-responsive modal-table" ng-show="showContactMaster">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Person Name</th>
+                                    <th>Designation</th>
+                                    <th>Phone</th>
+                                    <th>Mobile</th>
+                                    <th>Email</th>
+                                    <th>Edit</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="c in contactMasters" ng-show="isArchive(c.Archive)">
+                                    <td>{{c.ContactPerson}}</td>
+                                    <td>{{c.ContactPersonDesignation}}</td>
+                                    <td>{{c.Phone1}}</td>
+                                    <td>{{c.Phone3}}</td>
+                                    <td>{{c.Email1}}</td>
+                                    <td class="text-right table-td">
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button ng-click="GetContact(c.Id, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
+                                                    <i class="glyphicon glyphicon-pencil"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                    <td class="text-right table-td">
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button ng-click="valuePassInDelModal(c.Id, c.ContactPerson)" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                                    <i class="glyphicon glyphicon-remove"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Company Code</th>
+                                    <th>Company Name</th>
+                                    <th>Plant Code</th>
+                                    <th>Plant Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in purchaseOrganisationMasters">
+                                    <td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="x.Active" ng-checked="{{x.Active}}">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>{{x.CompanyCode}}</td>
+                                    <td>{{x.CompanyName}}</td>
+                                    <td>{{x.PlantCode}}</td>
+                                    <td>{{x.PlantName}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Sequence</th>
+                <th>Code</th>
+                <th>Short Name</th>
+                <th>Standard Name</th>
+                <th>User Name</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in purchaseOrganisations |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-click="Get(x.Id, $index);">
+                <td>{{x.Sequence}}</td>
+                <td>{{x.Code}}</td>
+                <td>{{x.ShortName}}</td>
+                <td>{{x.StandardName}}</td>
+                <td>{{x.UserName}}</td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<dir-pagination-controls max-size="10"
+                         direction-links="true"
+                         boundary-links="true"
+                         on-page-change="getData(newPageNumber)">
+</dir-pagination-controls>
+<confirm-modal></confirm-modal>
+<confirm-archive-generic data-modalid="confirmContactdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeContactMasterRow()"></confirm-archive-generic>

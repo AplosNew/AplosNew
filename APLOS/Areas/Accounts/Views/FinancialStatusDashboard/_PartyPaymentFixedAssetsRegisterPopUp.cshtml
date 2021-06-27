@@ -1,0 +1,100 @@
+﻿<div class="modal fade site-modal in" id="fixedAssetsRegisterPopUp" role="dialog" data-backdrop="static">
+    
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            @*<div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closePartyPopUpNew();">&times;</button></div>*@
+            <div class="modal-header">Fixed Assets Register List<button type="button" class="close" ng-click="closeFixedAssetsRegisterPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+
+                @*<div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                     <div class="search-form">
+                         <div class="row">
+                 <div class="col-xs-12 col-sm-3 col-md-3">
+                     <div class="select-style">
+                         <select ng-model="searchByParty">
+                             <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
+                         </select>
+                     </div>
+                 </div>
+                 <div class="col-xs-12 col-sm-7 col-md-7">
+                     <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="showPartyPopUpNew()">
+                 </div>
+                 <div class="col-xs-12 col-sm-2 col-md-2">
+                     <button type="button" ng-click="showPartyPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                 </div>
+                     </div>
+                 </div>
+                     </div>
+                 </div>*@
+
+                @*<div class="row">*@
+
+
+                @*<div class="col-lg-12">
+                    <label class="col-sm-2 control-label">{{Type}}</label>
+                    <label class="col-sm-7 control-label">{{ParticularName}}</label>
+                    <label class="col-sm-3 control-label">{{tempBooksPayment}}</label>
+                    <label class="chart-title"></label>
+                </div>
+                <div class="clearfix"></div>*@
+
+
+                <div class="col-md-12">
+
+                    @*style="color:black;overflow:scroll"*@
+                    <div style="color:black;" id="partyPaymentFixedAssetsRegisterPopUP" ej-grid e-datasource="PartyPaymentFixedAssetsRegisterPopUpList" e-recorddoubleclick="showSetOffDetailPopUP"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowresizing="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                        <div e-columns>
+
+
+                            @*<div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="100">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="$parent.printSetOffDetailVoucherReport(this);" tooltip="Voucher No" class="btn" style="top: 1px;">{{data.VoucherNo}}</button></li>
+                            </ul>
+                        </div>
+                    </div>*@
+
+                            <div e-column e-type="string" e-field="FARCode" e-headertext="Code" e-width="70"></div>
+                            <div e-column e-field="MaterialMaster" e-headertext="Material" e-width="70"></div>
+                            <div e-column e-field="MaterialMasterArtical" e-headertext="Artical" e-width="70"></div>
+                            <div e-column e-field="AssetMaster" e-headertext="Asset Master" e-width="70"></div>
+                            <div e-column e-field="Vendor" e-headertext="Vendor" e-width="70"></div>
+
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="TotalAssetAmount" e-headertext="Total" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                            @*<div e-column e-type="number" e-format="{0:N2}" e-field="SubAssetAmount" e-headertext="SubAsset Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>*@
+
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="ADBaseAmount" e-headertext="Accu.Dep.Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="NetFixedAssetsAmount" e-headertext="Net Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="CapitalizationDate" e-headertext="Capitalization Date" e-width="70"></div>
+
+                            <div e-column e-field="OpeningBalance" e-headertext="Opening Balance" e-width="70"></div>
+
+
+                            @*<div e-column e-type="numeric" e-format="{0:0.00}" e-field="Gross" e-headertext=" Gross" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SetOff" e-headertext=" SetOff" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Amount" e-headertext=" Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>*@
+
+                        </div>
+
+                    </div>
+                </div>
+                @*</div>*@
+
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeFixedAssetsRegisterPopUp();" class="btn">Close</button></li>
+                </ul>
+
+                @*<script type="text/template" id="hLink">
+            <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
+        </script>*@
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

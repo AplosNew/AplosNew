@@ -1,0 +1,308 @@
+﻿<h3 class="site-heading" id="mainContainer">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  BOM (Bill of Material)
+</h3>
+<div class="form-horizontal form-elements">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: AttachmentisSet(1) }"><a ng-click="AttachmentsetTab(1)" href="" data-toggle="tab">BOM Attachment</a></li>
+            <li role="presentation" ng-class="{ active: AttachmentisSet(2) }"><a ng-click="AttachmentsetTab(2)" href="" data-toggle="tab">BOM Process</a></li>
+        </ul>
+    </div>
+    <div class="tab-content" id="OuterContainer">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':AttachmentisSet(1), active: AttachmentisSet(1) }">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="AttachmentOrderSearchColumn">
+                                                <option ng-repeat="option in AttachmentmodelFilterByList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="AttachmentOrderSearchValue" ng-enter="AttachmentgetUnassignedData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="AttachmentgetUnassignedData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    @*<div class="form-horizontal" style="color:black;">*@
+                    <div id="GridAttachmentUnassigned" ng-init="chkinit()" ej-grid e-datasource="AttachmentUnassignedData"
+                         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" @*e-allowrowdraganddrop="true"*@
+                         e-allowscrolling="true" e-minwidth="450" e-minheight="400" e-allowresizing="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-template="#ShowActionButtonsUnassigned" e-headertext="" e-width="40"></div>
+                            <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Mst.Order ID" e-width="50"></div>
+                            <div e-column e-type="string" e-field="MasterOrderItemId" e-headertext="Item ID" e-width="50"></div>
+                            <div e-column e-type="string" e-field="BuyerItemNo" e-headertext="Buyer Item#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="OwnItemNo" e-headertext="Own Item#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="BuyerOrderNo" e-headertext="Buyer Order#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="120"></div>
+                            <div e-column e-type="string" e-field="LCRef" e-headertext="LCRef" e-width="120"></div>
+
+                            <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="120"></div>
+                            <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="120"></div>
+                            <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="120"></div>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120"></div>
+                            <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                            <div e-column e-type="string" e-field="AddedBy" e-headertext="Added By" e-width="80"></div>
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="AddedDate" e-headertext="Added Date" e-width="80"></div>
+
+                        </div>
+                    </div>
+
+                    <script type="text/template" id="ShowActionButtonsUnassigned">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right small">
+                                <li>
+                                    <button ng-click="$parent.AttachmentPopupBOMMaster(data,'Unassigned');" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                        <i class="glyphicon glyphicon-link"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
+                    @*</div>*@
+
+
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':AttachmentisSet(2), active: AttachmentisSet(2) }">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="AttachmentOrderSearchColumn">
+                                                <option ng-repeat="option in AttachmentmodelFilterByList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="AttachmentOrderSearchValue" ng-enter="AttachmentgetAssignedData()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="AttachmentgetAssignedData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    @*<div class="form-horizontal" style="color:black;">*@
+                    <div id="GridAttachmentAssigned" ng-init="chkinit()" ej-grid e-datasource="AttachmentAssignedData"
+                         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-allowresizing="true"
+                         e-allowscrolling="true" e-minwidth="450" e-minheight="400" e-showstackedheader="true" e-allowsorting="true"
+                         e-allowselection="false" e-filtersettings-filterType="excel">
+                        <div e-stackedheaderrows>
+                            <div e-stackedheaderrow>
+                                <div e-stackedheadercolumns>
+                                    <div e-stackedheadercolumn e-headertext="BOM Master" e-column="BOMMasterId,BomDesc,BOMMaterial,BOMArticle"></div>
+                                    <div e-stackedheadercolumn e-headertext="Master Order Item" e-column="MasterOrderId,MasterOrderItemId,BuyerItemNo,OwnItemNo,BuyerOrderNo,Customer,Buyer,Article,Material,Product,ProductCategory,OwnOrderNo"></div>
+                                    <div e-stackedheadercolumn e-headertext="Contract/LC" e-column="ContractNo,LCRef"></div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div e-columns>
+                            <div e-column e-template="#ShowActionButtonsassigned" e-allowfiltering="false" e-isfrozen="true" e-headertext="" e-width="180"></div>
+                            <div e-column e-type="string" e-field="BOMMasterId" e-headertext="BOM Id" e-width="50"></div>
+                            <div e-column e-type="string" e-field="BomDesc" e-headertext="Description" e-width="120"></div>
+                            <div e-column e-type="string" e-field="BOMMaterial" e-headertext="Material" e-width="100"></div>
+                            <div e-column e-type="string" e-field="BOMArticle" e-headertext="Article" e-width="100"></div>
+                            <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Mst.Order ID" e-width="50"></div>
+                            <div e-column e-type="string" e-field="MasterOrderItemId" e-headertext="Item ID" e-width="50"></div>
+                            <div e-column e-type="string" e-field="BuyerItemNo" e-headertext="Buyer Item#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="OwnItemNo" e-headertext="Own Item#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="BuyerOrderNo" e-headertext="Buyer Order#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="120"></div>
+                            <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="120"></div>
+                            <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="120"></div>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120"></div>
+                            <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="120"></div>
+                            <div e-column e-type="string" e-field="LCRef" e-headertext="LCRef" e-width="120"></div>
+
+                        </div>
+                    </div>
+
+                    <script type="text/template" id="ShowActionButtonsassigned">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right small">
+                                <li>
+                                    <button ng-click="$parent.AttachmentUnTagAttachmentConfirm(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                        <i class="glyphicon glyphicon-minus-sign" style="color:orangered;"></i>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button ng-click="$parent.AttachmentBOMProcess(data.MasterOrderItemId);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                        <i class="glyphicon glyphicon-play" style="color:{{data.HasBOQ==true?'#00ff00':'orange'}}"></i>
+                                    </button>
+                                </li>
+                                <li>
+
+                                    <button ng-click="$parent.AttachmentopenPopup('dialogBOMItemEdit');$parent.AttachmentLoadBomRequiredQty(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                        <i class="glyphicon glyphicon-pencil" style="color:{{data.HasBOQ?'#ffff04':'#808080'}}"></i>
+                                    </button>
+                                </li>
+                                <li>
+
+                                    <button ng-click="$parent.MasterOrderBOMReport(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                        <i class="glyphicon glyphicon-circle-arrow-down" style="color:{{data.HasBOQ?'lightcyan':'#808080'}}"></i>
+                                    </button>
+                                </li>
+                                <li>
+
+                                    <button ng-click="$parent.MasterOrderBOMReportByMaterial(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                                        <i class="glyphicon glyphicon-th-list" style="color:{{data.HasBOQ?'lightcyan':'#808080'}}"></i>
+                                    </button>
+                                </li>
+                             
+                            </ul>
+                        </div>
+                    </script>
+                    @*</div>*@
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<confirm-archive-generic modalid="confirmDeleteAttachment" title="Confirmation" message="Are you sure to untag the BOM with the item?" data-ng-click-right-button="AttachmentUnTagAttachment();"></confirm-archive-generic>
+
+@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
+<ej-dialog id="dialogBOMSearch" title=" Search BOM Master" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#mainContainer" e-minwidth="1000" e-open="enableBtn">
+
+    <div class="col-xs-12 col-sm-12 col-md-12 text-right">
+        Load All BOM  <input type="checkbox" ej-checkbox class="nodetext" e-value="AttachmentLoadAllBOM" e-checked="AttachmentLoadAllBOM" e-change="AttachmentsearchBOM" />
+    </div>
+    <div class="row text-right">
+
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="AttachmentBOMSearchColumn">
+                                <option ng-repeat="option in AttachmentmodelFilterByListBOM" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="AttachmentBOMSearchValue" ng-enter="AttachmentsearchBOM()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="AttachmentsearchBOM()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="GridBOMList" ng-init="chkinit()" ej-grid e-datasource="AttachmentBOMList"
+         e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="AttachmentTagBOM"
+         e-allowselection="true" e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="BOM ID" e-width="2"></div>
+            <div e-column e-field="BomDesc" e-headertext="Bom Desc" e-width="10"></div>
+            <div e-column e-field="BOMMaterial" e-headertext="Material" e-width="6"></div>
+            <div e-column e-field="BOMArticle" e-headertext="Article" e-width="6"></div>
+            <div e-column e-type="string" e-field="AddedBy" e-headertext="Added By" e-width="3"></div>
+            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="AddedDate" e-headertext="Added Date" e-width="3"></div>
+
+        </div>
+    </div>
+
+</ej-dialog>
+
+
+<ej-dialog id="dialogBOMItemEdit" title=" Edit BOM Items" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#mainContainer" e-minwidth="1000" e-open="enableBtn">
+    @Html.Partial("~/Areas/OrderManagements/Views/BOMMasterAttachment/EditBOMItem.cshtml")
+</ej-dialog>
+
+<ej-dialog id="dialogBOMItemEditChild" title="Parent Items" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#mainContainer" e-minwidth="1000" e-open="enableBtn">
+    @Html.Partial("~/Areas/OrderManagements/Views/BOMMasterAttachment/EditBOMChildItem.cshtml")
+</ej-dialog>
+
+<ej-dialog id="dialogBOMItemSelectionForReport" title="BOM Items" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#mainContainer" e-minwidth="1000" e-open="enableBtn">
+    <div class="row" style="padding-bottom:10px;">
+        <div class="col-xs-1 small text-nowrap">BOM Id</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BOMMasterId}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Bom Desc</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BomDesc}}</span></div>
+        <div class="col-xs-1 small text-nowrap">BOM Material</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BOMMaterial}}</span></div>
+        <div class="col-xs-1 small text-nowrap">BOM Article</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BOMArticle}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Mast.Ord r#</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.MasterOrderId}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Mast.Ord Item Id</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.MasterOrderItemId}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Buyer Item No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BuyerItemNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Own Item No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.OwnItemNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Buyer Order No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.BuyerOrderNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Own Order No</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.OwnOrderNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Prod. Cat</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.ProductCategory}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Product</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Product}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Material</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Material}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Article</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Article}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Buyer</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Buyer}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Customer</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.Customer}}</span></div>
+        <div class="col-xs-1 small text-nowrap">Contract#</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.ContractNo}}</span></div>
+        <div class="col-xs-1 small text-nowrap">LC#</div><div class="col-xs-2 small text-nowrap"><span>:{{AttachmentSelectedBOMRow.LCRef}}</span></div>
+    </div>
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div id="BOQItems" ng-init="chkinit()" ej-grid e-datasource="ItemList" e-allowsorting="true"
+                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-allowresizing="true"
+                 e-allowscrolling="true" e-minwidth="450" e-minheight="400" e-templaterefresh="refreshTemplateItem"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-headertext="" e-headertemplateid="#headerTemplateItem" e-template="#checkboxTemplateItemSearch" e-textalign="center" e-width="20"></div>
+                    <div e-column e-type="string" e-field="MaterialGroup" e-headertext="Material Group" e-width="80"></div>
+                    <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="150"></div>
+                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="200"></div>
+                    <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="100"></div>
+
+                </div>
+            </div>
+            <script type="text/template" id="checkboxTemplateItemSearch">
+                <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Checked" e-checked="data.Checked" />
+
+            </script>
+            <script type="text/x-jsrender" id="headerTemplateItem">
+                <input type="checkbox" id="headchkItem" />
+            </script>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="getBOMReport();" class="btn">Report</button></li>
+                <li> <button ng-click="closePopup('dialogBOMItemSelectionForReport');" class="btn">Cancel</button></li>
+            </ul>
+        </div>
+    </div>
+</ej-dialog>

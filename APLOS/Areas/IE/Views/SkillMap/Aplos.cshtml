@@ -1,0 +1,224 @@
+﻿
+<style type="text/css">
+    #myDIV {
+        width: 100%;
+        text-align: center;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        background: #a2f1ff;
+        color: #080076;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    .modal-table {
+        position: relative;
+        height: 300px;
+        overflow: auto;
+    }
+
+    .table-responsive {
+        display: block;
+    }
+
+    td, th {
+        padding: 10px;
+    }
+</style>
+<div id="MainDiv">
+    <div>
+        <div class="row" style="margin-top:-10px;margin-bottom:25px;">
+            <div class="col-md-12" style="margin-bottom:10px;">
+                <div class="col-md-6" style="margin-bottom:10px;">
+                    <div class="row">
+                        <div class="col-md-4"><span style="font-size: 19px;margin-left: -15%;"><span class="glyphicon glyphicon-stats"></span>&nbsp;Skill Map</span></div>
+
+
+
+                        <div class="col-md-1  " style="max-width:80px;">
+                            <span>
+                                From :
+                            </span>
+                        </div>
+                        <div class="col-md-2 ">
+                            <div class="select-style" style="max-width:120px;">
+                                <select ng-model="startDate" ng-change="dateFilter()">
+                                    <option>{{FirstDay}}</option>
+                                    <option value="{{option}}" ng-repeat="option in datesArray">{{option}}</option>
+                                </select>
+
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-1  " style="max-width:60px;">
+                            <span>
+                                To :
+                            </span>
+                        </div>
+                        <div class="col-md-2  ">
+                            <div class="select-style" style="max-width:120px;">
+                                <select ng-model="EndDay">
+                                    <option>{{EndDay}}</option>
+                                    <option value="{{option}}" ng-repeat="option in datesArray">{{option}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-1 ">
+                            <button type="button" ng-click="resetDates()" class="btn single-btn" style="max-height:25px;"><i class="glyphicon glyphicon-repeat"></i>  </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top:50px;">
+
+                    <div id="filters">
+
+                    </div>
+
+
+                    <div class="col-md-1 text-right">
+                        <button type="button" class="btn single-btn" ng-click="filterComplete()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i> Generate </button>
+                    </div>
+                    <div class="col-md-1  text-right" style="margin-left:20px;margin-top:10px;">
+                        <button type="button" class="btn single-btn" ng-click="clearFilters()"><i class="glyphicon glyphicon-repeat"></i> Clear Filters </button>
+                    </div>
+
+                </div>
+                <div class="row" style="margin-bottom:15px;margin-top:15px;">
+                    <div class="col-md-12">
+
+
+                        <div style="margin-top:10px;">
+                            <div class="col-sm-1 " style="max-width:60px;">
+                                <span>
+                                    Interval:
+                                </span>
+                            </div>
+                            <div class="col-sm-2  ">
+
+                                <div class="select-style" style="max-width:120px;">
+                                    <select ng-model="Interval" ng-change="intervalSet()">
+                                        <option value="{{option}}" ng-repeat="option in IntervalsList">{{option}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" ng-click="resetIntervals()" class="btn single-btn"><i class="glyphicon glyphicon-repeat"></i>  </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+            <div class="row" style="margin:10px;">
+                <div class="col-lg-4" id="ShowData">
+
+
+                    <div id="leftGrid"> 
+                    </div>
+                </div>
+
+                <div class=" col-lg-8 " style="height:300px;border : solid; border-color:transparent;  box-shadow: 3px 7px 5px grey; position:relative">
+                    <div style="overflow:hidden">
+                        <canvas id="SummaryChart" height="300"></canvas>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row" style="margin:20px ; margin-top: 30px;">
+                <div id="summaryDash"></div>
+            </div>
+
+            <div class=" row " style="height:300px;border : solid; border-color:transparent;  box-shadow: 3px 7px 5px grey; position:relative; margin-top:30px; margin:20px;">
+                <div style="overflow:hidden">
+                    <canvas id="AreaChart" height="300"></canvas>
+                </div>
+
+            </div>
+            <div class="row" style="margin:20px; margin-top:30px;">
+
+                <div id="GridSkill">
+
+                </div>
+
+
+
+            </div>
+
+
+        </div>
+
+        <div class="modal fade site-modal in" id="dateModal" tabindex="-1">
+            <div class="modal-dialog ">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">&times;</button>
+                        <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Work Center Wise Requirement</h1>
+                    </div>
+                    <div class="modal-body" style="min-height:300px; min-width:100%;">
+                        <div class="row" style="margin: 20px; font-style:italic"> </div>
+                        <p style="margin:10px;">
+                            The Work Center Wise Required Man Power of {{SkillCodeWork}} - {{SkillWork}}.
+                            <br />For the Shifts - <span ng-repeat="option in shiftsAll">{{option}}</span>
+                            <br>Date - {{DateWork}}.
+                            <br>Total Available - {{Actual}}
+                            <br />Total Required - {{required}}
+                        <p>
+
+                            <div id="workCenterGrid"></div>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-dismiss="modal" ng-click="closedateModal()">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="modal fade site-modal in" id="employeeModal" tabindex="-1">
+            <div class="modal-dialog ">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">&times;</button>
+                        <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Employee Details</h1>
+                    </div>
+                    <div class="modal-body" style="min-height:300px; min-width:100%;">
+                        <div class="row" style="margin: 20px; font-style:italic"> </div>
+                        <p style="margin:10px;">
+                            The Employees with the Skill  - {{SkillWork}} : {{SkillCodeWork}} as their Skill <b>{{seq}}</b>.
+                        <p>
+
+                            <div id="employeeSkillGrid"></div>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-dismiss="modal" ng-click="closeemployeeModal()">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+</div>
+
+
+

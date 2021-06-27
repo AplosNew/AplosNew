@@ -1,0 +1,453 @@
+﻿@{
+    ViewBag.Title = "Chart";
+    Layout = "~/Views/Shared/_EmployeeAccessLayout.cshtml";
+}
+<style>
+    .chart-title {
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        top: 40%;
+        transform: translateY(-50%);
+        width: 75%;
+        text-align: center;
+        font-size: 13px;
+    }
+
+    .groupChart {
+        margin-right: auto;
+    }
+
+    .vertical-scrolling {
+        position: relative;
+        height: 450px;
+        width: 75%;
+        overflow: scroll;
+    }
+
+        .vertical-scrolling table {
+            content: 'super';
+            position: relative;
+            height: auto;
+        }
+
+    #wizard-container ul li {
+        display: inline;
+    }
+
+        #wizard-container ul li a {
+            display: block;
+            font-size: 12px;
+            font-family: 'open Sans';
+            float: left;
+            height: 40px;
+            background: #242841;
+            text-align: center;
+            padding: 2px 10px 0 31px;
+            position: relative;
+            margin: 0 10px 10px 0;
+            text-decoration: none;
+            color: #fff;
+            display: inline-block;
+        }
+
+            #wizard-container ul li a:after {
+                content: "";
+                border-top: 20px solid transparent;
+                border-bottom: 20px solid transparent;
+                border-left: 20px solid #242841;
+                position: absolute;
+                right: -20px;
+                top: 0;
+                z-index: 1;
+            }
+
+            #wizard-container ul li a:before {
+                content: "";
+                position: absolute;
+                border-top: 20px solid transparent;
+                border-bottom: 20px solid transparent;
+                border-left: 20px solid #FFFFFF;
+                left: 0;
+                top: 0;
+            }
+
+        #wizard-container ul li:first-child a:before {
+            display: none;
+        }
+
+    .table-fixed tbody {
+        height: 230px;
+        overflow-y: auto;
+        width: 100%;
+    }
+
+    .table-fixed thead, table-fixed tbody {
+        display: block;
+    }
+</style>
+
+<div class="container" id="headerNav">
+    <div id="wizard-container">
+        <ul style="cursor:pointer; margin-bottom:-22px;">
+            <li ng-repeat="x in ColList" ng-click="headerNav(x)" ng-show="x.Sequence < index">
+                <a href="#">
+                    <b>{{x.AplosColumnName}}</b><br />{{x.Text}}
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<br />
+<br />
+<div class="row" id="summaryPie" style="max-width:1108px; background-color:white; margin-top:-5%">
+    <br />
+    <br />
+    <div class="col-lg-4">
+        <div class="row">
+            <div class="col-lg-12">
+                <label class="chart-title">Total Employee <br><span>{{CmpTotalEmp}}</span></label>
+                <canvas id="myChart" width="400" height="400"></canvas>
+            </div>
+            <div class="col-lg-12 table-responsive modal-table">
+                <table class="table table-bordered table-hover table-striped">
+                    <thead><tr><th colspan="2">Employee Logged in and Submitted  status</th></tr></thead>
+                    <tbody style="cursor:pointer;">
+                        <tr ng-click="sNLEData()">
+                            <td>Not LoggedIn Employees</td>
+                            <td style="text-align:right">{{CmpNotLEmp}}</td>
+                        </tr>
+                        <tr ng-click="sSEData()">
+                            <td>Submitted Employees</td>
+                            <td style="text-align:right">{{CmpSubmitted}}</td>
+                        </tr>
+                        <tr ng-click="sNSEData()">
+                            <td>Not Submitted Employees</td>
+                            <td style="text-align:right">{{CmpNotSubmitted}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-1"></div>
+    <div class="col-lg-7">
+        <div class="modal-table" style="margin-left:0%; overflow-y:scroll; max-height:375px; max-width:100%;">
+            <table class="table table-bordered table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>{{ColList[index+2].AplosColumnName}}</th>
+                        <th>Total Employee</th>
+                        <th>Not Logged In</th>
+                        <th>Submitted</th>
+                        <th>Not Submitted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in list" id="tcompany">
+                        <td style="cursor:pointer;" ng-click="setIndex(x);GetCompanyWisePList('',x);">{{x.UserName}}</td>
+                        <td style="text-align:right">{{x.totalEmployee}}</td>
+                        <td style="cursor:pointer; text-align:right" ng-click="NLEData(x)">{{x.NotLoggedIn}}</td>
+                        <td style="cursor:pointer; text-align:right" ng-click="SEData(x)">{{x.Submitted}}</td>
+                        <td style="cursor:pointer; text-align:right" ng-click="NSEData(x)">{{x.NotSubmitted}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="row" style=" margin-top:-2%;" id="navigMamun">
+    <div class="container" style="margin-left:35%;  position:relative;">
+        <button class="btn" id="Cbtn1_1" style="cursor:pointer;background-color:#bdc3c7; color:white; margin-left:0px;">1</button>
+        <button class="btn" id="Cbtn2_1" style="cursor:pointer;background-color:#242841; color:white;" ng-click="summaryLineChart();totalActivity();totalFirstLoggedIn();dayWiseSubmit();totalDocument()">2&nbsp;</button>
+        <button class="btn" id="Cbtn3_1" style="cursor:pointer;background-color:#242841; color:white;" ng-click="summaryLineChart();totalActivity();totalFirstLoggedIn();dayWiseSubmit();totalDocument()">3</button>&nbsp;&nbsp;&nbsp;
+        <button class="btn" style="cursor:pointer; background-color:#242841; color:white;" id="forward1" ng-click="summaryLineChart();totalActivity();totalFirstLoggedIn();dayWiseSubmit();totalDocument()"> Next&nbsp; <i class="fa fa-angle-double-right" aria-hidden="true"></i></button>
+    </div>
+</div>
+<div class="row" id="lineDash" style=" position:relative;background-color:white; margin-bottom:20px;">
+    <div class="row">
+        <div class="col-lg-5" style="">
+            <canvas id="flineChart" width="400" height="200"></canvas>
+        </div>
+        <div class="col-lg-5" style="margin-left:10%;">
+            <canvas id="fcumuChart" width="400" height="200"></canvas>
+        </div>
+        <div class="col-lg-5">
+            <canvas id="slineChart" width="400" height="200"></canvas>
+        </div>
+        <div class="col-lg-5" style="margin-left:10%;">
+            <canvas id="scumuChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+    <button class="btn" style="background-color:#242841;cursor:pointer;margin-top: 4%; margin-left: 32%;color:white;" id="back"><i class="fa fa-angle-double-left" aria-hidden="true"></i>&nbsp;Previous</button>&nbsp;&nbsp;&nbsp;
+    <button class="btn" id="Cbtn1_2" style="cursor:pointer;background-color:#242841;margin-top:4%;  color:white; ">1</button>
+    <button class="btn" id="Cbtn2_2" style="cursor:pointer;background-color:#bdc3c7;margin-top:4%;  color:white;">2</button>
+    <button class="btn" id="Cbtn3_2" style="cursor:pointer;background-color:#242841; margin-top:4%; color:white;">3</button>&nbsp;&nbsp;&nbsp;
+    <button class="btn" style="cursor:pointer; background-color:#242841; margin-top:4%;  color:white;" id="forward">Next &nbsp;<i class="fa fa-angle-double-right" aria-hidden="true"></i></button>
+</div>
+<div class="row" id="cumulitive" style=" position:relative; background-color:white; margin-bottom:20px;height:auto;">
+    <div class="row">
+        <div class="col-lg-5">
+            <canvas id="alineChart" width="400" height="200"></canvas>
+        </div>
+        <div class="col-lg-5" style="margin-left:10%;">
+            <canvas id="acumuChart" width="400" height="200"></canvas>
+        </div>
+        <div class="col-lg-5">
+            <canvas id="dlineChart" width="400" height="200"></canvas>
+        </div>
+        <div class="col-lg-5" style="margin-left:10%;">
+            <canvas id="dcumuChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+    <button class="btn" style="cursor:pointer; margin-top: 4%; margin-left: 32%;color:white; background-color:#242841;" id="back2"><i class="fa fa-angle-double-left" aria-hidden="true"></i>&nbsp;Previous</button>&nbsp;&nbsp;&nbsp;
+    <button class="btn" id="Cbtn1_3" style="cursor:pointer;background-color:#242841; color:white; margin-top:4%;">1</button>
+    <button class="btn" id="Cbtn2_3" style="cursor:pointer;background-color:#242841; color:white;margin-top:4%;">2</button>
+    <button class="btn" id="Cbtn3_3" style="cursor:pointer;background-color:#bdc3c7; color:white;margin-top:4%;">3</button>
+</div>
+<div id="stNLIEModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;" onload="AutoRefresh(120000);">
+    <div class="modal-dialog" style="width:1250px;">
+        <div class="modal-content" style="width:1250px; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">List of Not Logged In Employees</h4>
+            </div>
+            <div class="modal-body table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>SL</th>
+                            <th ng-repeat="x in ColList" ng-click="headerNav(x)" ng-show="x.Sequence >-2">
+                                {{x.AplosColumnName}}
+                            </th>
+                            <th>EmpCode</th>
+                            <th>Employee Name</th>
+                            <th>Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in sNLEList">
+                            <td>{{$index +1}}</td>
+                            <td>{{x.CompanyName}}</td>
+                            <td ng-repeat="y in ColList" ng-show="y.Sequence > -1">
+                                {{x[y.ColumnName]}}
+                            </td>
+                            <td>{{x.EmpCode}}</td>
+                            <td>{{x.EmpName}}</td>
+                            <td>{{x.Activity}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*--Modal for Submitted Employee List---*@
+<div id="stSEModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+    <div class="modal-dialog" style="width:1250px;">
+        <div class="modal-content" style="width:1250px; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">List of Submitted  Employees</h4>
+            </div>
+            <div class="modal-body table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>SL</th>
+                            <th ng-repeat="x in ColList" ng-click="headerNav(x)" ng-show="x.Sequence >-2">
+                                {{x.AplosColumnName}}
+                            </th>
+                            <th>EmpCode</th>
+                            <th>Employee Name</th>
+                            <th>Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in sSEList">
+                            <td>{{$index +1}}</td>
+                            <td>{{x.CompanyName}}</td>
+                            <td ng-repeat="y in ColList" ng-show="y.Sequence > -1">
+                                {{x[y.ColumnName]}}
+                            </td>
+                            <td>{{x.EmpCode}}</td>
+                            <td>{{x.EmpName}}</td>
+                            <td>{{x.Activity}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@* status Modal for Not Submitted List *@
+<div id="stNSEModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+    <div class="modal-dialog" style="width:1250px;">
+        <div class="modal-content" style="width:1250px; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">List of Not Submitted Employees</h4>
+            </div>
+            <div class="modal-body table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>SL</th>
+                            <th ng-repeat="x in ColList" ng-click="headerNav(x)" ng-show="x.Sequence >-2">
+                                {{x.AplosColumnName}}
+                            </th>
+                            <th>EmpCode</th>
+                            <th>Employee Name</th>
+                            <th>Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in sNSEList">
+                            <td>{{$index +1}}</td>
+                            <td>{{x.CompanyName}}</td>
+                            <td ng-repeat="y in ColList" ng-show="y.Sequence > -1">
+                                {{x[y.ColumnName]}}
+                            </td>
+                            <td>{{x.EmpCode}}</td>
+                            <td>{{x.EmpName}}</td>
+                            <td>{{x.Activity}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@* --------------------------------------------Modal for Company Not Logged In List--------------------------------------------------------- *@
+<div id="NLIEModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+    <div class="modal-dialog" style="width:1250px;">
+        <div class="modal-content" style="width:1250px; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">List of Not Logged In Employees</h4>
+            </div>
+            <div class="modal-body table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>SL</th>
+                            <th ng-repeat="x in ColList" ng-click="headerNav(x)" ng-show="x.Sequence >-2">
+                                {{x.AplosColumnName}}
+                            </th>
+                            <th>EmpCode</th>
+                            <th>Employee Name</th>
+                            <th>Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in NLEList">
+                            <td>{{$index +1}}</td>
+                            <td>{{x.CompanyName}}</td>
+                            <td ng-repeat="y in ColList" ng-show="y.Sequence > -1">
+                                {{x[y.ColumnName]}}
+                            </td>
+                            <td>{{x.EmpCode}}</td>
+                            <td>{{x.EmpName}}</td>
+                            <td>{{x.Activity}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*------------------------------------------Modal Company Submitted Employee Modal----------------------------- *@
+<div id="SEModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+    <div class="modal-dialog" style="width:1250px;">
+        <div class="modal-content" style="width:1250px; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">List of Submiited Employees</h4>
+            </div>
+            <div class="modal-body modal-body table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>SL</th>
+                            <th ng-repeat="x in ColList" ng-click="headerNav(x)" ng-show="x.Sequence >-2">
+                                {{x.AplosColumnName}}
+                            </th>
+                            <th>EmpCode</th>
+                            <th>Employee Name</th>
+                            <th>Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in SEList">
+                            <td>{{$index +1}}</td>
+                            <td>{{x.CompanyName}}</td>
+                            <td ng-repeat="y in ColList" ng-show="y.Sequence > -1">
+                                {{x[y.ColumnName]}}
+                            </td>
+                            <td>{{x.EmpCode}}</td>
+                            <td>{{x.EmpName}}</td>
+                            <td>{{x.Activity}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@* ---------------------------------Modal for Not submitted Employeess-------------------------------------------------- *@
+<div id="NSEModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;" onload="AutoRefresh(120000);">
+    <div class="modal-dialog" style="width:1250px;">
+        <div class="modal-content" style="width:1250px; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">List of Not Submitted Employees</h4>
+            </div>
+            <div class="modal-body modal-body table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>SL</th>
+                            <th ng-repeat="x in ColList" ng-click="headerNav(x)" ng-show="x.Sequence >-2">
+                                {{x.AplosColumnName}}
+                            </th>
+                            <th>EmpCode</th>
+                            <th>Employee Name</th>
+                            <th>Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in NSEList">
+                            <td>{{$index +1}}</td>
+                            <td>{{x.CompanyName}}</td>
+                            <td ng-repeat="y in ColList" ng-show="y.Sequence > -1">
+                                {{x[y.ColumnName]}}
+                            </td>
+                            <td>{{x.EmpCode}}</td>
+                            <td>{{x.EmpName}}</td>
+                            <td>{{x.Activity}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

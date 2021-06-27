@@ -1,0 +1,124 @@
+﻿@{
+    ViewBag.Title = "Item Sub Category";
+}
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Item Subcategory<a href="javascript:void(0)" class="form-collapse pull-right"></a></h3>
+<div class="form-elements" ng-controller="itemSubCategoryController">
+    <div ng-form id="ItemSubCategory" name="ItemSubCategoryForm">
+        <input type="hidden" ng-model="itemSubCategory.Id">
+        <input type="hidden" ng-model="itemSubCategory.AddedBy">
+        <input type="hidden" ng-model="itemSubCategory.AddedDate">
+        <input type="hidden" ng-model="itemSubCategory.AddedFromIP">
+        <p style="color:#fff;padding:10px; background-color:red;" ng-show="messaeShow">{{errorMessage}}</p>
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+
+            <div class="form-group" ng-class="{ 'has-error' : ItemSubCategoryForm.Sequence.$invalid && !ItemSubCategoryForm.Sequence.$pristine }">
+                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="Sequence" ng-model="itemSubCategory.Sequence" class="form-control" required placeholder="0">
+                    <p ng-show="ItemSubCategoryForm.Sequence.$invalid && !ItemSubCategoryForm.Sequence.$pristine" class="help-block">Sequence is required.</p>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{ 'has-error' : ItemSubCategoryForm.Code.$invalid && !ItemSubCategoryForm.Code.$pristine }">
+                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="Code" ng-model="itemSubCategory.Code" class="form-control" required>
+                    <p ng-show="ItemSubCategoryForm.Code.$invalid && !ItemSubCategoryForm.Code.$pristine" class="help-block">Code is required.</p>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{ 'has-error' : ItemSubCategoryForm.ShortName.$invalid && !ItemSubCategoryForm.ShortName.$pristine }">
+                <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="ShortName" ng-model="itemSubCategory.ShortName" class="form-control" required>
+                    <p ng-show="ItemSubCategoryForm.ShortName.$invalid && !ItemSubCategoryForm.ShortName.$pristine" class="help-block">ShortName is required.</p>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{ 'has-error' : ItemSubCategoryForm.StandardName.$invalid && !ItemSubCategoryForm.StandardName.$pristine }">
+                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="StandardName" ng-model="itemSubCategory.StandardName" class="form-control" required>
+                    <p ng-show="ItemSubCategoryForm.StandardName.$invalid && !ItemSubCategoryForm.StandardName.$pristine" class="help-block">Standard Name is required.</p>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{ 'has-error' : ItemSubCategoryForm.UserName.$invalid && !ItemSubCategoryForm.UserName.$pristine }">
+                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" ng-model="itemSubCategory.UserName" name="UserName" class="form-control" required>
+                    <p ng-show="ItemSubCategoryForm.StandardName.$invalid && !ItemSubCategoryForm.StandardName.$pristine" class="help-block">Standard Name is required.</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Active</label>
+                <div class="col-sm-8">
+                    <div class="checkbox">
+                        <input type="checkbox" class="css-checkbox" id="active" ng-model="itemSubCategory.IsActive">
+                        <label class="css-label" for="active"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="4" ng-model="itemSubCategory.Description"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="4" ng-model="itemSubCategory.Remarks"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Show();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button></li>
+                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button ng-click="Delete()" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Sequence</th>
+                    <th>Code</th>
+                    <th>Short Name</th>
+                    <th>Standard Name</th>
+                    <th>User Name</th>
+                    <th>Active</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in itemSubCategorys" ng-click="Get(x.Id);">
+                    <td>{{x.Sequence}}</td>
+                    <td>{{x.Code}}</td>
+                    <td>{{x.ShortName}}</td>
+                    <td>{{x.StandardName}}</td>
+                    <td>{{x.UserName}}</td>
+                    <td>{{x.IsActive?'Yes':'False'}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+   
+    @*<button ng-click='previousPage()'> Previous</button>
+            <button ng-click='nextPage()'>Next</button>*@
+    <nav class="table-pagination">
+        <ul ng-bind-html="myHTML|to_trusted" class="list-inline text-center">
+          
+
+
+            @*<li><a href="#">2</a></li>
+            <li><a class="active" href="#">2</a></li>
+            <li><a href="#">3</a></li>
+            <li><a href="#">4</a></li>
+            <li><a href="#">5</a></li>*@
+
+        </ul>
+    </nav>
+</div>

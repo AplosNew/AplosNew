@@ -1,0 +1,68 @@
+﻿<div class="modal fade site-modal in" id="positionAllowancePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Position Allowance
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="positionAllowanceParameters.searchBy">
+                                            <option ng-repeat="option in positionAllowanceSearchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="positionAllowanceParameters.search" ng-enter="getPositionAllowanceData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPositionAllowanceData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped" ng-show="positionAllowanceDataList.length">
+                        <thead>
+                            <tr>
+                                <th>Effective Date</th>
+                                <th>Currency</th>
+                                <th>Minimum Salary</th>
+                                <th>Maximum Salary</th>
+                                <th>Skill Allowance</th>
+                                <th>Responsibility Allowance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in positionAllowanceDataList|itemsPerPage:positionAllowanceParameters.pageSize" total-items="positionAllowanceParameters.total_count" pagination-id="metaData.name + 'positionAllowanceDataList'" ng-dblclick="selectPositionAllowancePopUp(x)">
+                                <td>{{x.EffectiveDate | dateFiltering}}</td>
+                                <td>{{x.CurrencyCode}}</td>
+                                <td class="text-right">{{x.MinimumSalary | number : 2 }}</td>
+                                <td class="text-right">{{x.MaximumSalary | number : 2 }}</td>
+                                <td class="text-right">{{x.SkillAllowance | number : 2 }}</td>
+                                <td class="text-right">{{x.ResponsibilityAllowance | number : 2 }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'positionAllowanceDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getPositionAllowanceData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button type="button" class="btn btn-default" ng-click="closePositionAllowancePopUp();">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

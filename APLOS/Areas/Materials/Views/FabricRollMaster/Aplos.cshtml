@@ -1,0 +1,356 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Fabric Roll Master</h3>
+<div id="fabricRollMasterNew" class="form-horizontal" ng-form name="fabricRollMasterNewForm">
+    <input type="hidden" ng-model="fabricRollMasterNew.Id">
+    @*<div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">GRN<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="GRN" ng-model="fabricRollMaster.GRNNo" class="form-control" required readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="getGRNPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl">
+        </div>
+        <div class="clearfix"></div>*@
+    <div class="row form-elements">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="row text-right">
+                <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="grnParameters.searchBy">
+                                        <option ng-repeat="option in searchGRNByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="grnParameters.search" ng-enter="getGRNData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getGRNData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>GRNNo</th>
+                            <th>GRN Date</th>
+                            <th>PO No</th>
+                            <th>PO Date</th>
+                            <th>Party</th>
+                            <th>Qty</th>
+                            <th>Amount</th>
+                            <th>Currency</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr dir-paginate="x in grnList|itemsPerPage:grnParameters.pageSize" total-items="grnParameters.total_count" pagination-id="metaData.name + 'grnList'" ng-dblclick="closeGRNPopUp(x);">
+                            <td>{{x.GRNNo}}</td>
+                            <td>{{x.GRNDate}}</td>
+                            <td>{{x.POID}}</td>
+                            <td>{{x.PODate}}</td>
+                            <td>{{x.PartyName}}</td>
+                            <td>{{x.TotalDetailQty}}</td>
+                            <td>{{x.TotalDetailAmount}}</td>
+                            <td>{{x.Currency}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'grnList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getGRNData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+
+
+        </div>
+        @*<div class="col-sm-12">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                    </ul>
+                </div>
+            </div>*@
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="grnPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Material
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body ">
+                <div class="form-elements form-horizontal  mark">
+                    @*col-xs-12 divborder mark*@
+                    <div class="col-xs-12 col-sm-4 col-md-4 mark">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">GRNNo</span></label>
+                            <label class="col-sm-8 control-label">{{fabricRollMaster.GRNNo}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">PO Date:</span></label>
+                            <label class="col-sm-8 control-label">{{fabricRollMaster.PODate}}</label>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4 mark">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">GRN Date :</span></label>
+                            <label class="col-sm-8 control-label">{{fabricRollMaster.GRNDate}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">Qty :</span></label>
+                            <label class="col-sm-8 control-label">{{fabricRollMaster.TotalDetailQty}}</label>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4 mark">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">PONo:</span></label>
+                            <label class="col-sm-8 control-label">{{fabricRollMaster.POID}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">Amount :</span></label>
+                            <label class="col-sm-8 control-label">{{fabricRollMaster.TotalDetailAmount}}&nbsp;{{fabricRollMaster.Code}}</label>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 mark">
+
+                        <div class="form-group">
+                            <label class="col-sm-10 control-label mark"><span style="font-weight:bold">Party :</span>{{fabricRollMaster.PartyName}}</label>
+                            <label class="col-sm-2 control-label mark">&nbsp;</label>
+                        </div>
+                       
+
+                    </div>
+                </div>
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="grnDetailParameters.searchBy">
+                                            <option ng-repeat="option in searchGRNDetailByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="grnDetailParameters.search" ng-enter="getGRNDetailData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getGRNDetailData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Material Master</th>
+                                <th>Article</th>
+                                <th>SKU</th>
+                                <th>PL Qty</th>
+                                <th>UOM</th>
+                                <th>No of Rolls</th>
+                                <th>Distributed Qty</th>
+                                <td>
+                                    Distribute
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in grnDetailList|itemsPerPage:grnDetailParameters.pageSize" total-items="grnDetailParameters.total_count" pagination-id="metaData.name + 'grnDetailList'">
+                                <td>{{x.MaterialMasterName}}</td>
+                                <td>{{x.ArticleName}}</td>
+                                <td>{{x.SKUInfo}}</td>
+                                <td>{{x.TransactionQty}}</td>
+                                <td>{{x.UOM}}</td>
+                                <td>{{x.SplitCount}}</td>
+                                <td>{{x.TotalDistributeQty}}</td>
+                                <td>
+                                    <ul class="list-inline action-list">
+                                        <li><button ng-click="showFabricPop($index,x,false)" class="btn btn-action tooltip-here" ng-disabled="x.SplitCount>0" data-placement="top" title="Add New"><i class="glyphicon glyphicon-list"></i></button></li>
+                                        <li><button ng-click="showFabricPop($index,x,true)" class="btn btn-action tooltip-here" ng-disabled="x.SplitCount<1" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button></li>
+                                        <li><button ng-click="getpdff(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-eye-open"></i></button></li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'grnDetailList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getGRNDetailData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+
+            </div>
+            <div class="modal-footer common-btn">
+                @*<button ng-click="closeGRNPopUp();" class="btn"><i class=""></i> Select</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="fabricRollPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Fabric Roll
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row form-element-ctrl form-horizontal" style="background-color:antiquewhite;">
+                    <div class="form-elements form-horizontal">
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label"><span style="font-weight:bold;">Material Master</span></label>
+                                <label class="col-sm-6 control-label">{{selectedGRNRow.MaterialMasterName}}</label>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label"><span style="font-weight:bold;">Article :</span></label>
+                                <label class="col-sm-8 control-label">{{selectedGRNRow.ArticleName}}</label>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label"><span style="font-weight:bold;">SKU :</span></label>
+                                <label class="col-sm-8 control-label">{{selectedGRNRow.SKUInfo}}</label>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label"><span style="font-weight:bold;">PL Qty :</span></label>
+                                <label class="col-sm-8 control-label">{{selectedGRNRow.TransactionQty}}</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold;">Vendor Width</span></label>
+                            <div class="col-sm-8">
+                                <input type="text" n-decimals="4" name="ShortName" ng-model="fabricRollSplitOb.VendorWidth" class="form-control" tabindex="6">
+                            </div>
+                        </div>
+                        @*<div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold;">Distribute Qty</span></label>
+                            <div class="col-sm-8">
+                                {{fabDistributeQty}}
+                            </div>
+                        </div>*@
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">No Of Rolls<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" only-numbers ng-model="fabricRollMasterNew.GRNSplitQty" class="form-control">
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="splitGrnRow()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-plus"></i></button>
+                                        <button name="submit" ng-click="clearSplitRow()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="input-group" style="margin-top:-2px;">
+                <input type="text" n-decimals="2" ng-model="fabricRollMasterNew.GRNSplitQty" class="form-control">
+                <span class="input-group-btn">
+                    <button ng-click="splitGrnRow()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                </span>
+            </div>*@
+                    </div>
+                </div>
+                <div class="row form-element-ctrl form-horizontal">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>SR#</th>
+                                        <th>RollNo</th>
+                                        <th>Vendor Roll No</th>
+                                        <th>Vendor Lot No</th>
+                                        <th>Vendor Width</th>
+                                        <th>Vendor Qty</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in fabricRollMasterList track by $index">
+                                        <td>{{$index+1}}</td>
+                                        <td>{{x.RollNo}}</td>
+                                        <td>
+                                            <input type="text" name="User Name" ng-model="x.VendorRollNo" class="form-control" n-numbers>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="User Name" ng-model="x.VendorLotNo" class="form-control" n-numbers>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="User Name" ng-model="x.VendorWidth" class="form-control" n-numbers>
+                                        </td>
+                                        <td class="text-right">
+                                            <input type="text" name="User Name" n-decimals="2" ng-model="x.VendorQty" class="form-control text-right" n-numbers>
+                                        </td>
+                                        <td>
+                                            <ul class="list-inline action-list">
+                                                <li><button ng-click="valuePassInDelModal($index,x)" class="btn btn-action tooltip-here" data-placement="top" title="Add New"><i class="glyphicon glyphicon-trash"></i></button></li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                      
+                                        <td colspan="6" class="text-right"><span style="font-weight:bold;">Total:</span><strong>{{fabricRollMasterList | sumByKey : 'VendorQty' }}</strong></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="Save();" class="btn"><i class=""></i> Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="fabricRollPDFPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Fabric Roll PDF
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="demo" style="height:1000px">
+
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirm_PopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>

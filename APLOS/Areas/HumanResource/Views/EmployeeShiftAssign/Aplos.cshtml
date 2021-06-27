@@ -1,0 +1,364 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Employee Shift Assaignment
+</h3>
+<div class="form-horizontal" ng-form name="employeeShiftAssignForm">
+    <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl">
+        <div class="form-group" show-errors>
+            <label class="col-sm-2 control-label">Plant<sup>*</sup> </label>
+            <div class="col-sm-4 show-message">
+                <div class="select-style">
+                    <select id="PlantId" class="form-control" ng-model="employeeShiftAssign.PlantId" ng-change="Shift();RoasterShift();" name="Plant" required tabindex="1">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-elements ">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Unit</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select id="UnitId" class="form-control" ng-model="employeeShiftAssign.UnitId" name="Unit" tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in unitList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Department</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select id="DepartmentId" class="form-control" ng-model="employeeShiftAssign.DepartmentId" name="Department" tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in departmentList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Sub Section</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select id="SubSectionId" class="form-control" ng-model="employeeShiftAssign.SubSectionId" name="SubSection" tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in subSectionList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Employee Category</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select id="EmployeeCategoryId" class="form-control" ng-model="employeeShiftAssign.EmployeeCategoryId" name="EmployeeCategory" tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in employeeCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Designation Group</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select id="DesignationGroupId" class="form-control" ng-model="employeeShiftAssign.DesignationGroupId" name="DesignationGroup" tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in designationGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Work Date</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Work Date" ng-model="employeeShiftAssign.WorkDate" datepicker class="form-control" placeholder="dd-MM-yyyy" />
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Division</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select id="DivisionId" class="form-control" ng-model="employeeShiftAssign.DivisionId" name="Division" tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in divisionList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Section</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select id="SectionId" class="form-control" ng-model="employeeShiftAssign.SectionId" name="Section" tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in sectionList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Line</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select id="LineId" class="form-control" ng-model="employeeShiftAssign.LineId" name="Line" tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in lineList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Designation</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select id="DesignationId" class="form-control" ng-model="employeeShiftAssign.DesignationId" name="Designation" tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in designationList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Shift</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select id="FixedShit" class="form-control" ng-model="employeeShiftAssign.FixedShit" name="FixedShit" tabindex="1">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in fixedShitList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="common-btn">
+    <ul class="list-inline text-left">
+        <li> <button ng-click="getData();" ng-disabled="employeeShiftAssign.PlantId===null || employeeShiftAssign.WorkDate===null" class="btn"><i class="glyphicon glyphicon-search"></i> Load</button></li>
+    </ul>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Employee Code</th>
+                <th>Employee Name</th>
+                <th>Shift Name</th>
+                <th>Shift InTime</th>
+                <th>Effective Date</th>
+                @*<th>New Shift</th>*@
+                <th>Least InTime</th>
+                <th>Day Status</th>
+                <th>Deatil</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in EmployeeShiftAssigns |itemsPerPage:ShiftParameters.pageSize" total-items="ShiftParameters.total_count">
+                <td>{{x.EmployeeCode}}</td>
+                <td>{{x.EmployeeName}}</td>
+                <td>{{x.CurrentShift}}</td>
+                <td class="text-center">{{x.ShiftInTime}}</td>
+                <td>{{x.EffectiveDate | dateFiltering}}</td>
+                @*<td>{{x.FixShift}}</td>*@
+                <td class="text-center">{{x.InTime}}</td>
+                <td class="text-center">{{x.DayStatus}}</td>
+                <td>
+                    <button ng-click="ShiftPopUp();Hide();Get(x.EmpSystemID, $index)" class="btn" tabindex="9"><i class="glyphicon glyphicon-th-list"></i></button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="LoadDataList(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="ShiftPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Shift Assignment</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row form-elements form-horizontal">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="col-sm-6 radio">
+                            <input type="radio" name="IsFix" ng-model="employeeShiftAssign.IsFix" ng-value="true" ng-click="ShowShift();">
+                            <span></span><span>Fix Shift</span><br />
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="select-style">
+                                <select id="FixedShit" class="form-control" ng-model="employeeShiftAssign.FixSystemID" name="FixedShit" tabindex="1">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in fixedShitList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-12" id="week">
+                            <fieldset class="scheduler-border">
+                                <legend class="scheduler-border"> Week Off Day</legend>
+                                <div class="col-sm-12">
+                                    <div class="col-sm-12">
+                                        <input type="radio" name="WeekOff" ng-model="employeeWeekOffByDay.AlignWithCC" ng-value="true" ng-click="Hide()">
+                                        <span></span><span>Aligned with company week off calander</span><br />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="col-sm-6">
+                                        <input type="radio" name="WeekOff" ng-model="employeeWeekOffByDay.AlignWithCC" ng-value="false" ng-click="show()">
+                                        <span></span><span>Individualy assign week off day</span><br />
+                                        <input type="radio" name="FstDayLengthType" ng-model="employeeWeekOffByDay.FirstHalfRadio" ng-value="Half" id="shift1">
+                                        <span></span><span id="shift5">Half</span><br />
+                                        <input type="radio" name="FstDayLengthType" ng-model="employeeWeekOffByDay.FirstFullRadio" ng-value="Full" id="shift3">
+                                        <span></span><span id="shift4">Full</span>
+                                    </div>
+                                    <div class="col-sm-6" id="shift2">
+                                        <div class="form-group">
+                                            <div class="select-style">
+                                                <select id="FixedShit" class="form-control" ng-model="employeeWeekOffByDay.FstOffDay" name="StartFromShift" tabindex="1">
+                                                    <option value="">--Select--</option>
+                                                    <option value="Friday">Friday</option>
+                                                    <option value="Saturday">Saturday</option>
+                                                    <option value="Sunday">Sunday</option>
+                                                    <option value="Monday">Monday</option>
+                                                    <option value="Tuesday">Tuesday</option>
+                                                    <option value="Tuesday">Tuesday</option>
+                                                    <option value="Wednesday">Wednesday</option>
+                                                    <option value="Thursday">Thursday</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="select-style">
+                                                <select id="FixedShit" class="form-control" ng-model="employeeWeekOffByDay.FstDayLengthType" name="StartFromShift" tabindex="1">
+                                                    <option value="">--Select--</option>
+                                                    <option value="FirstHalf">First Half</option>
+                                                    <option value="SecondHalf">Second Half</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="col-sm-6 radio">
+                            <input type="radio" name="IsFix" ng-model="employeeShiftAssign.IsFix" ng-value="false" ng-click="HideShift();">
+                            <span></span><span>Roster Shift</span><br />
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="select-style">
+                                <select id="FixedShit" class="form-control" ng-model="employeeShiftAssign.RosterSystemID" ng-change="LoadRoasterShift(employeeShiftAssign.RosterSystemID);" name="FixedShit" tabindex="1">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in roasterShitList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <br />
+                                <label class="col-sm-4 control-label" style="margin-right: 70px;">Start From Shift</label>
+                                <div class="col-sm-6">
+                                    <div class="select-style">
+                                        <select id="FixedShit" class="form-control" ng-model="employeeShiftAssign.RosterStartShiftID" name="StartFromShift" tabindex="1">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in rosterStartShiftList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Fix Shift Effective Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-model="employeeShiftAssign.EffectiveDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12" style="margin-top: 25px;" id="shift">
+                            <fieldset class="scheduler-border">
+                                <legend class="scheduler-border"></legend>
+                                <div class="col-sm-12" style="margin-left: 164px;">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <div class="select-style">
+                                                <select id="FixedShit" class="form-control" ng-model="employeeWeekOffByDay.SndOffDay" name="StartFromShift" tabindex="1">
+                                                    <option value="">--Select--</option>
+                                                    <option value="Friday">Friday</option>
+                                                    <option value="Saturday">Saturday</option>
+                                                    <option value="Sunday">Sunday</option>
+                                                    <option value="Monday">Monday</option>
+                                                    <option value="Tuesday">Tuesday</option>
+                                                    <option value="Tuesday">Tuesday</option>
+                                                    <option value="Wednesday">Wednesday</option>
+                                                    <option value="Thursday">Thursday</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="col-sm-6">
+                                        <input type="radio" name="SndDayLengthType" ng-model="employeeWeekOffByDay.SecondHalfRadio" ng-value="Half">
+                                        <span></span><span>Half</span><br />
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <div class="select-style">
+                                                <select id="FixedShit" class="form-control" ng-model="employeeWeekOffByDay.SndDayLengthType" name="StartFromShift" tabindex="1">
+                                                    <option value="">--Select--</option>
+                                                    <option value="FirstHalf">First Half</option>
+                                                    <option value="SecondHalf">Second Half</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="col-sm-6">
+                                        <input type="radio" name="SndDayLengthType" ng-model="employeeWeekOffByDay.SecondFullRadio" ng-value="Full">
+                                        <span></span><span>Full</span><br />
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Roster Shift Effective Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-model="employeeShiftAssign.EffectiveDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">On The</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" ng-model="employeeShiftAssign.Day" />
+                                </div>
+                                <label class="col-sm-2 control-label"> th Day</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

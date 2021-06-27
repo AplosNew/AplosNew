@@ -1,0 +1,201 @@
+﻿<style>
+    .modellgModify {
+        width: 1400px;
+    }
+</style>
+<div class="modal fade site-modal in" id="ApprovedStockPopUp" role="dialog" @*data-backdrop="static"*@>
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content" style="overflow:scroll">
+            <div class="modal-header"> Approved Stock<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Approved List</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Other</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="modal-body form-elements form-horizontal">
+                        <div class="col-md-12">
+							<div id="Approved1">
+								<div class="content-container-fluid" style="color:black;overflow:scroll">
+									<div style="color:black;" id="Grid" ej-grid e-datasource="ApprovedStockList"
+										 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+										 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-actioncomplete="actionCompleteSelected3">
+										<div e-columns>
+											<div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150" e-filter="false"></div>
+											<div e-column e-field="GateName" e-headertext="Gate Name" e-width="150" e-filter="false"></div>
+											<div e-column e-field="PartyCode" e-headertext="Party Code" e-width="100" e-filter="false"></div>
+											<div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
+											<div e-column e-field="ReceiveDate" e-headertext="Entry Date" e-width="100"></div>
+											<div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="100"></div>
+											<div e-column e-field="PONo" e-headertext="PO No" e-width="100"></div>
+											<div e-column e-field="GRNNo" e-headertext="GRN No" e-width="100"></div>
+											<div e-column e-field="TransactionQty" e-headertext="Tran.Qty" e-width="120" textAlign='Right'></div>
+											<div e-column e-field="TUoM" e-headertext="Tran.UOM" e-width="100" textAlign='Right'></div>
+											<div e-column e-field="MaterialTranRate" e-headertext="Tran.Rate" e-width="120" textAlign='Right'></div>
+											<div e-column e-field="MaterialTranAmount" e-headertext="Tran.Amount" e-width="120" textAlign='Right'></div>
+											<div e-column e-field="BaseQty" e-headertext="Base Qty" e-width="100" textAlign='Right'></div>
+											<div e-column e-field="BaseRate" e-headertext="Books Currency Base Rate" e-width="180" textAlign='Right'></div>
+											@*<div e-column e-field="BaseCurrencyRate" e-headertext="Base Rate" e-width="80"></div>*@
+											<div e-column e-field="BaseIssueQty" e-headertext="Issue Qty" e-width="100" textAlign='Right'></div>
+											<div e-column e-field="BalanceStock" e-headertext="Balance Qty" e-width="150" textAlign='Right'></div>
+											<div e-column e-field="IsPosting" e-headertext="Posting" e-width="80"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+                            @*<table class="table table-striped" style="font-size: 12px;white-space: nowrap;">
+            <thead>
+                <tr>
+                    <th>Vendor</th>
+                    <th>Entry Date</th>
+                    <th>PO No</th>
+                    <th>GRN Date</th>
+                    <th>GRN No</th>
+                    <th>Receive Qty</th>
+                    <th>Base Qty</th>
+                    <th>Issue Qty</th>
+                    <th>Balance Qty</th>
+                    <th>Rate</th>
+                    <th>Base Rate</th>
+                    <th>Approved</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in ApprovedStockList">
+                    <td>{{x.PartyCode}}-{{x.PartyName}}</td>
+                    <td>{{x.ReceiveDate}}</td>
+                    <td>{{x.PONo}}</td>
+                    <td>{{x.GRNDate}}</td>
+                    <td>{{x.GRNNo}}</td>
+                    <td>{{x.TransactionQty}} {{x.TUoM}}</td>
+                    <td>{{x.BaseQty}} {{x.BUoM}}</td>
+                    <td>{{x.BaseIssueQty}} {{x.TUoM}}</td>
+                    <td>{{x.BalanceStock}} {{x.TUoM}}</td>
+                    <td>{{x.BaseRate|setDecimal:2}} {{x.TCurrency}}</td>
+                    <td>{{x.BaseCurrencyRate|setDecimal:2}} {{x.BCurrency}}</td>
+                    <td>{{x.IsApproved}}</td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="text-right"><strong>Total : </strong></td>
+                    <td class="text-left"><strong>{{ApprovedStockList | sumByKey : 'TransactionQty'| number: '.2' }}</strong></td>
+                    <td class="text-left"><strong>{{ApprovedStockList | sumByKey : 'BaseQty'| number: '.2' }}</strong></td>
+                    <td class="text-left"><strong>{{ApprovedStockList | sumByKey : 'BaseIssueQty'| number: '.2' }}</strong></td>
+                    <td class="text-left"><strong>{{ApprovedStockList | sumByKey : 'BalanceStock'| number: '.2' }}</strong></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>*@
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="closeApprovedStockPopUp();" class="btn">Close</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="modal-body form-elements form-horizontal">
+						<div class="col-md-12">
+							<div id="Approved2">
+								<div class="content-container-fluid" style="color:black;overflow:scroll">
+									<div style="color:black;" id="Grid1" ej-grid e-datasource="ApprovedStockBeyondIssueDateList" e-actioncomplete="actionCompleteSelected2"
+										 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+										 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+										<div e-columns>
+											@*<div e-column e-field="PartyCode" e-headertext="Party Code" e-width="50" e-filter="false"></div>
+		<div e-column e-field="PartyName" e-headertext="Vendor" e-width="180"></div>
+		<div e-column e-field="ReceiveDate" e-headertext="Entry Date" e-width="100"></div>
+		<div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="100"></div>
+		<div e-column e-field="PONo" e-headertext="PO No" e-width="100"></div>
+		<div e-column e-field="GRNNo" e-headertext="GRN No" e-width="100"></div>
+		<div e-column e-field="TransactionQty" e-headertext="Qty" e-width="80"></div>
+		<div e-column e-field="BaseQty" e-headertext="Base Qty" e-width="100"></div>
+		<div e-column e-field="BaseIssueQty" e-headertext="Issue Qty" e-width="100"></div>
+		<div e-column e-field="BalanceStock" e-headertext="Balance Qty" e-width="100"></div>
+		<div e-column e-field="BaseRate" e-headertext="Rate" e-width="80"></div>
+		<div e-column e-field="BaseCurrencyRate" e-headertext="Base Rate" e-width="80"></div>
+		<div e-column e-field="IsPosting" e-headertext="Posting" e-width="80"></div>*@
+											<div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="180" e-filter="false"></div>
+											<div e-column e-field="GateName" e-headertext="Gate Name" e-width="180" e-filter="false"></div>
+											<div e-column e-field="PartyCode" e-headertext="Party Code" e-width="100" e-filter="false"></div>
+											<div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
+											<div e-column e-field="ReceiveDate" e-headertext="Entry Date" e-width="100"></div>
+											<div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="100"></div>
+											<div e-column e-field="PONo" e-headertext="PO No" e-width="100"></div>
+											<div e-column e-field="GRNNo" e-headertext="GRN No" e-width="100"></div>
+											<div e-column e-field="TransactionQty" e-headertext="Tran.Qty" e-width="120" textAlign='Right'></div>
+											<div e-column e-field="TUoM" e-headertext="Tran.UOM" e-width="100" textAlign='Right'></div>
+											<div e-column e-field="MaterialTranRate" e-headertext="Tran.Rate" e-width="120" textAlign='Right'></div>
+											<div e-column e-field="MaterialTranAmount" e-headertext="Tran.Amount" e-width="120" textAlign='Right'></div>
+											<div e-column e-field="BaseQty" e-headertext="Base Qty" e-width="100" textAlign='Right'></div>
+											<div e-column e-field="BaseRate" e-headertext="Books Currency Base Rate" e-width="180" textAlign='Right'></div>
+											@*<div e-column e-field="BaseCurrencyRate" e-headertext="Base Rate" e-width="80"></div>*@
+											<div e-column e-field="BaseIssueQty" e-headertext="Issue Qty" e-width="100" textAlign='Right'></div>
+											<div e-column e-field="BalanceStock" e-headertext="Balance Qty" e-width="150" textAlign='Right'></div>
+											<div e-column e-field="IsPosting" e-headertext="Posting" e-width="80"></div>
+										</div>
+									</div>
+								</div>
+								</div>
+								@*<table class="table table-striped" style="font-size: 12px;white-space: nowrap;">
+				<thead>
+					<tr>
+						<th>Vendor</th>
+						<th>Entry Date</th>
+						<th>PO No</th>
+						<th>GRN Date</th>
+						<th>GRN No</th>
+						<th>Receive Qty</th>
+						<th>Base Qty</th>
+						<th>Issue Qty</th>
+						<th>Balance Qty</th>
+						<th>Rate</th>
+						<th>Base Rate</th>
+						<th>Approved</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="x in ApprovedStockBeyondIssueDateList">
+						<td>{{x.PartyCode}}-{{x.PartyName}}</td>
+						<td>{{x.ReceiveDate}}</td>
+						<td>{{x.PONo}}</td>
+						<td>{{x.GRNDate}}</td>
+						<td>{{x.GRNNo}}</td>
+						<td>{{x.TransactionQty}} {{x.TUoM}}</td>
+						<td>{{x.BaseQty}} {{x.BUoM}}</td>
+						<td>{{x.BaseIssueQty}} {{x.TUoM}}</td>
+						<td>{{x.BalanceStock}} {{x.TUoM}}</td>
+						<td>{{x.BaseRate|setDecimal:2}} {{x.TCurrency}}</td>
+						<td>{{x.BaseCurrencyRate|setDecimal:2}} {{x.BCurrency}}</td>
+						<td>{{x.IsApproved}}</td>
+					</tr>
+					<tr>
+						<td colspan="5" class="text-right"><strong>Total : </strong></td>
+						<td class="text-left"><strong>{{ApprovedStockBeyondIssueDateList | sumByKey : 'TransactionQty'| number: '.2'  }}</strong></td>
+						<td class="text-left"><strong>{{ApprovedStockBeyondIssueDateList | sumByKey : 'BaseQty'| number: '.2'  }}</strong></td>
+						<td class="text-left"><strong>{{ApprovedStockBeyondIssueDateList | sumByKey : 'BaseIssueQty'| number: '.2' }}</strong></td>
+						<td class="text-left"><strong>{{ApprovedStockBeyondIssueDateList | sumByKey : 'BalanceStock'| number: '.2' }}</strong></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+				</tbody>
+			</table>*@
+							</div>
+							<div class="common-btn">
+								<ul class="list-inline text-right">
+									<li><button ng-click="closeApprovedStockPopUp();" class="btn">Close</button></li>
+								</ul>
+							</div>
+						</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

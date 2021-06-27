@@ -1,0 +1,88 @@
+﻿using Library.Core;
+using Library.Model.Employees;
+using Library.Model.Payrolls;
+using Library.Service.Core;
+using Syncfusion.XlsIO;
+using System.Collections.Generic;
+using System.Data;
+
+namespace Library.Service.Employees
+{
+    public interface IEmployeeActiveInActiveService : IService<EmployeeInformation>
+    {
+        
+        IEnumerable<ComboModel> GetTemplateCbo(string plantId, string type);
+        IWorkbook PrintEmployeeIDCard(string empId, string companyGroupId, string companyId, string plantId, string tempId, string empType,string reportType);
+        IEnumerable<ComboModel> GetDefaultCbo(string companyGrupId, string plantId);
+        void Insert(List<XLUploadDetail> entities);
+
+        IWorkbook EmployeeAppointmentLetterLocal(string companyGroupId, string companyId, string plantId, string empId, string empType, string tempId);
+        void EmployeeAppointmentLetterInMSWord(string companyGroupId, string companyId, string plantId, string empId, string empType, string reportType, string tempId);
+        //IWorkbook EmployeeConfirmationLetterLocal(string companyId, string plantId, string empId, string empType, string tempId);
+        IEnumerable<ComboModel> GetCbo(string plantId);
+
+        IEnumerable<object> GetEmployeeCbo(string GroupId, string companyId, string plantId);
+
+        GridModel GetSectionEmployeeList(GridParameter parameters, string plantId, string companyId, string SectionId);
+
+        void UpdateBudgetCode(EmployeeInformation entity);
+
+        object GetData(string companyGroupId, string companyId, string plantId, string employeeId);
+
+        IEnumerable<object> GetEmpDocumentDataList(string companyGroupId, string pId, string plantId);
+
+        IEnumerable<object> GetSelfDocumentDataList(string companyGroupId, string budgetId, string pId, string plantId);
+
+        IEnumerable<object> GetJobData(string empId);
+
+        void UpdateMaster(EmployeeInformation entity);
+
+        void UpdatePersonal(EmployeeInformation entity);
+
+        void UpdateAddress(EmployeeInformation entity);
+
+        void UpdateSalaryInfo(EmployeeInformation entity);
+
+        bool Login(string id, int pin);
+
+        IWorkbook JobCard_Report(string employeeId, string fromDate, string toDate, string companyGroupId);
+
+        IWorkbook EmpInfoReport(string companyGroupId, string companyId, string plantId, string employeeId);
+
+        IWorkbook EmpRegisterReport(string companyGroupId, string companyId, string plantId);
+
+        Dictionary<string, object> GetEmployeeById(string employeeId, string employeementType);
+
+        IEnumerable<dynamic> ShowJobCard(string employeeId, string fromDate, string toDate);
+
+        IEnumerable<dynamic> ShowDailyAttendance(string employeeId, string workingDate);
+
+        IEnumerable<dynamic> ShowDailyAttendance(string employeeId, string FromDate, string ToDate);
+        IEnumerable<object> GetSuperVisor(string companyid, string plantid);
+
+        void EmployeeServiceBookInMSWord(string companyGroupId, string companyId, string plantId, string empId,string empType, string reportType, string tempId);
+        void EmployeeNomineeInMSWord(string companyGroupId, string companyId, string plantId, string empId,string empType, string reportType, string tempId);
+        void EmployeeJoiningLetterInMSWord(string companyGroupId, string companyId, string plantId, string empId, string empType, string reportType, string tempId);
+        void EmployeeAcknowledgementInMSWord(string companyGroupId, string companyId, string plantId, string empId, string empType, string reportType, string tempId);
+
+        //void generateReport( string CalanderYearId, string FromDate, string ToDate,string plantId, string EmpSystemID, string empType, string reportType, string tempId);
+        //void generateReport(string CalanderYearId, string FromDate, string ToDate, string plantId, string empID, string reportType,string EmployeeType, string tempId);
+
+        void generateReport(string CalanderYearId, string FromDate, string ToDate, string plantId, string empID, string reportType, string tempId);
+
+        IEnumerable<object> GetClanderYear(string PlantId);
+        DataTable MediasoftFairShopDataExport();
+
+
+
+
+
+        //IService
+        IEnumerable<object> GetListForInActive(string SystemId, string CompanyId);
+        IEnumerable<object> GetListForActive(string plantId, string CompanyId);
+        void InActiveToActive(string SystemId, string reason); 
+        //void ActiveToInActive(string SystemId);  
+
+
+    }
+}

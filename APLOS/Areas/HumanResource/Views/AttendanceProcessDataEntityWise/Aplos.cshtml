@@ -1,0 +1,375 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  Manual Attendance Update
+</h3>
+<div class="form-horizontal form-elements" id="mainContainer">
+    <div class="form-group">
+
+        <label class="col-sm-2 control-label">Entity<sup>*</sup></label>
+        <div class="col-sm-4">
+
+            @*<div class="select-style">*@
+            @*<select name="EntityId" ng-model="EntityId" ng-change="getData()" class="col-sm-3 form-control"
+                ng-options="item.Id as item.UserName for item in entityList" tabindex="1" required>
+            <option value=""></option>
+        </select>*@
+
+            @*</div>*@
+            <input id="EntityList" ej-dropdownlist e-multiselectmode="visualmode" e-datasource="entityList" e-value="EntityId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" e-showcheckbox="true"/>
+
+
+        </div>
+    </div>
+    <div id="Tab" ej-tab>
+        <ul>
+            <li><a href="#TabEmployee">Employee Wise</a></li>
+            <li><a href="#TabDateRange">Date Wise</a></li>
+        </ul>
+        <div id="TabEmployee">
+            <div class="row">
+
+                <div class="col-sm-12">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDate" e-width="100%" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-8 control-label">Select Employee<sup>*</sup></label>
+                            <div class="col-sm-4 show-message">
+                                <div class="common-btn">
+                                    <ul class="common-btn list-inline text-right">
+                                        <li><button ng-click="getAllEmployee()" class="btn" tabindex="10"><i class="glyphicon glyphicon-search"></i></button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee Id</label>
+                            <label class="col-sm-8 control-label">{{selectedSinglemployee.Id}}</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee Code</label>
+                            <label class="col-sm-8 control-label">{{selectedSinglemployee.EmployeeCode}}</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Employee Name</label>
+                            <label class="col-sm-8 control-label">{{selectedSinglemployee.EmployeeName}}</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Department</label>
+                            <label class="col-sm-8 control-label">{{selectedSinglemployee.Department}}</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Designation</label>
+                            <label class="col-sm-8 control-label">{{selectedSinglemployee.Designation}}</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Section</label>
+                            <label class="col-sm-8 control-label">{{selectedSinglemployee.Section}}</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">SubSection</label>
+                            <label class="col-sm-8 control-label">{{selectedSinglemployee.SubSection}}</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Entity</label>
+                            <label class="col-sm-8 control-label">{{selectedSinglemployee.Entity}}</label>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div id="GridChangeAttendance" ng-init="chkinit()" ej-grid e-datasource="employeeAttendance"
+                     e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-querycellinfo="queryCellInfo"
+                     e-allowscrolling="true" e-minheight="400" e-gridlines="vertical" @*e-showstackedheader="true"*@
+                     e-actioncomplete="actionCompleteSingleEmployee" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
+                     e-filtersettings-filterType="excel">
+                    @*<div e-stackedheaderrows>
+                            <div e-stackedheaderrow>
+                                <div e-stackedheadercolumns>
+                                    <div e-stackedheadercolumn e-headertext="col1" e-column="DayStatus,OTHr"></div>
+                                    <div e-stackedheadercolumn e-headertext="col2" e-column="IsOTEntitled,IsOTComfirm"></div>
+                                </div>
+                            </div>
+                        </div>*@
+                    <div e-columns>
+                        @*ShiftSystemID	ShiftName	ShiftInTime	ShiftOutTime*@
+                        @*<div e-column e-field="ShiftSystemID" e-headertext="ShiftSystemID" e-width="4"></div>*@
+                        <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>
+                        <div e-column e-field="DayName" e-headertext="Day" e-width="50"></div>
+                        <div e-column e-template="#shift" e-headertext="Shift" e-width="220"></div>
+                       
+
+                        <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
+                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
+                        <div e-column e-field="IsManualInTime" e-headertext="Manual" e-width="50"></div>
+                        <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
+                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
+                        <div e-column e-field="IsManualOutTime" e-headertext="Manual" e-width="50"></div>
+                        <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="50"></div>
+                        <div e-column e-field="IsManualDayStatus" e-headertext="Manual" e-width="40"></div>
+                        <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
+                        <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
+                        <div e-column e-field="PunchOutTime" e-headertext="Punch Out Time" e-width="150"></div>
+
+                        <div e-column e-field="OTHr" e-headertext="OT. Hr" e-width="50"></div>
+                        <div e-column e-field="IsOTEntitled" e-headertext="OT Entitled" e-width="50"></div>
+                        <div e-column e-field="IsOTComfirm" e-headertext="OT Confirm" e-width="50"></div>
+                        <div e-column e-field="ErrorMessage" e-headertext="Error Message" e-width="300"></div>
+
+
+                    </div>
+
+                </div>
+
+
+
+            </div>
+
+
+            <div class="row">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>  <button type="button" ng-click="SaveSingleEmployee()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div id="TabDateRange">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input e-dateformat="dd-MMM-yyyy" e-change="selectSigleDate" ej-datepicker e-value="FromDateSingleDate" e-width="100%" />
+                                @*<input type="text" name="From Date" placeholder="dd-MM-yyyy" ng-model="FromDate" datepicker class="form-control datepicker" tabindex="1">*@
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div id="GridChangeAttendanceBySingleDate" ng-init="chkinit()" ej-grid e-datasource="employeeAttendanceBySingleDate"
+                     e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                     e-allowscrolling="true" e-minheight="400" e-gridlines="none" e-querycellinfo="queryCellInfo"
+                     e-actioncomplete="actionCompleteSingleDay" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
+                     e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        @*ShiftSystemID	ShiftName	ShiftInTime	ShiftOutTime*@
+                        @*<div e-column e-field="ShiftSystemID" e-headertext="ShiftSystemID" e-width="4"></div>*@
+                        @*<div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>*@
+
+
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100" e-primarykey="true"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="150"></div>
+                        <div e-column e-template="#allShiftSingleDay" e-headertext="Shift" e-width="220"></div>
+                        @*<div e-column e-field="ShiftInTime" e-headertext="Shift In Time" e-width="5" e-primarykey="true"></div>
+        <div e-column e-field="ShiftOutTime" e-headertext="Shift Out Time" e-width="5" e-primarykey="true"></div>*@
+
+                        <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
+                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
+                        <div e-column e-field="IsManualInTime" e-headertext="Manual" e-width="50"></div>
+                        <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
+                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
+                        <div e-column e-field="IsManualOutTime" e-headertext="Manual" e-width="50"></div>
+                        <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="50"></div>
+                        <div e-column e-field="IsManualDayStatus" e-headertext="Manual" e-width="40"></div>
+                        <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
+                        <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
+                        <div e-column e-field="PunchOutTime" e-headertext="Punch Out Time" e-width="150"></div>
+
+                        <div e-column e-field="OTHr" e-headertext="OT. Hr" e-width="50"></div>
+                        <div e-column e-field="IsOTEntitled" e-headertext="OT Entitled" e-width="50"></div>
+                        <div e-column e-field="IsOTComfirm" e-headertext="OT Confirm" e-width="50"></div>
+
+                        <div e-column e-field="Department" e-headertext="Department" e-width="150"></div>
+                        <div e-column e-field="Designation" e-headertext="Designation" e-width="150"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-width="150"></div>
+                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="150"></div>
+                        <div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
+
+
+                        <div e-column e-field="ErrorMessage" e-headertext="Error Message" e-width="300"></div>
+
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>  <button type="button" ng-click="SaveSingleDay()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<style type="text/css">
+    .e-grid .e-templatecell {
+        padding: 0px 0px 0px 0px;
+    }
+</style>
+
+
+<script type="text/template" id="shift">
+
+    <div class="col-sm-10" style="padding:0px;">
+        <input ej-dropdownlist e-datasource="$parent.allShift" e-value="data.ShiftSystemID" e-fields-value="SystemID" e-fields-text="UserName" e-width="100%" />
+    </div>
+    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+        <button ng-click="$parent.selectedShiftInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
+            <i class="glyphicon glyphicon-list-alt"></i>
+        </button>
+    </div>
+</script>
+<script type="text/template" id="allShiftSingleDay">
+
+    <div class="col-sm-10" style="padding:0px;">
+        <input ej-dropdownlist e-datasource="$parent.allShiftSingleDay" e-value="data.ShiftSystemID" e-fields-value="SystemID" e-fields-text="UserName" e-width="100%" />
+    </div>
+    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+        <button ng-click="$parent.selectedShiftInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
+            <i class="glyphicon glyphicon-list-alt"></i>
+        </button>
+    </div>
+</script>
+<script type="text/template" id="showAttendance">
+    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+        <button ng-click="$parent.showAttendanceInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
+            <i class="glyphicon glyphicon-list-alt"></i>
+        </button>
+    </div>
+</script>
+
+<script type="text/template" id="indate">
+    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-width="100%" />
+</script>
+<script type="text/template" id="intime">
+
+    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%" />
+
+</script>
+<script type="text/template" id="outdate">
+    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.OutDate" e-width="100%" />
+</script>
+<script type="text/template" id="outtime">
+
+    <input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" />
+
+</script>
+<div class="row">
+    <div class="form-group">
+        <ej-dialog id="dialogEmployeeSelect" title=" Employees" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+                   e-target="#mainContainer" e-minwidth="1100" e-height="580" e-open="enableBtn">
+            <div class="row">
+                <div id="GridWorkCenterProduct" ng-init="chkinit()" ej-grid e-datasource="selectemployee"
+                     e-recorddoubleclick="selectSignleEmployee"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowscrolling="true" e-minwidth="1100" e-minheight="500"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="30" e-primarykey="true"></div>
+                        <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                        <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                        <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+                    </div>
+                </div>
+            </div>
+
+        </ej-dialog>
+    </div>
+</div>
+
+<div class="row">
+    <div class="form-group">
+        <ej-dialog id="ViewShiftInfo" title=" Shift Info" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+                   e-target="#Tab" e-minwidth="500" e-open="enableBtn">
+            <div class="row" style="padding-left:10px;">
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Shift Desc</label>
+                    <label class="col-sm-8 control-label">{{shiftinfo.ShiftName}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Shift in Time</label>
+                    <label class="col-sm-8 control-label">{{shiftinfo.ShiftInTime}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Shift Out Time</label>
+                    <label class="col-sm-8 control-label">{{shiftinfo.ShiftOutTime}}</label>
+                </div>
+
+            </div>
+
+        </ej-dialog>
+    </div>
+</div>
+
+<div class="row">
+    <ej-dialog id="ViewAttendanceInfo" title=" Attendance Info" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+               e-target="#Tab" e-width="500px" e-height="500px" e-open="enableBtn">
+        <div class="form-elements">
+            <div id="GridAttendance" ng-init="chkinit()" ej-grid e-datasource="attendanceinfo"
+                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="PDate" e-headertext="Date" e-width="120"></div>
+                    <div e-column e-field="PTime" e-headertext="Time" e-width="120"></div>
+                    <div e-column e-field="PType" e-headertext="Type" e-width="80"></div>
+                </div>
+            </div>
+        </div>
+    </ej-dialog>
+</div>
+
