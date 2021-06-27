@@ -2336,7 +2336,6 @@
     <Content Include="Library\Library.Model.Core.dll" />
     <Content Include="Library\Library.Security.dll" />
     <Content Include="Library\Library.Service.Core.dll" />
-    <Content Include="Library\Library.Service.Core.pdb" />
     <Content Include="Library\Library.ViewModel.Core.dll" />
     <Content Include="Library\Microsoft.AspNet.SignalR.Client.dll" />
     <Content Include="Library\Microsoft.ReportViewer.Common.dll" />
