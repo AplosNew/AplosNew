@@ -1345,4 +1345,5 @@ function customerInvoiceController(cboService, commonMessage, $scope, $rootScope
     $scope.pullShakwat = function () {
         console.log('Hello Shakwat');
     }
+    $scope.pullShakwat();
 }
