@@ -19,6 +19,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     $controller("baseMaterialAndArticleController", { $scope: $scope, $http: $http });
     //Test Changes
     //shakawat
+    //mizan
     baseService.init("SalesManagements/Sales/GetMaterialSalesList", null, null, "DESC", "InvoiceDate", "InvoiceNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
