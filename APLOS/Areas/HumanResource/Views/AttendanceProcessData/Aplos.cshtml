@@ -164,22 +164,22 @@
                         </div>
 
                     </div>
-                    <div class="col-sm-3">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Time<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" ej-timepicker e-value="Intime" e-width="100%" />
+                    @*<div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Time<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" ej-timepicker e-value="Intime" e-width="100%" />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-sm-3">
-                        <div class="common-btn">
-                            <ul class="common-btn list-inline text-right">
-                                <li><button ng-click="SetIn()" class="btn" tabindex="10">Set IN</button></li>
-                                <li><button ng-click="SetOut()" class="btn" tabindex="10">Set OUT</button></li>
-                            </ul>
-                        </div>
-                    </div>
+                        <div class="col-sm-3">
+                            <div class="common-btn">
+                                <ul class="common-btn list-inline text-right">
+                                    <li><button ng-click="SetIn()" class="btn" tabindex="10">Set IN</button></li>
+                                    <li><button ng-click="SetOut()" class="btn" tabindex="10">Set OUT</button></li>
+                                </ul>
+                            </div>
+                        </div>*@
                     <div class="col-sm-2">
                         <div class="common-btn">
                             <ul class="common-btn list-inline text-right">
@@ -279,19 +279,23 @@
 </script>
 
 <script type="text/template" id="indate">
-    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-width="100%" />
+    @*<input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-width="100%" ng-disabled="true" />*@
+    <input type="text" name="Value" ng-model="data.InDate" class="form-control" required tabindex="5" maxlength="50" ng-disabled="true">
 </script>
 <script type="text/template" id="intime">
 
-    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%" />
-
+    @*<input type="text" ej-timepicker e-value="data.InTime" e-width="100%" ng-disabled="true" />*@
+    <input type="text" name="Value" ng-model="data.InTime" class="form-control" required tabindex="5" maxlength="50" ng-disabled="true">
 </script>
 <script type="text/template" id="outdate">
-    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.OutDate" e-width="100%" />
+    @*<input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.OutDate" e-width="100%" ng-disabled="true" />*@
+    <input type="text" name="Value" ng-model="data.OutDate" class="form-control" required tabindex="5" maxlength="50" ng-disabled="true">
 </script>
 <script type="text/template" id="outtime">
 
-    <input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" />
+    @*<input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" ng-disabled="true" />*@
+
+    <input type="text" name="Value" ng-model="data.OutTime" class="form-control" required tabindex="5" maxlength="50" ng-disabled="true">
 
 </script>
 <div class="row">

@@ -17,7 +17,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
     $controller("partyBaseController", { $scope: $scope, $http: $http });
     $controller("baseMaterialAndArticleController", { $scope: $scope, $http: $http });
-
+    //Test Changes
     baseService.init("SalesManagements/Sales/GetMaterialSalesList", null, null, "DESC", "InvoiceDate", "InvoiceNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
@@ -445,8 +445,8 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
                             $scope.savebtndisable = false;
                             $scope.getData();
 
-                            $scope.salesVM = response.data.Data;
 
+                            $scope.salesVM = response.data.Data;
                             $scope.salesVM.BaseOnDueDate = $scope.BaseDate;
                             $scope.salesVM.DocDate = $scope.DData;
                             $scope.salesVM.InvoiceDate = $scope.InDate;
