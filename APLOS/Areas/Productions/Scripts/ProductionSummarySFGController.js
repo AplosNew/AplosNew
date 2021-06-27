@@ -308,6 +308,15 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         $scope.ClearMasterPart();
         $scope.ProductionSummaryDetail = [];
         $scope.LineGridList = [];
+
+        $scope.ProdQtyCount = 0;
+        $scope.InQuantity = 0;
+        $scope.OutQuantity = 0;
+        $scope.KillQuantity = 0;
+        $scope.TotalSalesOrderQty = 0;
+        $scope.TotalProductionBookingQty = 0;
+        $scope.TotalSalesOrderQty = 0;
+        $scope.RemainQty = 0;
     };
 
 
@@ -529,16 +538,19 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
 
     $scope.SOItemList = [];
     $scope.getMaterialMasterbyTypePopUp = function (flag) {
+        $scope.ProdQtyCount = 0;
+        $scope.InQuantity = 0;
+        $scope.OutQuantity = 0;
+        $scope.KillQuantity = 0;
+        $scope.TotalSalesOrderQty = 0;
+        $scope.TotalProductionBookingQty = 0;
+        $scope.TotalSalesOrderQty = 0;
+        $scope.RemainQty = 0;
+
         if (baseService.isUndefinedOrNull($scope.productionSummaryNew.WorkCenterMasterId)) {
             if ($scope.Status === 'PROCESS')
                 return ShowResult('Please select Work Center.', 'failure');
         }
-
-        //if ($scope.Status === 'PROCESS') {
-        //    $scope.ProcessId = $scope.productionSummaryNew.ProcessId;
-        //} else {
-        //    $scope.ProcessId = $scope.productionSummaryNew.ProcessId;
-        //}
 
         $scope.WorkCenterMasterId = $scope.productionSummaryNew.WorkCenterMasterId;
         if (baseService.isUndefinedOrNull($scope.WorkCenterMasterId)) {
@@ -612,7 +624,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
 
             $scope.GetTotalProductionBookingQty();
             $scope.GetSFGWIPQty();
-            $scope.GetWIPQtyForValidation();
+            //$scope.GetWIPQtyForValidation();
             $scope.getLotNumberCbo();
 
             $scope.GetEntityProcessOrderTotalQty();
@@ -939,7 +951,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         $scope.productionSummaryNew.ToWorkCenterMasterId = $scope.productionSummary.ToWorkCenterMasterId;
         $scope.GetTotalProductionBookingQty();/// get Order Qty  Produced Qty  Balance Qty
         $scope.GetSFGWIPQty();
-        $scope.GetWIPQtyForValidation();
+        //$scope.GetWIPQtyForValidation();
         $scope.GetcharacteristicsValueList($scope.productionSummaryNew.SalesOrderId);
         // $scope.getProdQty();
 
