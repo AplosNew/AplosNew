@@ -321,8 +321,6 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                //BP.AddedBy = identity.Name;
-                //BP.AddedFromIP = identity.Name;
                 IncomeTaxPolicy p = new IncomeTaxPolicy();
                 p.SaveTPPW(BP, plantID);
                 return Json(new { Error = false, Data = BP, Message = AplosMessage.Updated });
@@ -385,6 +383,10 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(GeneralFormula.Description))
+                {
+                    throw new Exception("Enter Description..");
+                }
                 if (GeneralFormula.Formula == null)
                 {
                     throw new Exception("Select Formula..");
@@ -396,6 +398,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                         throw new Exception("Select Option Based Value");
                     }
                 }
+                DataSet dsGeneralFormula;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from TaxPolicyGeneralFormula where TaxPolicyGeneralId='" + GeneralFormula.TaxPolicyGeneralId + "' AND  Id<>'" + GeneralFormula.Id + "' AND  Description='" + GeneralFormula.Description + "'", out dsGeneralFormula, false, "1");
+                if (dsGeneralFormula.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Description already exists!!!");
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IncomeTaxPolicy p = new IncomeTaxPolicy();
                 p.SaveGeneralFormula(GeneralFormula, details);

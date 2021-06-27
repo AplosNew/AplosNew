@@ -109,7 +109,7 @@ namespace Library.HumanResource.SmsSend
                             CardNo = dsEmpList.Tables[0].Rows[i]["EmployeeCode"].ToString(),
                             WorkDate = dsEmpList.Tables[0].Rows[i]["WorkDate"].ToString(),
                             LastPresentDate = dsEmpList.Tables[0].Rows[i]["PreviousWorkDate"].ToString();
-                        string MobileNo =  "9479871783";//dsEmpList.Tables[0].Rows[i]["CellPhnNo"].ToString();//
+                        string MobileNo =  dsEmpList.Tables[0].Rows[i]["CellPhnNo"].ToString();//"9479871783";//
                         string FinalMessage = "";
                         string ScheduleDate = dsEmpList.Tables[0].Rows[i]["ScheduleTime"].ToString();
 
