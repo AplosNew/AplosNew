@@ -422,9 +422,9 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
             if ($scope.salesVM.IsPark == 0) {
                 throw "Posted data cann't save or update.";
             }
-            $scope.savebtndisable = true;
             $scope.$broadcast("show-errors-check-validity");
             if ($scope.form0.$valid) {
+                $scope.savebtndisable = true;
                 if ($scope.Action === "Save") {
                     $http({
                         method: "POST",
@@ -1158,7 +1158,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     };
 
     $scope.post = function (salesdb) {
-        if(!baseService.isUndefinedOrNull(salesdb.PaymentTermId)){
+        if (!baseService.isUndefinedOrNull(salesdb.PaymentTermId)) {
             $http({
                 method: "POST",
                 url: $scope.postUrl,
@@ -1187,7 +1187,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
             ShowResult('Please select PaymentTerm', "failure", 'JournalPopUp');
 
         }
-       
+
         return true;
     };
 
