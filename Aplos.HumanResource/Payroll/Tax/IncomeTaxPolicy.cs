@@ -680,6 +680,7 @@ namespace Library.HumanResource.Payroll.Tax
                     drLocal["Description"] = ui_master.Description;
                     drLocal["OptionBasedValue"] = ui_master.OptionBasedValue;
                     drLocal["IsOptionBased"] = ui_master.IsOptionBased;
+                    drLocal["IsOptionBaseDefault"] = ui_master.IsOptionBaseDefault;
 
                     drLocal["AddedBy"] = identity.Name;
                     drLocal["AddedDate"] = bplib.clsWebLib.DateData_AppToDB(DateTime.Now.ToShortDateString().ToString(), bplib.clsWebLib.DB_DATE_FORMAT);
@@ -1136,6 +1137,7 @@ namespace Library.HumanResource.Payroll.Tax
 
                 strSQL = @"SELECT IsSelectPolicy = Case WHEN p.TaxPolicyID IS NULL THEN Convert(bit, 'False')
                             ELSE Convert(bit, 'True') END, b.SystemID TaxPolicyID, b.TaxPolicyName,b.Description,b.TaxYearID TaxPolicyYearID,y.TaxYearName,p.Id 
+                            ,p.IsDefaultPolicy
                             FROM TaxPolicyMaster b                            
 							LEFT JOIN SCS.TaxYear y on y.Id=b.TaxYearID
 							LEFT JOIN TaxPolicyPlantWise p ON p.TaxPolicyID = b.SystemID
@@ -2016,6 +2018,7 @@ public class TaxGeneralFormula
     public string Description { get; set; }
     public string OptionBasedValue { get; set; }
     public bool IsOptionBased { get; set; }
+    public bool IsOptionBaseDefault { get; set; }
 }
 
 public class TaxGeneralFormulaDetail
