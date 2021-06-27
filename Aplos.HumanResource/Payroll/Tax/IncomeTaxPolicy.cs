@@ -283,7 +283,7 @@ namespace Library.HumanResource.Payroll.Tax
                 {
                     if (item.IsSelectPolicy == true)
                     {
-                        var ForAll = db.Where(r => r.SystemID == item.TaxPolicyID && r.Male == true && r.Female == true && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
+                        var ForAll = db.Where(r => r.SystemID == item.TaxPolicyID && r.Male  && r.Female  && r.TaxYearID == item.TaxPolicyYearID ).FirstOrDefault();
                         var ForMale = db.Where(r => r.SystemID == item.TaxPolicyID && r.Male == true && r.Female == false && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
                         var ForFemale = db.Where(r => r.SystemID == item.TaxPolicyID && r.Female && r.Male == false && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
 
@@ -312,6 +312,7 @@ namespace Library.HumanResource.Payroll.Tax
                             drBp["Id"] = pk;
                             drBp["TaxPolicyId"] = item.TaxPolicyID;
                             drBp["PlantId"] = item.PlantId;
+                            drBp["IsDefaultPolicy"] = item.IsDefaultPolicy;
 
                             drBp["AddedBy"] = identity.Name;
                             drBp["AddedDate"] = DateTime.Now;
@@ -1982,6 +1983,8 @@ public class MasterData
     public string TaxYearID { get; set; }
     public bool Male { get; set; }
     public bool Female { get; set; }
+    public double AgeFrom { get; set; }
+    public double AgeTo { get; set; }
 
 }
 public class TaxPolicyPlantWise : BaseModel
@@ -1992,6 +1995,7 @@ public class TaxPolicyPlantWise : BaseModel
     public string TaxPolicyYearID { get; set; }
     public string PlantId { get; set; }
     public bool IsSelectPolicy { get; set; }
+    public bool IsDefaultPolicy { get; set; }
 
     #endregion Scalar Properties
 
