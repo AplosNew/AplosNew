@@ -445,8 +445,8 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
                             $scope.savebtndisable = false;
                             $scope.getData();
 
-                            $scope.salesVM = response.data.Data;
 
+                            $scope.salesVM = response.data.Data;
                             $scope.salesVM.BaseOnDueDate = $scope.BaseDate;
                             $scope.salesVM.DocDate = $scope.DData;
                             $scope.salesVM.InvoiceDate = $scope.InDate;
