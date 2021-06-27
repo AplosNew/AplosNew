@@ -677,7 +677,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             $scope.MDate = $scope.salesVM.MatureDate;
             $scope.PDate = $scope.salesVM.PostingDate;
             $scope.VDate = $scope.salesVM.VoucherDate;
-            $scope.savebtndisable = true;
+            
 
             if ($scope.salesVM.IsPark == 0) {
                 throw "Posted data cann't save or update.";
@@ -703,6 +703,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
 
             $scope.$broadcast("show-errors-check-validity");
             if ($scope.form0.$valid) {
+                $scope.savebtndisable = true;
                 if ($scope.Action === "Save") {
                     $http({
                         method: "POST",

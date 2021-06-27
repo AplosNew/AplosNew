@@ -162,7 +162,8 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
         FormulaID: null,
         Description: null,
         IsOptionBased: false,
-        OptionBasedValue: null
+        OptionBasedValue: null,
+        IsOptionBaseDefault: true,
     }
 
     $scope.TaxRebate = {
