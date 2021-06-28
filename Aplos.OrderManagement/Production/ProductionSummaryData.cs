@@ -705,7 +705,7 @@ namespace Library.OrderManagement.Production
                                 ,FORMAT (P.InTime, 'dd-MMM-yyyy hh:mm:tt') InTime, FORMAT (P.OutTime, 'dd-MMM-yyyy hh:mm:tt') OutTime,P.ConsumeHour,P.ManPower, P.CheckedBy,C.EmployeeName CheckedByName
                                 ,P.ToWorkCenterMasterId,P.FromSFGInventoryId,P.ToSFGInventoryId,P.ToProcessId,P.Remarks,P.WorkCenterMasterId,P.LotNumber
                                 ,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem,so.Description,P.ProductionOrderId
-                                ,WCM.UserName FromWorkCenterMaster,TWCM.UserName ToWorkCenterMaster,ISNULL(FP.UserName,FSFG.UserName) [From], ISNULL(TP.UserName,TSFG.UserName) [To]
+                                ,WCM.UserName FromWorkCenterMaster,TWCM.UserName ToWorkCenterMaster,ISNULL(FP.UserName,FSFG.UserName) [From], ISNULL(TP.UserName,TSFG.UserName) [To],P.ToEntityId
                                  FROM [TRN].[ProductionSummary] p
 								 LEFT JOIN trn.SalesOrder so on so.Id=p.SalesOrderId
                                  LEFT JOIN trn.[MasterOrderItem] moi on moi.id=so.MasterOrderItemId
@@ -742,7 +742,7 @@ namespace Library.OrderManagement.Production
                                  ,P.ResponsiblePersonId,R.EmployeeName ResponsiblePersonName,P.MentorId, M.EmployeeName MentorName, P.CheckedBy,C.EmployeeName CheckedByName
                                  ,FORMAT (P.InTime, 'dd-MMM-yyyy hh:mm:tt') InTime, FORMAT (P.OutTime, 'dd-MMM-yyyy hh:mm:tt') OutTime,P.ConsumeHour,P.ManPower
                                  ,P.ToWorkCenterMasterId,P.FromSFGInventoryId,P.ToSFGInventoryId,P.ToProcessId,P.Remarks,P.WorkCenterMasterId,P.LotNumber
-                                 ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,WCM.UserName FromWorkCenterMaster,TWCM.UserName ToWorkCenterMaster,ISNULL(FP.UserName,FSFG.UserName) [From], ISNULL(TP.UserName,TSFG.UserName) [To],p.SalesOrderId
+                                 ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,WCM.UserName FromWorkCenterMaster,TWCM.UserName ToWorkCenterMaster,ISNULL(FP.UserName,FSFG.UserName) [From], ISNULL(TP.UserName,TSFG.UserName) [To],p.SalesOrderId,P.ToEntityId
                                  FROM TRN.ProductionSummary P
                                  LEFT JOIN HKP.ProductionBookingPeriod PBP ON PBP.Id=P.ProductionBookingPeriodId
                                  LEFT JOIN EmployeeInformation R ON P.ResponsiblePersonId=R.SystemId
@@ -1055,7 +1055,7 @@ namespace Library.OrderManagement.Production
                                 WHERE ps.ProcessId='" + processId + @"' AND ps.WorkCenterMasterId='" + workCenterMasterId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"')
                                 ) AS K ";
 
-                        return _sqlRepository.GetDataCollection(sql, null);
+                        
                     }
                     else
                     {
@@ -1075,7 +1075,7 @@ namespace Library.OrderManagement.Production
                                WHERE ps.FromSFGInventoryId='" + processId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"')
                                ) AS K ";
 
-                        return _sqlRepository.GetDataCollection(sql, null);
+                        
                     }
 
                 }

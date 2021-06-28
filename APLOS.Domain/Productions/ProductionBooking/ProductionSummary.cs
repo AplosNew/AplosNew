@@ -69,6 +69,7 @@ namespace Library.Model.Productions.ProductionBooking
         
         public string PlantId { get; set; }
         public string EntityId { get; set; }
+        public string ToEntityId { get; set; }
         public string ProcessId { get; set; }
         public string SalesOrderId { get; set; }
         public string ProductionOrderId { get; set; }
