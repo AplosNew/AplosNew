@@ -23,7 +23,7 @@ using Library.OrderManagement.OrderControl;
 using System.IO;
 using Library.Data;
 using Library.Service.Helpers;
-
+using System.Linq;
 
 #endregion Using
 
@@ -161,6 +161,24 @@ namespace Aplos.Areas.Attendances.Controllers
                 string EmpMonth = Convert.ToDateTime(data["WorkDate"]).ToString("MM");
                 con.OpenDataSetThroughAdapter("select Id, EmpSystemId, YearNo, MonthNo, IsLocked from SalaryLock where YearNo = '" + EmpYear + "' and MonthNo = '" + EmpMonth + "' and EmpSystemId IN ( " + empdetails + " ) ", out IsEmpSalaryLocked, false, "1");
 
+                // new validation
+
+                DataTable dtLock = _sqlRepository.GetDataTable("SELECT * FROM PlantWiseAttendanceLock AS pwal WHERE  isActive=1 AND pwal.LockedDate ='" + data["WorkDate"] + "' AND pwal.PlantId='" + identity.PlantId + "'");
+                DataTable dtLockEmployee = _sqlRepository.GetDataTable("SELECT * FROM ExceptionEmployeeAttendanceUnlock WHERE EmpSystemId IN (" + empdetails + @")");
+
+                for (int i = 0; i < dtLock.Rows.Count; i++)
+                {
+                    foreach (var item in SaveMultipleEmpOT)
+                    {
+                        dtLockEmployee.DefaultView.RowFilter = "EmpSystemId='" + item.EmployeeSystemId + "' AND WorkDate=#" + data["WorkDate"] + "#";
+                        if (dtLockEmployee.DefaultView.Count == 0)
+                        {
+                            throw new Exception("" + item.EmployeeName + " " + item.Code + " Day Locked");
+                        }
+                    }
+                }
+
+
                 foreach (var item in SaveMultipleEmpOT)
                 {
                     IsEmpSalaryLocked.Tables[0].DefaultView.RowFilter = "EmpSystemId='" + item.EmployeeSystemId + "'";
@@ -168,7 +186,8 @@ namespace Aplos.Areas.Attendances.Controllers
                     if (IsEmpSalaryLocked.Tables[0].DefaultView.Count > 0)
                     {
                         islocked = bplib.clsWebLib.GetBoolData(IsEmpSalaryLocked.Tables[0].DefaultView[0]["IsLocked"].ToString());
-                      
+                        throw new Exception(" "+ item.EmployeeName +" "+ item.Code +" Salary is Locked for the Month");
+
                     }
                         if(islocked==false)
                         {
