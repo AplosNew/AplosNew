@@ -757,6 +757,8 @@
                                         <tr ng-show="ServicePODetailList.length">
                                             <th>Chk</th>
                                             <th>Id</th>
+                                            <th>POID</th>
+                                            <th>PODetailId</th>
                                             <th>Service</th>
                                             <th>PO Qty</th>
                                             <th>UoM</th>
@@ -783,14 +785,16 @@
                                                     </label>
                                                 </div>
                                             </td>
+                                            <td>{{x.Id}}</td>
                                             <td>{{x.ServicePODetailId}}</td>
+                                            <td>{{x.ServicePOMasterId}}</td>
                                             <td>{{x.ServiceMasterName}}</td>
 
                                             <td class="text-right">{{x.Qty}}</td>
                                             <td>{{x.UoM}}</td>
                                             <td class="text-right">{{x.OtherReceived}}</td>
                                             <td class="text-right"><input type="text" n-decimals="{{2}}" class="form-control text-right" width="20" ng-model="x.CurrentQty" ng-keyup="calculateAckRcvAmount(x);"></td>
-                                            <td>{{x.Balance}}</td>
+                                            <td class="text-right">{{x.Balance}}</td>
                                             @*<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>*@
                                             <td class="text-right">{{x.Rate}}</td>
 
@@ -808,7 +812,7 @@
 
                                         <tr ng-show="ServicePODetailList.length">
                                             <td></td>
-                                            <td colspan="1" class="text-right"><strong>Total : </strong></td>
+                                            <td colspan="3" class="text-right"><strong>Total : </strong></td>
                                             <td></td>
                                             <td class="text-right"><strong>{{ServicePODetailList | sumByKey : 'Qty'| setDecimal:2| number }}</strong></td>
                                             <td class="text-right"><strong>{{UoM}}</strong></td>
@@ -820,8 +824,8 @@
                                             <td class="text-right"><strong></strong></td>
                                             <td class="text-right"><strong>{{ServicePODetailList | sumByKey : 'Amount'| setDecimal:2| number }}</strong></td>
 
-                                            <td class="text-right"><strong>{{ServicePODetailList | sumByKey : 'TotalTaxAmount'| setDecimal:currencyPrecision| number }}</strong></td>
-                                            <td class="text-right"><strong>{{ServicePODetailList | sumByKey : 'TotalAmount'| setDecimal:currencyPrecision| number }}</strong></td>
+                                            <td class="text-right"><strong>{{ServicePODetailList | sumByKey : 'TotalTaxAmount'| setDecimal:2| number }}</strong></td>
+                                            <td class="text-right"><strong>{{ServicePODetailList | sumByKey : 'TotalAmount'| setDecimal:2| number }}</strong></td>
                                             <td></td>
                                         </tr>
                                     </tbody>
@@ -833,6 +837,7 @@
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                     <div ng-form="tabForm2" ng-show="inventoryMaterialListPO.length > 0;">
+                        <div class="clearfix"></div>
                         <ul class="common-btn list-inline text-left">
                             <li><button ng-click="serviceChargePopUp();" ng-disabled="inventoryMaterialListPO.length==0 || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
                         </ul>
@@ -883,44 +888,47 @@
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-                    <div ng-form="tabForm3">
-                        <ul class="common-btn list-inline text-left">
-                            <li><button ng-click="AcceptanceServiceChargePopUp();" ng-disabled="inventoryMaterialListPO.length==0 || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
-                        </ul>
-                        <div class="table-responsive modal-table">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Service</th>
-                                        <th>PO Amount (TRN)</th>
-                                        <th>Balance Amount (TRN)</th>
-                                        <th>Total Tax Amount</th>
-                                        <th class="col-sm-1"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in serviceList">
-                                        <td>{{x.ServiceMasterName}}</td>
-                                        <td class="text-right">{{x.POAmount|number}}</td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountForServiceCharge(x);" ng-model="x.Amount"></td> @*ng-disabled="x.enableid1"*@
-                                        <td class="text-right">{{x.TotalTaxAmount|number}}</td>
-                                        <td class="text-right">
-                                            <ul class="list-inline action-list">
-                                                <li><button ng-click="getServiceTaxList1(x, $index)" ng-disabled="PurchaseDocAcceptance.VoucherId!=null" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                                <li><button ng-click="deleteModal(x,$index)" ng-disabled="PurchaseDocAcceptance.VoucherId!=null" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2" class="text-right"><strong>Total : </strong></td>
-                                        <td class="text-right"><strong>{{serviceList | sumByKey : 'Amount'| setDecimal:2| number:2 }}</strong></td>
-                                        <td class="text-right"><strong>{{serviceList | sumByKey : 'TotalTaxAmount'| setDecimal:2| number:2 }}</strong></td>
-                                        <td class="text-right"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                   
+                        <div ng-form="tabForm3" ng-show="inventoryMaterialListPO.length > 0;">
+                            <div class="clearfix"></div>
+                            <ul class="common-btn list-inline text-left">
+                                <li><button ng-click="AcceptanceServiceChargePopUp();" ng-disabled="inventoryMaterialListPO.length==0 || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
+                            </ul>
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Service</th>
+                                            <th>PO Amount (TRN)</th>
+                                            <th>Balance Amount (TRN)</th>
+                                            <th>Total Tax Amount</th>
+                                            <th class="col-sm-1"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in serviceList">
+                                            <td>{{x.ServiceMasterName}}</td>
+                                            <td class="text-right">{{x.POAmount|number}}</td>
+                                            <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountForServiceCharge(x);" ng-model="x.Amount"></td> @*ng-disabled="x.enableid1"*@
+                                            <td class="text-right">{{x.TotalTaxAmount|number}}</td>
+                                            <td class="text-right">
+                                                <ul class="list-inline action-list">
+                                                    <li><button ng-click="getServiceTaxList1(x, $index)" ng-disabled="PurchaseDocAcceptance.VoucherId!=null" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+                                                    <li><button ng-click="deleteModal(x,$index)" ng-disabled="PurchaseDocAcceptance.VoucherId!=null" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-right"><strong>Total : </strong></td>
+                                            <td class="text-right"><strong>{{serviceList | sumByKey : 'Amount'| setDecimal:2| number:2 }}</strong></td>
+                                            <td class="text-right"><strong>{{serviceList | sumByKey : 'TotalTaxAmount'| setDecimal:2| number:2 }}</strong></td>
+                                            <td class="text-right"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
+                    
                 </div>
                 <div></div>
                 <div class="common-btn">

@@ -677,6 +677,7 @@ namespace Library.Service.Productions
                     ob_fromDB.ToSFGInventoryId = ps.ToSFGInventoryId;
                     ob_fromDB.ToProcessId = ps.ToProcessId;
                     ob_fromDB.PackingConfirmationId = ps.PackingConfirmationId;
+                    ob_fromDB.ToEntityId = ps.ToEntityId;
 
                     ob_fromDB.ModelState = ModelState.Modified;
                     AuditService.UpdatedLog(ob_fromDB);
