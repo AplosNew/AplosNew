@@ -44,7 +44,6 @@ namespace Aplos.Areas.HumanResource.Controllers
         #endregion Constructor
         #region -- Pages
 
-        [Authorize]
         public ActionResult Aplos()
         {
             return View();
@@ -93,7 +92,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult getAttendanceData(string employeeid, string fromdate, string todate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -112,27 +111,6 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult getShift(string systemid, string WorkDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            //     string sql = @"
-            //                SELECT 
-            //                     sd.SystemID,
-            //                     sd.InTimeStartMargin, sd.IsActive, sd.DefaultShift, sd.SequenceNo, 
-            //                     sd.UserName AS ShiftName,
-            //                     format(kk.ShiftInTime,'dd-MMM-yyyy hh:mm tt') AS ShiftInTime,
-            //                     format(DATEADD(minute,CASE WHEN sd.IsGapInclude=0 THEN ISNULL((sd.WorkingHour+sd.BreakPeriod), sd.WorkingHour+sd.BreakPeriod) ELSE ISNULL((sd.WorkingHour+sd.BreakPeriod),'" + WorkDate + @"') END,kk.ShiftInTime),'dd-MMM-yyyy hh:mm tt') AS ShiftOutTime
-
-            //                      FROM (
-            //                     SELECT 
-            //                     sd.SystemID,
-            //                      	DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),'" + WorkDate + @"'))  AS ShiftInTime
-
-            //                      FROM ShiftDefination sd
-            //                      LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '" + WorkDate + @"' BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
-            //                     ) AS KK
-            //                     INNER JOIN   ShiftDefination sd ON sd.SystemID=kk.SystemID
-            //                     LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '" + WorkDate + @"' BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
-            //WHERE sd.systemid='" + systemid + @"'
-            //                     ORDER BY sd.SequenceNo ASC ";
 
             string sql = @"SELECT 
                             sd.SystemID,
@@ -197,207 +175,6 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-
-        //[HttpPost]
-        //public ActionResult SaveSingleEmployee(List<AttendanceProcessData> data)
-        //{
-        //    try
-        //    {
-        //        List<AttendanceProcessData> DataToBeSaved = new List<AttendanceProcessData>();
-
-        //        if (data == null)
-        //            throw new Exception("No new data has been updated");
-
-        //        for (int i = 0; i < data.Count; i++)
-        //        {
-        //            //    if (
-        //            //        data[i].ShiftSystemID != data[i].ShiftSystemIDOriginal
-        //            //        || Convert.ToDateTime(data[i].InDate + " " + data[i].InTime) != Convert.ToDateTime(data[i].InDateOriginal + " " + data[i].InTimeOriginal)
-        //            //        || Convert.ToDateTime(data[i].OutDate + " " + data[i].OutTime) != Convert.ToDateTime(data[i].OutDateOriginal + " " + data[i].OutTimeOriginal)
-        //            //        )
-        //            //    {
-        //            DataToBeSaved.Add(data[i]);
-
-        //            //    }
-        //        }
-
-
-
-
-
-        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        try
-        //        {
-        //            string inDates = "";
-        //            string inEmployeeIds = "";
-        //            foreach (AttendanceProcessData item in DataToBeSaved)
-        //            {
-        //                if (inDates == "")
-        //                    inDates = "'" + item.WorkDate + "'";
-        //                else
-        //                    inDates += ",'" + item.WorkDate + "'";
-
-
-        //                if (inEmployeeIds == "")
-        //                    inEmployeeIds = "'" + item.Id + "'";
-        //                else
-        //                    inEmployeeIds += ",'" + item.Id + "'";
-        //            }
-
-        //            if (inDates != "")
-        //            {
-        //                DataTable dtLock = _sqlRepository.GetDataTable("SELECT * FROM PlantWiseAttendanceLock AS pwal WHERE isActive=1 AND pwal.LockedDate IN (" + inDates + ") AND pwal.PlantId='" + identity.PlantId + "'");
-        //                DataTable dtLockEmployee = _sqlRepository.GetDataTable("SELECT * FROM ExceptionEmployeeAttendanceUnlock WHERE EmpSystemId IN (" + inEmployeeIds + @")");
-        //                for (int i = 0; i < dtLock.Rows.Count; i++)
-        //                {
-        //                    var k = DataToBeSaved.Where(ee => ee.WorkDate.ToUpper() == Convert.ToDateTime(dtLock.Rows[i]["LockedDate"].ToString()).ToString("dd-MMM-yyyy").ToUpper());
-        //                    foreach (var item in k)
-        //                    {
-        //                        dtLockEmployee.DefaultView.RowFilter = "EmpSystemId='" + item.Id + "' AND WorkDate=#" + item.WorkDate + "#";
-        //                        if (dtLockEmployee.DefaultView.Count == 0)
-        //                        {
-        //                            item.IsError = true;
-        //                            item.ErrorMessage = "Day locked";
-        //                        }
-        //                    }
-        //                }
-
-        //                if (DataToBeSaved.Where(ee => ee.IsError == true).ToList().Count > 0)
-        //                {
-
-        //                    return Json(new { Error = true, Message = "Error occured", Data = DataToBeSaved }, JsonRequestBehavior.AllowGet);
-        //                }
-        //            }
-        //        }
-        //        catch (Exception)
-        //        {
-
-
-        //        }
-
-
-
-
-        //        DataTable NewShiftStandardTime = getDateWiseShift(DataToBeSaved);
-        //        //validations
-        //        foreach (AttendanceProcessData item in DataToBeSaved)
-        //        {
-
-        //            //if (string.IsNullOrEmpty(item.InTime) == true && string.IsNullOrEmpty(item.OutTime) == true)
-        //            //    continue;
-
-        //            if (string.IsNullOrEmpty(item.InDate) == false)
-        //                if (bplib.clsWebLib.IsDateOK(item.InDate) == false)
-        //                    item.ErrorMessage = "Invalid in date";
-
-
-        //            if (string.IsNullOrEmpty(item.OutDate) == false)
-        //                if (bplib.clsWebLib.IsDateOK(item.OutDate) == false)
-        //                    item.ErrorMessage = "Invalid out date";
-
-        //            NewShiftStandardTime.DefaultView.RowFilter = "SystemID='" + item.ShiftSystemID + "' AND WorkDate=#" + item.WorkDate + "#";
-        //            if (NewShiftStandardTime.DefaultView.Count > 0)
-        //            {
-
-        //                if (item.InTime != null && item.OutTime != null)
-        //                {
-        //                    if (item.InDate + item.InTime != item.InDateOriginal + item.InTimeOriginal
-        //                        || item.OutDate + item.OutTime != item.OutDateOriginal + item.OutTimeOriginal)
-        //                    {
-        //                        if (Convert.ToDateTime(item.InDate + " " + item.InTime) > Convert.ToDateTime(item.OutDate + " " + item.OutTime))
-        //                        {
-        //                            item.IsError = true;
-        //                            item.ErrorMessage = "Out time is earlier than In time";
-        //                        }
-
-        //                        TimeSpan ts = Convert.ToDateTime(item.OutDate + " " + item.OutTime).Subtract(Convert.ToDateTime(item.InDate + " " + item.InTime));
-        //                        if (Math.Abs(ts.TotalHours) > 24)
-        //                        {
-        //                            item.IsError = true;
-        //                            item.ErrorMessage = "Time span cannot be greater than 24 hours between in and out time";
-        //                        }
-        //                    }
-        //                }
-        //                if (item.InTime != null)
-        //                {
-        //                    if (item.InDate + item.InTime != item.InDateOriginal + item.InTimeOriginal)
-        //                    {
-        //                        if (Convert.ToDateTime(item.InDate + " " + item.InTime) < Convert.ToDateTime(NewShiftStandardTime.DefaultView[0]["ShiftInTime"].ToString())
-        //                       .AddHours(-8))
-        //                        {
-        //                            item.IsError = true;
-        //                            item.ErrorMessage = "In time is too early";
-        //                        }
-        //                        if (Convert.ToDateTime(item.InDate + " " + item.InTime) > Convert.ToDateTime(NewShiftStandardTime.DefaultView[0]["ShiftOutTime"].ToString()))
-        //                        {
-        //                            item.IsError = true;
-        //                            item.ErrorMessage = "In time is after shift end time";
-        //                        }
-        //                    }
-        //                }
-        //                if (item.OutTime != null)
-        //                {
-        //                    if (item.OutDate + item.OutTime != item.OutDateOriginal + item.OutTimeOriginal)
-        //                    {
-        //                        if (Convert.ToDateTime(item.OutDate + " " + item.OutTime) > Convert.ToDateTime(NewShiftStandardTime.DefaultView[0]["ShiftOutTime"].ToString())
-        //                 .AddHours(16))
-        //                        {
-        //                            item.IsError = true;
-        //                            item.ErrorMessage = "Out time is too late";
-        //                        }
-        //                    }
-        //                }
-        //                //if (Convert.ToDateTime(item.InDate + " " + item.InTime) < Convert.ToDateTime(NewShiftStandardTime.DefaultView[0]["ShiftInTime"].ToString())
-        //                //    .AddMinutes(clsStaticInfo.dbl(NewShiftStandardTime.DefaultView[0]["InTimeStartMargin"].ToString()) * -1))
-        //                //{
-        //                //    item.IsError = true;
-        //                //    item.ErrorMessage = "In time is too early";
-        //                //}
-
-
-
-        //                //if (Convert.ToDateTime(item.InDate + " " + item.InTime) < Convert.ToDateTime(NewShiftStandardTime.DefaultView[0]["ShiftInTime"].ToString()) && Convert.ToDateTime(item.OutDate + " " + item.OutTime) < Convert.ToDateTime(NewShiftStandardTime.DefaultView[0]["ShiftInTime"].ToString()))
-        //                //{
-        //                //    item.IsError = true;
-        //                //    item.ErrorMessage = "Both In and Out time is before shift start time";
-        //                //}
-
-
-
-
-
-
-
-        //            }
-
-        //        }
-
-        //        if (DataToBeSaved.Where(ee => ee.IsError == true).ToList().Count > 0)
-        //        {
-
-        //            return Json(new { Error = true, Message = "Error occured", Data = DataToBeSaved }, JsonRequestBehavior.AllowGet);
-        //        }
-        //        //operations
-        //        saveData(DataToBeSaved);
-
-
-
-        //        return Json(new { Error = false, Message = "Time updated successfully", Data = data }, JsonRequestBehavior.AllowGet);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return Json(new
-        //        {
-        //            Error = true,
-        //            Message = ex.Message,
-        //            Data = data
-        //        }, JsonRequestBehavior.AllowGet);
-        //    }
-
-
-        //}
         public void GetHRsettinng(string plantid, out System.Data.DataSet dsRef)
         {
             string strSQL;
@@ -782,33 +559,6 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            //      string sql = @" SELECT dt.WorkDate,
-
-            //                     sd.SystemID,
-            //                      sd.InTimeStartMargin, sd.IsActive, sd.DefaultShift, sd.SequenceNo, 
-            //                      sd.UserName AS ShiftName,
-            //                      format(kk.ShiftInTime,'dd-MMM-yyyy hh:mm:ss tt') AS ShiftInTime,
-            //                      format(DATEADD(minute,CASE WHEN sd.IsGapInclude=0 THEN ISNULL((sd.WorkingHour+sd.BreakPeriod), sd.WorkingHour+sd.BreakPeriod) ELSE ISNULL((sd.WorkingHour+sd.BreakPeriod),'16-May-2019') END,kk.ShiftInTime),'dd-MMM-yyyy hh:mm tt') AS ShiftOutTime
-
-            //                   FROM
-            //                   (" + dateString + @") AS DT
-            //   LEFT OUTER JOIN
-            //(
-            //                      SELECT 
-            //                      sd.SystemID,dt.WorkDate,
-            //                       	DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),dt.WorkDate))  AS ShiftInTime
-
-            //                       FROM 
-
-            //                        (" + dateString + @") AS DT
-            //		LEFT OUTER JOIN ShiftDefination sd ON 1=1
-            //		LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON DT.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
-            //                      ) AS KK ON dt.WorkDate=kk.WorkDate
-            //                      INNER JOIN   ShiftDefination sd ON sd.SystemID=kk.SystemID
-            //                      LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON dt.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
-            //	WHERE sd.PlantID='" + identity.PlantId + @"'
-            //                  ORDER BY dt.WorkDate, sd.SequenceNo ASC ";
-
 
             string sql = @" SELECT dt.WorkDate,
  
@@ -912,60 +662,6 @@ namespace Aplos.Areas.HumanResource.Controllers
                         where emp.plantid='" + identity.PlantId + @"'
                         ORDER BY kk.EmployeeCode,CONVERT(DATE, WorkDate) ASC ";
 
-
-            //    return @"
-            //               SELECT 
-            //                kk.Id,kk.EmployeeCode,
-            //                format(KK.WorkDate,'ddd') AS DayName, 
-            //                format(KK.WorkDate,'dd-MMM-yyyy') AS WorkDate, 
-
-            //                KK.ShiftSystemID,kk.ShiftName,KK.ShiftSystemID AS ShiftSystemIDOriginal,
-            //                format(ShiftInTime,'dd-MMM-yyyy hh:mm tt') AS ShiftInTime,
-            //             	format(DATEADD(minute,CASE WHEN sd.IsGapInclude=0 THEN ISNULL((sd.WorkingHour+sd.BreakPeriod), sd.WorkingHour+sd.BreakPeriod) ELSE ISNULL((sd.WorkingHour+sd.BreakPeriod),sd.WorkingHour) END,kk.ShiftInTime),'dd-MMM-yyyy hh:mm tt') AS ShiftOutTime,
-
-
-            //                format(isnull(KK.InTime,ShiftInTime),'dd-MMM-yyyy') AS  InDate,format(isnull(KK.InTime,ShiftInTime),'dd-MMM-yyyy') AS  InDateOriginal,
-            //                format(KK.InTime,'hh:mm tt') AS  InTime, format(KK.InTime,'hh:mm tt') AS  InTimeOriginal, 
-
-            //                KK.IsManualInTime, 
-
-
-            //                format(isnull(KK.OutTime,format(DATEADD(minute,CASE WHEN sd.IsGapInclude=0 THEN ISNULL((sd.WorkingHour+sd.BreakPeriod), sd.WorkingHour+sd.BreakPeriod) ELSE ISNULL((sd.WorkingHour+sd.BreakPeriod),sd.WorkingHour) END,kk.ShiftInTime),'dd-MMM-yyyy hh:mm tt')),'dd-MMM-yyyy') AS  OutDate,
-            //                format(isnull(KK.OutTime,format(DATEADD(minute,CASE WHEN sd.IsGapInclude=0 THEN ISNULL((sd.WorkingHour+sd.BreakPeriod), sd.WorkingHour+sd.BreakPeriod) ELSE ISNULL((sd.WorkingHour+sd.BreakPeriod),sd.WorkingHour) END,kk.ShiftInTime),'dd-MMM-yyyy hh:mm tt')),'dd-MMM-yyyy') AS  OutDateOriginal,
-            //                format(KK.OutTime,'hh:mm tt') AS  OutTime, format(KK.OutTime,'hh:mm tt') AS  OutTimeOriginal, 
-
-
-            //                KK.IsManualOutTime,
-
-            //                format(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt') AS PunchInTime,
-            //                format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
-
-            //                KK.DayStatus, KK.OTHr,
-            //                KK.IsOTComfirm, KK.IsOTEntitled
-
-            //                 FROM (
-
-            //                  SELECT Emp.SystemID AS Id,emp.EmployeeCode,O.WorkDate, O.ShiftSystemID,sd.UserName AS ShiftName,
-            //DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),O.WorkDate))  AS ShiftInTime,
-            //                  O.InTime, O.IsManualInTime,
-            //                  O.OutTime, O.IsManualOutTime, 
-
-            //                  O.PunchInTime,O.PunchOutTime,
-            //                  O.DayStatus, O.OTHr, O.IsOTComfirm,
-            //                  O.IsOTEntitled
-
-            //                  FROM EmployeeInformation EMP
-            //                  LEFT JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
-            //                  LEFT OUTER JOIN ShiftDefination AS sd ON sd.SystemID=o.ShiftSystemID
-            //                  LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON o.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
-
-
-            //                WHERE o.WorkDate BETWEEN '" + fromdate + @"' AND '" + todate + @"'" + employeeid + @"
-            //                ) AS KK
-            //                LEFT OUTER JOIN ShiftDefination AS sd ON sd.SystemID=kk.ShiftSystemID
-            //                LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON kk.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
-
-            //                ORDER BY kk.EmployeeCode,CONVERT(DATE, WorkDate) ASC ";
 
         }
     }
