@@ -38,6 +38,7 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<VoucherDetailCurrency> _voucherDetailCurrencyRepository;
         private readonly IRepositoryAsync<AdjustmentNoteDetail> _adjustmentNoteDetailRepository;
         private readonly IRepositoryAsync<InvoiceTax> _invoiceTaxRepository;
+        private readonly IRepositoryAsync<InvoiceTaxDetail> _invoiceTaxDetailRepository;
         private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
         private readonly ICompanyTaxYearService _companyTaxYearService;
         private readonly IVoucherService _voucherService;
@@ -64,6 +65,7 @@ namespace Library.Service.Invoices
             , ICompanyFiscalYearService companyFiscalYearService
             , IRepositoryAsync<FinancingTypeGL> financingTypeGLRepository
             , IInvoiceTaxService invoiceTaxService
+            , IRepositoryAsync<InvoiceTaxDetail> invoiceTaxDetailRepository
             , ITaxCategoryGLService taxCategoryGLService
             , IRepositoryAsync<TaxCode> taxCodeRepository
             , IRepositoryAsync<TaxCodeGL> taxCodeGLRepository
@@ -73,6 +75,7 @@ namespace Library.Service.Invoices
             _sqlRepository = sqlRepository;
             _adjustmentNoteDetailRepository = adjustmentNoteDetailRepository;
             _invoiceTaxRepository = invoiceTaxRepository;
+            _invoiceTaxDetailRepository = invoiceTaxDetailRepository;
             _voucherRepository = voucherRepository;
             _companyParallelCurrencyService = companyParallelCurrencyService;
             _companyTaxYearService = companyTaxYearService;
@@ -812,13 +815,37 @@ namespace Library.Service.Invoices
                 var voucherDetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 var voucherDetailCurrency = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 var adjustmentNoteDetail = _adjustmentNoteDetailRepository.Query(r => r.AdjustmentNoteId == adjustmentNoteId).Select().ToList();
+                var invoiceTax = _invoiceTaxRepository.Query(r => r.AdjustmentNoteId == adjustmentNoteId).Select().ToList();
+
                 foreach (var item in voucherDetailCurrency)
                 {
                     _voucherDetailCurrencyRepository.Delete(item.Id);
                 }
+                if (invoiceTax != null)
+                {
+                    foreach (var item in invoiceTax)
+                    {
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var builderSql = @"UPDATE [TRN].InvoiceTax SET VoucherDetailId=NULL WHERE Id='" + item.Id + "'";
+                        rdBuilder.Append(builderSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    }
+                }
                 foreach (var item in voucherDetail)
                 {
                     _voucherDetailRepository.Delete(item.Id);
+                }
+                if (invoiceTax != null)
+                {
+                    foreach (var item in invoiceTax)
+                    {
+                        var invoicetaxDdetail = _invoiceTaxDetailRepository.Query(r => r.InvoiceTaxId == item.Id).Select().ToList();
+                        foreach (var item1 in invoicetaxDdetail)
+                        {
+                            _invoiceTaxDetailRepository.Delete(item1.Id);
+                        }
+                        _invoiceTaxRepository.Delete(item.Id);
+                    }
                 }
                 foreach (var item in adjustmentNoteDetail)
                 {

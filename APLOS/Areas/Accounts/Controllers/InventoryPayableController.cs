@@ -35,6 +35,11 @@ namespace Aplos.Areas.Accounts.Controllers
             return View();
         }
 
+        public ActionResult InventoryJobWorkReceived()
+        {
+            return View();
+        }
+
         public ActionResult ServicePayable()
         {
             return View();
@@ -208,6 +213,37 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 default:
                     return View();
+            }
+        }
+
+        #endregion
+        #region InventoryJobWorkReceived
+
+        [Authorize, HttpGet]
+        public JsonResult GetListForInvJobWorkReceived()
+        {
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsInventoryPayableService.GetJobWorkReceivedList(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryJobWorkReceivedJV(string inveReveiveId, string employeeId, bool isReversCharge, string foc)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            if (foc == "NO")
+            {
+                
+                  return Json(_accountsInventoryPayableService.GetInventoryJobWorkReceivedJV(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+                return Json(_accountsInvoiceService.GetInventoryPayableFOC(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
+
             }
         }
 

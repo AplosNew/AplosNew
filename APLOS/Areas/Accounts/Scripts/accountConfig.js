@@ -907,7 +907,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/PartyReconciliation/PartyReconciliationDetail",
             controller: "partyReconsilationDetailController"
         })
-
+        .when("/inventory-jobwork-Received", {
+            templateUrl: "Accounts/inventoryPayable/InventoryJobWorkReceived",
+            controller: "inventoryJobWorkReceivedController"
+        })
 
         ;
 } 

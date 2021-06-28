@@ -17,6 +17,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
     $scope.TotalSalesOrderQty = 0;
     $scope.TotalProductionBookingQty = 0;
     $scope.RemainQty = 0;
+    $scope.FromEntity = null;
     $scope.gradeList = [
         {
             'Value': 'A',
@@ -68,7 +69,8 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         CheckedByName: null,
         FromId: null,
         ToWorkCenterMasterId: null, FromSFGInventoryId: null, ToSFGInventoryId: null, ToProcessId: null,
-        LotNumber: null
+        LotNumber: null,
+        ToEntityId: null
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
 
@@ -104,6 +106,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
     $scope.getAllEntities();
 
     $scope.loadProcessList = function (entityid) {
+        $scope.listToProcessOrSFGInventory = [];
         cboService.GetEntityProcessCbo(entityid, function (result) {
             $scope.processList = result;
             if (baseService.arrayLength(result) === 1) {
@@ -170,7 +173,6 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
     $scope.TotalSalesOrderQty = 0;
     $scope.TotalProductionBookingQty = 0;
     $scope.RemainQty = 0;
-   
 
     $scope.InQuantity = 0;
     $scope.OutQuantity = 0;
@@ -319,10 +321,21 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         $scope.RemainQty = 0;
     };
 
+    $scope.ToEntitydisable = true;
+    $scope.ToProdEntity = false;
+    $scope.EnableDiffEntity = function () {
+        if ($scope.ToProdEntity==true) {
+            $scope.ToEntitydisable = false;
+        } else {
+            $scope.ToEntitydisable = true;
+        }
+    }
 
     //#region SFG Movement
     $scope.listFromProcessOrSFGInventory = [];
     $scope.GetSFGMovementFromCbo = function (entity) {
+        $scope.productionSummaryNew.ToEntityId = $scope.productionSummaryNew.EntityId;
+
         $http({
             method: 'GET',
             url: 'Productions/ProductionSummary/GetSFGMovementFromCbo?entity=' + entity,
@@ -1281,7 +1294,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
                     }
                     $scope.getLineGrid();
                     $scope.Action = 'Save';
-                    $scope.getProdQty();
+                    //$scope.getProdQty();
                     $scope.closeCharPopUp();
                     //$scope.GetTotalProductionBookingQty();
                     //$scope.GetSFGWIPQty();
@@ -1289,12 +1302,15 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
 
                     $scope.ClearMasterPart();
 
+                    $scope.ProdQtyCount = 0;
                     $scope.InQuantity = 0;
                     $scope.OutQuantity = 0;
                     $scope.KillQuantity = 0;
                     $scope.TotalSalesOrderQty = 0;
                     $scope.TotalProductionBookingQty = 0;
+                    $scope.TotalSalesOrderQty = 0;
                     $scope.RemainQty = 0;
+                    
 
                     ShowResult(response.data.Message, 'success');
                 }

@@ -50,6 +50,7 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
         $scope.leaveApplicationNew.DOJ = data.DOJ;
         $scope.leaveApplicationNew.DOC = data.DOC;
         $scope.leaveApplicationNew.DOB = data.DOB;
+        $scope.leaveApplicationNew.GenderID = data.GenderID;
         $scope.leaveApplicationNew.Department = data.Department;
         $scope.imageSrc = virtualPath.EmployeePic + data.EmpPicPath;
         $scope.getData($scope.leaveApplicationNew.EmpSystemID);

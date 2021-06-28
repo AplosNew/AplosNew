@@ -510,6 +510,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/EmployeeAdditionDeduction/Aplos',
             controller: 'EmployeeAdditionDeductionController'
         })
-
+        .when('/manual-shift', {
+            templateUrl: 'humanresource/ManualShift/Aplos',
+            controller: 'ManualShiftController'
+        })
         ;
 }

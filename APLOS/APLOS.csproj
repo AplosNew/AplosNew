@@ -519,6 +519,7 @@
     <Compile Include="Areas\Farming\Controllers\VoucherController.cs" />
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\ManualShiftController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ConsecutiveAttendaceAndOTController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\BlackListController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeAdditionDeductionController.cs" />
@@ -1469,6 +1470,7 @@
     <Content Include="Areas\Accounts\Scripts\gstR2ReportController.js" />
     <Content Include="Areas\Accounts\Scripts\GSTPayableSalesReportController.js" />
     <Content Include="Areas\Accounts\Scripts\GSTReceivableReportController.js" />
+    <Content Include="Areas\Accounts\Scripts\inventoryJobWorkReceivedController.js" />
     <Content Include="Areas\Accounts\Scripts\loanCloseController.js" />
     <Content Include="Areas\Accounts\Scripts\FinancialStatusCustomerReceivableInvoiceDetailController.js" />
     <Content Include="Areas\Accounts\Scripts\partyReconsilationDetailController.js" />
@@ -1714,6 +1716,7 @@
     <Content Include="Areas\FixedAssets\Scripts\fixedAssetAUCCapitalizeGRNBassController.js" />
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ManualShiftControllerController.js" />
     <Content Include="Areas\HumanResource\Scripts\bonusProvisionReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\bonusReportCController.js" />
     <Content Include="Areas\HumanResource\Scripts\consecutiveOTHoursController.js" />
@@ -3505,6 +3508,8 @@
     <Content Include="Areas\Productions\Views\ProductionRelay\Aplos.cshtml" />
     <Content Include="Areas\Modules\Views\NotificationURL.cshtml" />
     <Content Include="Areas\Parties\Views\Party\_PartyOtherPopUpNew.cshtml" />
+    <Content Include="Areas\Accounts\Views\InventoryPayable\InventoryJobWorkReceived.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ManualShift\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

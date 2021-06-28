@@ -1261,6 +1261,7 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
             AgeFrom: null,
             AgeTo: null,
         }
+        $scope.GenderCheck = false;
         $scope.radioBr = true;
         $scope.radioCu = false;
         $scope.TaxPolicyGeneral = {
