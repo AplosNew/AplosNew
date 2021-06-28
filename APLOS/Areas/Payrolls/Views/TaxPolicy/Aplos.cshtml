@@ -797,12 +797,13 @@
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
                                 <div e-columns>
-                                    <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="3"></div>
+                                    <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="2"></div>
                                     <div e-column e-field="TaxPolicyID" e-headertext="Tax Policy" e-headertext-color="black" e-textalign="left" e-width="2" e-visible="false"></div>
                                     <div e-column e-field="TaxPolicyName" e-headertext="Tax Policy Name" e-width="5"></div>
                                     <div e-column e-field="Description" e-headertext="Tax Policy Description" e-width="5"></div>
-                                    <div e-column e-field="TaxYearName" e-headertext="Tax Year" e-width="5"></div>
-                                    <div e-column e-headertext="Default Policy" @*e-headertemplateid="#headerTemplate"*@ e-template="#IsDefaultPolicy" e-textalign="center" e-width="3"></div>
+                                    <div e-column e-field="TaxYearName" e-headertext="Tax Year" e-width="3"></div>
+                                    <div e-column e-field="AgeLimit" e-headertext="Age Limit" e-width="3"></div>
+                                    <div e-column e-headertext="Default Policy" @*e-headertemplateid="#headerTemplate"*@ e-template="#IsDefaultPolicy" e-textalign="center" e-width="2"></div>
                                 </div>
                             </div>
                             <script type="text/template" id="checkboxTemplate">
