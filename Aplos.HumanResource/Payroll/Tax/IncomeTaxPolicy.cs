@@ -255,7 +255,7 @@ namespace Library.HumanResource.Payroll.Tax
                     string policyID = dsBp.Tables[0].Rows[i]["TaxPolicyID"].ToString();
                     foreach (var item in BP)
                     {
-                        if (item.TaxPolicyID == policyID && item.IsSelectPolicy == false)
+                        if (item.TaxPolicyID == policyID )
                         {
                             DataView dv = new DataView(dsBp.Tables[0]);
                             dv.RowFilter = "Id='" + item.Id + "'";
@@ -266,6 +266,21 @@ namespace Library.HumanResource.Payroll.Tax
                         }
                     }
                 }
+                //foreach (var item in BP)
+                //{
+                //    if (item.IsSelectPolicy)
+                //    {
+                //        string sql1 = "SELECT * FROM [dbo].[TaxPolicyPlantWise] WHERE TaxPolicyId='" + item.TaxPolicyID + "' and PlantId = '" + item.PlantId + "' ";
+
+                //    }
+                //}
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                //while (dsMaster.Tables[0].DefaultView.Count > 0)
+                //{
+                //    dsMaster.Tables[0].DefaultView[0].Delete();
+                //}
 
 
                 objCon.OpenDataSetThroughAdapter(sql, out dsBp, false, "1");
@@ -283,7 +298,7 @@ namespace Library.HumanResource.Payroll.Tax
                 {
                     if (item.IsSelectPolicy == true)
                     {
-                        var ForAll = db.Where(r => r.SystemID == item.TaxPolicyID && r.Male  && r.Female  && r.TaxYearID == item.TaxPolicyYearID ).FirstOrDefault();
+                        var ForAll = db.Where(r => r.SystemID == item.TaxPolicyID && r.Male && r.Female && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
                         var ForMale = db.Where(r => r.SystemID == item.TaxPolicyID && r.Male == true && r.Female == false && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
                         var ForFemale = db.Where(r => r.SystemID == item.TaxPolicyID && r.Female && r.Male == false && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
 
@@ -293,7 +308,7 @@ namespace Library.HumanResource.Payroll.Tax
 
                         if (IsForAll && YearId == item.TaxPolicyYearID)
                         {
-                            if (IsForMale == true && YearIda == item.TaxPolicyYearID ||  IsForFemale == true && YearIdaa == item.TaxPolicyYearID)
+                            if (IsForMale == true && YearIda == item.TaxPolicyYearID || IsForFemale == true && YearIdaa == item.TaxPolicyYearID)
                             {
                                 throw new Exception("Already 'GenderSpecific' Policy Is Tagged");
                             }
@@ -320,7 +335,6 @@ namespace Library.HumanResource.Payroll.Tax
 
                             dsBp.Tables[0].Rows.Add(drBp);
                         }
-
                     }
                 }
                 clsStaticInfo obj = new clsStaticInfo();
@@ -1138,7 +1152,7 @@ namespace Library.HumanResource.Payroll.Tax
 
                 strSQL = @"SELECT IsSelectPolicy = Case WHEN p.TaxPolicyID IS NULL THEN Convert(bit, 'False')
                             ELSE Convert(bit, 'True') END, b.SystemID TaxPolicyID, b.TaxPolicyName,b.Description,b.TaxYearID TaxPolicyYearID,y.TaxYearName,p.Id 
-                            ,p.IsDefaultPolicy
+                            ,p.IsDefaultPolicy,CONCAT(b.AgeFrom,' - ',b.AgeTo) AgeLimit,p.IsDefaultPolicy
                             FROM TaxPolicyMaster b                            
 							LEFT JOIN SCS.TaxYear y on y.Id=b.TaxYearID
 							LEFT JOIN TaxPolicyPlantWise p ON p.TaxPolicyID = b.SystemID
@@ -1224,7 +1238,7 @@ namespace Library.HumanResource.Payroll.Tax
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = "select SystemID,IsGenderSpecific ,GenderID,TaxYearID,Male,Female from TaxPolicyMaster ";
+                strSQL = "select SystemID,IsGenderSpecific ,GenderID,TaxYearID,Male,Female,AgeFrom,AgeTo from TaxPolicyMaster ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }
@@ -1547,7 +1561,7 @@ namespace Library.HumanResource.Payroll.Tax
                                     from EmployeeInformation e
                                     left join TaxPolicyPlantWise tp on tp.PlantId = e.PlantId
                                     left join TaxPolicyMaster m on m.SystemID = tp.TaxPolicyId
-                                    left join TaxPolicyGeneral g on g.TaxPolicyMstID = m.SystemID and isnull(m.GenderID,e.GenderID)=e.GenderID
+                                    left join TaxPolicyGeneral g on g.TaxPolicyMstID = m.SystemID and m.Male= case when e.GenderID='Male' then m.Male else 0 end and m.Female= case when e.GenderID='Female' then m.Female else 0 end
                                     left join TaxPolicyGeneralFormula f on f.TaxPolicyGeneralId=g.SystemID
                                     left join TaxableIncomeparameter I on I.TaxFormulaId = f.Id and I.EmpSystemId = e.SystemId and I.TaxYearId =m.TaxYearID and I.TaxTypeId=m.TaxTypeId
                                     left join SalaryHead s on s.SalaryHeadID = g.SalaryHeadID
@@ -1983,8 +1997,8 @@ public class MasterData
     public string TaxYearID { get; set; }
     public bool Male { get; set; }
     public bool Female { get; set; }
-    public double AgeFrom { get; set; }
-    public double AgeTo { get; set; }
+    public decimal AgeFrom { get; set; }
+    public decimal AgeTo { get; set; }
 
 }
 public class TaxPolicyPlantWise : BaseModel
