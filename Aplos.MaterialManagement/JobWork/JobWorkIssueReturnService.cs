@@ -112,6 +112,11 @@ namespace Library.MaterialManagement.JobWork
                             ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
                             ,SUM(tirc.Quantity) as TIRCQty
                             ,Sum(kk.TotalQuantity) as TIRCTotalQty
+                            ,0 TotalQty
+							,0 PostingQty
+							,0 PostingQuantity
+							,0 ApprovedQty
+							,0 UnApprovedQty,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                              from dbo.JobWorkTransformationContractChild3 mi
                              left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
 							 left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
@@ -121,7 +126,7 @@ namespace Library.MaterialManagement.JobWork
 							 left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                              left join(select SUM(Quantity) as TotalQuantity,MaterialInputId FROM dbo.JobWorkTransformationIssueReturnChild group by MaterialInputId) kk on kk.MaterialInputId=mi.id
                              where mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
-							 group by mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code  ";
+							 group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code  ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }

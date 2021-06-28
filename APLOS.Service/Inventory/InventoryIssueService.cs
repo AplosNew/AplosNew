@@ -8419,5 +8419,841 @@ namespace Library.Service.Inventory
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+
+		public void JWInsertGraph(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus)
+		{
+			var flag = false;
+			bool FlagIsAsset = false;
+			if (IssueTypeStatus.ToString() == "Inventory") 
+			{
+				FlagIsAsset = false;
+			}
+			else
+			{
+				FlagIsAsset = true;
+			}
+			try
+			{
+
+
+				var GRNCalculateList = new List<InventoryIssueHistory>();
+				if (entities.IsNotNull())
+				{
+					_unitOfWork.BeginTransaction();
+					flag = true;
+					var _pk = GetPK();
+					var inventoryMaterialList = _inventoryMaterialService.GetJWInventoryMaterialListByUpToSku(entities, inventoryIssue.CompanyId, inventoryIssue.PlantId);
+					var currencyId = _companyRepository.Find(inventoryIssue.CompanyId).BaseCurrencyId;
+					foreach (var item in entities)// update view model (inventory material field)
+					{
+						var im = inventoryMaterialList.FirstOrDefault(t => t.MaterialMasterId == item.MaterialMasterId && t.ArticleId == item.ArticleId
+								//&& t.FirstCharacteristicsId == item.FirstCharacteristicsId 
+								//&& t.FirstCharacteristicsValueId == item.FirstCharacteristicsValueId
+								//&& t.SecondCharacteristicsId == item.SecondCharacteristicsId 
+								//&& t.SecondCharacteristicsValueId == item.SecondCharacteristicsValueId
+								//&& t.ThirdCharacteristicsId == item.ThirdCharacteristicsId 
+								//&& t.ThirdCharacteristicsValueId == item.ThirdCharacteristicsValueId
+								//&& t.CountryId == item.CountryId
+								&& t.CompanyId == inventoryIssue.CompanyId && t.PlantId == inventoryIssue.PlantId // && t.CountryId == item.CountryId
+							   );
+						if (im.IsNotNull())
+						{
+
+							if (im.TotalQty < item.TransactionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
+							item.InventoryIssueId = _pk;
+							item.InventoryMaterialId = im.Id;
+							item.CompanyGroupId = im.CompanyGroupId;
+							item.CompanyId = inventoryIssue.CompanyId;
+							item.PlantId = inventoryIssue.PlantId;
+							item.CurrencyId = currencyId;
+							item.MaterialStorageId = null;
+							item.MaterialMasterId = im.MaterialMasterId;
+							item.ArticleId = im.ArticleId;
+							item.FirstCharacteristicsId = im.FirstCharacteristicsId;
+							item.FirstCharacteristicsValueId = im.FirstCharacteristicsValueId;
+							item.SecondCharacteristicsId = im.SecondCharacteristicsId;
+							item.SecondCharacteristicsValueId = im.SecondCharacteristicsValueId;
+							item.ThirdCharacteristicsId = im.ThirdCharacteristicsId;
+							item.ThirdCharacteristicsValueId = im.ThirdCharacteristicsValueId;
+							item.TotalQty = im.TotalQty;
+							item.AvgRate = im.AvgRate;
+
+
+
+
+
+
+
+
+						}
+					}// update view model (inventory material field)
+					inventoryIssue.CurrencyId = currencyId;
+					inventoryIssue.ProductionOrderId = inventoryIssue.ProductionOrderId;
+					inventoryIssue.ContractId = inventoryIssue.ContractId;
+					inventoryIssue.OrderRefNo = inventoryIssue.OrderRefNo;
+					inventoryIssue.Id = _pk;
+					InsertGraph(inventoryIssue);
+					var rdBuilder = new System.Text.StringBuilder();
+					var builderSql = "";
+					//_issueDetailService.InsertRange(entities, specificStockList, inventoryIssue);
+
+
+					#region ===========IssueDetail And IssueHistory And Update GRN And Stock=======
+					try
+					{
+
+						var uiList = entities.ToList();
+						var currentId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueDetail] WHERE InventoryIssueId='{inventoryIssue.Id}'").First();
+						var inventoryMaterialIds = entities.Select(t => t.InventoryMaterialId).ToArray();
+
+						var specificInvaterialIds = new string[] { };
+						var maIds = new string[] { };
+						if (specificStockList.IsNotNull())
+						{
+							specificInvaterialIds = specificStockList.Select(t => t.InventoryMaterialId).Distinct().ToArray();
+							maIds = inventoryMaterialIds.Except(specificInvaterialIds).Distinct().ToArray();
+
+							for (int i = uiList.Count() - 1; i >= 0; i--)
+							{
+								var row = uiList.ElementAt(i);
+								if (specificInvaterialIds.Any(t => t == row.InventoryMaterialId))
+									uiList.RemoveAt(i);
+							}
+						}
+						else maIds = inventoryMaterialIds;
+						var receiveDetailList = _sqlRepository.GetModelCollection<InventoryMaterialViewModel>(@"SELECT MGM.InventoryIssuePolicy AS [Policy], IRD.Id, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryReceiveId, IRD.InventoryMaterialId, IRD.MaterialStorageId, IRD.TransactionQty, IRD.TransactionUoMId, IRD.BaseQty, IRD.BaseUOMId, IRD.BaseUoMFactor
+                                        , IRD.MaterialTranRate, IRD.MaterialTranAmount, IRD.TotalMaterialTranAmount, COALESCE((IRD.IssueQty),0) AS IssueQty, COALESCE((IRD.BaseIssueQty),0) AS BaseIssueQty,1 RequisitionQty,IRD.InventorySalesQty,IRD.InventoryScrapQty,IRD.PurchaseReturnQty,IRD.IssueReturnQty,IRD.ReductionByAdjustmentQty
+                                    FROM [TRN].[InventoryReceiveDetail] AS IRD JOIN TRN.InventoryMaterial AS IM ON IRD.InventoryMaterialId=IM.Id
+                                    JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+                                    JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+                                    WHERE IR.PlantId='" + inventoryIssue.PlantId + "' AND IRD.MaterialStorageId IN('" + inventoryIssue.MaterialStorageId + "') AND IRD.InventoryMaterialId IN(" + ReturnStringArray(maIds) + @") AND  IRD.BaseQty !=IRD.BaseIssueQty
+                                          --AND (ISNULL(IRD.BaseIssueQty,0) IS NOT NULL OR ISNULL(IRD.BaseIssueQty,0) > 0) 
+									      AND IR.Status='Posting' 
+										  AND ((isnull(IRD.TransactionQty,0)-isnull(IRD.IssueQty,0)-isnull(IRD.PurchaseReturnQty,0)-isnull(IRD.ReductionByAdjustmentQty,0)-isnull(IRD.InventorySalesQty,0)-isnull(IRD.InventoryScrapQty,0)-isnull(IRD.InventoryTransferQty,0))+isnull(IRD.IssueReturnQty,0))>0
+                                          AND CAST(IR.AddedDate AS DATE)<=CAST('" + inventoryIssue.IssueDate + @"' AS DATE) ORDER BY
+                                          CASE WHEN MGM.InventoryIssuePolicy='" + InventoryIssuePolicy.FIFO + @"' THEN IRD.AddedDate END ASC
+                                        , CASE WHEN MGM.InventoryIssuePolicy='" + InventoryIssuePolicy.LIFO + @"' THEN IRD.AddedDate END DESC
+                                        , CASE WHEN MGM.InventoryIssuePolicy='" + InventoryIssuePolicy.WeightedAverage + @"' THEN IRD.AddedDate END ASC").ToList();
+
+						if (receiveDetailList.IsNotNull())
+						{
+							foreach (var issue in uiList)
+							{
+
+								var receiveDetailRow = receiveDetailList.FirstOrDefault(t => t.InventoryMaterialId == issue.InventoryMaterialId);
+
+								decimal detailtrnAmount = 0;
+								decimal totalGRNQty = 0;
+								/*Amount=MaterialTrnAmount - ((TRN Qty - IssueQty)* (TotalMmaterialTrnAmount/MaterialTrnRate))*/
+								/*Rate= Amount/Sum GRN Qty */
+
+								if (receiveDetailRow.TransactionUoMId != receiveDetailRow.BaseUOMId)
+									//input.BaseRate = receiveDetailRow.BaseAmount / receiveDetailRow.BaseQty;
+									issue.BaseRate = receiveDetailRow.MaterialTranAmount / receiveDetailRow.BaseQty;
+								else issue.BaseRate = receiveDetailRow.MaterialTranRate;
+								if (issue.TransactionUoMId != issue.BaseUOMId)
+									issue.BaseQty = Convert.ToDecimal(issue.TransactionQty * receiveDetailRow.BaseUoMFactor);
+
+								decimal IssueTransactionQty = issue.TransactionQty;
+								foreach (var item in receiveDetailList.Where(r => r.InventoryMaterialId == issue.InventoryMaterialId))
+								{
+
+									if (IssueTransactionQty <= 0)
+										break;
+
+									//decimal totalIssuedAmount = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"SELECT ISNULL(SUM(Qty*Rate),0) FROM [TRN].[InventoryIssueHistory] where  InventoryReceiveDetailId='" + item.InventoryReceiveDetailId + "'").FirstOrDefault());
+									//decimal totalIssuedAmount = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"SELECT totalIssuedAmount=((ISNULL(SUM(IIH.TotalAmount),0)+isnull(sum(PR.TotalMaterialTranAmount),0)+isnull(sum(PSAH.TotalAmount),0)+isnull(sum(ISH.TotalBaseAmount),0)+isnull(sum(InvS.TotalAmount),0)) -isnull(sum(IIR.TotalAmount),0)) 
+									//																						   FROM trn.InventoryReceiveDetail IRD  
+									//																							left JOIN [TRN].[InventoryIssueHistory] IIH ON IIH.InventoryReceiveDetailId=IRD.Id
+									//																							LEFT JOIN trn.PurchaseReturnDetail PR ON PR.InventoryReceiveDetailId=IRD.Id
+									//																							LEFT JOIN trn.PhysicalStockAdjustmentHistory PSAH ON PSAH.InventoryReceiveDetailId=IRD.Id
+									//																							LEFT join trn.InventorySalesHistory ISH ON ISH.InventoryReceiveDetailId=IRD.Id
+									//																							LEFT JOIN TRN.InventoryScrapHistory InvS ON InvS.InventoryReceiveDetailId=IRD.Id
+									//																							LEFT join TRN.InventoryIssueReturnHistory IIR ON IIR.InventoryReceiveDetailId=IRD.Id
+									//																						   WHERE  IIH.InventoryReceiveDetailId='" + item.InventoryReceiveDetailId + "'").FirstOrDefault());
+									decimal totalIssuedAmount = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"SELECT totalIssuedAmount=((ISNULL(SUM(x.ISHTotalBaseAmount),0)+isnull(sum(x.PRTotalMaterialTranAmount),0)+isnull(sum(x.PSAHTotalAmount),0)+isnull(sum(x.IIHTotalAmount),0) +isnull(sum(x.InvSTotalAmount),0) +isnull(sum(x.ITHTotalAmount),0)) -isnull(sum(x.IIRTotalAmount),0))  
+																FROM (
+																		SELECT 	IRD.Id,0 ITHTotalAmount, ISNULL(ISH.TotalBaseAmount,0) ISHTotalBaseAmount,0 PRTotalMaterialTranAmount,0 PSAHTotalAmount,0 IIHTotalAmount,0 InvSTotalAmount,0 IIRTotalAmount	
+																		FROM TRN.InventoryReceiveDetail IRD
+																		left join trn.InventorySalesHistory ISH ON ISH.InventoryReceiveDetailId=IRD.Id	
+																		UNION All
+																		SELECT IRD.Id,0 ,0,isnull(PR.TotalMaterialTranAmount,0) PRTotalMaterialTranAmount,0,0,0,0		
+																		FROM TRN.InventoryReceiveDetail IRD	
+																		LEFT JOIN trn.PurchaseReturnDetail PR ON PR.InventoryReceiveDetailId=IRD.Id	
+																		UNION All
+																		SELECT IRD.Id,0 ,0,0,isnull(PSAH.TotalAmount,0) PSAHTotalAmount,0,0,0			
+																		FROM TRN.InventoryReceiveDetail IRD	
+																		LEFT JOIN trn.PhysicalStockAdjustmentHistory PSAH ON PSAH.InventoryReceiveDetailId=IRD.Id	
+																		UNION All
+																		SELECT IRD.Id,0 ,0,0,0,isnull(IIH.TotalAmount,0) IIHTotalAmount,0,0		
+																		FROM TRN.InventoryReceiveDetail IRD	
+																		LEFT join [TRN].[InventoryIssueHistory] IIH ON IIH.InventoryReceiveDetailId=IRD.Id
+																		UNION All
+																		SELECT IRD.Id,0 ,0,0,0,0,isnull(InvS.TotalAmount,0) InvSTotalAmount,0	
+																		FROM TRN.InventoryReceiveDetail IRD	
+																		LEFT JOIN TRN.InventoryScrapHistory InvS ON InvS.InventoryReceiveDetailId=IRD.Id	
+																		UNION All
+																		SELECT IRD.Id,0 ,0,0,0,0,0,isnull(IIR.TotalAmount,0)	IIRTotalAmount	
+																		FROM TRN.InventoryReceiveDetail IRD	
+																		LEFT join TRN.InventoryIssueReturnHistory IIR ON IIR.InventoryReceiveDetailId=IRD.Id		
+																		UNION All
+																		SELECT IRD.Id,isnull(ITH.TotalAmount,0) ITHTotalAmount,0,0,0,0,0,0
+																		FROM TRN.InventoryReceiveDetail IRD	
+																		LEFT join TRN.InventoryTransferHistory ITH ON ITH.InventoryReceiveDetailId=IRD.Id		
+																)x
+																WHERE x.Id='" + item.InventoryReceiveDetailId + "'").FirstOrDefault());
+
+
+									decimal RemainingGRNQty = Convert.ToDecimal((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty)) + item.IssueReturnQty);
+									decimal IssueDeduactionQty = 0;
+
+
+									if (RemainingGRNQty <= IssueTransactionQty)
+									{
+										IssueDeduactionQty = RemainingGRNQty;
+										IssueTransactionQty = IssueTransactionQty - RemainingGRNQty;
+										RemainingGRNQty = 0;
+
+									}
+									else
+									{
+										IssueDeduactionQty = IssueTransactionQty;
+										RemainingGRNQty = RemainingGRNQty - IssueTransactionQty;
+										IssueTransactionQty = 0;
+									}
+
+									//decimal balaceGRNQty = Convert.ToInt16(_issueHistoryRepository.Query(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId));
+									if (item.TransactionUoMId == issue.TransactionUoMId)
+									{
+
+										detailtrnAmount += Convert.ToDecimal((item.TotalMaterialTranAmount - totalIssuedAmount) - (((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) - IssueDeduactionQty) * (item.TotalMaterialTranAmount / item.TransactionQty)));
+										var newgrn = new InventoryIssueHistory
+										{
+											TotalAmount = Convert.ToDecimal((item.TotalMaterialTranAmount - totalIssuedAmount) - (((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) - IssueDeduactionQty) * (item.TotalMaterialTranAmount / item.TransactionQty))),
+											InventoryReceiveDetailId = item.InventoryReceiveDetailId,
+											Qty = IssueDeduactionQty
+
+										};
+										GRNCalculateList.Add(newgrn);
+										//detailtrnAmount += Convert.ToDecimal((item.MaterialTranAmount - totalIssuedAmount) - (((item.TransactionQty - item.IssueQty)) * (item.TotalMaterialTranAmount / item.TransactionQty)));
+
+										totalGRNQty += Convert.ToDecimal(IssueDeduactionQty);
+									}
+									else
+									{
+										detailtrnAmount += Convert.ToDecimal(item.MaterialTranAmount - ((((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) * item.BaseUoMFactor) - IssueDeduactionQty) * (item.TotalMaterialTranAmount / item.TransactionQty)));
+										var newgrn = new InventoryIssueHistory
+										{
+											TotalAmount = Convert.ToDecimal(item.MaterialTranAmount - ((((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) * item.BaseUoMFactor) - IssueDeduactionQty) * (item.TotalMaterialTranAmount / item.TransactionQty))),
+											InventoryReceiveDetailId = item.InventoryReceiveDetailId,
+											Qty = IssueDeduactionQty
+										};
+										GRNCalculateList.Add(newgrn);
+										//detailtrnAmount += Convert.ToDecimal((item.MaterialTranAmount - totalIssuedAmount) - ((((item.TransactionQty - item.IssueQty) * item.BaseUoMFactor) - item.RequisitionQty) * (item.TotalMaterialTranAmount / item.TransactionQty)));
+
+										totalGRNQty += Convert.ToDecimal(IssueDeduactionQty);
+									}
+									//}
+								}
+
+								if (receiveDetailRow.IsNull()) throw new CustomException("Stock 0");
+								currentId++;
+								//totalGRNQty = issue.TransactionQty;
+								if (issue.BaseQty == null) issue.BaseQty = totalGRNQty;
+								var detail = new InventoryIssueDetail
+								{
+									Id = MakePK(inventoryIssue.Id, currentId, 2),
+									InventoryIssueId = inventoryIssue.Id,
+									IsAsset = FlagIsAsset,//false,
+														  //InventoryIssue = inventoryIssue,
+									InventoryMaterialId = issue.InventoryMaterialId,
+									TransactionQty = issue.TransactionQty,
+									BaseQty = issue.BaseQty,
+									BaseUOMId = issue.BaseUOMId,
+									TransactionUoMId = issue.TransactionUoMId,
+
+									//TrnCurrencyBaseRate = Math.Round(Convert.ToDecimal(itemDetail.TrnCurrencyBaseRate), 4),
+									AvgRate = Math.Round(issue.AvgRate, 4),
+									AvgAmount = Math.Round((issue.TransactionQty * issue.AvgRate), 2),
+									Policy = receiveDetailRow.Policy,
+
+									PolicyAmount = Math.Round(detailtrnAmount, 2),
+									PolicyRate = Math.Round((detailtrnAmount / totalGRNQty), 4),
+
+									//PolicyAmount = issue.TransactionQty*(detailtrnAmount / totalGRNQty),
+									//PolicyRate = detailtrnAmount / totalGRNQty,
+									BudgetMasterId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
+									ActivityId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
+									Comments = issue.Comments,
+									CostCenterId = issue.CostCenterId,
+									ModelState = ModelState.Added
+
+									//InventoryReceiveId= receiveDetailRow.InventoryReceiveId,
+									//InventoryReceiveDetailId= receiveDetailRow.InventoryReceiveDetailId
+
+								};
+								var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{detail.Id}'").First();
+								// single entry (history)
+								//if (input.TransactionQty <= (receiveDetailRow.BaseQty - receiveDetailRow.BaseIssueQty))
+								//if (issue.BaseQty <= (receiveDetailRow.BaseQty - receiveDetailRow.BaseIssueQty))
+								var SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == receiveDetailRow.Id).FirstOrDefault();
+								if (issue.BaseQty <= (receiveDetailRow.BaseQty - receiveDetailRow.BaseIssueQty - receiveDetailRow.PurchaseReturnQty - receiveDetailRow.ReductionByAdjustmentQty - receiveDetailRow.InventorySalesQty - receiveDetailRow.InventoryScrapQty) + receiveDetailRow.IssueReturnQty)
+								{
+									historyId++;
+									var history = new InventoryIssueHistory
+									{
+										Id = MakePK(detail.Id, historyId, 2),
+										InventoryIssueDetailId = detail.Id,
+										InventoryReceiveDetailId = receiveDetailRow.Id,
+										Qty = SelectedGRN.Qty,
+										//Rate = Convert.ToDecimal(issue.BaseRate),
+										//Rate = Convert.ToDecimal(issue.ToCurrencyRate),
+										//Rate = detailtrnAmount / totalGRNQty,
+										//TotalAmount = Convert.ToDecimal(detailtrnAmount),
+										Rate = Math.Round((SelectedGRN.TotalAmount / SelectedGRN.Qty), 4),
+										TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
+										IsCapitalize = false,
+										IssueRequestDetailId = receiveDetailRow.IssueRequest,
+										IssueReturnQty = 0,
+										BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(issue.BooksCurrencyBaseRate), 4),
+										TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(SelectedGRN.Qty * issue.BooksCurrencyBaseRate), 2)
+									};
+									//detail.PolicyRate = Convert.ToDecimal(issue.BaseRate);
+									//detail.PolicyAmount = Convert.ToDecimal(issue.TransactionQty * issue.BaseRate);
+
+									builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueQty='" + Convert.ToDecimal(Convert.ToDecimal(receiveDetailRow.BaseIssueQty) + Convert.ToDecimal(issue.TransactionQty)) + @"'
+									 , BaseIssueQty='" + Convert.ToDecimal(Convert.ToDecimal(receiveDetailRow.BaseIssueQty) + Convert.ToDecimal(issue.TransactionQty)) + "' WHERE Id='" + receiveDetailRow.InventoryReceiveDetailId + "'";
+									rdBuilder.Append(builderSql);
+									AuditService.AddedLog(history);
+									_issueHistoryRepository.Insert(history);
+
+
+								}
+								// multiple entry (history)
+								else
+								{
+									var rdList = receiveDetailList.Where(t => t.InventoryMaterialId == issue.InventoryMaterialId).ToList();
+									var tqty = receiveDetailList.Where(t => t.InventoryMaterialId == issue.InventoryMaterialId).Select(t => t.BaseQty).Sum()
+											   - receiveDetailList.Where(t => t.InventoryMaterialId == issue.InventoryMaterialId).Select(t => t.BaseIssueQty).Sum();
+									//if (tqty < input.TransactionQty) throw new CustomException("Stock 0");
+									if (tqty < issue.BaseQty) throw new CustomException("Stock 0");
+									decimal policyAmount = 0;
+									//decimal qtyDifference = input.TransactionQty;
+									decimal qtyDifference = Convert.ToDecimal(issue.BaseQty);
+
+									foreach (var item in rdList)
+									{
+										historyId++;
+										if (item.TransactionUoMId != item.BaseUOMId)
+											//input.BaseRate = item.BaseAmount / item.BaseQty;
+											issue.BaseRate = item.MaterialTranAmount / item.BaseQty;
+										//else input.BaseRate = item.TransactionRate;
+										else issue.BaseRate = item.MaterialTranRate;
+
+										//var issueQty = Convert.ToDecimal(item.BaseQty - item.BaseIssueQty);
+										var issueQty = Convert.ToDecimal(item.BaseQty - item.BaseIssueQty - item.PurchaseReturnQty - item.ReductionByAdjustmentQty - item.InventorySalesQty - item.InventoryScrapQty) + Convert.ToDecimal(item.IssueReturnQty);
+										// (10 - 3)//Issueable Qty
+										//if (issueQty != 0)
+										//{
+
+										if (qtyDifference >= issueQty) // (17 >= (10 - 3))
+										{
+											policyAmount = policyAmount + Convert.ToDecimal(((item.BaseQty - item.BaseIssueQty) * issue.BaseRate));
+											qtyDifference = Convert.ToDecimal(qtyDifference - issueQty);
+											issueQty = Convert.ToDecimal(item.BaseIssueQty + issueQty);
+										}
+										else // (6 < 7) (qtyDifference < issueQty)
+										{
+											//issueQty = Convert.ToDecimal(issueQty - qtyDifference);
+											issueQty = Convert.ToDecimal(item.BaseIssueQty + qtyDifference);
+											policyAmount = policyAmount + Convert.ToDecimal((issueQty * issue.BaseRate));
+											qtyDifference = 0;
+										}
+										SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == item.Id).FirstOrDefault();
+										var history = new InventoryIssueHistory
+										{
+											Id = MakePK(detail.Id, historyId, 2),
+											InventoryIssueDetailId = detail.Id,
+											InventoryReceiveDetailId = item.Id,
+											Qty = SelectedGRN.Qty,//Convert.ToDecimal(issueQty - item.BaseIssueQty),//TODO
+																  //Qty = Convert.ToDecimal(issueQty),//TODO
+																  // Qty = Convert.ToDecimal(qtyDifference),//TODO
+																  //Rate = Convert.ToInt32(issue.BaseRate),
+																  //Rate = Convert.ToDecimal(issue.BaseRate),
+																  //Rate = Convert.ToDecimal(issue.ToCurrencyRate),
+																  //Rate = detailtrnAmount / totalGRNQty,
+																  //TotalAmount = Convert.ToDecimal(detailtrnAmount),
+											Rate = Math.Round((SelectedGRN.TotalAmount / SelectedGRN.Qty), 4),
+											TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
+											IsCapitalize = false,
+											IssueRequestDetailId = receiveDetailRow.IssueRequest,
+											BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
+											TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(SelectedGRN.Qty * item.BooksCurrencyBaseRate), 2)
+
+										};
+
+										AuditService.AddedLog(history);
+										_issueHistoryRepository.Insert(history);
+
+										builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET BaseIssueQty='" + Convert.ToDecimal(issueQty) + "',IssueQty='" + Convert.ToDecimal(issueQty) + "'  WHERE Id='" + item.Id + "'";
+										rdBuilder.Append(builderSql);
+										if (qtyDifference == 0)
+											break;
+										//}
+									}
+
+									//detail.PolicyRate = Convert.ToDecimal(policyAmount / issue.TransactionQty);
+									//detail.PolicyAmount = Convert.ToDecimal(policyAmount);
+								}
+								builderSql = @"UPDATE [TRN].[InventoryMaterial] SET TotalQty='" + Convert.ToDecimal(issue.TotalQty - issue.TransactionQty) + "' WHERE Id='" + issue.InventoryMaterialId + "'";
+								rdBuilder.Append(builderSql);
+								AuditService.AddedLog(detail);
+								_issueDetailService.InsertGraph(detail);
+
+								//Mapping Data=========================================================
+								var receiveDetailList1 = _sqlRepository.GetModelCollection<IssueRequestViewModel>(@"select IRBM.Id,IRBM.IssueRequestDetailId,IRBM.BOQID,Isnull(IRBM.Qty,0) IssueRequestBOQMapQty,Isnull(IDRM.Qty,0) AllocatedIssueSlipQty
+															from [TRN].[IssueRequestBOQMap] IRBM
+															Left Join (Select IssueRequestBOQMapId, sum(Qty) Qty from [TRN].[IssueDetailAndIssueRequestMap]  group by IssueRequestBOQMapId) IDRM ON IDRM.IssueRequestBOQMapId=IRBM.BOQID
+															where IssueRequestDetailId='" + issue.IssueRequest + @"' Order By IRBM.Qty ASC").ToList();
+								if (receiveDetailList1.Count>0)
+								{
+									bool isQtyAlocated = true;
+									decimal temp = 0;
+									int count = 0;
+									foreach (var receiveDetailListNew in receiveDetailList1)
+									{
+
+
+										count++;
+										if (count == 1)
+										{
+											if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) > detail.TransactionQty)
+											{
+
+												detail.TransactionQty = detail.TransactionQty;
+												//temp += itemDetail.TransactionQty;
+												isQtyAlocated = false;
+
+											}
+											else if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) < detail.TransactionQty)
+											{
+												//temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+												temp = (detail.TransactionQty - (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty));
+												detail.TransactionQty = (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty);
+												isQtyAlocated = true;
+
+											}
+											else
+											{
+												//temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+												detail.TransactionQty = detail.TransactionQty;
+												isQtyAlocated = true;
+
+											}
+										}
+										if (count > 1)
+										{
+											if (isQtyAlocated == true)
+											{
+												if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) > temp)
+												{
+													//temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
+													detail.TransactionQty = detail.TransactionQty;
+													isQtyAlocated = false;
+												}
+												if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) < temp)
+												{
+													//temp = temp - issue.TransactionQtyForPO;
+													temp = (temp - (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty));
+													//itemDetail.TransactionQty = issue.TransactionQtyForPO;
+													detail.TransactionQty = (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty);
+													isQtyAlocated = true;
+												}
+												else
+												{
+													//temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+													detail.TransactionQty = temp;
+													isQtyAlocated = true;
+
+												}
+
+											}
+											else
+											{
+												detail.TransactionQty = 0;
+											}
+										}
+
+
+										var IssueDetailAndIssueRequestMapNew = new IssueDetailAndIssueRequestMap
+										{
+											Id = GetIssueDetailAndIssueRequestMapPK(),
+											InventoryIssueDetailId = detail.Id,
+											IssueRequestBOQMapId = receiveDetailListNew.Id,
+											Qty = detail.TransactionQty
+											//AutoAllocate = true
+
+										};
+										AuditService.AddedLog(IssueDetailAndIssueRequestMapNew);
+										_IssueDetailAndIssueRequestMapRepository.Insert(IssueDetailAndIssueRequestMapNew);
+									}
+								}
+
+								//===================
+
+
+							}
+
+						}
+						if (specificStockList.IsNotNull())
+						{
+
+							//foreach (var invMaterialId in specificStockList)
+							//{
+							//    var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId.InventoryMaterialId + "'").FirstOrDefault();
+							//    var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId.InventoryMaterialId).ToList();
+							//    var totalReqQty = 0M;
+							//    decimal policyAmmount = 0;
+							//    currentId++;
+							//    var issueDetail = new InventoryIssueDetail();
+							//    issueDetail.Id = MakePK(inventoryIssue.Id, currentId, 2);
+							//    issueDetail.InventoryIssueId = inventoryIssue.Id;
+							//    //issueDetail.//InventoryIssue = inventoryIssue,
+							//    issueDetail.InventoryMaterialId = invMaterialId.InventoryMaterialId;
+							//    issueDetail.BaseUOMId = stockList.Select(t => t.BaseUOMId).FirstOrDefault();
+							//    issueDetail.AvgRate = invMaterial.AvgRate;
+							//    issueDetail.Policy = "N/A";
+							//    issueDetail.ModelState = ModelState.Added;
+							//    issueDetail.InventoryReceiveId = stockList.Select(t => t.InventoryReceiveId).FirstOrDefault();
+							//    issueDetail.InventoryReceiveDetailId = stockList.Select(t => t.InventoryReceiveDetailId).FirstOrDefault();
+							//    issueDetail.TransactionQty = stockList.Select(t => t.RequisitionQty).FirstOrDefault();
+							//    issueDetail.BaseQty = stockList.Select(t => t.BaseIssueQty).FirstOrDefault();
+
+							//    var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}'").First();
+							//    foreach (var item in stockList)
+							//    {
+							//        if (item.RequisitionQty > item.StockQty) throw new CustomException("Requisition qty can't greater stock qty.");
+
+							//        if (item.TransactionUoMId != item.BaseUOMId)
+							//            item.RequisitionQty = Convert.ToInt32(item.RequisitionQty * item.BaseUoMFactor);
+							//        totalReqQty += item.RequisitionQty;
+							//        historyId++;
+							//        var history = new InventoryIssueHistory
+							//        {
+							//            Id = MakePK(issueDetail.Id, historyId, 2),
+							//            InventoryIssueDetailId = issueDetail.Id,
+							//            InventoryReceiveDetailId = item.InventoryReceiveDetailId,
+							//            Qty = item.RequisitionQty,
+							//            Rate = Convert.ToDecimal(item.BaseRate)
+							//        };
+							//        policyAmmount += history.Qty * history.Rate;
+							//        builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueQty='" + Convert.ToDecimal(item.RequisitionQty + item.IssueQty) + "' WHERE Id='" + item.InventoryReceiveDetailId + "'";
+							//        rdBuilder.Append(builderSql);
+							//        AuditService.AddedLog(history);
+							//        _issueHistoryRepository.Insert(history);
+							//    }
+							//    issueDetail.PolicyRate = Convert.ToDecimal(policyAmmount / totalReqQty);
+							//    issueDetail.PolicyAmount = Convert.ToDecimal(policyAmmount);
+							//    issueDetail.TransactionQty = totalReqQty;
+							//    issueDetail.AvgAmount = totalReqQty * invMaterial.AvgRate;
+
+							//    builderSql = @"UPDATE [TRN].[InventoryMaterial] SET TotalQty='" + Convert.ToDecimal(invMaterial.TotalQty - totalReqQty) + "' WHERE Id='" + invMaterialId + "'";
+							//    rdBuilder.Append(builderSql);
+							//    AuditService.AddedLog(issueDetail);
+							//    InsertGraph(issueDetail);
+							//}
+							foreach (var invMaterialId in specificInvaterialIds)
+							{
+								var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
+								var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId).ToList();
+								var totalReqQty = 0M;
+								decimal policyAmmount = 0;
+
+								decimal detailtrnAmount = 0;
+								decimal totalGRNQty = 0;
+								/*Amount=MaterialTrnAmount - ((TRN Qty - IssueQty)* TrnRate)*/
+								/*Rate= Amount/Sum GRN Qty */
+								var IssueRequestDetailIdnew = "";
+								foreach (var item in specificStockList.Where(r => r.InventoryMaterialId == invMaterialId))
+								{
+									//decimal totalIssuedAmount = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"SELECT ISNULL(SUM(Qty*Rate),0) FROM [TRN].[InventoryIssueHistory] where  InventoryReceiveDetailId='" + item.InventoryReceiveDetailId + "'").FirstOrDefault());
+									//decimal totalIssuedAmount = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"SELECT totalIssuedAmount=((ISNULL(SUM(IIH.TotalAmount),0)+isnull(sum(PR.TotalMaterialTranAmount),0)+isnull(sum(PSAH.TotalAmount),0)+isnull(sum(ISH.TotalBaseAmount),0)+isnull(sum(InvS.TotalAmount),0)) -isnull(sum(IIR.TotalAmount),0)) 
+									//																						   FROM trn.InventoryReceiveDetail IRD  
+									//																							left JOIN [TRN].[InventoryIssueHistory] IIH ON IIH.InventoryReceiveDetailId=IRD.Id
+									//																							LEFT JOIN trn.PurchaseReturnDetail PR ON PR.InventoryReceiveDetailId=IRD.Id
+									//																							LEFT JOIN trn.PhysicalStockAdjustmentHistory PSAH ON PSAH.InventoryReceiveDetailId=IRD.Id
+									//																							LEFT join trn.InventorySalesHistory ISH ON ISH.InventoryReceiveDetailId=IRD.Id
+									//																							LEFT JOIN TRN.InventoryScrapHistory InvS ON InvS.InventoryReceiveDetailId=IRD.Id
+									//																							LEFT join TRN.InventoryIssueReturnHistory IIR ON IIR.InventoryReceiveDetailId=IRD.Id
+									//																							WHERE  IRD.Id='" + item.InventoryReceiveDetailId + "'").FirstOrDefault());
+									decimal totalIssuedAmount = Convert.ToDecimal(_issueHistoryRepository.SqlQuery<decimal>(@"SELECT totalIssuedAmount=((ISNULL(SUM(x.ISHTotalBaseAmount),0)+isnull(sum(x.PRTotalMaterialTranAmount),0)+isnull(sum(x.PSAHTotalAmount),0)+isnull(sum(x.IIHTotalAmount),0) +isnull(sum(x.InvSTotalAmount),0) +isnull(sum(x.ITHTotalAmount),0)) -isnull(sum(x.IIRTotalAmount),0))  
+																														FROM (
+																																SELECT 	IRD.Id,0 ITHTotalAmount, ISNULL(ISH.TotalBaseAmount,0) ISHTotalBaseAmount,0 PRTotalMaterialTranAmount,0 PSAHTotalAmount,0 IIHTotalAmount,0 InvSTotalAmount,0 IIRTotalAmount	
+																																FROM TRN.InventoryReceiveDetail IRD
+																																left join trn.InventorySalesHistory ISH ON ISH.InventoryReceiveDetailId=IRD.Id	
+																																UNION All
+																																SELECT IRD.Id,0 ,0,isnull(PR.TotalMaterialTranAmount,0) PRTotalMaterialTranAmount,0,0,0,0		
+																																FROM TRN.InventoryReceiveDetail IRD	
+																																LEFT JOIN trn.PurchaseReturnDetail PR ON PR.InventoryReceiveDetailId=IRD.Id	
+																																UNION All
+																																SELECT IRD.Id,0 ,0,0,isnull(PSAH.TotalAmount,0) PSAHTotalAmount,0,0,0			
+																																FROM TRN.InventoryReceiveDetail IRD	
+																																LEFT JOIN trn.PhysicalStockAdjustmentHistory PSAH ON PSAH.InventoryReceiveDetailId=IRD.Id	
+																																UNION All
+																																SELECT IRD.Id,0 ,0,0,0,isnull(IIH.TotalAmount,0) IIHTotalAmount,0,0		
+																																FROM TRN.InventoryReceiveDetail IRD	
+																																LEFT join [TRN].[InventoryIssueHistory] IIH ON IIH.InventoryReceiveDetailId=IRD.Id
+																																UNION All
+																																SELECT IRD.Id,0 ,0,0,0,0,isnull(InvS.TotalAmount,0) InvSTotalAmount,0	
+																																FROM TRN.InventoryReceiveDetail IRD	
+																																LEFT JOIN TRN.InventoryScrapHistory InvS ON InvS.InventoryReceiveDetailId=IRD.Id	
+																																UNION All
+																																SELECT IRD.Id,0 ,0,0,0,0,0,isnull(IIR.TotalAmount,0)	IIRTotalAmount	
+																																FROM TRN.InventoryReceiveDetail IRD	
+																																LEFT join TRN.InventoryIssueReturnHistory IIR ON IIR.InventoryReceiveDetailId=IRD.Id		
+																																UNION All
+																																SELECT IRD.Id,isnull(ITH.TotalAmount,0) ITHTotalAmount,0,0,0,0,0,0
+																																FROM TRN.InventoryReceiveDetail IRD	
+																																LEFT join TRN.InventoryTransferHistory ITH ON ITH.InventoryReceiveDetailId=IRD.Id		
+																														)x
+																														WHERE x.Id='" + item.InventoryReceiveDetailId + "'").FirstOrDefault());
+
+									if (item.TransactionUoMId == entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.TransactionUoMId).FirstOrDefault())
+									{
+										detailtrnAmount += Convert.ToDecimal((item.TotalMaterialTranAmount - totalIssuedAmount) - (((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) - item.RequisitionQty) * (item.TotalMaterialTranAmount / item.TransactionQty)));
+										var newgrn = new InventoryIssueHistory
+										{
+											TotalAmount = Convert.ToDecimal((item.TotalMaterialTranAmount - totalIssuedAmount) - (((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) - item.RequisitionQty) * (item.TotalMaterialTranAmount / item.TransactionQty))),
+											InventoryReceiveDetailId = item.InventoryReceiveDetailId
+										};
+										GRNCalculateList.Add(newgrn);
+
+
+										totalGRNQty += Convert.ToDecimal(item.RequisitionQty);
+
+									}
+									else
+									{
+										detailtrnAmount += Convert.ToDecimal(item.MaterialTranAmount - ((((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) * item.BaseUoMFactor) - item.RequisitionQty) * (item.TotalMaterialTranAmount / item.TransactionQty)));
+										var newgrn = new InventoryIssueHistory
+										{
+											TotalAmount = Convert.ToDecimal(item.MaterialTranAmount - ((((item.TransactionQty - (item.IssueQty + item.PurchaseReturnQty + item.ReductionByAdjustmentQty + item.InventorySalesQty + item.InventoryScrapQty) - item.IssueReturnQty) * item.BaseUoMFactor) - item.RequisitionQty) * (item.TotalMaterialTranAmount / item.TransactionQty))),
+											InventoryReceiveDetailId = item.InventoryReceiveDetailId
+										};
+										GRNCalculateList.Add(newgrn);
+										totalGRNQty += Convert.ToDecimal(item.RequisitionQty);
+									}
+									item.IssueRequest = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.IssueRequest).FirstOrDefault();
+								}
+
+								currentId++;
+								var issueDetail = new InventoryIssueDetail
+								{
+									Id = MakePK(inventoryIssue.Id, currentId, 2),
+									InventoryIssueId = inventoryIssue.Id,
+									IsAsset = FlagIsAsset,//false,
+														  //InventoryIssue = inventoryIssue,
+									InventoryMaterialId = invMaterialId,
+									BaseUOMId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BaseUOMId).FirstOrDefault(),
+									TransactionUoMId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.TransactionUoMId).FirstOrDefault(),
+									AvgRate = Math.Round(invMaterial.AvgRate, 4),
+									Policy = "N/A",
+
+									TransactionQty = stockList.Sum(r => r.RequisitionQty),//stockList.Select(t => t.RequisitionQty).FirstOrDefault(),
+									PolicyAmount = Math.Round(detailtrnAmount, 2),
+									PolicyRate = Math.Round((detailtrnAmount / totalGRNQty), 4),
+									BaseQty = totalGRNQty,
+									AvgAmount = Math.Round((totalGRNQty * invMaterial.AvgRate), 2),
+									BudgetMasterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
+									ActivityId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
+									CostCenterId = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.CostCenterId).FirstOrDefault(),
+									Comments = entities.Where(r => r.MaterialMasterId == invMaterial.MaterialMasterId).Select(t => t.Comments).FirstOrDefault(),
+
+									ModelState = ModelState.Added
+								};
+
+								var historyId = _issueHistoryRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='{issueDetail.Id}'").First();
+								foreach (var item in stockList)
+								{
+
+									if (item.RequisitionQty > item.StockQty) throw new CustomException("Requisition qty can't greater stock qty.");
+
+									if (item.TransactionUoMId != item.BaseUOMId)
+										totalReqQty = Convert.ToInt32(item.RequisitionQty * item.BaseUoMFactor);
+									else
+										totalReqQty = item.RequisitionQty;
+									historyId++;
+									var SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
+									var history = new InventoryIssueHistory
+									{
+										Id = MakePK(issueDetail.Id, historyId, 2),
+										InventoryIssueDetailId = issueDetail.Id,
+										InventoryReceiveDetailId = item.InventoryReceiveDetailId,
+										Qty = item.RequisitionQty,
+										//Rate = Convert.ToDecimal(item.BaseRate),
+										Rate = Math.Round((SelectedGRN.TotalAmount / item.RequisitionQty), 4),
+										TotalAmount = Math.Round(SelectedGRN.TotalAmount, 2),//Convert.ToDecimal(detailtrnAmount),
+										IssueRequestDetailId = item.IssueRequest,
+										IssueReturnQty = 0,
+										BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4),
+										TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BooksCurrencyBaseRate), 2)
+									};
+									//policyAmmount += history.Qty * history.Rate;
+
+
+
+									builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueQty='" + Convert.ToDecimal(item.RequisitionQty + item.IssueQty) + @"' 
+										,BaseIssueQty = '" + (Convert.ToDecimal(Convert.ToDecimal(item.BaseIssueQty) + Convert.ToDecimal(totalReqQty))) + "' WHERE Id = '" + item.InventoryReceiveDetailId + "'";
+
+									rdBuilder.Append(builderSql);
+									AuditService.AddedLog(history);
+									_issueHistoryRepository.Insert(history);
+
+
+
+									//Mapping Data=========================================================
+									var receiveDetailList1 = _sqlRepository.GetModelCollection<IssueRequestViewModel>(@"select IRBM.Id,IRBM.IssueRequestDetailId,IRBM.BOQID,Isnull(IRBM.Qty,0) IssueRequestBOQMapQty,Isnull(IDRM.Qty,0) AllocatedIssueSlipQty
+															from [TRN].[IssueRequestBOQMap] IRBM
+															Left Join (Select IssueRequestBOQMapId, sum(Qty) Qty from [TRN].[IssueDetailAndIssueRequestMap]  group by IssueRequestBOQMapId) IDRM ON IDRM.IssueRequestBOQMapId=IRBM.BOQID
+															where IssueRequestDetailId='" + item.IssueRequest + @"' Order By IRBM.Qty ASC").ToList();
+									if (receiveDetailList1.Count>0)
+									{
+										bool isQtyAlocated = true;
+										decimal temp = 0;
+										int count = 0;
+										foreach (var receiveDetailListNew in receiveDetailList1)
+										{
+
+
+											count++;
+											if (count == 1)
+											{
+												if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) > issueDetail.TransactionQty)
+												{
+
+													issueDetail.TransactionQty = issueDetail.TransactionQty;
+													//temp += itemDetail.TransactionQty;
+													isQtyAlocated = false;
+
+												}
+												else if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) < issueDetail.TransactionQty)
+												{
+													//temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+													temp = receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty;
+													issueDetail.TransactionQty = (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty);
+													isQtyAlocated = true;
+
+												}
+												else
+												{
+													//temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+													issueDetail.TransactionQty = issueDetail.TransactionQty;
+													isQtyAlocated = true;
+
+												}
+											}
+											if (count > 1)
+											{
+												if (isQtyAlocated == true)
+												{
+													if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) > temp)
+													{
+														//temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
+														issueDetail.TransactionQty = issueDetail.TransactionQty;
+														isQtyAlocated = false;
+													}
+													if ((receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty) < temp)
+													{
+														//temp = temp - issue.TransactionQtyForPO;
+														temp = (temp - (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty));
+														//itemDetail.TransactionQty = issue.TransactionQtyForPO;
+														issueDetail.TransactionQty = (receiveDetailListNew.IssueRequestBOQMapQty - receiveDetailListNew.AllocatedIssueSlipQty);
+														isQtyAlocated = true;
+													}
+													else
+													{
+														//temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+														issueDetail.TransactionQty = temp;
+														isQtyAlocated = true;
+
+													}
+
+												}
+												else
+												{
+													issueDetail.TransactionQty = 0;
+												}
+											}
+
+
+											var IssueDetailAndIssueRequestMapNew = new IssueDetailAndIssueRequestMap
+											{
+												Id = GetIssueDetailAndIssueRequestMapPK(),
+												InventoryIssueDetailId = issueDetail.Id,
+												IssueRequestBOQMapId = receiveDetailListNew.Id,
+												Qty = issueDetail.TransactionQty
+												//AutoAllocate = true
+
+											};
+											AuditService.AddedLog(IssueDetailAndIssueRequestMapNew);
+											_IssueDetailAndIssueRequestMapRepository.Insert(IssueDetailAndIssueRequestMapNew);
+										}
+									}
+
+
+								}
+
+
+								builderSql = @"UPDATE [TRN].[InventoryMaterial] SET TotalQty='" + Convert.ToDecimal(invMaterial.TotalQty - issueDetail.BaseQty) + "' WHERE Id='" + invMaterialId + "'";
+								rdBuilder.Append(builderSql);
+
+								AuditService.AddedLog(issueDetail);
+								_issueDetailService.InsertGraph(issueDetail);
+
+
+								//===================
+
+							}
+						}
+
+
+						//_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+
+					}
+					catch (CustomException)
+					{
+						throw;
+					}
+					#endregion
+
+
+
+					_unitOfWork.SaveChanges();
+					_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+					flag = false;
+					_unitOfWork.Commit();
+				}
+			}
+			catch (CustomException)
+			{
+				throw;
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+				Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+				 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+			finally
+			{
+				if (flag)
+				{
+					_unitOfWork.Rollback();
+				}
+			}
+		}
+
+
+
 	}
 }//end

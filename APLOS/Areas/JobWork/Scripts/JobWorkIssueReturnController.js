@@ -88,7 +88,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
             $scope.Transformation = Object.assign({}, args.data);
             var PId = $scope.Transformation.Id;
             var TabType = $scope.Transformation.TabType;
-
+            $scope.Transformation.JWContractId = $scope.Transformation.Id;
             $http({
                 method: 'POST',
                 url: $scope.path + "GetDataById",
@@ -384,10 +384,10 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
 
     $scope.IssueTransformationModelTemp = {
         Id: null,
-        Date: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+        IssueDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
         EmployeeId: null,
         Types: 'InventoryJWIssue',
-        JobWorkLocationId: null,
+        MaterialStorageId: null,
         Remarks: null,
         EmployeeStatus: null,
         EmployeeCode: null,
@@ -395,6 +395,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
         IsConfirmed: false,
         EntityId: null,
         IssueType: null,
+        JWContractId: null
 
     };
     $scope.IssueTransformation = Object.assign({}, $scope.IssueTransformationModelTemp);
@@ -549,7 +550,8 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
             url: $scope.path + 'GetMaterialInputData'
         }).then(function successCallback(response) {
             $scope.MaterialInputList = response.data;
-            if ($scope.MaterialInputList.length > 0) {
+            $scope.detailList = response.data;
+            if ($scope.MaterialInputList.length > 0 && $scope.detailList.length > 0) {
                 $scope.CostCenterLoadNew();
             }
 
@@ -661,6 +663,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
 
     $scope.MaterialArticleMstList = [];
     $scope.MaterialMstArticlePopUp = function (RowData, index) {
+        $scope.indexforDetail = index;
         angular.element(document.querySelector("#MaterialArticlePopUp")).modal("show");
         $scope.getMaterialMstArticleData(RowData);
 
@@ -700,14 +703,64 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
 
     }
     $scope.setMaterialArticleData = function (obj) {
+        $scope.detailModel = {
+            Id: null
+            , InventoryReveiveId: null
+            , MaterialStorageId: $scope.IssueTransformation.MaterialStorageId
+            , InventoryMaterialId: null
+            , MaterialMasterId: null
+            , MaterialMasterName: null
+            , ArticleId: null
+            , ArticleName: null
+            , MaterialTypeName: null
+            , OurStyleName: null
+            , Description: null
+            , MaterialGroupMasterName: null
+            , ProductMasterName: null
+            , IsOurStyleRequired: false
+            , IsProductMstRequired: false
+            , FirstCharacteristicsId: null
+            , FirstCharacteristicsValueId: null
+            , SecondCharacteristicsId: null
+            , SecondCharacteristicsValueId: null
+            , ThirdCharacteristicsId: null
+            , ThirdCharacteristicsValueId: null
+            , TransactionQty: null
+            , TransactionUoMId: null
+            , TransactionUoM: null
+            , BaseQty: null
+            , BaseUOMId: null
+            , BaseUoM: null
+            , BaseUoMFactor: null
+            , TransactionRate: null
+            , TotalQty: 0
+            , AvgRate: null
+            //, InventoryIssueId: $scope.productNew.Id
+            , AvgAmount: null
+            , PolicyRate: null
+            , PolicyAmount: null
+            , Policy: null
+            , ActivityName: null
+            , BudgetMasterId: null
+            , ActivityId: null
+            , IssueId: null
+            , CostCenterId: null
+        };
         var b = $scope.a;
         var data = obj.data;
         $scope.MaterialInputList[b].MaterialMasterArticleId = data.ArticleId;
         $scope.MaterialInputList[b].ArticleCode = data.ArticleCode;
         $scope.MaterialInputList[b].ArticleName = data.StandardName;
         $scope.SelectedArticleId = data.ArticleId;
+
+        $scope.detailModel.MaterialMasterId = data.MaterialMasterId;
+        $scope.detailModel.ArticleId = data.ArticleId;
+
+        $scope.detailList[$scope.indexforDetail].MaterialMasterId = data.MaterialMasterId;
+        $scope.detailList[$scope.indexforDetail].ArticleId = data.ArticleId;
         $scope.GetByDefaultRate($scope.a);
         $scope.GetLotNumberList($scope.a);
+        getMaterialStock(b);
         angular.element(document.querySelector('#MaterialArticlePopUp')).modal('hide');
     };
 
@@ -958,24 +1011,25 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
     //debugger;
     $scope.getSpecificMaterialStockForSlipIssue = function (data, index) {
 
-        for (var i = 0; i < $scope.MaterialInputList.length; i++) {
-            if ($scope.MaterialInputList[i].TransactionQty > $scope.MaterialInputList[i].PostingQty) {
+        for (var i = 0; i < $scope.detailList.length; i++) {
+            if ($scope.detailList[i].TransactionQty > $scope.detailList[i].PostingQty) {
                 ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
                 return false;
             }
         }
-        for (var i = 0; i < $scope.MaterialInputList.length; i++) {
-            if ($scope.MaterialInputList[i].TransactionQty > $scope.MaterialInputList[i].RequestedQty) {
+        for (var i = 0; i < $scope.detailList.length; i++) {
+            if ($scope.detailList[i].TransactionQty > $scope.detailList[i].RequestedQty) {
                 ShowResult("Issue qty can not gaterthen Requested Qty");
                 return false;
             }
         }
 
         $scope.index = index;
+        data.MaterialStorageId = $scope.IssueTransformation.MaterialStorageId;
         $http({
             method: 'POST'
             , url: 'Products/InventoryIssue/GetSpecificMaterialStock/'
-            , data: { entity: data, issueDate: $scope.IssueTransformation.Date }
+            , data: { entity: data, issueDate: $scope.IssueTransformation.IssueDate }
             , dataType: 'JSON'
         }).then(function (response) {
             $scope.materialStockList = response.data;
@@ -998,25 +1052,22 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
         };
     };
 
-    $scope.getRequisitionList = function (issueDetailId) {
-        $scope.materialStockList = [];
-        $scope.specificStockList = [];
-        $http({
-            method: 'POST'
-            , url:'Products/InventoryIssue/GetRequisitionList/'
-            , data: { issueDetailId: issueDetailId }
-            , dataType: 'JSON'
-        }).then(function (response) {
-            $scope.materialStockList = response.data;
-            angular.element(document.querySelector('#stockPopUp')).modal('show');
-        }), function (response) {
-            ShowResult(response.data.Message, 'failure');
-        };
-    };
-
-    $scope.closeStockPopUp = function () {
-        angular.element(document.querySelector('#stockPopUp')).modal('hide');
-    };
+    //$scope.getRequisitionList = function (issueDetailId) {
+    //    $scope.materialStockList = [];
+    //    $scope.specificStockList = [];
+    //    $http({
+    //        method: 'POST'
+    //        , url:'Products/InventoryIssue/GetRequisitionList/'
+    //        , data: { issueDetailId: issueDetailId }
+    //        , dataType: 'JSON'
+    //    }).then(function (response) {
+    //        $scope.materialStockList = response.data;
+    //        angular.element(document.querySelector('#stockPopUp')).modal('show');
+    //    }), function (response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    };
+    //};
+    
     function qtyValidation(list) {
         for (var i = 0; i < baseService.arrayLength(list); i++) {
             if (list[i].Flag) {
@@ -1087,63 +1138,63 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
     //        });
     //}
 
-    $scope.SaveSlipIssue = function () {
-        var UIStatus = $("#SlipAssetIssueUI").val();
-        if (UIStatus === 'Asset') {
-            if ($scope.materialStockList.length === 0) {
-                ShowResult('Please select Specific GRN');
-                return false;
-            }
-        }
-        //debugger;
-        if ($scope.MaterialInputList.length === 0) {
-            ShowResult('Please select Atlest one material');
-            return false;
-        }
-        //debugger;
-        for (var i = 0; i < $scope.MaterialInputList.length; i++) {
-            if ($scope.MaterialInputList[i].TransactionQty > $scope.MaterialInputList[i].PostingQty) {
-                ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
-                return false;
-            }
+    //$scope.SaveSlipIssue = function () {
+    //    var UIStatus = $("#SlipAssetIssueUI").val();
+    //    if (UIStatus === 'Asset') {
+    //        if ($scope.materialStockList.length === 0) {
+    //            ShowResult('Please select Specific GRN');
+    //            return false;
+    //        }
+    //    }
+    //    //debugger;
+    //    if ($scope.MaterialInputList.length === 0) {
+    //        ShowResult('Please select Atlest one material');
+    //        return false;
+    //    }
+    //    //debugger;
+    //    for (var i = 0; i < $scope.MaterialInputList.length; i++) {
+    //        if ($scope.MaterialInputList[i].TransactionQty > $scope.MaterialInputList[i].PostingQty) {
+    //            ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
+    //            return false;
+    //        }
 
 
-        }
-        for (var i = 0; i < $scope.MaterialInputList.length; i++) {
-            if ($scope.MaterialInputList[i].TransactionQty > $scope.MaterialInputList[i].RequestedQty) {
-                ShowResult("Issue qty can not gaterthen Requested Qty");
-                return false;
-            }
-        }
+    //    }
+    //    for (var i = 0; i < $scope.MaterialInputList.length; i++) {
+    //        if ($scope.MaterialInputList[i].TransactionQty > $scope.MaterialInputList[i].RequestedQty) {
+    //            ShowResult("Issue qty can not gaterthen Requested Qty");
+    //            return false;
+    //        }
+    //    }
 
-        $scope.productNew.IssueRequestMasterId = $scope.issueId;
-        if ($scope.Action === "Save") {
-            $http({
-                method: 'POST'
-                , url: $scope.saveUrl
-                , data: {
-                    entities: $scope.MaterialInputList
-                    , specificStockList: $scope.specificStockList
-                    , inventoryIssue: $scope.productNew
-                    , IssueTypeStatus: UIStatus
+    //    $scope.productNew.IssueRequestMasterId = $scope.issueId;
+    //    if ($scope.Action === "Save") {
+    //        $http({
+    //            method: 'POST'
+    //            , url: $scope.saveUrl
+    //            , data: {
+    //                entities: $scope.MaterialInputList
+    //                , specificStockList: $scope.specificStockList
+    //                , inventoryIssue: $scope.productNew
+    //                , IssueTypeStatus: UIStatus
 
-                }
-                , dataType: 'JSON'
-            }).then(function (response) {
-                if (response.data.Error === true)
-                    ShowResult(response.data.Message, 'failure');
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.Clear();
-                    $scope.getData();
-                    $scope.productNew.Id = response.data.inventoryIssue.Id;
-                }
-            }), function (response) {
-                ShowResult(response.data.Message, 'failure');
-            };
-        }
-        else ShowResult('Please issue material', 'failure');
-    };
+    //            }
+    //            , dataType: 'JSON'
+    //        }).then(function (response) {
+    //            if (response.data.Error === true)
+    //                ShowResult(response.data.Message, 'failure');
+    //            else {
+    //                ShowResult(response.data.Message, 'success');
+    //                $scope.Clear();
+    //                $scope.getData();
+    //                $scope.productNew.Id = response.data.inventoryIssue.Id;
+    //            }
+    //        }), function (response) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        };
+    //    }
+    //    else ShowResult('Please issue material', 'failure');
+    //};
 
     $scope.ApprovedStockList = [];
     $scope.getApprovedStock = function (data) {
@@ -1257,4 +1308,141 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
             ShowResult(response.data.Message, 'failure');
         };
     };
+
+
+    //#region sk
+    $scope.detailModelTemp = [];
+    function getMaterialStock(b) {
+      
+        $http({
+            method: 'POST',
+            url: 'Products/InventoryIssue/GetJWStock',
+            data: { entity: $scope.detailModel, issueDate: $scope.IssueTransformation.IssueDate },
+            dataType: 'JSON'
+        }).then(function (response) {
+            
+            $scope.detailList[$scope.indexforDetail].TotalQty = response.data.TotalQty;
+            $scope.detailList[$scope.indexforDetail].PostingQty = response.data.PostingQty;
+            $scope.detailList[$scope.indexforDetail].PostingQuantity = response.data.PostingQuantity;
+            $scope.detailList[$scope.indexforDetail].ApprovedQty = response.data.ApprovedQty;
+            $scope.detailList[$scope.indexforDetail].UnApprovedQty = response.data.UnApprovedQty;
+            if (baseService.isUndefinedOrNull($scope.detailList[$scope.indexforDetail].TotalQty))
+                $scope.errorText = 'This material has no stock';
+            else $scope.errorText = null;
+			
+            
+        }), function (response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    }
+    $scope.getRequisitionList = function (issueDetailId) {
+        $scope.materialStockList = [];
+        $scope.specificStockList = [];
+        $http({
+            method: 'POST'
+            , url: $scope.path + 'GetRequisitionList'
+            , data: { issueDetailId: issueDetailId }
+            , dataType: 'JSON'
+        }).then(function (response) {
+            $scope.materialStockList = response.data;
+            angular.element(document.querySelector('#stockPopUp')).modal('show');
+        }), function (response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    };
+    $scope.closeStockPopUp = function () {
+        angular.element(document.querySelector('#stockPopUp')).modal('hide');
+    };
+    $scope.SaveSlipIssue = function () {
+        var UIStatus = $("#SlipAssetIssueUI").val();
+        //if (UIStatus === 'Asset') {
+        //    if ($scope.materialStockList.length === 0) {
+        //        ShowResult('Please select Specific GRN');
+        //        return false;
+        //    }
+        //}
+        //debugger;
+        //if ($scope.detailList.length === 0) {
+        //    ShowResult('Please select Atlest one material');
+        //    return false;
+        //}
+        ////debugger;
+        //for (var i = 0; i < $scope.detailList.length; i++) {
+        //    if ($scope.detailList[i].TransactionQty > $scope.detailList[i].PostingQty) {
+        //        ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
+        //        return false;
+        //    }
+        //    if ($scope.detailList[i].TransactionQty > $scope.detailList[i].BalanceQty) {
+        //        ShowResult("Issue qty can not gaterthen  Balance Qty");
+        //        return false;
+        //    }
+
+
+        //}
+        //for (var i = 0; i < $scope.detailList.length; i++) {
+        //    if ($scope.detailList[i].TransactionQty > $scope.detailList[i].RequestedQty) {
+        //        ShowResult("Issue qty can not gaterthen Requested Qty");
+        //        return false;
+        //    }
+        //}
+
+        //$scope.productNew.IssueRequestMasterId = $scope.issueId;
+        if ($scope.Action === "Save") {
+            $http({
+                method: 'POST'
+                , url: 'Products/InventoryIssue/JWIssueCreate'
+                , data: {
+                     entities: $scope.detailList
+                    , specificStockList: $scope.specificStockList
+                    , inventoryIssue: $scope.IssueTransformation
+                    , IssueTypeStatus: 'Inventory'
+
+                }
+                , dataType: 'JSON'
+            }).then(function (response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //$scope.Clear();
+                   // $scope.getData();
+                    //$scope.productNew.Id = response.data.inventoryIssue.Id;
+                }
+            }), function (response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        }
+        else ShowResult('Please issue material', 'failure');
+    };
+
+    $scope.addMaterialStock = function () {
+        //debugger;
+        try {
+            qtyValidation($scope.materialStockList);
+            validationWithTotal($scope.materialStockList);
+            for (var i = baseService.arrayLength($scope.specificStockList) - 1; i >= 0; i--) {
+                var row = $scope.specificStockList[i];
+                for (var t = 0; t < baseService.arrayLength($scope.materialStockList); t++) {
+                    var newRow = $scope.materialStockList[t];
+                    if (row.InventoryReceiveDetailId === newRow.InventoryReceiveDetailId) { // update or delete
+                        if (newRow.Flag) row.RequisitionQty = newRow.RequisitionQty;
+                        else $scope.specificStockList.splice(i, 1);
+                    }
+                }
+            }
+            for (var n = 0; n < baseService.arrayLength($scope.materialStockList); n++) { // add
+                var nRow = $scope.materialStockList[n];
+                nRow.BaseQty = $scope.materialStockList[n].BaseIssueQty;
+                if (!baseService.valueCheckInList($scope.specificStockList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.Flag)
+                    //$scope.detailModel.IsSpecific = true;
+                    $scope.specificStockList.push(nRow);
+            }
+            //$scope.detailList[$scope.index].TransactionQty = issueQty;
+            angular.element(document.querySelector('#stockPopUp')).modal('hide');
+            CloseModalShowResult();
+        } catch (e) {
+            ShowResult(e, 'failure', 'stockPopUp');
+        }
+    };
+    //#endregion
 }
