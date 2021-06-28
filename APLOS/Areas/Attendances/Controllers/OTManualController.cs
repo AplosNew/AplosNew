@@ -161,7 +161,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 string EmpMonth = Convert.ToDateTime(data["WorkDate"]).ToString("MM");
                 con.OpenDataSetThroughAdapter("select Id, EmpSystemId, YearNo, MonthNo, IsLocked from SalaryLock where YearNo = '" + EmpYear + "' and MonthNo = '" + EmpMonth + "' and EmpSystemId IN ( " + empdetails + " ) ", out IsEmpSalaryLocked, false, "1");
 
-                // new validation
+                // new validation of Day Lock
 
                 DataTable dtLock = _sqlRepository.GetDataTable("SELECT * FROM PlantWiseAttendanceLock AS pwal WHERE  isActive=1 AND pwal.LockedDate ='" + data["WorkDate"] + "' AND pwal.PlantId='" + identity.PlantId + "'");
                 DataTable dtLockEmployee = _sqlRepository.GetDataTable("SELECT * FROM ExceptionEmployeeAttendanceUnlock WHERE EmpSystemId IN (" + empdetails + @")");
