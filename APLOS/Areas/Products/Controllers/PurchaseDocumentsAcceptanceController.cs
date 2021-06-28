@@ -1297,7 +1297,7 @@ namespace Aplos.Areas.Products.Controllers
                 left join(select ServicePODetailId,sum(TaxAmount) TaxAmount from trn.ServicePOTax group by ServicePODetailId)c On c.ServicePODetailId=a.id
 				left join scs.UnitOfMeasurement UOM ON A.TransactionUoMId=UOM.Id
 				left join(select ServicePODetailId,sum(Qty) Qty from trn.ServivePOAcknowledgementMap group by ServicePODetailId)Mapdata On Mapdata.ServicePODetailId=a.id 
-                where PDAD.PurchaseDocAcceptanceId='" + acceptanceID + "'";
+                where PDAD.PurchaseDocAcceptanceId='" + acceptanceID + "' AND ISNULL(PDAD.ServicePOMasterId,'')<>'' AND ISNULL(PDAD.ServicePODetailId,'')<>''";
                 return Json(_sqlRepository.GetDataCollection(Sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
