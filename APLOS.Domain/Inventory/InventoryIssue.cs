@@ -50,7 +50,9 @@ namespace Library.Model.Inventory
         public string RefferenceNo { get; set; }
         public string Types { get; set; }
 
-        public string JWContractId { get; set; } 
+        public string JWContractId { get; set; }
+        public string ContractType { get; set; }
+
 
 
         #endregion Scalar Properties

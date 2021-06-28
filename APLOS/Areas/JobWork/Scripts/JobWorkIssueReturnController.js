@@ -88,7 +88,9 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
             $scope.Transformation = Object.assign({}, args.data);
             var PId = $scope.Transformation.Id;
             var TabType = $scope.Transformation.TabType;
-            $scope.Transformation.JWContractId = $scope.Transformation.Id;
+            $scope.IssueTransformation.JWContractId = $scope.Transformation.Id;
+            $scope.IssueTransformation.ContractType = 'Transformation';
+            $scope.TabTypeNew = $scope.Transformation.TabType;
             $http({
                 method: 'POST',
                 url: $scope.path + "GetDataById",
@@ -96,6 +98,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.TransformationTypeList = response.data;
+                $scope.IssueTransformation.JWContractId = response.data[0].Id;
                 if ($scope.TransformationTypeList.length > 0) {
                     $scope.GetTransformationChildData();
                     $scope.ShowHomeList = false;
@@ -112,6 +115,8 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
             $scope.ModelNew = Object.assign({}, args.data);
             var PId = $scope.ModelNew.Id;
             var TabType = $scope.ModelNew.TabType;
+            $scope.IssueTransformation.ContractType = 'Value Added';
+            $scope.TabTypeNew = $scope.Transformation.TabType;
             $http({
                 method: 'POST',
                 url: $scope.path + "GetDataById",
@@ -128,7 +133,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
 
             $scope.setTab(1);
         }
-       
+        $scope.ModelNew.Type = $scope.TabTypeNew;
         //if (!$rootScope.isCollapsed) {
         //    $rootScope.toggle();
         //}
@@ -395,7 +400,8 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
         IsConfirmed: false,
         EntityId: null,
         IssueType: null,
-        JWContractId: null
+        JWContractId: null,
+        ContractType:null
 
     };
     $scope.IssueTransformation = Object.assign({}, $scope.IssueTransformationModelTemp);
@@ -495,6 +501,31 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
 
     $scope.SelectMaterialPlanning = function () {
         //$scope.product = Object.assign({}, $scope.productNew);
+        if (baseService.isUndefinedOrNull($scope.IssueTransformation.IssueDate)) {
+            ShowResult("Select the issue date");
+            return false;
+
+        }
+        if (baseService.isUndefinedOrNull($scope.IssueTransformation.EntityId)) {
+            ShowResult("Select the Entity");
+            return false;
+
+        }
+        if (baseService.isUndefinedOrNull($scope.IssueTransformation.MaterialStorageId)) {
+            ShowResult("Select the Material Storage");
+            return false;
+
+        }
+        if (baseService.isUndefinedOrNull($scope.IssueTransformation.IssueType)) {
+            ShowResult("Select the type");
+            return false;
+
+        }
+        if (baseService.isUndefinedOrNull($scope.IssueTransformation.EmpName)) {
+            ShowResult("Select the wby whom");
+            return false;
+
+        }
         $scope.detailModel = {
             Id: null
             , InventoryReveiveId: null
@@ -1367,18 +1398,62 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
         //    return false;
         //}
         ////debugger;
-        //for (var i = 0; i < $scope.detailList.length; i++) {
-        //    if ($scope.detailList[i].TransactionQty > $scope.detailList[i].PostingQty) {
-        //        ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
-        //        return false;
-        //    }
-        //    if ($scope.detailList[i].TransactionQty > $scope.detailList[i].BalanceQty) {
-        //        ShowResult("Issue qty can not gaterthen  Balance Qty");
-        //        return false;
-        //    }
+        if (baseService.isUndefinedOrNull($scope.IssueTransformation.IssueDate)) {
+            ShowResult("Select the issue date");
+            return false;
 
+        }
+        if (baseService.isUndefinedOrNull($scope.IssueTransformation.EntityId)) {
+            ShowResult("Select the Entity");
+            return false;
 
-        //}
+        }
+        if (baseService.isUndefinedOrNull($scope.IssueTransformation.MaterialStorageId)) {
+            ShowResult("Select the Material Storage");
+            return false;
+
+        }
+        if (baseService.isUndefinedOrNull($scope.IssueTransformation.IssueType)) {
+            ShowResult("Select the type");
+            return false;
+
+        }
+        if (baseService.isUndefinedOrNull($scope.IssueTransformation.EmpName)) {
+            ShowResult("Select the wby whom");
+            return false;
+
+        }
+        for (var i = 0; i < $scope.detailList.length; i++) {
+            if ($scope.detailList[i].TransactionQty > $scope.detailList[i].PostingQty) {
+                ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
+                return false;
+            }
+            //if ($scope.detailList[i].TransactionQty > $scope.detailList[i].BalanceQty) {
+            //    ShowResult("Issue qty can not gaterthen  Balance Qty");
+            //    return false;
+            //}
+            if (baseService.isUndefinedOrNull($scope.detailList[i].CostCenterId)) {
+                ShowResult("Select the cost center");
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailList[i].MaterialMaster)) {
+                ShowResult("Select Material Master");
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailList[i].ArticleName)) {
+                ShowResult("Select ArticleName");
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailList[i].TransactionQty)) {
+                ShowResult("Enter the Issue Qty");
+                return false;
+            }
+            if ($scope.detailList[i].TransactionQty=='0') {
+                ShowResult("Enter the Issue Qty");
+                return false;
+            }
+
+        }
         //for (var i = 0; i < $scope.detailList.length; i++) {
         //    if ($scope.detailList[i].TransactionQty > $scope.detailList[i].RequestedQty) {
         //        ShowResult("Issue qty can not gaterthen Requested Qty");
