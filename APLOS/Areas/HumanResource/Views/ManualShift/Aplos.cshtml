@@ -1,5 +1,5 @@
 ﻿<h3 class="site-heading">
-    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  Manual Attendance Update
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  Manual Shift Update
 </h3>
 <div class="form-horizontal form-elements" id="mainContainer">
     <div id="Tab" ej-tab e-create="actionCompleteSingleEmployee">
@@ -95,29 +95,22 @@
             </div>
 
             <div class="row">
-                <div id="GridChangeAttendance" ng-init="chkinit()" ej-grid e-datasource="employeeAttendance"
+                <div id="GridChangeAttendances" ng-init="chkinit()" ej-grid e-datasource="employeeAttendance"
                      e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-querycellinfo="queryCellInfo"
                      e-allowscrolling="true" e-minheight="400" e-gridlines="vertical" @*e-showstackedheader="true"*@
                      e-actioncomplete="actionCompleteSingleEmployee" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
                      e-filtersettings-filterType="excel">
-                    @*<div e-stackedheaderrows>
-                            <div e-stackedheaderrow>
-                                <div e-stackedheadercolumns>
-                                    <div e-stackedheadercolumn e-headertext="col1" e-column="DayStatus,OTHr"></div>
-                                    <div e-stackedheadercolumn e-headertext="col2" e-column="IsOTEntitled,IsOTComfirm"></div>
-                                </div>
-                            </div>
-                        </div>*@
+
                     <div e-columns>
                         <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>
                         <div e-column e-field="DayName" e-headertext="Day" e-width="50"></div>
                         <div e-column e-template="#shift" e-headertext="Shift" e-width="220"></div>
 
-                        <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
-                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
+                        <div e-column e-template="#indates" e-headertext="In Date" e-width="130"></div>
+                        <div e-column e-template="#intimes" e-headertext="In Time" e-width="120"></div>
                         <div e-column e-field="IsManualInTime" e-headertext="Manual" e-width="50"></div>
-                        <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
-                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
+                        <div e-column e-template="#outdates" e-headertext="Out Date" e-width="130"></div>
+                        <div e-column e-template="#outtimes" e-headertext="Out Time" e-width="120"></div>
                         <div e-column e-field="IsManualOutTime" e-headertext="Manual" e-width="50"></div>
                         <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="50"></div>
                         <div e-column e-field="IsManualDayStatus" e-headertext="Manual" e-width="40"></div>
@@ -164,22 +157,22 @@
                         </div>
 
                     </div>
-                    <div class="col-sm-3">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Time<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" ej-timepicker e-value="Intime" e-width="100%" />
+                    @*<div class="col-sm-3">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Time<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" ej-timepicker e-value="Intime" e-width="100%" />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-sm-3">
-                        <div class="common-btn">
-                            <ul class="common-btn list-inline text-right">
-                                <li><button ng-click="SetIn()" class="btn" tabindex="10">Set IN</button></li>
-                                <li><button ng-click="SetOut()" class="btn" tabindex="10">Set OUT</button></li>
-                            </ul>
-                        </div>
-                    </div>
+                        <div class="col-sm-3">
+                            <div class="common-btn">
+                                <ul class="common-btn list-inline text-right">
+                                    <li><button ng-click="SetIn()" class="btn" tabindex="10">Set IN</button></li>
+                                    <li><button ng-click="SetOut()" class="btn" tabindex="10">Set OUT</button></li>
+                                </ul>
+                            </div>
+                        </div>*@
                     <div class="col-sm-2">
                         <div class="common-btn">
                             <ul class="common-btn list-inline text-right">
@@ -190,7 +183,7 @@
                 </div>
             </div>
             <div class="row">
-                <div id="GridChangeAttendanceBySingleDate" ng-init="chkinit()" ej-grid e-datasource="employeeAttendanceBySingleDate"
+                <div id="GridChangeAttendanceBySingleDates" ng-init="chkinit()" ej-grid e-datasource="employeeAttendanceBySingleDate"
                      e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                      e-allowscrolling="true" e-minheight="400" e-gridlines="none" e-querycellinfo="queryCellInfo"
                      e-actioncomplete="actionCompleteSingleDay" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
@@ -200,11 +193,11 @@
                         <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="150"></div>
                         <div e-column e-template="#allShiftSingleDay" e-headertext="Shift" e-width="220"></div>
 
-                        <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
-                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
+                        <div e-column e-template="#indates" e-headertext="In Date" e-width="130"></div>
+                        <div e-column e-template="#intimes" e-headertext="In Time" e-width="120"></div>
                         <div e-column e-field="IsManualInTime" e-headertext="Manual" e-width="50"></div>
-                        <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
-                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
+                        <div e-column e-template="#outdates" e-headertext="Out Date" e-width="130"></div>
+                        <div e-column e-template="#outtimes" e-headertext="Out Time" e-width="120"></div>
                         <div e-column e-field="IsManualOutTime" e-headertext="Manual" e-width="50"></div>
                         <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="50"></div>
                         <div e-column e-field="IsManualDayStatus" e-headertext="Manual" e-width="40"></div>
@@ -278,20 +271,24 @@
     </div>
 </script>
 
-<script type="text/template" id="indate">
-    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-width="100%" />
+<script type="text/template" id="indates">
+    @*<input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-width="100%" ng-disabled="true" />*@
+    <input type="text" name="Value" ng-model="data.InDate" class="form-control" required tabindex="5" maxlength="50" ng-disabled="true">
 </script>
-<script type="text/template" id="intime">
+<script type="text/template" id="intimes">
 
-    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%" />
-
+    @*<input type="text" ej-timepicker e-value="data.InTime" e-width="100%" ng-disabled="true" />*@
+    <input type="text" name="Value" ng-model="data.InTime" class="form-control" required tabindex="5" maxlength="50" ng-disabled="true">
 </script>
-<script type="text/template" id="outdate">
-    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.OutDate" e-width="100%" />
+<script type="text/template" id="outdates">
+    @*<input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.OutDate" e-width="100%" ng-disabled="true" />*@
+    <input type="text" name="Value" ng-model="data.OutDate" class="form-control" required tabindex="5" maxlength="50" ng-disabled="true">
 </script>
-<script type="text/template" id="outtime">
+<script type="text/template" id="outtimes">
 
-    <input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" />
+    @*<input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" ng-disabled="true" />*@
+
+    <input type="text" name="Value" ng-model="data.OutTime" class="form-control" required tabindex="5" maxlength="50" ng-disabled="true">
 
 </script>
 <div class="row">
