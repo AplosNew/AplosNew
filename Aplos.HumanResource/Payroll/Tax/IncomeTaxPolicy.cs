@@ -283,7 +283,7 @@ namespace Library.HumanResource.Payroll.Tax
                 {
                     if (item.IsSelectPolicy == true)
                     {
-                        var ForAll = db.Where(r => r.SystemID == item.TaxPolicyID && r.Male == true && r.Female == true && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
+                        var ForAll = db.Where(r => r.SystemID == item.TaxPolicyID && r.Male  && r.Female  && r.TaxYearID == item.TaxPolicyYearID ).FirstOrDefault();
                         var ForMale = db.Where(r => r.SystemID == item.TaxPolicyID && r.Male == true && r.Female == false && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
                         var ForFemale = db.Where(r => r.SystemID == item.TaxPolicyID && r.Female && r.Male == false && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
 
@@ -312,6 +312,7 @@ namespace Library.HumanResource.Payroll.Tax
                             drBp["Id"] = pk;
                             drBp["TaxPolicyId"] = item.TaxPolicyID;
                             drBp["PlantId"] = item.PlantId;
+                            drBp["IsDefaultPolicy"] = item.IsDefaultPolicy;
 
                             drBp["AddedBy"] = identity.Name;
                             drBp["AddedDate"] = DateTime.Now;
@@ -680,6 +681,7 @@ namespace Library.HumanResource.Payroll.Tax
                     drLocal["Description"] = ui_master.Description;
                     drLocal["OptionBasedValue"] = ui_master.OptionBasedValue;
                     drLocal["IsOptionBased"] = ui_master.IsOptionBased;
+                    drLocal["IsOptionBaseDefault"] = ui_master.IsOptionBaseDefault;
 
                     drLocal["AddedBy"] = identity.Name;
                     drLocal["AddedDate"] = bplib.clsWebLib.DateData_AppToDB(DateTime.Now.ToShortDateString().ToString(), bplib.clsWebLib.DB_DATE_FORMAT);
@@ -1136,6 +1138,7 @@ namespace Library.HumanResource.Payroll.Tax
 
                 strSQL = @"SELECT IsSelectPolicy = Case WHEN p.TaxPolicyID IS NULL THEN Convert(bit, 'False')
                             ELSE Convert(bit, 'True') END, b.SystemID TaxPolicyID, b.TaxPolicyName,b.Description,b.TaxYearID TaxPolicyYearID,y.TaxYearName,p.Id 
+                            ,p.IsDefaultPolicy
                             FROM TaxPolicyMaster b                            
 							LEFT JOIN SCS.TaxYear y on y.Id=b.TaxYearID
 							LEFT JOIN TaxPolicyPlantWise p ON p.TaxPolicyID = b.SystemID
@@ -1980,6 +1983,8 @@ public class MasterData
     public string TaxYearID { get; set; }
     public bool Male { get; set; }
     public bool Female { get; set; }
+    public double AgeFrom { get; set; }
+    public double AgeTo { get; set; }
 
 }
 public class TaxPolicyPlantWise : BaseModel
@@ -1990,6 +1995,7 @@ public class TaxPolicyPlantWise : BaseModel
     public string TaxPolicyYearID { get; set; }
     public string PlantId { get; set; }
     public bool IsSelectPolicy { get; set; }
+    public bool IsDefaultPolicy { get; set; }
 
     #endregion Scalar Properties
 
@@ -2016,6 +2022,7 @@ public class TaxGeneralFormula
     public string Description { get; set; }
     public string OptionBasedValue { get; set; }
     public bool IsOptionBased { get; set; }
+    public bool IsOptionBaseDefault { get; set; }
 }
 
 public class TaxGeneralFormulaDetail

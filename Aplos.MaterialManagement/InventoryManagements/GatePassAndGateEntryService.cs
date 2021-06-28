@@ -2346,7 +2346,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         LEFT JOIN [ORG].[Plant] P ON P.Id=IR.ToPlantId
                         Left JOIN HKP.Party PC ON PC.Id=IR.ToPartyCode
                         left JOIN [MST].[AddressMaster] AM ON AM.Id=pC.AddressMasterId
-                        LEFT JOIN hkp.PartyPlant PP ON PP.PartyId=PC.Id
+                         LEFT JOIN hkp.PartyPlant PP ON PP.AddressMasterId=AM.Id
                     Where IR.Id='" + GatePassId + @"'Order By IR.[Id] DESC";
 
                 return _sqlRepository.GetDataTable(strSQL);
