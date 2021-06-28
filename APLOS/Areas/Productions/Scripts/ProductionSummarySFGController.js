@@ -17,6 +17,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
     $scope.TotalSalesOrderQty = 0;
     $scope.TotalProductionBookingQty = 0;
     $scope.RemainQty = 0;
+    $scope.FromEntity = null;
     $scope.gradeList = [
         {
             'Value': 'A',
@@ -323,6 +324,8 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
     //#region SFG Movement
     $scope.listFromProcessOrSFGInventory = [];
     $scope.GetSFGMovementFromCbo = function (entity) {
+        $scope.FromEntity = $("#ddlEntity option:selected").text();
+
         $http({
             method: 'GET',
             url: 'Productions/ProductionSummary/GetSFGMovementFromCbo?entity=' + entity,
