@@ -103,37 +103,35 @@
 
             </div>
             <div class="form-group" ng-show="IsGo===true">
-                <label class="col-sm-12 control-label" style="color:blue">Only Running order will be consider for production booking.</label>
+                <label class="col-sm-12 control-label" style="color:blue;font-size:11px">Only Running order will be consider for production booking.</label>
             </div>
 
             <h3 class="site-heading" style="cursor:unset;"></h3>
             @*<div class="col-xs-12">
-                </div>*@
-
+        </div>*@
+            <div class="form-group" ng-show="IsGo===true">
+                <label class="col-sm-4 control-label">From Production Entity</label>
+                <div class="col-sm-8">
+                    <label class="control-label">{{FromEntity}}</label>
+                </div>
+            </div>
             <div class="form-group" ng-show="IsGo===true">
                 <label class="col-sm-4 control-label">From Process </label>
                 <div class="col-sm-8">
                     <label class="control-label">{{Process}}</label>
                 </div>
             </div>
-
-            <div class="form-group" show-errors ng-show="IsGo===true">
-                <label class="col-sm-4 control-label">To<sup>*</sup></label>
+            <div class="form-group" ng-show="IsGo===true">
+                <label class="col-sm-4 control-label">From Work Center <sup ng-show="Status === 'PROCESS'">*</sup></label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select class="form-control" ng-model="productionSummaryNew.ToProcessId" ng-change="ToProcessStatus();"
-                                name="To" ng-options="item.ToId as item.UserName for item in listToProcessOrSFGInventory">
+                        <select class="form-control" id="ddlWC" ng-model="productionSummaryNew.WorkCenterMasterId" name="Work Center" ng-options="item.Value as item.Text for item in wcList">
                             <option value=""></option>
                         </select>
                     </div>
-                    @*<div class="select-style" ng-show="Status==='INVENTORY'">
-                            <select class="form-control" ng-model="productionSummaryNew.ToSFGInventoryId" ng-change="getProdLevel();"
-                                    name="ToId" ng-options="item.ToId as item.UserName for item in listToProcessOrSFGInventory" required>
-                                <option value=""></option>
-                            </select>
-                        </div>*@
                 </div>
             </div>
+
 
             <div class="form-group" ng-show="IsGo===true">
                 <label class="col-sm-4 control-label">{{ProductionLevel}}<sup>*</sup></label>
@@ -228,14 +226,33 @@
                     <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
                 </div>
             </div>
+
             <div class="form-group" ng-show="IsGo===true">
-                <label class="col-sm-4 control-label">From Work Center <sup ng-show="Status === 'PROCESS'">*</sup></label>
+                <label class="col-sm-4 control-label">To Production Entity<sup>*</sup></label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select class="form-control" id="ddlWC" ng-model="productionSummaryNew.WorkCenterMasterId" name="Work Center" ng-options="item.Value as item.Text for item in wcList">
+                        <select class="form-control" id="ddlEntity" ng-model="productionSummaryNew.ToEntityId" @*ng-change="GetSFGMovementFromCbo(productionSummaryNew.EntityId)"*@ name="Entity" ng-options="item.Id as item.UserName for item in entityList">
                             <option value=""></option>
                         </select>
                     </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors ng-show="IsGo===true">
+                <label class="col-sm-4 control-label">To<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="productionSummaryNew.ToProcessId" ng-change="ToProcessStatus();"
+                                name="To" ng-options="item.ToId as item.UserName for item in listToProcessOrSFGInventory">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                    @*<div class="select-style" ng-show="Status==='INVENTORY'">
+                    <select class="form-control" ng-model="productionSummaryNew.ToSFGInventoryId" ng-change="getProdLevel();"
+                            name="ToId" ng-options="item.ToId as item.UserName for item in listToProcessOrSFGInventory" required>
+                        <option value=""></option>
+                    </select>
+                </div>*@
                 </div>
             </div>
             <div class="form-group" ng-show="IsGo===true && wcToProcessList.length>0">
