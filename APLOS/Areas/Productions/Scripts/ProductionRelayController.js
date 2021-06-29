@@ -109,18 +109,13 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
                 url: 'Productions/ProductionRelay/GetProductionRelay?EntityId=' + $scope.ProductionRelayNew.EntityId + '&ProcessId=' + $scope.ProductionRelayNew.ProcessId,
             }).then(function successCallback(response) {
                 $scope.ProductionRelayList = response.data;
-            }
-            )
-
+            })
             $http({
                 method: 'GET',
                 url: 'Productions/ProductionRelay/GetProductionRelayClosed?EntityId=' + $scope.ProductionRelayNew.EntityId + '&ProcessId=' + $scope.ProductionRelayNew.ProcessId,
             }).then(function successCallback(response) {
                 $scope.ProductionRelayClosedList = response.data;
-            }
-            )
-
-
+            })
         } catch (e) {
             ShowResult(e, 'failure');
         }

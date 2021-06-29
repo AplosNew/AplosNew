@@ -365,9 +365,6 @@ namespace Aplos.Areas.Productions.Controllers
 
             document.Close();
         }
-
-
-
         public DataTable PackingListSQL(string PackingId)
         {
             string strSQL;
