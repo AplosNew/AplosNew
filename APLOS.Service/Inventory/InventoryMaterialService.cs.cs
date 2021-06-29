@@ -1452,9 +1452,16 @@ namespace Library.Service.Inventory
 								,ActivityId=CASE WHEN IRD.ActivityId<>'' THEN IRD.ActivityId ELSE MGGL.ExpenseActivityId END
 								,ActivityCode=CASE WHEN IRD.ActivityId<>'' THEN AI.Code ELSE A.Code END
 								,ActivityName=CASE WHEN IRD.ActivityId<>'' THEN AI.UserName ELSE A.UserName END
-								, IH.PostDrGLGeneralInfoId , IH.GAccountCode, IH.GUserName 
-	                            , IH.PostDrBudgetMasterId , IH.BCode , IH.BUserName 
-                                , IH.PostDrActivityId , IH.ACode , IH.AUserName 
+								,PostDrGLGeneralInfoId=CASE WHEN IR.[Types]='InventoryJWIssue' THEN GADJW.GLGeneralInfoId ELSE  IH.PostDrGLGeneralInfoId END
+								,GAccountCode=CASE WHEN IR.[Types]='InventoryJWIssue' THEN GGLJW.AccountCode ELSE  IH.GAccountCode END
+							    ,GUserName=CASE WHEN IR.[Types]='InventoryJWIssue' THEN GGLJW.UserName ELSE IH.GUserName END
+	                            , PostDrBudgetMasterId=CASE WHEN IR.[Types]='InventoryJWIssue' then GADJW.BudgetMasterId ELSE IH.PostDrBudgetMasterId  END
+								, BCode=CASE WHEN IR.[Types]='InventoryJWIssue' THEN GBJW.Code ELSE IH.BCode END
+								, BUserName=CASE WHEN IR.[Types]='InventoryJWIssue' THEN GBJW.UserName ELSE IH.BUserName END
+                                , PostDrActivityId=CASE WHEN IR.[Types]='InventoryJWIssue' THEN GADJW.ActivityId ELSE IH.PostDrActivityId END
+                                , ACode=CASE WHEN IR.[Types]='InventoryJWIssue' THEN GAJW.Code ELSE IH.ACode END
+								, AUserName=CASE WHEN IR.[Types]='InventoryJWIssue' THEN GAJW.UserName ELSE IH.AUserName END
+
                                 ,IRD.BudgetMasterId IssueBudgetMasterId,IRD.ActivityId IssueActivityId
 								,MGGL.ExpenseBudgetMasterId,MGGL.ExpenseActivityId
 								,GAD.GLGeneralInfoId WIPGLGeneralInfoId
@@ -1495,6 +1502,11 @@ namespace Library.Service.Inventory
                         LEFT JOIN[MST].[BudgetMaster] AS GBM ON GAD.BudgetMasterId= GBM.Id
                         LEFT JOIN [HKP].[Budget] AS GB ON GBM.BudgetId= GB.Id
                         LEFT JOIN [HKP].[Activity] AS GA ON GAD.ActivityId= GA.Id
+						LEFT JOIN HKP.GeneralAccountDeterminate GADJW ON GADJW.COAId=Cmp.COAId and GADJW.Id='ReceiveGoodsFromJobWork'
+						 LEFT JOIN [HKP].[GLGeneralInfo] AS GGLJW ON GGLJW.Id=GADJW.GLGeneralInfoId
+                        LEFT JOIN[MST].[BudgetMaster] AS GBMJW ON GADJW.BudgetMasterId= GBMJW.Id
+                        LEFT JOIN [HKP].[Budget] AS GBJW ON GBMJW.BudgetId= GBJW.Id
+                        LEFT JOIN [HKP].[Activity] AS GAJW ON GADJW.ActivityId= GAJW.Id
 						LEFT JOIN (select distinct  InventoryIssueDetailId ,ID.PostDrGLGeneralInfoId, GL.AccountCode GAccountCode, GL.UserName GUserName
 						, ID.PostDrBudgetMasterId, B.Code BCode, B.UserName BUserName, ID.PostDrActivityId, A.Code ACode, A.UserName AUserName,SUM(iih.Qty*iih.Rate) Amount
 						from  [TRN].[InventoryIssueHistory] iih join TRN.InventoryReceiveDetail id on id.Id=iih.InventoryReceiveDetailId
