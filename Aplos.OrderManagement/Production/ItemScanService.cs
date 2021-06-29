@@ -386,7 +386,7 @@ namespace Library.Service.EmployeeServices
                 var _sql = @"select distinct p.PackingId as Value from trn.Packing p
 		     left join EmployeeInformation e on e.SystemId=p.ByWhom
 		     left join [SEC].[User] u on u.EmployeeId=e.SystemId
-		     where p.CustomerId = '"+Cust+"' and u.UserId='"+User+"'";
+		     where p.CustomerId = '"+Cust+"' and u.UserId='"+User+"'"; //testing
              
             return _sqlRepository.GetDataCollection(_sql, null);
             }
