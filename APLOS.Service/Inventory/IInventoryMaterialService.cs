@@ -59,6 +59,7 @@ namespace Library.Service.Inventory
         InventoryMaterial GetInventoryMaterialByUpToSku(InventoryMaterialViewModel entity);
 
         IEnumerable<InventoryMaterial> GetInventoryMaterialListByUpToSku(IEnumerable<InventoryMaterialViewModel> entities, string companyId, string plantId);
+        IEnumerable<InventoryMaterial> GetJWInventoryMaterialListByUpToSku(IEnumerable<InventoryMaterialViewModel> entities, string companyId, string plantId);
         void UpdateFromReceive(string inventoryMaterialId, string receiveDetailId);
         IEnumerable<InventoryMaterial> GetInventoryIssueMaterialListByUpToSku(IEnumerable<RequisitionIssueDetailViewModel> entities, string companyId, string plantId);
         IEnumerable<object> GetInventoryTaxList(string inveReveiveId);
@@ -79,8 +80,8 @@ namespace Library.Service.Inventory
         void JWInsertOrUpdateFromReceive(InventoryMaterialViewModel entity);
         InventoryMaterial JWGetInventoryMaterialByUpToSku(InventoryMaterialViewModel entity);
         IEnumerable<object> JWOutPutQuery(string inveReveiveId);
-        IEnumerable<object> JWByProductQuery(string inveReveiveId); 
-        
+        IEnumerable<object> JWByProductQuery(string inveReveiveId);
 
+        Dictionary<string, object> GetJWStock(InventoryMaterialViewModel entity, string issueDate); 
     }
 }

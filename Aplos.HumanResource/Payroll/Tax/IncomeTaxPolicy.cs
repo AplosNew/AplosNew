@@ -194,7 +194,7 @@ namespace Library.HumanResource.Payroll.Tax
             }
         }
 
-        void valid(MasterData masterData, ref bool IsAvailable, ref string Year, string msg)
+        void valid(MasterData masterData, ref bool IsAvailable, ref string Year, string msg, ref decimal AgeFrom, ref decimal AgeTo)
         {
 
             try
@@ -205,11 +205,22 @@ namespace Library.HumanResource.Payroll.Tax
                     {
                         IsAvailable = true;
                         Year = masterData.TaxYearID;
+                        AgeFrom = masterData.AgeFrom;
+                        AgeTo = masterData.AgeTo;
                     }
                     else if (IsAvailable == true && Year != masterData.TaxYearID)
                     {
                         IsAvailable = true;
                         Year = masterData.TaxYearID;
+                        AgeFrom = masterData.AgeFrom;
+                        AgeTo = masterData.AgeTo;
+                    }
+                    else if (IsAvailable == true && Year == masterData.TaxYearID && masterData.AgeFrom != AgeFrom && masterData.AgeTo != AgeTo)
+                    {
+                        IsAvailable = true;
+                        Year = masterData.TaxYearID;
+                        AgeFrom = masterData.AgeFrom;
+                        AgeTo = masterData.AgeTo;
                     }
                     else
                     {
@@ -240,6 +251,8 @@ namespace Library.HumanResource.Payroll.Tax
                 DataSet dsBp = null;
                 DataView dvBp = null;
                 DataRow drBp = null;
+                DataView _dvSave = null;
+
                 string BPId = string.Empty;
                 string sql = "SELECT * FROM [dbo].[TaxPolicyPlantWise] ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -255,7 +268,7 @@ namespace Library.HumanResource.Payroll.Tax
                     string policyID = dsBp.Tables[0].Rows[i]["TaxPolicyID"].ToString();
                     foreach (var item in BP)
                     {
-                        if (item.TaxPolicyID == policyID )
+                        if (item.TaxPolicyID == policyID /*&& item.IsSelectPolicy == false*/)
                         {
                             DataView dv = new DataView(dsBp.Tables[0]);
                             dv.RowFilter = "Id='" + item.Id + "'";
@@ -266,25 +279,8 @@ namespace Library.HumanResource.Payroll.Tax
                         }
                     }
                 }
-                //foreach (var item in BP)
-                //{
-                //    if (item.IsSelectPolicy)
-                //    {
-                //        string sql1 = "SELECT * FROM [dbo].[TaxPolicyPlantWise] WHERE TaxPolicyId='" + item.TaxPolicyID + "' and PlantId = '" + item.PlantId + "' ";
-
-                //    }
-                //}
-                //objCon = new ConnectionManager.DAL.ConManager("1");
-                //objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
-                //while (dsMaster.Tables[0].DefaultView.Count > 0)
-                //{
-                //    dsMaster.Tables[0].DefaultView[0].Delete();
-                //}
-
 
                 objCon.OpenDataSetThroughAdapter(sql, out dsBp, false, "1");
-
 
                 bool IsForAll = false;
                 bool IsForMale = false;
@@ -292,6 +288,12 @@ namespace Library.HumanResource.Payroll.Tax
                 string YearId = null;
                 string YearIda = null;
                 string YearIdaa = null;
+                decimal ageFromall = 0;
+                decimal ageFromMale = 0;
+                decimal ageFromFemale = 0;
+                decimal ageToAll = 0;
+                decimal ageToMale = 0;
+                decimal ageToFemale = 0;
 
 
                 foreach (var item in BP)
@@ -302,11 +304,11 @@ namespace Library.HumanResource.Payroll.Tax
                         var ForMale = db.Where(r => r.SystemID == item.TaxPolicyID && r.Male == true && r.Female == false && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
                         var ForFemale = db.Where(r => r.SystemID == item.TaxPolicyID && r.Female && r.Male == false && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
 
-                        valid(ForAll, ref IsForAll, ref YearId, "Only one policy is allowed for 'No Gender Specific'");
-                        valid(ForMale, ref IsForMale, ref YearIda, "Only one policy is allowed for 'Male'");
-                        valid(ForFemale, ref IsForFemale, ref YearIdaa, "Only one policy is allowed for 'Female'");
+                        valid(ForAll, ref IsForAll, ref YearId, "Only one policy is allowed for 'No Gender Specific'", ref ageFromall,ref ageToAll);
+                        valid(ForMale, ref IsForMale, ref YearIda, "Only one policy is allowed for 'Male'", ref ageFromMale,ref ageToMale);
+                        valid(ForFemale, ref IsForFemale, ref YearIdaa, "Only one policy is allowed for 'Female'", ref ageFromFemale, ref ageToFemale);
 
-                        if (IsForAll && YearId == item.TaxPolicyYearID)
+                        if (IsForAll && YearId == item.TaxPolicyYearID )
                         {
                             if (IsForMale == true && YearIda == item.TaxPolicyYearID || IsForFemale == true && YearIdaa == item.TaxPolicyYearID)
                             {
@@ -335,6 +337,16 @@ namespace Library.HumanResource.Payroll.Tax
 
                             dsBp.Tables[0].Rows.Add(drBp);
                         }
+                        //else
+                        //{
+                        //    DataRow dr = dsBp.Tables[0].DefaultView[0].Row;
+                        //    dr.BeginEdit();
+                        //    dr["IsDefaultPolicy"] = item.IsDefaultPolicy;
+                        //    dr["UpdatedBy"] = identity.Name;
+                        //    dr["UpdatedDate"] = DateTime.Now;
+                        //    dr["UpdatedFromIP"] = identity.IPAddress;
+                        //    dr.EndEdit();
+                        //}
                     }
                 }
                 clsStaticInfo obj = new clsStaticInfo();

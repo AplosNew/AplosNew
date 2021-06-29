@@ -874,6 +874,7 @@ var upanelApp = angular
     .controller("generalLedgerVSfixedAssetsController", generalLedgerVSfixedAssetsController)
     .controller("ProductionRelayController", ProductionRelayController)
     .controller("inventoryJobWorkReceivedController", inventoryJobWorkReceivedController)
+    .controller("ManualShiftController", ManualShiftController)
 
 
     .config(AccessControllerConfig)

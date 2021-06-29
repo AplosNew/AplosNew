@@ -3625,6 +3625,7 @@ namespace Library.Service.Invoices
                         InvoiceId = invoice.Id,
                     };
                     invoice.Amount = invoiceDetail.Amount;
+                    InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                     // INSERT INTO VoucherDetail
                     var voucherCr = new VoucherDetail
                     {
@@ -3649,7 +3650,7 @@ namespace Library.Service.Invoices
 
 
                     //_invoiceDetailRepository.Insert(invoiceDetail);
-                    InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
+                    
                     currentVoucherDetaiRecord++;
                     _voucherService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord);
 
