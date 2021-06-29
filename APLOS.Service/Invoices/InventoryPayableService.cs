@@ -838,6 +838,7 @@ namespace Library.Service.Invoices
                 decimal totalAmountCr = 0;
                 var invoiceTaxPk = _invoiceTaxService.GetMaxNumber();
 
+
                 foreach (var voucherDetailVM in voucherDetailVMList.Where(r => r.Amount > 0))
                 {
                     if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
