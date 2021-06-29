@@ -37,7 +37,11 @@ function jwTransformationMasterController(cboService, commonMessage, $scope, $ro
     });
 
 
-
+    $scope.serviceCboList = [];
+    $http.get('Setups/CompanyServiceMaster/GetCboList')
+        .then(function (response) {
+            $scope.serviceCboList = response.data;
+        });
     $scope.getData = function () {
         $http({
             method: 'POST',

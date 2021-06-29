@@ -105,7 +105,7 @@ namespace Aplos.Areas.JobWork.Controllers
         [HttpGet, Authorize]
         public JsonResult GetJobWorkActivityList()
         {
-            string strSql = @"SELECT * FROM JWActivity WHERE Type = '" + JobWorkType.Transformation.ToString() + "'";
+            string strSql = @"SELECT * FROM HKP.JobWorkActivity WHERE Type = '" + JobWorkType.Transformation.ToString() + "'";
             return Json(_sqlRepository.GetDataCollection(strSql, null), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
