@@ -148,12 +148,12 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, List<string> ActivityList, List<Dictionary<string, object>> ItemList)
+        public JsonResult Create(Dictionary<string, object> data, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
         {
             try
             {
                 JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
-                data = JobWorkCommon.Create(data, CheckedByStatusForNoti, ApprovedByStatusForNoti, ActivityList, ItemList);
+                data = JobWorkCommon.Create(data, CheckedByStatusForNoti, ApprovedByStatusForNoti);
                 return Json(new { Data = data, Message = AplosMessage.Success + " PO no <b>" + data["Id"] + "</b>" });
             }
             catch (Exception ex)
@@ -283,13 +283,6 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
             return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetJWItemList(column, value), null), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult GetJWTransformationPurchaseOrderId(string JWTransformationPurchaseOrderId)
-        {
-            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
-            return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetJWTransformationPurchaseOrderId(JWTransformationPurchaseOrderId), null), JsonRequestBehavior.AllowGet);
         }
         
         [Authorize, HttpGet]

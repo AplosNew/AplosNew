@@ -35,7 +35,7 @@ function BonusProcessController(cboService, commonMessage, $scope, $rootScope, b
     $scope.getHead();
 
     $scope.BonusList = [];
-    $scope.getBonus = function () {
+    $scope.getBonuses = function () {
         $http({
             method: 'GET',
             url: $scope.path + "GetBonus",
@@ -43,7 +43,7 @@ function BonusProcessController(cboService, commonMessage, $scope, $rootScope, b
             $scope.BonusList = response.data;
         });
     }
-    $scope.getBonus();
+    $scope.getBonuses();
     //#endregion
 
     $scope.Process = function () {

@@ -210,7 +210,7 @@ namespace OTSBD
 
                                                        DATEDIFF(DD, REPLACE(Convert(varchar(11), E.DOJ, 106),' ','-'), '" + sCutOffDate + @"') + 1 ServiceLength_Day,
 													   DATEDIFF(MM, REPLACE(Convert(varchar(11), E.DOJ, 106),' ','-'), '" + sCutOffDate + @"') ServiceLength_Month,
-
+                                                        DATEDIFF(MM, REPLACE(Convert(varchar(11), E.DOJ, 106),' ','-'), '28-Jun-2021') ServiceLength,
                                                        REPLACE(Convert(varchar(11), E.DOC, 106),' ','-') AS DOC, 
 
                                                     ConfirmServiceLength_Day = CASE WHEN (DATEDIFF(DD, REPLACE(Convert(varchar(11), E.DOC, 106),' ','-'), '" + sCutOffDate + @"') + 1) > 0 THEN 
@@ -254,6 +254,8 @@ namespace OTSBD
                                                                 WHERE E.PlantID = '" + sPlantID + @"' AND E.SalaryRuleMasterSystemID IS NOT NULL
                                         AND E.DOJ <= CONVERT(DATETIME, '" + sCutOffDate + @"') AND (DOS >= CONVERT(DATETIME, '" + sCutOffDate + @"') OR DOS IS NULL)
                                  ) A
+                                LEFT JOIN (	SELECT DENSE_RANK() OVER (PARTITION BY bnX.BPMSystemID ORDER BY bnX.MinServLen) AS RNK,*  FROM BonusPolicyDetail BNX ) AS BN ON bn.BPMSystemID = A.BnsPolMstSystemID 
+                                    AND  ((bn.RNK=1 AND A.ServiceLength >= bn.MinServLen) OR (BN.RNK>1 AND A.ServiceLength > bn.MinServLen )) and A.ServiceLength <= bn.MaxServLen
                                 --WHERE (BnsPolMstSystemID = '" + sBonusPolicyMstSystemID + @"' OR BnsPolMstSystemID = 'NULL')
                                 WHERE (BnsPolMstSystemID = '" + sBonusPolicyMstSystemID + @"')
                                                   ORDER BY EmployeeCode";
