@@ -12,12 +12,20 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.ProductionRelayList = [];
+    $scope.ProductionRelayClosedList = [];
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
     $scope.ProductionRelay = {
-            
-        Id: null,      
+        Id: null,
         EntityId: null,
         ProcessId: null,
-
     };
     $scope.ProductionRelayNew = Object.assign({}, $scope.ProductionRelay);
 
@@ -84,9 +92,9 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
                 $scope.Sequence = $scope.listFromProcessOrSFGInventory[i].Sequence - 1;
                 break;
             }
-        }        
+        }
     };
-    
+
     $scope.getProductionRelay = function () {
         try {
 
@@ -94,20 +102,33 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
                 throw 'Plase select entity';
 
             if (angular.isUndefinedOrNull($scope.ProductionRelayNew.ProcessId))
-                throw 'Plase select process';           
+                throw 'Plase select process';
 
             $http({
-
                 method: 'GET',
                 url: 'Productions/ProductionRelay/GetProductionRelay?EntityId=' + $scope.ProductionRelayNew.EntityId + '&ProcessId=' + $scope.ProductionRelayNew.ProcessId,
             }).then(function successCallback(response) {
                 $scope.ProductionRelayList = response.data;
             }
             )
+
+            $http({
+                method: 'GET',
+                url: 'Productions/ProductionRelay/GetProductionRelayClosed?EntityId=' + $scope.ProductionRelayNew.EntityId + '&ProcessId=' + $scope.ProductionRelayNew.ProcessId,
+            }).then(function successCallback(response) {
+                $scope.ProductionRelayClosedList = response.data;
+            }
+            )
+
+
         } catch (e) {
             ShowResult(e, 'failure');
-        }        
+        }
     }
+    $scope.getProductionRelay();
+
+
+
     $scope.ProductionRelayAllCheck = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
     };
@@ -138,7 +159,7 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'ProductionRelayData': $scope.ActiveList},
+                data: { 'ProductionRelayData': $scope.ActiveList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
