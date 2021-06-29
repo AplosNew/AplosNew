@@ -2,7 +2,7 @@
 'use strict';
 ProductionRelayController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function ProductionRelayController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = "Daily Target";
+    $rootScope.title = "Production Relay";
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.costingTypeses = [];
@@ -125,9 +125,6 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, 'failure');
         }
     }
-   /* $scope.getProductionRelay();*/
-
-
 
     $scope.ProductionRelayAllCheck = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
@@ -138,7 +135,7 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
             ChkOrUnchk = true;
         }
         for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
-            $scope.ProductionRelayList[i].IsCompleted = ChkOrUnchk;
+            $scope.ProductionRelayList[i].Checked = ChkOrUnchk;
         }
 
         var gridObj = $("#GridProductionRelay").data("ejGrid");
@@ -147,7 +144,7 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
 
     $scope.Save = function () {
         try {
-            $scope.ActiveList = [];
+                      $scope.ActiveList = [];
 
             for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
                 if ($scope.ProductionRelayList[i].Checked) {

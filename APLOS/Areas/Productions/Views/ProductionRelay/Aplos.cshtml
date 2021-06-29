@@ -1,5 +1,5 @@
 ﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Production Relay</h3>
-<div class="form-elements form-horizontal" ng-form name="DailyTargetForm">
+<div class="form-elements form-horizontal" ng-form name="ProductionRelayForm">
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group">
@@ -87,7 +87,7 @@
 
                 </div>
                 <script type="text/x-jsrender" id="headerTemplate">
-                    <input type="checkbox" id="headchk" />
+                    <input type="checkbox" id="headchk"/>
                 </script>
                 <script type="text/template" id="checkboxTemplate">
                     <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Checked" e-checked="data.Checked" />
@@ -115,7 +115,7 @@
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">            
                     <div id="GridProductionRelayClosed" ng-init="chkinit()" e-load="actionCompleteSearch" ej-grid e-datasource="ProductionRelayClosedList"
-                         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-templaterefresh="ProductionRelayAllCheck"
+                         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                          e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
                          e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                          e-allowselection="false" e-filtersettings-filterType="excel">

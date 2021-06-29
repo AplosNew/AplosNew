@@ -55,6 +55,11 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
+                if (clsStaticInfo.nullrecorder(ProductionRelayData) == "" )
+                {
+                    throw new Exception("Please select at least one production process.");
+                }
+
                 DataSet dsProductionRelay;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -93,7 +98,7 @@ namespace Aplos.Areas.Productions.Controllers
                         dr.BeginEdit();
 
                         dr["IsCompleted"] = true;
-                        dr["CompletedBy"] = ProductionRelayData[i]["ClosedBy"];
+                        dr["CompletedBy"] = identity.Name;
                         dr["CompletionEntryDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -278,8 +283,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                             WHERE isnull(s.username,'') IN ('RUNNING') 
                             AND ((ISNULL(ppr.Id,'')<>'' AND ISNULL(ppr.StartDate,'')<>'') OR ISNULL(ppr.Id,'')='')
-                            AND  PO.entityid='" + EntityId + @"' and  PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=0
-				";
+                            AND  PO.entityid='" + EntityId + @"' and  PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=0";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
