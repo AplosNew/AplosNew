@@ -108,6 +108,21 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
                 method: 'GET',
                 url: 'Productions/ProductionRelay/GetProductionRelay?EntityId=' + $scope.ProductionRelayNew.EntityId + '&ProcessId=' + $scope.ProductionRelayNew.ProcessId,
             }).then(function successCallback(response) {
+
+                for (var i = 0; i < response.data.length; i++) {
+                    if (angular.isUndefinedOrNull(response.data[i].LSD) == false)
+                        response.data[i].LSD = new Date(response.data[i].LSD);
+
+                    if (angular.isUndefinedOrNull(response.data[i].StartDate) == false)
+                        response.data[i].StartDate = new Date(response.data[i].StartDate);
+
+                    if (angular.isUndefinedOrNull(response.data[i].PreviousProcessStartDate) == false)
+                        response.data[i].PreviousProcessStartDate = new Date(response.data[i].PreviousProcessStartDate);
+
+                    if (angular.isUndefinedOrNull(response.data[i].ClosedDate) == false)
+                        response.data[i].ClosedDate = new Date(response.data[i].ClosedDate);
+                }
+
                 $scope.ProductionRelayList = response.data;
             })
             $http({
