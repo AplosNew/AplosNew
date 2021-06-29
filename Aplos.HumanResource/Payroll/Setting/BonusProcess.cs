@@ -722,7 +722,7 @@ namespace Library.HumanResource.Payroll.Setting
                         drBnsMst["AmtDefinationRate"] = AmtDefinationRate;
                         drBnsMst["DisbustSalaryHeadID"] = Bonus.DSalaryHead.Trim();
                         drBnsMst["EffectiveDate"] = Bonus.Work.Trim();
-                        drBnsMst["Remarks"] = Bonus.Remark.Trim();
+                        drBnsMst["Remarks"] = Bonus.Remark;
                         drBnsMst["BonusType"] = Bonus.BType.Trim();
                         drBnsMst["PlantID"] = bplib.clsWebLib.RetValidLen(identity.PlantId.ToString().Trim());
                         drBnsMst["AddedBy"] = bplib.clsWebLib.RetValidLen(identity.Name);
