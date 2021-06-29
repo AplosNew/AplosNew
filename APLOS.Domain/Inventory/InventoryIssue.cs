@@ -47,9 +47,13 @@ namespace Library.Model.Inventory
         public string OrderRefNo { get; set; }
         public string ProductionOrderId { get; set; }
         public string ContractId { get; set; }
-        public string RefferenceNo { get; set; } 
+        public string RefferenceNo { get; set; }
+        public string Types { get; set; }
 
-        
+        public string JWContractId { get; set; }
+        public string ContractType { get; set; }
+
+
 
         #endregion Scalar Properties
 
