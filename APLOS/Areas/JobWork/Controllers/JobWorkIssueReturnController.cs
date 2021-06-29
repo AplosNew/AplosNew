@@ -66,22 +66,22 @@ namespace Aplos.Areas.JobWork.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public JsonResult GetIndividualReportData(string Id)
-        {
-            string sql = "";
-            sql = @"select distinct tir.Id,tc.Id as ContractId, tir.Date, FORMAT(tir.Date,'dd-MMM-yyyy') as IssueDate, tir.ByWhomId, tir.IssueReturn, tir.JobWorkLocationId, tir.Remarks
-                   ,emp.EmployeeName, emp.EmployeeCode, jl.LocationName
-                    from dbo.JobWorkTransformationIssueReturn tir left join dbo.JobWorkTransformationIssueReturnChild tirc on tir.Id=tirc.TransformationIssueReturnMasterId
-                    left join dbo.EmployeeInformation emp on emp.SystemId=tir.ByWhomId
-                    left join HKP.JobWorkLocation jl on jl.Id=tir.JobWorkLocationId
-                    left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=tirc.MaterialInputId
-                    left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
-                    left join dbo.JobWorkTransformationContract tc on tc.Id=mp.JobWorkTransformationContractMasterId
-                    where tc.Id='" + Id + @"' order by tir.Date desc ";
+        //[HttpGet, Authorize]
+        //public JsonResult GetIndividualReportData(string Id)
+        //{
+        //    string sql = "";
+        //    sql = @"select distinct tir.Id,tc.Id as ContractId, tir.Date, FORMAT(tir.Date,'dd-MMM-yyyy') as IssueDate, tir.ByWhomId, tir.IssueReturn, tir.JobWorkLocationId, tir.Remarks
+        //           ,emp.EmployeeName, emp.EmployeeCode, jl.LocationName
+        //            from dbo.JobWorkTransformationIssueReturn tir left join dbo.JobWorkTransformationIssueReturnChild tirc on tir.Id=tirc.TransformationIssueReturnMasterId
+        //            left join dbo.EmployeeInformation emp on emp.SystemId=tir.ByWhomId
+        //            left join HKP.JobWorkLocation jl on jl.Id=tir.JobWorkLocationId
+        //            left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=tirc.MaterialInputId
+        //            left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+        //            left join dbo.JobWorkTransformationContract tc on tc.Id=mp.JobWorkTransformationContractMasterId
+        //            where tc.Id='" + Id + @"' order by tir.Date desc ";
 
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        }
+        //    return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        //}
 
         #endregion
 
@@ -1550,15 +1550,14 @@ namespace Aplos.Areas.JobWork.Controllers
 
         }
 
-        //[Authorize, HttpPost]
-        //public JsonResult GetSpecificMaterialStock(InventoryMaterialViewModel entity, string issueDate)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    entity.CompanyGroupId = identity.CompanyGroupId;
-        //    entity.CompanyId = identity.CompanyId;
-        //    entity.PlantId = identity.PlantId;
-        //    return Json(_inventoryMaterialService.GetSpecificMaterialStock(entity, issueDate), JsonRequestBehavior.AllowGet);
-        //}
+        [Authorize, HttpGet]
+        public JsonResult GetDataByInventoryIssue(string Id)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(JWTIR.GetDataByInventoryIssue(Id, identity.PlantId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
 
     }
 }

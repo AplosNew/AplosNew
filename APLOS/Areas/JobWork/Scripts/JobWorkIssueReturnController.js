@@ -103,7 +103,8 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
                     $scope.GetTransformationChildData();
                     $scope.ShowHomeList = false;
                     $scope.ShowReport = true;
-                    $scope.GetIndividualReportData();
+                    //   $scope.GetIndividualReportData();
+                    $scope.getdataInventoryIssue();
                 }
 
                 });
@@ -139,15 +140,30 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
         //}
     };
 
-    $scope.GetIndividualReportData = function () {
-        $scope.IndividualReportList = [];
+    //$scope.GetIndividualReportData = function () {
+    //    $scope.IndividualReportList = [];
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + 'GetIndividualReportData?Id=' + $scope.Transformation.Id,
+    //    }).then(function successCallback(response) {
+    //        $scope.IndividualReportList = response.data;
+    //    });
+    //}
+
+    $scope.GridInventoryIssuedata = [];
+    $scope.getdataInventoryIssue = function () {
+        //debugger;
         $http({
-            method: 'GET',
-            url: $scope.path + 'GetIndividualReportData?Id=' + $scope.Transformation.Id,
+            method: "GET",
+            dataType: 'JSON',
+            //url: $scope.getSearchListUrl,
+            url: $scope.path + 'GetDataByInventoryIssue?Id=' + $scope.Transformation.Id,
         }).then(function successCallback(response) {
-            $scope.IndividualReportList = response.data;
+            $scope.GridInventoryIssuedata = response.data;
+            //entrydata = copy(searchdata);
         });
-    }
+
+    };
 
     $scope.GetValueAddedChildData = function () {
         $scope.IssueChildList = [];
@@ -1520,4 +1536,15 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
         }
     };
     //#endregion
+
+    // PRINT JOB WORK TRANSFORMATION REPORT
+
+    $scope.AllTabPrint = function (z) {
+        //debugger;
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+
+    };
 }
