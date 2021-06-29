@@ -2,7 +2,7 @@
 'use strict';
 ProductionRelayController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function ProductionRelayController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = "Daily Target";
+    $rootScope.title = "Production Relay";
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.costingTypeses = [];
@@ -109,25 +109,17 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
                 url: 'Productions/ProductionRelay/GetProductionRelay?EntityId=' + $scope.ProductionRelayNew.EntityId + '&ProcessId=' + $scope.ProductionRelayNew.ProcessId,
             }).then(function successCallback(response) {
                 $scope.ProductionRelayList = response.data;
-            }
-            )
-
+            })
             $http({
                 method: 'GET',
                 url: 'Productions/ProductionRelay/GetProductionRelayClosed?EntityId=' + $scope.ProductionRelayNew.EntityId + '&ProcessId=' + $scope.ProductionRelayNew.ProcessId,
             }).then(function successCallback(response) {
                 $scope.ProductionRelayClosedList = response.data;
-            }
-            )
-
-
+            })
         } catch (e) {
             ShowResult(e, 'failure');
         }
     }
-   /* $scope.getProductionRelay();*/
-
-
 
     $scope.ProductionRelayAllCheck = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
@@ -138,7 +130,7 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
             ChkOrUnchk = true;
         }
         for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
-            $scope.ProductionRelayList[i].IsCompleted = ChkOrUnchk;
+            $scope.ProductionRelayList[i].Checked = ChkOrUnchk;
         }
 
         var gridObj = $("#GridProductionRelay").data("ejGrid");
@@ -147,7 +139,7 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
 
     $scope.Save = function () {
         try {
-            $scope.ActiveList = [];
+                      $scope.ActiveList = [];
 
             for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
                 if ($scope.ProductionRelayList[i].Checked) {
