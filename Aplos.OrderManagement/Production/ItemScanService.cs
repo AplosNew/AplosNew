@@ -370,7 +370,8 @@ namespace Library.Service.EmployeeServices
             {
                 var _sql = @"select distinct p.UserName as Text,pa.CustomerId as Value from 
                     trn.Packing pa left join hkp.Party p 
-                    on pa.CustomerId=p.Id";
+                    on pa.CustomerId=p.Id
+					where InactiveDate>=CAST(GETDATE() AS Date) ";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception)
@@ -386,7 +387,8 @@ namespace Library.Service.EmployeeServices
                 var _sql = @"select distinct p.PackingId as Value from trn.Packing p
 		     left join EmployeeInformation e on e.SystemId=p.ByWhom
 		     left join [SEC].[User] u on u.EmployeeId=e.SystemId
-		     where p.CustomerId = '"+Cust+"' and u.UserId='"+User+"'"; //testing
+		     where p.CustomerId = '"+Cust+"' and u.UserId='"+User+ "' " +
+             "and InactiveDate>=CAST(GETDATE() AS Date) "; 
              
             return _sqlRepository.GetDataCollection(_sql, null);
             }
@@ -402,7 +404,7 @@ namespace Library.Service.EmployeeServices
             {
                 var _sql = @"select distinct pl.SOId,pl.PackingLineItemId from trn.PackingLineItem pl
                 left join trn.Packing p ON pl.PackingId=p.PackingId
-                where pl.PackingId='" + PId+"'";
+                where pl.PackingId='" + PId+ "' and InactiveDate>=CAST(GETDATE() AS Date) ";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception)
