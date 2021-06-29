@@ -370,43 +370,30 @@ namespace Aplos.Areas.Productions.Controllers
             string strSQL;
             try
             {
-                strSQL = @"  select  P.PackingId
-							    , moi.Id MasterOrderItemID
-                                ,c.Id as ContractId
-							,mm.UserName MaterialDescription,mma.StandardName as Article,h.Code as HSNCode
-                               ,PLC.LCRef,Format(PLC.LCDate,'dd-MMM-yyyy') LCDate,B.UserName as IssueingBank,AM.Address1 IssueingBankAddress
-							  ,sc.GWeight 
-						     ,sc.netWeight, sc.NoOfPackages,
-						     CartonSerialNo = (Select Stuff((Select ','+RefNo
-                            from dbo.ItemScanChild sc 
-                            left join trn.POLotReference pol on pol.Id = sc.PackingId
-                            left join trn.PackingLineItem pl on pl.PackingLineItemId = pol.PackingLineItemId
-                            where pl.PackingLineItemId = pli.PackingLineItemId
-                            for xml path('')
-                            ),1,1,''))
-							,sc.TotalQtyNetWeight,sc.GrossWeight
-							,sc.ProductCode, sc.LotNo,
-							FORMAT(p.AddedDate,'dd-MMM-yyyy') PackingDate,
-                                u.UserName as UoM,
-                                pbt.UserName as ConsigneeBilltoName,
-                                pst.UserName as ConsigneeShiptoName,
-                                c.InvoicingByAddress as ConsigneeBillToAddress,c.DeliveryByAddress as ConsigneeShipToAddress,cu.Code as CurrencyName,cu.Id CurrencyId,
-                            
-								c.ContractNo,FORMAT(c.AddedDate,'dd-MMM-yyyy') AddedDate,
-								PT.UserName PaymentTerm
+                strSQL = @"SELECT  P.PackingId, moi.Id MasterOrderItemID,c.Id as ContractId,mm.UserName MaterialDescription,mma.StandardName as Article,h.Code as HSNCode
+                                ,PLC.LCRef,Format(PLC.LCDate,'dd-MMM-yyyy') LCDate,B.UserName as IssueingBank,AM.Address1 IssueingBankAddress,sc.GWeight,sc.NetWeight, sc.NoOfPackages
+
+                                ,CartonSerialNo = (Select Stuff((Select ','+isc.RefNo
+                                from dbo.ItemScanChild isc 
+                                where isc.NetWeight=sc.NetWeight
+                                for xml path('')
+                                ),1,1,''))
+
+                                ,sc.TotalQtyNetWeight,sc.GrossWeight,sc.ProductCode, sc.LotNo,FORMAT(p.AddedDate,'dd-MMM-yyyy') PackingDate,
+                                u.UserName as UoM,pbt.UserName as ConsigneeBilltoName,pst.UserName as ConsigneeShiptoName,c.InvoicingByAddress as ConsigneeBillToAddress,c.DeliveryByAddress as ConsigneeShipToAddress,cu.Code as CurrencyName,cu.Id CurrencyId,
+                                c.ContractNo,FORMAT(c.AddedDate,'dd-MMM-yyyy') AddedDate,PT.UserName PaymentTerm
                               
                                 from trn.Packing as p 
-								left  join trn.PackingLineItem pli on pli.PackingId=p.PackingId
-								left  join trn.POLotReference plr on plr.PackingLineItemId= pli.PackingLineItemId
-								left  join trn.SalesOrder as so on so.Id=pli.SOId
-								left  join trn.MasterOrderItem as moi on moi.id=so.MasterOrderItemId
-								left  join dbo.[contract] as c on c.id = moi.contractId
+                                left  join trn.PackingLineItem pli on pli.PackingId=p.PackingId
+                                left  join trn.POLotReference plr on plr.PackingLineItemId= pli.PackingLineItemId
+                                left  join trn.SalesOrder as so on so.Id=pli.SOId
+                                left  join trn.MasterOrderItem as moi on moi.id=so.MasterOrderItemId
+                                left  join dbo.[contract] as c on c.id = moi.contractId
 								
-							   	 LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId=C.Id						
-						 LEFT JOIN  MST.BankMaster IB on IB.Id=PLC.OpeningBankMasterId
-						 LEFT JOIN  HKP.Bank B on B.Id=IB.BankId
-						 LEFT JOIN MST.AddressMaster AM on AM.Id = B.AddressMasterId
-
+                                LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId=C.Id						
+                                LEFT JOIN  MST.BankMaster IB on IB.Id=PLC.OpeningBankMasterId
+                                LEFT JOIN  HKP.Bank B on B.Id=IB.BankId
+                                LEFT JOIN MST.AddressMaster AM on AM.Id = B.AddressMasterId
                                 
                                 left join HKP.Party as pc on pc.Id=c.CustomerId
                                 left join HKP.PartyPlant as pbt on pbt.Id=c.InvoicingPartyPlantId
@@ -420,16 +407,14 @@ namespace Aplos.Areas.Productions.Controllers
                                 left join scs.Currency as cu on cu.Id=mo.CurrencyId
                                 left join MSt.PaymentTerm PT ON PT.Id=MO.PaymentTermId
 								
-						 left join 
-                            (
-                            Select sc.netWeight,sc.GWeight,
-							Count(sc.RefNo) as NoOfPackages, sc.ProductCode ,sc.POId , sc.LotNo
-							,(sc.NetWeight * Count(sc.RefNo)) as TotalQtyNetWeight,(sc.GWeight * Count(sc.RefNo)) as GrossWeight
-							from dbo.ItemScanChild sc where IsDespatch = 0
-                            group by  sc.ProductCode ,sc.POId , sc.LotNo,sc.netWeight,sc.GWeight
-                            ) as sc on sc.LotNo = plr.LotNo and sc.ProductCode = plr.ProductCode and sc.POId = plr.PONo
-
-
+                                left join 
+                                (
+                                Select sc.netWeight,sc.GWeight,
+                                Count(sc.RefNo) as NoOfPackages, sc.ProductCode ,sc.POId , sc.LotNo
+                                ,(sc.NetWeight * Count(sc.RefNo)) as TotalQtyNetWeight,(sc.GWeight * Count(sc.RefNo)) as GrossWeight
+                                from dbo.ItemScanChild sc where IsDespatch = 0
+                                group by  sc.ProductCode ,sc.POId , sc.LotNo,sc.netWeight,sc.GWeight
+                                ) as sc on sc.LotNo = plr.LotNo and sc.ProductCode = plr.ProductCode and sc.POId = plr.PONo
                                 where P.PackingId ='" + PackingId + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -569,8 +554,8 @@ namespace Aplos.Areas.Productions.Controllers
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 TROW.Cells[colProductCode].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProductCode"].ToString());
                 TROW.Cells[colPRLotNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString());
-                TROW.Cells[colAvgNetWeight].AddParagraph().AppendText(clsStdLib.dbl( dsOrderMaster.Rows[i]["NetWeight"].ToString()).ToString("#,##0.00"));
-                TROW.Cells[colcolAvgGrossWeight].AddParagraph().AppendText(clsStdLib.dbl( dsOrderMaster.Rows[i]["GWeight"].ToString()).ToString("#,##0.00"));
+                TROW.Cells[colAvgNetWeight].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["NetWeight"].ToString()).ToString("#,##0.00"));
+                TROW.Cells[colcolAvgGrossWeight].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GWeight"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colNoOFPackage].AddParagraph().AppendText(dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
                 TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["CartonSerialNo"].ToString());
                 TROW.Cells[colTotalQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TotalQtyNetWeight"].ToString()).ToString("#,##0.00"));
