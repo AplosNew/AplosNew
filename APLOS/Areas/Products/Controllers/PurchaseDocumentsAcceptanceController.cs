@@ -1255,6 +1255,67 @@ namespace Aplos.Areas.Products.Controllers
         }//End of function
 
         #region ServicePO Acceptance
+
+        public IEnumerable<object> getServicePOAckTax(string Id)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var _sql = @"select SAT.Id, SAT.ServiceAcknowledgementMasterId, SAT.ServiceAcknowledgementDetailId, SAT.TaxCategoryId, SAT.HSNCodeId, SAT.Percentage, SAT.TaxAmount from trn.ServicePOAckTax SAT
+							 Left JOIN MST.TaxCategory TC ON TC.Id= SAT.TaxCategoryId
+			   where SAT.ServiceAcknowledgementMasterId='" + Id + "'";
+
+                return _sqlRepository.GetDataCollection(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetServiceListByServicePO(string servicepoid)
+        {
+
+            string paramter = "";
+            if (servicepoid != "")
+            {
+                if (paramter == "")
+                    paramter += "A.ServicePOMasterId in(" + servicepoid + ")";
+                else
+                    paramter += " AND A.ServicePOMasterId in(" + servicepoid + ")";
+            }
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"Select 
+                a.Id ServicePODetailId,a.ServicePOMasterId
+                ,b.Id ServiceMasterId
+                ,b.UserName ServiceMasterName
+                , a.Amount 
+                ,c.TaxAmount TotalTaxAmount
+                ,0 [check]
+                ,d.IsNonCreditable
+                ,TotalAmount=CASE WHEN d.IsNonCreditable=1 then (a.Amount + c.TaxAmount) Else a.Amount  END
+				,a.Qty
+				,a.Rate
+				,UOM.Username UoM,null CurrentQty,A.TransactionUoMId,Mapdata.Qty OtherReceived,Balance=Isnull(a.Qty,0)-ISNULL(Mapdata.Qty,0)
+                FROM TRN.ServicePODetail a
+                LEFT JOIN TRN.ServicePOMaster d on d.id=a.ServicePOMasterId
+                Left JOIN HKP.ServiceMaster b on a.ServiceMasterId=b.id
+                LEFT JOIN(SELECT ServicePODetailId,sum(TaxAmount) TaxAmount from trn.ServicePOTax group by ServicePODetailId)c On c.ServicePODetailId=a.id
+				LEFT JOIN SCS.UnitOfMeasurement UOM ON A.TransactionUoMId=UOM.Id
+				LEFT JOIN(SELECT ServicePODetailId,sum(Qty) Qty from trn.ServivePOAcknowledgementMap group by ServicePODetailId)Mapdata On Mapdata.ServicePODetailId=a.id 
+                where " + paramter + @"";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         [HttpPost]
         public JsonResult CreateServicePOAcceptance(PurchaseDocAcceptance entity, IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceDetail)
         {

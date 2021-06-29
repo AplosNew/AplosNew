@@ -125,7 +125,7 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, 'failure');
         }
     }
-    $scope.getProductionRelay();
+   /* $scope.getProductionRelay();*/
 
 
 
