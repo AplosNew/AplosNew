@@ -389,9 +389,6 @@ namespace Library.HumanResource.Payroll.Setting
                     {
                         iBonusProcEmpCnt++;
                         dvGrdBnsDtl.Table = dtGrdBnsDtl;
-                        //dvGrdBnsDtl.RowFilter = "EmpCategorySysID = '" + dsGrdEmp.Tables[0].Rows[i]["EmployeeCategorySystemID"].ToString().Trim() + "'";
-                        //if (dvGrdBnsDtl.Count > 0)
-                        //{
                         for (int j = 0; j < dvGrdBnsDtl.Count; j++)
                         {
                             if ("DOJ" == dvGrdBnsDtl[j]["EntitleFrm"].ToString().Trim())
@@ -399,7 +396,6 @@ namespace Library.HumanResource.Payroll.Setting
                                 #region Service Length is Less Then Max Service Length
                                 sl_d = Convert.ToInt32(dsGrdEmp.Tables[0].Rows[i]["ServiceLength_Day"].ToString().Trim());
                                 sl_m = Convert.ToInt32(dsGrdEmp.Tables[0].Rows[i]["ServiceLength_Month"].ToString().Trim());
-                                //sl_m = Convert.ToInt32(dsGrdEmp.Tables[0].Rows[i]["ServiceLength"].ToString().Trim());
                                 string ServiceLengthType = dvGrdBnsDtl[j]["ServiceLengthType"].ToString().Trim();
                                 _service_length_doj = 0;
                                 if (ServiceLengthType.ToUpper() == "MONTH")
@@ -490,69 +486,13 @@ namespace Library.HumanResource.Payroll.Setting
                                     }
                                 }
 
-                                #endregion Service Length is Less Then Max Service Length
-                                #region 
-                                //else if (Convert.ToInt32(dsGrdEmp.Tables[0].Rows[i]["ServiceLength"].ToString().Trim()) >= Convert.ToInt32(dvGrdBnsDtl[j]["MinServLen"].ToString().Trim()))
-                                //{
-                                //    sServiceLength = dsGrdEmp.Tables[0].Rows[i]["ServiceLength"].ToString().Trim();
-                                //    sMinBonusAmt = dvGrdBnsDtl[j]["MinBonusAmt"].ToString().Trim();
-
-                                //    if (Convert.ToBoolean(dvGrdBnsDtl[j]["IsFixed"].ToString().Trim()) == true)
-                                //    {
-                                //        sBonusAmount = Convert.ToDecimal(dvGrdBnsDtl[j]["FixedAmount"].ToString().Trim()).ToString("###0;(###0)");
-                                //    }
-                                //    else
-                                //    {
-                                //        var empid = dsGrdEmp.Tables[0].Rows[i]["EmpSystemID"].ToString().Trim();
-                                //        var shid = dvGrdBnsDtl[j]["PerctSalaryHeadID"].ToString().Trim();
-
-                                //        dvSlrInfo.Table = dtSlrInfo;
-                                //        dvSlrInfo.RowFilter = "EmpInfoSystemID = '" + empid + "' AND SalaryHeadID = '" + shid + "'";
-                                //        if (dvSlrInfo.Count > 0)
-                                //        {
-                                //            sSalaryHeadID = dvSlrInfo[0]["SalaryHeadID"].ToString().Trim();
-                                //            sSalaryHead = dvSlrInfo[0]["SalaryHead"].ToString().Trim();
-                                //            sSalaryAmount = dvSlrInfo[0]["DefineAmount"].ToString().Trim();
-                                //            if (Convert.ToDouble(bplib.clsWebLib.GetNumData(sSalaryAmount)) < 0)
-                                //            {
-                                //                sSalaryAmount = "0";
-                                //            }
-
-                                //            sEntryCurrencyID = dvSlrInfo[0]["EntryCurrencyID"].ToString().Trim();
-                                //            sDefineCurrencyID = dvSlrInfo[0]["DefineCurrencyID"].ToString().Trim();
-                                //            sDisbustCurrencyID = dvSlrInfo[0]["DisbusmentCurrencyID"].ToString().Trim();
-                                //            sAmtDefinationCurrencyID = dvSlrInfo[0]["DisbusmentCurrencyID"].ToString().Trim();
-                                //            if (sDisbustCurrencyID.Trim() == lblForeignCurrencyID.Text.Trim())
-                                //            { AmtDefinationRate = txtForeignCurRate.Text.Trim(); }
-                                //            else
-                                //            { AmtDefinationRate = lblLocalCurRate.Text.Trim(); }
-                                //        }
-
-                                //        if (Convert.ToBoolean(dvGrdBnsDtl[j]["IsPercentage"].ToString().Trim()) == true)
-                                //        {
-                                //            sBonusAmount = ((Convert.ToDecimal(sSalaryAmount) * Convert.ToDecimal(dvGrdBnsDtl[j]["BonusPercentage"].ToString().Trim())) / 100).ToString("###0;(###0)");
-                                //        }
-                                //        else if (Convert.ToBoolean(dvGrdBnsDtl[j]["IsProportionate"].ToString().Trim()) == true)
-                                //        {
-                                //            sBonusAmount = ((((Convert.ToDecimal(sSalaryAmount) * Convert.ToDecimal(dvGrdBnsDtl[j]["BonusPercentage"].ToString().Trim())) / 100) / Convert.ToDecimal(dvGrdBnsDtl[j]["DivisionFactor"].ToString().Trim())) * Convert.ToDecimal(sServiceLength)).ToString("###0;(###0)");
-                                //        }
-                                //    }
-
-                                //    if (Convert.ToDecimal(sBonusAmount) > 0 && Convert.ToDecimal(sBonusAmount) < Convert.ToDecimal(sMinBonusAmt))
-                                //    {
-                                //        sBonusAmount = sMinBonusAmt;
-                                //    }
-                                //    break;
-                                //}
-                                #endregion
+                                #endregion Service Length is Less Then Max Service Length                               
                             }
                             else if ("DOC" == dvGrdBnsDtl[j]["EntitleFrm"].ToString().Trim())
                             {
                                 #region Service Length is Less Then Max Service Length
 
-                                //slc_d = Convert.ToInt32(dsGrdEmp.Tables[0].Rows[i]["ConfirmServiceLength_Day"].ToString().Trim());
                                 slc_d = Convert.ToInt32(dsGrdEmp.Tables[0].Rows[i]["ConfirmServiceLength"].ToString().Trim());
-                                //slc_m = Convert.ToInt32(dsGrdEmp.Tables[0].Rows[i]["ConfirmServiceLength_Month"].ToString().Trim());
                                 slc_m = Convert.ToInt32(dsGrdEmp.Tables[0].Rows[i]["ConfirmServiceLength"].ToString().Trim());
                                 string ServiceLengthType = dvGrdBnsDtl[j]["ServiceLengthType"].ToString().Trim();
                                 _service_length_doc = 0;
@@ -590,7 +530,6 @@ namespace Library.HumanResource.Payroll.Setting
                                                 {
                                                     sSalaryAmount = "0";
                                                 }
-
                                                 sEntryCurrencyID = dvSlrInfo[0]["EntryCurrencyID"].ToString().Trim();
                                                 sDefineCurrencyID = dvSlrInfo[0]["DefineCurrencyID"].ToString().Trim();
                                                 sDisbustCurrencyID = dvSlrInfo[0]["DisbusmentCurrencyID"].ToString().Trim();
@@ -610,14 +549,11 @@ namespace Library.HumanResource.Payroll.Setting
                                                 sBonusAmount = ((((Convert.ToDecimal(sSalaryAmount) * Convert.ToDecimal(dvGrdBnsDtl[j]["BonusPercentage"].ToString().Trim())) / 100) / Convert.ToDecimal(dvGrdBnsDtl[j]["DivisionFactor"].ToString().Trim())) * Convert.ToDecimal(sServiceLength)).ToString("###0;(###0)");
                                             }
                                         }
-
                                         if (Convert.ToDecimal(sBonusAmount) > 0 && Convert.ToDecimal(sBonusAmount) < Convert.ToDecimal(sMinBonusAmt))
                                         {
                                             sBonusAmount = sMinBonusAmt;
                                         }
-
                                         _BonusPercentage = Convert.ToDecimal(dvGrdBnsDtl[j]["BonusPercentage"].ToString().Trim());
-                                        //_DivisionFactor = Convert.ToDecimal(dvGrdBnsDtl[j]["DivisionFactor"].ToString().Trim());
                                         _IsFixed = Convert.ToBoolean(dvGrdBnsDtl[j]["IsFixed"].ToString().Trim());
                                         _IsPercentage = Convert.ToBoolean(dvGrdBnsDtl[j]["IsPercentage"].ToString().Trim());
                                         _IsProportionate = Convert.ToBoolean(dvGrdBnsDtl[j]["IsProportionate"].ToString().Trim());
@@ -640,11 +576,7 @@ namespace Library.HumanResource.Payroll.Setting
                          //}
 
                         #region Insert New Row In Vertual Table 
-
-                        //if ("DOJ" == dvGrdBnsDtl[j]["EntitleFrm"].ToString().Trim())
-                        //{
-                        //}
-                        //int _ServiceLength = _service_length;// Convert.ToInt32(bplib.clsWebLib.GetNumData(dsGrdEmp.Tables[0].Rows[i]["ServiceLength"].ToString().Trim()));                       
+                        
                         if (((_service_length_doc > 0 || _service_length_doj > 0) && string.IsNullOrEmpty(sEntryCurrencyID) == false) || _IsFixed)
                         {
                             DataRow dtRow = dt.NewRow();
@@ -652,44 +584,12 @@ namespace Library.HumanResource.Payroll.Setting
                             dtRow["EmpSystemID"] = dsGrdEmp.Tables[0].Rows[i]["EmpSystemID"].ToString().Trim();
                             dtRow["EmployeeCode"] = dsGrdEmp.Tables[0].Rows[i]["EmployeeCode"].ToString().Trim();
                             dtRow["EmployeeName"] = dsGrdEmp.Tables[0].Rows[i]["EmployeeName"].ToString().Trim();
-                            //dtRow["EmployeeCategorySystemID"] = dsGrdEmp.Tables[0].Rows[i]["EmployeeCategorySystemID"].ToString().Trim();
-                            //dtRow["EmpCategoryName"] = dsGrdEmp.Tables[0].Rows[i]["EmpCategoryName"].ToString().Trim();
                             dtRow["DOJ"] = dsGrdEmp.Tables[0].Rows[i]["DOJ"].ToString().Trim();
-                            //if (_ServiceLengthType.ToUpper() == "MONTH")
-                            //{
-
-                            //    dtRow["ServiceLength"] = sl_m;
-                            //}
-                            //else
-                            //{
-
-                            //    dtRow["ServiceLength"] = sl_d;
-                            //}
-
                             dtRow["ServiceLength_Month"] = sl_m;
                             dtRow["ServiceLength_Day"] = sl_d;
-
-
-                            //dtRow["ServiceLength"] = dsGrdEmp.Tables[0].Rows[i]["ServiceLength"].ToString().Trim();
                             dtRow["DOC"] = dsGrdEmp.Tables[0].Rows[i]["DOC"].ToString().Trim();
-                            //dtRow["ConfirmServiceLength"] = dsGrdEmp.Tables[0].Rows[i]["ConfirmServiceLength"].ToString().Trim();
-
-                            //if (_ServiceLengthType.ToUpper() == "MONTH")
-                            //{
-
-                            //    //dtRow["ConfirmServiceLength_Month"] = slc_m;
-                            //    dtRow["ConfirmServiceLength"] = slc_m;
-                            //}
-                            //else
-                            //{
-                            //    dtRow["ConfirmServiceLength"] = slc_d;
-
-                            //}
-
                             dtRow["ConfirmServiceLength_Month"] = slc_m;
                             dtRow["ConfirmServiceLength_Day"] = slc_d;
-
-
                             dtRow["CalculaServiceLength"] = bplib.clsWebLib.GetNumData(sServiceLength.Trim());
                             dtRow["DesignationGroup"] = dsGrdEmp.Tables[0].Rows[i]["DesignationGroup"].ToString().Trim();
                             dtRow["SalaryHeadID"] = sSalaryHeadID.Trim();
@@ -701,7 +601,6 @@ namespace Library.HumanResource.Payroll.Setting
                             dtRow["DisbustCurrencyID"] = sDisbustCurrencyID;
                             dtRow["AmtDefinationCurrencyID"] = sAmtDefinationCurrencyID;
                             dtRow["AmtDefinationRate"] = AmtDefinationRate;
-
                             dtRow["IsFixed"] = _IsFixed;
                             dtRow["IsPercentage"] = _IsPercentage;
                             dtRow["IsProportionate"] = _IsProportionate;
@@ -719,12 +618,6 @@ namespace Library.HumanResource.Payroll.Setting
 
                 if (dt.Rows.Count > 0)
                 {
-                    //lblEmpCount.Visible = true;
-                    //panEmpBonusProc.Visible = true;
-                    //dgEmpBonusProc.DataSource = dt;
-                    //dgEmpBonusProc.DataBind();
-                    //lblEmpCount.Text = "Total Employee: " + dt.Rows.Count.ToString();
-
                     string strTDMCode;
 
                     objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "BONUS_ACT", out strTDMCode);
@@ -843,14 +736,9 @@ namespace Library.HumanResource.Payroll.Setting
                 }
                 else
                 {
-                    //lblEmpCount.Text = "";
-                    //lblEmpCount.Visible = false;
-                    //panEmpBonusProc.Visible = false;
-                    //dgEmpBonusProc.DataSource = null;
-                    //dgEmpBonusProc.DataBind();
+                    
                 }
-
-                //throw new Exception("Bonus Processed Sucessfully...");
+                                
             }
             catch (Exception ex)
             {

@@ -6,7 +6,7 @@
                 <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select class="form-control" @*ng-disabled="DailyTargetList.length>0"*@ id="ddlEntity" ng-model="ProductionRelayNew.EntityId" ng-change="loadProcessList(ProductionRelayNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList">
+                        <select class="form-control" ng-disabled="ProductionRelayList.length>0" id="ddlEntity" ng-model="ProductionRelayNew.EntityId" ng-change="loadProcessList(ProductionRelayNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList">
                             <option value=""></option>
                         </select>
                     </div>
@@ -18,7 +18,7 @@
                 <label class="col-sm-4 control-label">Process<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ProductionRelayNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                        <select class="form-control" ng-disabled="ProductionRelayList.length>0" ng-model="ProductionRelayNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
                             <option value=""></option>
                         </select>
                     </div>
@@ -106,7 +106,7 @@
                     </div>
 
                 </script>
-                <div class="common-btn" @*ng-show="DailyTargetList.length>0*@>
+                <div class="common-btn" ng-show="ProductionRelayList.length>0">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
                         <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
