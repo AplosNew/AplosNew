@@ -206,7 +206,6 @@ function longAbsenteeismAssignController(fileReader, cboService, commonMessage, 
 
     $scope.Assign = function () {
         try {
-
             var emplist = [];
             for (var i = 0; i < $scope.unassigned.length; i++) {
                 if ($scope.unassigned[i].Active == true)

@@ -7169,5 +7169,35 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 
 		}
 
+		#region JW Issue
+
+		[Authorize, HttpPost]
+		public JsonResult GetJWStock(InventoryMaterialViewModel entity, string issueDate)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			entity.CompanyGroupId = identity.CompanyGroupId;
+			entity.CompanyId = identity.CompanyId;
+			entity.PlantId = identity.PlantId;
+			return Json(_inventoryMaterialService.GetJWStock(entity, issueDate), JsonRequestBehavior.AllowGet);
+		}
+		//[Authorize, HttpPost]
+		//public JsonResult GetRequisitionList(string issueDetailId)
+		//{
+
+		//	return Json(_inventoryMaterialService.GetRequisitionList(issueDetailId), JsonRequestBehavior.AllowGet);
+		//}
+
+		[HttpPost]
+		public JsonResult JWIssueCreate(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
+			inventoryIssue.CompanyId = identity.CompanyId;
+			inventoryIssue.PlantId = identity.PlantId;
+			_inventoryIssueService.JWInsertGraph(entities, specificStockList, inventoryIssue, IssueTypeStatus);
+			return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
+		}
+		#endregion
+
 	}
 }
