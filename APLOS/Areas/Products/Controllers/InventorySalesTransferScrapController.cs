@@ -1,7 +1,7 @@
 ﻿using System.Web.Mvc;
 using Aplos.Controllers;
 using Aplos.Properties;
-using Library.Service.Inventory;
+using Library.MaterialManagement.Inventory;
 using Library.Model.Inventory;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -10,7 +10,7 @@ using Library.ViewModel.Materials;
 using System.Collections.Generic;
 using System.Linq;
 using Library.Model.Enums;
-using Library.Service.Reports;
+using Library.MaterialManagement.Reports;
 using System;
 using Library.Data;
 using Library.Service.Enums;

@@ -3,7 +3,7 @@ using Aplos.Properties;
 using Library.Crosscutting.Security;
 using Library.Model.Enums;
 using Library.Service.Invoices;
-using Library.Service.Reports;
+using Library.MaterialManagement.Reports;
 using Library.Service.Vouchers;
 using Library.ViewModel.Vouchers;
 using System;

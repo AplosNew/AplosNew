@@ -14,7 +14,7 @@ using Library.Service.Extension;
 using Library.Service.Materials;
 using Library.Service.OrderManagements;
 using Library.Service.Organizations;
-using Library.Service.Reports;
+using Library.MaterialManagement.Reports;
 using Library.Service.SalesManagements;
 using Library.ViewModel.SalesManagements;
 using Library.ViewModel.Vouchers;
