@@ -3264,6 +3264,18 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         showCaptionSummary: true
     }];
 
+    $scope.getAcceptanceLiabilityMaturityReport = function () {
+        try {
+            //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + $scope.materialMasterReportNew.MaterialTypeId + '&Article=' + $scope.materialMasterReportNew.WithArticle;;
+            var file_src = $scope.path + 'getAcceptanceLiabilityMaturityReport?toDate=' + $scope.report.ToDate;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
+
     //............#endregion Acceptance Liability Maturity..............................
 
 

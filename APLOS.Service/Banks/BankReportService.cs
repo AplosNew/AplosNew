@@ -1841,7 +1841,7 @@ namespace Library.Service.Banks
                                 ob = Convert.ToDouble(obVal[0]["CompanyCurrencyOB"]);
                             reportUtility.SetText(ref sheet, row, 9, ob, true);
                             sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
-                            isOB = true;
+                            isOB = false;
                         }
                         else
                         {
