@@ -834,66 +834,69 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                    <div ng-form="tabForm2" ng-show="inventoryMaterialListPO.length > 0;">
-                        <div class="clearfix"></div>
-                        <ul class="common-btn list-inline text-left">
-                            <li><button ng-click="serviceChargePopUp();" ng-disabled="inventoryMaterialListPO.length==0 || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
-                        </ul>
-                        <div class="table-responsive modal-table">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Charges</th>
-                                        <th>VoucherNo</th>
-                                        <th>Amount</th>
-                                        <th style="width: 150px;">Currency</th>
-                                        <th style="width: 100px;">Bank Amount</th>
-                                        <th>Bank Currency</th>
-                                        <th>Opening Bank</th>
-                                        <th>Tax</th>
-                                        <th class="col-sm-1">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in acceptanceChargesCheckedList">
-                                        <td>{{x.ChargeName}}</td>
-                                        <td>{{x.VoucherId}}</td>
-                                        <td>
-                                            <input type="text" n-decimals="2" class="form-control " ng-model="x.Amount" ng-change="ChangeChargesBank(x.BankCurrencyId,$index)">
-                                        </td>
-                                        <td>
-                                            <div class="select-style">
-                                                <select name="Currency" class="form-control" ng-model="x.CurrencyId" ng-options="item.Value as item.Text for item in currencyList" style="height: 30px;" tabindex="16" ng-change="ChangeChargesBank(x.BankCurrencyId,$index)">
-                                                    <option value=""></option>
-                                                </select>
-                                            </div>
-                                        </td>
-                                        <td><input type="text" n-decimals="2" class="form-control " ng-model="x.BankAmount" ng-disabled="x.CurrencyId===x.BankCurrencyId"></td>
-                                        <td>{{x.CurrencyName}}</td>
-                                        <td>{{x.OpeningBankMaster}}</td>
-                                        <td>{{x.TotalTaxAmount | setDecimal:2| number:2}}</td>
-                                        <td class="text-right">
-                                            <ul class="list-inline action-list">
-                                                <li><button ng-click="getChargesTaxList(x, $index)" ng-disabled="PurchaseDocAcceptance.VoucherId!=null" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                        <div ng-form="tabForm2" ng-show="inventoryMaterialListPO.length > 0;">
+                            <div class="clearfix"></div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="serviceChargePopUp();" ng-disabled="inventoryMaterialListPO.length==0 || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
+                                </ul>
+                            </div>
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Charges</th>
+                                            <th>VoucherNo</th>
+                                            <th>Amount</th>
+                                            <th style="width: 150px;">Currency</th>
+                                            <th style="width: 100px;">Bank Amount</th>
+                                            <th>Bank Currency</th>
+                                            <th>Opening Bank</th>
+                                            <th>Tax</th>
+                                            <th class="col-sm-1">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in acceptanceChargesCheckedList">
+                                            <td>{{x.ChargeName}}</td>
+                                            <td>{{x.VoucherId}}</td>
+                                            <td>
+                                                <input type="text" n-decimals="2" class="form-control " ng-model="x.Amount" ng-change="ChangeChargesBank(x.BankCurrencyId,$index)">
+                                            </td>
+                                            <td>
+                                                <div class="select-style">
+                                                    <select name="Currency" class="form-control" ng-model="x.CurrencyId" ng-options="item.Value as item.Text for item in currencyList" style="height: 30px;" tabindex="16" ng-change="ChangeChargesBank(x.BankCurrencyId,$index)">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td><input type="text" n-decimals="2" class="form-control " ng-model="x.BankAmount" ng-disabled="x.CurrencyId===x.BankCurrencyId"></td>
+                                            <td>{{x.CurrencyName}}</td>
+                                            <td>{{x.OpeningBankMaster}}</td>
+                                            <td>{{x.TotalTaxAmount | setDecimal:2| number:2}}</td>
+                                            <td class="text-right">
+                                                <ul class="list-inline action-list">
+                                                    <li><button ng-click="getChargesTaxList(x, $index)" ng-disabled="PurchaseDocAcceptance.VoucherId!=null" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
 
-                                                <li><button ng-click="RemoveAcceptancePopUp(x,$index);" ng-disabled="PurchaseDocAcceptance.VoucherId!=null" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-remove"></i></button></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                                    <li><button ng-click="RemoveAcceptancePopUp(x,$index);" ng-disabled="PurchaseDocAcceptance.VoucherId!=null" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-                   
+                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+
                         <div ng-form="tabForm3" ng-show="inventoryMaterialListPO.length > 0;">
                             <div class="clearfix"></div>
-                            <ul class="common-btn list-inline text-left">
-                                <li><button ng-click="AcceptanceServiceChargePopUp();" ng-disabled="inventoryMaterialListPO.length==0 || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
-                            </ul>
+                            <div class="common-btn">
+                                <ul class="common-btn list-inline text-left">
+                                    <li><button ng-click="AcceptanceServiceChargePopUp();" ng-disabled="inventoryMaterialListPO.length==0 || PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
+                                </ul>
+                            </div>
                             <div class="table-responsive modal-table">
                                 <table class="table table-striped">
                                     <thead>
@@ -902,7 +905,7 @@
                                             <th>PO Amount (TRN)</th>
                                             <th>Balance Amount (TRN)</th>
                                             <th>Total Tax Amount</th>
-                                            <th class="col-sm-1"></th>
+                                            <th class="col-sm-1">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -919,7 +922,7 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td colspan="3" class="text-right"><strong>Total : </strong></td>
+                                            <td colspan="2" class="text-right"><strong>Total : </strong></td>
                                             <td class="text-right"><strong>{{serviceList | sumByKey : 'Amount'| setDecimal:2| number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{serviceList | sumByKey : 'TotalTaxAmount'| setDecimal:2| number:2 }}</strong></td>
                                             <td class="text-right"></td>
@@ -928,9 +931,10 @@
                                 </table>
                             </div>
                         </div>
-                    
+
+                    </div>
                 </div>
-                <div></div>
+
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="Save1()" ng-disabled="PurchaseDocAcceptance.VoucherId!=null" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>

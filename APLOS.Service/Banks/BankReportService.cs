@@ -630,7 +630,7 @@ namespace Library.Service.Banks
                 sheet[row, colBaseCurrencyCredit].ColumnWidth = 15;
 
 
-                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Bank Journal", companyId,plantId, plantName, null);
+                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Bank Journal", companyId, plantId, plantName, null);
 
 
                 reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
@@ -1010,7 +1010,7 @@ namespace Library.Service.Banks
                 // Set Header
                 row++;
                 reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Bank");
-               // sheet.Range[row, 1, row, 2].Merge();
+                // sheet.Range[row, 1, row, 2].Merge();
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ": " + reportUtility.GetColumnNameForXls(2) + row].Merge();
                 reportUtility.SetMiddleAlignmentText(ref sheet, row, 3, bankMaster["BankName"].ToString());
 
@@ -1071,7 +1071,7 @@ namespace Library.Service.Banks
                 int colCompanyDr = 0;
                 int colCompanyCr = 0;
                 int colCompanyBlance = 0;
-               // int colDrCr = 0;
+                // int colDrCr = 0;
 
                 if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
                 {
@@ -1084,7 +1084,7 @@ namespace Library.Service.Banks
                 row++;
                 reportUtility.SetText(ref sheet, row, 2, "Opening Balance", true);
                 sheet.Range[reportUtility.GetColumnNameForXls(colPostingDate) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
-                
+
                 // Get bank opening balance data.
                 var obVal = _bankJournalService.GetBankOpeningBalanceLedgerData(companyGroupId, companyId, plantId, bankMasterId, fromDate);
                 if (obVal.Count > 0)
@@ -1815,6 +1815,7 @@ namespace Library.Service.Banks
                             .CopyToDataTable();
                     var isOB = true;
                     var lastClosing = string.Empty; ;
+                    var lastClosing2 = string.Empty; ;
                     for (int j = 0; j < dt.Rows.Count; j++)
                     {
                         var data = ledgerData.AsEnumerable()
@@ -1847,6 +1848,12 @@ namespace Library.Service.Banks
                         {
                             reportUtility.SetFormula(ref sheet, row, 6, lastClosing, true);
                             sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
+
+                            if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyId != cashCurrencyId)
+                            {
+                                reportUtility.SetFormula(ref sheet, row, 9, lastClosing2, true);
+                            }
+
                         }
 
                         row++;
@@ -1875,7 +1882,7 @@ namespace Library.Service.Banks
 
 
 
-
+                        int StartSegmentRow = row;
                         for (int i = 0; i < data.Rows.Count; i++)
                         {
                             reportUtility.SetText(ref sheet, row, 1, data.Rows[i]["VoucherNo"].ToString());
@@ -1901,14 +1908,15 @@ namespace Library.Service.Banks
                         }
                         reportUtility.SetText(ref sheet, row, 1, "Closing Balance", true);
                         sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
-                        sheet.Range[row, colDebit].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colDebit) + StartRow + ":" + reportUtility.GetColumnNameForXls(colDebit) + (row - 1) + ")";
+                        sheet.Range[row, colDebit].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colDebit) + StartSegmentRow + ":" + reportUtility.GetColumnNameForXls(colDebit) + (row - 1) + ")";
                         sheet.Range[row, colDebit].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                        sheet.Range[row, colCredit].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colCredit) + StartRow + ":" + reportUtility.GetColumnNameForXls(colCredit) + (row - 1) + ")";
+                        sheet.Range[row, colCredit].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colCredit) + StartSegmentRow + ":" + reportUtility.GetColumnNameForXls(colCredit) + (row - 1) + ")";
                         sheet.Range[row, colCredit].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                         sheet.Range[row, 6].Formula = "=" + reportUtility.GetColumnNameForXls(6) + (row - 1);
                         lastClosing = "=" + reportUtility.GetColumnNameForXls(6) + (row - 1);
+                        lastClosing2 = "=" + reportUtility.GetColumnNameForXls(9) + (row - 1);
                         sheet.Range[row, 6].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                        sheet.Range[row, 6].CellStyle.Font.Bold = true;
+                        sheet.Range[row, 1, row, colLast].CellStyle.Font.Bold = true;
                         if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyId != cashCurrencyId)
                         {
                             sheet.Range[row, 9].Formula = "=" + reportUtility.GetColumnNameForXls(9) + (row - 1);
