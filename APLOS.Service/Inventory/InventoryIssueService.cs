@@ -1384,7 +1384,7 @@ namespace Library.Service.Inventory
 			{
 				parameters.CmdText = @"SELECT II.Id,II.Id IssueNo, II.IssueDate,II.Remarks, MS.UserName AS MaterialStorage,II.EntityId,E.UserName  EntityName,II.IssueType
                                     ,EI.EmployeeCode+' - '+EI.EmployeeName EmployeeName,SUM(IID.TransactionQty) Qty,SUM(IID.PolicyAmount) Amount
-                                    ,ii.OrderRefNo, IsOrderSpecificy=  CASE WHEN ii.OrderRefNo <> '' THEN 1 ELSE 0 END
+                                    ,ii.OrderRefNo, IsOrderSpecificy=  CASE WHEN ii.OrderRefNo <> '' THEN 1 ELSE 0 END,II.[Types]
                                     FROM [TRN].[InventoryIssue] AS II
                                     JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId=MS.Id 
 							        JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId=II.Id
@@ -1394,7 +1394,7 @@ namespace Library.Service.Inventory
                             AND IID.IsAsset=0
                             GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 	                                 , II.IssueDate, MS.UserName
-									 ,EI.EmployeeCode,EI.EmployeeName,II.Remarks,II.EntityId,E.UserName,II.IssueType, ii.OrderRefNo";
+									 ,EI.EmployeeCode,EI.EmployeeName,II.Remarks,II.EntityId,E.UserName,II.IssueType, ii.OrderRefNo,II.[Types]";
 				return _sqlRepository.GetGridData(parameters);
 			}
 			catch (Exception ex)
