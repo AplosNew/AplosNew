@@ -1,7 +1,7 @@
 ﻿'use strict';
 LeaveBalanceReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
 function LeaveBalanceReportController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
-    $rootScope.title = 'Leave Balance';
+    $rootScope.title = 'Leave Register';
     $scope.Action = 'Save';
     $scope.path = 'Leave/LeaveBalanceReport/';
 
