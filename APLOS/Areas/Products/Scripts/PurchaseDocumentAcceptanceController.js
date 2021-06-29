@@ -2915,7 +2915,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
     };
 
     function getACKTaxList(Id) {
-        $http.get('Products/PurchaseDocumentsAcceptancegetServicePOAckTax?Id=' + Id)
+        $http.get('Products/PurchaseDocumentsAcceptance/getServicePOAckTax?Id=' + Id)
             .then(function (response) {
                 $scope.receiveTaxList1 = [];
                 $scope.ServicePOAndAckTax = [];
