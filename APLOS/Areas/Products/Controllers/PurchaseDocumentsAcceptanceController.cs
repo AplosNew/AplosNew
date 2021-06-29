@@ -1258,13 +1258,12 @@ namespace Aplos.Areas.Products.Controllers
 
         public IEnumerable<object> getServicePOAckTax(string Id)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                var _sql = @"select SAT.Id, SAT.ServiceAcknowledgementMasterId, SAT.ServiceAcknowledgementDetailId, SAT.TaxCategoryId, SAT.HSNCodeId, SAT.Percentage, SAT.TaxAmount from trn.ServicePOAckTax SAT
-							 Left JOIN MST.TaxCategory TC ON TC.Id= SAT.TaxCategoryId
-			   where SAT.ServiceAcknowledgementMasterId='" + Id + "'";
-
+                var _sql = @"SELECT SAT.Id, SAT.ServicePODetailId, SAT.TaxCategoryId, SAT.HSNCodeId, SAT.Percentage, SAT.TaxAmount 
+                            FROM trn.PurchaseDocAcceptanceTax SAT
+                            Left JOIN MST.TaxCategory TC ON TC.Id= SAT.TaxCategoryId
+                            WHERE SAT.PurchaseDocAcceptanceId='" + Id + "'";
                 return _sqlRepository.GetDataCollection(_sql);
             }
             catch (Exception ex)

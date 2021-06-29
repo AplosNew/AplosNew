@@ -1404,7 +1404,14 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 
 
 
-    //function ($event) {    //   //debugger;    //   var x = $event;    //   var Id = x.data.Id;    //   //alert('Id'+Id);    //   $scope.productNew = x.data;    //   $scope.productId = "";
+    //function ($event) {
+    //   //debugger;
+
+    //   var x = $event;
+    //   var Id = x.data.Id;
+    //   //alert('Id'+Id);
+    //   $scope.productNew = x.data;
+    //   $scope.productId = "";
 
 
     $scope.slipdetailList = [];
@@ -1679,7 +1686,10 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 
 
 
-    //#region Material Issue icon Detail    $scope.POPopUp = function () {
+    //#region Material Issue icon Detail
+
+
+    $scope.POPopUp = function () {
 
         $scope.GetApprovedIssueSlipListGrid();
         angular.element(document.querySelector('#POPopUp1')).modal('show');
@@ -1694,9 +1704,95 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
     $scope.GetApprovedIssueSlipList = [];
     $scope.GetApprovedIssueSlipListGrid = function () {
         //debugger;
-        try {            $http({                method: 'GET',                url: 'Products/InventoryIssue/GetApprovedIssueSlip',                dataType: 'JSON'            }).then(function successCallback(response) {                if (response.data.Error == true) {                    ShowResult(response.data.Message, 'failure');                }                else {                    $scope.GetApprovedIssueSlipList = response.data;                }            }, function errorCallback(response) {                ShowResult(response.status.Message, 'failure');            });        } catch (e) {            ShowResult(e, 'failure');        }
+        try {
 
-    };    $scope.lst = [];    $scope.POListDetails = function () {        //debugger;        $http({            method: 'GET',            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData            url: 'Products/InventoryIssue/MaterialIssueDetailsData1'        }).then(function successCallback(response) {            $scope.lst = response.data;            //$scope.detailgrid($scope.lst);            window.lst = response.data;        });    }    $scope.POListDetails();    $scope.data1 = $scope.lst;    $scope.detailTemp = "#tabGridContents";    //$scope.detailgrid = "detailGridData(e)";    $scope.detailgrid = function detailGridData(e) {        //debugger;        var filteredData = e.data["Id"];        var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("IssueNo", "equal", parseInt(filteredData), true).take(200));        e.detailsElement.find("#detailGrid").ejGrid({            dataSource: data,            columns: ["CostCenter", "Materials", "Article", "SKU1", "SKU2", "SKU3", "Qty", "UOM", "TransactionRate", "CurrencyName", "TrnAmount","Comments"]        });        e.detailsElement.find(".tabcontrol").ejTab();    }    $scope.lst = [];    $scope.POListDetailsReturn = function () {        //debugger;        $http({            method: 'GET',            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData            url: 'Products/InventoryIssue/MaterialIssueDetailsData'        }).then(function successCallback(response) {            $scope.lst = response.data;            //$scope.detailgrid($scope.lst);            window.lst1 = response.data;        });    }    $scope.POListDetailsReturn();    $scope.data1 = $scope.lst;    $scope.detailTemp = "#tabGridContents";    //$scope.detailgrid = "detailGridData(e)";    $scope.detailgridReturn = function detailGridData(e) {        //debugger;        var filteredData = e.data["Id"];        var data = ej.DataManager(window.lst1).executeLocal(ej.Query().where("IssueNo", "equal", parseInt(filteredData), true).take(200));        e.detailsElement.find("#detailGrid").ejGrid({            dataSource: data,            columns: ["CostCenter", "Materials", "Article", "SKU1", "SKU2", "SKU3", "Qty", "UOM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount"]        });        e.detailsElement.find(".tabcontrol").ejTab();    }    //#endregion
+            $http({
+                method: 'GET',
+                url: 'Products/InventoryIssue/GetApprovedIssueSlip',
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.GetApprovedIssueSlipList = response.data;
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    };
+    $scope.lst = [];
+    $scope.POListDetails = function () {
+        //debugger;
+        $http({
+            method: 'GET',
+            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
+            url: 'Products/InventoryIssue/MaterialIssueDetailsData1'
+        }).then(function successCallback(response) {
+            $scope.lst = response.data;
+            //$scope.detailgrid($scope.lst);
+            window.lst = response.data;
+
+        });
+    }
+    $scope.POListDetails();
+
+
+    $scope.data1 = $scope.lst;
+    $scope.detailTemp = "#tabGridContents";
+    //$scope.detailgrid = "detailGridData(e)";
+    $scope.detailgrid = function detailGridData(e) {
+        //debugger;
+
+        var filteredData = e.data["Id"];
+        var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("IssueNo", "equal", parseInt(filteredData), true).take(200));
+        e.detailsElement.find("#detailGrid").ejGrid({
+
+            dataSource: data,
+            columns: ["CostCenter", "Materials", "Article", "SKU1", "SKU2", "SKU3", "Qty", "UOM", "TransactionRate", "CurrencyName", "TrnAmount","Comments"]
+        });
+        e.detailsElement.find(".tabcontrol").ejTab();
+    }
+
+    $scope.lst = [];
+    $scope.POListDetailsReturn = function () {
+        //debugger;
+        $http({
+            method: 'GET',
+            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
+            url: 'Products/InventoryIssue/MaterialIssueDetailsData'
+        }).then(function successCallback(response) {
+            $scope.lst = response.data;
+            //$scope.detailgrid($scope.lst);
+            window.lst1 = response.data;
+
+        });
+    }
+    $scope.POListDetailsReturn();
+
+
+    $scope.data1 = $scope.lst;
+    $scope.detailTemp = "#tabGridContents";
+    //$scope.detailgrid = "detailGridData(e)";
+    $scope.detailgridReturn = function detailGridData(e) {
+        //debugger;
+
+        var filteredData = e.data["Id"];
+        var data = ej.DataManager(window.lst1).executeLocal(ej.Query().where("IssueNo", "equal", parseInt(filteredData), true).take(200));
+        e.detailsElement.find("#detailGrid").ejGrid({
+
+            dataSource: data,
+            columns: ["CostCenter", "Materials", "Article", "SKU1", "SKU2", "SKU3", "Qty", "UOM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount"]
+        });
+        e.detailsElement.find(".tabcontrol").ejTab();
+    }
+    //#endregion
+
 
 
     //#region Slip Asset Issue
@@ -1715,7 +1811,26 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
     $scope.GetAssetApprovedIssueSlipList = [];
     $scope.GetAssetApprovedIssueSlipListGrid = function () {
         //debugger;
-        try {            $http({                method: 'GET',                url: 'Products/InventoryIssue/GetAssetIssueSlip',                dataType: 'JSON'            }).then(function successCallback(response) {                if (response.data.Error == true) {                    ShowResult(response.data.Message, 'failure');                }                else {                    $scope.GetAssetApprovedIssueSlipList = response.data;                }            }, function errorCallback(response) {                ShowResult(response.status.Message, 'failure');            });        } catch (e) {            ShowResult(e, 'failure');        }
+        try {
+
+            $http({
+                method: 'GET',
+                url: 'Products/InventoryIssue/GetAssetIssueSlip',
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.GetAssetApprovedIssueSlipList = response.data;
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
 
     };
 

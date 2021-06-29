@@ -107,6 +107,9 @@ namespace Library.Service.Inventory
 
         void PurchaseReturnReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
         void InventoryIssueReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
+        
+        // Job Work Transformation Issue
+        void JWIssueReport(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
 
         void InventorySalesReportPrint(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
 
