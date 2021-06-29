@@ -1790,8 +1790,8 @@ namespace Library.Service.Banks
                 // Detail Header
                 row++;
                 reportUtility.SetHeaderText(ref sheet, row, 1, "Voucher No", 12);
-                reportUtility.SetHeaderText(ref sheet, row, 2, "Account Name", 12);
-                reportUtility.SetHeaderText(ref sheet, row, 3, "Narration", 32);
+                reportUtility.SetHeaderText(ref sheet, row, 2, "Account Name", 7);
+                reportUtility.SetHeaderText(ref sheet, row, 3, "Narration", 15);
                 reportUtility.SetHeaderText(ref sheet, row, 4, "Debit", 15, ExcelHAlign.HAlignRight); int colDebit = 4;
                 reportUtility.SetHeaderText(ref sheet, row, 5, "Credit", 15, ExcelHAlign.HAlignRight); int colCredit = 5;
                 reportUtility.SetHeaderText(ref sheet, row, 6, "Balance", 15, ExcelHAlign.HAlignRight);
@@ -1841,7 +1841,7 @@ namespace Library.Service.Banks
                                 ob = Convert.ToDouble(obVal[0]["CompanyCurrencyOB"]);
                             reportUtility.SetText(ref sheet, row, 9, ob, true);
                             sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
-                            isOB = false;
+                            isOB = true;
                         }
                         else
                         {
