@@ -841,7 +841,6 @@ namespace Aplos.Areas.Accounts.Controllers
             if (voucherVM.CompanyCurrencyRate <= 0)
                 throw new CustomException("Please Input Rate.");
 
-
             foreach (var advanceDetailVM in multiplePaymentDetailList)
             {
                 if (advanceDetailVM.Amount == 0 || advanceDetailVM.Amount.ToString() == null)
