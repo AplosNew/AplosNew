@@ -12,7 +12,7 @@ using Library.Model.Inventory;
 using Library.Model.Setups;
 using Library.Model.Taxations;
 using Library.Service.Enums;
-using Library.Service.Inventory;
+using Library.MaterialManagement.Inventory;
 using Library.Service.Logs;
 using Library.Service.Setups;
 using OTSBD;

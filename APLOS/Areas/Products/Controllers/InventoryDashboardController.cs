@@ -8,7 +8,7 @@ using Library.Data;
 using Library.Data.Sql;
 using Library.Service.Enums;
 using Library.Service.Expenses;
-using Library.Service.Inventory;
+using Library.MaterialManagement.Inventory;
 using Library.Service.Logs;
 using Library.ViewModel.Accounts;
 using System;

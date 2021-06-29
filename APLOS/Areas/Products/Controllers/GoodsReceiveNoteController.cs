@@ -10,10 +10,10 @@ using Library.Model.Enums;
 using Library.Model.Inventory;
 using Library.Model.Products;
 using Library.Service.Enums;
-using Library.Service.Inventory;
+using Library.MaterialManagement.Inventory;
 using Library.Service.Logs;
 using Library.Service.Products;
-using Library.Service.Reports;
+using Library.MaterialManagement.Reports;
 using Library.ViewModel.Materials;
 using Library.ViewModel.OrderManagements;
 using Newtonsoft.Json;
@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
+using Library.MaterialManagement.Products;
 
 namespace Aplos.Areas.Products.Controllers
 {

@@ -22,7 +22,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web.Mvc;
-using Library.Service.Inventory;
+using Library.MaterialManagement.Inventory;
 using static Library.Service.Helpers.ReportUtility;
 using static Library.Service.HumanResources.PayRegisterBDReportService;
 using Syncfusion.DocToPDFConverter;

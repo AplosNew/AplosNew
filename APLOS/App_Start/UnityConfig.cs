@@ -18,7 +18,7 @@ using Library.Service.Finances;
 using Library.Service.FixedAssets;
 using Library.Service.HumanResources;
 using Library.Service.IEnumerable;
-using Library.Service.Inventory;
+using Library.MaterialManagement.Inventory;
 using Library.Service.Invoices;
 using Library.Service.Logs;
 using Library.Service.Machines;
@@ -38,7 +38,7 @@ using Library.Service.Productions.Recipe;
 using Library.Service.Products;
 using Library.Service.Projects;
 using Library.Service.Recruitments;
-using Library.Service.Reports;
+using Library.MaterialManagement.Reports;
 using Library.Service.Securites;
 using Library.Service.SecurityDeposits;
 using Library.Service.Setups;
@@ -61,6 +61,7 @@ using Library.Service.Costings;
 using Library.Service.SalaryDisbursement;
 using Library.Service.QMS;
 using Library.Service.EmployeeServices;
+using Library.MaterialManagement.Products;
 
 namespace Aplos.App_Start
 {

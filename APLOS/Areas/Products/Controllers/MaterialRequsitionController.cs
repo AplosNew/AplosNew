@@ -5,7 +5,7 @@ using Aplos.Properties;
 using Library.Service.Employees;
 using Library.Core;
 using System.Web.Mvc;
-using Library.Service.Inventory;
+using Library.MaterialManagement.Inventory;
 using Library.Model.Inventory;
 using System;
 using OTSBD;

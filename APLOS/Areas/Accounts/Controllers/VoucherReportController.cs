@@ -12,7 +12,7 @@ using Library.Service.FixedAssets;
 using Library.Service.Invoices;
 using Library.Service.OpeningBalances;
 using Library.Service.Organizations;
-using Library.Service.Reports;
+using Library.MaterialManagement.Reports;
 using Library.Service.SalesManagements;
 using Library.Service.Vouchers;
 using Syncfusion.XlsIO;

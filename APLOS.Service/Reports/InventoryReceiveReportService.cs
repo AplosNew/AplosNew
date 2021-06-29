@@ -5,7 +5,7 @@ using Library.Model.Enums;
 using Library.Model.Organizations;
 using Library.Service.Currencies;
 using Library.Service.Helpers;
-using Library.Service.Inventory;
+using Library.MaterialManagement.Inventory;
 using Library.Service.Organizations;
 using Library.ViewModel.OrderManagements;
 using Syncfusion.XlsIO;
