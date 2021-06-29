@@ -2964,15 +2964,11 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 for (var i1 = 0; i1 < $scope.ServicePOTaxList1.length; i1++) {
                     if ($scope.ServicePOTaxList1[i1].ServiceAcknowledgementDetailId === data.ServicePODetailId) {
                         $scope.HSNCode = $scope.ServicePOTaxList1[0].HSNCodeId;
-
                         $scope.ServicePOTaxList.push($scope.ServicePOTaxList1[i1]);
-
                     }
                 }
-
             }
         }
-
         angular.element(document.querySelector('#ServicePOTaxPopUp')).modal('show');
     };
 
@@ -2987,12 +2983,11 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         data.TaxAmount = Math.round($scope.taxAbleAmnt * data.Percentage) / 100;
     };
     $scope.checkRowValidationServicePO = function (x) {
-        debugger;
+       
         for (var i = 0; i < $scope.ServicePOTaxList.length; i++) {
             if ($scope.ServicePOTaxList[i].Id === x.Id) {
                 $scope.ServicePOTaxList[i].Percentage = (parseFloat(x.TaxAmount / $scope.taxAbleAmnt).toFixed(4) * 100);
             }
-
         }
     }
 
