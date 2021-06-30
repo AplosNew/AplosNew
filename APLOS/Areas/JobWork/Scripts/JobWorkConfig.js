@@ -41,6 +41,10 @@ function JobWorkConfig($routeProvider, $locationProvider) {
             templateUrl: 'JobWork/JobWorkReceiptValueAdded/aplos',
             controller: 'JobWorkReceiptValueAddedController'
         })
+        .when('/receive-billing', {
+            templateUrl: 'JobWork/JobWorkReceiveBilling/aplos',
+            controller: 'JobWorkReceiveBillingController'
+        })
         .when('/jobwork-register', {
             templateUrl: 'JobWork/JobWorkRegister/aplos',
             controller: 'JobWorkRegisterController'
