@@ -7453,15 +7453,20 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
 
-            	LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount,SUM(FAR.FABaseAmount+sar.SubAssetAmount) FABaseAmount,SUM(FAR.ADBaseAmount) ADBaseAmount
+            	LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount,  SUM(isnull( FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) ) )FABaseAmount
+				--,SUM(FAR.ADBaseAmount) ADBaseAmount
+                ,SUM(ISNULL( FAR.ADBaseAmount,0)) ADBaseAmount
 				,FAR.MaterialMasterId
-				
 			    FROM TRN.FixedAssetRegister FAR
-				left join(select sum(Amount) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+
+				left join(select sum(isnull(Amount,0)) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 				group by FixedAssetRegisterId
-				) sar on sar.FixedAssetRegisterId=FAR.Id
+				)  sar on sar.FixedAssetRegisterId=FAR.Id
+
                 GROUP BY FAR.MaterialMasterId
 				)FA ON FA.MaterialMasterId=M.Id
+
+
                 WHERE M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1 
@@ -7480,18 +7485,21 @@ group by Id) O60 ON O60.Id=IV.Id
                 FROM MST.MaterialMasterArticle MMA
                 LEFT JOIN HKP.StitchCode SC ON SC.Id=MMA.StitchCodeId
                 LEFT JOIN (
-				SELECT COUNT(FAR.FixedAssetMasterId) FACount,SUM(FAR.FABaseAmount+sar.SubAssetAmount) FABaseAmount,SUM(FAR.ADBaseAmount) ADBaseAmount
-				,FAR.MaterialMasterId,FAR.MaterialMasterArticleId	
+				SELECT COUNT(FAR.FixedAssetMasterId) FACount,SUM(ISNULL( FAR.FABaseAmount,0) + (ISNULL( sar.SubAssetAmount,0))) FABaseAmount
+				,SUM(ISNULL( FAR.ADBaseAmount,0) )ADBaseAmount
+				,FAR.MaterialMasterId,FAR.MaterialMasterArticleId
 
 		        --LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount,SUM(FAR.FABaseAmount+sar.SubAssetAmount) FABaseAmount,SUM(FAR.ADBaseAmount) ADBaseAmount
 				--,FAR.MaterialMasterId
 
 			    FROM TRN.FixedAssetRegister FAR
-				left join(select sum(Amount) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+					left join(select sum(ISNULL(  Amount,0)) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 				group by FixedAssetRegisterId
 				) sar on sar.FixedAssetRegisterId=FAR.Id
 			    GROUP BY FAR.FixedAssetMasterId,FAR.MaterialMasterId,FAR.MaterialMasterArticleId
-				)FA ON FA.MaterialMasterId=MMA.MaterialMasterId AND FA.MaterialMasterArticleId=MMA.Id";
+				)FA ON FA.MaterialMasterId=MMA.MaterialMasterId AND FA.MaterialMasterArticleId=MMA.Id
+
+	 		--WHERE MMA.MaterialMasterId ='2394' ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
