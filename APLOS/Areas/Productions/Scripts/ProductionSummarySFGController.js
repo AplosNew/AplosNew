@@ -1203,7 +1203,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
 
     $scope.SaveMaster = function () {
         try {
-
+            
             if ($scope.Status === 'INVENTORY') {
                 $scope.productionSummaryNew.FromSFGInventoryId = $scope.productionSummaryNew.ProcessId;
                 $scope.productionSummaryNew.ProcessId = null;
@@ -1212,18 +1212,21 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
                 }
             }
 
+           
+            if ($scope.Status === 'PROCESS') {
+                $scope.productionSummaryNew.FromSFGInventoryId = null;
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProcessId)) {
+                    throw "Process is required.";
+                }
+            }
+            if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ToProcessId) || baseService.isUndefinedOrNull($scope.productionSummaryNew.ToSFGInventoryId)) {
+                throw "To is required.";
+            }
             if ($scope.ToStatus === 'INVENTORY') {
                 $scope.productionSummaryNew.ToSFGInventoryId = $scope.productionSummaryNew.ToProcessId;
                 $scope.productionSummaryNew.ToProcessId = null;
                 if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ToSFGInventoryId)) {
                     throw "To is required.";
-                }
-            }
-
-            if ($scope.Status === 'PROCESS') {
-                $scope.productionSummaryNew.FromSFGInventoryId = null;
-                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProcessId)) {
-                    throw "Process is required.";
                 }
             }
 
@@ -1233,7 +1236,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
                     throw "To is required.";
                 }
             }
-
+            
             ValidationMaster();
             if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.LotNumber)) {
                 if (/^[ A-Za-z0-9_./-]*$/.test($scope.productionSummaryNew.LotNumber)) {
