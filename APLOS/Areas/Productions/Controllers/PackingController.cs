@@ -373,7 +373,7 @@ namespace Aplos.Areas.Productions.Controllers
                 strSQL = @"SELECT  P.PackingId, moi.Id MasterOrderItemID,c.Id as ContractId,mm.UserName MaterialDescription,mma.StandardName as Article,h.Code as HSNCode
                                 ,PLC.LCRef,Format(PLC.LCDate,'dd-MMM-yyyy') LCDate,B.UserName as IssueingBank,AM.Address1 IssueingBankAddress,sc.GWeight,sc.NetWeight, sc.NoOfPackages
 
-                                ,CartonSerialNo = (Select Stuff((Select ','+isc.RefNo
+                                ,CartonSerialNo = (Select Stuff((Select distinct ','+isc.RefNo
                                 from dbo.ItemScanChild isc 
                                 where isc.NetWeight=sc.NetWeight
                                 for xml path('')
