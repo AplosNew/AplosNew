@@ -424,7 +424,7 @@ namespace Aplos.Areas.Attendances.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                strDetailsSQL = "DELETE FROM  [dbo].[BonusPolicyDetail] WHERE SystemID='" + DetailsId + "'";
+                strDetailsSQL = "DELETE FROM  [dbo].[BonusPolicyDetail] WHERE BPMSystemID='" + DetailsId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strDetailsSQL, out dsExceptionEmployeeList, false, "1");
             }

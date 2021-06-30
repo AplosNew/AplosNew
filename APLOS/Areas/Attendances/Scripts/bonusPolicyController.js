@@ -348,7 +348,7 @@ function bonusPolicyController($window, cboService, commonMessage, $scope, $root
             $http({
                 method: 'POST',
                 url: $scope.deleteUrl,
-                data: { 'DetailsId': $scope.BonusPolicyDetailModel.SystemID },
+                data: { 'DetailsId': $scope.BonusPolicy.MID },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -704,5 +704,5 @@ function bonusPolicyController($window, cboService, commonMessage, $scope, $root
         }
 
     };
-
+    
 }
