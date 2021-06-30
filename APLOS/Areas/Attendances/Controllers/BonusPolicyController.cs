@@ -390,15 +390,23 @@ namespace Aplos.Areas.Attendances.Controllers
         public ActionResult DeleteM(string SystemID)
         {
             DataSet dsMaster;
+            DataSet dsChild;
             ConnectionManager.DAL.ConManager objCon;
             try
             {
                 string sql = "SELECT * FROM [dbo].[BonusPolicyPlantWise] WHERE BonusPolicyId='" + SystemID + "' ";
+                string sql1 = "SELECT * FROM  [dbo].[BonusPolicyDetail] WHERE BPMSystemID='" + SystemID + "' ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql1, out dsChild, false, "1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
                     Exception ex = new Exception("This Policy tagged with Plant...");
+                    throw (ex);
+                }
+                if (dsChild.Tables[0].Rows.Count > 0)
+                {
+                    Exception ex = new Exception("Delete Details First..");
                     throw (ex);
                 }
                 //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
