@@ -810,7 +810,7 @@
                                 <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelectPolicy" />
                             </script>
                             <script type="text/template" id="IsDefaultPolicy">
-                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsDefaultPolicy" />
+                                <input type="checkbox" ej-checkbox class="rowCheckbox" @*e-id="{{data.Id}}"*@ e-checked="data.IsDefaultPolicy" @*e-change="$parent.CheckValidation"*@ />
                             </script>
                         </div>
                     </fieldset>
