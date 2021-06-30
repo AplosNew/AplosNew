@@ -1759,7 +1759,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 
 	$scope.calculateAmountByProduct = function (data, index) {
 		debugger;
-		data.TransactionRate = 1;// Need to remove
+		//data.TransactionRate = 1;// Need to remove
 		$scope.PreBal = data.Balance;
 		data.TrnAmount = (data.NetQty * data.TransactionRate).toFixed(2);//(data.TransactionQty * data.TransactionRate).toFixed(2);
 		if (data.TrnAmount == 'NaN')

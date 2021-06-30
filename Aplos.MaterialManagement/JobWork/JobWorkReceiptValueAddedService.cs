@@ -661,7 +661,7 @@ namespace Library.MaterialManagement.JobWork
                         ,0 DiscountAmount
                         ,'' QualityStatus
                         ,null POUoMId
-                        ,0 Tolerance,sum(CC3.GrossConsumption) GrossConsumption
+                        ,0 Tolerance,sum(CC3.GrossConsumption*vvvv.Rate) GrossConsumption--,sum(vvvv.Rate) Rate
                         from dbo.JobWorkTransformationContractChild mp 
                         left join dbo.JobWorkTransformationContract tc on tc.Id=mp.JobWorkTransformationContractMasterId
                         left join hkp.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
@@ -680,6 +680,16 @@ namespace Library.MaterialManagement.JobWork
                         left join (select Sum(ReceivedQuantity) as TotalReceivedQuantity,MaterialPlanningId from dbo.JobWorkReceiptTransformationChild group by MaterialPlanningId)kk on kk.MaterialPlanningId=mp.Id
                         left join (select JobWorkTransformationContractChildMasterId, Sum(GrossConsumption) GrossConsumption  from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)CC3 ON CC3.JobWorkTransformationContractChildMasterId=mp.Id
                         left join(select JWTCMDId, Sum(isnull(TransactionQty,0)) TransactionQty from trn.InventoryReceiveDetail group by JWTCMDId)rcvqty ON rcvqty.JWTCMDId=mp.Id
+                        left join( select  mp1.Id ,II.JWContractId 
+								 ,sum(IID.PolicyAmount/IID.TransactionQty) Rate
+								 FROM trn.InventoryIssueDetail IID
+								 left join trn.InventoryIssue II On II.Id=IID.InventoryIssueId
+								 left join trn.InventoryMaterial IM ON IM.Id=IID.InventoryMaterialId
+								 left JOIN MST.MaterialMaster AS MM ON MM.Id=IM.MaterialMasterId
+								 left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
+								 left join dbo.JobWorkTransformationContract tc on tc.Id=II.JWContractId
+								 left join dbo.JobWorkTransformationContractChild mp1 ON mp1.JobWorkTransformationContractMasterId=Tc.Id								
+								 group by  mp1.Id,II.JWContractId )vvvv ON vvvv.JWContractId=tc.Id 
                         where tc.Id='" + PKId + @"' group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuantity, MGM.UserName, MM.Id, MM.UserName, mma.Id ,MM.IsAsset,tc.Id, TUoM.Id, TUoM.UserName,TUoM.Id";
 
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -894,7 +904,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                                 ,null QtyStatus
                                 , TUoM.Id TransactionUoMId
                                 , TUoM.UserName TransactionUoM
-                                , 0 TransactionRate
+                                --, 0 TransactionRate
                                 , null  CurrencyName
                                 , tbp.StandardRate TransactionRate
                                 ,0 TransactionAmount
