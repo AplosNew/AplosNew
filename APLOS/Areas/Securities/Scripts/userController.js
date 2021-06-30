@@ -351,7 +351,8 @@ function UserController($controller, fileReader, commonMessage, $scope, $rootSco
         $scope.Action = "Save";
         $scope.index = -1;
         $scope.user = {};
-        $scope.userNew = {};
+        $scope.userNew = angular.copy($scope.user);
+        $scope.userNew.Id = null;
         $scope.userNew.SysAdmin = false;
         $scope.userNew.PowerUser = false;
         $scope.userNew.GeneralUser = 'General User';
@@ -986,8 +987,9 @@ function UserController($controller, fileReader, commonMessage, $scope, $rootSco
                     if (baseService.arrayLength($scope.userProcessList) > 0) {
                         for (var i = 0; i < $scope.userProcessList.length; i++) {
                             for (var j = 0; j < $scope.processDataList.length; j++) {
-                                if ($scope.userProcessList[i].SFGInventoryId === $scope.processDataList[j].Id) {
+                                if ($scope.userProcessList[i].ProcessId === $scope.processDataList[j].Id) {
                                     $scope.processDataList[j].Flag = true;
+                                   
                                 }
                             }
                         }
@@ -1024,12 +1026,12 @@ function UserController($controller, fileReader, commonMessage, $scope, $rootSco
 
             });
         }
-        else
-            $scope.userProcessList = [];
-        angular.forEach($scope.userProcessList, function (a) {
-            if (!baseService.valueCheckInList($scope.processDataList, 'Id', a.ProcessId))
-                $scope.userProcessList.splice(a, 1);
-        });
+        //else
+        //    $scope.userProcessList = [];
+        //angular.forEach($scope.userProcessList, function (a) {
+        //    if (!baseService.valueCheckInList($scope.processDataList, 'Id', a.ProcessId))
+        //        $scope.userProcessList.splice(a, 1);
+        //});
         $scope.closeProcessPopUp();
     };
 
@@ -1305,7 +1307,7 @@ function UserController($controller, fileReader, commonMessage, $scope, $rootSco
                     if (baseService.arrayLength($scope.userReportGroupList) > 0) {
                         for (var i = 0; i < $scope.userReportGroupList.length; i++) {
                             for (var j = 0; j < $scope.ReportGroupDataList.length; j++) {
-                                if ($scope.userReportGroupList[i].SFGInventoryId === $scope.ReportGroupDataList[j].Id) {
+                                if ($scope.userReportGroupList[i].ReportingGroupId === $scope.ReportGroupDataList[j].Id) {
                                     $scope.ReportGroupDataList[j].Flag = true;
                                 }
                             }

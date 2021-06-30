@@ -1273,6 +1273,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         //var index = this.element.closest("tr").index();
         //var record = obj.getCurrentViewData()[index];
         var data = obj.model.dataSource;
+
+
         $scope.tempMaterialMasterId = data[0].MaterialMasterId
         $scope.tempMaterialMasterArticleId = data[0].MaterialMasterAritcleId
 

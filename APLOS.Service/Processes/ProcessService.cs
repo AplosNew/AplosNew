@@ -140,7 +140,7 @@ namespace Library.Service.Processes
 	                                    , P.MaterialTypeId, MT.[Description] AS MaterialType
 	                                    , P.ProcessGroupId, PG.UserName AS ProcessGroupName
 	                                    , P.Remarks
-	                                    , P.Active, P.Archive, P.IsFirst,P.IsLast,P.IsCrossAllowed,'' AS Flag
+	                                    , P.Active, P.Archive, P.IsFirst,P.IsLast,P.IsCrossAllowed,Convert(bit,0) AS Flag
                                     FROM [HKP].[Process] AS P
                                     LEFT JOIN [HKP].[MaterialType] AS MT ON P.MaterialTypeId=MT.Id
                                     LEFT JOIN [HKP].[ProcessGroup] AS PG ON P.ProcessGroupId=PG.Id
