@@ -52,8 +52,11 @@ namespace Library.Accounting.Accounts
 				,SUM(X.BooksBalance) BooksBalance
 
 				,sum(X.ODueMoreThan30) OverDueMoreThan30
-				,sum(X.ODueMoreThan15) OverDueMoreThan15,sum(X.ODueLessThan15) OverDueLessThan15,sum(X.TodayBalance) TodayBalance,sum(X.OneToSevenBalance) OneToSevenBalance
-				,sum(X.EightToThirtyBalance) EightToThirtyBalance
+				,sum(X.ODueMoreThan15) OverDueMoreThan15
+                ,sum(X.ODueLessThan15) OverDueLessThan15
+                ,sum(X.TodayBalance) TodayBalance
+                ,sum(X.OneToSevenBalance) OneToSevenBalance
+			   ,sum(X.EightToThirtyBalance) EightToThirtyBalance
 				,sum(X.ThirtyToSixtyBalance) ThirtyToSixtyBalance
 				,sum(X.Onword60) Onword60
 
@@ -11873,7 +11876,7 @@ group by Id) O60 ON O60.Id=IV.Id
 							
 							,isnull( format(I.ActualDueDate,'dd-MMM-yyyy'),'')  AS ActualDueDate
 							
-							, NoOfDays=DATEDIFF(DAY, '12-Jun-2021',I.BaseOnDueDate)
+							, NoOfDays=DATEDIFF(DAY, GETDATE(), I.ActualDueDate)
 							,ISNULL(PDAD.MaterialTranAmount,0) AcceptanceAmount
 							,ISNULL(PDAD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
 							 ,ISNULL(I.WrittenOffAmount,0)+ISNULL(LAA.LoanAccAmount,0) SetOff
@@ -11958,6 +11961,404 @@ group by Id) O60 ON O60.Id=IV.Id
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
+        }
+
+        //Report
+        private string AcceptanceLiabilityMaturityData(string CompanyGroupId, string CompanyId, string PlantId, string toDate)
+        {
+
+            return @" 
+	     	     SELECT  PDA.Id PurchaseDocAcceptanceId,PDA.AcceptanceNo,format(PDA.AcceptanceDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo
+                           -- ,Format( V.PostingDate,'dd-MMM-yyyy') as PostingDate
+                               ,isnull( Format( V.PostingDate,'dd-MMM-yyyy'),'') as PostingDate
+							,P.UserName PartyName, PP.UserName PartyPlantName,PDA.PartyId,PDA.PartyPlantId
+							,CurrencyCode= STUFF((select distinct ','+XC.Code from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+														LEFT JOIN SCS.Currency XC ON XC.Id=XVD.CurrencyId
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+						,CurrencyId= STUFF((select distinct ','+XVD.CurrencyId from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,isnull( format(I.BaseOnDueDate,'dd-MMM-yyyy'),'')  AS DueDateBaseON
+							
+							,isnull( format(I.ActualDueDate,'dd-MMM-yyyy'),'')  AS ActualDueDate
+							
+							, NoOfDays=DATEDIFF(DAY, GETDATE(), I.ActualDueDate)
+							,ISNULL(PDAD.MaterialTranAmount,0) AcceptanceAmount
+							,ISNULL(PDAD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
+							 ,ISNULL(I.WrittenOffAmount,0)+ISNULL(LAA.LoanAccAmount,0) SetOff
+							 ,ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)-ISNULL(LAA.LoanAccAmount,0) Balance
+							 ,Amount=ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)-ISNULL(LAA.LoanAccAmount,0),NULL LoanNo,NULL LoanDate
+							 ,PurchaseLCNo= STUFF((select distinct ','+XVD.LCRef from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,LCOpeningDate= STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), XVD.LCDate, 106),' ','-') from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,PINo= STUFF((select distinct ','+XVD.PINo from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,LCAmount
+
+							 ,OpeningBank= STUFF((select distinct ','+xbm.AccountTitle from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+														left join MST.BankMaster xbm on xbm.Id=XVD.OpeningBankMasterId
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,BankMasterId= STUFF((select distinct ','+XVD.OpeningBankMasterId from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,BenificiaryBank= STUFF((select distinct ','+XVD.BenificiaryBank from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,Tenure= STUFF((select distinct ','+REPLACE(CONVERT(int, XVD.Tenure, 106),' ','-') from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,PaymentType= STUFF((select distinct ','+XVD.[Type] from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,PONo= isnull( STUFF((select distinct ','+xpomap.POId from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+														LEFT JOIN trn.PurchaseDocAcceptancePOMap xpomap on xpomap.PurchaseDocAcceptanceId=xp.Id
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+							,GRNNo= isnull( STUFF((select distinct ','+xgrnmap.GRNId from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+														LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+							,ContractNo= isnull( STUFF((select distinct ','+XC.ContractNo from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+							,Customer= isnull( STUFF((select distinct ','+XCU.UserName from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
+														join HKP.Party XCU ON XCU.Id=XC.CustomerId
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+							 ,MasterLCNo= isnull( STUFF((select distinct ','+XC.MasterLCId from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+							,UDNo= isnull( STUFF((select distinct ','+XC.UDNo from
+														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
+													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+							
+							
+                            FROM TRN.PurchasedocAcceptance AS PDA
+                            LEFT JOIN (SELECT PurchaseDocAcceptanceId,SUM(MaterialTranAmount) MaterialTranAmount
+										,SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,SUM(ChargesTranAmount) ChargesTranAmount
+										,SUM(ChargesTaxTranAmount) ChargesTaxTranAmount
+								FROM TRN.PurchasedocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.id
+								LEFT JOIN (select Id,sum(Amount) LCAmount from dbo.PurchaseLC group by Id) PLC ON PLC.Id=PDA.PurchaseLCId
+							 LEFT JOIN HKP.Party P ON P.Id=PDA.PartyId
+                            LEFT JOIN HKP.PartyPlant PP ON PP.Id=PDA.PartyPlantId
+							LEFT JOIN TRN.Voucher V ON V.Id=PDA.VoucherId
+							LEFT JOIN TRN.Invoice I ON I.PurchaseDocAcceptanceId=PDA.Id
+							LEFT JOIN (SELECT PurchaseDocAcceptanceId,SUM(ISNULL(Amount,0)) LoanAccAmount FROM TRN.LoanAgainstAcceptance WHERE ISNULL(VoucherId,'') ='' GROUP BY PurchaseDocAcceptanceId)LAA ON LAA.PurchaseDocAcceptanceId=PDA.Id  
+                         
+                            WHERE PDA.VoucherId <>'' and V.Plantid='" + PlantId + @"' and I.ActualDueDate <= '" + toDate + @"'
+
+                            AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)-ISNULL(LAA.LoanAccAmount,0)>0
+							ORDER BY I.ActualDueDate ASC ";
+
+        }
+
+
+        public void getAcceptanceLiabilityMaturityReport(string CompanyGroupId, string CompanyId, string PlantId, string toDate)
+        {
+            
+            try
+            {
+                
+                string sql = "";
+                sql = AcceptanceLiabilityMaturityData(CompanyGroupId, CompanyId, PlantId,toDate);
+
+                DataTable dtAcceptLiabilityMaturity = _sqlRepository.GetDataTable(sql);
+
+                ExcelEngine excelEngine = new ExcelEngine();
+                //Instantiate the Excel application object
+                IApplication application = excelEngine.Excel;
+
+                //Set the default application version
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet sheet = workbook.Worksheets[0];
+
+                sheet.Name = "Acceptance Liability Maturity Report";
+
+
+                int ROW = 6;
+                int COL = 1;
+
+                sheet[ROW, COL].Text = "SL No.";
+                sheet[ROW, COL].ColumnWidth = 5;
+                int colSlNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Acceptance No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colAcceptanceNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Acceptance Date";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colAcceptanceDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Voucher No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colVoucherNo = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Posting Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPostingDate = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Vendor";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colPartyName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Tenure";
+                sheet[ROW, COL].ColumnWidth = 8;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colTenure = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Payment Type";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colPaymentType = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Base On Due Date";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colDueDateBaseON = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Actual Due Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colActualDueDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "No Of Days";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colNoOfDays = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Currency";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colCurrencyCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Acceptance Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colAcceptanceAmount = COL;
+                COL++;
+
+          
+                sheet[ROW, COL].Text = "Set-Off";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSetOff = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Balance";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colBalance = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Loan Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLoanAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Loan No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLoanNo = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Loan Date";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colLoanDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Purchase LC No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colPurchaseLCNo = COL;
+
+                COL++;
+
+                sheet[ROW, COL].Text = "LC Opening Date";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colLCOpeningDate = COL;
+
+                COL++;
+
+                sheet[ROW, COL].Text = "PI No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colPINo = COL;
+
+                COL++;
+
+                sheet[ROW, COL].Text = "LC Amount";
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colLCAmount = COL;
+
+                COL++;
+
+                sheet[ROW, COL].Text = "Opening Bank";
+                sheet[ROW, COL].ColumnWidth = 18;
+                int colOpeningBank = COL;
+
+                COL++;
+
+                sheet[ROW, COL].Text = "Benificiary Bank";
+                sheet[ROW, COL].ColumnWidth = 18;
+                int colBenificiaryBank = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Po No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colPoNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GRN No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colGRNNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Contract No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colContractNo = COL;
+
+                COL++;
+
+                sheet[ROW, COL].Text = "Customer";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int colCustomer = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Master LC No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colMasterLCNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "UD No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colUDNo = COL;
+
+                
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                ROW++;
+
+                int StartRow = ROW; //row 20
+                for (int i = 0; i < dtAcceptLiabilityMaturity.Rows.Count; i++)
+                {
+
+                    sheet[ROW, colSlNo].Number = (i + 1);
+
+                    sheet[ROW, colAcceptanceNo].Text = dtAcceptLiabilityMaturity.Rows[i]["AcceptanceNo"].ToString();
+                    sheet[ROW, colAcceptanceDate].Text = dtAcceptLiabilityMaturity.Rows[i]["AcceptanceDate"].ToString();
+
+                    sheet[ROW, colVoucherNo].Text = dtAcceptLiabilityMaturity.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, colPostingDate].DateTime = Convert.ToDateTime(dtAcceptLiabilityMaturity.Rows[i]["PostingDate"].ToString());
+                    sheet[ROW, colPostingDate].NumberFormat = "dd-MMM-yyyy";
+                    sheet[ROW, colPartyName].Text = dtAcceptLiabilityMaturity.Rows[i]["PartyName"].ToString();
+                    sheet[ROW, colTenure].Text = dtAcceptLiabilityMaturity.Rows[i]["Tenure"].ToString();
+
+
+                    sheet[ROW, colPaymentType].Text = dtAcceptLiabilityMaturity.Rows[i]["PaymentType"].ToString();
+
+                    sheet[ROW, colDueDateBaseON].DateTime = Convert.ToDateTime(dtAcceptLiabilityMaturity.Rows[i]["DueDateBaseON"].ToString());
+                    sheet[ROW, colDueDateBaseON].NumberFormat = "dd-MMM-yyyy";
+
+                    sheet[ROW, colActualDueDate].DateTime = Convert.ToDateTime(dtAcceptLiabilityMaturity.Rows[i]["ActualDueDate"].ToString());
+                    sheet[ROW, colActualDueDate].NumberFormat = "dd-MMM-yyyy";
+                   // sheet[ROW, colRFId].Text = dtAcceptLiabilityMaturity.Rows[i]["NoOfDays"].ToString();
+                    sheet[ROW, colNoOfDays].Number = clsStaticInfo.dbl(dtAcceptLiabilityMaturity.Rows[i]["NoOfDays"].ToString());
+
+                    
+                    sheet[ROW, colCurrencyCode].Text = dtAcceptLiabilityMaturity.Rows[i]["CurrencyCode"].ToString();
+                    sheet[ROW, colAcceptanceAmount].Number = clsStaticInfo.dbl(dtAcceptLiabilityMaturity.Rows[i]["AcceptanceAmount"].ToString());
+                    sheet[ROW, colAcceptanceAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, colSetOff].Number = clsStaticInfo.dbl(dtAcceptLiabilityMaturity.Rows[i]["SetOff"].ToString());
+                    sheet[ROW, colSetOff].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    
+                    sheet[ROW, colBalance].Number = clsStaticInfo.dbl(dtAcceptLiabilityMaturity.Rows[i]["Balance"].ToString());
+                    sheet[ROW, colBalance].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, colLoanAmount].Number = clsStaticInfo.dbl(dtAcceptLiabilityMaturity.Rows[i]["Amount"].ToString());
+                    sheet[ROW, colLoanAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, colLoanNo].Text = dtAcceptLiabilityMaturity.Rows[i]["LoanNo"].ToString();
+                    
+                    // sheet[ROW, colLoanDate].DateTime = Convert.ToDateTime(dtAcceptLiabilityMaturity.Rows[i]["LoanDate"].ToString());
+                    //sheet[ROW, colLoanDate].NumberFormat = "dd-MMM-yyyy";
+                    sheet[ROW, colLoanDate].Text = dtAcceptLiabilityMaturity.Rows[i]["LoanDate"].ToString();
+
+                    sheet[ROW, colLCOpeningDate].DateTime = Convert.ToDateTime(dtAcceptLiabilityMaturity.Rows[i]["LCOpeningDate"].ToString());
+                    sheet[ROW, colLCOpeningDate].NumberFormat = "dd-MMM-yyyy";
+
+                    sheet[ROW, colPurchaseLCNo].Text = dtAcceptLiabilityMaturity.Rows[i]["PurchaseLCNo"].ToString();
+                    sheet[ROW, colPINo].Text = dtAcceptLiabilityMaturity.Rows[i]["PINo"].ToString();
+                    sheet[ROW, colLCAmount].Text = dtAcceptLiabilityMaturity.Rows[i]["LCAmount"].ToString();
+                    sheet[ROW, colOpeningBank].Text = dtAcceptLiabilityMaturity.Rows[i]["OpeningBank"].ToString();
+                    sheet[ROW, colBenificiaryBank].Text = dtAcceptLiabilityMaturity.Rows[i]["BenificiaryBank"].ToString();
+                    sheet[ROW, colPoNo].Text = dtAcceptLiabilityMaturity.Rows[i]["PoNo"].ToString();
+                    sheet[ROW, colGRNNo].Text = dtAcceptLiabilityMaturity.Rows[i]["GRNNo"].ToString();
+                    sheet[ROW, colContractNo].Text = dtAcceptLiabilityMaturity.Rows[i]["ContractNo"].ToString();
+                    sheet[ROW, colCustomer].Text = dtAcceptLiabilityMaturity.Rows[i]["Customer"].ToString();
+                    sheet[ROW, colMasterLCNo].Text = dtAcceptLiabilityMaturity.Rows[i]["MasterLCNo"].ToString();
+                    sheet[ROW, colUDNo].Text = dtAcceptLiabilityMaturity.Rows[i]["UDNo"].ToString();
+
+               
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                    ROW++;
+
+                }
+
+                sheet.IsGridLinesVisible = false;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+
+                sheet["A" + StartRow.ToString()].FreezePanes();
+
+                sheet.Range[StartRow, colSlNo, ROW, colSlNo].NumberFormat = clsStaticInfo.NumberFormat();
+                sheet.Range[StartRow, colSlNo, ROW, colSlNo].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Acceptance Liability Maturity Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                string strFileName = "AcceptanceLiabilityMaturityReport.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+
         }
 
         #endregion acceptance liability maturity

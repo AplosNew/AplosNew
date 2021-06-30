@@ -175,6 +175,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
                                 Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article,CurrentProcessPR.ProductionQtyAtPR
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
 								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
+PreviousProcessPR.ProductionQtyAtPR,
 								      MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -302,6 +303,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
                                 Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article,CurrentProcessPR.ProductionQtyAtPR
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
 								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
+PreviousProcessPR.ProductionQtyAtPR,
 								      MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -379,7 +381,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
                              LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
 												,MIN(s.ProductionDate) AS ProductionStartDateAtPR,MAX(s.ProductionDate) AS ProductionEndDateAtPR
 											FROM  trn.ProductionSummary S 
-											where s.ProcessId='"+ProcessId+ @"'
+											where s.ProcessId='" + ProcessId+ @"'
 											GROUP BY  s.ProductionOrderId,s.ProcessId
 							) AS CurrentProcessPR ON  CurrentProcessPR.ProductionOrderId=po.id AND CurrentProcessPR.ProcessId=PSS.ProcessId
 							
