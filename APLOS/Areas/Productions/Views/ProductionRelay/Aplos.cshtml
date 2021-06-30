@@ -70,14 +70,12 @@
                         <div e-column e-type="string" e-field="Variance" e-headertext="Variance" e-width="80"></div>
                         <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="StartDate" e-headertext="Start Date" e-width="80"></div>
                         @*<div e-column e-type="string" e-field="IsCompleted" e-headertext="Is Completed" e-width="80"></div>*@
-                        @*<div e-column e-type="string" e-field="StartDate" e-headertext="Completion Date" e-width="80"></div>*@
-
 
                         <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>
                         <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="200"></div>
 
                         <div e-column e-type="string" e-field="PreviousProcess" e-headertext="Previous Process" e-width="80"></div>
-                        <div e-column e-type="string" e-field="ProductionQtyAtPR" e-headertext="Previous Process Qty" e-width="80"></div>
+                        <div e-column e-type="string" e-field="PreviousProcessQty" e-headertext="Previous Process Qty" e-width="80"></div>
                         <div e-column e-type="string" e-field="ClosedBy" e-headertext="Previous Process Closed By" e-width="50"></div>
                         <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PreviousProcessStartDate" e-headertext="Previous Process Start Date" e-width="80"></div>
                         <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ClosedDate" e-headertext="Previous Process Completion Date" e-width="80"></div>
@@ -120,7 +118,7 @@
                          e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
                          e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                          e-allowselection="false" e-filtersettings-filterType="excel">
-                        <div e-columns>                            
+                        <div e-columns>
                             <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
                             <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
                             <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
@@ -134,15 +132,16 @@
                             <div e-column e-type="string" e-field="ProducedQty" e-headertext="Produced Qty" e-width="80"></div>
                             <div e-column e-type="string" e-field="Variance" e-headertext="Variance" e-width="80"></div>
                             <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="StartDate" e-headertext="Start Date" e-width="80"></div>
-                            @*<div e-column e-type="string" e-field="IsCompleted" e-headertext="Is Completed" e-width="80"></div>*@
-                            @*<div e-column e-type="date" e-field="StartDate" e-headertext="Start Date" e-width="80"></div>*@
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="EndDate" e-headertext="End Date" e-width="80"></div>
+                            <div e-column e-type="string" e-field="CompletedBy" e-headertext="Closed By" e-width="50"></div>
 
+                            @*<div e-column e-type="string" e-field="IsCompleted" e-headertext="Is Completed" e-width="80"></div>*@
 
                             <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>
                             <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="200"></div>
 
                             <div e-column e-type="string" e-field="PreviousProcess" e-headertext="Previous Process" e-width="50"></div>
-                            <div e-column e-type="string" e-field="ProductionQtyAtPR" e-headertext="Previous Process Qty" e-width="50"></div>
+                            <div e-column e-type="string" e-field="PreviousProcessQty" e-headertext="Previous Process Qty" e-width="50"></div>
                             <div e-column e-type="string" e-field="ClosedBy" e-headertext="Previous Process Closed By" e-width="50"></div>
                             <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PreviousProcessStartDate" e-headertext="Previous Process Start Date" e-width="80"></div>
                             <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ClosedDate" e-headertext="Previous Process Completion Date" e-width="80"></div>

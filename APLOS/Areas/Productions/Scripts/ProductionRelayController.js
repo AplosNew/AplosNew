@@ -137,6 +137,10 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
                     if (angular.isUndefinedOrNull(response.data[i].StartDate) == false)
                         response.data[i].StartDate = new Date(response.data[i].StartDate);
 
+                    if (angular.isUndefinedOrNull(response.data[i].EndDate) == false)
+                        response.data[i].EndDate = new Date(response.data[i].EndDate);
+                    
+
                     if (angular.isUndefinedOrNull(response.data[i].PreviousProcessStartDate) == false)
                         response.data[i].PreviousProcessStartDate = new Date(response.data[i].PreviousProcessStartDate);
 
