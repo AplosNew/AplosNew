@@ -342,7 +342,7 @@ namespace Library.MaterialManagement.JobWork
 						,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo  
 						,C.Id ,c.UserName ,II.ContractId ,II.ProductionOrderId,Con.ContractNo,II.Types, II.JWContractId
 						Order BY II.IssueDate DESC";
-                return _sqlRepository.GetDataCollection(sql);
+                return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
             {
