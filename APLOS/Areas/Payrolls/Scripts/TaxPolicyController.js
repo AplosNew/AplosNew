@@ -1968,36 +1968,4 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
     };
 
     //#endregion
-
-    //#region Validation For Plant
-
-    //$scope.CheckValidation = function (args) {
-    //    if (args.isInteraction == false)
-    //        return;
-    //    if (args.isChecked == false)
-    //        return;
-
-    //    var optionBase = '';
-    //    for (var i = 0; i < $scope.PlantWiseBPolicyList.length; i++) {
-    //        if (args.model.id == $scope.PlantWiseBPolicyList[i].TaxFormulaId) {
-    //            optionBase = $scope.PlantWiseBPolicyList[i].OptionBase;
-    //            break;
-    //        }
-    //    }
-
-    //    for (var i = 0; i < $scope.PlantWiseBPolicyList.length; i++) {
-    //        if (optionBase == $scope.PlantWiseBPolicyList[i].OptionBase) {
-    //            if (args.model.id == $scope.PlantWiseBPolicyList[i].TaxFormulaId)
-    //                continue;
-
-    //            $scope.PlantWiseBPolicyList[i].IsDefaultPolicy = false;
-    //            break;
-    //        }
-    //    }
-
-    //    var gridObj = $("#Grid3").data("ejGrid");
-    //    gridObj.refreshContent();
-    //}
-
-    //#endregion
 }

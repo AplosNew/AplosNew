@@ -307,14 +307,6 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
                 $scope.inventoryPayableList = response.data;
             });
     }
-    $scope.inventoryJobWorkGIRIJV = [];
-    function getInventoryJobWorkGIRI(inveReveiveId) {
-        $http.get('Accounts/InventoryPayable/GetInventoryJobWorkGIRI?inveReveiveId=' + inveReveiveId)
-            .then(function (response) {
-                $scope.inventoryJobWorkGIRIJV = [];
-                $scope.inventoryJobWorkGIRIJV = response.data;
-            });
-    }
     function getInventoryMaterialList(inveReveiveId, employeeId, isReversCharge, foc) {
         $http.get('Accounts/InventoryPayable/GetInventoryJobWorkReceivedJV?inveReveiveId=' + inveReveiveId + '&employeeId=' + employeeId + '&isReversCharge=' + isReversCharge + '&foc=' + foc)
             .then(function (response) {
@@ -330,10 +322,8 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
                     reArrangeNonCreditableList($scope.inventoryMaterialList, $scope.newList, $scope.inventoryReceiveDetailList);
                 if (!baseService.isUndefinedOrNull(employeeId))
                     $scope.glPushInList();
-                if (baseService.isUndefinedOrNull(employeeId)) {
+                if (baseService.isUndefinedOrNull(employeeId))
                     getVendorPayableGLBudgetActivity(inveReveiveId);
-                    getInventoryJobWorkGIRI(inveReveiveId);
-                }
             });
     }
     $scope.inventoryTaxList = [];

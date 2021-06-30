@@ -48,31 +48,15 @@
 
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-                <div class="common-btn" ng-show="ProductionRelayList.length>0">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                        <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                    </ul>
-                </div>
+
                 <div id="GridProductionRelay" ng-init="chkinit()" e-load="actionCompleteSearch" ej-grid e-datasource="ProductionRelayList"
                      e-allowfiltering="true" e-allowpaging="false" e-enabletouch="false" e-responsive="true" e-templaterefresh="ProductionRelayAllCheck"
-                     e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound" e-showstackedheader="true"
-                     e-allowscrolling="true" e-minwidth="450" e-minheight="400" e-rowdatabound="rowDataBoundOrder"
+                     e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
+                     e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                      e-allowselection="false" e-filtersettings-filterType="excel">
-                    <div e-stackedheaderrows>
-                        <div e-stackedheaderrow>
-                            <div e-stackedheadercolumns>
-                                <div e-stackedheadercolumn e-headertext="Current Process Info"
-                                     e-column="gridCheckBoxField,Id,Material,article,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,StartDate,MasterOrderId,Remarks"></div>
-                                <div e-stackedheadercolumn e-headertext="Previous Process Info"
-                                     e-column="PreviousProcess,PreviousProcessQty,ClosedBy,PreviousProcessStartDate,ClosedDate"></div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div e-columns>
-                        <div e-column e-headertext="" e-allowfiltering="false" e-field="gridCheckBoxField" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="25"></div>
-                        <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="80"></div>
+                        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="25"></div>
+                        <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
                         <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
                         <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
                         <div e-column e-type="string" e-field="StyleNo" e-headertext="Buyer Item#" e-width="100"></div>
@@ -85,21 +69,24 @@
                         <div e-column e-type="string" e-field="ProducedQty" e-headertext="Produced Qty" e-width="80"></div>
                         <div e-column e-type="string" e-field="Variance" e-headertext="Variance" e-width="80"></div>
                         <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="StartDate" e-headertext="Start Date" e-width="80"></div>
-                    
+                        @*<div e-column e-type="string" e-field="IsCompleted" e-headertext="Is Completed" e-width="80"></div>*@
+
                         <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>
                         <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="200"></div>
 
-                        <div e-column e-type="string" e-field="PreviousProcess" e-headertext="Process" e-width="100"></div>
-                        <div e-column e-type="string" e-field="PreviousProcessQty" e-headertext="Produced Qty" e-width="100"></div>
-                        <div e-column e-type="string" e-field="ClosedBy" e-headertext="Completed By" e-width="100"></div>
-                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PreviousProcessStartDate" e-headertext="Start Date" e-width="100"></div>
-                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ClosedDate" e-headertext="Completion Date" e-width="100"></div>
+                        <div e-column e-type="string" e-field="PreviousProcess" e-headertext="Previous Process" e-width="80"></div>
+                        <div e-column e-type="string" e-field="PreviousProcessQty" e-headertext="Previous Process Qty" e-width="80"></div>
+                        <div e-column e-type="string" e-field="ClosedBy" e-headertext="Previous Process Closed By" e-width="50"></div>
+                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PreviousProcessStartDate" e-headertext="Previous Process Start Date" e-width="80"></div>
+                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ClosedDate" e-headertext="Previous Process Completion Date" e-width="80"></div>
 
+                        @*<div e-column e-type="string" e-field="BuyerRefNo" e-headertext="Cust. Order#" e-width="100"></div>
+                    <div e-column e-type="string" e-field="SONo" e-headertext="SO No." e-width="100"></div>*@
                     </div>
 
                 </div>
                 <script type="text/x-jsrender" id="headerTemplate">
-                    <input type="checkbox" id="headchk" />
+                    <input type="checkbox" id="headchk"/>
                 </script>
                 <script type="text/template" id="checkboxTemplate">
                     <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Checked" e-checked="data.Checked" />
@@ -118,74 +105,53 @@
                     </div>
 
                 </script>
-
-
-                <div class="row col-sm-12">
-                    <div>
-                        <span style="background-color:#FF502A;color:#FF502A">.....</span> Pre. completed, current not started
-                        <span style="background-color:#6FEAFF;color:#6FEAFF">.....</span> Pre. completed, current started
-                        <span style="background-color:#FFB42A;color:#FFB42A">.....</span> Pre. started, current not started
-                        <span style="background-color:#7EFF87;color:#7EFF87">.....</span> Pre. started, current also started
-                    </div>
+                <div class="common-btn" ng-show="ProductionRelayList.length>0">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                        <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
                 </div>
-
-
-
             </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div id="GridProductionRelayClosed" ng-init="chkinit()" e-load="actionCompleteSearch" ej-grid e-datasource="ProductionRelayClosedList"
-                     e-allowfiltering="true" e-allowpaging="false" e-enabletouch="false" e-responsive="true"
-                     e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
-                     e-allowscrolling="true" e-minwidth="450" e-minheight="400" e-showstackedheader="true"
-                     e-allowselection="false" e-filtersettings-filterType="excel">
-                    <div e-stackedheaderrows>
-                        <div e-stackedheaderrow>
-                            <div e-stackedheadercolumns>
-                                <div e-stackedheadercolumn e-headertext="Current Process Info"
-                                     e-column="Id,Material,article,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,StartDate,EndDate,CompletedBy,MasterOrderId,Remarks"></div>
-                                <div e-stackedheadercolumn e-headertext="Previous Process Info"
-                                     e-column="PreviousProcess,PreviousProcessQty,ClosedBy,PreviousProcessStartDate,ClosedDate"></div>
-                            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">            
+                    <div id="GridProductionRelayClosed" ng-init="chkinit()" e-load="actionCompleteSearch" ej-grid e-datasource="ProductionRelayClosedList"
+                         e-allowfiltering="true" e-allowpaging="false" e-enabletouch="false" e-responsive="true"
+                         e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
+                         e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+                         e-allowselection="false" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
+                            <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
+                            <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
+                            <div e-column e-type="string" e-field="StyleNo" e-headertext="Buyer Item#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>
+                            <div e-column e-type="string" e-field="OrderQty" e-headertext="Order Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="PlannedQty" e-headertext="Plan Order Qty" e-width="80"></div>
+
+                            <div e-column e-type="string" e-field="ActualQTY" e-headertext="Actual Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ProducedQty" e-headertext="Produced Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Variance" e-headertext="Variance" e-width="80"></div>
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="StartDate" e-headertext="Start Date" e-width="80"></div>
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="EndDate" e-headertext="End Date" e-width="80"></div>
+                            <div e-column e-type="string" e-field="CompletedBy" e-headertext="Closed By" e-width="50"></div>
+
+                            @*<div e-column e-type="string" e-field="IsCompleted" e-headertext="Is Completed" e-width="80"></div>*@
+
+                            <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>
+                            <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="200"></div>
+
+                            <div e-column e-type="string" e-field="PreviousProcess" e-headertext="Previous Process" e-width="50"></div>
+                            <div e-column e-type="string" e-field="PreviousProcessQty" e-headertext="Previous Process Qty" e-width="50"></div>
+                            <div e-column e-type="string" e-field="ClosedBy" e-headertext="Previous Process Closed By" e-width="50"></div>
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PreviousProcessStartDate" e-headertext="Previous Process Start Date" e-width="80"></div>
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ClosedDate" e-headertext="Previous Process Completion Date" e-width="80"></div>
                         </div>
                     </div>
-                    <div e-columns>
-                        <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="80"></div>
-                        <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
-                        <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
-                        <div e-column e-type="string" e-field="StyleNo" e-headertext="Buyer Item#" e-width="100"></div>
-                        <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
-                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>
-                        <div e-column e-type="string" e-field="OrderQty" e-headertext="Order Qty" e-width="80"></div>
-                        <div e-column e-type="string" e-field="PlannedQty" e-headertext="Plan Order Qty" e-width="80"></div>
+                </div> 
 
-                        <div e-column e-type="string" e-field="ActualQTY" e-headertext="Actual Qty" e-width="80"></div>
-                        <div e-column e-type="string" e-field="ProducedQty" e-headertext="Produced Qty" e-width="80"></div>
-                        <div e-column e-type="string" e-field="Variance" e-headertext="Variance" e-width="80"></div>
-
-                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="StartDate" e-headertext="Start Date" e-width="80"></div>
-                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="EndDate" e-headertext="Completion Date" e-width="80"></div>
-                        <div e-column e-type="string" e-field="CompletedBy" e-headertext="Completed By" e-width="50"></div>
-
-                        <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>
-                        <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="200"></div>
-
-                        <div e-column e-type="string" e-field="PreviousProcess" e-headertext="Process" e-width="100"></div>
-                        <div e-column e-type="string" e-field="PreviousProcessQty" e-headertext="Produced Qty" e-width="100"></div>
-                        <div e-column e-type="string" e-field="ClosedBy" e-headertext="Completed By" e-width="100"></div>
-                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PreviousProcessStartDate" e-headertext="Start Date" e-width="100"></div>
-                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ClosedDate" e-headertext="Completion Date" e-width="100"></div>
-                    </div>
-                </div>
             </div>
-
         </div>
+
     </div>
-    <div class="common-btn" ng-show="ProductionRelayList.length>0">
-        <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-        </ul>
-    </div>
-</div>
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>

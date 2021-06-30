@@ -69,7 +69,6 @@ namespace Aplos.Areas.Commercial.Controllers
 
             try
             {
-
                 Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
 
                 var data = navigation.GetPurchaseLCSearch();

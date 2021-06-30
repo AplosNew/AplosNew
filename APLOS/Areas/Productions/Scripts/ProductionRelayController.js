@@ -154,37 +154,7 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, 'failure');
         }
     }
-    $scope.rowDataBoundOrder = function rowDataBoundOrder(e) {
-        try {
-            if (angular.isUndefinedOrNull(e.data.PPRId) == true) return;
 
-            if (angular.isUndefinedOrNull(e.data.ClosedDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == false) {
-                e.row.css("background-color", "#6FEAFF");
-                return;
-            }
-
-            if (angular.isUndefinedOrNull(e.data.ClosedDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == true) {
-                e.row.css("background-color", "#FF502A");
-                return;
-            }
-
-            if (angular.isUndefinedOrNull(e.data.PreviousProcessStartDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == true) {
-                e.row.css("background-color", "#FFB42A");
-                return;
-            }
-
-            if (angular.isUndefinedOrNull(e.data.PreviousProcessStartDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == false) {
-                e.row.css("background-color", "#7EFF87");
-                return;
-            }
-
-            //e.row.css("background-color", e.data.Color);
-            //var inColor = invertColor(e.data.Color, true);
-            //e.row.css("color", inColor);
-        } catch (e) {
-
-        }
-    }
     $scope.ProductionRelayAllCheck = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
     };
