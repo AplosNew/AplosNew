@@ -605,6 +605,7 @@
     <Compile Include="Areas\JobWork\Controllers\JobWorkIssueReturnController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkItemController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkLocationController.cs" />
+    <Compile Include="Areas\JobWork\Controllers\JobWorkReceiveBillingController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkReceiptValueAddedController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkRegisterController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JobWorkTransformationContractController.cs" />
@@ -1768,6 +1769,7 @@
     <Content Include="Areas\JobWork\Scripts\JobWorkIssueReturnController.js" />
     <Content Include="Areas\JobWork\Scripts\JobWorkItemController.js" />
     <Content Include="Areas\JobWork\Scripts\jobWorkLocationController.js" />
+    <Content Include="Areas\JobWork\Scripts\JobWorkReceipBillingController.js" />
     <Content Include="Areas\JobWork\Scripts\JobWorkReceiptValueAddedController.js" />
     <Content Include="Areas\JobWork\Scripts\JobWorkRegisterController.js" />
     <Content Include="Areas\JobWork\Scripts\jobWorkTransformationContractController.js" />
@@ -3510,6 +3512,7 @@
     <Content Include="Areas\Parties\Views\Party\_PartyOtherPopUpNew.cshtml" />
     <Content Include="Areas\Accounts\Views\InventoryPayable\InventoryJobWorkReceived.cshtml" />
     <Content Include="Areas\HumanResource\Views\ManualShift\Aplos.cshtml" />
+    <Content Include="Areas\JobWork\Views\JobWorkReceiveBilling\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

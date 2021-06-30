@@ -152,15 +152,12 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
 
     $scope.GridInventoryIssuedata = [];
     $scope.getdataInventoryIssue = function () {
-        //debugger;
+        $scope.GridInventoryIssuedata = [];
         $http({
             method: "GET",
-            dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
             url: $scope.path + 'GetDataByInventoryIssue?Id=' + $scope.Transformation.Id,
         }).then(function successCallback(response) {
             $scope.GridInventoryIssuedata = response.data;
-            //entrydata = copy(searchdata);
         });
 
     };
