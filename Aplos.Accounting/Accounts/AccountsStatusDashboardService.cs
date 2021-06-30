@@ -52,8 +52,11 @@ namespace Library.Accounting.Accounts
 				,SUM(X.BooksBalance) BooksBalance
 
 				,sum(X.ODueMoreThan30) OverDueMoreThan30
-				,sum(X.ODueMoreThan15) OverDueMoreThan15,sum(X.ODueLessThan15) OverDueLessThan15,sum(X.TodayBalance) TodayBalance,sum(X.OneToSevenBalance) OneToSevenBalance
-				,sum(X.EightToThirtyBalance) EightToThirtyBalance
+				,sum(X.ODueMoreThan15) OverDueMoreThan15
+                ,sum(X.ODueLessThan15) OverDueLessThan15
+                ,sum(X.TodayBalance) TodayBalance
+                ,sum(X.OneToSevenBalance) OneToSevenBalance
+			   ,sum(X.EightToThirtyBalance) EightToThirtyBalance
 				,sum(X.ThirtyToSixtyBalance) ThirtyToSixtyBalance
 				,sum(X.Onword60) Onword60
 
@@ -11873,7 +11876,7 @@ group by Id) O60 ON O60.Id=IV.Id
 							
 							,isnull( format(I.ActualDueDate,'dd-MMM-yyyy'),'')  AS ActualDueDate
 							
-							, NoOfDays=DATEDIFF(DAY, '12-Jun-2021',I.BaseOnDueDate)
+							, NoOfDays=DATEDIFF(DAY, GETDATE(), I.ActualDueDate)
 							,ISNULL(PDAD.MaterialTranAmount,0) AcceptanceAmount
 							,ISNULL(PDAD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
 							 ,ISNULL(I.WrittenOffAmount,0)+ISNULL(LAA.LoanAccAmount,0) SetOff
@@ -11980,7 +11983,7 @@ group by Id) O60 ON O60.Id=IV.Id
 							
 							,isnull( format(I.ActualDueDate,'dd-MMM-yyyy'),'')  AS ActualDueDate
 							
-							, NoOfDays=DATEDIFF(DAY, '12-Jun-2021',I.BaseOnDueDate)
+							, NoOfDays=DATEDIFF(DAY, GETDATE(), I.ActualDueDate)
 							,ISNULL(PDAD.MaterialTranAmount,0) AcceptanceAmount
 							,ISNULL(PDAD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
 							 ,ISNULL(I.WrittenOffAmount,0)+ISNULL(LAA.LoanAccAmount,0) SetOff
@@ -12088,28 +12091,28 @@ group by Id) O60 ON O60.Id=IV.Id
                 int COL = 1;
 
                 sheet[ROW, COL].Text = "SL No.";
-                sheet[ROW, COL].ColumnWidth = 6;
+                sheet[ROW, COL].ColumnWidth = 5;
                 int colSlNo = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Acceptance No";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int colAcceptanceNo = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Acceptance Date";
-                sheet[ROW, COL].ColumnWidth = 25;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int colAcceptanceDate = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Voucher No";
-                sheet[ROW, COL].ColumnWidth = 25;
+                sheet[ROW, COL].ColumnWidth = 12;
                 int colVoucherNo = COL;
                 COL++;
 
 
                 sheet[ROW, COL].Text = "Posting Date";
-                sheet[ROW, COL].ColumnWidth = 25;
+                sheet[ROW, COL].ColumnWidth = 12;
                 int colPostingDate = COL;
                 COL++;
 
@@ -12120,28 +12123,28 @@ group by Id) O60 ON O60.Id=IV.Id
                 COL++;
 
                 sheet[ROW, COL].Text = "Tenure";
-                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].ColumnWidth = 8;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTenure = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "PaymentType";
-                sheet[ROW, COL].ColumnWidth = 20;
+                sheet[ROW, COL].Text = "Payment Type";
+                sheet[ROW, COL].ColumnWidth = 10;
                 int colPaymentType = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "DueDateBaseON";
+                sheet[ROW, COL].Text = "Base On Due Date";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colDueDateBaseON = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "ActualDueDate";
-                sheet[ROW, COL].ColumnWidth = 20;
+                sheet[ROW, COL].Text = "Actual Due Date";
+                sheet[ROW, COL].ColumnWidth = 12;
                 int colActualDueDate = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "NoOfDays";
-                sheet[ROW, COL].ColumnWidth = 20;
+                sheet[ROW, COL].Text = "No Of Days";
+                sheet[ROW, COL].ColumnWidth = 10;
                 int colNoOfDays = COL;
                 COL++;
 
@@ -12150,32 +12153,34 @@ group by Id) O60 ON O60.Id=IV.Id
                 int colCurrencyCode = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "AcceptanceAmount";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].Text = "Acceptance Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colAcceptanceAmount = COL;
                 COL++;
 
           
-                sheet[ROW, COL].Text = "SetOff";
-                sheet[ROW, COL].ColumnWidth = 20;
+                sheet[ROW, COL].Text = "Set-Off";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colSetOff = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Balance";
-                sheet[ROW, COL].ColumnWidth = 20;
+                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colBalance = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Loan Amount";
-                sheet[ROW, COL].ColumnWidth = 20;
+                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colLoanAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Loan No";
                 sheet[ROW, COL].ColumnWidth = 15;
-                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colLoanNo = COL;
                 COL++;
 
@@ -12186,13 +12191,13 @@ group by Id) O60 ON O60.Id=IV.Id
                 COL++;
 
                 sheet[ROW, COL].Text = "Purchase LC No";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int colPurchaseLCNo = COL;
 
                 COL++;
 
-                sheet[ROW, COL].Text = "LCOpening Date";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].Text = "LC Opening Date";
+                sheet[ROW, COL].ColumnWidth = 15;
                 int colLCOpeningDate = COL;
 
                 COL++;
@@ -12204,19 +12209,20 @@ group by Id) O60 ON O60.Id=IV.Id
                 COL++;
 
                 sheet[ROW, COL].Text = "LC Amount";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int colLCAmount = COL;
 
                 COL++;
 
                 sheet[ROW, COL].Text = "Opening Bank";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 18;
                 int colOpeningBank = COL;
 
                 COL++;
 
                 sheet[ROW, COL].Text = "Benificiary Bank";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 18;
                 int colBenificiaryBank = COL;
                 COL++;
 
@@ -12237,16 +12243,16 @@ group by Id) O60 ON O60.Id=IV.Id
                 COL++;
 
                 sheet[ROW, COL].Text = "Customer";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 25;
                 int colCustomer = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Master LC No";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 12;
                 int colMasterLCNo = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "UDNo";
+                sheet[ROW, COL].Text = "UD No";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colUDNo = COL;
 
@@ -12275,8 +12281,6 @@ group by Id) O60 ON O60.Id=IV.Id
                     sheet[ROW, colTenure].Text = dtAcceptLiabilityMaturity.Rows[i]["Tenure"].ToString();
 
 
-
-
                     sheet[ROW, colPaymentType].Text = dtAcceptLiabilityMaturity.Rows[i]["PaymentType"].ToString();
 
                     sheet[ROW, colDueDateBaseON].DateTime = Convert.ToDateTime(dtAcceptLiabilityMaturity.Rows[i]["DueDateBaseON"].ToString());
@@ -12300,11 +12304,12 @@ group by Id) O60 ON O60.Id=IV.Id
                     sheet[ROW, colLoanAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colLoanNo].Text = dtAcceptLiabilityMaturity.Rows[i]["LoanNo"].ToString();
                     
-                     sheet[ROW, colLoanDate].DateTime = Convert.ToDateTime(dtAcceptLiabilityMaturity.Rows[i]["LoanDate"].ToString());
-                    sheet[ROW, colLoanDate].NumberFormat = "dd-MMM-yyyy";
-                    
-                    sheet[ROW, colLCOpeningDate].Number = clsStaticInfo.dbl(dtAcceptLiabilityMaturity.Rows[i]["LCOpeningDate"].ToString());
-                    sheet[ROW, colLCOpeningDate].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    // sheet[ROW, colLoanDate].DateTime = Convert.ToDateTime(dtAcceptLiabilityMaturity.Rows[i]["LoanDate"].ToString());
+                    //sheet[ROW, colLoanDate].NumberFormat = "dd-MMM-yyyy";
+                    sheet[ROW, colLoanDate].Text = dtAcceptLiabilityMaturity.Rows[i]["LoanDate"].ToString();
+
+                    sheet[ROW, colLCOpeningDate].DateTime = Convert.ToDateTime(dtAcceptLiabilityMaturity.Rows[i]["LCOpeningDate"].ToString());
+                    sheet[ROW, colLCOpeningDate].NumberFormat = "dd-MMM-yyyy";
 
                     sheet[ROW, colPurchaseLCNo].Text = dtAcceptLiabilityMaturity.Rows[i]["PurchaseLCNo"].ToString();
                     sheet[ROW, colPINo].Text = dtAcceptLiabilityMaturity.Rows[i]["PINo"].ToString();
@@ -12318,20 +12323,7 @@ group by Id) O60 ON O60.Id=IV.Id
                     sheet[ROW, colMasterLCNo].Text = dtAcceptLiabilityMaturity.Rows[i]["MasterLCNo"].ToString();
                     sheet[ROW, colUDNo].Text = dtAcceptLiabilityMaturity.Rows[i]["UDNo"].ToString();
 
-                
-             
-
-
-                 
-                    //sheet[ROW, colFACount].Number = clsStaticInfo.dbl(dtAcceptLiabilityMaturity.Rows[i]["FACount"].ToString());
-                    //sheet[ROW, colFACount].NumberFormat = clsStaticInfo.NumberFormat(2);
-
-
-
-
-          
-
-
+               
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 
@@ -12356,7 +12348,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
-                string strFileName = "Fixed Asset Register Report.xlsx";
+                string strFileName = "AcceptanceLiabilityMaturityReport.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
 
