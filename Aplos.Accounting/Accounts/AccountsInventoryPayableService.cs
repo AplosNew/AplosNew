@@ -4162,7 +4162,6 @@ UNION
 			{
 					var sql = @"DECLARE @receiveId varchar(10)= '"+ inveReveiveId + @"'
 
-
 						SELECT  'JobWork' AS OtherName, 'Dr' AS TrnType
 							,GLGeneralInfoId =SVGL.ExpenseGLId
 							,GLGeneralInfoCode =GLF.AccountCode
