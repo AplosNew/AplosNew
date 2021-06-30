@@ -18,14 +18,14 @@ namespace Aplos.Areas.Accounts.Controllers
     public class InventoryPayableController : BaseController
     {
         private readonly ISqlRepository _sqlRepository;
-       // private readonly IInventoryPayableService _inventoryPayableService;
+        // private readonly IInventoryPayableService _inventoryPayableService;
 
         public InventoryPayableController(
-         //   IInventoryPayableService inventoryPayableService
+             //   IInventoryPayableService inventoryPayableService
              ISqlRepository sqlRepository
             )
         {
-         //   _inventoryPayableService = inventoryPayableService;
+            //   _inventoryPayableService = inventoryPayableService;
             _sqlRepository = sqlRepository;
         }
 
@@ -139,7 +139,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsInventoryPayableService.GetGRNListForInvPayable(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
-        
+
 
         [HttpPost, Authorize]
         public JsonResult GetAdditionalTaxDetail(string additionalTaxId)
@@ -194,7 +194,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsInventoryPayableService.GetPurchaseOrderDiscountWithAcceptance(identity.PlantId, purchaseDocAcceptanceId));
         }
 
-       
+
 
         [HttpGet, Authorize]
         public ActionResult PabyableJournal(ReportFormat reportFormat, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc)
@@ -236,8 +236,8 @@ namespace Aplos.Areas.Accounts.Controllers
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
             if (foc == "NO")
             {
-                
-                  return Json(_accountsInventoryPayableService.GetInventoryJobWorkReceivedJV(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
+
+                return Json(_accountsInventoryPayableService.GetInventoryJobWorkReceivedJV(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
             }
             else
             {
@@ -245,6 +245,14 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(_accountsInvoiceService.GetInventoryPayableFOC(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
 
             }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryJobWorkGIRI(string inveReveiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(_accountsInventoryPayableService.GetInventoryJobWorkGIRI(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
         }
 
         #endregion
@@ -369,7 +377,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(accountsInventoryPayableService.GetInventoryShortage(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.InventoryShortagePayable), JsonRequestBehavior.AllowGet);
         }
 
-       
+
 
         #endregion
 
@@ -389,7 +397,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(accountsInventoryPayableService.GetInventoryShortage(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.InventoryRejectPayable), JsonRequestBehavior.AllowGet);
         }
 
-        
+
 
         #endregion
 
