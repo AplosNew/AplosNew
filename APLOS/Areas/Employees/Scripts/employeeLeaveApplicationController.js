@@ -181,6 +181,7 @@ function employeeLeaveApplicationController(commonMessage, $scope, $rootScope, b
         $scope.getData();
         $scope.leavetypecbo();
         $scope.getLeaveBalance();
+        $scope.LeavePolicyName();
     };
 
 
@@ -196,6 +197,15 @@ function employeeLeaveApplicationController(commonMessage, $scope, $rootScope, b
         angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
     }
 
+    $scope.LeavePolicyNames = null;
+    $scope.LeavePolicyName = function () {
+        $http({
+            method: 'GET',
+            url: 'Employees/LeaveApplication/getLeavePolicy'
+        }).then(function successCallback(response) {
+            $scope.LeavePolicyNames = response.data.data[0].PolicyName;
+        });
+    };
     
     $scope.GetEnterEmployeeOutInfo = function () {
         var parameters = {
@@ -248,6 +258,7 @@ function employeeLeaveApplicationController(commonMessage, $scope, $rootScope, b
         $scope.getData();
         $scope.leavetypecbo();
         $scope.getLeaveBalance();
+        $scope.LeavePolicyName();
     };
 
 

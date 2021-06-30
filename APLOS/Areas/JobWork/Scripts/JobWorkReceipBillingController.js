@@ -1,9 +1,9 @@
 ﻿'use strict';
-JobWorkReceiptValueAddedController.$inject = ['$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'factoryService'];
-function JobWorkReceiptValueAddedController($window, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, factoryService) {
+JobWorkReceiveBillingController.$inject = ['$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'factoryService'];
+function JobWorkReceiveBillingController($window, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, factoryService) {
 	//$scope.ToDoFilePath = virtualPath.JobWorkValueAddedContract;
 	//$scope.ToDownloadFilePath = virtualPath.JobWorkTransformationContract;
-	$rootScope.title = 'Receipt';
+	$rootScope.title = 'Receive Billing';
 	$scope.Action = 'Save';
 	$scope.ModelList = [];
 	$scope.IssueTypeList = [];
@@ -13,7 +13,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	$scope.TransformationTypeList = [];
 	$scope.EntityList = [];
 	$scope.MaterialLocationList = [];
-	$scope.path = 'JobWork/JobWorkReceiptValueAdded/';
+	$scope.path = 'JobWork/JobWorkReceiveBilling/';
 	$scope.getListUrl = $scope.path + 'getlist';
 	$scope.saveUrl = $scope.path + 'create';
 	$scope.deleteUrl = $scope.path + 'delete/';
@@ -1759,7 +1759,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 
 	$scope.calculateAmountByProduct = function (data, index) {
 		debugger;
-		//data.TransactionRate = 1;// Need to remove
+		data.TransactionRate = 1;// Need to remove
 		$scope.PreBal = data.Balance;
 		data.TrnAmount = (data.NetQty * data.TransactionRate).toFixed(2);//(data.TransactionQty * data.TransactionRate).toFixed(2);
 		if (data.TrnAmount == 'NaN')

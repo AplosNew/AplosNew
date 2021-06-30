@@ -55,16 +55,28 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
-                if (clsStaticInfo.nullrecorder(ProductionRelayData) == "" )
+                if (clsStaticInfo.nullrecorder(ProductionRelayData) == "")
                 {
                     throw new Exception("Please select at least one production process.");
+                }
+
+                string ProductionOrderIds = "''";
+                for (int i = 0; i < ProductionRelayData.Count; i++)
+                {
+                    ProductionOrderIds += ",'" + ProductionRelayData[i]["Id"].ToString() + "'";
                 }
 
                 DataSet dsProductionRelay;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
-                conBin.OpenDataSetThroughAdapter(@"Select * from trn.ProductionOrderProcessSet", out dsProductionRelay, false, "1");
+                ConnectionManager.DAL.ConManager conProductionRelay = new ConnectionManager.DAL.ConManager("1");
+                conProductionRelay.OpenDataSetThroughAdapter(@"Select * from trn.ProductionOrderProcessSet where ProductionOrderId IN (" + ProductionOrderIds + ")", out dsProductionRelay, false, "1");
+                conProductionRelay.OpenDataSetThroughAdapter(@"Select * from trn.ProductionOrder where id in (" + ProductionOrderIds + ")", out DataSet dsProductionOrder, false, "1");
+                conProductionRelay.OpenDataSetThroughAdapter(@"select * from HKP.ProductionStatus where Code='Completed'", out DataSet dsProductionStatus, false, "1");
+
+                string productionStatus = "";
+                if (dsProductionStatus.Tables[0].Rows.Count > 0)
+                    productionStatus = dsProductionStatus.Tables[0].Rows[0]["Id"].ToString();
 
                 string IncompleteProductionOrder = "";
                 for (int i = 0; i < ProductionRelayData.Count; i++)
@@ -84,6 +96,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                             throw new Exception("Previous process is not completed therefore cannot complete the current production order");
                         }
+
                     }
                 }
 
@@ -101,14 +114,34 @@ namespace Aplos.Areas.Productions.Controllers
                         dr["CompletedBy"] = identity.Name;
                         dr["CompletionEntryDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedBy"] = identity.Name;
+                        dr["EndDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
 
                         dr.EndEdit();
 
                     }
+                    if (productionStatus != "")
+                    {
+                        dsProductionOrder.Tables[0].DefaultView.RowFilter = "Id='" + ProductionRelayData[i]["Id"] + "'";
+                        if (dsProductionOrder.Tables[0].DefaultView.Count > 0)
+                        {
+                            //edit
+                            DataRow dr = dsProductionOrder.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["ProductionStatusId"] = productionStatus;
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+                            dr.EndEdit();
+
+                        }
+
+                    }
+
                 }
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsProductionRelay);
+                _info.SaveDataSets(dsProductionOrder, dsProductionRelay);
+
 
                 return Json(new { Error = false, Data = ProductionRelayData,/* Sequence = GetSequence(),*/ Message = AplosMessage.Insert });
 
@@ -154,7 +187,6 @@ namespace Aplos.Areas.Productions.Controllers
                 }
             }
             dr["UpdatedBy"] = identity.Name;
-
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
@@ -163,18 +195,20 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult GetProductionRelay(string EntityId, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT 
+            string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,
 convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId, convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess,PPR.CompletedBy ClosedBy
 ,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
 ,  PO.Id,PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
 isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 ,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
-    ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
+  ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
      so.ProductCategory,so.Product,
 		ActualQTY=	case when ISNULL(st.Qty,0)>isnull(PO.Qty,0) then st.Qty else po.Qty end,							
                                 Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article,CurrentProcessPR.ProductionQtyAtPR
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
-								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
+								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
+								PSS.CompletedBy ,
+PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
 								      MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -188,7 +222,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
 							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
 
-                                                    OwnRefNo =STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+                                                   OwnRefNo =STUFF((select distinct ','+XMOI.OwnReferenceNo from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
 								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
@@ -241,6 +275,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
                             JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
                             LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
 							left join trn.ProductionOrderProcessSet PSS ON PSS.ProductionOrderId=PO.Id
+							left join trn.ProductionOrderProcessSet PLST ON PLST.ProductionOrderId=PO.Id and PLST.Id=(select top 1 Id from trn.ProductionOrderProcessSet XP where XP.ProductionOrderId=PO.Id order by XP.Sequence DESC)
 							left join trn.ProductionOrderProcessSet PPR ON PSS.ProductionOrderId=PO.Id 
 							and PPR.id=(select A.Id from (
 							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] desc) AS RNK,P.*
@@ -258,8 +293,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 							
                              LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
 												,MIN(s.ProductionDate) AS ProductionStartDate,MAX(s.ProductionDate) AS ProductionEndDate
-											FROM  trn.ProductionSummary S 
-											where s.ProcessId='" + ProcessId + @"'
+											FROM  trn.ProductionSummary S											
 											GROUP BY  s.ProductionOrderId,s.ProcessId
 							) AS PreviousProcessPR ON  PreviousProcessPR.ProductionOrderId=po.id AND PreviousProcessPR.ProcessId=PPR.ProcessId
 							 
@@ -290,18 +324,20 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
         public ActionResult GetProductionRelayClosed(string EntityId, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT 
-convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId, convert(bit ,isnull(PSS.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess,PPR.CompletedBy ClosedBy
+            string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,
+convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId, convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess,PPR.CompletedBy ClosedBy
 ,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
 ,  PO.Id,PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
 isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 ,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
-    ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
+  ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
      so.ProductCategory,so.Product,
 		ActualQTY=	case when ISNULL(st.Qty,0)>isnull(PO.Qty,0) then st.Qty else po.Qty end,							
                                 Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article,CurrentProcessPR.ProductionQtyAtPR
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
-								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
+								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
+								PSS.CompletedBy ,
+PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
 								      MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -315,7 +351,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
 							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
 
-                                                    OwnRefNo =STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+                                                   OwnRefNo =STUFF((select distinct ','+XMOI.OwnReferenceNo from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
 								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
@@ -367,26 +403,26 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 							left outer join ProductionOrderSchedulingParametersType1 st on st.ProductionOrderID=PO.Id
                             JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
                             LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
-						 join trn.ProductionOrderProcessSet PSS ON PSS.ProductionOrderId=PO.Id
+							left join trn.ProductionOrderProcessSet PSS ON PSS.ProductionOrderId=PO.Id
+							left join trn.ProductionOrderProcessSet PLST ON PLST.ProductionOrderId=PO.Id and PLST.Id=(select top 1 Id from trn.ProductionOrderProcessSet XP where XP.ProductionOrderId=PO.Id order by XP.Sequence DESC)
 							left join trn.ProductionOrderProcessSet PPR ON PSS.ProductionOrderId=PO.Id 
 							and PPR.id=(select A.Id from (
 							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] desc) AS RNK,P.*
 							from TRN.ProductionOrderProcessSet P 
-							
 							where p.ProductionOrderId=PSS.ProductionOrderId AND P.Sequence<PSS.sequence) AS A where a.RNK=1)
 							left outer join HKP.Process P on p.Id=PPR.ProcessId					
 
                              LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
 												,MIN(s.ProductionDate) AS ProductionStartDateAtPR,MAX(s.ProductionDate) AS ProductionEndDateAtPR
 											FROM  trn.ProductionSummary S 
-											where s.ProcessId='"+ProcessId+ @"'
+											where s.ProcessId='" + ProcessId + @"'
 											GROUP BY  s.ProductionOrderId,s.ProcessId
 							) AS CurrentProcessPR ON  CurrentProcessPR.ProductionOrderId=po.id AND CurrentProcessPR.ProcessId=PSS.ProcessId
 							
                              LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
 												,MIN(s.ProductionDate) AS ProductionStartDate,MAX(s.ProductionDate) AS ProductionEndDate
 											FROM  trn.ProductionSummary S 
-											where s.ProcessId='" + ProcessId + @"'
+											
 											GROUP BY  s.ProductionOrderId,s.ProcessId
 							) AS PreviousProcessPR ON  PreviousProcessPR.ProductionOrderId=po.id AND PreviousProcessPR.ProcessId=PPR.ProcessId
 							 
@@ -408,7 +444,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 													
                                                     group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,pc.UserName) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-                            WHERE isnull(s.username,'') IN ('RUNNING') AND  PO.entityid='" + EntityId+@"' and  PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=1";
+                            WHERE isnull(s.username,'') IN ('RUNNING') AND  PO.entityid='" + EntityId + @"' and  PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=1";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

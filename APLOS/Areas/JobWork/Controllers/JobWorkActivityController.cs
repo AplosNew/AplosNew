@@ -225,12 +225,14 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult LoadJobItemsForSelection(string MasterId)
         {
             string sql = "";
-            sql = @"select jwi.*, uom.UserName as UOM, emp.EmployeeName as ResponsiblePerson, mm.UserName as MaterialMaster
+            sql = @"select jwi.*, emp.EmployeeName as ResponsiblePerson, mm.UserName as MaterialMaster
+                                   ,UOM=case when jwi.MaterialMasterId is not null then mmuom.UserName else uom.UserName End
                                    from HKP.JobWorkItem jwi left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
 								   left join dbo.EmployeeInformation emp on emp.SystemId=jwi.ResponsiblePersonId
 								   left join MST.MaterialMaster mm on mm.Id=jwi.MaterialMasterId
-                                   WHERE isnull(jwi.Id,'') not in (select isnull(JobWorkItemId,'') from HKP.JobWorkActivityChild where JobWorkActivityId='" + MasterId + @"')
-                                   ORDER BY jwi.Code";
+								   left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
+                                   WHERE isnull(jwi.Id,'') not in (select isnull(JobWorkItemId,'') from HKP.JobWorkActivityChild where JobWorkActivityId='"+ MasterId + @"')
+                                   ORDER BY jwi.Sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -239,13 +241,15 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult LoadAllSelectedJobActivtiyTab(string JobWorkActivityMasterId)
         {
             string sql = "";
-            sql = @"select jac.*,ja.UserName as JobActivity, jwi.UserName as JobWorkItem,uom.UserName as UOM, emp.EmployeeName as ResponsiblePerson, mm.UserName as MaterialMaster
+            sql = @"select jac.*,ja.UserName as JobActivity, jwi.UserName as JobWorkItem, emp.EmployeeName as ResponsiblePerson, mm.UserName as MaterialMaster
+                                        ,UOM=case when jwi.MaterialMasterId is not null then mmuom.UserName else uom.UserName End
                                         from HKP.JobWorkActivityChild jac left join HKP.JobWorkActivity ja on ja.Id=jac.JobWorkActivityId
 										left join HKP.JobWorkItem jwi on jwi.Id=jac.JobWorkItemId
 										left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
 										left join dbo.EmployeeInformation emp on emp.SystemId=jwi.ResponsiblePersonId
 							        	left join MST.MaterialMaster mm on mm.Id=jwi.MaterialMasterId
-										where jac.JobWorkActivityId='"+ JobWorkActivityMasterId + @"' ORDER BY jwi.Code ";
+										left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
+										where jac.JobWorkActivityId='" + JobWorkActivityMasterId + @"' ORDER BY jwi.Code ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

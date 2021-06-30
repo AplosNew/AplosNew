@@ -324,7 +324,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
     $scope.ToEntitydisable = true;
     $scope.ToProdEntity = false;
     $scope.EnableDiffEntity = function () {
-        if ($scope.ToProdEntity==true) {
+        if ($scope.ToProdEntity == true) {
             $scope.ToEntitydisable = false;
         } else {
             $scope.ToEntitydisable = true;
@@ -923,7 +923,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         }
     };
 
-    
+
     $scope.Get = function (obj) {
         var entityid = $scope.productionSummaryNew.EntityId;
         var processid = $scope.productionSummaryNew.ProcessId;
@@ -931,7 +931,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         var shiftid = $scope.productionSummaryNew.ProductionShiftId;
         //var wcid = $scope.productionSummaryNew.WorkCenterMasterId;
         var ProductionBookingLevel = $scope.productionSummaryNew.ProductionBookingLevel;
- 
+
         $scope.productionSummary = obj.data;
         $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
 
@@ -944,7 +944,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         $scope.productionSummaryNew.ProcessId = processid;
         $scope.productionSummaryNew.ProductionDate = workdate;
         $scope.productionSummaryNew.ProductionShiftId = shiftid;
-       // $scope.productionSummaryNew.WorkCenterMasterId = wcid;
+        // $scope.productionSummaryNew.WorkCenterMasterId = wcid;
         $scope.productionSummaryNew.ProductionBookingLevel = ProductionBookingLevel;
         $scope.Action = 'Update';
         if ($scope.productionSummaryNew.ProductionBookingLevel === 'UptoSKU1') {
@@ -1164,7 +1164,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
 
     $scope.GetTotalProductionBookingQty = function () {
         try {
-            
+
             $scope.ProcessId = $scope.productionSummaryNew.ProcessId;
 
             if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
@@ -1212,18 +1212,23 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
                 }
             }
 
-            if ($scope.ToStatus === 'INVENTORY') {
-                $scope.productionSummaryNew.ToSFGInventoryId = $scope.productionSummaryNew.ToProcessId;
-                $scope.productionSummaryNew.ToProcessId = null;
-                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ToSFGInventoryId)) {
-                    throw "To is required.";
-                }
-            }
 
             if ($scope.Status === 'PROCESS') {
                 $scope.productionSummaryNew.FromSFGInventoryId = null;
                 if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProcessId)) {
                     throw "Process is required.";
+                }
+            }
+            if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ToProcessId)) {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ToSFGInventoryId)) {
+                    throw "To is required.";
+                }
+            }
+            if ($scope.ToStatus === 'INVENTORY') {
+                $scope.productionSummaryNew.ToSFGInventoryId = $scope.productionSummaryNew.ToProcessId;
+                $scope.productionSummaryNew.ToProcessId = null;
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ToSFGInventoryId)) {
+                    throw "To is required.";
                 }
             }
 
@@ -1266,7 +1271,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
                     "psd": $scope.ProductionSummaryDetail,
                     "level": $scope.productionSummaryNew.ProductionBookingLevel,
                     "productionOrderId": $scope.productionSummaryNew.ProductionOrderId,
-                    "salesOrderId":$scope.productionSummaryNew.SalesOrderId,
+                    "salesOrderId": $scope.productionSummaryNew.SalesOrderId,
                     "processId": $scope.ProcessId,
                     "status": $scope.Status,
                     "IsFirst": $scope.IsFirst,
@@ -1310,7 +1315,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
                     $scope.TotalProductionBookingQty = 0;
                     $scope.TotalSalesOrderQty = 0;
                     $scope.RemainQty = 0;
-                    
+
 
                     ShowResult(response.data.Message, 'success');
                 }
@@ -1420,7 +1425,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         $scope.productionSummaryNew = {};
         $scope.productionSummaryNew.Active = true;
         $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy');
-       
+
         $scope.SetBack(false);
         $scope.IsGo = false;
         $scope.ProductionSummaryDetail = [];

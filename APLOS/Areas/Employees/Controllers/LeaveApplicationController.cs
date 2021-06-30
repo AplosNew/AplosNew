@@ -43,12 +43,12 @@ namespace Aplos.Areas.Employees.Controllers
         {
             return View();
         }
-        
+
         public ActionResult LeaveApply()
         {
             return View();
         }
-        
+
         public ActionResult LeaveApp()
         {
             return View();
@@ -62,6 +62,21 @@ namespace Aplos.Areas.Employees.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
+        public ActionResult getLeavePolicy()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT PolicyName FROM [dbo].[LeavePolicyMaster] WHERE GroupID='" + identity.CompanyGroupId + "' and PlantID='" + identity.PlantId + "'";
+            var data = _sqlRepository.GetDataCollection(sql);
+            JsonResult json = Json(new
+            {
+                data
+            }, JsonRequestBehavior.AllowGet);
+
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetList(GridParameter parameters, string yearNo)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -69,8 +84,8 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
 
-        [HttpGet,Authorize]
-        public ActionResult GetEmpLeaveList(GridParameter parameters ,string EmpsystemId,string yearNo)
+        [HttpGet, Authorize]
+        public ActionResult GetEmpLeaveList(GridParameter parameters, string EmpsystemId, string yearNo)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_leaveTransactionService.Query(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, EmpsystemId, yearNo), JsonRequestBehavior.AllowGet);
@@ -85,7 +100,7 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetSectionEmployeeList(string sectionId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            JsonResult json= Json(_employeeProfileService.GetSectionEmployeeList(identity.PlantId, identity.CompanyId, sectionId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(_employeeProfileService.GetSectionEmployeeList(identity.PlantId, identity.CompanyId, sectionId), JsonRequestBehavior.AllowGet);
             //JsonResult json = Json(_employeeProfileService.GetEmployeeList(identity.PlantId, identity.CompanyId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
@@ -129,11 +144,11 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(_leaveTransactionService.LoadGrdAllocatedLvDetails(identity.CompanyGroupId, identity.PlantId, identity.EmployeeId, calanderYearId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public ActionResult GetEmpLeaveBalance(string EmpsystemId, string calanderYearId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_leaveTransactionService.LoadGrdAllocatedLvDetails(identity.CompanyGroupId,identity.PlantId ,EmpsystemId, calanderYearId), JsonRequestBehavior.AllowGet);
+            return Json(_leaveTransactionService.LoadGrdAllocatedLvDetails(identity.CompanyGroupId, identity.PlantId, EmpsystemId, calanderYearId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -151,13 +166,13 @@ namespace Aplos.Areas.Employees.Controllers
                 leaveApplication.AppliedDate = DateTime.Now;
             }
 
-            
+
             _leaveTransactionService.SaveData(leaveApplication);
             return Json(new { LeaveApplication = leaveApplication, Message = AplosMessage.Success });
         }
 
         [HttpPost]
-        public JsonResult Save(LeaveTransaction leaveApplication,string yearId)
+        public JsonResult Save(LeaveTransaction leaveApplication, string yearId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             leaveApplication.GroupID = identity.CompanyGroupId;
@@ -178,14 +193,14 @@ namespace Aplos.Areas.Employees.Controllers
             _leaveTransactionService.SaveData(leaveApplication);
             return Json(new { Message = AplosMessage.Updated });
         }
-        
+
         public ActionResult Delete(string id)
         {
             _leaveTransactionService.DeleteGraph(id);
             return Json(new { Message = AplosMessage.Deleted });
 
         }
-        
+
         public ActionResult DeleteApprovedLeave(string id, string EmpSystemid)
         {
             _leaveTransactionService.DeleteApprovedLeaveGraph(id, EmpSystemid);
@@ -218,7 +233,7 @@ namespace Aplos.Areas.Employees.Controllers
             //return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult GetEmpInfo(string SearchValue)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -238,8 +253,8 @@ EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
                                         LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-                                        WHERE emp.PlantID='"+identity.PlantId+@"'  and EMP.CompanyId='" + identity.CompanyId + @"' and EMP.EmployeeStatus='Active' 
-                                        And emp.EmployeeCode='"+SearchValue+@"'
+                                        WHERE emp.PlantID='" + identity.PlantId + @"'  and EMP.CompanyId='" + identity.CompanyId + @"' and EMP.EmployeeStatus='Active' 
+                                        And emp.EmployeeCode='" + SearchValue + @"'
                                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric ";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
