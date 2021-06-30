@@ -375,7 +375,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                                 ,CartonSerialNo = (Select Stuff((Select distinct ','+isc.RefNo
                                 from dbo.ItemScanChild isc 
-                                where isc.NetWeight=sc.NetWeight
+                                where isc.NetWeight=sc.NetWeight and isc.GWeight=sc.GWeight
                                 for xml path('')
                                 ),1,1,''))
 
