@@ -1547,16 +1547,20 @@ namespace Aplos.Areas.JobWork.Controllers
             {
                 throw ex;
             }
-
         }
 
         [Authorize, HttpGet]
         public JsonResult GetDataByInventoryIssue(string Id)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(JWTIR.GetDataByInventoryIssue(Id, identity.PlantId), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(JWTIR.GetDataByInventoryIssue(Id, identity.PlantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
     }
