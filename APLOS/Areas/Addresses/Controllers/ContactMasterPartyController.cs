@@ -1,7 +1,7 @@
 ﻿using Aplos.Controllers;
 using Library.Core;
 using Library.Service.Addresses;
-using Library.Service.Inventory;
+using Library.MaterialManagement.Inventory;
 using System.Web.Mvc;
 
 namespace Aplos.Areas.Addresses.Controllers

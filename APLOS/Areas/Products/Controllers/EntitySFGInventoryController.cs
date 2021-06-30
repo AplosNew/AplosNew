@@ -9,7 +9,7 @@ using System.Threading;
 using Library.Data.Sql;
 using System;
 using Library.Model.Inventory;
-using Library.Service.Inventory;
+using Library.MaterialManagement.Inventory;
 
 #endregion
 

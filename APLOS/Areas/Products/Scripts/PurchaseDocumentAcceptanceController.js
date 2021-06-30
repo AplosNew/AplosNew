@@ -467,8 +467,6 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         }
     }
 
-
-
     $scope.flag = null;
     $scope.delindex = -1;
     $scope.removeTax = function (id, index, flg) {
@@ -1186,21 +1184,21 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
         });
     };
-
+    $scope.SavedServicePODetailList = [];
     function getSavedServicePODetailList(acceptanceID) {
-        $scope.ServicePODetailList = [];
+        $scope.SavedServicePODetailList = [];
         $http.get('Products/PurchaseDocumentsAcceptance/GetSavedServicePOList?acceptanceID=' + acceptanceID)
             .then(function (response) {
-                $scope.ServicePODetailList = response.data;
+                $scope.SavedServicePODetailList = response.data;
 
                 if ($scope.GridListPO.length > 0) {
-                    for (var j = 0; j < $scope.ServicePODetailList.length; j++) {
+                    for (var j = 0; j < $scope.SavedServicePODetailList.length; j++) {
                         for (var i = 0; i < $scope.GridListPO.length; i++) {
-                            if ($scope.ServicePODetailList[j].ServicePOMasterId === $scope.GridListPO[i].Id) {
+                            if ($scope.SavedServicePODetailList[j].ServicePOMasterId === $scope.GridListPO[i].Id) {
                                 $scope.seletedLST.push($scope.GridListPO[i]);
                                 var i = $scope.GridListPO.length;
                                 while (i--) {
-                                    if ($scope.ServicePODetailList[j].ServicePOMasterId === $scope.GridListPO[i].Id) {
+                                    if ($scope.SavedServicePODetailList[j].ServicePOMasterId === $scope.GridListPO[i].Id) {
                                         $scope.GridListPO.splice(i, 1);
                                     }
                                 }
@@ -1210,10 +1208,12 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                     }
                 }
 
-
-                GetServicePOAndAckTax(acceptanceID);
+                //GetServicePOAndAckTax(acceptanceID);
+                getACKTaxList(acceptanceID);
             });
     }
+
+    
 
     $scope.getRecordDoubleClickDetailGRN = function (Id) {
         $scope.seletedLST = [];
@@ -1469,6 +1469,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             }
         });
     };
+
     function getPOMaterialtaxlist(linepk) {
         var result = [];
         for (var i = 0; i < $scope.POMaterialTaxList.length; i++) {
@@ -1834,8 +1835,6 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         }
     };
 
-
-
     $scope.BankAmountFlag = false;
     $scope.ChargesIndex = -1;
     $scope.ChangeChargesBank = function (currencyId, index) {
@@ -1881,6 +1880,11 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             , CurrencyId: null
             , ContractNo: null
             , ContractId: null
+            , TaxOption: 'Yes'
+            , TaxOptionMat: 'Yes'
+            , TaxOptionService: 'Yes'
+            , TaxOptionServiceModify: 'Yes'
+            , TaxOptionAddiTax: 'Yes'
         };
 
         $scope.Action = 'Save';
@@ -1917,6 +1921,38 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.productNew.AcceptanceFirst = null;
         $scope.ServicePODetailList = [];
     }
+    $scope.productNew = {
+        FixedAssetOrInventory: 'Inventory'
+        , PODepended: false
+        , AlongwithInvoice: true
+        , IsNonCreditable: false
+        , BaseCurrencyId: $scope.baseCurrencyId
+        , ToCurrencyRate: 1
+        , TaxApplicable: null
+        , IsTaxApplicable: false
+        , IsTaxApplicableChangeable: false
+        , PartyType: $scope.partyType
+        , PlantId: $window.plantId
+        , GRNDate: $filter("dateFiltering")(Date.now())
+        , PurchaseLCNO: null
+        , LCOpeningBank: null
+        , PODate: null
+        , LCOpeningDate: null
+        , ContractId: null
+        , PartyName: null
+        , LCEntryDate: null
+        , LCExpiryDate: null
+        , LCRef: null
+        , CurrencyId: null
+        , ContractNo: null
+        , ContractId: null
+        , TaxOption: 'Yes'
+        , TaxOptionMat: 'Yes'
+        , TaxOptionService: 'Yes'
+        , TaxOptionServiceModify: 'Yes'
+        , TaxOptionServicePOModify: 'Yes'
+        , TaxOptionAddiTax: 'Yes'
+    };
     // #endregion
 
     // #region Service
@@ -2008,6 +2044,10 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
     };
     $scope.TaxOptionServiceModify = function (data) {
         $scope.productNew.TaxOptionServiceModify = data;
+
+    };
+    $scope.TaxOptionServicePOModify = function (data) {
+        $scope.productNew.TaxOptionServicePOModify = data;
 
     };
     $scope.TaxOptionChargeModify = function (data) {
@@ -2415,6 +2455,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
     $scope.PrePurchaseInvoicePopUpClose = function () {
         angular.element(document.querySelector('#PrePurchaseInvoicePopUp')).modal('hide');
     };
+
     $scope.prePurchaseInvoicedoubleclick = function ($event) {
         var x = $event;
         $scope.PurchaseDocAcceptance.PrePurchaseInvoiceId = x.data.Id;
@@ -2423,6 +2464,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.PurchaseDocAcceptance.InvoiceDate = $filter("dateFiltering")(x.data.InvoiceDate);
         $scope.PrePurchaseInvoicePopUpClose();
     }
+
     $scope.clearPrePurchaseInvoicePopUp = function () {
         $scope.PurchaseDocAcceptance.PrePurchaseInvoiceId = null;
         $scope.PurchaseDocAcceptance.InvoiceNo = null;
@@ -2499,6 +2541,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         angular.element(document.querySelector('#AccepchargesTaxPopUp')).modal('show');
 
     };
+
     $scope.closeAccChargesTaxPopUp = function () {
         $scope.acceptanceChargesCheckedList[$scope.ChargesTaxIdex].TotalTaxAmount = $filter('sumByKey')($filter('filter')($scope.AccChargetaxCategoryList), 'TaxAmount');
         angular.element(document.querySelector('#AccepchargesTaxPopUp')).modal('hide');
@@ -2510,6 +2553,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         }
         data.TaxAmount = Math.round($scope.chargestaxAbleAmnt * data.Percentage) / 100;
     };
+
     $scope.checkRowValidationChargesTaxModify = function (x) {
 
         for (var i = 0; i < $scope.AccChargetaxCategoryList.length; i++) {
@@ -2525,6 +2569,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.actionCompleteSelected();
         $scope.actionCompleteUnassign();
     };
+
     $scope.actionCompleteSelected = function (args) {
         try {
             if (args.requestType === "refresh") {
@@ -2636,14 +2681,21 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
     $scope.ServicePODetailList = [];
     function getServicePODetailList(inveReveiveId) {
         $scope.ServicePODetailList = [];
-        $http.get('Products/PurchaseOrder/GetServiceListByServicePO?servicepoid=' + inveReveiveId)
+        $http.get('Products/PurchaseDocumentsAcceptance/GetServiceListByServicePO?servicepoid=' + inveReveiveId)
             .then(function (response) {
                 $scope.ServicePODetailList = response.data;
+                if (baseService.arrayLength($scope.ServicePODetailList) > 0) {
+                    for (var i = 0; i < $scope.ServicePODetailList.length; i++) {
+                        for (var j = 0; j < $scope.SavedServicePODetailList.length; j++) {
+                            if ($scope.ServicePODetailList[i].ServicePOMasterId == $scope.SavedServicePODetailList[j].ServicePOMasterId && $scope.ServicePODetailList[i].ServicePODetailId == $scope.SavedServicePODetailList[j].ServicePODetailId) {
+                                $scope.ServicePODetailList.splice(i, 1);
+                            }
+                        }
+                    }
+                }
                 GetServicePOAndAckTax(inveReveiveId);
             });
     }
-
-
 
     $scope.ServicePOAndAckTax = [];
     function GetServicePOAndAckTax(inveReveiveId) {
@@ -2773,7 +2825,6 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         }
     };
 
-
     $scope.calculateAckRcvAmount = function (data) {
         // if ($scope.Action === 'Save') {
 
@@ -2863,83 +2914,107 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         }
     };
 
-    //$scope.getServicePOTaxList = function (data, flag, index, Id) {
+    function getACKTaxList(Id) {
+        $http.get('Products/PurchaseDocumentsAcceptance/getServicePOAckTax?Id=' + Id)
+            .then(function (response) {
+                $scope.receiveTaxList1 = [];
+                $scope.ServicePOAndAckTax = [];
+                $scope.ServicePOTaxList1 = response.data;
+                for (var i = 0; i < $scope.ServicePOTaxList1.length; i++) {
+                    $scope.ServicePOAndAckTax.push($scope.ServicePOTaxList1[i]);
+                }
+            });
+    }
 
-    //    if ($scope.Action === "Save") {
-    //        $scope.productNew.TaxOptionServiceModify = 'Yes';
-    //        $scope.LoadServicePOTaxButtonClick();
-    //        $scope.Currency = $("#currency option:selected").text();
-    //        $scope.currentMaterialRow = index;
-    //        $scope.currentInventoryReceiveDetailIdRow = Id;
-    //        $scope.taxAbleAmnt = data.TotalAmount;
-    //        $scope.percentageColumn = flag;
-    //        $scope.currentMaterialRow = index;
-    //        $scope.ServiceMasterName = data.ServiceMasterName;
-    //        $scope.receiveTaxList = [];
-    //        if ($scope.ServicePOAndAckTax.length > 0) {
-    //            for (var i = 0; i < $scope.ServicePOAndAckTax.length; i++) {
-    //                if ($scope.ServicePOAndAckTax[i].ServicePoDetailId === data.ServicePODetailId) {
-    //                    $scope.HSNCode = $scope.ServicePOAndAckTax[0].HSNCode;
-    //                    $scope.receiveTaxList.push($scope.ServicePOAndAckTax[i]);
+    $scope.getServicePOTaxList = function (data, flag, index, Id) {
+        if ($scope.Action === "Save") {
+            $scope.productNew.TaxOptionServicePOModify = 'Yes';
+            $scope.LoadServicePOTaxButtonClick();
+            $scope.Currency = $("#currency option:selected").text();
+            $scope.currentMaterialRow = index;
+            $scope.currentInventoryReceiveDetailIdRow = Id;
+            $scope.taxAbleAmnt = data.TotalAmount;
+            $scope.percentageColumn = flag;
+            $scope.currentMaterialRow = index;
+            $scope.ServiceMasterName = data.ServiceMasterName;
+            $scope.ServicePOTaxList = [];
+            if ($scope.ServicePOAndAckTax.length > 0) {
+                for (var i = 0; i < $scope.ServicePOAndAckTax.length; i++) {
+                    if ($scope.ServicePOAndAckTax[i].ServicePoDetailId === data.ServicePODetailId) {
+                        $scope.HSNCode = $scope.ServicePOAndAckTax[0].HSNCode;
+                        $scope.ServicePOTaxList.push($scope.ServicePOAndAckTax[i]);
 
-    //                }
-    //            }
+                    }
+                }
 
-    //        }
-    //    }
-    //    else {
-    //        $scope.productNew.TaxOptionServiceModify = 'Yes';
-    //        $scope.LoadServicePOTaxButtonClick();
-    //        $scope.Currency = $("#currency option:selected").text();
-    //        $scope.currentMaterialRow = index;
-    //        $scope.currentInventoryReceiveDetailIdRow = Id;
-    //        $scope.taxAbleAmnt = data.TotalAmount;
-    //        $scope.percentageColumn = flag;
-    //        $scope.currentMaterialRow = index;
-    //        $scope.ServiceMasterName = data.ServiceMasterName;
-    //        if ($scope.receiveTaxList1.length > 0) {
-    //            $scope.receiveTaxList = [];
-    //            for (var i1 = 0; i1 < $scope.receiveTaxList1.length; i1++) {
-    //                if ($scope.receiveTaxList1[i1].ServiceAcknowledgementDetailId === data.ServicePODetailId) {
-    //                    $scope.HSNCode = $scope.receiveTaxList1[0].HSNCodeId;
+            }
+        }
+        else {
+            $scope.productNew.TaxOptionServicePOModify = 'Yes';
+            $scope.LoadServicePOTaxButtonClick();
+            $scope.Currency = $("#currency option:selected").text();
+            $scope.currentMaterialRow = index;
+            $scope.currentInventoryReceiveDetailIdRow = Id;
+            $scope.taxAbleAmnt = data.TotalAmount;
+            $scope.percentageColumn = flag;
+            $scope.currentMaterialRow = index;
+            $scope.ServiceMasterName = data.ServiceMasterName;
+            if ($scope.ServicePOTaxList1.length > 0) {
+                $scope.ServicePOTaxList = [];
+                for (var i1 = 0; i1 < $scope.ServicePOTaxList1.length; i1++) {
+                    if ($scope.ServicePOTaxList1[i1].ServiceAcknowledgementDetailId === data.ServicePODetailId) {
+                        $scope.HSNCode = $scope.ServicePOTaxList1[0].HSNCodeId;
+                        $scope.ServicePOTaxList.push($scope.ServicePOTaxList1[i1]);
+                    }
+                }
+            }
+        }
+        angular.element(document.querySelector('#ServicePOTaxPopUp')).modal('show');
+    };
 
-    //                    $scope.receiveTaxList.push($scope.receiveTaxList1[i1]);
+    $scope.closegetServicePOTaxList = function () {
+        angular.element(document.querySelector('#ServicePOTaxPopUp')).modal('hide');
+    }
 
-    //                }
-    //            }
+    $scope.calculateTaxAmountForServicePO = function (data) {
+        if (baseService.isUndefinedOrNull(data.Percentage)) {
+            data.Percentage = 0;
+        }
+        data.TaxAmount = Math.round($scope.taxAbleAmnt * data.Percentage) / 100;
+    };
+    $scope.checkRowValidationServicePO = function (x) {
+       
+        for (var i = 0; i < $scope.ServicePOTaxList.length; i++) {
+            if ($scope.ServicePOTaxList[i].Id === x.Id) {
+                $scope.ServicePOTaxList[i].Percentage = (parseFloat(x.TaxAmount / $scope.taxAbleAmnt).toFixed(4) * 100);
+            }
+        }
+    }
 
-    //        }
-    //    }
+    $scope.UpdateServicePOAckTax = function () {
+        $http({
+            method: 'POST',
+            url: $scope.updateUrlForSerPOAckTaxValue,
+            data:
+            {
+                'ServiceAcknowledgementMasterId': $scope.productId,
+                'UserSendData': $scope.ServicePOTaxList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                getServiceChargeList($scope.productId);
+                angular.element(document.querySelector('#ServicePOTaxPopUp')).modal('hide');
 
-    //    angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
-    //};
-    //$scope.closegetServicePOTaxList = function () {
-    //    angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
-    //}
-    //$scope.UpdateServicePOAckTax = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.updateUrlForSerPOAckTaxValue,
-    //        data:
-    //        {
-    //            'ServiceAcknowledgementMasterId': $scope.productId,
-    //            'UserSendData': $scope.receiveTaxList
-    //        },
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        if (response.data.Error === true) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //        else {
-    //            ShowResult(response.data.Message, 'success');
-    //            getServiceChargeList($scope.productId);
-    //            angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
-
-    //        }
-    //    }, function errorCallBack(response) {
-    //        ShowResult(response.data.Message, 'failure');
-    //    });
-    //}
+            }
+        }, function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
 
     // #endregion
 

@@ -348,7 +348,7 @@ namespace Aplos.Areas.Productions.Controllers
 
 
                                 from SCS.WorkCenterMaster WCM 
-                                left outer join  TRN.DailyProductionTarget DPT on dpt.WorkCenterMasterID=WCM.Id  and  DPT.TargetDate='22-Jun-2021'
+                                left outer join  TRN.DailyProductionTarget DPT on dpt.WorkCenterMasterID=WCM.Id  and  DPT.TargetDate='"+ProductionDate+@"'
                                 left outer join  TRN.ProductionOrder PO on PO.Id=DPT.ProductionOrderId  
                                 left join trn.ProductionOrderDetail POD ON POD.ProductionOrderId=po.Id and pod.Id=(select TOP 1 Id from TRN.ProductionOrderDetail D where D.ProductionOrderId=PO.Id)
                                 left join trn.SalesOrder SO ON SO.Id=POD.SalesOrderId

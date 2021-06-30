@@ -304,7 +304,7 @@ from
         public string GetProductionHistorySql(string ProductionOrderId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @"SELECT ps.Id,FORMAT(ps.ProductionDate,'dd-MMM-yyyy') AS ProductionDate, E.UserName Entity ,ISNULL(fp.UserName,fs.UserName) AS FromLocation,fw.UserName AS FromWorkCenter,bp.UserName AS ProductionHour,
+            return @"SELECT ps.Id,FORMAT(ps.ProductionDate,'dd-MMM-yyyy') AS ProductionDate,PLN.UserName AS Plant, E.UserName Entity ,ISNULL(fp.UserName,fs.UserName) AS FromLocation,fw.UserName AS FromWorkCenter,bp.UserName AS ProductionHour,
                                ISNULL(tp.UserName,ts.UserName) AS ToLocation,Tw.UserName AS ToWorkCenter,ps.ProductionGrade,ps.Quantity,ps.AddedBy,FORMAT(ps.AddedDate,'dd-MMM-yyyy') AS AddedDate
                                 FROM trn.ProductionSummary AS ps
                                 LEFT JOIN hkp.ProductionBookingPeriod AS BP ON bp.Id=ps.ProductionBookingPeriodId
@@ -313,13 +313,15 @@ from
                                 LEFT JOIN hkp.Process AS SFGF ON SFGF.id=FS.ProcessId
                                 LEFT JOIN scs.WorkCenterMaster AS Fw ON fw.Id=ps.WorkCenterMasterId
 								LEFT JOIN ORG.Entity E on E.Id=ps.EntityId
+								LEFT JOIN ORG.Plant PLN on PLN.Id=E.PlantId
+
 
                                 LEFT JOIN hkp.Process AS Tp ON Tp.id=ps.ToProcessId
                                 LEFT JOIN hkp.SFGInventory AS TS ON TS.id=ps.ToSFGInventoryId
                                 LEFT JOIN hkp.Process AS SFGT ON SFGT.id=ts.ProcessId
                                 LEFT JOIN scs.WorkCenterMaster AS Tw ON Tw.Id=ps.ToWorkCenterMasterId
 
-                                WHERE ps.ProductionOrderId='"+ ProductionOrderId + @"'
+                                WHERE ps.ProductionOrderId='" + ProductionOrderId + @"'
                                 ORDER BY ISNULL(fp.Sequence,ISNULL(SFGF.Sequence,0)+ISNULL(SFGF.Sequence,0)*0.05),ps.ProductionDate,fw.Sequence,BP.Sequence ";
 
         }
@@ -376,7 +378,7 @@ from
 
                 string Key = "";
                 int Serial = 0;
-                int colSL = 0, colTransactionId = 0, colProductionDate = 0, colProductionHour = 0,colEntity = 0 ,colFromLocation = 0, colFromWorkCenter = 0, colToLocation = 0, colToWorkCenter = 0, colProductionGrade = 0, colQuantity = 0, colAddedBy = 0, colAddedDate = 0;
+                int colSL = 0, colTransactionId = 0, colProductionDate = 0, colProductionHour = 0, colEntity = 0, colPlant = 0, colFromLocation = 0, colFromWorkCenter = 0, colToLocation = 0, colToWorkCenter = 0, colProductionGrade = 0, colQuantity = 0, colAddedBy = 0, colAddedDate = 0;
 
                 int startRow = ROW;
                 for (int i = 0; i < dtData.Rows.Count; i++)
@@ -430,6 +432,10 @@ from
                         sheet1.Range[ROW, COL].Text = "Production Hour";
                         sheet1.Range[ROW, COL].ColumnWidth = 12;
                         COL++;
+                        colPlant = COL;
+                        sheet1.Range[ROW, COL].Text = "Plant";
+                        sheet1.Range[ROW, COL].ColumnWidth = 12;
+                        COL++;
                         colEntity = COL;
                         sheet1.Range[ROW, COL].Text = "Entity";
                         sheet1.Range[ROW, COL].ColumnWidth = 12;
@@ -462,7 +468,7 @@ from
                         sheet1.Range[ROW, COL].Text = "Quantity";
                         sheet1.Range[ROW, COL].ColumnWidth = 10;
                         sheet1.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                        
+
                         COL++;
                         colAddedBy = COL;
                         sheet1.Range[ROW, COL].Text = "Added By";
@@ -494,6 +500,7 @@ from
                     sheet1[ROW, colProductionDate].Text = dtData.Rows[i]["ProductionDate"].ToString();
                     sheet1[ROW, colProductionHour].Text = dtData.Rows[i]["ProductionHour"].ToString();
                     sheet1[ROW, colEntity].Text = dtData.Rows[i]["Entity"].ToString();
+                    sheet1[ROW, colPlant].Text = dtData.Rows[i]["Plant"].ToString();
                     sheet1[ROW, colFromLocation].Text = dtData.Rows[i]["FromLocation"].ToString();
                     sheet1[ROW, colFromWorkCenter].Text = dtData.Rows[i]["FromWorkCenter"].ToString();
                     sheet1[ROW, colToLocation].Text = dtData.Rows[i]["ToLocation"].ToString();

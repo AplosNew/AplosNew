@@ -73,6 +73,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         , IssueDate: null
         , VoucherTypeId: null
         , OrderRefNo: null
+        , Types:null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 

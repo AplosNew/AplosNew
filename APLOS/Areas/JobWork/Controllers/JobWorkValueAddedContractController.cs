@@ -128,14 +128,14 @@ namespace Aplos.Areas.JobWork.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        //[HttpGet, Authorize]
-        //public JsonResult getarticlecode(string JobWorkItemId)
-        //{
-        //    string sql = "";
-        //    sql = @"Select mma.Id as Value, mma.StandardName as Text from MST.MaterialMasterArticle mma left join MST.MaterialMaster mm on mma.MaterialMasterId=mm.Id inner join HKP.JobWorkItem jwi on jwi.MaterialMasterId=mm.Id where jwi.Id='"+ JobWorkItemId + "' order by mma.StandardName";
+        [HttpGet, Authorize]
+        public JsonResult getarticlecode(string JobWorkItemId)
+        {
+            string sql = "";
+            sql = @"Select mma.Id as Value, mma.StandardName as Text from MST.MaterialMasterArticle mma left join MST.MaterialMaster mm on mma.MaterialMasterId=mm.Id inner join HKP.JobWorkItem jwi on jwi.MaterialMasterId=mm.Id where jwi.Id='" + JobWorkItemId + "' order by mma.StandardName";
 
-        //    return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        //}
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult getrateapplylist(string JobWorkItemId)

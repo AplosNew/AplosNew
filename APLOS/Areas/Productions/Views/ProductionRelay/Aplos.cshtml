@@ -1,12 +1,12 @@
 ﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Production Relay</h3>
-<div class="form-elements form-horizontal" ng-form name="DailyTargetForm">
+<div class="form-elements form-horizontal" ng-form name="ProductionRelayForm">
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select class="form-control" @*ng-disabled="DailyTargetList.length>0"*@ id="ddlEntity" ng-model="ProductionRelayNew.EntityId" ng-change="loadProcessList(ProductionRelayNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList">
+                        <select class="form-control" ng-disabled="ProductionRelayList.length>0" id="ddlEntity" ng-model="ProductionRelayNew.EntityId" ng-change="loadProcessList(ProductionRelayNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList">
                             <option value=""></option>
                         </select>
                     </div>
@@ -18,7 +18,7 @@
                 <label class="col-sm-4 control-label">Process<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ProductionRelayNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                        <select class="form-control" ng-disabled="ProductionRelayList.length>0" ng-model="ProductionRelayNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
                             <option value=""></option>
                         </select>
                     </div>
@@ -68,9 +68,9 @@
                         <div e-column e-type="string" e-field="ActualQTY" e-headertext="Actual Qty" e-width="80"></div>
                         <div e-column e-type="string" e-field="ProducedQty" e-headertext="Produced Qty" e-width="80"></div>
                         <div e-column e-type="string" e-field="Variance" e-headertext="Variance" e-width="80"></div>
-                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ProductionStartDate" e-headertext="Start Date" e-width="80"></div>
-                        <div e-column e-type="string" e-field="IsCompleted" e-headertext="Is Completed" e-width="80"></div>
-                        <div e-column e-type="string" e-field="StartDate" e-headertext="Completion Date" e-width="80"></div>
+                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="StartDate" e-headertext="Start Date" e-width="80"></div>
+                        @*<div e-column e-type="string" e-field="IsCompleted" e-headertext="Is Completed" e-width="80"></div>*@
+                        @*<div e-column e-type="string" e-field="StartDate" e-headertext="Completion Date" e-width="80"></div>*@
 
 
                         <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>
@@ -87,7 +87,7 @@
 
                 </div>
                 <script type="text/x-jsrender" id="headerTemplate">
-                    <input type="checkbox" id="headchk" />
+                    <input type="checkbox" id="headchk"/>
                 </script>
                 <script type="text/template" id="checkboxTemplate">
                     <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Checked" e-checked="data.Checked" />
@@ -106,7 +106,7 @@
                     </div>
 
                 </script>
-                <div class="common-btn" @*ng-show="DailyTargetList.length>0*@>
+                <div class="common-btn" ng-show="ProductionRelayList.length>0">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
                         <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
@@ -115,7 +115,7 @@
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">            
                     <div id="GridProductionRelayClosed" ng-init="chkinit()" e-load="actionCompleteSearch" ej-grid e-datasource="ProductionRelayClosedList"
-                         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-templaterefresh="ProductionRelayAllCheck"
+                         e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                          e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
                          e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                          e-allowselection="false" e-filtersettings-filterType="excel">
@@ -133,9 +133,9 @@
                             <div e-column e-type="string" e-field="ActualQTY" e-headertext="Actual Qty" e-width="80"></div>
                             <div e-column e-type="string" e-field="ProducedQty" e-headertext="Produced Qty" e-width="80"></div>
                             <div e-column e-type="string" e-field="Variance" e-headertext="Variance" e-width="80"></div>
-                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ProductionStartDate" e-headertext="Start Date" e-width="80"></div>
-                            <div e-column e-type="string" e-field="IsCompleted" e-headertext="Is Completed" e-width="80"></div>
-                            <div e-column e-type="string" e-field="StartDate" e-headertext="Start Date" e-width="80"></div>
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="StartDate" e-headertext="Start Date" e-width="80"></div>
+                            @*<div e-column e-type="string" e-field="IsCompleted" e-headertext="Is Completed" e-width="80"></div>*@
+                            @*<div e-column e-type="date" e-field="StartDate" e-headertext="Start Date" e-width="80"></div>*@
 
 
                             <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>

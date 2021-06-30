@@ -220,6 +220,8 @@ namespace Aplos.Areas.Employees.Controllers
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sqldetails, out dsSeparationTypeDetailsDataList, false, "1");
 
+                int count = 0;
+
                 if (SeparationTypeDetailsData.Count()>0)
                 {
 
@@ -229,12 +231,12 @@ namespace Aplos.Areas.Employees.Controllers
                     {
                         foreach (var item in SeparationTypeDetailsData.Where(x => Convert.ToInt32(x.DayNo) > 0).ToList())
                         {
-
+                            count++;
                             string sIDdetails = string.Empty;
                             bplib.clsGenID objGenID = new bplib.clsGenID();
                             objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "SeparationTypeDetails", out sIDdetails);
                             DataRow dr = dsSeparationTypeDetailsDataList.Tables[0].NewRow();
-                            dr["Id"] = "STD" + sIDdetails;
+                            dr["Id"] = "STD" + sIDdetails+ count;
                             dr["SeparationTypeId"] = masterepk;
                             dr["DayNo"] = item.DayNo;
                             dr["YearNo"] = item.YearNo;
