@@ -4,7 +4,7 @@ using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
 using Library.Model.Inventory;
-using Library.Service.Inventory;
+using Library.MaterialManagement.Inventory;
 using System.Web.Mvc;
 
 #endregion Using

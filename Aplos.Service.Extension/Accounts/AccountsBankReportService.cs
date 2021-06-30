@@ -23,75 +23,72 @@ namespace Library.Service.Extension.Accounts
         }
         public DataTable GetBankBookLedgerData(string companyGroupId, string companyId, string plantId, string bankMasterId, string fromDate, string toDate)
         {
-            var cmdText = @"DECLARE @companyGroupId VARCHAR(10)='"+companyGroupId+@"';
-                        DECLARE @companyId VARCHAR(10)='"+companyId+@"';
-                        DECLARE @plantId VARCHAR(10)='"+plantId+@"';
-                        DECLARE @bankMasterId VARCHAR(10)='"+bankMasterId+ @"';
+            var cmdText = @"DECLARE @companyGroupId VARCHAR(10)='" + companyGroupId + @"';
+                        DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                        DECLARE @plantId VARCHAR(10)='" + plantId + @"';
+                        DECLARE @bankMasterId VARCHAR(10)='" + bankMasterId + @"';
+    
                         SELECT V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, V.CurrencyId,
                           isnull(GLT.DrAmount,0) DrAmount,
                          isnull(GLT.CrAmount,0) CrAmount
 						 , V.Narration
                         ,isnull(CC.CompanyCurrencyDrAmount,0) CompanyCurrencyDrAmount, isnull(CC.CompanyCurrencyCrAmount,0) CompanyCurrencyCrAmount
-						, OtherSide=CASE 
-	                        WHEN P.UserName<>'' THEN P.UserName
-							WHEN BM.AccountTitle<>'' THEN BM.AccountTitle
-	                        WHEN CM.UserName<>'' THEN CM.UserName
-							WHEN EI.EmployeeName <>'' THEN EI.EmployeeName
-	                        ELSE A.UserName	END
-                        FROM  [TRN].[VoucherDetail] AS VD
+						,OtherSide= STUFF((select distinct ','+ CASE 
+															WHEN XPP.UserName<>'' THEN XPP.UserName
+															WHEN XBM.AccountTitle<>'' THEN XBM.AccountTitle
+															WHEN XCM.UserName<>'' THEN XCM.UserName
+															WHEN XEI.EmployeeName <>'' THEN XEI.EmployeeName
+															ELSE XA.UserName	END from
+														[TRN].[VoucherDetail] XVD  join [TRN].Voucher AS XV  ON XV.Id=XVD.VoucherId
+														left join HKP.PartyPlant XPP ON XPP.Id=XVD.PartyPlantId
+														LEFT JOIN MST.BankMaster XBM ON XBM.Id=XVD.BankMasterId
+														LEFT JOIN MST.CashMaster XCM ON XCM.Id=XVD.CashMasterId
+														LEFT JOIN DBO.EmployeeInformation XEI ON XEI.SystemId=XVD.EmployeeId
+														LEFT JOIN HKP.Activity XA ON XA.Id=XVD.ActivityId
+													where	V.Id=XV.Id AND (isnull(XVD.BankMasterId,'')='' OR (isnull(XVD.BankMasterId,'')<>'') AND XVD.BankMasterId<>@bankMasterId)   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                        FROM [TRN].[GLTransactionDetail] AS GLT 
+                        JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=GLT.VoucherDetailId
                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
-						LEFT JOIN [TRN].[VoucherDetail] XVD ON XVD.VoucherId=V.Id AND XVD.BankMasterId<>''
-                        LEFT JOIN [TRN].[GLTransactionDetail] AS GLT ON XVD.Id=GLT.VoucherDetailId
-                        LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId
-                        LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
-                        LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
-						LEFT JOIN [MST].[BudgetMaster] AS BDM ON BDM.Id=VD.BudgetMasterId
-						LEFT JOIN [HKP].[Budget] AS B ON B.Id=BDM.BudgetId
-						LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
-						LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=VD.EmployeeId
-						 JOIN (SELECT VoucherId FROM TRN.VoucherDetail VVD WHERE VVD.BankMasterId=@bankMasterId ) VDD ON VDD.VoucherId=VD.VoucherId
                         LEFT JOIN (SELECT VDC.VoucherId, VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
 	                                ,VDC.ToCurrencyRate
 	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
-                        ) AS CC ON CC.VoucherId=XVD.VoucherId AND CC.VoucherDetailId=XVD.Id
+                        ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
 
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId  AND (isnull(VD.BankMasterId,'')='' OR (isnull(VD.BankMasterId,'')<>'' AND VD.BankMasterId<>@bankMasterId))
-						 AND V.PostingDate BETWEEN '" + fromDate+"' AND '"+toDate+ @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId  AND VD.BankMasterId=@bankMasterId
+						 AND V.PostingDate BETWEEN '"+fromDate+"' AND '"+toDate+@"' AND V.SourceType!='OpeningBalance'
                             UNION
                         SELECT V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, V.CurrencyId,
                           isnull(GLT.DrAmount,0) DrAmount,
                          isnull(GLT.CrAmount,0) CrAmount
 						 , V.Narration
                          ,isnull(CC.CompanyCurrencyDrAmount,0) CompanyCurrencyDrAmount, isnull(CC.CompanyCurrencyCrAmount,0) CompanyCurrencyCrAmount
-						, OtherSide=CASE 
-	                        WHEN P.UserName<>'' THEN P.UserName
-							WHEN BM.AccountTitle<>'' THEN BM.AccountTitle
-	                        WHEN CM.UserName<>'' THEN CM.UserName
-							WHEN EI.EmployeeName <>'' THEN EI.EmployeeName
-	                        ELSE A.UserName	END
-                        FROM  [TRN].[VoucherDetail] AS VD
+						,OtherSide= STUFF((select distinct ','+ CASE 
+															WHEN XPP.UserName<>'' THEN XPP.UserName
+															WHEN XBM.AccountTitle<>'' THEN XBM.AccountTitle
+															WHEN XCM.UserName<>'' THEN XCM.UserName
+															WHEN XEI.EmployeeName <>'' THEN XEI.EmployeeName
+															ELSE XA.UserName	END from
+														[TRN].[VoucherDetail] XVD  join [TRN].Voucher AS XV  ON XV.Id=XVD.VoucherId
+														left join HKP.PartyPlant XPP ON XPP.Id=XVD.PartyPlantId
+														LEFT JOIN MST.BankMaster XBM ON XBM.Id=XVD.BankMasterId
+														LEFT JOIN MST.CashMaster XCM ON XCM.Id=XVD.CashMasterId
+														LEFT JOIN DBO.EmployeeInformation XEI ON XEI.SystemId=XVD.EmployeeId
+														LEFT JOIN HKP.Activity XA ON XA.Id=XVD.ActivityId
+													where	V.Id=XV.Id AND (isnull(XVD.BankMasterId,'')='' OR (isnull(XVD.BankMasterId,'')<>'') AND XVD.BankMasterId<>@bankMasterId)   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                        FROM [TRN].[GLTransactionDetail] AS GLT 
+                        JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=GLT.VoucherDetailId
                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
-						LEFT JOIN [TRN].[VoucherDetail] XVD ON XVD.VoucherId=V.Id AND XVD.BankMasterId<>''
-                        LEFT JOIN [TRN].[GLTransactionDetail] AS GLT ON XVD.Id=GLT.VoucherDetailId
-                        LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId
-                        LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
-                        LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
-						LEFT JOIN [MST].[BudgetMaster] AS BDM ON BDM.Id=VD.BudgetMasterId
-						LEFT JOIN [HKP].[Budget] AS B ON B.Id=BDM.BudgetId
-						LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
-						LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=VD.EmployeeId
-						 JOIN (SELECT VoucherId FROM TRN.VoucherDetail VVD WHERE VVD.BankMasterId=@bankMasterId ) VDD ON VDD.VoucherId=VD.VoucherId
                         LEFT JOIN (SELECT VDC.VoucherId, VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
 	                            ,VDC.ToCurrencyRate
 	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
-                        ) AS CC ON CC.VoucherId=XVD.VoucherId AND CC.VoucherDetailId=XVD.Id
+                        ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
 
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId  AND (isnull(VD.BankMasterId,'')='' OR (isnull(VD.BankMasterId,'')<>'' AND VD.BankMasterId<>@bankMasterId))
-						 AND V.PostingDate > '" + fromDate+@"' AND V.SourceType='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId  AND  VD.BankMasterId=@bankMasterId
+						 AND V.PostingDate > '"+toDate+@"' AND V.SourceType='OpeningBalance'
                         ORDER BY PostingDate ASC";
             return _sqlRepository.GetDataTable(cmdText);
         }

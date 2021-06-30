@@ -9,7 +9,7 @@ using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Model.Inventory;
 using Library.Security.Core;
-using Library.Service.Inventory;
+using Library.MaterialManagement.Inventory;
 using Library.Service.Invoices;
 using Library.ViewModel.Inventory;
 using Library.ViewModel.Invoices;

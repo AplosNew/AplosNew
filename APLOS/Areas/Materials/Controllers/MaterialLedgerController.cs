@@ -9,7 +9,7 @@ using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Model.Materials;
 using Library.Service.Helpers;
-using Library.Service.Inventory;
+using Library.MaterialManagement.Inventory;
 using Library.Service.Materials;
 using Library.ViewModel.Materials;
 using Newtonsoft.Json;

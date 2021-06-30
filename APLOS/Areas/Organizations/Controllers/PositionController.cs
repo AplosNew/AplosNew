@@ -4,7 +4,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Model.Organizations;
 using Library.Service.Organizations;
-using Library.Service.Reports;
+using Library.MaterialManagement.Reports;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;

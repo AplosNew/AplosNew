@@ -6,7 +6,7 @@ using Library.Data;
 using Library.Model.Enums;
 using Library.Model.Parties;
 using Library.Model.Payments;
-using Library.Service.Reports;
+using Library.MaterialManagement.Reports;
 using Library.Service.SecurityDeposits;
 using Library.ViewModel.Vouchers;
 using System;
