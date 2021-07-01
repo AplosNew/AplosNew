@@ -210,7 +210,8 @@ namespace OTSBD
 
                                                        DATEDIFF(DD, REPLACE(Convert(varchar(11), E.DOJ, 106),' ','-'), '" + sCutOffDate + @"') + 1 ServiceLength_Day,
 													   DATEDIFF(MM, REPLACE(Convert(varchar(11), E.DOJ, 106),' ','-'), '" + sCutOffDate + @"') ServiceLength_Month,
-                                                        CONVERT(decimal(10,2),DATEDIFF(DAY, CONVERT(DATETIME,  E.DOJ, 103), CONVERT(DATETIME, '" + sCutOffDate + @"', 103))/30.40105) ServiceLength,
+                                                        --CONVERT(decimal(10,2),DATEDIFF(DAY, CONVERT(DATETIME,  E.DOJ, 103), CONVERT(DATETIME, '" + sCutOffDate + @"', 103))/30.40105) ServiceLength,
+                                                        DATEDIFF(DAY, CONVERT(DATETIME, E.DOJ, 103), CONVERT(DATETIME, '" + sCutOffDate + @"', 103))/30 ServiceLength,
                                                        REPLACE(Convert(varchar(11), E.DOC, 106),' ','-') AS DOC, 
 
                                                     ConfirmServiceLength_Day = CASE WHEN (DATEDIFF(DD, REPLACE(Convert(varchar(11), E.DOC, 106),' ','-'), '" + sCutOffDate + @"') + 1) > 0 THEN 
