@@ -675,6 +675,426 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
 
+        // Edit For Getting the Salary Slips using Employee Code and Company Wise
+        [HttpPost, Authorize]
+        public ActionResult GetSalaryPaymentStatementEmpType(string month, string year, string paymentMode, string bankId, string letterDate, string chequeNo, bool isActive, bool isSeperated, bool isMaternity, bool isCSV, string empTypeId)
+
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            clsReport objRpt = null;
+
+            DataSet dsCmp = null;
+            DataSet dsFactory = null;
+
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+
+            IWorksheet sheet1 = null;
+
+            int xlsRow = 1, xlsCol = 1;
+            int endXlsCol = 1;
+            var FactoryName = "";
+            var CmpName = "";
+
+            ReportUtility oRu = null;
+
+            DataSet dtEmpInfo = null;
+            try
+            {
+                IWorkbook workbook = null;
+                objRpt = new clsReport();
+                var today = DateTime.Now.Date;
+                string fileName = "";
+                #region DataSet
+
+                var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt32(month));//Month Name from Month No
+
+                objRpt.GetEmployeeSalaryBankAccountStatementEmpType(out dtEmpInfo, paymentMode, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, bankId, "", Convert.ToInt32(month), year, isActive, isSeperated, isMaternity, empTypeId);
+
+
+
+                var dtEmp = dtEmpInfo.Tables[0];//DataTable		
+
+                if (dtEmp.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found!!");
+                }
+
+
+
+                objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
+                objRpt.SelectedPlant(identity.PlantId.Trim(), out dsFactory);
+
+                #endregion DataSet
+                var colSrNo = 0;
+                var colEmpCode = 0;
+                var colPlant = 0;
+                var colIFSCCode = 0;
+                var colBankName = 0;
+                var colEmpType = 0;
+                var colACNo = 0;
+                var colNetSalary = 0;
+                var colEmployeeName = 0;
+
+                object chequeAmount;
+                var letterSubject = "";
+                var letterSalutaion = "";
+                var chequeDate = "";
+                var description = "";
+                var BankName = "";
+
+                DataTable currencyCode = dtEmp.DefaultView.ToTable(true, "currCode");
+
+
+                if (paymentMode.ToUpper() == "BANK")
+                {
+                    xlsRow = 15;
+                    chequeAmount = dtEmp.Compute(@"Sum(pBankSalary)", "");
+
+                    letterSubject = "SUB: SALARY FOR THE MONTH OF  " + monthName + "," + year;
+                    letterSalutaion = "DEAR SIR,";
+                    chequeDate = letterDate;
+                    var checkNo = "-----------------";
+                    if (string.IsNullOrEmpty(chequeNo) == false)
+                    {
+                        checkNo = "CHEQUE NO " + chequeNo + "";
+                    }
+                    description = "PLEASE FIND ENCLOSED HEREWITH " + checkNo + " FOR " + currencyCode.Rows[0]["currCode"] + " " + Convert.ToDecimal(chequeAmount).ToString("#,##0") + " DATED " + chequeDate + " DRAWN IN YOUR FAVOUR TOWARDS THE AMOUNTS TO BE CREDITED IN THE FOLLOWING SAVING BANK A/C.";
+                }
+                else
+                {
+                    xlsRow = 4;
+                    chequeAmount = dtEmp.Compute(@"Sum(NetSalary)", "");
+                }
+
+                if (string.IsNullOrEmpty(chequeNo))
+                {
+                    chequeNo += "_ _ _ _ _ _ _ _ _ _ _";
+                }
+
+                //.Distinct().ToList();
+
+
+
+
+                excelEngine = new ExcelEngine();
+
+
+
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+
+                sheet1 = workbook.Worksheets[0];
+                sheet1.IsGridLinesVisible = true;
+
+
+
+                //	#region ------------------Column Header------------------
+
+
+                var ru = new ReportUtility();
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "S.No", 5); colSrNo = xlsCol; xlsCol++;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Plant", 30); colPlant = xlsCol; xlsCol++;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EMPCODE", 15); colEmpCode = xlsCol; xlsCol++;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); colEmployeeName = xlsCol; xlsCol++;
+
+                if (paymentMode.ToUpper() == "BANK")
+                {
+                    ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ACCOUNT NO.", 16); colACNo = xlsCol; xlsCol++;
+                    ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IFSC Code", 16); colIFSCCode = xlsCol; xlsCol++;
+                    ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bank Name", 16); colBankName = xlsCol; xlsCol++;
+                }
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "NET  SALARY", 16); colNetSalary = xlsCol; xlsCol++;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employee Type", 16); colEmpType = xlsCol; xlsCol++;
+                var totalSalary = 0.00;
+                endXlsCol = xlsCol;
+                xlsRow++;
+                var formulaStartRow = xlsRow;
+                var slCount = 0;
+
+                if (dtEmp.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dtEmp.Rows.Count; i++)
+                    {
+                        slCount++;
+
+                        ru.SetText(ref sheet1, xlsRow, colSrNo, slCount, ExcelHAlign.HAlignCenter);
+                        ru.SetText(ref sheet1, xlsRow, colPlant, dtEmp.Rows[i]["Plant"].ToString());
+                        ru.SetText(ref sheet1, xlsRow, colEmpCode, dtEmp.Rows[i]["EmployeeCode"].ToString());
+                        ru.SetText(ref sheet1, xlsRow, colEmployeeName, dtEmp.Rows[i]["EmployeeName"].ToString());//dtEmpInfo.Tables[0].Rows[i][""].ToString()
+                                                                                                                  //if (chkAdditionInfo.Checked == true)
+                                                                                                                  //{
+
+
+                        //}
+                        if (paymentMode.ToUpper() == "BANK")
+                        {
+                            ru.SetText(ref sheet1, xlsRow, colACNo, dtEmp.Rows[i]["BankAccountNo"].ToString());
+                            ru.SetText(ref sheet1, xlsRow, colIFSCCode, dtEmp.Rows[i]["IFSCCode"].ToString());
+                            ru.SetText(ref sheet1, xlsRow, colBankName, dtEmp.Rows[i]["BankName"].ToString());
+                            sheet1.Range[xlsRow, colBankName].BorderAround(ExcelLineStyle.Thin);
+                            sheet1.Range[xlsRow, colIFSCCode].BorderAround(ExcelLineStyle.Thin);
+                        }
+                        if (paymentMode.ToUpper() == "BANK")
+                        {
+
+                            sheet1.Range[xlsRow, colNetSalary].Number = Convert.ToDouble(dtEmp.Rows[i]["pBankSalary"].ToString());
+                            totalSalary += Convert.ToDouble(dtEmp.Rows[i]["pBankSalary"].ToString());
+                            sheet1.Range[xlsRow, colNetSalary].NumberFormat = ru.GetDecimalFormatlocalNetPay(Convert.ToBoolean(dtEmp.Rows[i]["IntegerInDisb"].ToString()), Convert.ToInt32(dtEmp.Rows[i]["DecimalNo"].ToString()), "");
+
+                            //sheet1.Range[xlsRow, colNetSalary].NumberFormat = GetDecimalFormat(Convert.ToBoolean(dtEmp.Rows[i]["IntegerInDisb"].ToString()), Convert.ToInt16(dtEmp.Rows[i]["DecimalNo"].ToString()));
+                            sheet1.Range[xlsRow, colNetSalary].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                            sheet1.Range[xlsRow, colNetSalary].VerticalAlignment = ExcelVAlign.VAlignTop;
+                            sheet1.Range[xlsRow, colNetSalary].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, colACNo].BorderAround(ExcelLineStyle.Thin);
+                            //Trial
+
+                        }
+                        else
+                        {
+                            sheet1.Range[xlsRow, colNetSalary].Number = Convert.ToDouble(dtEmp.Rows[i]["NetSalary"].ToString());
+                            totalSalary += Convert.ToDouble(dtEmp.Rows[i]["NetSalary"].ToString());
+
+                            // sheet1.Range[xlsRow, colNetSalary].NumberFormat = GetDecimalFormat(Convert.ToBoolean(dtEmp.Rows[i]["IntegerInDisb"].ToString()), Convert.ToInt16(dtEmp.Rows[i]["DecimalNo"].ToString()));
+                            sheet1.Range[xlsRow, colNetSalary].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                            sheet1.Range[xlsRow, colNetSalary].VerticalAlignment = ExcelVAlign.VAlignTop;
+                            sheet1.Range[xlsRow, colNetSalary].BorderAround(ExcelLineStyle.Hair);
+                        }
+                        ru.SetText(ref sheet1, xlsRow, colEmpType, dtEmp.Rows[i]["EmployeeType"].ToString());
+
+                        sheet1.Range[xlsRow, colSrNo].BorderAround(ExcelLineStyle.Thin);
+                        sheet1.Range[xlsRow, colEmpCode].BorderAround(ExcelLineStyle.Thin);
+                        sheet1.Range[xlsRow, colEmpType].BorderAround(ExcelLineStyle.Thin);
+                        sheet1.Range[xlsRow, colPlant].BorderAround(ExcelLineStyle.Thin);
+                        sheet1.Range[xlsRow, colNetSalary].BorderAround(ExcelLineStyle.Thin);
+                        sheet1.Range[xlsRow, colEmployeeName].BorderAround(ExcelLineStyle.Thin);
+
+                        xlsRow++;
+                    }
+                }
+                else
+                {
+                    throw new Exception("No Data Found.");
+                }
+
+                #region ******************Report Header******************
+                ru.SetText(ref sheet1, xlsRow, colNetSalary - 1, "Total :");
+                sheet1.Range[xlsRow, colNetSalary - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[xlsRow, 1, xlsRow, colNetSalary - 1].Merge();
+                //ru.SetText(ref sheet1, xlsRow, colNetSalary, chequeAmount.ToString());
+                sheet1.Range[xlsRow, colNetSalary].Number = Convert.ToDouble(chequeAmount.ToString());//GetDecimalFormat(Convert.ToBoolean(dtEmp.Rows[0]["IntegerInDisb"].ToString()), Convert.ToInt16(dtEmp.Rows[0]["DecimalNo"].ToString()));
+
+                // sheet1.Range[xlsRow, colNetSalary].NumberFormat = GetDecimalFormat(Convert.ToBoolean(dtEmp.Rows[0]["IntegerInDisb"].ToString()), Convert.ToInt16(dtEmp.Rows[0]["DecimalNo"].ToString()));
+                sheet1.Range[xlsRow, colNetSalary].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[xlsRow, 1, xlsRow, colNetSalary].BorderAround(ExcelLineStyle.Thin);
+                sheet1.Range[xlsRow, 1, xlsRow, colNetSalary].BorderInside(ExcelLineStyle.Thin);
+                sheet1.Range[xlsRow, 1, xlsRow, colNetSalary].CellStyle.Font.Bold = true;
+                xlsRow++;
+                xlsRow++;
+                xlsRow++;
+                xlsRow++;
+                string inWord = "Amount in word : " + ru.InWord(totalSalary, dtEmp.Rows[0]["CurrencyId"].ToString());
+                ru.SetText(ref sheet1, xlsRow, 1, inWord);
+                sheet1.Range[xlsRow, 1, xlsRow, colNetSalary].Merge();
+                sheet1.Range[xlsRow, 1, xlsRow, colNetSalary].CellStyle.Font.Bold = true;
+
+
+                xlsRow = 1;
+                xlsCol = 1;
+                FactoryName = string.Empty;
+
+                var FactoryAddress = string.Empty;
+
+                if (dsCmp.Tables[0].Rows.Count > 0)
+                {
+                    CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                }
+                else
+                {
+                    CmpName = "";
+                }
+                sheet1.Range[xlsRow, xlsCol].Text = CmpName;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 12;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                //xlsRow += 1;
+                //if (dsFactory.Tables[0].Rows.Count > 0)
+                //{
+                //    //FactoryName = dsFactory.Tables[0].Rows[0]["PlantName"].ToString();
+                //    FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+                //}
+                //else
+                //{
+                //    FactoryName = "";
+                //}
+                //sheet1.Range[xlsRow, xlsCol].Text = FactoryName;
+                //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 15;
+                //sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                //xlsRow += 1;
+                //if (dsFactory.Tables[0].Rows.Count > 0)
+                //{
+                //    FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
+                //}
+                //else
+                //{
+                //    FactoryAddress = "";
+                //}
+                //sheet1.Range[xlsRow, xlsCol].Text = FactoryAddress;
+                //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                ////sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 15;
+                //sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                if (paymentMode.ToString() == "BANK")
+                {
+
+                    xlsRow += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Bank Letter";
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                    xlsRow++;
+
+                    sheet1.Range[xlsRow, xlsCol].Text = "To";
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsRow++;
+                    sheet1.Range[xlsRow, xlsCol].Text = "THE BRANCH MANAGER";
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsRow++;
+                    sheet1.Range[xlsRow, xlsCol].Text = BankName;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    //xlsRow++;
+                    //sheet1.Range[xlsRow, xlsCol].Text = BankBranchName;
+                    //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    //sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    //sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsRow++;
+                    sheet1.Range[xlsRow, xlsCol].Text = "DATED:" + letterDate;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    xlsRow++;
+                    sheet1.Range[xlsRow, xlsCol].Text = letterSubject;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                    xlsRow++;
+                    xlsRow++;
+                    sheet1.Range[xlsRow, xlsCol].Text = letterSalutaion;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                    xlsRow += 2;
+
+                    sheet1.Range[xlsRow, xlsCol].Text = description;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                }
+
+                #endregion ******************Report Header******************
+
+                #region Freeze Panes
+
+                sheet1.IsDisplayZeros = false;
+                //sheet1.UsedRange["B6"].FreezePanes();
+                //sheet1.FirstVisibleColumn = 2;
+                //sheet1.FirstVisibleRow = 6;
+
+                #endregion Freeze Panes
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.CellStyle.Font.Size = 8;
+                sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.5;
+                sheet1.PageSetup.PrintTitleRows = "$A$15:$IV$15";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + identity.UserId + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                #endregion Page Setup
+
+                fileName = monthName + "-" + year + paymentMode + "Statement" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName);
+                workbook.Version = ExcelVersion.Excel97to2003;
+                workbook.SaveAs(fullPath);
+
+
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+                // throw ex;
+            }
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmpTypes()
+        {
+            string st = @"Select Id as Value , Username as Text from hkp.EmployeeCategory";
+            return Json(_sqlRepository.GetDataCollection(st), JsonRequestBehavior.AllowGet);
+        }
+
+        //Edit Ends
+
+
         #region Salary Certificate Report Start
 
         [HttpGet, Authorize]

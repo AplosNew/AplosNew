@@ -19,6 +19,10 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         } catch (e) {
         }
     }
+
+
+
+
     $scope.LCGrid = {
         FromDate: $filter('dateFiltering')(Date.now()),
         ToDate: $filter('dateFiltering')(Date.now()),
@@ -34,8 +38,8 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
+              
                 if (response.data.Error == false) {
-
                     for (var i = 0; i < response.data.DATA.length; i++) {
                         response.data.DATA[i].OpeningDate = new Date(response.data.DATA[i].OpeningDate);
                     }
@@ -44,20 +48,14 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
                 else {
                     ShowResult(response.data.Message, 'failure');
                 }
-
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
-
         }
         else {
             $scope.PurchaseLCList = [];
             $http({
-                //method: 'POST',
-                //data: { 'parameters': null },
-                //url: $scope.getListUrl + "?column=" + $scope.LCsearchBy + "&value=" + $scope.LCsearch
-
                 method: 'POST',
                 url: $scope.path + "GetList",
                 data: { 'column': $scope.LCsearchBy, 'value': $scope.LCsearch },
@@ -69,10 +67,6 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
         }
     }
-
- 
-
-
     $scope.PurchaseLCPOList = [];
     $scope.SelectedLCRow = {};
     $scope.LoadPOList = function (LCData) {
@@ -99,6 +93,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             }
         $rootScope.openPopupAngular('POPopup');
     }
+
     $scope.PurchaseLCGRNList = [];
     $scope.LoadGRNList = function (LCGRNData) {
         $scope.SelectedLCRow = LCGRNData;
@@ -121,12 +116,9 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-
         $rootScope.openPopupAngular('GRNPopup');
-
-
-
     }
+
     $scope.PurchaseLCACList = [];
     $scope.LoadACList = function (LCACData) {
         $scope.SelectedLCRow = LCACData;
@@ -149,12 +141,9 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             }),
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
-
             }
         $rootScope.openPopupAngular('ACPopup');
     }
-
-
 
     $scope.PurchaseLCLoanList = [];
     $scope.LoadLoanList = function (LCLoanData) {
@@ -184,11 +173,11 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.searchCol = "";
     $scope.searchVal = "";
-    $scope.LCsearchBy = "LCId";
+    $scope.LCsearchBy = "LCNo";
     $scope.LCsearch = "";
     $scope.LCFilterList = [
-        { 'name': 'Purchase LC Id', 'value': 'LCId' },
-        { 'name': 'Purchase LC No', 'value': 'LCNo' },
+       /* { 'name': 'Purchase LC Id', 'value': 'LCId' },*/
+        { 'name': 'Purchase LC No.', 'value': 'LCNo' },
         { 'name': 'Opening Bank', 'value': 'OpeningBank' },
         { 'name': 'Opening Date', 'value': 'OpeningDate' },
         { 'name': 'Vendor', 'value': 'Vendor' },
@@ -200,9 +189,9 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         { 'name': 'Benificiary Bank', 'value': 'BenificiaryBank' },
         { 'name': 'PO Value', 'value': 'POValue' },
         { 'name': 'Acceptance Value', 'value': 'AcceptanceValue' },
-        { 'name': 'GRN Count', 'value': 'GRNCount' },
+       /* { 'name': 'GRN Count', 'value': 'GRNCount' },*/
         { 'name': 'GRN Value', 'value': 'GRNValue' },
-        { 'name': 'Payment Made', 'value': 'PaymentMade' },
+        /*{ 'name': 'Payment Made', 'value': 'PaymentMade' },*/
         { 'name': 'Contract No', 'value': 'ContractNo' },
         { 'name': 'Customer', 'value': 'Customer' },
     ];

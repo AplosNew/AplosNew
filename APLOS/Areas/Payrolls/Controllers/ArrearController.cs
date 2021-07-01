@@ -264,7 +264,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 ValidationAttendance(_all_emps, identity.PlantId, FromDate, ToDate);
 
                                 SendNotification("Fetching Employee List");
-                                objQ.GetEmpListAll(_active_emps, FromDate, ToDate, identity.PlantId, out dsGrid);
+                                objQ.GetEmpListAllForArrear(_active_emps, FromDate, ToDate, identity.PlantId, out dsGrid);
 
 
                                 //string _spid = string.Empty;

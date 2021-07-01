@@ -1072,5 +1072,36 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         #endregion Acceptance Liability Maturity
+
+        #region Acceptance Liability Maturity
+
+        [HttpPost, Authorize]
+        public ActionResult GetAcceptanceLiabilityList(string toDate)
+        {
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(new { DATA = accountsStatusDashboardService.GetAcceptanceLiabilityList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getAcceptanceLiabilityReport(string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+
+            try
+            {
+                accountsStatusDashboardService.getAcceptanceLiabilityReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, toDate);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
+        #endregion Acceptance Liability Maturity
     }
 }
