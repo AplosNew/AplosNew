@@ -216,7 +216,7 @@ function salaryPaymentStatementsController(cboService, commonMessage, $scope, $r
     //        var DropDownListMonth = $("#ddlMonthList").data("ejDropDownList");
     //Sayanto
       //      var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
-         var DropDownListBank = $("#ddlBankList").data("ejDropDownList");
+    //     var DropDownListBank = $("#ddlBankList").data("ejDropDownList");
 
     //        $scope.month = DropDownListMonth.getSelectedValue();
     //        $scope.year = DropDownListYear.getSelectedValue();
