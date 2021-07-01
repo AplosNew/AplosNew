@@ -89,6 +89,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             }
         $rootScope.openPopupAngular('POPopup');
     }
+
     $scope.PurchaseLCGRNList = [];
     $scope.LoadGRNList = function (LCGRNData) {
         $scope.SelectedLCRow = LCGRNData;
@@ -111,12 +112,9 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-
         $rootScope.openPopupAngular('GRNPopup');
-
-
-
     }
+
     $scope.PurchaseLCACList = [];
     $scope.LoadACList = function (LCACData) {
         $scope.SelectedLCRow = LCACData;
@@ -139,12 +137,9 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             }),
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
-
             }
         $rootScope.openPopupAngular('ACPopup');
     }
-
-
 
     $scope.PurchaseLCLoanList = [];
     $scope.LoadLoanList = function (LCLoanData) {
@@ -174,11 +169,11 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.searchCol = "";
     $scope.searchVal = "";
-    $scope.LCsearchBy = "LCId";
+    $scope.LCsearchBy = "LCNo";
     $scope.LCsearch = "";
     $scope.LCFilterList = [
-        { 'name': 'Purchase LC Id', 'value': 'LCId' },
-        { 'name': 'Purchase LC No', 'value': 'LCNo' },
+       /* { 'name': 'Purchase LC Id', 'value': 'LCId' },*/
+        { 'name': 'Purchase LC No.', 'value': 'LCNo' },
         { 'name': 'Opening Bank', 'value': 'OpeningBank' },
         { 'name': 'Opening Date', 'value': 'OpeningDate' },
         { 'name': 'Vendor', 'value': 'Vendor' },
@@ -190,9 +185,9 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         { 'name': 'Benificiary Bank', 'value': 'BenificiaryBank' },
         { 'name': 'PO Value', 'value': 'POValue' },
         { 'name': 'Acceptance Value', 'value': 'AcceptanceValue' },
-        { 'name': 'GRN Count', 'value': 'GRNCount' },
+       /* { 'name': 'GRN Count', 'value': 'GRNCount' },*/
         { 'name': 'GRN Value', 'value': 'GRNValue' },
-        { 'name': 'Payment Made', 'value': 'PaymentMade' },
+        /*{ 'name': 'Payment Made', 'value': 'PaymentMade' },*/
         { 'name': 'Contract No', 'value': 'ContractNo' },
         { 'name': 'Customer', 'value': 'Customer' },
     ];

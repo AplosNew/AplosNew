@@ -59,9 +59,7 @@ namespace Aplos.Areas.Commercial.Controllers
             try
             {
                 Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
-
                 var data = navigation.GetPurchaseLCSearch();
-
                 return Json(new { DATA = data, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -76,9 +74,7 @@ namespace Aplos.Areas.Commercial.Controllers
             try
             {
                 Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
-
                 navigation.PurchaseLCReport(fromDate,toDate);
-
                 return null;
             }
             catch (Exception ex)
@@ -123,34 +119,23 @@ namespace Aplos.Areas.Commercial.Controllers
         [HttpPost, Authorize]
         public ActionResult GetPurchaseLCACList(string PurchaseLCId)
         {
-
             try
             {
-
                 Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
-
                 var data = navigation.GetPurchaseLCACList(PurchaseLCId);
-
                 return Json(new { ACDATA = data, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
-
             }
 
         }
-
-
-
-
         [HttpPost, Authorize]
         public ActionResult GetPurchaseLCLoanList(string PurchaseLCId)
         {
-
             try
             {
-
                 Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
 
                 var data = navigation.GetPurchaseLCLoanList(PurchaseLCId);
