@@ -108,10 +108,8 @@ namespace Library.Service.Employees
         IEnumerable<object> GetClanderYear(string PlantId);
         DataTable MediasoftFairShopDataExport();
         void CreateLockData(string lockDate);
-        IEnumerable<object> GetUnApprovedEmployeeList(string companyGroupId, string plantId);
         void SaveApprovedEmployeeData(DataSet dsGrd);
 
-        IEnumerable<object> GetApprovedEmployeeList(string companyGroupId, string plantId);
         void SaveUnApprovedEmployeeData(DataSet dsGrd);
 
 
