@@ -14248,6 +14248,200 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
             }
         }//end function
 
+
+        //Salary Slip  Company Wise and Employee Category Wise
+        public void GetEmployeeSalaryBankAccountStatementEmpType(out DataSet dsRef, string paymentMode, string companyGrpId, string companyId, string plantId, string bankId, string bankBranchId, int monthName, string year, bool isActive, bool isSeperated, bool isMaternity, string empTypeId)
+        {
+
+            //Sayanto Change
+            string empTypeFil = "1=1";
+            if (empTypeId != null)
+            {
+                empTypeFil = "EmpTypeId = '" + empTypeId + "'";
+            }
+            //
+
+
+            string strSQL;
+            var days = DateTime.DaysInMonth(Convert.ToInt32(year), monthName);//Number of Days in a month
+            var monthNameString = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(monthName);//Month Name from Month No
+            var date = days + "-" + monthNameString + "-" + year;
+            ConnectionManager.DAL.ConManager objCon;
+
+            string sqlBank = "SELECT* FROM EmployeeWiseBankCashAmount WHERE MonthNo = '" + monthName + @"' AND YearNo = '" + year + @"'";
+            DataTable dtEmployeeWiseBankCashAmount = null;
+
+            objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+            objCon.OpenDataSetThroughAdapter(sqlBank, out dsRef, false, "1");
+            dtEmployeeWiseBankCashAmount = dsRef.Tables[0];
+            dsRef = null;
+
+            DataTable dtslProcId = null;
+
+
+            string strSqlStruc = "";
+
+            strSqlStruc = @"SELECT SystemID FROM SalaryProcMaster SPM
+                                      WHERE SPM.SystemID IN (SELECT SlrProcMstSystemID FROM SalaryProcChild
+                                                        ) AND SPM.MonthNo = '" + monthName + @"' AND SPM.YearNo='" + year + @"' ";
+
+
+            objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+            objCon.OpenDataSetThroughAdapter(strSqlStruc, out dsRef, false, "1");
+
+            dtslProcId = dsRef.Tables[0];
+
+
+            string inSalaryProcParam = "' '";
+
+            for (int i = 0; i < dtslProcId.Rows.Count; i++)
+            {
+                inSalaryProcParam += ",'" + dtslProcId.Rows[i]["SystemID"].ToString() + "'";
+            }
+
+
+            try
+            {
+                string bankJoin = "";
+                string bankWC = "";
+                string bankNetPay = "";
+
+                string empStatus = " Where (1=0 ";
+
+                if (isActive == true && isSeperated == true && isMaternity == true)
+                {
+                    empStatus = " Where (1=1 ";
+                }
+                else
+                {
+                    if (isActive == true)
+                    {
+                        empStatus += " OR SalaryProcFlag ='Regular'";
+                    }
+                    if (isSeperated == true)
+                    {
+                        empStatus += " OR SalaryProcFlag ='SEPARATED'";
+                    }
+                    if (isMaternity == true)
+                    {
+                        empStatus += " OR SalaryProcFlag ='MLV_PRE'";
+
+                    }
+                }
+                empStatus += ")";
+                if (paymentMode.ToUpper() == "BANK")
+                {
+                    bankJoin = @"LEFT JOIN EmployeeBankInfo EBI ON EI.SystemId = EBI.EmpSystemID	
+                                LEFT JOIN HKP.Bank Bank ON Bank.Id = EBI.BankSystemID
+								LEFT JOIN HKP.BankBranch BankBr ON BankBr.Id = EBI.BankBranchId";
+                    bankWC = @"AND EBI.BankSystemID ='" + bankId + @"'";
+                    bankNetPay = @" ,(ISNULL(EBI.SalaryPercentage,0)*ISNULL(spc.DisbusmentAmount,0))/100 pBankSalary,EBi.BankSystemID,EBi.BankBranchId,EBI.BankAccNo BankAccountNo ,EBI.IFSCCode  IFSCCode, EBI.SalaryPercentage, Bank.UserName BankName,BankBr.UserName BankBranchName";
+                }
+                if (dtEmployeeWiseBankCashAmount.Rows.Count == 0)
+                {
+
+                    strSQL = @"SELECT * FROM (
+                                SELECT   EI.PaymentMode,EI.GroupID,EI.CompanyId,p.Username as Plant,EI.PlantId, EI.EmployeeCode,EI.EmployeeName
+							   ,ISNULL(EI.EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EI.EmployeeCodeNumeric,0) EmployeeCodeNumeric	 
+                               , ISNULL(SPC.DisbusmentAmount,0) NetSalary
+							   " + bankNetPay + @"
+							   ,sh.HeadType,SPC.EmpInfoSystemID,spm.MonthNo ,CRC.Code currCode,CRC.Id CurrencyId
+                               , ISNULL(CURR.IntegerInDisb,0) IntegerInDisb, ISNULL(CURR.DecimalNo,0) DecimalNo 
+                               , ISNULL(LGD.userName,'') Designation    
+                               , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag 
+                               ,dm.EmployeeCategoryId as EmpTypeId , ec.UserName as EmployeeType
+                                FROM SalaryProcChild SPC
+							    INNER JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
+								INNER JOIN SalaryHead SH ON SH.SalaryHeadID = SPC.SalaryHeadID 
+								--LEFT JOIN CurrencyRuleChild CURR ON CURR.SalaryHeadID = sh.SalaryHeadID
+								INNER JOIN EmployeeInformation EI ON EI.SystemId = SPC.EmpInfoSystemID 
+                                LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EI.SalaryRuleMasterSystemID
+								INNER JOIN CurrencyRuleChild CURR ON CURR.SalaryHeadID = sh.SalaryHeadID AND CURR.MstSystemID = srm.CurrencyRuleSystemID 
+								" + bankJoin + @"
+                                LEFT JOIN HKP.Designation DeG ON DeG.Id = EI.GivenDesignationId                                
+                                LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
+                                INNER JOIN SCS.Currency AS CRC ON CRC.Id = SPC.DisbusmentCurrencyID
+                                left join mst.DesignationMasterLegalDesignation lld on lld.LegalDesignationId = LGD.Id
+								left join mst.DesignationMaster dm on dm.Id = lld.DesignationMasterId
+								left join mst.DesignationMasterLegalDesignation zz on zz.LegalDesignationId = EI.LegalDesignationId
+                                left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
+                                left join org.plant p on p.Id = EI.PlantId
+								WHERE --SPM.MonthNo = '" + monthName + @"' AND SPM.YearNo='" + year + @"' 
+                                --AND 
+                                    SPM.SystemID IN  (" + inSalaryProcParam + @") 
+								AND EI.GroupID = '" + companyGrpId + @"' AND EI.CompanyId = '" + companyId + @"'  " + bankWC + @" --AND EBI. BankBranchId = '" + bankBranchId + @"'
+                                AND SH.HeadCategory = 'Net Payable'  AND EI.PaymentMode = '" + paymentMode + @"') dd " + empStatus + @"
+                                and " + empTypeFil + @"
+                                 ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric
+                                ";
+
+                }
+                else
+                {
+                    if (paymentMode.ToUpper() == "BANK")
+                    {
+                        bankJoin = @"INNER JOIN EmployeeWiseBankCashAmount EBCA ON EI.SystemId = EBCA.EmpSystemId  AND EBCA.MonthNo =  '" + monthName + @"'  AND EBCA.YearNo = '" + year + @"' 
+                                LEFT JOIN EmployeeBankInfo EBI ON EI.SystemId = EBI.EmpSystemID	
+                                LEFT JOIN HKP.Bank Bank ON Bank.Id = EBI.BankSystemID
+								LEFT JOIN HKP.BankBranch BankBr ON BankBr.Id = EBI.BankBranchId";
+                        bankWC = @"AND EBI.BankSystemID ='" + bankId + @"'";
+                        bankNetPay = @" ,ISNULL(EBCA.BankAmount,0) pBankSalary ,EBi.BankSystemID,EBi.BankBranchId,EBI.BankAccNo BankAccountNo ,EBI.BankAccNo  IFSCCode, EBI.SalaryPercentage, Bank.UserName BankName,BankBr.UserName BankBranchName";
+                    }
+                    strSQL = @"SELECT * FROM (
+                                SELECT   EI.PaymentMode,EI.GroupID,EI.CompanyId,p.Username as Plant,EI.PlantId, EI.EmployeeCode,EI.EmployeeName
+							   ,ISNULL(EI.EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EI.EmployeeCodeNumeric,0) EmployeeCodeNumeric	 
+                               , ISNULL(SPC.DisbusmentAmount,0) NetSalary
+							   " + bankNetPay + @"
+							   ,sh.HeadType,SPC.EmpInfoSystemID,spm.MonthNo ,CRC.Code currCode,CRC.Id CurrencyId
+                               , ISNULL(CURR.IntegerInDisb,0) IntegerInDisb, ISNULL(CURR.DecimalNo,0) DecimalNo 
+                               , ISNULL(LGD.userName,'') Designation    
+                            , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag       
+                               ,dm.EmployeeCategoryId as EmpTypeId, ec.UserName as EmployeeType
+                                FROM SalaryProcChild SPC
+							    INNER JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID
+								INNER JOIN SalaryHead SH ON SH.SalaryHeadID = SPC.SalaryHeadID 
+								INNER JOIN EmployeeInformation EI ON EI.SystemId = SPC.EmpInfoSystemID 
+                                LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EI.SalaryRuleMasterSystemID
+								INNER JOIN CurrencyRuleChild CURR ON CURR.SalaryHeadID = sh.SalaryHeadID AND CURR.MstSystemID = srm.CurrencyRuleSystemID 
+								
+								" + bankJoin + @"
+                                LEFT JOIN HKP.Designation DeG ON DeG.Id = EI.GivenDesignationId                                
+                                LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
+                                INNER JOIN SCS.Currency AS CRC ON CRC.Id = SPC.DisbusmentCurrencyID
+                                left join mst.DesignationMasterLegalDesignation lld on lld.LegalDesignationId = LGD.Id
+								left join mst.DesignationMaster dm on dm.Id = lld.DesignationMasterId
+								left join mst.DesignationMasterLegalDesignation zz on zz.LegalDesignationId = EI.LegalDesignationId
+                                left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
+                                left join org.plant p on p.Id = EI.PlantId
+								WHERE --SPM.MonthNo = '" + monthName + @"' AND SPM.YearNo='" + year + @"' 
+                                --AND 
+                                    SPM.SystemID IN  (" + inSalaryProcParam + @") 
+								AND EI.GroupID = '" + companyGrpId + @"' AND EI.CompanyId = '" + companyId + @"' " + bankWC + @" --AND EBI. BankBranchId = '" + bankBranchId + @"'
+                                AND SH.HeadCategory = 'Net Payable'  AND EI.PaymentMode = '" + paymentMode + @"') dd " + empStatus + @"
+                                and " + empTypeFil + @"
+                            ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric
+                            ";
+                }
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//end function
+
+
         public void GetEmployeeSalaryTransferStatement(out DataSet dsRef, string paymentMode, string companyGrpId, string companyId, string plantId, string bankId, string bankBranchId, int monthName, string year, string salaryProcId)
         {
             string strSQL;

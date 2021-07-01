@@ -65,7 +65,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                 var fileName = "PaySlip" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xlsx";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
-                var workbook = _payrollReportsService.GetEmployeePaySlip(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, parameters, languageId,  isActive,  isSeperated,  isMaternity);
+                //GetEmployeePaySlip
+                var workbook = _payrollReportsService.GetEmployeePaySlipWithBal(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, parameters, languageId,  isActive,  isSeperated,  isMaternity);
               
                 workbook.Version = ExcelVersion.Excel2016;
                 //workbook.SaveAs(fullPath);

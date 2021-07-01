@@ -101,6 +101,13 @@ IEmployeeProfileService employeeProfileService
             return View();
         }
 
+        //Salary Sheet Company Wise
+        public ActionResult SalaryProcessedReportExtraOTCTCCompany()
+        {
+            return View();
+        }
+
+
         #endregion -- Pages
 
         #region -- Operations
@@ -456,6 +463,50 @@ IEmployeeProfileService employeeProfileService
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_payrollReportsService.GetPayRollGroupCbo(identity.IsSysAdmin, identity.IsControlAdmin, identity.PlantId, identity.UserId), JsonRequestBehavior.AllowGet);
         }
+
+
+        //Salary Sheet Company Wise Operations
+        [HttpPost, Authorize]
+        public ActionResult GetSalarySheetExtraOTCTCReportCompany(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            try
+            {
+                //parameters = null;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                WeekOFFandHolidayOT clsWeekOFFOTReport = new WeekOFFandHolidayOT();
+
+                var fileName = bplib.clsWebLib.GetMonthName(month) + "-" + year + "SalarySheetCompanyWise" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xlsx";
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+
+                SalarySheetCompanyService ss = new SalarySheetCompanyService();
+                var workbook = ss.GetSalarySheetExtraOTCTCReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, identity.IsSysAdmin, identity.IsControlAdmin, isMaternity, false);
+                workbook.Version = ExcelVersion.Excel2013;
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+
+
+        //Salary Sheet CompanyWise
+        [HttpPost, Authorize]
+        public ActionResult GetEmpInfoSalaryPorcessedCompany(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            //Sayanto Change Company Wise
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            SalarySheetCompanyService ss = new SalarySheetCompanyService();
+            var jsondata = Json(ss.GetEmpInfoSalaryPorcessedCompany(identity.CompanyGroupId, identity.CompanyId, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+//End Company Wise Operations
+
 
         #region MyRegion
 

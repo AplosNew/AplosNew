@@ -23,8 +23,7 @@ using System.Web.Mvc;
 namespace Aplos.Areas.Commercial.Controllers
 {
     public class LcNavigationController : BaseController
-    {
-      
+    {  
 
         #region Constructor
 
@@ -35,56 +34,39 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         #endregion Constructor
-   
-       
         public ActionResult Aplos()
         {
             return View();
-        }
-
-     
+        }     
         [HttpPost, Authorize]
         public ActionResult GetPurchaseLCSearchByDate(string fromDate,string toDate)
         {
-
             try
             {
                 Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
 
                  var data = navigation.GetPurchaseLCSearchByDate(fromDate,toDate);
-
                 return Json(new { DATA = data, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
-
         }
-
-
         [HttpPost, Authorize]
         public ActionResult GetPurchaseLCSearch()
         {
-
             try
             {
                 Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
-
                 var data = navigation.GetPurchaseLCSearch();
-
                 return Json(new { DATA = data, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
-
         }
-
-
-
-
 
         [HttpGet, Authorize]
         public ActionResult GetPurchaseLCReport(string fromDate,string toDate)
@@ -92,9 +74,7 @@ namespace Aplos.Areas.Commercial.Controllers
             try
             {
                 Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
-
                 navigation.PurchaseLCReport(fromDate,toDate);
-
                 return null;
             }
             catch (Exception ex)
@@ -106,10 +86,8 @@ namespace Aplos.Areas.Commercial.Controllers
         [HttpPost, Authorize]
         public ActionResult GetPurchaseLCPOList(string PurchaseLCId)
         {
-
             try
             {
-
                 Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
 
                 var data = navigation.GetPurchaseLCPOList(PurchaseLCId);
@@ -119,22 +97,15 @@ namespace Aplos.Areas.Commercial.Controllers
             catch (Exception ex)
             {
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
-
             }
-
         }
-
         [HttpPost, Authorize]
         public ActionResult GetPurchaseLCGRNList(string PurchaseLCId)
         {
-
             try
             {
-
                 Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
-
                 var data = navigation.GetPurchaseLCGRNList(PurchaseLCId);
-
                 return Json(new { GRNDATA = data, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -148,34 +119,23 @@ namespace Aplos.Areas.Commercial.Controllers
         [HttpPost, Authorize]
         public ActionResult GetPurchaseLCACList(string PurchaseLCId)
         {
-
             try
             {
-
                 Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
-
                 var data = navigation.GetPurchaseLCACList(PurchaseLCId);
-
                 return Json(new { ACDATA = data, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
-
             }
 
         }
-
-
-
-
         [HttpPost, Authorize]
         public ActionResult GetPurchaseLCLoanList(string PurchaseLCId)
         {
-
             try
             {
-
                 Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
 
                 var data = navigation.GetPurchaseLCLoanList(PurchaseLCId);

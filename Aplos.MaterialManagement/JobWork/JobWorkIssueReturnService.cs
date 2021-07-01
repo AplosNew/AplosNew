@@ -163,7 +163,7 @@ namespace Library.MaterialManagement.JobWork
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select Id as Value, UserName as Text from ORG.Entity where PlantId='" + identity.PlantId + "' ";
+                string sql = @"select Id as Value, UserName as Text from ORG.Entity where PlantId='" + identity.PlantId + "' order by UserName ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -173,12 +173,14 @@ namespace Library.MaterialManagement.JobWork
             }
         }
 
-        public IEnumerable<object> gejobworklocation()
+        public IEnumerable<object> gejobworklocation(string TId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select Id as Value, UserName as Text from HKP.MaterialStorage order by UserName ";
+                string sql = @"select MS.Id as Value, MS.UserName as Text from HKP.MaterialStorage MS 
+                               left join dbo.JobWorkTransformationContractChild mp on mp.MaterialLocationId=MS.Id 
+                               where mp.JobWorkTransformationContractMasterId='"+ TId + @"' order by UserName ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
