@@ -72,7 +72,7 @@ namespace Aplos
             bundles.Add(new ScriptBundle("~/bundles/banks").Include("~/Areas/Banks/Scripts/*.js"));
             bundles.Add(new ScriptBundle("~/bundles/currencies").Include("~/Areas/Currencies/Scripts/*.js"));
             bundles.Add(new ScriptBundle("~/bundles/employees").Include("~/Areas/Employees/Scripts/*.js"));
-            bundles.Add(new ScriptBundle("~/bundles/attendances").Include("~/Areas/Attendances/Scripts/*.js")); 
+            bundles.Add(new ScriptBundle("~/bundles/attendances").Include("~/Areas/Attendances/Scripts/*.js"));
             bundles.Add(new ScriptBundle("~/bundles/fixedassets").Include("~/Areas/FixedAssets/Scripts/*.js"));
             bundles.Add(new ScriptBundle("~/bundles/ie").Include("~/Areas/IE/Scripts/*.js"));
             bundles.Add(new ScriptBundle("~/bundles/productions").Include("~/Areas/Productions/Scripts/*.js"));

@@ -561,14 +561,15 @@ namespace Aplos.Areas.Productions.Controllers
                 //TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["CartonSerialNo"].ToString());
                 if (i==0)
                 {
-                    TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(1 + "-" + dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
+                    if(Convert.ToInt32(dsOrderMaster.Rows[i]["NoOfPackages"].ToString())==1)
+                    TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
+                    else
+                        TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(1 + "-" + dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
                     PreviousNo += Convert.ToInt32(dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
 
                 }
                 else
                 {
-                    //TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(PreviousNo + 1 +"-"+ dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
-                    //PreviousNo = Convert.ToInt32(dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
                     int LastPkg = Convert.ToInt32(dsOrderMaster.Rows[i]["NoOfPackages"].ToString()) + PreviousNo;
                     TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(PreviousNo + 1 +"-"+ LastPkg);
                     PreviousNo += Convert.ToInt32(dsOrderMaster.Rows[i]["NoOfPackages"].ToString());

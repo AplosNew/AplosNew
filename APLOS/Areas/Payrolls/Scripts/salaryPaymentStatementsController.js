@@ -214,9 +214,10 @@ function salaryPaymentStatementsController(cboService, commonMessage, $scope, $r
     //$scope.GetSalaryPaymentStatementBankCSV = function (paymentMode) {
     //    try {
     //        var DropDownListMonth = $("#ddlMonthList").data("ejDropDownList");
-    //        var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
-            var DropDownListBank = $("#ddlBankList").data("ejDropDownList");
-    //    dhruv
+    //Sayanto
+      //      var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
+         var DropDownListBank = $("#ddlBankList").data("ejDropDownList");
+
     //        $scope.month = DropDownListMonth.getSelectedValue();
     //        $scope.year = DropDownListYear.getSelectedValue();
     //        $scope.bankId = DropDownListBank.getSelectedValue();
