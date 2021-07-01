@@ -932,12 +932,12 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult gejobworklocation()
+        public JsonResult gejobworklocation(string TId)
         {
             try
             {
 
-                return Json(JWTIR.gejobworklocation(), JsonRequestBehavior.AllowGet);
+                return Json(JWTIR.gejobworklocation(TId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

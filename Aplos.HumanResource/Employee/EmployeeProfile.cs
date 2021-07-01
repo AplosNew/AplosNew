@@ -733,7 +733,7 @@ namespace Aplos.HumanResource
                         }
                     }
 
-                    
+
 
                     if (objEmpLoad.DuplicateEmployeeCode(para.CompanyGroupId, para.CompanyId, para.PlantId, data.SystemId, data.EmployeeCode, EmployeeCodeCheckLevel) == false)
                     {
@@ -922,14 +922,14 @@ namespace Aplos.HumanResource
                     if (dvEmpRef.Count == 0)
                     {// Add new block
                         drEmpRef = dtEmpRef.NewRow();
-                        UpdateEmployeeRef("ADDNEW", data.SystemId, empRef,para, ref drEmpRef);
+                        UpdateEmployeeRef("ADDNEW", data.SystemId, empRef, para, ref drEmpRef);
                         dtEmpRef.Rows.Add(drEmpRef);
                     }
                     else
                     {//edit block
                         drEmpRef = dvEmpRef[0].Row;
                         drEmpRef.BeginEdit();
-                        UpdateEmployeeRef("EDIT", data.SystemId, empRef,para, ref drEmpRef);
+                        UpdateEmployeeRef("EDIT", data.SystemId, empRef, para, ref drEmpRef);
                         drEmpRef.EndEdit();
                     }
                     dvEmpRef.RowFilter = null;
@@ -1114,7 +1114,7 @@ namespace Aplos.HumanResource
                 drLocal["BirthdayCelebrationDate"] = bplib.clsWebLib.DateData_AppToDB(data.BirthdayCelebrationDate, bplib.clsWebLib.DB_DATE_FORMAT);
                 drLocal["DOJ"] = bplib.clsWebLib.DateData_AppToDB(data.DOJ, bplib.clsWebLib.DB_DATE_FORMAT);
 
-           
+
 
                 //drLocal["Ref1Name"] = data.Ref1Name;
                 //drLocal["Ref1CellPhnNo"] = data.Ref1CellPhnNo;
@@ -1160,7 +1160,8 @@ namespace Aplos.HumanResource
                 if (!string.IsNullOrEmpty(data.RelativeSystemId))
                 {
                     drLocal["AnyRelativeWorkedHere"] = true;
-                }else
+                }
+                else
                 {
                     drLocal["AnyRelativeWorkedHere"] = false;
                 }
@@ -1287,7 +1288,7 @@ namespace Aplos.HumanResource
                 drLocal["Ref2Email"] = data.Ref2Email;
                 drLocal["Ref2Address"] = data.Ref2Address;
 
-                
+
 
                 drLocal["UpdatedBy"] = para.UpdatedBy;
                 drLocal["DateUpdated"] = DateTime.Now;
@@ -1495,7 +1496,7 @@ namespace Aplos.HumanResource
                         dr["DateUpdated"] = DateTime.Now;
 
                         dr.EndEdit();
-                    
+
                     }
                     clsStaticInfo obj = new clsStaticInfo();
                     obj.SaveDataSets(dsMaster);
@@ -1662,6 +1663,172 @@ namespace Aplos.HumanResource
                 objCon = null;
             }
         }//End of function
+
+        public IEnumerable<object> GetUnApprovedEmployeeList(string companyGroupId, string plantId, bool IsSysAdmin, string UserId)
+        {
+            try
+            {
+                string sql = "";
+                if (IsSysAdmin)
+                {
+                    sql = @"SELECT  CheckBoxSelect = Convert(bit, 'True'),
+								   EI.SystemID,EI.EmployeeCode, EI.EmployeeName,
+								   Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOBs,
+								   Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJs
+   								  ,DP.UserName Department, 
+								  PR.UserName PositionName,
+								  E.UserName EntityName,
+								  DSG.UserName Designation, 
+								  se.UserName Section, Sus.UserName SubSection,
+								  LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup,EC.UserName EmployeeCategory
+                              FROM dbo.Employeeinformation EI
+                             
+							  LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
+							  LEFT JOIN MST.AddressMaster AM ON PL.AddressMasterId=AM.Id						
+                              LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                              LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                              LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
+							  LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
+				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+							  LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId							  
+                              LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
+							  LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
+                              LEFT JOIN  [MST].[PayrollGroupMaster] PGM ON PGM.EmployeeId=EI.SystemId
+                              LEFT JOIN  [HKP].[PayrollGroup] PG ON PG.Id=PGM.PayrollGroupId
+                              LEFT JOIN (
+                                            SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
+				                            LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
+				                    )EC ON EC.DesignationId=EI.GivenDesignationId
+                              WHERE EI.EmployeeStatus !='Separated' AND EI.IsApproved =0 AND  
+                                    EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + @"'";
+                }
+                else
+                {
+                    sql = @"SELECT  CheckBoxSelect = Convert(bit, 'True'),
+                                    EI.SystemID,EI.EmployeeCode, EI.EmployeeName,
+                                    Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOBs,
+                                    Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJs
+                                    ,DP.UserName Department,PR.UserName PositionName,E.UserName EntityName,DSG.UserName Designation, 
+                                    se.UserName Section, Sus.UserName SubSection,LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup,EC.UserName EmployeeCategory
+                                    FROM dbo.Employeeinformation EI                             
+                                    LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
+                                    LEFT JOIN MST.AddressMaster AM ON PL.AddressMasterId=AM.Id						
+                                    LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                    LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
+                                    LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
+                                    LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                    LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId							  
+                                    LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
+                                    LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
+                                    LEFT JOIN  [MST].[PayrollGroupMaster] PGM ON PGM.EmployeeId=EI.SystemId
+                                    LEFT JOIN  [HKP].[PayrollGroup] PG ON PG.Id=PGM.PayrollGroupId
+                                    LEFT JOIN (
+                                            SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
+				                            LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
+				                    )EC ON EC.DesignationId=EI.GivenDesignationId
+                                    WHERE EI.EmployeeStatus !='Separated' AND EI.IsApproved =0 AND  
+                                    EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + @"' 
+                                    AND (
+                                    EI.SystemId IN ((Select EmployeeId from [MST].[PayrollGroupMaster] Where PayrollGroupId IN 
+                                    (Select PayrollGroupId from [SEC].[UserPayrollGroup] where UserId='" + UserId + @"')
+                                    ))
+                                    OR EI.SystemId NOT IN (Select EmployeeId from [MST].[PayrollGroupMaster])
+                                    )";
+                }
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetApprovedEmployeeList(string companyGroupId, string plantId, bool IsSysAdmin, string UserId)
+        {
+            try
+            {
+                string sql = "";
+                if (IsSysAdmin)
+                {
+                    sql = @"SELECT  CheckBoxSelect = Convert(bit, 'False'),
+								   EI.SystemID,EI.EmployeeCode, EI.EmployeeName,
+								   Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOBs,
+								   Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJs
+   								  ,DP.UserName Department, 
+								  PR.UserName PositionName,
+								  E.UserName EntityName,
+								  DSG.UserName Designation, 
+								  se.UserName Section, Sus.UserName SubSection,
+								  LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup,EC.UserName EmployeeCategory
+                              FROM dbo.Employeeinformation EI
+                             
+							  LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
+							  LEFT JOIN MST.AddressMaster AM ON PL.AddressMasterId=AM.Id						
+                              LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                              LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                              LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
+							  LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
+				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+							  LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId							  
+                              LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
+							  LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
+                              LEFT JOIN  [MST].[PayrollGroupMaster] PGM ON PGM.EmployeeId=EI.SystemId
+                              LEFT JOIN  [HKP].[PayrollGroup] PG ON PG.Id=PGM.PayrollGroupId
+                              LEFT JOIN (
+                                            SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
+				                            LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
+				                    )EC ON EC.DesignationId=EI.GivenDesignationId
+                              WHERE EI.EmployeeStatus !='Separated' AND EI.IsApproved =1 AND 
+                                    EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + @"'";
+                }
+                else
+                {
+                    sql = @"SELECT  CheckBoxSelect = Convert(bit, 'True'),
+                                    EI.SystemID,EI.EmployeeCode, EI.EmployeeName,
+                                    Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOBs,
+                                    Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJs
+                                    ,DP.UserName Department,PR.UserName PositionName,E.UserName EntityName,DSG.UserName Designation, 
+                                    se.UserName Section, Sus.UserName SubSection,LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup,EC.UserName EmployeeCategory
+                                    FROM dbo.Employeeinformation EI                             
+                                    LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
+                                    LEFT JOIN MST.AddressMaster AM ON PL.AddressMasterId=AM.Id						
+                                    LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                                    LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                    LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                    LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
+                                    LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
+                                    LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                    LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId							  
+                                    LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
+                                    LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
+                                    LEFT JOIN  [MST].[PayrollGroupMaster] PGM ON PGM.EmployeeId=EI.SystemId
+                                    LEFT JOIN  [HKP].[PayrollGroup] PG ON PG.Id=PGM.PayrollGroupId
+                                    LEFT JOIN (
+                                            SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
+				                            LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
+				                    )EC ON EC.DesignationId=EI.GivenDesignationId
+                                    WHERE EI.EmployeeStatus !='Separated' AND EI.IsApproved =1 AND  
+                                    EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + @"' 
+                                    AND (
+                                    EI.SystemId IN ((Select EmployeeId from [MST].[PayrollGroupMaster] Where PayrollGroupId IN 
+                                    (Select PayrollGroupId from [SEC].[UserPayrollGroup] where UserId='" + UserId + @"')
+                                    ))
+                                    OR EI.SystemId NOT IN (Select EmployeeId from [MST].[PayrollGroupMaster])
+                                    )";
+                }
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
     }
     public class EmployeeOperation
