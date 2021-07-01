@@ -108,32 +108,47 @@ function salaryPaymentStatementsController(cboService, commonMessage, $scope, $r
         $scope.empBankList = result;
     });
 
+    //Sayanto Changes
+    $scope.empTypeId = null;
+    $scope.empTypeList = [];
+    (function emps() {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetEmpTypes'
+        }).then(function succ(resp) {
+            $scope.empTypeList = resp.data;
+        })
+    })();
+
 
     $scope.GetSalaryPaymentStatement = function (paymentMode) {
         try {
             var DropDownListMonth = $("#ddlMonthList").data("ejDropDownList");
             var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
             var DropDownListBank = $("#ddlBankList").data("ejDropDownList");
+            var DropDownListEmpType = $("#ddlEmpTypeList").data("ejDropDownList");
+
 
             $scope.month = DropDownListMonth.getSelectedValue();
             $scope.year = DropDownListYear.getSelectedValue();
             $scope.bankId = DropDownListBank.getSelectedValue();
+            $scope.empTypeId = DropDownListEmpType.getSelectedValue();
+
             if (angular.isUndefinedOrNull($scope.year)) {
                 ShowResult("Select Year", 'failure');
             }
             if (angular.isUndefinedOrNull($scope.month)) {
                 ShowResult("Select Month", 'failure');
             }
-            if (paymentMode === "BANK")
-            {
-                
+            if (paymentMode === "BANK") {
+
                 if (angular.isUndefinedOrNull($scope.bankId)) {
                     ShowResult("Select Bank", 'failure');
                 }
-               
+
                 $http({
                     method: 'POST',
-                    url: $scope.path + 'GetSalaryPaymentStatement',
+                    url: $scope.path + 'GetSalaryPaymentStatementEmpType',
                     data: {
                         'month': $scope.month,
                         'year': $scope.year,
@@ -144,24 +159,25 @@ function salaryPaymentStatementsController(cboService, commonMessage, $scope, $r
                         'isActive': $scope.isActive,
                         'isSeperated': $scope.isSeperated,
                         'isMaternity': $scope.isMaternity,
-                        'isCSV': $scope.isCSV
+                        'isCSV': $scope.isCSV,
+                        'empTypeId': $scope.empTypeId,
                     }
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
                     }
                     else {
-                       
-                            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                        
+
+                        $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
                     }
                 });
-            }           
+            }
             else {
 
                 $http({
                     method: 'POST',
-                    url: $scope.path + 'GetSalaryPaymentStatement',
+                    url: $scope.path + 'GetSalaryPaymentStatementEmpType',
                     data: {
                         'month': $scope.month,
                         'year': $scope.year,
@@ -172,7 +188,8 @@ function salaryPaymentStatementsController(cboService, commonMessage, $scope, $r
                         'isActive': $scope.isActive,
                         'isSeperated': $scope.isSeperated,
                         'isMaternity': $scope.isMaternity,
-                        'isCSV': $scope.isCSV
+                        'isCSV': $scope.isCSV,
+                        'empTypeId': $scope.empTypeId,
                     }
                 }).then(function successCallback(response) {
 
@@ -186,47 +203,47 @@ function salaryPaymentStatementsController(cboService, commonMessage, $scope, $r
                 });
             }
         } catch (e) {
-                ShowResult(e, 'failure');
-            }
-        
-
-    };
-
-
-
-    $scope.GetSalaryPaymentStatementBankCSV = function (paymentMode) {
-        try {
-            var DropDownListMonth = $("#ddlMonthList").data("ejDropDownList");
-            var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
-            var DropDownListBank = $("#ddlBankList").data("ejDropDownList");
-
-            $scope.month = DropDownListMonth.getSelectedValue();
-            $scope.year = DropDownListYear.getSelectedValue();
-            $scope.bankId = DropDownListBank.getSelectedValue();
-            if (angular.isUndefinedOrNull($scope.year)) {
-                ShowResult("Select Year", 'failure');
-            }
-            if (angular.isUndefinedOrNull($scope.month)) {
-                ShowResult("Select Month", 'failure');
-            }
-            if (paymentMode === "BANK") {
-
-                if (angular.isUndefinedOrNull($scope.bankId)) {
-                    ShowResult("Select Bank", 'failure');
-                }
-                $scope.parameters = 'month=' + $scope.month + '&year=' + $scope.year + '&paymentMode=' + paymentMode + '&isActive=' + $scope.isActive + '&isSeperated=' + $scope.isSeperated + '&isMaternity=' + $scope.isMaternity + '&chequeNo=' + $scope.chequeNo + '&letterDate=' + $scope.letterDate + '&bankId=' + $scope.bankId;
-
-                location.href = $scope.path + 'GetSalaryPaymentStatementBankCSV?' + $scope.parameters;
-
-             
-            }
-           
-        } catch (e) {
             ShowResult(e, 'failure');
         }
 
 
     };
+
+
+
+    //$scope.GetSalaryPaymentStatementBankCSV = function (paymentMode) {
+    //    try {
+    //        var DropDownListMonth = $("#ddlMonthList").data("ejDropDownList");
+    //        var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
+            var DropDownListBank = $("#ddlBankList").data("ejDropDownList");
+    //    dhruv
+    //        $scope.month = DropDownListMonth.getSelectedValue();
+    //        $scope.year = DropDownListYear.getSelectedValue();
+    //        $scope.bankId = DropDownListBank.getSelectedValue();
+    //        if (angular.isUndefinedOrNull($scope.year)) {
+    //            ShowResult("Select Year", 'failure');
+    //        }
+    //        if (angular.isUndefinedOrNull($scope.month)) {
+    //            ShowResult("Select Month", 'failure');
+    //        }
+    //        if (paymentMode === "BANK") {
+
+    //            if (angular.isUndefinedOrNull($scope.bankId)) {
+    //                ShowResult("Select Bank", 'failure');
+    //            }
+    //            $scope.parameters = 'month=' + $scope.month + '&year=' + $scope.year + '&paymentMode=' + paymentMode + '&isActive=' + $scope.isActive + '&isSeperated=' + $scope.isSeperated + '&isMaternity=' + $scope.isMaternity + '&chequeNo=' + $scope.chequeNo + '&letterDate=' + $scope.letterDate + '&bankId=' + $scope.bankId;
+
+    //            location.href = $scope.path + 'GetSalaryPaymentStatementEmpTypeBankCSV?' + $scope.parameters;
+
+
+    //        }
+
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+
+
+    //};
 
 
 
