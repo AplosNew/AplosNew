@@ -3277,9 +3277,75 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
-
     //............#endregion Acceptance Liability Maturity..............................
 
+    //---------------#region Acceptance Liability-------------------------------
+   
+    $scope.AcceptanceLiabilityList = [];
+    $scope.getAcceptanceLiabilityData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetAcceptanceLiabilityList",
+                data: { /*FromDate: $scope.reportParameters.FromDate,*/ ToDate: $scope.report.ToDate },
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+                for (var i = 0; i < response.data.DATA.length; i++) {
+                    try {
+                        if (angular.isUndefinedOrNull(response.data.DATA[i].PostingDate) == false)
+                            response.data.DATA[i].PostingDate = new Date(response.data.DATA[i].PostingDate);
+
+                        if (angular.isUndefinedOrNull(response.data.DATA[i].ActualDueDate) == false)
+                            response.data.DATA[i].ActualDueDate = new Date(response.data.DATA[i].ActualDueDate);
+
+
+                        if (angular.isUndefinedOrNull(response.data.DATA[i].DueDateBaseON) == false)
+                            response.data.DATA[i].DueDateBaseON = new Date(response.data.DATA[i].DueDateBaseON);
+
+                    } catch (e) {
+
+                    }
+                }
+                $scope.AcceptanceLiabilityList = response.data.DATA;
+
+                //$scope.cashOutflowInvPayBooksBalance = $filter("sumByKey")($filter("filter")($scope.MasterCashOutFlowList, { SourceType: "InventoryPayable" }), "BooksBalance");
+                //$scope.cashOutflowVenInvBooksBalance = $filter("sumByKey")($filter("filter")($scope.MasterCashOutFlowList, { SourceType: "VendorInvoice" }), "BooksBalance");
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+
+        catch (e) {
+
+        }
+    }
+    //$scope.getAcceptanceLiabilityData();
+
+    $scope.TotalAcceptanceLiability = [{
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceAmount", dataMember: "AcceptanceAmount", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SetOff", dataMember: "SetOff", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Balance", dataMember: "Balance", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "LCAmount", dataMember: "LCAmount", format: "{0:N2}" }
+
+        ],
+        showCaptionSummary: true
+    }];
+
+    $scope.getAcceptanceLiabilityReport = function () {
+        try {
+            //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + $scope.materialMasterReportNew.MaterialTypeId + '&Article=' + $scope.materialMasterReportNew.WithArticle;;
+            var file_src = $scope.path + 'getAcceptanceLiabilityReport?toDate=' + $scope.report.ToDate;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
+    //------------------#endregion Acceptance liability-------------------------
 
 }
 
