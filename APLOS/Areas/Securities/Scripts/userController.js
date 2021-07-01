@@ -986,7 +986,7 @@ function UserController($controller, fileReader, commonMessage, $scope, $rootSco
                     if (baseService.arrayLength($scope.userProcessList) > 0) {
                         for (var i = 0; i < $scope.userProcessList.length; i++) {
                             for (var j = 0; j < $scope.processDataList.length; j++) {
-                                if ($scope.userProcessList[i].SFGInventoryId === $scope.processDataList[j].Id) {
+                                if ($scope.userProcessList[i].ProcessId === $scope.processDataList[j].Id) {
                                     $scope.processDataList[j].Flag = true;
                                 }
                             }
