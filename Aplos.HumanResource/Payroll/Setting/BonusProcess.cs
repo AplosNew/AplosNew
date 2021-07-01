@@ -192,14 +192,14 @@ namespace Library.HumanResource.Payroll.Setting
                 }
                 
                 ///by monir for the time being 190516
-                //if (IsDefault == true)
-                //{
-                //    objBonusPoli.LoadEmpForNotConfiguredDefault(identity.PlantId.ToString().Trim(), MasterID.ToString().Trim(), Bonus.Work.Trim(), out dsGrdEmp);
-                //}
-                //else
-                //{
+                if (IsDefault == true)
+                {
+                    objBonusPoli.LoadEmpForNotConfiguredDefault(identity.PlantId.ToString().Trim(), MasterID.ToString().Trim(), Bonus.Work.Trim(), out dsGrdEmp);
+                }
+                else
+                {
                     objBonusPoli.LoadEmployeeInGrdForDefaultBonusProcess(identity.PlantId.ToString().Trim(), MasterID.ToString().Trim(), Bonus.Work.Trim(), out dsGrdEmp);
-                //}
+                }
 
 
                 for (int i = 0; i < dsGrdEmp.Tables[0].Rows.Count; i++)
@@ -1328,14 +1328,14 @@ namespace Library.HumanResource.Payroll.Setting
 
 
                 ///by monir for the time being 190516
-                //if (IsDefault == true)
-                //{
-                //    objBonusPoli.LoadEmpForNotConfiguredDefault(plantId.ToString().Trim(), MasterId.ToString().Trim(), CutOffDate.Trim(), out dsEmpLocal);
-                //}
-                //else
-                //{
+                if (IsDefault == true)
+                {
+                    objBonusPoli.LoadEmpForNotConfiguredDefault(plantId.ToString().Trim(), MasterId.ToString().Trim(), CutOffDate.Trim(), out dsEmpLocal);
+                }
+                else
+                {
                     objBonusPoli.LoadEmployeeInGrdForDefaultBonusProcess(plantId.ToString().Trim(), MasterId.ToString().Trim(), CutOffDate.Trim(), out dsEmpLocal);
-                //}
+                }
             }
             catch (Exception ex)
             {

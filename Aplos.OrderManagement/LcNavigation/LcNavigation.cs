@@ -83,11 +83,10 @@ namespace Library.OrderManagement.LcNavigation
 									group by A.PurchaseLCId,A.Id
                         ) as ac on ac.PurchaseLCId = PL.Id
 
-						left join(select LAA.PurchaseDocAcceptanceId,sum(LAA.Amount) Amount from TRN.LoanAgainstAcceptance LAA 
+						left join(select PDA.PurchaseLCId,sum(LAA.Amount) Amount from TRN.LoanAgainstAcceptance LAA 
 											left outer join TRN.PurchaseDocAcceptance PDA on PDA.Id=LAA.PurchaseDocAcceptanceId
-											group by LAA.PurchaseDocAcceptanceId
-														
-						) Loan on Loan.PurchaseDocAcceptanceId=ac.Id
+											group by PDA.PurchaseLCId												
+						) Loan on Loan.PurchaseLCId=PL.Id
 
                         left outer join (
 										 select con.Id as Id, customer.UserName as Customer from Contract as con 
@@ -158,6 +157,10 @@ namespace Library.OrderManagement.LcNavigation
                          inner join trn.PurchaseDocAcceptance as A on A.Id=AD.PurchaseDocAcceptanceId
                         group by A.PurchaseLCId
                         ) as ac on ac.PurchaseLCId = PL.Id
+						left join(select PDA.PurchaseLCId,sum(LAA.Amount) Amount from TRN.LoanAgainstAcceptance LAA 
+											left outer join TRN.PurchaseDocAcceptance PDA on PDA.Id=LAA.PurchaseDocAcceptanceId
+											group by PDA.PurchaseLCId												
+						) Loan on Loan.PurchaseLCId=PL.Id
                         left outer join (
                          select con.Id as Id, customer.UserName as Customer from Contract as con 
                         inner join HKP.Party as customer on con.CustomerId=customer.Id)
