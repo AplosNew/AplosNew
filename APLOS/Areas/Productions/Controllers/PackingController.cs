@@ -532,8 +532,10 @@ namespace Aplos.Areas.Productions.Controllers
             double totalValue = 0;
             int sl = 0;
             int startRow = 0;
+            int PreviousNo = 0;
             for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
             {
+                //
                 ROW++;
                 sl++;
                 wTable.AddRow();
@@ -557,9 +559,25 @@ namespace Aplos.Areas.Productions.Controllers
                 TROW.Cells[colAvgNetWeight].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["NetWeight"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colcolAvgGrossWeight].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GWeight"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colNoOFPackage].AddParagraph().AppendText(dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
-                TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["CartonSerialNo"].ToString());
+                //TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["CartonSerialNo"].ToString());
+                if (i==0)
+                {
+                    TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(1 + "-" + dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
+                    PreviousNo = Convert.ToInt32(dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
+
+                }
+                else
+                {
+                    TROW.Cells[colCartonSerialNo].AddParagraph().AppendText(PreviousNo + 1 +"-"+ dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
+                    PreviousNo = Convert.ToInt32(dsOrderMaster.Rows[i]["NoOfPackages"].ToString());
+
+                }
+
+
                 TROW.Cells[colTotalQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TotalQtyNetWeight"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colGrossWeight].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossWeight"].ToString()).ToString("#,##0.00"));
+
+
 
                 //totalValue += clsStdLib.dbl(sales.Rows[i]["TrnAmount"].ToString());
             }

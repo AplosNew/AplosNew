@@ -989,7 +989,7 @@ function UserController($controller, fileReader, commonMessage, $scope, $rootSco
                             for (var j = 0; j < $scope.processDataList.length; j++) {
                                 if ($scope.userProcessList[i].ProcessId === $scope.processDataList[j].Id) {
                                     $scope.processDataList[j].Flag = true;
-                                   
+
                                 }
                             }
                         }
@@ -1318,7 +1318,7 @@ function UserController($controller, fileReader, commonMessage, $scope, $rootSco
                         baseService.getDDLSearchColumn(result.Rows, $scope.ReportGroupSearchList);
                     angular.element(document.querySelector('#ReportGroupPopUp')).modal('show');
                 }, function () {
-                        ShowResult(commonMessage.NetworkError, 'failure', 'ReportGroupPopUp');
+                    ShowResult(commonMessage.NetworkError, 'failure', 'ReportGroupPopUp');
                 }).finally(function () {
                 });
         };

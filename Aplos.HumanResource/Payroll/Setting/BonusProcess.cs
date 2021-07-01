@@ -190,7 +190,7 @@ namespace Library.HumanResource.Payroll.Setting
                     IsDefault = Convert.ToBoolean(dsMaster.Tables[0].Rows[0]["DefaultPolicy"]);
 
                 }
-                
+
                 ///by monir for the time being 190516
                 //if (IsDefault == true)
                 //{
@@ -198,7 +198,7 @@ namespace Library.HumanResource.Payroll.Setting
                 //}
                 //else
                 //{
-                    objBonusPoli.LoadEmployeeInGrdForDefaultBonusProcess(identity.PlantId.ToString().Trim(), MasterID.ToString().Trim(), Bonus.Work.Trim(), out dsGrdEmp);
+                objBonusPoli.LoadEmployeeInGrdForDefaultBonusProcess(identity.PlantId.ToString().Trim(), MasterID.ToString().Trim(), Bonus.Work.Trim(), out dsGrdEmp);
                 //}
 
 
@@ -576,7 +576,7 @@ namespace Library.HumanResource.Payroll.Setting
                          //}
 
                         #region Insert New Row In Vertual Table 
-                        
+
                         if (((_service_length_doc > 0 || _service_length_doj > 0) && string.IsNullOrEmpty(sEntryCurrencyID) == false) || _IsFixed)
                         {
                             DataRow dtRow = dt.NewRow();
@@ -736,9 +736,9 @@ namespace Library.HumanResource.Payroll.Setting
                 }
                 else
                 {
-                    
+
                 }
-                                
+
             }
             catch (Exception ex)
             {
@@ -844,7 +844,7 @@ namespace Library.HumanResource.Payroll.Setting
 			                            LEFT JOIN SalaryRuleDayStatusMaster SRDSM ON SRM.SystemID = SRDSM.SalaryRuleMasterSystemID
 											                            AND SD.SalaryHeadID = SRDSM.SalaryHeadID
                                         WHERE E.DOJ <= '" + sToDate + @"' AND (E.DOS >= '" + sFromDate + @"' OR E.DOS IS NULL OR E.DOS = NULL 
-                                                                               OR E.DOS = '' OR E.DOS = '"+ sFromDate + @"')
+                                                                               OR E.DOS = '' OR E.DOS = '" + sFromDate + @"')
                                               AND SEFD.IsApproved = 1 AND SEFD.EffectiveDate <= '" + sToDate + @"'
                                     ) A 
                                   WHERE (" + sEmpInfo + @") ";
@@ -1334,7 +1334,7 @@ namespace Library.HumanResource.Payroll.Setting
                 //}
                 //else
                 //{
-                    objBonusPoli.LoadEmployeeInGrdForDefaultBonusProcess(plantId.ToString().Trim(), MasterId.ToString().Trim(), CutOffDate.Trim(), out dsEmpLocal);
+                objBonusPoli.LoadEmployeeInGrdForDefaultBonusProcess(plantId.ToString().Trim(), MasterId.ToString().Trim(), CutOffDate.Trim(), out dsEmpLocal);
                 //}
             }
             catch (Exception ex)

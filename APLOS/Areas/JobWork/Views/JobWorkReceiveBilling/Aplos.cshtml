@@ -52,17 +52,104 @@
 
 <togglable name="{{FormTitle}}"></togglable>
 
-
 <div class="row">
     <div class="form-elements form-horizontal" ng-form name="CommonForm">
-        
 
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li>
+                    <button ng-click="ShowContractPopUp();" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Contract</button>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-12">
+            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="GriddataMaster" e-templaterefresh="refreshTemplateMasterOrderOperation"
+                     e-recorddoubleclick="recorddoubleclickFromMasterGrid"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-detailstemplate="detailTemp"
+                     e-detailsdatabound="detailgrid">
+                    <div e-columns>
+                        <div e-column e-headertext="Actions" e-width="50">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>
+                        </div>
+                        <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
+                        <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
+                        <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
+                        <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
+                        <div e-column e-field="Id" e-headertext="GRN No" e-width="150"></div>
+                        <div e-column e-field="GRNDate1" e-headertext="GRN Date" e-width="150"></div>
+                        <div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
+                        @*<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
+                        <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="RejectRatePercent" e-headertext="Rejection(Percentage)" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="RejectionValue" e-headertext="Rejection Value" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="RejectClamPercent" e-headertext="RejectionClam(Percentage)" textAlign='Right' e-width="150"></div>
+                        @*<div e-column e-field="PurchaseDocumentAcceptanceId" e-headertext="AcceptanceId" e-width="150"></div>*@
+
+                        <div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>
+                        @*<div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="150"></div>*@
+                        @*<div e-column e-field="LCANo" e-headertext="PurchaseLCNo" e-width="150"></div>*@
+                        @*<div e-column e-field="ContractId" e-headertext="ContractId" e-width="150"></div>*@
+
+                        <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
+                        <div e-column e-field="LCANo" e-headertext="LC Ref No" e-width="150"></div>
+                        <div e-column e-field="CustomerName" e-headertext="Customer Name" e-width="80"></div>
+                        <div e-column e-field="UDNo" e-headertext="UD" e-width="80"></div>
+                        <div e-column e-field="OpeningBank" e-headertext="OpeningBank" e-width="80"></div>
+
+                        <div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
+                        <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>
+
+                        <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
+                        <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="150"></div>
+                        <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="CheckedBy" e-headertext=" Checked By" e-width="150"></div>
+                        <div e-column e-field="ApprovedBy" e-headertext=" To Be Approved By" e-width="150"></div>
+                        <div e-column e-field="GRNType" e-headertext="GRNType" e-width="100"></div>
+                        <div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" textAlign='Right' e-width="150"></div>
+                        <div e-column e-field="RequisitionNumber" e-headertext="Requisition Number" textAlign='Right' e-width="150"></div>
+
+
+
+                        @*<div e-column e-headertext="ExportTOExcel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="50"></div>
+                        <div e-column e-headertext="ExportTOPdf" e-commands="commandPdf" e-isunbound=true e-textalign="left" e-width="50"></div>*@
+                        @*  <div e-column e-headertext="ExportTOWord" e-commands="commandWord" e-isunbound=true e-textalign="left" e-width="50"></div>*@
+
+
+                    </div>
+                </div>
+            </div>
+
+            <script id="tabGridContents" type="text/x-jsrender">
+                <div class="tabcontrol" id="Test">
+                    <ul>
+                        <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
+                        <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
+                    </ul>
+                    <div id="gridTab{{:Id}}">
+                        <div id="detailGrid"></div>
+                    </div>
+                    <div id="gridTab1{{:Id}}">
+                        <div id="detailGrid1" style="width:800px;"></div>
+                    </div>
+                </div>
+            </script>
+        </div>
     </div>
 
 </div>
 
 <div class="row aplos-grid-toggle">
-    <div class="col-xs-4 col-sm-4 col-md-4">
+    @*<div class="col-xs-4 col-sm-4 col-md-4">
         <div class="form-group">
             <label class="col-sm-4 control-label">Issue Type</label>
             <div class="col-sm-8">
@@ -75,112 +162,51 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>*@
 </div>
 
 
 <div class="table-responsive aplos-grid-toggle">
     <div class="content-container-fluid" style="color:black;overflow:scroll">
-        <div style="color:black;" id="Grid" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
-             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" ng-show="ShowHomeList"
-             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-            <div e-columns>
-                <div e-column e-field="Id" e-headertext="Id" e-width="20"></div>
-                <div e-column e-field="TabType" e-headertext="Type" e-width="20"></div>
-                <div e-column e-field="ValueAddedDate" e-headertext="Date" e-width="30"></div>
-                <div e-column e-field="VACTime" e-headertext="Time" e-width="30"></div>
-                <div e-column e-field="Entity" e-headertext="Entity" e-width="30"></div>
-                <div e-column e-field="PartyName" e-headertext="Party" e-width="40"></div>
-                <div e-column e-field="VAProcessStartDate" e-headertext="Process Start Date" e-width="30"></div>
-                <div e-column e-field="VAProcessEndDate" e-headertext="Process End Date" e-width="30"></div>
-                <div e-column e-field="VAContractClosingDate" e-headertext="Contract Closing Date" e-width="30"></div>
 
-            </div>
-        </div>
     </div>
 </div>
 
-<div class="table-responsive aplos-grid-toggle">
-    <div class="content-container-fluid" style="color:black;overflow:scroll">
-        <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="GriddataMaster" e-templaterefresh="refreshTemplateMasterOrderOperation"
-             e-recorddoubleclick="recorddoubleclickFromMasterGrid"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-             e-detailstemplate="detailTemp"
-             e-detailsdatabound="detailgrid">
-            <div e-columns>
-                <div e-column e-headertext="Actions" e-width="50">
-                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>
+
+
+<div class="modal fade site-modal in" id="ContractPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Contract List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div style="color:black;" id="GridContract" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" ng-show="ShowHomeList"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="20"></div>
+                            <div e-column e-field="TabType" e-headertext="Type" e-width="20"></div>
+                            <div e-column e-field="ValueAddedDate" e-headertext="Date" e-width="30"></div>
+                            <div e-column e-field="VACTime" e-headertext="Time" e-width="30"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="30"></div>
+                            <div e-column e-field="PartyName" e-headertext="Party" e-width="40"></div>
+                            <div e-column e-field="VAProcessStartDate" e-headertext="Process Start Date" e-width="30"></div>
+                            <div e-column e-field="VAProcessEndDate" e-headertext="Process End Date" e-width="30"></div>
+                            <div e-column e-field="VAContractClosingDate" e-headertext="Contract Closing Date" e-width="30"></div>
+
+                        </div>
+                    </div>
                 </div>
-                <div e-column e-field="GateName" e-headertext="Gate Name" e-width="150"></div>
-                <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="150"></div>
-                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
-                <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
-                <div e-column e-field="Id" e-headertext="GRN No" e-width="150"></div>
-                <div e-column e-field="GRNDate1" e-headertext="GRN Date" e-width="150"></div>
-                <div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
-                <div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
-                <div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
-                @*<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
-                    <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
-                <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
-                <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
-                <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
-                <div e-column e-field="RejectRatePercent" e-headertext="Rejection(Percentage)" textAlign='Right' e-width="150"></div>
-                <div e-column e-field="RejectionValue" e-headertext="Rejection Value" textAlign='Right' e-width="150"></div>
-                <div e-column e-field="RejectClamPercent" e-headertext="RejectionClam(Percentage)" textAlign='Right' e-width="150"></div>
-                @*<div e-column e-field="PurchaseDocumentAcceptanceId" e-headertext="AcceptanceId" e-width="150"></div>*@
-
-                <div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>
-                @*<div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="150"></div>*@
-                @*<div e-column e-field="LCANo" e-headertext="PurchaseLCNo" e-width="150"></div>*@
-                @*<div e-column e-field="ContractId" e-headertext="ContractId" e-width="150"></div>*@
-
-                <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
-                <div e-column e-field="LCANo" e-headertext="LC Ref No" e-width="150"></div>
-                <div e-column e-field="CustomerName" e-headertext="Customer Name" e-width="80"></div>
-                <div e-column e-field="UDNo" e-headertext="UD" e-width="80"></div>
-                <div e-column e-field="OpeningBank" e-headertext="OpeningBank" e-width="80"></div>
-
-                <div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
-                <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>
-
-                <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
-                <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="150"></div>
-                <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
-                <div e-column e-field="CheckedBy" e-headertext=" Checked By" e-width="150"></div>
-                <div e-column e-field="ApprovedBy" e-headertext=" To Be Approved By" e-width="150"></div>
-                <div e-column e-field="GRNType" e-headertext="GRNType" e-width="100"></div>
-                <div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " textAlign='Right' e-width="150"></div>
-                <div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " textAlign='Right' e-width="150"></div>
-                <div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" textAlign='Right' e-width="150"></div>
-                <div e-column e-field="RequisitionNumber" e-headertext="Requisition Number" textAlign='Right' e-width="150"></div>
-
-
-
-                @*<div e-column e-headertext="ExportTOExcel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="50"></div>
-                    <div e-column e-headertext="ExportTOPdf" e-commands="commandPdf" e-isunbound=true e-textalign="left" e-width="50"></div>*@
-                @*  <div e-column e-headertext="ExportTOWord" e-commands="commandWord" e-isunbound=true e-textalign="left" e-width="50"></div>*@
-
-
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="CloseContractPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-
-    <script id="tabGridContents" type="text/x-jsrender">
-        <div class="tabcontrol" id="Test">
-            <ul>
-                <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-                <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
-            </ul>
-            <div id="gridTab{{:Id}}">
-                <div id="detailGrid"></div>
-            </div>
-            <div id="gridTab1{{:Id}}">
-                <div id="detailGrid1" style="width:800px;"></div>
-            </div>
-        </div>
-    </script>
 </div>
 
 <div class="modal fade site-modal in" id="EmployeePopUpResPerson" role="dialog" data-backdrop="static">
