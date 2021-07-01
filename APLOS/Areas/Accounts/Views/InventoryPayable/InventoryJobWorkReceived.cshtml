@@ -425,9 +425,9 @@
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" ng-keypress="materialConfigMassege()">
                 @*<div class="form-group" style="margin-bottom: 0px;color:red">
-                        <label class="col-sm-9 control-label">{{MaterialAssetBudgetMessage}}</label>
+            <label class="col-sm-9 control-label">{{MaterialAssetBudgetMessage}}</label>
 
-                    </div>*@
+        </div>*@
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="common-btn">
                         <ul class="common-btn list-inline text-left">
@@ -461,7 +461,61 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <tr ng-repeat="x in inventoryJobWorkWIPList| orderBy:'Dr'">
+                                <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
+                                <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"></td>
+                                <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                                <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th>Dr</th>
+                                <th>Cr</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             <tr ng-repeat="x in newList| orderBy:'Dr'| groupBy: 'MaterialGroupMasterId'">
+                                <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
+                                <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"></td>
+                                <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                                <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th>Dr</th>
+                                <th>Cr</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in GetInventoryJobWorkGIRI| orderBy:'Dr'">
                                 <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
                                 <td>{{x.BudgetName}}</td>
                                 <td>{{x.ActivityName}}</td>
