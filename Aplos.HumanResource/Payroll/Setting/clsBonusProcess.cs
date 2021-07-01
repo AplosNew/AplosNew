@@ -210,7 +210,8 @@ namespace OTSBD
 
                                                        DATEDIFF(DD, REPLACE(Convert(varchar(11), E.DOJ, 106),' ','-'), '" + sCutOffDate + @"') + 1 ServiceLength_Day,
 													   DATEDIFF(MM, REPLACE(Convert(varchar(11), E.DOJ, 106),' ','-'), '" + sCutOffDate + @"') ServiceLength_Month,
-                                                        DATEDIFF(MM, REPLACE(Convert(varchar(11), E.DOJ, 106),' ','-'), '28-Jun-2021') ServiceLength,
+                                                        ServiceLength = Case when BPM.ServiceLengthType = 'Month' then (DATEDIFF(DAY, CONVERT(DATETIME,  E.DOJ, 103), CONVERT(DATETIME, '" + sCutOffDate + @"', 103)) / 30 )
+														else  DATEDIFF(DD, REPLACE(Convert(varchar(11), E.DOJ, 106),' ','-'), '" + sCutOffDate + @"') + 1 end,
                                                        REPLACE(Convert(varchar(11), E.DOC, 106),' ','-') AS DOC, 
 
                                                     ConfirmServiceLength_Day = CASE WHEN (DATEDIFF(DD, REPLACE(Convert(varchar(11), E.DOC, 106),' ','-'), '" + sCutOffDate + @"') + 1) > 0 THEN 
@@ -251,6 +252,7 @@ namespace OTSBD
 							                                        (select m.DesignationId,c.BonusPolicyMasterId from MST.DesignationMaster m
 													                left join (select * from scs.DesignationMasterConfiguration where PlantId= '" + sPlantID + @"')
 													                c on m.id=c.DesignationMasterId) DMS ON DMS.DesignationId = E.GivenDesignationId
+                                                                    left join BonusPolicyMaster BPM on BPM.SystemID = dms.BonusPolicyMasterId
                                                                 WHERE E.PlantID = '" + sPlantID + @"' AND E.SalaryRuleMasterSystemID IS NOT NULL
                                         AND E.DOJ <= CONVERT(DATETIME, '" + sCutOffDate + @"') AND (DOS >= CONVERT(DATETIME, '" + sCutOffDate + @"') OR DOS IS NULL)
                                  ) A

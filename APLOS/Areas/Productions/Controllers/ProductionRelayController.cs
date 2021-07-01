@@ -38,17 +38,6 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region -- Operations
 
-        [Authorize, HttpGet]
-        public JsonResult GetCbo()
-        {
-            return Json(_sqlRepository.GetDataCollection("SELECT CostingType AS [Value], UserName AS [Text] FROM [dbo].[CostingTypes]"), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetList()
-        {
-            return Json(_sqlRepository.GetDataCollection("SELECT * FROM [dbo].[CostingTypes]"), JsonRequestBehavior.AllowGet);
-        }
 
         [HttpPost]
         public JsonResult Create(List<Dictionary<string, object>> ProductionRelayData)
@@ -57,22 +46,24 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 if (clsStaticInfo.nullrecorder(ProductionRelayData) == "")
                 {
-                    throw new Exception("Please select at least one production process.");
+                    throw new Exception("Please select at least one production order.");
                 }
 
                 string ProductionOrderIds = "''";
+                string ProcessSetIds = "''";
                 for (int i = 0; i < ProductionRelayData.Count; i++)
                 {
                     ProductionOrderIds += ",'" + ProductionRelayData[i]["Id"].ToString() + "'";
+                    ProcessSetIds += ",'" + ProductionRelayData[i]["PSSId"].ToString() + "'";
                 }
 
                 DataSet dsProductionRelay;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 ConnectionManager.DAL.ConManager conProductionRelay = new ConnectionManager.DAL.ConManager("1");
-                conProductionRelay.OpenDataSetThroughAdapter(@"Select * from trn.ProductionOrderProcessSet where ProductionOrderId IN (" + ProductionOrderIds + ")", out dsProductionRelay, false, "1");
+                conProductionRelay.OpenDataSetThroughAdapter(@"Select * from trn.ProductionOrderProcessSet where Id IN (" + ProcessSetIds + ")", out dsProductionRelay, false, "1");
                 conProductionRelay.OpenDataSetThroughAdapter(@"Select * from trn.ProductionOrder where id in (" + ProductionOrderIds + ")", out DataSet dsProductionOrder, false, "1");
-                conProductionRelay.OpenDataSetThroughAdapter(@"select * from HKP.ProductionStatus where Code='Completed'", out DataSet dsProductionStatus, false, "1");
+                conProductionRelay.OpenDataSetThroughAdapter(@"select * from HKP.ProductionStatus where Code='Closed'", out DataSet dsProductionStatus, false, "1");
 
                 string productionStatus = "";
                 if (dsProductionStatus.Tables[0].Rows.Count > 0)
@@ -93,10 +84,13 @@ namespace Aplos.Areas.Productions.Controllers
                             {
                                 IncompleteProductionOrder += "," + ProductionRelayData[i]["Id"].ToString();
                             }
-
-                            throw new Exception("Previous process is not completed therefore cannot complete the current production order");
                         }
+
                     }
+                }
+                if (IncompleteProductionOrder != "")
+                {
+                    throw new Exception("Previous process is not completed for production order(s): " + IncompleteProductionOrder);
                 }
 
                 for (int i = 0; i < ProductionRelayData.Count; i++)
@@ -119,69 +113,42 @@ namespace Aplos.Areas.Productions.Controllers
                         dr.EndEdit();
 
                     }
-                    if (productionStatus != "")
+                    if (bplib.clsWebLib.GetBoolData(ProductionRelayData[i]["IsLastProcess"]) == true)
                     {
-                        dsProductionOrder.Tables[0].DefaultView.RowFilter = "Id='" + ProductionRelayData[i]["Id"] + "'";
-                        if (dsProductionOrder.Tables[0].DefaultView.Count > 0)
+                        if (productionStatus != "")
                         {
-                            //edit
-                            DataRow dr = dsProductionOrder.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
-                            dr["ProductionStatusId"] = productionStatus;
-                            dr["UpdatedBy"] = identity.Name;
-                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            dsProductionOrder.Tables[0].DefaultView.RowFilter = "Id='" + ProductionRelayData[i]["Id"] + "'";
+                            if (dsProductionOrder.Tables[0].DefaultView.Count > 0)
+                            {
+                                //edit
+                                DataRow dr = dsProductionOrder.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+                                dr["ProductionStatusId"] = productionStatus;
+                                dr["UpdatedBy"] = identity.Name;
+                                dr["UpdatedDate"] = System.DateTime.Now.ToString();
 
-                            dr.EndEdit();
+                                dr.EndEdit();
+
+                            }
                         }
                     }
+
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsProductionOrder, dsProductionRelay);
+
+
                 return Json(new { Error = false, Data = ProductionRelayData,/* Sequence = GetSequence(),*/ Message = AplosMessage.Insert });
+
             }
             catch (Exception ex)
             {
+
                 return Json(new { Error = true, Message = ex.Message });
+
             }
         }
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            DataRow dr = dt.NewRow();
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-            dt.Rows.Add(dr);
-        }
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-            dr.EndEdit();
-        }
+
         [Authorize, HttpGet]
         public ActionResult GetProductionRelay(string EntityId, string ProcessId)
         {
@@ -194,7 +161,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 ,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
   ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
      so.ProductCategory,so.Product,
-		ActualQTY=	case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end,							
+		ActualQTY=	case when ISNULL(st.Qty,0)>isnull(PO.Qty,0) then st.Qty else po.Qty end,							
                                 Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article,CurrentProcessPR.ProductionQtyAtPR
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
 								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
@@ -302,14 +269,16 @@ PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
                                                     left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
                                                     left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                                     left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId													
+													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+													
                                                     group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,pc.UserName) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                             WHERE isnull(s.username,'') IN ('RUNNING') 
-                            AND ((ISNULL(ppr.Id,'')<>'' AND ISNULL(ppr.StartDate,'')<>'') OR ISNULL(ppr.Id,'')='')
+                            AND ((ISNULL(ppr.Id,'')<>'' AND ISNULL(ppr.StartDate,'')<>'') OR ISNULL(ppr.Id,'')=''  OR ISNULL(ppr.IsCompleted,0)=1)
                             AND  PO.entityid='" + EntityId + @"' and  PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=0";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+
         [Authorize, HttpGet]
         public ActionResult GetProductionRelayClosed(string EntityId, string ProcessId)
         {
@@ -322,7 +291,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 ,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
   ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
      so.ProductCategory,so.Product,
-		ActualQTY=	case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end,							
+		ActualQTY=	case when ISNULL(st.Qty,0)>isnull(PO.Qty,0) then st.Qty else po.Qty end,							
                                 Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article,CurrentProcessPR.ProductionQtyAtPR
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
 								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
