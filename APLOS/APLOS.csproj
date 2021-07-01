@@ -1729,6 +1729,7 @@
     <Content Include="Areas\HumanResource\Scripts\OTPlanningController.js" />
     <Content Include="Areas\HumanResource\Scripts\DailyDayStatusReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerBudgetDesignationReportController.js" />
+    <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCCompanyController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\yearlySalaryProcessedReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCController.js" />
@@ -3513,6 +3514,7 @@
     <Content Include="Areas\Accounts\Views\InventoryPayable\InventoryJobWorkReceived.cshtml" />
     <Content Include="Areas\HumanResource\Views\ManualShift\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\JobWorkReceiveBilling\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryProcessedReportExtraOTCTCCompany.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

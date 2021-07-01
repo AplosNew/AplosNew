@@ -580,8 +580,6 @@ namespace Aplos.Areas.Productions.Controllers
                 TROW.Cells[colTotalQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TotalQtyNetWeight"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colGrossWeight].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossWeight"].ToString()).ToString("#,##0.00"));
 
-
-
                 //totalValue += clsStdLib.dbl(sales.Rows[i]["TrnAmount"].ToString());
             }
 
