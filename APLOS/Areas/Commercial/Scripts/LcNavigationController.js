@@ -34,8 +34,8 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
+              
                 if (response.data.Error == false) {
-
                     for (var i = 0; i < response.data.DATA.length; i++) {
                         response.data.DATA[i].OpeningDate = new Date(response.data.DATA[i].OpeningDate);
                     }
@@ -44,20 +44,14 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
                 else {
                     ShowResult(response.data.Message, 'failure');
                 }
-
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
-
         }
         else {
             $scope.PurchaseLCList = [];
             $http({
-                //method: 'POST',
-                //data: { 'parameters': null },
-                //url: $scope.getListUrl + "?column=" + $scope.LCsearchBy + "&value=" + $scope.LCsearch
-
                 method: 'POST',
                 url: $scope.path + "GetList",
                 data: { 'column': $scope.LCsearchBy, 'value': $scope.LCsearch },
@@ -69,10 +63,6 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
         }
     }
-
- 
-
-
     $scope.PurchaseLCPOList = [];
     $scope.SelectedLCRow = {};
     $scope.LoadPOList = function (LCData) {
