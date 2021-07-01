@@ -4155,5 +4155,76 @@ UNION
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+
+		public IEnumerable<object> GetInventoryJobWorkGIRI(string companyId, string plantId, string inveReveiveId)
+		{
+			try
+			{
+					var sql = @"DECLARE @receiveId varchar(10)= '"+ inveReveiveId + @"'
+
+						SELECT  'JobWork' AS OtherName, 'Dr' AS TrnType
+							,GLGeneralInfoId =SVGL.ExpenseGLId
+							,GLGeneralInfoCode =GLF.AccountCode
+							,GLGeneralInfoName =GLF.UserName
+							,BudgetMasterId =SVGL.ExpenseBudgetMasterId
+							,BudgetCode =BF.Code
+							,BudgetName =BF.UserName
+							,ActivityId =SVGL.ExpenseActivityId
+							,ActivityCode =AF.Code 
+							,ActivityName = AF.UserName 
+							, SUM(IRD.TotalMaterialBooksCurrencyAmount) AS Dr, NULL Cr
+							, SUM(IRD.TotalMaterialBooksCurrencyAmount) AS Amount
+						FROM [TRN].[InventoryReceiveDetail] AS IRD
+						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+						LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.JWTCMId
+						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTM.ServiceId
+						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId
+						LEFT JOIN HKP.ServiceGroupGL SVGL ON SVGL.ServiceGroupId=SVG.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON SVGL.ExpenseGLId=GLF.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON SVGL.ExpenseBudgetMasterId= BMF.Id
+						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
+						LEFT JOIN [HKP].[Activity] AS AF ON SVGL.ExpenseActivityId= AF.Id
+						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial'
+						GROUP BY SVGL.ExpenseGLId,SVGL.ExpenseBudgetMasterId,SVGL.ExpenseActivityId,GLF.AccountCode,GLF.UserName
+						,BF.Code,BF.UserName
+						,AF.Code,AF.UserName,IRD.Id
+
+						UNION
+
+						SELECT  'GRIR' AS OtherName, 'Cr' AS TrnType
+							,GLGeneralInfoId =SVGL.ExpenseGLId
+							,GLGeneralInfoCode =GLF.AccountCode
+							,GLGeneralInfoName =GLF.UserName
+							,BudgetMasterId =SVGL.ExpenseBudgetMasterId
+							,BudgetCode =BF.Code
+							,BudgetName =BF.UserName
+							,ActivityId =SVGL.ExpenseActivityId
+							,ActivityCode =AF.Code 
+							,ActivityName = AF.UserName 
+							, NULL Dr, SUM(IRD.TotalMaterialBooksCurrencyAmount) AS Cr
+							, SUM(IRD.TotalMaterialBooksCurrencyAmount) AS Amount
+						FROM [TRN].[InventoryReceiveDetail] AS IRD
+						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+						LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.JWTCMId
+						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTM.ServiceId
+						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId
+						LEFT JOIN HKP.ServiceGroupGL SVGL ON SVGL.ServiceGroupId=SVG.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON SVGL.ClearingAccountGLId=GLF.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON SVGL.ClearingAccountBudgetMasterId= BMF.Id
+						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
+						LEFT JOIN [HKP].[Activity] AS AF ON SVGL.ClearingAccountActivityId= AF.Id
+						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial'
+						GROUP BY SVGL.ExpenseGLId,SVGL.ExpenseBudgetMasterId,SVGL.ExpenseActivityId,GLF.AccountCode,GLF.UserName
+						,BF.Code,BF.UserName
+						,AF.Code,AF.UserName,IRD.Id";
+					return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
 	}
 }
