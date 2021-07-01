@@ -1,4 +1,5 @@
 ﻿using Aplos.Controllers;
+using Aplos.HumanResource;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -57,6 +58,7 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         #endregion Constructor
+        EmployeeProfile employeeProfile = new EmployeeProfile();
 
         #region Pages
 
@@ -165,259 +167,6 @@ namespace Aplos.Areas.Employees.Controllers
         #endregion BudgetMasterActivityPhone
 
         #endregion EmployeeResponsiblePerson
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetTemplateCbo(string type)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-        //    IEnumerable<ComboModel> gcomboModels;
-        //    gcomboModels = _employeeProfileService.GetTemplateCbo(identity.PlantId,type);
-
-        //    if (((List<ComboModel>)gcomboModels).Count == 0)
-        //    {
-        //        gcomboModels = _employeeProfileService.GetDefaultCbo(identity.CompanyGroupId, identity.PlantId);
-        //    }
-
-        //    return Json(gcomboModels, JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetCbo()
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            
-        //    IEnumerable<ComboModel> gcomboModels;
-        //    gcomboModels = _employeeProfileService.GetCbo(identity.PlantId);
-
-        //    if (((List<ComboModel>)gcomboModels).Count == 0)
-        //    {
-        //        gcomboModels = _employeeProfileService.GetDefaultCbo(identity.CompanyGroupId,identity.PlantId);
-        //    }
-
-        //    return Json(gcomboModels, JsonRequestBehavior.AllowGet);
-        //}
-
-
-        //[HttpGet, Authorize]
-        //public ActionResult EmployeeAppointmentLetterLocal_backupExcel(string empId,  string tempId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    var fileName = "Appointment Letter-" + empId + "" + DateTime.Now.ToString("ddMMMyyyy") + "";
-        //    var workbook = _employeeProfileService.EmployeeAppointmentLetterLocal(identity.CompanyGroupId,identity.CompanyId, identity.PlantId, empId, "Permanent",  tempId);//, strPathHindi, strPathEnglish, strPathBangla);
-
-        //    return RenderReportAsExcel(workbook, fileName);
-        //}
-
-        //[HttpGet, Authorize]
-        //public ActionResult EmployeeAppointmentLetterLocal(string empId, string reportType, string tempId)
-        //{
-        //    try
-        //    {
-        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        _employeeProfileService.EmployeeAppointmentLetterInMSWord(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, empId, "Permanent", reportType, tempId);//, strPathHindi, strPathEnglish, strPathBangla);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        throw ex;
-        //    }
-        //    return View();
-        //}
-
-        //[HttpGet, Authorize]
-        //public ActionResult EmployeeServiceBookInWord(string empId, string reportType, string tempId)
-        //{
-        //    try
-        //    {
-        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        _employeeProfileService.EmployeeServiceBookInMSWord(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, empId, "Permanent", reportType, tempId);//, strPathHindi, strPathEnglish, strPathBangla);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        //throw ex;
-        //    }
-        //    return View();
-        //}
-
-        //[HttpGet, Authorize]
-        //public ActionResult EmployeeNomineeInMSWord(string empId, string reportType, string tempId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    _employeeProfileService.EmployeeNomineeInMSWord(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, empId, "Permanent", reportType, tempId);//, strPathHindi, strPathEnglish, strPathBangla);
-
-        //    return View();
-        //}
-        //public ActionResult EmployeeJoiningLetterInMSWord(string empId, string reportType, string tempId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    _employeeProfileService.EmployeeJoiningLetterInMSWord(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, empId, "Permanent",  reportType, tempId);//, strPathHindi, strPathEnglish, strPathBangla);
-
-        //    return View();
-        //}
-
-        //public ActionResult LeaveRegister(string CalanderYearId, string FromDate,string ToDate, string empId, string reportType, string tempId)
-        //{
-        //    try
-        //    {
-        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        _employeeProfileService.generateReport(CalanderYearId, FromDate, ToDate, identity.PlantId, empId, reportType, tempId);//, strPathHindi, strPathEnglish, strPathBangla);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-        //    }
-        //    return null;
-        //}
-
-        //public ActionResult EmployeeAcknowledgementInMSWord(string empId, string reportType, string tempId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    _employeeProfileService.EmployeeAcknowledgementInMSWord(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, empId, "Permanent", reportType, tempId);//, strPathHindi, strPathEnglish, strPathBangla);
-
-        //    //LetterType.
-
-
-        //    return View();
-        //}
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetWithoutUserEmployeeList(GridParameter parameters)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(_employeeInformationService.GetWithoutUserEmployeeList(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetPlantEmployeeList(GridParameter parameters, string plantId, string employeeIds)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    if (string.IsNullOrEmpty(plantId)) plantId = identity.PlantId;
-        //    return Json(_employeeInformationService.Query(parameters, identity.CompanyGroupId, plantId, new JavaScriptSerializer().Deserialize<string[]>(employeeIds)), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetEmployeeListByCompanyGroup(GridParameter parameters)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(_employeeInformationService.EmployeeListByCompanyGroup(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetEmployeeListByCompany(GridParameter parameters, string companyId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    if (string.IsNullOrEmpty(companyId) || companyId == "null")
-        //        companyId = identity.CompanyId;
-        //    return Json(_employeeInformationService.EmployeeListByCompany(parameters, companyId), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetEmployeeListByPlant(GridParameter parameters)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(_employeeInformationService.EmployeeListByPlant(parameters, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet, Authorize]
-        //public JsonResult EmployeeSearchByEntity(GridParameter parameters, string entityId)
-        //{
-        //    return Json(_employeeInformationService.EmployeeListByEntity(parameters, entityId), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet, Authorize]
-        //public JsonResult EmployeeByEmployeeId(string employeeId)
-        //{
-        //    return Json(_employeeInformationService.EmployeeByEmployeeId(employeeId), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetEmployeeList(GridParameter parameters)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(_preRecruitmentEmployeeService.Query(parameters, identity.CompanyGroupId, identity.PlantId), JsonRequestBehavior.AllowGet);
-        //}
-
-        /// <summary>
-        /// For Document Dashboard
-        /// </summary>
-        /// <param name="parameters"></param>
-        /// <param name="plantId"></param>
-        /// <returns></returns>
-        //[HttpGet, Authorize]
-        //public JsonResult GetEmployeeListDocDashboard(GridParameter parameters, string plantId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(_preRecruitmentEmployeeService.Query(parameters, identity.CompanyGroupId, plantId), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetEmployeeListWithPlant(GridParameter parameters, string plantId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(_preRecruitmentEmployeeService.GetEmployeeWithPlant(parameters, plantId), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet]
-        //public ActionResult GetJobData(string empid)
-        //{
-        //    return Json(_employeeProfileService.GetJobData(empid), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet, Authorize]
-        //public ActionResult GetEmpProfileData()
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(_employeeProfileService.GetData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.EmployeeId), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet]
-        //public ActionResult GetReferenceData(string empid)
-        //{
-        //    return Json(_empReferenceInformationService.GetData(empid), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet]
-        //public ActionResult GetQualificationData(string empid)
-        //{
-        //    return Json(_empAcademicQualificationInformationService.GetData(empid), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet]
-        //public ActionResult GetExperienceData(string empid)
-        //{
-        //    return Json(_empExperienceInformationService.GetData(empid), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet]
-        //public ActionResult GetTrainingData(string empid)
-        //{
-        //    return Json(_empTrainingInformationService.GetData(empid), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet]
-        //public ActionResult GetEmpDocumentDataList(string companyGroupId, string pId, string plantId)
-        //{
-        //    return Json(_employeeProfileService.GetEmpDocumentDataList(companyGroupId, pId, plantId), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet]
-        //public ActionResult GetDocumentList(string plantId, string empType, string budgetCode, string givenDesignationId)
-        //{
-        //    return Json(_employeeDocumentService.GetDocumentList(plantId, empType, budgetCode, givenDesignationId), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpPost]
-        //public JsonResult CreateNewDOcument(IEnumerable<EmployeeDocument> employeeDocument, string empId)
-        //{
-        //    _employeeDocumentService.CreateNewDOcument(employeeDocument, empId);
-        //    return Json(new { Message = AplosMessage.Success });
-        //}
 
         #region EmployeeInformation
 
@@ -826,33 +575,6 @@ namespace Aplos.Areas.Employees.Controllers
 
         #endregion EmployeeInformation
 
-        //[HttpPost]
-        //public JsonResult Delete(string id)
-        //{
-        //    _employeeInformationService.Delete(id);
-        //    return Json(new { Message = AplosMessage.Deleted });
-        //}
-
-        //[HttpGet]
-        //public JsonResult CboList()
-        //{
-        //    return Json(_preRecruitmentEmployeeService.CboList(), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetEmployeeIndex(string employeeName)
-        //{
-        //    var path = ResourcesPathReader.GetVirtualFolderName() + "/EmployeeProfiles/EmpPic/";
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(new { results = _employeeInformationService.GetEmployeeIndex(identity.CompanyGroupId, employeeName, path) }, JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetEmployeeById(string employeeId, string employeementType)
-        //{
-        //    return Json(_employeeProfileService.GetEmployeeById(employeeId, employeementType), JsonRequestBehavior.AllowGet);
-        //}
-
         #region Report
 
         //[HttpGet, Authorize]
@@ -894,9 +616,6 @@ namespace Aplos.Areas.Employees.Controllers
         //}
 
         #endregion Report
-
-
-
 
         #region Mediasoft Fair Shop Data Export
         //public ActionResult MediasoftFairShopEmpDataExport()
@@ -1006,8 +725,6 @@ namespace Aplos.Areas.Employees.Controllers
 
         #endregion
 
-
-
         #region Lock and Un-Lock
         //[HttpPost, Authorize]
         //public JsonResult CreateLockData( string lockDate)
@@ -1018,16 +735,14 @@ namespace Aplos.Areas.Employees.Controllers
         //}
         #endregion
 
-
         #region Employee Approval
-
 
         [HttpGet]
         public JsonResult GetUnApprovedEmployeeList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            //return Json(_employeePromotionService.GetSalaryStrcUnApprovedEmployee(identity.CompanyGroupId, identity.PlantId), JsonRequestBehavior.AllowGet);
-            JsonResult json = Json(_employeeProfileService.GetUnApprovedEmployeeList(identity.CompanyGroupId, identity.PlantId), JsonRequestBehavior.AllowGet);
+            //JsonResult json = Json(_employeeProfileService.GetUnApprovedEmployeeList(identity.CompanyGroupId, identity.PlantId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(employeeProfile.GetUnApprovedEmployeeList(identity.CompanyGroupId, identity.PlantId,identity.IsSysAdmin,identity.UserId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
@@ -1036,27 +751,12 @@ namespace Aplos.Areas.Employees.Controllers
         [HttpPost]
         public ActionResult SaveApprovedEmployee( IEnumerable<ParaEmployeeInformation> employeeInformation)
         {
-
-           
-
             DataSet dsEmployeeOTInformation = Library.Service.Helpers.DataTableExtensions.ToDataSet<ParaEmployeeInformation>(employeeInformation);
             //DataSet dsEmployeeOTInformation = null;
             _employeeProfileService.SaveApprovedEmployeeData(dsEmployeeOTInformation);
             return Json(new { Message = AplosMessage.Insert }, JsonRequestBehavior.AllowGet);
         }
 
-
-
-
-
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetUnApprovalEmployeeList()
-        //{
-
-        //   // _employeeProfileService.CreateLockData(lockDate);
-        //    return Json(new { Message = AplosMessage.Success });
-        //}
         #endregion
     }
     public class ParaEmployeeInformation
