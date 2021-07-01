@@ -155,8 +155,8 @@ namespace Library.HumanResource.Payroll.Arrear
 
                 string sql = @"SELECT [CheckBoxSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'false'),EMP.SystemID AS EmpSystemID,
                                     FORMAT(emp.DOJ,'dd-MMM-yyyy') AS DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') AS DOS,EMP.EmployeeStatus,DIV.UserName AS Division,
-                                    EMP.EmployeeName,EMP.EmployeeCode,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric
-                                    ,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation, PR.UserName PositionName,
+                                    EMP.EmployeeName,EMP.EmployeeCode,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric,concat( sl.YearNo,'/', sl.MonthNo) LastLocked
+                                    ,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation, PR.UserName PositionName,format(SEFD.EffectiveDate,'dd-MMM-yyyy') AS LastSalaryEffectiveDate,
                                     DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection,PL.UserName Plant,SEFD.SalaryRuleMasterSystemID ,srm.SalaryRuleName
                                     FROM (
 		                            	
@@ -188,7 +188,7 @@ namespace Library.HumanResource.Payroll.Arrear
 										LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
 										LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
 			                            LEFT JOIN org.Division AS DIV ON DIV.Id=emp.DivisionId
-			                             
+			                            LEFT JOIN SalaryLock AS sl  ON sl.EmpSystemId=emp.SystemId AND sl.Id=(SELECT TOP 1 Id FROM salaryLock xl where  xl.IsLocked=1 and xl.EmpSystemId=emp.SystemId ORDER BY xl.YearNo DESC,xl.MonthNo DESC)
 			                              WHERE EMP.DOJ <= '" + ToDate + @"'
 			                              AND (EMP.DOS >= '" + FromDate + @"' OR ISNULL(EMP.DOS,'') = '' OR EMP.DOS = '01/01/1901')
                                            AND SEFD.EffectiveDate <= '" + ToDate + @"' AND emp.PlantId='" + PlantId + @"'
