@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Library.Service.Payrolls.SalaryProcess
 {
-   public class clsSalaryProcessQuery
+    public class clsSalaryProcessQuery
     {
-        public void DeleteExceptionEmpsForSalaryProcess(string empids,string plantid, string YearNo, string MonthNo)
+        public void DeleteExceptionEmpsForSalaryProcess(string empids, string plantid, string YearNo, string MonthNo)
         {
             //throw new Exception("test");//
             bool IsTransactionStarted = false;
@@ -22,7 +22,7 @@ namespace Library.Service.Payrolls.SalaryProcess
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
                 IsTransactionStarted = true;
-                objCon.ExecuteNonQueryWrapper(_ss, true, "1");                
+                objCon.ExecuteNonQueryWrapper(_ss, true, "1");
                 objCon.CommitTransaction();
                 IsTransactionStarted = false;
             }
@@ -40,7 +40,7 @@ namespace Library.Service.Payrolls.SalaryProcess
                 objCon = null;
             }
         }//End Function
-        public void GetEmpList(string[] emppks,string fromdate,string todate,string plantid, out DataSet dsRef)
+        public void GetEmpList(string[] emppks, string fromdate, string todate, string plantid, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
             string strSql = string.Empty;
@@ -50,7 +50,7 @@ namespace Library.Service.Payrolls.SalaryProcess
 
                 foreach (var item in emppks)
                 {
-                    if(_emps.Length==0)
+                    if (_emps.Length == 0)
                     {
                         _emps = "'" + item + "'";
                     }
@@ -59,7 +59,7 @@ namespace Library.Service.Payrolls.SalaryProcess
                         _emps += ", '" + item + "'";
                     }
                 }
-                if(_emps.Length==0)
+                if (_emps.Length == 0)
                 {
                     _emps = "''";
                 }
@@ -113,7 +113,7 @@ namespace Library.Service.Payrolls.SalaryProcess
                                             GROUP BY EmpInfoSystemID
                                             ) Y ON Y.EmpInfoSystemID = E.SystemId
 
-                               WHERE E.systemid in ("+ _emps + ")";
+                               WHERE E.systemid in (" + _emps + ")";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
@@ -554,8 +554,8 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
 
             try
             {
-                clsCrossModule ob = new clsCrossModule();               
-                
+                clsCrossModule ob = new clsCrossModule();
+
                 strSQL = @"SELECT EmpSystemID, MIN(WorkDate) FromDate, MAX(WorkDate) ToDate,
                                 COUNT(WorkDate) TotalProcDate,
                                 SUM(ISNULL(CAST(TotalPresent As decimal(18, 2)), '0.00')) TotalPresent,
@@ -577,7 +577,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                                 FROM dbo.AttdnProcessData 
                                 left join daytype p on AttdnProcessData.DayStatus=p.DayType
                                 WHERE " + wc + @") A
-                                GROUP BY EmpSystemID"; 
+                                GROUP BY EmpSystemID";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -592,7 +592,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                 objCon = null;
             }
         }//End Function
-        public void xGetAttdnDataForMonthlyProc(string wc,  out DataSet dsRef)
+        public void xGetAttdnDataForMonthlyProc(string wc, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -643,7 +643,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
 			                             " + ob.GetAttSum() + @"
                                         OTHr
 	                             FROM dbo.AttdnProcessData 
-                                WHERE "+wc+@") A
+                                WHERE " + wc + @") A
                             GROUP BY EmpSystemID, PlantID";
 
 
@@ -709,7 +709,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                 {
                     _empid = dsEmp.Tables[0].Rows[i]["EmpSystemID"].ToString().Trim();
                     //_LVFD =Convert.ToDateTime(dsEmp.Tables[0].Rows[i]["MLVFrom"].ToString().Trim()).AddDays(-1).ToString("dd-MMM-yyyy");
-                    _LVFD =Convert.ToDateTime(dsEmp.Tables[0].Rows[i]["MLVFrom"].ToString().Trim()).ToString("dd-MMM-yyyy");
+                    _LVFD = Convert.ToDateTime(dsEmp.Tables[0].Rows[i]["MLVFrom"].ToString().Trim()).ToString("dd-MMM-yyyy");
                     _DOJ = dsEmp.Tables[0].Rows[i]["DOJ"].ToString().Trim();
                     var FD = GetGreaterDate(FromDate, _DOJ);
                     if (wc.Length == 0)
@@ -847,7 +847,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
 		                            left join org.SubSection ss on ss.id=e.SubSectionId         
 									left join org.Section s on s.id=e.SectionId
 									left join hkp.LegalDesignation dd on dd.id=e.LegalDesignationId									
-                                    where e.PlantId='" + sPlantID+@"' 							
+                                    where e.PlantId='" + sPlantID + @"' 							
 									and
 									e.dos between '" + sFromDate + @"' and '" + sToDate + @"'
                                     --Approved SP
@@ -885,7 +885,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeGroupSystemID UserGroupSystemID,
                                   E.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
                                     
-                                  '"+ fromdate + @"' ToDate,
+                                  '" + fromdate + @"' ToDate,
                                   ProcessStatus = 'OK',
                           e.GivenDesignationId
 
@@ -904,6 +904,54 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                                         LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
                                         LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
                             WHERE E.systemid in (" + _emps + ")";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function 
+        public void GetEmpListAllForArrear(string emppks, string fromdate, string todate, string plantid, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                string _emps = emppks;
+                strSql = @"SELECT 
+                                    IsSelectSlrProc = Convert(bit, 'True') ,
+                                  S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
+                                  E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,E.DOJ DOJs,
+                                  REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeGroupSystemID UserGroupSystemID,
+                                  E.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
+                                    
+                                  '" + fromdate + @"' ToDate,
+                                  ProcessStatus = 'OK',
+                          e.GivenDesignationId
+
+                           FROM EmployeeInformation E
+                                        LEFT OUTER JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
+                                        LEFT OUTER JOIN EmployeeBankInfo EBI ON E.SystemID = EBI.EmpSystemID AND EBI.IsApproved = 1
+                                        LEFT OUTER JOIN (
+										            SELECT SC.SlrProcMstSystemID, SC.IsApproved, SC.IsDisbursed, SC.EmpInfoSystemID, SM.MonthNo, SM.YearNo
+					                                 FROM SalaryProcChild SC
+															INNER JOIN (SELECT * FROM SalaryProcMaster WHERE MonthNo = Month('" + fromdate + @"') AND 
+															YearNo = Year('" + fromdate + @"')) SM ON SC.SlrProcMstSystemID = SM.SystemID
+														WHERE IsApproved = 0 AND IsDisbursed = 0
+					                                 GROUP BY SC.SlrProcMstSystemID, SC.IsApproved, SC.IsDisbursed, SC.EmpInfoSystemID, SM.MonthNo, SM.YearNo
+												   ) S ON E.SystemID = S.EmpInfoSystemID
+                                        LEFT OUTER JOIN org.Plant F ON E.PlantID = F.Id
+                                        LEFT OUTER JOIN hkp.Designation dgs ON dgs.Id = E.GivenDesignationId
+                                        LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
+                            WHERE E.systemid in (" + _emps + @") AND E.DOJ <= '" + todate + @"'
+
+                                          AND(E.DOS >= '" + fromdate + @"' OR ISNULL(E.DOS, '') = '' OR E.DOS = '01/01/1901')";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
@@ -1071,7 +1119,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
             {
                 strSQL = @"SELECT count(id)c,EmpSystemId,InfoType
                                   FROM [dbo].[AttendanceInfoExtra] 
-                                  where WorkDate between '"+ sFromDate + @"' and '" + sToDate + @"' and EmpSystemId in (" + empids + @") and InfoType in ('EARLYOUT','LATEIN')
+                                  where WorkDate between '" + sFromDate + @"' and '" + sToDate + @"' and EmpSystemId in (" + empids + @") and InfoType in ('EARLYOUT','LATEIN')
                                   group by EmpSystemId,InfoType
                                   --order by EmpSystemId
                                   union
@@ -1126,7 +1174,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                 objCon = null;
             }
         }//End Function
-        public void LoadSpecificLeave(string empids,string sPlantID, string sFromDate, string sToDate, out System.Data.DataSet dsRef)
+        public void LoadSpecificLeave(string empids, string sPlantID, string sFromDate, string sToDate, out System.Data.DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;

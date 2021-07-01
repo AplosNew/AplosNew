@@ -96,7 +96,6 @@ namespace Aplos.Areas.Productions.Controllers
 
                             throw new Exception("Previous process is not completed therefore cannot complete the current production order");
                         }
-
                     }
                 }
 
@@ -133,24 +132,16 @@ namespace Aplos.Areas.Productions.Controllers
                             dr["UpdatedDate"] = System.DateTime.Now.ToString();
 
                             dr.EndEdit();
-
                         }
-
                     }
-
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsProductionOrder, dsProductionRelay);
-
-
                 return Json(new { Error = false, Data = ProductionRelayData,/* Sequence = GetSequence(),*/ Message = AplosMessage.Insert });
-
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message });
-
             }
         }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
@@ -203,7 +194,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 ,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
   ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
      so.ProductCategory,so.Product,
-		ActualQTY=	case when ISNULL(st.Qty,0)>isnull(PO.Qty,0) then st.Qty else po.Qty end,							
+		ActualQTY=	case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end,							
                                 Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article,CurrentProcessPR.ProductionQtyAtPR
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
 								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
@@ -311,8 +302,7 @@ PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
                                                     left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
                                                     left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                                     left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
-													
+													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId													
                                                     group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,pc.UserName) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                             WHERE isnull(s.username,'') IN ('RUNNING') 
@@ -332,7 +322,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 ,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
   ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
      so.ProductCategory,so.Product,
-		ActualQTY=	case when ISNULL(st.Qty,0)>isnull(PO.Qty,0) then st.Qty else po.Qty end,							
+		ActualQTY=	case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end,							
                                 Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article,CurrentProcessPR.ProductionQtyAtPR
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
 								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
