@@ -852,7 +852,7 @@ order by  Assigned, ProductCode , PO
             try
             {
                 var str = @"Select pli.PackingLineItemId , mo.Id as MasterOrderNo, moi.Id as ItemId, ma.UserName as Material, mma.StandardName as Article ,so.id as SoId ,
-                            pol.LotNo  , pol.ProductCode , pol.PONo , sc.StockQty , sc.NoOfPackages,
+                            pol.LotNo  , pol.ProductCode , pol.PONo , sc.StockQty , pp.Cartons as NoOfPackages,
                             pol.PlanQty , (Case when po.Id != pol.PONo then po.Id else '' end) as SoPoNo
                             from trn.PackingLineItem pli
                             left join trn.SalesOrder so on so.Id = pli.SOId
@@ -863,13 +863,21 @@ order by  Assigned, ProductCode , PO
                             left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
                             left join 
                             (
-                            Select Floor(sum(sc.netWeight)) as StockQty , Count(sc.RefNo) as NoOfPackages, sc.ProductCode ,sc.POId , sc.LotNo from
+                            Select Floor(sum(sc.netWeight)) as StockQty ,  sc.ProductCode ,sc.POId , sc.LotNo from
                             dbo.ItemScanChild sc where IsDespatch = 0
                             group by  sc.ProductCode ,sc.POId , sc.LotNo
                             ) as sc on sc.LotNo = pol.LotNo and sc.ProductCode = pol.ProductCode and sc.POId = pol.PONo
                             left join mst.MaterialMaster ma on ma.Id = moi.MaterialMasterId
                             left join mst.MaterialMasterArticle mma ON mma.Id=moi.ArticleId
-                            where pol.Status = 'Active' and pli.PackingId = '" + PackingId + @"'
+							left join (
+							Select pli.PackingLineItemId,pol.LotNo,pol.PONo,pol.ProductCode,count(sc.RefNo) as Cartons from ItemScanChild sc
+							left join trn.POLotReference pol on pol.Id = sc.PackingId
+							left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
+							 where pli.PackingId = '" + PackingId + @"'
+							group by pli.PackingLineItemId,pol.LotNo,pol.PONo,pol.ProductCode
+							) as pp on pp.PackingLineItemId = pli.PackingLineItemId and pp.LotNo = pol.LotNo and pp.ProductCode = pol.ProductCode and pp.PONo = pol.PONo
+                            where pol.Status = 'Active' and pli.PackingId = '" + PackingId+@"'
+
                             ";
                 return _sqlRepository.GetDataTable(str);
             }
