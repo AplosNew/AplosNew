@@ -1680,7 +1680,7 @@ namespace Aplos.HumanResource
 								  E.UserName EntityName,
 								  DSG.UserName Designation, 
 								  se.UserName Section, Sus.UserName SubSection,
-								  LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup
+								  LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup,EC.UserName EmployeeCategory
                               FROM dbo.Employeeinformation EI
                              
 							  LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
@@ -1696,6 +1696,10 @@ namespace Aplos.HumanResource
 							  LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
                               LEFT JOIN  [MST].[PayrollGroupMaster] PGM ON PGM.EmployeeId=EI.SystemId
                               LEFT JOIN  [HKP].[PayrollGroup] PG ON PG.Id=PGM.PayrollGroupId
+                              LEFT JOIN (
+                                            SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
+				                            LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
+				                    )EC ON EC.DesignationId=EI.GivenDesignationId
                               WHERE EI.EmployeeStatus !='Separated' AND EI.IsApproved =0 AND  
                                     EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + @"'";
                 }
@@ -1706,7 +1710,7 @@ namespace Aplos.HumanResource
                                     Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOBs,
                                     Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJs
                                     ,DP.UserName Department,PR.UserName PositionName,E.UserName EntityName,DSG.UserName Designation, 
-                                    se.UserName Section, Sus.UserName SubSection,LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup
+                                    se.UserName Section, Sus.UserName SubSection,LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup,EC.UserName EmployeeCategory
                                     FROM dbo.Employeeinformation EI                             
                                     LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
                                     LEFT JOIN MST.AddressMaster AM ON PL.AddressMasterId=AM.Id						
@@ -1721,6 +1725,10 @@ namespace Aplos.HumanResource
                                     LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
                                     LEFT JOIN  [MST].[PayrollGroupMaster] PGM ON PGM.EmployeeId=EI.SystemId
                                     LEFT JOIN  [HKP].[PayrollGroup] PG ON PG.Id=PGM.PayrollGroupId
+                                    LEFT JOIN (
+                                            SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
+				                            LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
+				                    )EC ON EC.DesignationId=EI.GivenDesignationId
                                     WHERE EI.EmployeeStatus !='Separated' AND EI.IsApproved =0 AND  
                                     EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + @"' 
                                     AND (
@@ -1754,7 +1762,7 @@ namespace Aplos.HumanResource
 								  E.UserName EntityName,
 								  DSG.UserName Designation, 
 								  se.UserName Section, Sus.UserName SubSection,
-								  LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup
+								  LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup,EC.UserName EmployeeCategory
                               FROM dbo.Employeeinformation EI
                              
 							  LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
@@ -1770,6 +1778,10 @@ namespace Aplos.HumanResource
 							  LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
                               LEFT JOIN  [MST].[PayrollGroupMaster] PGM ON PGM.EmployeeId=EI.SystemId
                               LEFT JOIN  [HKP].[PayrollGroup] PG ON PG.Id=PGM.PayrollGroupId
+                              LEFT JOIN (
+                                            SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
+				                            LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
+				                    )EC ON EC.DesignationId=EI.GivenDesignationId
                               WHERE EI.EmployeeStatus !='Separated' AND EI.IsApproved =1 AND 
                                     EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + @"'";
                 }
@@ -1780,7 +1792,7 @@ namespace Aplos.HumanResource
                                     Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOBs,
                                     Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJs
                                     ,DP.UserName Department,PR.UserName PositionName,E.UserName EntityName,DSG.UserName Designation, 
-                                    se.UserName Section, Sus.UserName SubSection,LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup
+                                    se.UserName Section, Sus.UserName SubSection,LGD.userName LegalDesignation,PMB.Code,PR.UserName PositionName,E.UserName EntityName,ISNULL(PG.UserName,'') PayrollGroup,EC.UserName EmployeeCategory
                                     FROM dbo.Employeeinformation EI                             
                                     LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
                                     LEFT JOIN MST.AddressMaster AM ON PL.AddressMasterId=AM.Id						
@@ -1795,6 +1807,10 @@ namespace Aplos.HumanResource
                                     LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
                                     LEFT JOIN  [MST].[PayrollGroupMaster] PGM ON PGM.EmployeeId=EI.SystemId
                                     LEFT JOIN  [HKP].[PayrollGroup] PG ON PG.Id=PGM.PayrollGroupId
+                                    LEFT JOIN (
+                                            SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
+				                            LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
+				                    )EC ON EC.DesignationId=EI.GivenDesignationId
                                     WHERE EI.EmployeeStatus !='Separated' AND EI.IsApproved =1 AND  
                                     EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + @"' 
                                     AND (
