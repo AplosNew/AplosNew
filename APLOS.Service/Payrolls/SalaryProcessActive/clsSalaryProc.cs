@@ -2985,7 +2985,7 @@ namespace OTSBD
 			                                        ) AS SDM 
                                                     WHERE ISNULL(sdm.IsApproved,'')=1 AND EffectiveDate <= '" + sDate + @"' AND rnk=1 
 													    ) SEFD ON E.SystemID = SEFD.EmpInfoSystemID
-											INNER join SalaryRuleRetentionPmtMaster rb on rb.SalaryRuleMasterSystemID=SEFD.SalaryRuleMasterSystemID
+											INNER join SalaryRuleRetentionPmtMaster rb on rb.SalaryRuleMasterSystemID=SEFD.SalaryRuleMasterSystemID   AND rb.SalaryHeadID=sefd.SalaryHeadID
 
 										   
 								    ) AB
@@ -3314,7 +3314,7 @@ namespace OTSBD
 													    (
 													    SELECT *, 'ESIC Employer Contribution' SlrCate FROM SalaryRuleESIC WHERE SalaryHeadID IN (SELECT SalaryHeadID FROM SalaryHead WHERE HeadCategory = 'ESIC Employer Contribution')
 													    ) 
-													    ) ESICSlrHd ON SEFD.SalaryRuleMasterSystemID = ESICSlrHd.SalaryRuleMasterSystemID 
+													    ) ESICSlrHd ON SEFD.SalaryRuleMasterSystemID = ESICSlrHd.SalaryRuleMasterSystemID AND ESICSlrHd.SalaryHeadID=SEFD.SalaryHeadID
 										   
 								    ) AB
 						    ) FC 
