@@ -11,18 +11,17 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
     $scope.downloadgriddataPDFUrl = 'GridReports/DownloadPdf';
     $scope.getListUrl = $scope.path + 'getlist';
 
-    //$scope.getPurcheseLcReport = function () {
-    //    try {
-    //        var file_src = $scope.path + 'GetPurchaseLCReport';
-    //        $rootScope.report(file_src);
+    $scope.getPurcheseLcReport = function () {
+        try {
+            var file_src = $scope.path + 'GetPurchaseLCReport';
+            $rootScope.report(file_src);
 
-    //    } catch (e) {
-    //    }
-    //}
+        } catch (e) {
+        }
+    }
 
 
     $scope.getPurcheseLcReport = function () {
-
         try {
             $http({
                 method: 'POST',
@@ -36,11 +35,9 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
                 else {
                     ShowResult(response.data.Message, 'failure');
                 }
-
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             };
-
         } catch (e) {
         }
     }
@@ -53,7 +50,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
     $scope.ApplyFilter = function () {
         $scope.HideGrid = true;
 
-       /* $scope.QueryString = [];*/
+        $scope.QueryString = [];
 
         var gridObj = $("#GridPurchaseLC").data("ejGrid");
         var filteredRecords = gridObj.getFilteredRecords();
@@ -65,7 +62,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
 
             }
         }
-        //$scope.ClearFilter();
+        $scope.ClearFilter();
     }
     $scope.ClearFilter = function () {
         $scope.HideGrid = true;
@@ -129,6 +126,8 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             }).then(function successCallback(response) {
                 $scope.PurchaseLCList = response.data;
             });
+
+
 
         }
     }
@@ -241,8 +240,8 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
     $scope.LCsearchBy = "LCNo";
     $scope.LCsearch = "";
     $scope.LCFilterList = [
-       /* { 'name': 'Purchase LC Id', 'value': 'LCId' },*/
-        { 'name': 'Purchase LC No.', 'value': 'LCNo' },
+        /*{ 'name': 'Purchase LC Id', 'value': 'LCId' },*/
+        { 'name': 'LC No.', 'value': 'LCNo' },
         { 'name': 'Opening Bank', 'value': 'OpeningBank' },
         { 'name': 'Opening Date', 'value': 'OpeningDate' },
         { 'name': 'Vendor', 'value': 'Vendor' },
@@ -254,9 +253,9 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         { 'name': 'Benificiary Bank', 'value': 'BenificiaryBank' },
         { 'name': 'PO Value', 'value': 'POValue' },
         { 'name': 'Acceptance Value', 'value': 'AcceptanceValue' },
-       /* { 'name': 'GRN Count', 'value': 'GRNCount' },*/
+        /*{ 'name': 'GRN Count', 'value': 'GRNCount' },*/
         { 'name': 'GRN Value', 'value': 'GRNValue' },
-        /*{ 'name': 'Payment Made', 'value': 'PaymentMade' },*/
+       /* { 'name': 'Payment Made', 'value': 'PaymentMade' },*/
         { 'name': 'Contract No', 'value': 'ContractNo' },
         { 'name': 'Customer', 'value': 'Customer' },
     ];
