@@ -4226,5 +4226,76 @@ UNION
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+
+		public IEnumerable<object> GetInventoryJobWorkWIP(string companyId, string plantId, string inveReveiveId)
+		{
+			try
+			{
+				var sql = @"DECLARE @receiveId varchar(10)= '" + inveReveiveId + @"' , @companyId varchar(10)='" + companyId + @"'
+
+						SELECT  'JobWork' AS OtherName, 'Dr' AS TrnType
+							,GLGeneralInfoId =SVGL.ExpenseGLId
+							,GLGeneralInfoCode =GLF.AccountCode
+							,GLGeneralInfoName =GLF.UserName
+							,BudgetMasterId =SVGL.ExpenseBudgetMasterId
+							,BudgetCode =BF.Code
+							,BudgetName =BF.UserName
+							,ActivityId =SVGL.ExpenseActivityId
+							,ActivityCode =AF.Code 
+							,ActivityName = AF.UserName 
+							, SUM(IRD.TotalMaterialBooksCurrencyAmount) AS Dr, NULL Cr
+							, SUM(IRD.TotalMaterialBooksCurrencyAmount) AS Amount
+						FROM [TRN].[InventoryReceiveDetail] AS IRD
+						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON MGGL.InventoryGLId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.InventoryBudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGGL.InventoryActivityId= A.Id
+						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial'
+						GROUP BY SVGL.ExpenseGLId,SVGL.ExpenseBudgetMasterId,SVGL.ExpenseActivityId,GLF.AccountCode,GLF.UserName
+						,BF.Code,BF.UserName
+						,AF.Code,AF.UserName,IRD.Id
+
+						UNION
+
+						SELECT  'GRIR' AS OtherName, 'Cr' AS TrnType
+							,GLGeneralInfoId =SVGL.ExpenseGLId
+							,GLGeneralInfoCode =GLF.AccountCode
+							,GLGeneralInfoName =GLF.UserName
+							,BudgetMasterId =SVGL.ExpenseBudgetMasterId
+							,BudgetCode =BF.Code
+							,BudgetName =BF.UserName
+							,ActivityId =SVGL.ExpenseActivityId
+							,ActivityCode =AF.Code 
+							,ActivityName = AF.UserName 
+							, NULL Dr, SUM(IRD.TotalMaterialBooksCurrencyAmount) AS Cr
+							, SUM(IRD.TotalMaterialBooksCurrencyAmount) AS Amount
+						FROM [TRN].[InventoryReceiveDetail] AS IRD
+						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON MGGL.InventoryGLId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.InventoryBudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGGL.InventoryActivityId= A.Id
+						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial'
+						GROUP BY SVGL.ExpenseGLId,SVGL.ExpenseBudgetMasterId,SVGL.ExpenseActivityId,GLF.AccountCode,GLF.UserName
+						,BF.Code,BF.UserName
+						,AF.Code,AF.UserName,IRD.Id";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
 	}
 }
