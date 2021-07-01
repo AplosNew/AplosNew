@@ -61,7 +61,7 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult getmateriallocation()
         {
             string sql = "";
-            sql = @"select Id as Value, LocationName as Text from HKP.JobWorkLocation order by LocationName";
+            sql = @"select Id as Value, UserName as Text from HKP.MaterialStorage order by UserName";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -705,12 +705,14 @@ namespace Aplos.Areas.JobWork.Controllers
 
             string sql = @"select vcc.*, jwi.UserName as JobWorkItem,jwa.UserName as JobWorkActivity , uom.UserName as OutputUnit,mma.Code as ArticleCode,mma.StandardName as ArticleName
                                            ,c.Code as Currency,emp.EmployeeCode, emp.EmployeeName as ResponsiblePerson, emp.EmployeeStatus
+										   ,MS.UserName as MaterialLocation
                                            from dbo.JobWorkValueAddedContractChild vcc left join HKP.JobWorkItem jwi on jwi.Id=vcc.JobWorkItemMasterId
 										   left join SCS.UnitOfMeasurement uom on uom.Id=vcc.OutputMaterialUOMId
 										   left join MST.MaterialMasterArticle mma on mma.Id=vcc.ArticleCodeId
 										   left join scs.Currency c on c.Id=vcc.CurrencyId
 										   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
 										   left join hkp.JobWorkActivity jwa on jwa.Id=vcc.JobActivityId
+										   left join HKP.MaterialStorage MS on MS.Id=vcc.MaterialLocationId
 										   where vcc.JobWorkValueAddedContractMasterId='" + MasterId + "' ";
 
 
@@ -1329,6 +1331,7 @@ namespace Aplos.Areas.JobWork.Controllers
             string sql = @"select tcc.*, jwi.UserName as JWOutputItem,jwa.UserName as JobWorkActivity, uom.UserName as OutputUnit, mma.Code as ArticleCode ,mma.StandardName as ArticleName
                                           ,mm.Id as MaterialMasterId,mm.Code as MaterialCode, mm.UserName as MaterialName
                                            ,c.Code as Currency, emp.EmployeeName as ResponsiblePerson, emp.EmployeeCode, emp.EmployeeStatus
+										   ,MS.UserName as MaterialLocation
                                            from dbo.JobWorkTransformationContractChild tcc left join HKP.JobWorkItem jwi on jwi.Id=tcc.JobWorkItemMasterId
 										   left join SCS.UnitOfMeasurement uom on uom.Id=tcc.OutputMaterialUOMId
 										   left join MST.MaterialMasterArticle mma on mma.Id=tcc.ArticleCodeId
@@ -1336,6 +1339,7 @@ namespace Aplos.Areas.JobWork.Controllers
 										   left join scs.Currency c on c.Id=tcc.CurrencyId
 										   left join dbo.EmployeeInformation emp on emp.SystemId=tcc.ResponsiblePersonId
 										   left join hkp.JobWorkActivity jwa on jwa.Id=tcc.JobActivityId
+										   left join HKP.MaterialStorage MS on MS.Id=tcc.MaterialLocationId
 										   where tcc.JobWorkTransformationContractMasterId='" + MasterId + "' ";
 
 

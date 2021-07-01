@@ -2667,13 +2667,13 @@ namespace OTSBD
                 strSql = @" select 
 									e.SystemId EmpSystemID,e.PlantId 
 									,e.EmployeeCode,sh.SalaryHead
-									,mm.SalaryRuleMasterSystemID,d.SalaryHeadID,sh.SalaryHead,sh.HeadType,sh.HeadCategory,sh.HeadCategory SlrCate
+									,mm.SalaryRuleMasterSystemID,mm.SalaryHeadID,sh.SalaryHead,sh.HeadType,sh.HeadCategory,sh.HeadCategory SlrCate
 									,ECR.Id AS EntryCurrencyID, ECR.Name AS EntryCurrency, SRM.CurrencyRuleSystemID,
                                     DECR.Id AS DefinitionCurrencyID, DECR.Name AS DefinitionCurrency, ISNULL(CRC.AccumulateExchangeRate, 0) AccumulateExchangeRate, 
                                     AcltExcDisbSlrHDID = CASE WHEN CRC.AccumulateExchangeRate = 1 THEN CRC.AccumulateExchangeSalaryHeadID
 						                                        ELSE SH.SalaryHeadID END,
 			                        CRC.AmtDisbusmentCurrency AS DisbusmentCurrencyID, DICR.Name AS DisbusmentCurrency, CRC.RoundOption, ISNULL(CRC.IntegerInDisb, 0) IntegerInDisb, 
-                                    ISNULL(CRC.IsDecimalInDisb, 0) IsDecimalInDisb, ISNULL(CRC.DecimalNo, 0) DecimalNo,d.DefineAmount ContributionAmount
+                                    ISNULL(CRC.IsDecimalInDisb, 0) IsDecimalInDisb, ISNULL(CRC.DecimalNo, 0) DecimalNo,mm.DefineAmount ContributionAmount
 									from (select * from EmployeeInformation where SystemId in (" + sEmpInfo + @")) e
 										    INNER JOIN (
 													        	   SELECT * FROM (  SELECT  *,
@@ -2697,18 +2697,14 @@ namespace OTSBD
 										   
 
 
-								inner join (
-								select SalaryHeadID,SalaryID,DefineAmount from SalaryInfoDefine 
-								union
-								select SalaryHeadID,SalaryID,DefineAmount from SalaryInfoBack
-								)d on d.SalaryID=mm.SystemID
-								LEFT JOIN SalaryHead SH ON d.SalaryHeadID = SH.SalaryHeadID 
+								
+								LEFT JOIN SalaryHead SH ON mm.SalaryHeadID = SH.SalaryHeadID 
 							    LEFT JOIN SalaryRuleMaster SRM ON mm.SalaryRuleMasterSystemID = SRM.SystemID
-							    LEFT JOIN CurrencyRuleChild CRC ON SRM.CurrencyRuleSystemID = CRC.MstSystemID AND d.SalaryHeadID = CRC.SalaryHeadID
+							    LEFT JOIN CurrencyRuleChild CRC ON SRM.CurrencyRuleSystemID = CRC.MstSystemID AND mm.SalaryHeadID = CRC.SalaryHeadID
 							    LEFT JOIN scs.Currency ECR ON CRC.AmtEntryCurrency = ECR.Id
 							    LEFT JOIN scs.Currency DECR ON CRC.AmtDefinitionCurrency = DECR.Id
 							    LEFT JOIN scs.Currency DICR ON CRC.AmtDisbusmentCurrency = DICR.Id	
-								left join SalaryRulePF f on f.SalaryRuleMasterSystemID=mm.SalaryRuleMasterSystemID and f.SalaryHeadID=d.SalaryHeadID
+								left join SalaryRulePF f on f.SalaryRuleMasterSystemID=mm.SalaryRuleMasterSystemID and f.SalaryHeadID=mm.SalaryHeadID
                                 
                                 WHERE ISNULL(SH.HeadCategory, '') != 'Tax' AND ISNULL(SH.HeadCategory, '') 
 								in ('PF Employer Contribution','PF Employee Contribution','PF Voluntary','Pension')
@@ -2989,7 +2985,7 @@ namespace OTSBD
 			                                        ) AS SDM 
                                                     WHERE ISNULL(sdm.IsApproved,'')=1 AND EffectiveDate <= '" + sDate + @"' AND rnk=1 
 													    ) SEFD ON E.SystemID = SEFD.EmpInfoSystemID
-											INNER join SalaryRuleRetentionPmtMaster rb on rb.SalaryRuleMasterSystemID=SEFD.SalaryRuleMasterSystemID
+											INNER join SalaryRuleRetentionPmtMaster rb on rb.SalaryRuleMasterSystemID=SEFD.SalaryRuleMasterSystemID   AND rb.SalaryHeadID=sefd.SalaryHeadID
 
 										   
 								    ) AB
@@ -3318,7 +3314,7 @@ namespace OTSBD
 													    (
 													    SELECT *, 'ESIC Employer Contribution' SlrCate FROM SalaryRuleESIC WHERE SalaryHeadID IN (SELECT SalaryHeadID FROM SalaryHead WHERE HeadCategory = 'ESIC Employer Contribution')
 													    ) 
-													    ) ESICSlrHd ON SEFD.SalaryRuleMasterSystemID = ESICSlrHd.SalaryRuleMasterSystemID 
+													    ) ESICSlrHd ON SEFD.SalaryRuleMasterSystemID = ESICSlrHd.SalaryRuleMasterSystemID AND ESICSlrHd.SalaryHeadID=SEFD.SalaryHeadID
 										   
 								    ) AB
 						    ) FC 
