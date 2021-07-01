@@ -19,6 +19,10 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         } catch (e) {
         }
     }
+
+
+
+
     $scope.LCGrid = {
         FromDate: $filter('dateFiltering')(Date.now()),
         ToDate: $filter('dateFiltering')(Date.now()),
