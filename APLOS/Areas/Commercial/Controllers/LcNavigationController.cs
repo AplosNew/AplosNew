@@ -69,12 +69,13 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetPurchaseLCReport(string fromDate,string toDate)
+        public ActionResult GetPurchaseLCReport(Dictionary<string, object> Filter, List<Dictionary<string, object>> FilterFields)
         {
             try
             {
                 Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
-                navigation.PurchaseLCReport(fromDate,toDate);
+                navigation.PurchaseLCReport(Filter,FilterFields);
+
                 return null;
             }
             catch (Exception ex)
