@@ -527,7 +527,6 @@ namespace Aplos.Areas.Productions.Controllers
             int colGrossWeight = COL;
             wTable.Rows[ROW].Cells[colGrossWeight].Width = 45;
 
-
             #endregion column headers
             double totalValue = 0;
             int sl = 0;
