@@ -6494,7 +6494,7 @@ namespace Library.HumanResource.Payroll
                             sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.OTHours.ToString(), "Total OTHr");//"OTHr";
                             if (dtEmpInfo.Rows[i]["TotalOTHr"].ToString() == "0.00")
                             {
-                                sheet1.Range[xlsRow + _x, xlsCol + 1].Number = 0.00;
+                                sheet1.Range[xlsRow + _x, xlsCol + 1].Text = "";
                                 //sheet1[xlsRow + _x, xlsCol + 1].NumberFormat = clsStaticInfo.NumberFormat(2);
                             }
                             else
