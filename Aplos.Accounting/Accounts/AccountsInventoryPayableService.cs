@@ -4288,6 +4288,7 @@ UNION
 						GROUP BY SVGL.ExpenseGLId,SVGL.ExpenseBudgetMasterId,SVGL.ExpenseActivityId,GLF.AccountCode,GLF.UserName
 						,BF.Code,BF.UserName
 						,AF.Code,AF.UserName,IRD.Id";
+
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
