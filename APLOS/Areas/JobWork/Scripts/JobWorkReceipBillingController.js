@@ -56,12 +56,13 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
 	};
 	$scope.ReceiptVA = Object.assign({}, $scope.ReceiptVAModelTemp);
 
-	$scope.getData = function () {
-		if ($scope.ModelNew.Type == null) {
-			var IssueType = "ValueAdded";
-			$scope.ModelNew.Type = IssueType;
-		}
-		$scope.setStatus = '';
+	$scope.ShowContractPopUp = function () {
+		//if ($scope.ModelNew.Type == null) {
+		//	var IssueType = "ValueAdded";
+		//	$scope.ModelNew.Type = IssueType;
+		//}
+		//$scope.setStatus = '';
+		$scope.ModelNew.Type = "ValueAdded";
 		$http({
 			method: 'POST',
 			url: $scope.path + "GetList",
@@ -69,28 +70,34 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
 			dataType: 'JSON'
 		}).then(function successCallback(response) {
 			$scope.ModelList = response.data;
-			$scope.ShowHomeList = true;
-			$scope.ShowReport = false;
-			$scope.Clear();
-			ClearFieldsReceiptVAChild();
-			$scope.baseCurrencyIdLoad();
-			$scope.ReceiptTransformation.PartyType = 'Vendor';
-			$scope.ReceiptVAChildList = [];
-			$scope.IssueTypeList = [];
-			$scope.ReceiptVAChildByIdList = [];
-			$scope.VAGradeWiseList = [];
-			$scope.showbutton = true;
-			ClearFieldsReceiptTransformation();
-			$scope.TransformationTypeList = [];
-			$scope.ReceiptTransChildList = [];
-			$scope.ReceiptTransChildByIdList = [];
-			$scope.TransGradeWiseList = [];
-			$scope.showbtn = true;
-			$scope.ByProductList = [];
+			//$scope.ShowHomeList = true;
+			//$scope.ShowReport = false;
+			//$scope.Clear();
+			//ClearFieldsReceiptVAChild();
+			//$scope.baseCurrencyIdLoad();
+			//$scope.ReceiptTransformation.PartyType = 'Vendor';
+			//$scope.ReceiptVAChildList = [];
+			//$scope.IssueTypeList = [];
+			//$scope.ReceiptVAChildByIdList = [];
+			//$scope.VAGradeWiseList = [];
+			//$scope.showbutton = true;
+			//ClearFieldsReceiptTransformation();
+			//$scope.TransformationTypeList = [];
+			//$scope.ReceiptTransChildList = [];
+			//$scope.ReceiptTransChildByIdList = [];
+			//$scope.TransGradeWiseList = [];
+			//$scope.showbtn = true;
+			//$scope.ByProductList = [];
+			angular.element(document.querySelector("#ContractPopUp")).modal("show");
 
 		});
 	}
-	$scope.getData();
+    $scope.CloseContractPopUp = function () {
+		angular.element(document.querySelector("#ContractPopUp")).modal("hide");
+
+    }
+
+//	$scope.getData();
 
 	$scope.ShowHomeList = true;
 	$scope.ShowReport = false;
