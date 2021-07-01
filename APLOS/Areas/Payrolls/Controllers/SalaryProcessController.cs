@@ -418,8 +418,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                           para.USER = identity.Name;
                           para.dsGrid = dsGrid;
                           //get ds
-                          ProcessMain(para, _currencyId, alldataset);//pass ds
                           #endregion
+
+                          /////////////////////////MAIN SALARY PROCESS////////////////////////
+                          ProcessMain(para, _currencyId, alldataset);//pass ds
 
                           #region MLVR
                           string _mlvr_emps = string.Empty;
