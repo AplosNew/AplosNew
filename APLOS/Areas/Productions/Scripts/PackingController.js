@@ -557,7 +557,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             kk = 0;
         }
         else {
-            kk = ($scope.toDisp / $scope.totalPlanned) * 100;
+            kk = ($scope.totalPlanned / $scope.toDisp ) * 100;
         }
          
         $scope.Percent = kk.toFixed(2);
@@ -658,7 +658,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
 
         for (var i = 0; i < $scope.PoLotRefGrid.length; i++) {
             if ($scope.PoLotRefGrid[i]["LotNo"] == $scope.cartonDetail[0]["LotNo"] && $scope.PoLotRefGrid[i]["ProductCode"] == $scope.cartonDetail[0]["ProductCode"] && $scope.PoLotRefGrid[i]["PO"] == $scope.cartonDetail[0]["POId"]) {
-                $scope.PoLotRefGrid[i]["bookQty"] = Math.floor(jj);
+                $scope.PoLotRefGrid[i]["bookQty"] = jj;
             }
         }
 
