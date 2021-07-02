@@ -300,6 +300,22 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
         $scope.valueData = '';
         angular.element(document.querySelector('#GRNpopUp')).modal('hide');
     };
+    $scope.inventoryJobWorkWIPList = [];
+    $scope.inventoryJobWorkGIRIList = [];
+    function getInventoryJobWorkWIP(inveReveiveId) {
+        $http.get('Accounts/InventoryPayable/GetInventoryJobWorkWIP?inveReveiveId=' + inveReveiveId)
+            .then(function (response) {
+                $scope.inventoryJobWorkWIPList = [];
+                $scope.inventoryJobWorkWIPList = response.data;
+            });
+    }
+    function getInventoryJobWorkGIRI(inveReveiveId) {
+        $http.get('Accounts/InventoryPayable/GetInventoryJobWorkGIRI?inveReveiveId=' + inveReveiveId)
+            .then(function (response) {
+                $scope.inventoryJobWorkGIRIList = [];
+                $scope.inventoryJobWorkGIRIList = response.data;
+            });
+    }
     function getVendorPayableGLBudgetActivity(inveReveiveId) {
         $http.get('Products/InventoryReceive/GetVendorPayableGLBudgetActivity?inveReveiveId=' + inveReveiveId)
             .then(function (response) {
@@ -322,8 +338,11 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
                     reArrangeNonCreditableList($scope.inventoryMaterialList, $scope.newList, $scope.inventoryReceiveDetailList);
                 if (!baseService.isUndefinedOrNull(employeeId))
                     $scope.glPushInList();
-                if (baseService.isUndefinedOrNull(employeeId))
+                if (baseService.isUndefinedOrNull(employeeId)) {
                     getVendorPayableGLBudgetActivity(inveReveiveId);
+                    getInventoryJobWorkGIRI(inveReveiveId);
+                    getInventoryJobWorkWIP(inveReveiveId);
+                }
             });
     }
     $scope.inventoryTaxList = [];

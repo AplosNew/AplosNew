@@ -69,12 +69,13 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetPurchaseLCReport(string fromDate,string toDate)
+        public ActionResult GetPurchaseLCReport(Dictionary<string, object> Filter, List<Dictionary<string, object>> FilterFields)
         {
             try
             {
                 Library.OrderManagement.LcNavigation.LcNavigation navigation = new Library.OrderManagement.LcNavigation.LcNavigation();
-                navigation.PurchaseLCReport(fromDate,toDate);
+                navigation.PurchaseLCReport(Filter,FilterFields);
+
                 return null;
             }
             catch (Exception ex)
@@ -147,10 +148,9 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
 
             }
-
         }
 
-        [HttpGet, Authorize]
+          [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
             string strkey = "1=1";
@@ -218,7 +218,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						 ) as PM on PM.PurchaseLCId=PL.Id
                          where pl.plantId='" + identity.PlantId +@"') AS TEMP WHERE " + strkey;
 
-
+      
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

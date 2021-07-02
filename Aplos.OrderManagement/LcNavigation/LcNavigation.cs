@@ -6,8 +6,8 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Threading;
-
 namespace Library.OrderManagement.LcNavigation
 {
     public class LcNavigation
@@ -36,6 +36,72 @@ namespace Library.OrderManagement.LcNavigation
                 throw ex;
             }
         }
+
+
+        private string PurchaseLCReportSql(Dictionary<string, object> Filter, List<Dictionary<string, object>> FilterFields)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @"select
+                        PL.LCRef as LCNo,
+                        B.UserName as OpeningBank,
+                        FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate,
+                        P.UserName as  Vendor,
+                        PL.Amount as Value,
+                        Cur.Name as Currency,
+                        PL.LCANo,PL.Type as LCType,
+                        PL.Tenure,
+                        PL.BenificiaryBank,                       
+                        po.POAmount as POValue
+                        ,ac.AcceptanceValue,
+                        grn.GRNCount
+                        ,grn.GRNTotalAmount as GRNValue,
+                        case when PM.PaymentMade = 0 then null else PM.PaymentMade end as PaymentMade,
+                        con.ContractNo,
+                        cus.Customer,
+                        PL.Id as LCId
+						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
+						,Loan.Amount Loan
+                        from PurchaseLC as PL
+                        left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
+                        left outer join HKP.Bank as B on OBank.BankId=b.Id
+                        left outer join [Contract] as Con on PL.ContractId= Con.Id
+                        left outer join scs.Currency as Cur on PL.CurrencyId = Cur.Id
+                        left outer join MST.Destination as D on PL.CurrencyId=D.Id
+                        left outer join HKP.Party as P on PL.VendorId = p.Id
+						left outer join MasterLC ML on ML.Id=con.MasterLCId
+                        left join (
+						          select po.PurchaseLCId,sum(pod.TransactionAmount) AS POAmount,count(distinct po.Id) AS POCount from TRN.PurchaseOrder PO 
+                                  inner JOin trn.PurchaseOrderDetail POD ON POD.InventoryReceiveId=po.Id
+                                      group by  po.PurchaseLCId) AS PO on PO.PurchaseLCId=pl.Id
+                        left join(
+									select  po.PurchaseLCId as LCId,sum(g.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from TRN.purchaseorder as po 
+									inner join TRN.InventoryReceiveDetail as g on g.POId=po.Id
+									group by po.PurchaseLCId
+                        ) as grn on grn.LCId = PL.Id 
+                        left join (
+									select sum(AD.TotalMaterialTranAmount) as AcceptanceValue,A.PurchaseLCId,A.Id  from TRN.PurchaseDocAcceptanceDetail as AD
+									 inner join trn.PurchaseDocAcceptance as A on A.Id=AD.PurchaseDocAcceptanceId
+									group by A.PurchaseLCId,A.Id
+                        ) as ac on ac.PurchaseLCId = PL.Id
+
+						left join(select PDA.PurchaseLCId,sum(LAA.Amount) Amount from TRN.LoanAgainstAcceptance LAA 
+											left outer join TRN.PurchaseDocAcceptance PDA on PDA.Id=LAA.PurchaseDocAcceptanceId
+											group by PDA.PurchaseLCId												
+						) Loan on Loan.PurchaseLCId=PL.Id
+
+                        left outer join (
+										 select con.Id as Id, customer.UserName as Customer from Contract as con 
+										inner join HKP.Party as customer on con.CustomerId=customer.Id)
+										as cus on cus.Id=PL.ContractId
+                         left join (
+										 select Ac.PurchaseLCId,sum(i.WrittenOffAmount) AS PaymentMade from TRN.PurchaseDocAcceptance AC
+										inner join  trn.invoice I on i.PurchaseDocAcceptanceId=ac.Id
+										 group by Ac.PurchaseLCId
+						 ) as PM on PM.PurchaseLCId=PL.Id
+                         where pl.plantId='" + identity.PlantId + @"' and PL.Id in ("+FilterFields+@")'";
+
+        }
+
 
         private string PurchaseLCSearchByDateSql(string fromDate, string toDate)
         {
@@ -172,13 +238,11 @@ namespace Library.OrderManagement.LcNavigation
 
         }
 
-        public void PurchaseLCReport(string fromDate, string toDate)
+        public void PurchaseLCReport(Dictionary<string, object> Filter, List<Dictionary<string, object>> FilterFields)
         {
             try
             {
-
-
-                string sql = PurchaseLCSearchByDateSql(fromDate, toDate);
+                string sql = PurchaseLCReportSql(Filter , FilterFields);
                 ExcelEngine excelEngine = new ExcelEngine();
                 //Instantiate the Excel application object
                 IApplication application = excelEngine.Excel;
@@ -188,11 +252,15 @@ namespace Library.OrderManagement.LcNavigation
                 IWorkbook workbook = application.Workbooks.Create(1);
                 IWorksheet sheet = workbook.Worksheets[0];
 
+                workbook.Version = ExcelVersion.Excel2013;
+                var strFileName = DateTime.Now.ToString("yyMMdd") + " " + "PurchaseLc.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+              //  return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+
                 sheet.Name = "Purchase LC";
 
                 DataTable dtPurchaseLc = _sqlRepository.GetDataTable(sql);
-
-
 
                 int ROW = 6;
                 int COL = 1;
@@ -347,7 +415,7 @@ namespace Library.OrderManagement.LcNavigation
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
-                string strFileName = "Purchase LC.xlsx";
+                string FileName = "Purchase LC.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
             }
@@ -356,6 +424,11 @@ namespace Library.OrderManagement.LcNavigation
 
                 throw;
             }
+        }
+
+        private void Json(object p, object allowGet)
+        {
+            throw new NotImplementedException();
         }
 
         public List<Dictionary<string, object>> GetPurchaseLCPOList(string PurchaseLCId)
