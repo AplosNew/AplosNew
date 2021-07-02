@@ -101,12 +101,13 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
                 $scope.IssueTransformation.JWContractId = response.data[0].Id;
                 if ($scope.TransformationTypeList.length > 0) {
                     $scope.GetTransformationChildData();
-                    $scope.ShowHomeList = false;
-                    $scope.ShowReport = true;
+                    //$scope.ShowHomeList = false;
+                    //$scope.ShowReport = true;
                     //   $scope.GetIndividualReportData();
-                    $scope.getdataInventoryIssue();
+                    
                     $scope.SelectedTConEntity();
                     $scope.SelectedTConMaterialStorage();
+                    $scope.getdataInventoryIssue();
                 }
 
                 });
@@ -160,6 +161,20 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
             url: $scope.path + 'GetDataByInventoryIssue?Id=' + $scope.Transformation.Id,
         }).then(function successCallback(response) {
             $scope.GridInventoryIssuedata = response.data;
+            if ($scope.GridInventoryIssuedata.length == 0) {
+                $scope.ShowHomeList = true;
+                $scope.ShowReport = false;
+                $scope.setTab(2);
+                if (!$rootScope.isCollapsed) {
+                    $rootScope.toggle();
+                }
+            }
+            else {
+                $scope.ShowHomeList = false;
+                $scope.ShowReport = true;
+                $scope.setTab(2);
+            }
+
         });
 
     };

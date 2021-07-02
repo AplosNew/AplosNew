@@ -985,7 +985,7 @@ function JobWorkValueAddedContractController($window,cboService, commonMessage, 
 
     $scope.SaveTransformation = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.TransformationForm.$valid) {
+        if ($scope.MaterialOutputTransForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.path + 'SaveTransformation',
@@ -2155,13 +2155,7 @@ function JobWorkValueAddedContractController($window,cboService, commonMessage, 
                 }
                 else {
                     throw 'Standard Rate should be greater than zero';
-                }
-                if ($scope.ByProductMasterList[i].Tolerance > 0) {
-                    checkedData.push($scope.ByProductMasterList[i]);
-                }
-                else {
-                    throw 'Tolerance should be greater than zero';
-                }
+                }              
             }       
         }
         

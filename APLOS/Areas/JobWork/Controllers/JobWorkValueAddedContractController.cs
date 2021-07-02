@@ -291,20 +291,20 @@ namespace Aplos.Areas.JobWork.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select vac.Id,TabType='Value Added',vac.ContractStatus,vac.PlantId, vac.EntityId,vac.VendorPartyId,vac.Remarks,FORMAT(vac.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+            string sql = @"select vac.Id,TabType='Value Added',vac.ContractStatus,vac.PlantId, vac.EntityId,vac.VendorPartyId,vac.Remarks,vac.Date,FORMAT(vac.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                     FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                     PL.UserName as Plant, e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
                                     from dbo.JobWorkValueAddedContract vac left join ORG.Entity e on e.Id=vac.EntityId
 									left join HKP.Party p on p.Id=vac.VendorPartyId
 									left join ORG.Plant PL on PL.Id=vac.PlantId
                                     union
-                          select tc.Id,TabType='Transformation',tc.ContractStatus,tc.PlantId, tc.EntityId,tc.VendorPartyId,tc.Remarks,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+                          select tc.Id,TabType='Transformation',tc.ContractStatus,tc.PlantId, tc.EntityId,tc.VendorPartyId,tc.Remarks,tc.Date,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                     FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                     PL.UserName as Plant, e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
                                     from dbo.JobWorkTransformationContract tc left join ORG.Entity e on e.Id=tc.EntityId
 									left join HKP.Party p on p.Id=tc.VendorPartyId
 									left join ORG.Plant PL on PL.Id=tc.PlantId
-                                    WHERE " + strkey + " order by ValueAddedDate desc";
+                                    WHERE " + strkey + " order by Date desc";
 
 
 
@@ -1158,6 +1158,11 @@ namespace Aplos.Areas.JobWork.Controllers
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
                     throw new Exception("Same Activity, JW Output Item, Material and Article already exist.");
+                }
+
+                if (data.Tolerance == null)
+                {
+                    data.Tolerance =Convert.ToString(0);
                 }
 
                 string sql = "SELECT * FROM [dbo].[JobWorkTransformationContractChild] WHERE Id='" + data.Id + "'";
