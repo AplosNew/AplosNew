@@ -88,13 +88,18 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.SelectedMaterialPlanningTabList = [];
     $scope.JobWorkActivityList = [];
 
-    $http({
-        method: 'GET',
-        url: $scope.pathJWCBO + 'getactivitylistTransformation',
-    }).then(function successCallback(response) {
-        $scope.JobWorkActivityList = response.data;
+    $scope.GetJobWorkActivityList = function () {
+        $http({
+            method: 'GET',
+            url: $scope.pathJWCBO + 'getactivitylistTransformation',
+        }).then(function successCallback(response) {
+            $scope.JobWorkActivityList = response.data;
 
-    });
+        });
+    }
+    $scope.GetJobWorkActivityList();
+
+
 
     $scope.GetJWItems = function () {
         $http({
