@@ -1,4 +1,5 @@
 ﻿using Aplos.Controllers;
+using Aplos.HumanResource;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -58,6 +59,7 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         #endregion Constructor
+        EmployeeProfile employeeProfile = new EmployeeProfile();
 
         #region Pages
         [Authorize]
@@ -77,7 +79,8 @@ namespace Aplos.Areas.Employees.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             //return Json(_employeePromotionService.GetSalaryStrcUnApprovedEmployee(identity.CompanyGroupId, identity.PlantId), JsonRequestBehavior.AllowGet);
-            JsonResult json = Json(_employeeProfileService.GetApprovedEmployeeList(identity.CompanyGroupId, identity.PlantId), JsonRequestBehavior.AllowGet);
+            //JsonResult json = Json(_employeeProfileService.GetApprovedEmployeeList(identity.CompanyGroupId, identity.PlantId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(employeeProfile.GetApprovedEmployeeList(identity.CompanyGroupId, identity.PlantId, identity.IsSysAdmin, identity.UserId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }

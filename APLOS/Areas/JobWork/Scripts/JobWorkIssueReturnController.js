@@ -101,9 +101,12 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
                 $scope.IssueTransformation.JWContractId = response.data[0].Id;
                 if ($scope.TransformationTypeList.length > 0) {
                     $scope.GetTransformationChildData();
-                    $scope.ShowHomeList = false;
-                    $scope.ShowReport = true;
+                    //$scope.ShowHomeList = false;
+                    //$scope.ShowReport = true;
                     //   $scope.GetIndividualReportData();
+                    
+                    $scope.SelectedTConEntity();
+                    $scope.SelectedTConMaterialStorage();
                     $scope.getdataInventoryIssue();
                 }
 
@@ -158,6 +161,20 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
             url: $scope.path + 'GetDataByInventoryIssue?Id=' + $scope.Transformation.Id,
         }).then(function successCallback(response) {
             $scope.GridInventoryIssuedata = response.data;
+            if ($scope.GridInventoryIssuedata.length == 0) {
+                $scope.ShowHomeList = true;
+                $scope.ShowReport = false;
+                $scope.setTab(2);
+                if (!$rootScope.isCollapsed) {
+                    $rootScope.toggle();
+                }
+            }
+            else {
+                $scope.ShowHomeList = false;
+                $scope.ShowReport = true;
+                $scope.setTab(2);
+            }
+
         });
 
     };
@@ -385,20 +402,34 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
     $scope.JobWorkLocList = [];
     $scope.EntityList = [];
 
-    $http({
-        method: 'GET',
-        url: 'JobWork/JobWorkIssueReturn/gejobworklocation/',
-    }).then(function successCallback(response) {
-        $scope.JobWorkLocList = response.data;
-        });
 
-    
-    $http({
-        method: 'GET',
-        url: 'JobWork/JobWorkIssueReturn/getentitylist/',
-    }).then(function successCallback(response) {
-        $scope.EntityList = response.data;
-    });
+    $scope.SelectedTConMaterialStorage = function () {
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkIssueReturn/gejobworklocation?TId=' + $scope.Transformation.Id,
+        }).then(function successCallback(response) {
+            $scope.JobWorkLocList = response.data;
+            if ($scope.JobWorkLocList.length > 0) {
+                $scope.IssueTransformation.MaterialStorageId = $scope.JobWorkLocList[0].Value;
+            }
+        });
+    }
+
+    $scope.SelectedTConEntity = function () {
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkIssueReturn/getentitylist/',
+        }).then(function successCallback(response) {
+            $scope.EntityList = response.data;
+            if ($scope.TransformationTypeList.length > 0) {
+                for (var q = 0; q < $scope.EntityList.length; q++) {
+                    if ($scope.EntityList[q].Value == $scope.TransformationTypeList[0].EntityId) {
+                        $scope.IssueTransformation.EntityId = $scope.EntityList[q].Value;
+                    }
+                }
+            }
+        });
+    }
 
     $scope.IssueTransformationModelTemp = {
         Id: null,
@@ -412,7 +443,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
         ResponsiblePerson: null,
         IsConfirmed: false,
         EntityId: null,
-        IssueType: null,
+        IssueType: 'Revenue',
         JWContractId: null,
         ContractType:null
 

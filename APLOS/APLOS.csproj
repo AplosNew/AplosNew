@@ -1731,6 +1731,7 @@
     <Content Include="Areas\HumanResource\Scripts\OTPlanningController.js" />
     <Content Include="Areas\HumanResource\Scripts\DailyDayStatusReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerBudgetDesignationReportController.js" />
+    <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCCompanyController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\yearlySalaryProcessedReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCController.js" />

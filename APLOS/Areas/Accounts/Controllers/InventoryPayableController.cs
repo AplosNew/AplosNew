@@ -247,6 +247,22 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryJobWorkGIRI(string inveReveiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+                return Json(_accountsInventoryPayableService.GetInventoryJobWorkGIRI(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryJobWorkWIP(string inveReveiveId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(_accountsInventoryPayableService.GetInventoryJobWorkWIP(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
 
         #region Service Payable

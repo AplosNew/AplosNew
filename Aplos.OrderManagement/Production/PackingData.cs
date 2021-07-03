@@ -348,35 +348,35 @@ namespace Library.OrderManagement.Production
                             dbo.ItemScanChild sc
                             left join dbo.ProductLibrary pl on pl.code = sc.ProductCode
                             left join (
-                            Select isc.ProductCode , isc.POId , Floor(sum(isc.NetWeight)) as FD from
+                            Select isc.ProductCode , isc.POId , sum(isc.NetWeight) as FD from
                             dbo.ItemScanChild isc
                             left join dbo.ItemScan isch on isch.Id = isc.LocMasterId
                             --where isch.WorkDate ='ToDate' 
                             group by ProductCode , POId
                             ) fd on fd.ProductCode = sc.ProductCode and fd.POId = sc.POId
                             left join(
-                            Select isc.ProductCode , isc.POId , Floor(sum(isc.NetWeight)) as FP from
+                            Select isc.ProductCode , isc.POId , sum(isc.NetWeight) as FP from
                             dbo.ItemScanChild isc 
                             left join dbo.ItemScan isch on isch.Id = isc.LocMasterId
                             --where isch.WorkDate between 'ToDate' and 'FromDate'
                             group by ProductCode , POId
                             ) fp on fp.ProductCode = sc.ProductCode and fp.POId = sc.POId
                             left join(
-                            Select isc.ProductCode , isc.POId , Floor(sum(isc.NetWeight)) as UD from
+                            Select isc.ProductCode , isc.POId , sum(isc.NetWeight) as UD from
                             dbo.ItemScanChild isc 
                             left join dbo.ItemScan isch on isch.Id = isc.MasterId
                             --where isch.WorkDate <= 'FromDate' 
                             group by ProductCode , POId
                             ) ud on ud.ProductCode = sc.ProductCode and ud.POId = sc.POId
                             left join(
-                            Select isc.ProductCode , isc.POId , Floor(sum(isc.NetWeight)) as Despatch from
+                            Select isc.ProductCode , isc.POId , sum(isc.NetWeight) as Despatch from
                             dbo.ItemScanChild isc 
                             left join dbo.ItemScan isch on isch.Id = isc.MasterId
                             where isc.IsDespatch = 1
                             group by ProductCode , POId
                             ) desp on desp.ProductCode = sc.ProductCode and desp.POId = sc.POId
                             left join (
-                            Select isc.ProductCode , isc.POId, Floor(sum(isc.NetWeight)) as Ret from
+                            Select isc.ProductCode , isc.POId, sum(isc.NetWeight) as Ret from
                             dbo.ItemScanChild isc 
                             left join dbo.ItemScan isch on isch.Id = isc.MasterId
                             left join hkp.MaterialMovementPurpose mvp on mvp.Id = isch.PurposeId
@@ -440,7 +440,7 @@ namespace Library.OrderManagement.Production
                         dbo.ItemScanChild sc
                         left join trn.POLotReference pol  on pol.Id = sc.PackingId
                         left join(
-                        Select isc.ProductCode , isc.POId , Floor(sum(isc.NetWeight)) as StockQty from
+                        Select isc.ProductCode , isc.POId , sum(isc.NetWeight) as StockQty from
                         dbo.ItemScanChild isc 
                         left join dbo.ItemScan isch on isch.Id = isc.MasterId
                         left join trn.POLotReference pol on pol.Id = isc.PackingId
@@ -449,14 +449,14 @@ namespace Library.OrderManagement.Production
                         group by isc.ProductCode , POId
                         ) StockQty on StockQty.ProductCode = sc.ProductCode and StockQty.POId = sc.POId
                         left join(
-                        Select isc.ProductCode , isc.POId , isnull(Floor(sum(isc.NetWeight)),0) as Despatch from
+                        Select isc.ProductCode , isc.POId , isnull(sum(isc.NetWeight),0) as Despatch from
                         dbo.ItemScanChild isc 
                         left join dbo.ItemScan isch on isch.Id = isc.MasterId
                         where isc.IsDespatch = 1 and isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
                         group by ProductCode , POId
                         ) desp on desp.ProductCode = sc.ProductCode and desp.POId = sc.POId
                         left join (
-                        Select isc.ProductCode , isc.POId ,isc.LotNo, isnull(Floor(sum(isc.NetWeight)),0) as BookQty from
+                        Select isc.ProductCode , isc.POId ,isc.LotNo, isnull(sum(isc.NetWeight),0) as BookQty from
                         dbo.ItemScanChild isc 
                         left join dbo.ItemScan isch on isch.Id = isc.MasterId
                         where isc.Booked = 1 and isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
@@ -708,7 +708,7 @@ from
 dbo.ItemScanChild sc
 left join trn.POLotReference pol  on pol.Id = sc.PackingId
 left join(
-Select isc.ProductCode , isc.POId , isc.LotNo ,Floor(sum(isc.NetWeight)) as StockQty from
+Select isc.ProductCode , isc.POId , isc.LotNo ,sum(isc.NetWeight) as StockQty from
 dbo.ItemScanChild isc 
 left join dbo.ItemScan isch on isch.Id = isc.MasterId
 left join trn.POLotReference pol on pol.Id = isc.PackingId
@@ -717,14 +717,14 @@ and isc.IsDespatch = 0
 group by isc.ProductCode , POId , isc.LotNo
 ) StockQty on StockQty.ProductCode = sc.ProductCode and StockQty.POId = sc.POId and StockQty.LotNo = sc.LotNo
 left join(
-Select isc.ProductCode , isc.POId , isc.LotNo, isnull(Floor(sum(isc.NetWeight)),0) as Despatch from
+Select isc.ProductCode , isc.POId , isc.LotNo, isnull(sum(isc.NetWeight),0) as Despatch from
 dbo.ItemScanChild isc 
 left join dbo.ItemScan isch on isch.Id = isc.MasterId
 where isc.IsDespatch = 1 and isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
 group by ProductCode , POId , isc.LotNo
 ) desp on desp.ProductCode = sc.ProductCode and desp.POId = sc.POId and desp.LotNo = sc.LotNo
 left join (
-Select isc.ProductCode , isc.POId ,isc.LotNo, isnull(Floor(sum(isc.NetWeight)),0) as BookQty from
+Select isc.ProductCode , isc.POId ,isc.LotNo, isnull(sum(isc.NetWeight),0) as BookQty from
 dbo.ItemScanChild isc 
 left join dbo.ItemScan isch on isch.Id = isc.MasterId
 where isc.Booked = 1 and isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
@@ -736,19 +736,19 @@ where Status = 'Active'
 group by ProductCode , PONo , LotNo
 ) as plann on plann.ProductCode=sc.ProductCode and plann.PONo = sc.POId and plann.LotNo=sc.LotNo
 left join (
-Select isc.POId, isc.ProductCode , isc.LotNo ,Floor(sum(isc.netweight)) as ud from dbo.ItemScanChild isc
+Select isc.POId, isc.ProductCode , isc.LotNo ,(sum(isc.netweight)) as ud from dbo.ItemScanChild isc
 left join dbo.ItemScan isch on isch.Id = isc.MasterId
 where isch.WorkDate <= '" + ToDate + @"'  
 group by isc.POId, isc.ProductCode , isc.LotNo
 ) as ud on ud.ProductCode = sc.ProductCode and ud.POId = sc.POId and ud.LotNo = sc.LotNo
 left join (
-Select isc.POId, isc.ProductCode , isc.LotNo ,Floor(sum(isc.netweight)) as fd from dbo.ItemScanChild isc
+Select isc.POId, isc.ProductCode , isc.LotNo ,(sum(isc.netweight)) as fd from dbo.ItemScanChild isc
 left join dbo.ItemScan isch on isch.Id = isc.MasterId
 where isch.WorkDate = '" + FromDate + @"'  
 group by isc.POId, isc.ProductCode , isc.LotNo
 ) as fd on fd.ProductCode = sc.ProductCode and fd.POId = sc.POId and fd.LotNo = sc.LotNo
 left join (
-Select isc.POId, isc.ProductCode , isc.LotNo ,Floor(sum(isc.netweight)) as fp from dbo.ItemScanChild isc
+Select isc.POId, isc.ProductCode , isc.LotNo ,(sum(isc.netweight)) as fp from dbo.ItemScanChild isc
 left join dbo.ItemScan isch on isch.Id = isc.MasterId
 where isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
 group by isc.POId, isc.ProductCode , isc.LotNo
@@ -852,7 +852,7 @@ order by  Assigned, ProductCode , PO
             try
             {
                 var str = @"Select pli.PackingLineItemId , mo.Id as MasterOrderNo, moi.Id as ItemId, ma.UserName as Material, mma.StandardName as Article ,so.id as SoId ,
-                            pol.LotNo  , pol.ProductCode , pol.PONo , sc.StockQty , sc.NoOfPackages,
+                            pol.LotNo  , pol.ProductCode , pol.PONo , sc.StockQty , pp.Cartons as NoOfPackages,
                             pol.PlanQty , (Case when po.Id != pol.PONo then po.Id else '' end) as SoPoNo
                             from trn.PackingLineItem pli
                             left join trn.SalesOrder so on so.Id = pli.SOId
@@ -863,13 +863,21 @@ order by  Assigned, ProductCode , PO
                             left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
                             left join 
                             (
-                            Select Floor(sum(sc.netWeight)) as StockQty , Count(sc.RefNo) as NoOfPackages, sc.ProductCode ,sc.POId , sc.LotNo from
+                            Select sum(sc.netWeight) as StockQty ,  sc.ProductCode ,sc.POId , sc.LotNo from
                             dbo.ItemScanChild sc where IsDespatch = 0
                             group by  sc.ProductCode ,sc.POId , sc.LotNo
                             ) as sc on sc.LotNo = pol.LotNo and sc.ProductCode = pol.ProductCode and sc.POId = pol.PONo
                             left join mst.MaterialMaster ma on ma.Id = moi.MaterialMasterId
                             left join mst.MaterialMasterArticle mma ON mma.Id=moi.ArticleId
-                            where pol.Status = 'Active' and pli.PackingId = '" + PackingId + @"'
+							left join (
+							Select pli.PackingLineItemId,pol.LotNo,pol.PONo,pol.ProductCode,count(sc.RefNo) as Cartons from ItemScanChild sc
+							left join trn.POLotReference pol on pol.Id = sc.PackingId
+							left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
+							 where pli.PackingId = '" + PackingId + @"'
+							group by pli.PackingLineItemId,pol.LotNo,pol.PONo,pol.ProductCode
+							) as pp on pp.PackingLineItemId = pli.PackingLineItemId and pp.LotNo = pol.LotNo and pp.ProductCode = pol.ProductCode and pp.PONo = pol.PONo
+                            where pol.Status = 'Active' and pli.PackingId = '" + PackingId+@"'
+
                             ";
                 return _sqlRepository.GetDataTable(str);
             }

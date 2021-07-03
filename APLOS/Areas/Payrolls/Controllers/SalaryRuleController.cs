@@ -464,6 +464,22 @@ namespace Aplos.Areas.Payrolls.Controllers
                 throw ex;
             }
         }
+
+        public void GetSalaryHeadID(out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager Obj;
+
+            try
+            {
+                string sql = @"SELECT SalaryHeadID FROM SalaryHead WHERE HeadCategory= 'GROSS'";
+                Obj = new ConnectionManager.DAL.ConManager("1");
+                Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public void GetSalaryInfoDefine(string salaryRuleMasterSystemID, out DataSet dsRef)
         {
             string strSql;
@@ -1524,12 +1540,28 @@ namespace Aplos.Areas.Payrolls.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                DataSet dsSeq = null;
+                int seq = 0;
+                   DataSet dsSeq,dsSalaryHeadIdGross = null;
                 if (data != null)
                 {
                     GetAutoSequence(data.SalaryRuleMasterSystemID, out dsSeq);
-                    int seq = Convert.ToInt32(dsSeq.Tables[0].Rows[0]["SequenceNo"].ToString()); ;
+                    if (dsSeq.Tables[0].Rows.Count > 0)
+                    {
+                         seq = Convert.ToInt32(dsSeq.Tables[0].Rows[0]["SequenceNo"].ToString());  
+                    }
 
+                    if (data.IsDeductionOnGross)
+                    {
+                        GetSalaryHeadID(out dsSalaryHeadIdGross);
+                        if (dsSalaryHeadIdGross.Tables[0].Rows.Count>0)
+                        {
+                            data.FormulaDesID_NewJoin = dsSalaryHeadIdGross.Tables[0].Rows[0]["SalaryHeadID"].ToString();
+                        }
+                    }
+                    else
+                    {
+                        data.FormulaDesID_NewJoin = DBNull.Value.ToString();
+                    }
                     ConnectionManager.DAL.ConManager objCon;
                     DataSet dsMaster;
 
@@ -1557,15 +1589,13 @@ namespace Aplos.Areas.Payrolls.Controllers
                         dr["FormulaDesID"] = data.FormulaDesID;
                         dr["IsFixedMonthDay"] = data.IsFixedMonthDay;
                         dr["FixedMonthDayValue"] = data.FixedMonthDayValue;
-
-
                         dr["IsMonthDay"] = data.IsMonthDay;
                         dr["IsMonthWorkDay"] = data.IsMonthWorkDay;
                         dr["IsFixedDisbus"] = data.IsFixedDisbus;
                         dr["IsFixedDisbus"] = data.IsFixedDisbus;
                         dr["BaseOnNetPay"] = data.BaseOnNetPay;
                         dr["IsDeductionOnGross"] = data.IsDeductionOnGross;
-
+                        dr["FormulaDesID_NewJoin"] = data.FormulaDesID_NewJoin;
                         dr["IsDisbusted"] = data.IsDisbusted;
                         dr["SequenceNo"] = seq;
 
@@ -1598,7 +1628,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         dr["BaseOnNetPay"] = data.BaseOnNetPay;
                         dr["IsDisbusted"] = data.IsDisbusted;
                         dr["IsDeductionOnGross"] = data.IsDeductionOnGross;
-
+                        dr["FormulaDesID_NewJoin"] = data.FormulaDesID_NewJoin;
                         dr["UpdatedBy"] = identity.Name;
                         dr["DateUpdated"] = DateTime.Now;
 
@@ -1868,6 +1898,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         public bool IsDisbusted { get; set; }
         public bool BaseOnNetPay { get; set; }
         public bool IsDeductionOnGross { get; set; }
+        public string FormulaDesID_NewJoin { get; set; }
         public string AddedBy { get; set; }
         public DateTime DateAdded { get; set; }
         public string UpdatedBy { get; set; }

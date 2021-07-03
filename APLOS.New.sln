@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.31005.135
+VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aplos.Model", "APLOS.Domain\Aplos.Model.csproj", "{7F2FCB85-B5BD-457E-AE20-8793D0C72F20}"
 EndProject
@@ -101,51 +101,6 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DE9E9D38-8341-432E-B4F2-22EF29E7ADA2}
-	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 14
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://118.179.203.179:8080/tfs/defaultcollection
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = APLOS.Service\\Aplos.Service.csproj
-		SccProjectName1 = APLOS.Service
-		SccLocalPath1 = APLOS.Service
-		SccProjectUniqueName2 = Aplos.ViewModel\\Aplos.ViewModel.csproj
-		SccProjectName2 = Aplos.ViewModel
-		SccLocalPath2 = Aplos.ViewModel
-		SccProjectUniqueName3 = APLOS.Domain\\Aplos.Model.csproj
-		SccProjectName3 = APLOS.Domain
-		SccLocalPath3 = APLOS.Domain
-		SccProjectUniqueName4 = APLOS.EMP\\APLOS.EMP.csproj
-		SccProjectName4 = APLOS.EMP
-		SccLocalPath4 = APLOS.EMP
-		SccProjectUniqueName5 = APLOS\\APLOS.csproj
-		SccProjectName5 = APLOS
-		SccLocalPath5 = APLOS
-		SccProjectUniqueName6 = Aplos.Accounting\\Aplos.Accounting.csproj
-		SccProjectName6 = Aplos.Accounting
-		SccLocalPath6 = Aplos.Accounting
-		SccProjectUniqueName7 = Aplos.HumanResource\\Aplos.HumanResource.csproj
-		SccProjectName7 = Aplos.HumanResource
-		SccLocalPath7 = Aplos.HumanResource
-		SccProjectUniqueName8 = Aplos.Planning\\Aplos.Planning.csproj
-		SccProjectName8 = Aplos.Planning
-		SccLocalPath8 = Aplos.Planning
-		SccProjectUniqueName9 = Aplos.OrderManagement\\Aplos.OrderManagement.csproj
-		SccProjectName9 = Aplos.OrderManagement
-		SccLocalPath9 = Aplos.OrderManagement
-		SccProjectUniqueName10 = Aplos.MaterialManagement\\Aplos.MaterialManagement.csproj
-		SccProjectName10 = Aplos.MaterialManagement
-		SccLocalPath10 = Aplos.MaterialManagement
-		SccProjectUniqueName11 = Aplos.General\\Aplos.General.csproj
-		SccProjectName11 = Aplos.General
-		SccLocalPath11 = Aplos.General
-		SccProjectUniqueName12 = Aplos.Service.Extension\\Aplos.Service.Extension.csproj
-		SccProjectName12 = Aplos.Service.Extension
-		SccLocalPath12 = Aplos.Service.Extension
-		SccProjectUniqueName13 = Aplos.SchedulingServices\\Aplos.SchedulingServices.csproj
-		SccProjectName13 = Aplos.SchedulingServices
-		SccLocalPath13 = Aplos.SchedulingServices
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

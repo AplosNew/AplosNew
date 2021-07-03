@@ -61,7 +61,7 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult getmateriallocation()
         {
             string sql = "";
-            sql = @"select Id as Value, LocationName as Text from HKP.JobWorkLocation order by LocationName";
+            sql = @"select Id as Value, UserName as Text from HKP.MaterialStorage order by UserName";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -291,20 +291,20 @@ namespace Aplos.Areas.JobWork.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select vac.Id,TabType='Value Added',vac.ContractStatus,vac.PlantId, vac.EntityId,vac.VendorPartyId,vac.Remarks,FORMAT(vac.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+            string sql = @"select vac.Id,TabType='Value Added',vac.ContractStatus,vac.PlantId, vac.EntityId,vac.VendorPartyId,vac.Remarks,vac.Date,FORMAT(vac.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                     FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                     PL.UserName as Plant, e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
                                     from dbo.JobWorkValueAddedContract vac left join ORG.Entity e on e.Id=vac.EntityId
 									left join HKP.Party p on p.Id=vac.VendorPartyId
 									left join ORG.Plant PL on PL.Id=vac.PlantId
                                     union
-                          select tc.Id,TabType='Transformation',tc.ContractStatus,tc.PlantId, tc.EntityId,tc.VendorPartyId,tc.Remarks,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+                          select tc.Id,TabType='Transformation',tc.ContractStatus,tc.PlantId, tc.EntityId,tc.VendorPartyId,tc.Remarks,tc.Date,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                     FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                     PL.UserName as Plant, e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
                                     from dbo.JobWorkTransformationContract tc left join ORG.Entity e on e.Id=tc.EntityId
 									left join HKP.Party p on p.Id=tc.VendorPartyId
 									left join ORG.Plant PL on PL.Id=tc.PlantId
-                                    WHERE " + strkey + " order by ValueAddedDate desc";
+                                    WHERE " + strkey + " order by Date desc";
 
 
 
@@ -705,12 +705,14 @@ namespace Aplos.Areas.JobWork.Controllers
 
             string sql = @"select vcc.*, jwi.UserName as JobWorkItem,jwa.UserName as JobWorkActivity , uom.UserName as OutputUnit,mma.Code as ArticleCode,mma.StandardName as ArticleName
                                            ,c.Code as Currency,emp.EmployeeCode, emp.EmployeeName as ResponsiblePerson, emp.EmployeeStatus
+										   ,MS.UserName as MaterialLocation
                                            from dbo.JobWorkValueAddedContractChild vcc left join HKP.JobWorkItem jwi on jwi.Id=vcc.JobWorkItemMasterId
 										   left join SCS.UnitOfMeasurement uom on uom.Id=vcc.OutputMaterialUOMId
 										   left join MST.MaterialMasterArticle mma on mma.Id=vcc.ArticleCodeId
 										   left join scs.Currency c on c.Id=vcc.CurrencyId
 										   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
 										   left join hkp.JobWorkActivity jwa on jwa.Id=vcc.JobActivityId
+										   left join HKP.MaterialStorage MS on MS.Id=vcc.MaterialLocationId
 										   where vcc.JobWorkValueAddedContractMasterId='" + MasterId + "' ";
 
 
@@ -1158,6 +1160,11 @@ namespace Aplos.Areas.JobWork.Controllers
                     throw new Exception("Same Activity, JW Output Item, Material and Article already exist.");
                 }
 
+                if (data.Tolerance == null)
+                {
+                    data.Tolerance =Convert.ToString(0);
+                }
+
                 string sql = "SELECT * FROM [dbo].[JobWorkTransformationContractChild] WHERE Id='" + data.Id + "'";
     //            objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
@@ -1329,6 +1336,7 @@ namespace Aplos.Areas.JobWork.Controllers
             string sql = @"select tcc.*, jwi.UserName as JWOutputItem,jwa.UserName as JobWorkActivity, uom.UserName as OutputUnit, mma.Code as ArticleCode ,mma.StandardName as ArticleName
                                           ,mm.Id as MaterialMasterId,mm.Code as MaterialCode, mm.UserName as MaterialName
                                            ,c.Code as Currency, emp.EmployeeName as ResponsiblePerson, emp.EmployeeCode, emp.EmployeeStatus
+										   ,MS.UserName as MaterialLocation
                                            from dbo.JobWorkTransformationContractChild tcc left join HKP.JobWorkItem jwi on jwi.Id=tcc.JobWorkItemMasterId
 										   left join SCS.UnitOfMeasurement uom on uom.Id=tcc.OutputMaterialUOMId
 										   left join MST.MaterialMasterArticle mma on mma.Id=tcc.ArticleCodeId
@@ -1336,6 +1344,7 @@ namespace Aplos.Areas.JobWork.Controllers
 										   left join scs.Currency c on c.Id=tcc.CurrencyId
 										   left join dbo.EmployeeInformation emp on emp.SystemId=tcc.ResponsiblePersonId
 										   left join hkp.JobWorkActivity jwa on jwa.Id=tcc.JobActivityId
+										   left join HKP.MaterialStorage MS on MS.Id=tcc.MaterialLocationId
 										   where tcc.JobWorkTransformationContractMasterId='" + MasterId + "' ";
 
 

@@ -7,6 +7,7 @@ function JobWorkValueAddedContractController($window,cboService, commonMessage, 
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.EntityList = [];
+    $scope.AllPlantList = [];
     $scope.AllEntityList = [];
     $scope.MaterialLocationList = [];
     $scope.path = 'JobWork/JobWorkValueAddedContract/';
@@ -26,37 +27,7 @@ function JobWorkValueAddedContractController($window,cboService, commonMessage, 
     }).then(function successCallback(response) {
         $scope.MaterialLocationList = response.data;
         });
-
-    $scope.GetAllPlantList = function () {
-        $scope.AllPlantList = [];
-        $http({
-            method: 'GET',
-            url: 'JobWork/JobWorkValueAddedContract/getplant/'
-        }).then(function successCallback(response) {
-            $scope.AllPlantList = response.data;
-            for (var p = 0; p < $scope.AllPlantList.length; p++) {
-                if ($scope.AllPlantList[p].Value == $window.plantId) {
-                    $scope.ModelNew.PlantId = $scope.AllPlantList[p].Value;
-                }
-            }
-        });
-    }
-    $scope.GetAllPlantList();
-
-    $scope.GetEntityPlantWise = function () {
-        if ($scope.ModelNew.PlantId == null) {
-            var PLT = $window.plantId
-            $scope.ModelNew.PlantId = PLT;
-        }
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetAllEntity?PlantId=' + $scope.ModelNew.PlantId
-        }).then(function successCallback(response) {
-            $scope.AllEntityList = response.data;
-
-        });
-    }
-
+    
 
     $scope.getData = function () {
         $http({
@@ -104,6 +75,40 @@ function JobWorkValueAddedContractController($window,cboService, commonMessage, 
 
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.GetAllPlantList = function () {
+        $scope.AllPlantList = [];
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkValueAddedContract/getplant/'
+        }).then(function successCallback(response) {
+            $scope.AllPlantList = response.data;
+            for (var q = 0; q < $scope.AllPlantList.length; q++) {
+                if ($scope.AllPlantList[q].Value == $window.plantId) {
+                    $scope.ModelNew.PlantId = $scope.AllPlantList[q].Value;
+                }
+            }
+        });
+    }
+
+    $scope.GetAllPlantList();
+
+
+    $scope.GetEntityPlantWise = function () {
+        if ($scope.ModelNew.PlantId == null) {
+            var PLT = $window.plantId
+            $scope.ModelNew.PlantId = PLT;
+        }
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetAllEntity?PlantId=' + $scope.ModelNew.PlantId
+        }).then(function successCallback(response) {
+            $scope.AllEntityList = response.data;
+
+        });
+    }
+    $scope.GetEntityPlantWise();
+
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
@@ -976,11 +981,11 @@ function JobWorkValueAddedContractController($window,cboService, commonMessage, 
 
         });
     };
-   // $scope.getAllEntity();
+    $scope.getAllEntity();
 
     $scope.SaveTransformation = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.TransformationForm.$valid) {
+        if ($scope.MaterialOutputTransForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.path + 'SaveTransformation',
@@ -1437,10 +1442,9 @@ function JobWorkValueAddedContractController($window,cboService, commonMessage, 
 
         $http({
             method: 'GET',
-            url: $scope.path + 'getMatPlanningData?MasterId=' + $scope.ModelNew.Id
+            url: $scope.path + 'getMatPlanningData?MasterId=' + $scope.Transformation.Id
         }).then(function successCallback(response) {
             $scope.SelectedMatPlanningTabList = response.data;
-
         });
     }
 
@@ -2151,13 +2155,7 @@ function JobWorkValueAddedContractController($window,cboService, commonMessage, 
                 }
                 else {
                     throw 'Standard Rate should be greater than zero';
-                }
-                if ($scope.ByProductMasterList[i].Tolerance > 0) {
-                    checkedData.push($scope.ByProductMasterList[i]);
-                }
-                else {
-                    throw 'Tolerance should be greater than zero';
-                }
+                }              
             }       
         }
         
