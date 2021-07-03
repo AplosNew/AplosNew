@@ -6,8 +6,8 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Threading;
-
 namespace Library.OrderManagement.LcNavigation
 {
     public class LcNavigation
@@ -36,6 +36,9 @@ namespace Library.OrderManagement.LcNavigation
                 throw ex;
             }
         }
+
+
+   
 
         private string PurchaseLCSearchByDateSql(string fromDate, string toDate)
         {
@@ -172,190 +175,10 @@ namespace Library.OrderManagement.LcNavigation
 
         }
 
-        public void PurchaseLCReport(string fromDate, string toDate)
+      
+        private void Json(object p, object allowGet)
         {
-            try
-            {
-
-
-                string sql = PurchaseLCSearchByDateSql(fromDate, toDate);
-                ExcelEngine excelEngine = new ExcelEngine();
-                //Instantiate the Excel application object
-                IApplication application = excelEngine.Excel;
-
-                //Set the default application version
-                application.DefaultVersion = ExcelVersion.Excel2013;
-                IWorkbook workbook = application.Workbooks.Create(1);
-                IWorksheet sheet = workbook.Worksheets[0];
-
-                sheet.Name = "Purchase LC";
-
-                DataTable dtPurchaseLc = _sqlRepository.GetDataTable(sql);
-
-
-
-                int ROW = 6;
-                int COL = 1;
-
-
-                sheet[ROW, COL].Text = "Sl No.";
-
-                sheet[ROW, COL].ColumnWidth = 6;
-                int colSlNo = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "LC No.";
-
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colLCNo = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Opening Bank";
-
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colOpeningBank = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Opening Date";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colOpeningDate = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Vendor";
-                sheet[ROW, COL].ColumnWidth = 20;
-                int colVendor = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Value";
-                sheet[ROW, COL].ColumnWidth = 10;
-                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colValue = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Currency";
-                sheet[ROW, COL].ColumnWidth = 5;
-                int colCurrency = COL;
-                COL++;
-                sheet[ROW, COL].Text = "LCA No";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colLCANo = COL;
-                COL++;
-                sheet[ROW, COL].Text = "LC Type";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colLCType = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Tenure";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colTenure = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Benificiary Bank";
-                sheet[ROW, COL].ColumnWidth = 15;
-                int colBenificiaryBank = COL;
-                COL++;
-                sheet[ROW, COL].Text = "PO Value";
-                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colPOValue = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Acceptance Value";
-                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colAcceptanceValue = COL;
-
-                COL++;
-                sheet[ROW, COL].Text = "GRN Value";
-                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colGRNValue = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Payment Made";
-                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colPaymentMade = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Contract No";
-
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colContractNo = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Customer";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colCustomer = COL;
-                COL++;
-                sheet[ROW, COL].Text = "LC Id";
-
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colLCId = COL;
-
-
-
-                int endCol = COL;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
-                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                ROW++;
-
-                int StartRow = ROW; //row 20
-                for (int i = 0; i < dtPurchaseLc.Rows.Count; i++)
-                {
-
-
-                    sheet[ROW, colSlNo].Number = (i + 1);
-
-                    sheet[ROW, colLCNo].Text = dtPurchaseLc.Rows[i]["LCNo"].ToString();
-                    sheet[ROW, colOpeningBank].Text = dtPurchaseLc.Rows[i]["OpeningBank"].ToString();
-                    sheet[ROW, colOpeningDate].Text = dtPurchaseLc.Rows[i]["OpeningDate"].ToString();
-                    sheet[ROW, colVendor].Text = dtPurchaseLc.Rows[i]["Vendor"].ToString();
-                    sheet[ROW, colValue].Number = clsStaticInfo.dbl(dtPurchaseLc.Rows[i]["Value"].ToString());
-                    sheet[ROW, colCurrency].Text = dtPurchaseLc.Rows[i]["Currency"].ToString();
-                    sheet[ROW, colLCANo].Text = dtPurchaseLc.Rows[i]["LCANo"].ToString();
-                    sheet[ROW, colLCType].Text = dtPurchaseLc.Rows[i]["LCType"].ToString();
-                    sheet[ROW, colTenure].Text = dtPurchaseLc.Rows[i]["Tenure"].ToString();
-                    sheet[ROW, colBenificiaryBank].Text = dtPurchaseLc.Rows[i]["BenificiaryBank"].ToString();
-                    sheet[ROW, colPOValue].Number = clsStaticInfo.dbl(dtPurchaseLc.Rows[i]["POValue"].ToString());
-                    sheet[ROW, colAcceptanceValue].Number = clsStaticInfo.dbl(dtPurchaseLc.Rows[i]["AcceptanceValue"].ToString());
-                    sheet[ROW, colGRNValue].Number = clsStaticInfo.dbl(dtPurchaseLc.Rows[i]["GRNValue"].ToString());
-                    sheet[ROW, colPaymentMade].Text = dtPurchaseLc.Rows[i]["PaymentMade"].ToString();
-                    sheet[ROW, colContractNo].Text = dtPurchaseLc.Rows[i]["ContractNo"].ToString();
-                    sheet[ROW, colCustomer].Text = dtPurchaseLc.Rows[i]["Customer"].ToString();
-                    sheet[ROW, colLCId].Text = dtPurchaseLc.Rows[i]["LCId"].ToString();
-
-
-
-                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-
-                    ROW++;
-
-                }
-
-                sheet.Range[StartRow, colValue, ROW, colValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet.Range[StartRow, colPOValue, ROW, colPOValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet.Range[StartRow, colAcceptanceValue, ROW, colAcceptanceValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet.Range[StartRow, colGRNValue, ROW, colGRNValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet.IsGridLinesVisible = false;
-
-                sheet.UsedRange.WrapText = true;
-                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-
-                sheet["A" + StartRow.ToString()].FreezePanes();
-
-                sheet.Range[StartRow, colSlNo, ROW, colSlNo].NumberFormat = clsStaticInfo.NumberFormat();
-                sheet.Range[StartRow, colSlNo, ROW, colSlNo].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Purchase LC", identity.PlantId);
-                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
-                string strFileName = "Purchase LC.xlsx";
-                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                workbook.Close();
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            throw new NotImplementedException();
         }
 
         public List<Dictionary<string, object>> GetPurchaseLCPOList(string PurchaseLCId)

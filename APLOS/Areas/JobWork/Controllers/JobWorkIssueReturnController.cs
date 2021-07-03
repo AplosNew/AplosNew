@@ -238,6 +238,21 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetIssuedDetailList(string ArticleId, string MaterialId, string MaterialInputId, string ContractId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(JWTIR.GetIssuedDetailList(ArticleId, MaterialId, MaterialInputId, ContractId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetLotNoRate(string LotNumber)
         {
             try
@@ -1326,11 +1341,11 @@ namespace Aplos.Areas.JobWork.Controllers
 
 
                 int ColIR = ColContractIdEnd + 1;
-                SetHeaderTextTop(ref sheet, ROW, ColIR, "Issue Type/ Issue Return", 15, ExcelHAlign.HAlignLeft);
+                SetHeaderTextTop(ref sheet, ROW, ColIR, "Issue Type", 15, ExcelHAlign.HAlignLeft);
                 ColIR++;
                 int ColIssueReturn = ColIR;
                 int ColIssueReturnEnd = ColIR + 1;
-                sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].Text = data.Rows[0]["IssueReturn"].ToString();
+                sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].Text = data.Rows[0]["IssueType"].ToString();
                 sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].Merge();
                 sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1489,21 +1504,19 @@ namespace Aplos.Areas.JobWork.Controllers
 
         private DataTable GetTransformationContractReportDataById(string PrintTabId, string IssueId)
         {
-            var sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.VendorPartyId,tc.Remarks,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+            var sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.VendorPartyId,tc.Remarks,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime]
+                                    ,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                     FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                     e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-									,ti.Id as TransformationIssueId,FORMAT(ti.Date,'dd-MMM-yyyy') as TransformationDate,emp.EmployeeName as ByWhom
-									,JL.LocationName as JobWorkLocation,ti.IssueReturn
-									,IssueStatus=case when ti.IsConfirmed=0 then 'Not Confirmed' else 'Confirmed' End
+									,II.Id as TransformationIssueId,FORMAT(II.IssueDate,'dd-MMM-yyyy') as TransformationDate,emp.EmployeeName as ByWhom
+									,Ms.UserName as JobWorkLocation,II.Types as IssueReturn, II.IssueType
+									,IssueStatus=case when II.IsConfirmed=0 then 'Not Confirmed' else 'Confirmed' End
                                     from dbo.JobWorkTransformationContract tc left join ORG.Entity e on e.Id=tc.EntityId
 									left join HKP.Party p on p.Id=tc.VendorPartyId
-									left join dbo.JobWorkTransformationContractChild mp on tc.Id=mp.JobWorkTransformationContractMasterId
-									left join dbo.JobWorkTransformationContractChild3 mi on mp.Id=mi.JobWorkTransformationContractChildMasterId
-									left join dbo.JobWorkTransformationIssueReturnChild tic on mi.Id=tic.MaterialInputId
-									left join dbo.JobWorkTransformationIssueReturn ti on ti.Id=tic.TransformationIssueReturnMasterId
-									left join dbo.EmployeeInformation emp on emp.SystemId=ti.ByWhomId
-									left join HKP.JobWorkLocation JL on JL.Id=ti.JobWorkLocationId
-                                    WHERE tc.Id='" + PrintTabId + "' and ti.Id='"+ IssueId + "' ";
+								    left join TRN.InventoryIssue II on II.JWContractId=tc.Id
+									left join dbo.EmployeeInformation emp on emp.SystemId=II.EmployeeId
+									left join HKP.MaterialStorage Ms on Ms.Id=II.MaterialStorageId
+                                    WHERE tc.Id='"+ PrintTabId + @"' and II.Id='"+ IssueId + @"' ";
 
             return _sqlRepository.GetDataTable(sql);
         }

@@ -117,6 +117,7 @@ namespace Library.MaterialManagement.JobWork
                             ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
                             ,SUM(tirc.Quantity) as TIRCQty
                             ,Sum(kk.TotalQuantity) as TIRCTotalQty
+                            ,0 PlannedQty,0 IssuedQty,0 BalanceQty
                             ,0 TotalQty
 							,0 PostingQty
 							,0 PostingQuantity
@@ -140,6 +141,41 @@ namespace Library.MaterialManagement.JobWork
                 throw;
             }
 
+        }
+
+        public IEnumerable<object> GetIssuedDetailList(string ArticleId, string MaterialId, string MaterialInputId, string ContractId)
+        {
+            try
+            {
+                string sql = @"select mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem
+                            ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, uom.UserName as MMUnit
+                            ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
+							 ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(KK.TotalIssuedQty,'0'))
+                            ,Sum(KK.TotalIssuedQty) as TIRCTotalQty
+							,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
+                             from dbo.JobWorkTransformationContractChild3 mi
+							 left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
+							 left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
+							 left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
+                             left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
+							 left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
+                             left join (select Sum(IID.TransactionQty) as TotalIssuedQty,IID.InventoryMaterialId, IM.MaterialMasterId,IM.ArticleId from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
+                                        left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+                                        left join MST.MaterialMaster mm on mm.Id=IM.MaterialMasterId
+                                        left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
+										where II.JWContractId='"+ ContractId + @"'
+										group by IID.InventoryMaterialId,IM.MaterialMasterId,IM.ArticleId)
+										KK on KK.MaterialMasterId=mm.Id
+							 where mp.JobWorkTransformationContractMasterId='"+ ContractId + @"' and 
+							 KK.MaterialMasterId='"+ MaterialId + @"' and KK.ArticleId='"+ ArticleId + @"' and mi.Id='"+ MaterialInputId + @"'
+							 group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,KK.TotalIssuedQty,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code   ";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public IEnumerable<object> GetLotNoRate(string LotNumber)

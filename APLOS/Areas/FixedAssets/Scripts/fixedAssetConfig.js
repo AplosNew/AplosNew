@@ -131,5 +131,12 @@ function fixedAssetConfig($routeProvider, $locationProvider) {
             templateUrl: "FixedAssets/FixedAssetRegister/GLvsFA",
             controller: "generalLedgerVSfixedAssetsController"
         })
+
+        .when("/entity-fixed-assets-register", {
+            templateUrl: "FixedAssets/EntityFixedAssetsRegister/Aplos",
+            controller: "entityFixedAssetsRegisterController"
+        })
+    
+
         ;
 }
