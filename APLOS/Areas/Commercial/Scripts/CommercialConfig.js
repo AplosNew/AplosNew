@@ -80,8 +80,4 @@ function CommercialConfig($routeProvider) {
         })
         ;
 
-
-
-
-
 }

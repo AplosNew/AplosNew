@@ -876,7 +876,7 @@ var upanelApp = angular
     .controller("inventoryJobWorkReceivedController", inventoryJobWorkReceivedController)
     .controller("ManualShiftController", ManualShiftController)
     .controller("JobWorkReceiveBillingController", JobWorkReceiveBillingController)
-    .controller("salaryProcessedReportExtraOTCTCCompanyController", salaryProcessedReportExtraOTCTCCompanyController)
+    .controller("entityFixedAssetsRegisterController", entityFixedAssetsRegisterController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)

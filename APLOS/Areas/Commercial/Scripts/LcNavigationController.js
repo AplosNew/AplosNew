@@ -26,7 +26,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             $http({
                 method: 'POST',
                 url: $scope.path + "GetPurchaseLCReport",
-                data: { Filter: $scope.FilterModel, FilterFields: getString },
+                data: { Filter: $scope.FilterModel, FilterFields: getString() },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
@@ -66,7 +66,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
     }
     $scope.ClearFilter = function () {
         $scope.HideGrid = true;
-        var gridObj = $("#GridElasticSearchTNA").data("ejGrid");
+        var gridObj = $("#GridPurchaseLC").data("ejGrid");
         gridObj.clearFiltering();
 
         var gridObj = $("#GridEdit").data("ejGrid");
