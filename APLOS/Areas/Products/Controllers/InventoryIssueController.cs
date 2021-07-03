@@ -7161,8 +7161,18 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 			return Json(_inventoryMaterialService.GetPopUpShowStorageLocation(entity, issueDate), JsonRequestBehavior.AllowGet);
 		}
 
+        [Authorize, HttpPost]
+        public JsonResult StorageLocationStockWise(string MaterialMstId,string ArticleId, string issueDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //entity.CompanyGroupId = identity.CompanyGroupId;
+            //entity.CompanyId = identity.CompanyId;
+            //entity.PlantId = identity.PlantId;
+            return Json(_inventoryMaterialService.StorageLocationStockWise(MaterialMstId, ArticleId, issueDate), JsonRequestBehavior.AllowGet);
+        }
 
-		[Authorize, HttpGet]
+
+        [Authorize, HttpGet]
 		public ActionResult GetEntityWiseConsumption(string EntityId)
 		{
 			try
