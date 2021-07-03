@@ -48,7 +48,7 @@
                     <label class="col-sm-6 control-label">DOB</label>
                     <label class="col-sm-6 control-label">{{leaveApplicationNew.DOB}}</label>
                 </div>
-                
+
             </div>
             <div class=" col-md-6">
                 <div class="form-group">
@@ -149,6 +149,7 @@
                                 <div e-column e-field="Tax" e-headertext="Tax" e-width="2"></div>
                                 <div e-column e-field="Taxable" e-headertext="Taxable" e-width="2"></div>
                                 <div e-column e-template="#ValueT" e-headertext="Value" e-width="5"></div>
+
                             </div>
                         </div>
                     </div>
@@ -161,9 +162,11 @@
                 <script type="text/template" id="ValueT">
                     <input type="text" name="Value" ng-model="data.Value" class="form-control" required tabindex="5" maxlength="50">
                 </script>
+
                 <script type="text/template" id="checkboxTemplate">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelect" />
                 </script>
+
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                 @*DED*@
@@ -171,18 +174,19 @@
                     <div class="table-responsive aplos-grid">
                         @*IncTaxItmChildId*@
                         <div style="color:black;" id="Grid2" ej-grid e-datasource="DeductionTax"
-                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"  e-allowSorting="true"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowSorting="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                             <div e-columns>
                                 <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplatee" e-textalign="center" e-width="1"></div>
-                                <div e-column e-field="TaxGroup" e-headertext="Tax Saving Group" e-width="8"></div>
+                                <div e-column e-field="TaxGroup" e-headertext="Tax Saving Group" e-width="6"></div>
                                 <div e-column e-field="MaxLimit" e-headertext="TaxGroup MaxLimit" e-width="3"></div>
                                 <div e-column e-field="TaxSavingItem" e-headertext="Tax Saving Item" e-width="5"></div>
                                 <div e-column e-field="TaxSavingItemLimit" e-headertext="Tax Saving Item Limit" e-width="3"></div>
                                 <div e-column e-field="Tax" e-headertext="Tax" e-width="2"></div>
                                 <div e-column e-field="Taxable" e-headertext="Taxable" e-width="2"></div>
-                                <div e-column e-field="Type" e-headertext="Type" e-width="5"></div>
-                                <div e-column e-template="#Valuee" e-headertext="Value" e-width="5"></div>
+                                <div e-column e-field="Type" e-headertext="Type" e-width="2"></div>
+                                <div e-column e-template="#Valuee" e-headertext="Value" e-width="3"></div>
+                                <div e-column e-template="#Files" e-headertext="Attachment" e-width="5"></div>
                             </div>
                         </div>
                     </div>
@@ -192,6 +196,27 @@
                 </script>
                 <script type="text/template" id="checkboxTemplatee">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelect" />
+                </script>
+                <script type="text/template" id="Files">
+                    @*<div class="form-group">
+                            <div class="col-sm-8">
+                                <div>
+                                    <img id="uploadImageSrc" ng-src="{{data.imageSrc}}" />
+                                </div>
+                            </div>
+                            <div class="inputBtnSection common-btn">
+                                <label class="fileUpload col-sm-6">
+                                    <input id="uploadImage" ng-file-select="onFileSelect($files)" type="file" name="uploadFile" class="upload" />
+                                    <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Upload</i></span>
+                                </label>
+                            </div>
+                        </div>*@
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-12 " >
+                            <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" />
+                        </label>
+                        @*<input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />*@
+                    </div>
                 </script>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
@@ -235,7 +260,7 @@
                 <div class="row">
                     <div class="table-responsive aplos-grid">
                         <div style="color:black;" id="Grid3" ej-grid e-datasource="TaxableIncomePara"
-                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"  e-allowSorting="true"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowSorting="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                             <div e-columns>
                                 <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateTaxableIncomePara" e-textalign="center" e-width="1"></div>

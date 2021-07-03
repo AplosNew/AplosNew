@@ -1,6 +1,6 @@
 ﻿'use strict';
-TaxOBController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+TaxOBController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'fileReader'];
+function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, fileReader) {
     $rootScope.title = 'Tax Opening Balance';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -161,7 +161,7 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
         }).then(function successCallback(response) {
             if (response.data.length == 0) {
                 $scope.taxb = 1;
-                $scope.tab = 2;
+                $scope.tab = 3;
             }
             else {
                 $scope.taxb = 0;
@@ -367,6 +367,12 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
             $http({
                 method: 'POST',
                 url: $scope.path + 'SaveInvestment',
+                transformRequest: function (data) {
+                    if (baseService.isUndefinedOrNull($scope.picdata) === false) {
+                        picData.append('file', data.file);
+                    }
+                    return picData;
+                },
                 data: { 'Investment': $scope.InvestMent, 'ChildList': $scope.DeductionTax },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -498,6 +504,25 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
         $scope.DurationMonth = age_month;
 
     };
+
+    //#endregion
+
+    //#region Attachment 
+
+    
+    $scope.clearImage = function () {
+        $scope.imageSrc = '';
+        document.getElementById("uploadImage").value = '';
+        document.getElementById("uploadImageSrc").setAttribute('src', null);
+    };
+    $scope.filedata = null;
+    $scope.picData = null;
+    $("#uploadImage").change(function () {
+        $scope.picData = this.files[0];
+    });
+    $("#uploadBtn").change(function () {
+        $scope.filedata = this.files[0];
+    });
 
     //#endregion
 
