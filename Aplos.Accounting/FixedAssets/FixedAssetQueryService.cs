@@ -1417,5 +1417,35 @@ namespace Library.Accounting.FixedAssets
             }
         }
 
+        #region Entity Fixed Assets Register
+        public List<Dictionary<string, object>> GetEntityFixedAssetRegisterDataList(string companyGroupId, string companyId, string plantId)
+        {
+            var sql = @"SELECT FR.Id,FR.Id AS FixedAssetRegisterId,V.VoucherNo, FR.MaterialMasterArticleId, FR.MaterialMasterId
+                                    , FR.SerialNo, FR.Id AssetNo, FR.InvoiceNo, MM.UserName MaterialMasterName
+                                    , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
+                                    , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
+                                    , FAM.FixedAssetSubCategoryId, FAM.AssetType, FR.Price PurchasePrice,FR.FABaseAmount
+									, MMA.StandardName Article, FR.IsFinancial,IID.InventoryIssueId IssueNo,IRD.InventoryReceiveId GRNNo,FR.CapitalizeRegisterNo
+                                    FROM [TRN].[FixedAssetRegister] FR
+					                LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId=MM.Id
+					                LEFT JOIN MST.MaterialMasterArticle MMA ON FR.MaterialMasterArticleId= MMA.Id
+                                    LEFT JOIN MST.BudgetMaster BM ON MM.BudgetMasterId = BM.Id
+                                    LEFT JOIN [MST].[FixedAssetMaster] FAM ON FR.FixedAssetMasterId= FAM.Id
+                                    LEFT JOIN HKP.FixedAssetCategory FAC ON FAM.FixedAssetCategoryId=FAC.Id
+                                    LEFT JOIN HKP.FixedAssetSubCategory FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
+									LEFT JOIN TRN.FixedAssetRegisterDetail FRD ON FRD.CapitalizeRegisterNo=FR.CapitalizeRegisterNo
+									LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId
+									LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IIH.CapitalizeVoucherDetailId
+									LEFT JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
+									LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+									LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId 
+                                    WHERE FR.CompanyId='"+companyId+@"' and FR.IsOpeningBalance=0 and FR.Archive=0 and FR.IsAUC=0
+                                    AND FR.Id NOT IN(' ')";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
+
+        #endregion
+
     }
 }
