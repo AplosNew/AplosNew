@@ -7,24 +7,9 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
     $scope.products = [];
     $scope.path = 'Accounts/InventoryPayable/';
     $scope.getListUrl = 'Accounts/InventoryPayable/GetPostingList/';
-    $scope.saveUrl = 'Accounts/InvoicePost/GRNPost/';
+    $scope.saveUrl = 'Accounts/InvoicePost/InventoryJobWorkReceivedPost/';
     $scope.AcceptanceId = null;
     $scope.TotalPayableAmount = 0;
-    //$scope.getDataList = function () {
-    //    baseService.init($scope.getListUrl, null, null, null, 'PartyName, PartyAccountGroupName, Id, GRNDate', 'PartyName');
-    //    $scope.getData = function (pageno) {
-    //        baseService.pagination(pageno)
-    //            .then(function (result) {
-    //                $scope.products = [];
-    //                $scope.products = result.Rows;
-    //            }, function () {
-    //                ShowResult(commonMessage.NetworkError, 'failure');
-    //            }).finally(function () {
-    //            });
-    //    };
-    //    $scope.getData();
-    //};
-
 
     $scope.searchByPostedGRN = "Id"; $scope.searchGRN = "";
     $scope.searchByPostedGRNList = [{ value: 'Id', name: "GRN No" }, { value: 'GRNDate', name: "GRN Date" }, { value: 'Particular', name: "Particular" }, { value: 'VoucherNo', name: "VoucherNo" }

@@ -508,5 +508,64 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         #endregion
+
+        #region InventoryJobWorkReceived
+        [HttpPost]
+        public JsonResult InventoryJobWorkReceivedPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> inventoryJobWorkWIPList
+        , IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+        , IEnumerable<VoucherDetailViewModel> inventoryJobWorkGIRIList
+        )
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            if (voucherVM.IsInvoice && voucherVM.EmployeeId == null && voucherVM.PaymentTermId == null)
+                throw new CustomException("Please select Payment Term");
+            if (voucherVM.IsInvoice && voucherVM.BaseOnDueDate == null)
+                throw new CustomException("Please inpute BaseOnDueDate Term");
+            if (voucherVM.IsInvoice && voucherVM.EmployeeId == null && voucherVM.BaseNoOfDays == 0 || voucherVM.IsInvoice && voucherVM.BaseNoOfDays < 0)
+                throw new CustomException("Please inpute BaseNoOfDays Term");
+
+            if (voucherDetailVMList != null)
+            {
+                foreach (var item in voucherDetailVMList)
+                {
+                    if (item.IsAsset)
+                    {
+                        if (item.GLGeneralInfoId == null)
+                            throw new CustomException("AUC GL is Not Mapped !");
+                        if (item.BudgetMasterId == null)
+                            throw new CustomException("AUC Budget is Not Mapped !");
+                        if (item.ActivityId == null)
+                            throw new CustomException(" AUC Activity is Not Mapped!");
+                    }
+                    else
+                    {
+                        if (item.GLGeneralInfoId == null)
+                            throw new CustomException("GL is Not Mapped !");
+                        if (item.BudgetMasterId == null)
+                            throw new CustomException("Budget is Not Mapped !");
+                        if (item.ActivityId == null)
+                            throw new CustomException("Activity is Not Mapped!");
+                    }
+
+                }
+
+                if (voucherDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != voucherDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
+                    throw new CustomException("Dr Cr Amount not equal");
+            }
+            else
+                throw new CustomException("No Journal");
+
+                return Json(new
+                {
+                    Message = string.Format(AplosMessage.VoucherSave, _inventoryPayableService.InventoryJobWorkReceivedPost(voucherVM, inventoryJobWorkWIPList, voucherDetailVMList
+                        , inventoryJobWorkGIRIList))
+                });
+
+
+        }
+        #endregion
     }
 }
