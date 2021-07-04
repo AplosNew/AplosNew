@@ -5,6 +5,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Data.UnitOfWorks;
 using Library.Model.Employees;
 using Library.Model.Enums;
 using Library.Model.FixedAsset;
@@ -33,29 +34,17 @@ namespace Aplos.Areas.FixedAssets.Controllers
 {
     public class EntityFixedAssetsRegisterController : BaseController
     {
-        private readonly IInventoryPayableService _inventoryPayableService;
-        private readonly IFixedAssetRegisterService _fixedAssetRegisterService;
-        private readonly IFixedAssetRegisterCharacteristicsValueService _fixedAssetRegisterCharacteristicsValueService;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
-        //private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
-
-
         public EntityFixedAssetsRegisterController(
-             IFixedAssetRegisterService fixedAssetRegisterService
-            , IInventoryPayableService inventoryPayableService
-            , IFixedAssetRegisterCharacteristicsValueService fixedAssetRegisterCharacteristicsValueService
+             IUnitOfWork unitOfWork
             , ISqlRepository sqlRepository
-            //, ICompanyParallelCurrencyService companyParallelCurrencyService
             )
         {
-            _fixedAssetRegisterService = fixedAssetRegisterService;
-            _inventoryPayableService = inventoryPayableService;
-            _fixedAssetRegisterCharacteristicsValueService = fixedAssetRegisterCharacteristicsValueService;
+            _unitOfWork = unitOfWork;
             _sqlRepository = sqlRepository;
-            //_companyParallelCurrencyService = companyParallelCurrencyService;
         }
 
-        string TableName = "dbo.FinalSettlementDeductionHead";
         public ActionResult Aplos()
         {
             return View("~/Areas/FixedAssets/Views/EntityFixedAssetsRegister/Aplos.cshtml");
@@ -70,61 +59,42 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(new { DATA = fixedAssetQueryService.GetEntityFixedAssetRegisterDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
         public JsonResult Create(string entityId, string departmentId, IEnumerable<FixedAssetRegister> entityFixedAssetList)
         {
+            var flag = false;
+
             try
             {
-                //DataSet dsMaster;
-                //ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                //con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "' AND  PlantId='" + data["PlantId"] + "'", out dsMaster, false, "1");
-                //if (dsMaster.Tables[0].Rows.Count > 0)
-                //    throw new Exception("Same code already exists!!!");
+                string entityFixedAssetList1 = "";
 
-                //con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "' AND  PlantId='" + data["PlantId"] + "'", out dsMaster, false, "1");
-                //if (dsMaster.Tables[0].Rows.Count > 0)
-                //    throw new Exception("Same user name already exists!!!");
+                foreach (var item in entityFixedAssetList)
+                {
+                    if (string.IsNullOrEmpty(entityFixedAssetList1))
+                    {
+                        entityFixedAssetList1 += "'','" + item.Id+"'";
+                    }
+                    else
+                    {
+                        entityFixedAssetList1 += ",'" + item.Id + "'";
+                    }
 
-
-                //con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                // string entityFixedAssetList = "";
-
-                //foreach (var item in entityFixedAssetList)
-                //{
-                //    if (string.IsNullOrEmpty(entityFixedAssetList))
-                //    {
-                //        entityFixedAssetList += "''," + item;
-                //    }
-                //    else
-                //    {
-                //        entityFixedAssetList += "," + item;
-                //    }
-
-                //}
+                }
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+                
+                    vendorAdWrsql = @"update  TRN.FixedAssetRegister set EntityId='"+ entityId + "',DepartmentId='"+ departmentId + @"' where Id in ("+ entityFixedAssetList1 + @")";
+                    vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
 
 
-               // string _Id = "";
 
-                //#region data update
-                //if (dsMaster.Tables[0].Rows.Count == 0)
-                //{
-                //    bplib.clsGenID genid = new bplib.clsGenID();
-                //    genid.GenID(TableName, out _Id);
-
-                //    data["Id"] = "FDH" + _Id;
-                //    AddNewRow(dsMaster.Tables[0], data);
-                //}
-                //else
-                //{
-                //    _Id = data["Id"].ToString();
-                //    EditRow(dsMaster.Tables[0].Rows[0], data);
-                //}
-                //#endregion data update
-
-                //clsStaticInfo _info = new clsStaticInfo();
-                //_info.SaveDataSets(dsMaster);
-
-                return Json(new { Error = false, /*Data = data, Sequence = GetSequence(),*/ Message = AplosMessage.Updated });
+                return Json(new { Error = false, Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
