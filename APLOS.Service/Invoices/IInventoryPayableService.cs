@@ -45,5 +45,8 @@ namespace Library.Service.Invoices
            , IEnumerable<VoucherDetailViewModel> toPlantInventoryTransferJV
            , IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
            );
+        string InventoryJobWorkReceivedPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> inventoryJobWorkWIPList
+        , IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+        , IEnumerable<VoucherDetailViewModel> inventoryJobWorkGIRIList);
     }
 }
