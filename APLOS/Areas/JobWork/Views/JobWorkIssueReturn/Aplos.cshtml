@@ -382,121 +382,126 @@
 								<div class="table-responsive modal-table col-md-12">
 									<table class="table table-striped">
 										<thead>
-											<tr>
-												<th style="width:500px;">CostCenter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-												@*<th>Cost Center</th>*@
-												@*<th>Budget</th>
-													<th style="width:500px;">ExpenseActivityCode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
-												@*<th>Activity</th>*@
-												<th>JWTCMasterId</th>
-												<th>JWTCDetailId</th>
+                                            <tr>
+                                                <th style="width:500px;">CostCenter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                                @*<th>Cost Center</th>*@
+                                                @*<th>Budget</th>
+        <th style="width:500px;">ExpenseActivityCode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
+                                                @*<th>Activity</th>*@
+                                                <th>JWTCMasterId</th>
+                                                <th>JWTCDetailId</th>
 
-												<th>JWOutputItem</th>
-												<th>JWInputItem</th>
-												<th width="350">Material</th>
-												<th>ArticleName</th>
-												<th>SKU1</th>
-												<th>SKU2</th>
-												<th>SKU3</th>
-												<th>Country</th>
-												<th>UOM</th>
-												<th>ApprovedQty</th>
-												<th>UnApprovedQty</th>
-												<th>TotalQty</th>
-												<th>ReadyForIssue</th>
-												<th ng-hide="true">IssuedQty</th>
-												<th>RequestedQty</th>
-												<th ng-hide="true">BlanceQty</th>
-												<th>IssueQty</th>
-												<th style="width:300px;">Comments&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-												<th>Action</th>
-												@*<th></th>*@
-												@*<th></th>*@
-												@*<th></th>*@
-												@*<th></th>*@
-											</tr>
+                                                <th>JWOutputItem</th>
+                                                <th>JWInputItem</th>
+                                                <th width="350">Material</th>
+                                                <th>ArticleName</th>
+                                                <th>SKU1</th>
+                                                <th>SKU2</th>
+                                                <th>SKU3</th>
+                                                <th>Country</th>
+                                                <th>UOM</th>
+                                                <th>PlannedQty</th>
+                                                <th>ApprovedQty</th>
+                                                <th>UnApprovedQty</th>
+                                                <th>TotalQty</th>
+                                                <th>ReadyForIssue</th>
+                                                <th ng-hide="true">IssuedQty</th>
+                                                <th>RequestedQty</th>
+                                                <th>IssuedQty</th>
+                                                <th>BalanceQty</th>
+                                                <th>IssueQty</th>
+                                                <th style="width:300px;">Comments&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                                <th>Action</th>
+                                                @*<th></th>*@
+                                                @*<th></th>*@
+                                                @*<th></th>*@
+                                                @*<th></th>*@
+                                            </tr>
 										</thead>
 										<tbody>
-											<tr ng-repeat="x in detailList">
-												@*MaterialInputList*@
-												<td>
-													<div class="select-style">
-														<select class="form-control" ng-model="x.CostCenterId" ng-options="item.Value as item.Text for item in costCenterList"></select>
-													</div>
-												</td>
-												@*<td>{{x.CostCenterName}}</td>*@
-												@*<td>{{x.BudgetName}}</td>
-													<td>
-														<button ng-click="popUp($index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax">
-															<i class="glyphicon glyphicon-search"></i>
-														</button>
-														{{x.ActivityName}}
-													</td>*@
-												@*<td>{{x.Material}}</td>*@
-												@*<td>{{x.ArticleName}}</td>*@
-												<td>{{x.JobWorkTransformationContractChildMasterId}}</td>
-												<td>{{x.Id}}</td>
+                                            <tr ng-repeat="x in detailList">
+                                                @*MaterialInputList*@
+                                                <td>
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="x.CostCenterId" ng-options="item.Value as item.Text for item in costCenterList"></select>
+                                                    </div>
+                                                </td>
+                                                @*<td>{{x.CostCenterName}}</td>*@
+                                                @*<td>{{x.BudgetName}}</td>
+        <td>
+            <button ng-click="popUp($index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax">
+                <i class="glyphicon glyphicon-search"></i>
+            </button>
+            {{x.ActivityName}}
+        </td>*@
+                                                @*<td>{{x.Material}}</td>*@
+                                                @*<td>{{x.ArticleName}}</td>*@
+                                                <td>{{x.JobWorkTransformationContractChildMasterId}}</td>
+                                                <td>{{x.Id}}</td>
 
 
 
-												<td>{{x.JWOutputItem}}</td>
-												<td>{{x.JWInputItem}}</td>
+                                                <td>{{x.JWOutputItem}}</td>
+                                                <td>{{x.JWInputItem}}</td>
 
-												<td>
-													<div class="col-sm-10" style="padding: 0px; width: 350px; height: 20px;">
+                                                <td>
+                                                    <div class="col-sm-10" style="padding: 0px; width: 350px; height: 20px;">
 
-														<div class="input-group">
-															<span class="input-group-addon">{{x.InputMaterialCode}}</span>
-															<input type="text" width="300" ng-model="x.MaterialMaster" name="Material Master" required class="form-control" readonly>
-															<input type="hidden" ng-model="x.InputMaterialId" />
-															<span class="input-group-btn">
-																<button ng-click="MaterialMstPopUp(x, $index)" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-																<button ng-click="MaterialMstClear(x, $index)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-															</span>
-														</div>
-													</div>
+                                                        <div class="input-group">
+                                                            <span class="input-group-addon">{{x.InputMaterialCode}}</span>
+                                                            <input type="text" width="300" ng-model="x.MaterialMaster" name="Material Master" required class="form-control" readonly>
+                                                            <input type="hidden" ng-model="x.InputMaterialId" />
+                                                            <span class="input-group-btn">
+                                                                <button ng-click="MaterialMstPopUp(x, $index)" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                                <button ng-click="MaterialMstClear(x, $index)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                            </span>
+                                                        </div>
+                                                    </div>
 
-												</td>
-												<td>
-													<div class="col-sm-10" style="padding: 0px; width: 350px; height: 20px;">
+                                                </td>
+                                                <td>
+                                                    <div class="col-sm-10" style="padding: 0px; width: 350px; height: 20px;">
 
-														<div class="input-group">
-															<span class="input-group-addon">{{x.ArticleCode}}</span>
-															<input type="text" ng-model="x.ArticleName" name="Material Master" required class="form-control" readonly>
-															<input type="hidden" ng-model="x.MaterialMasterArticleId" />
-															<span class="input-group-btn">
-																<button ng-click="MaterialMstArticlePopUp(x, $index)" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-																<button ng-click="MaterialMstArticleClear(x, $index)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-															</span>
-														</div>
-													</div>
+                                                        <div class="input-group">
+                                                            <span class="input-group-addon">{{x.ArticleCode}}</span>
+                                                            <input type="text" ng-model="x.ArticleName" name="Material Master" required class="form-control" readonly>
+                                                            <input type="hidden" ng-model="x.MaterialMasterArticleId" />
+                                                            <span class="input-group-btn">
+                                                                <button ng-click="MaterialMstArticlePopUp(x, $index)" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                                <button ng-click="MaterialMstArticleClear(x, $index)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                            </span>
+                                                        </div>
+                                                    </div>
 
-												</td>
-												<td>{{x.Sku1}}</td>
-												<td>{{x.Sku2}}</td>
-												<td>{{x.Sku3}}</td>
-												<td>{{x.CountryName}}</td>
-												<td>{{x.TransactionUoM}}</td>
-												<td>{{x.ApprovedQty}}</td>
-												<td>{{x.UnApprovedQty}}</td>
-												<td>{{x.TotalQty}}</td>
-												<td>{{x.PostingQty}}</td>
-												<td ng-hide="true">{{x.IssuedQty}}</td>
-												<td>{{x.RequestedQty}}</td>
-												<td ng-hide="true">{{x.BlanceQty}}</td>
-												<td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionQty" ng-change="qtyFunc(x, $index)" ;></td>
-												<td class="text-right" ng-hide="false"><input type="text" class="form-control text-right" width="400" ng-model="x.Comments"></td>
-												@*<td>{{x.char3.FreeText}}</td>*@
-												@*<td>{{x.TransactionQty}}  {{x.TransactionUoM}}</td>*@
-												<td class="text-right table-td">
-													<ul class="list-inline">
-														<li><button @*ng-show="x.Id==null"*@ ng-click="getSpecificMaterialStockForSlipIssue(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Add GRN List"><i class="glyphicon glyphicon-list"></i></button></li>
-														@*<li><button ng-show="x.Id!=null" ng-click="getRequisitionList(x.Id);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Get Requisition List"><i class="glyphicon glyphicon-list"></i></button></li>*@
-														<li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
-														@*<li><a class="btn btn-action" ng-click="IssueReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>*@
-													</ul>
-												</td>
-											</tr>
+                                                </td>
+                                                <td>{{x.Sku1}}</td>
+                                                <td>{{x.Sku2}}</td>
+                                                <td>{{x.Sku3}}</td>
+                                                <td>{{x.CountryName}}</td>
+                                                <td>{{x.TransactionUoM}}</td>
+                                                <td>{{x.PlannedQty}}</td>
+                                                <td>{{x.ApprovedQty}}</td>
+                                                <td>{{x.UnApprovedQty}}</td>
+                                                <td>{{x.TotalQty}}</td>
+                                                <td>{{x.PostingQty}}</td>
+                                                <td ng-hide="true">{{x.IssuedQty}}</td>
+                                                <td>{{x.RequestedQty}}</td>
+                                                <td>{{x.IssuedQty}}</td>
+                                                <td>{{x.BalanceQty}}</td>
+                                                <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionQty" ng-change="qtyFunc(x, $index)" ;></td>
+                                                <td class="text-right" ng-hide="false"><input type="text" class="form-control text-right" width="400" ng-model="x.Comments"></td>
+                                                @*<td>{{x.char3.FreeText}}</td>*@
+                                                @*<td>{{x.TransactionQty}}  {{x.TransactionUoM}}</td>*@
+                                                <td class="text-right table-td">
+                                                    <ul class="list-inline">
+                                                        <li><button @*ng-show="x.Id==null"*@ ng-click="getSpecificMaterialStockForSlipIssue(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Add GRN List"><i class="glyphicon glyphicon-list"></i></button></li>
+                                                        @*<li><button ng-show="x.Id!=null" ng-click="getRequisitionList(x.Id);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Get Requisition List"><i class="glyphicon glyphicon-list"></i></button></li>*@
+                                                        <li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                                        <li><button ng-click="stockwisestatus(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Material Storage Stock Wise Status"><i class="glyphicon glyphicon-list"></i></button></li>
+                                                        @*<li><a class="btn btn-action" ng-click="IssueReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>*@
+                                                    </ul>
+                                                </td>
+                                            </tr>
 										</tbody>
 									</table>
 								</div>
@@ -785,7 +790,14 @@
                             <div e-column e-field="Qty" e-headertext="Qty" e-width="50"></div>
                             <div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
                             <div e-column e-headertext="Actions" e-width="50">
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GridIIssue');" style="margin: -6px;"></i></button>
+                                <ul class="list-inline text-right">
+                                    <li>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GridIIssue');" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab('GridIIssue');" style="margin: -6px;"></i></button>
+                                    </li>
+                                </ul>
+
+                                
                             </div>
 
                         </div>
@@ -941,6 +953,41 @@
 			</div>
 		</div>
 	</div>
+</div>
+
+<div class="modal fade site-modal in" id="ShowLOcationWiseStock" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body form-elements form-horizontal">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data(Storage Location Wise Material Stock)</span></legend>
+                    <div id="ReqaddId">
+                        <div class="col-lg-12">
+                            <div class="content-container-fluid" style="color:black;">
+                                <div style="color:black;" id="PODetailUpdate" ej-grid e-datasource="GetShowStorageLocationList"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                                    <div e-columns>
+                                        <div e-column e-field="StorageLocationName" e-headertext="Storage Location Name" e-width="200"></div>
+                                        <div e-column e-field="ApprovedQty" e-headertext="Approved Qty" e-width="100"></div>
+                                        <div e-column e-field="UnApprovedQty" e-headertext="UnApproved Qty" e-width="100"></div>
+                                        <div e-column e-field="TotalQty" e-headertext="TotalQty" e-width="100"></div>
+                                        <div e-column e-field="PostingQty" e-headertext="Ready For Issue" e-width="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </fieldset>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="GetPopUpShowStorageLocationClosed();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")

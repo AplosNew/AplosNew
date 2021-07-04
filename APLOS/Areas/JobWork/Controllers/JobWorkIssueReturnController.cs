@@ -238,6 +238,21 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetIssuedDetailList(string ArticleId, string MaterialId, string MaterialInputId, string ContractId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(JWTIR.GetIssuedDetailList(ArticleId, MaterialId, MaterialInputId, ContractId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetLotNoRate(string LotNumber)
         {
             try
@@ -1188,7 +1203,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
 
             DataTable data = GetTransformationContractReportDataById(PrintTabId, IssueId);
-            DataTable TransformationIssueReturnChilddata = GetTransformationIssueReturnChildDataById(IssueId);
+            DataTable TransformationIssueReturnChilddata = GetTransformationIssueReturnChildDataById(PrintTabId, IssueId);
             if (data.Rows.Count > 0)
             {
                 int ColValueAddedDateHeader = 1;
@@ -1326,11 +1341,11 @@ namespace Aplos.Areas.JobWork.Controllers
 
 
                 int ColIR = ColContractIdEnd + 1;
-                SetHeaderTextTop(ref sheet, ROW, ColIR, "Issue Type/ Issue Return", 15, ExcelHAlign.HAlignLeft);
+                SetHeaderTextTop(ref sheet, ROW, ColIR, "Issue Type", 15, ExcelHAlign.HAlignLeft);
                 ColIR++;
                 int ColIssueReturn = ColIR;
                 int ColIssueReturnEnd = ColIR + 1;
-                sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].Text = data.Rows[0]["IssueReturn"].ToString();
+                sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].Text = data.Rows[0]["IssueType"].ToString();
                 sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].Merge();
                 sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColIssueReturn, ROW, ColIssueReturnEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1448,16 +1463,16 @@ namespace Aplos.Areas.JobWork.Controllers
                     RowIndexNo = MPChildROW;
                 }
 
-                sheet[MPChildROW, ColJWOutputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["JobWorkTransformationContractChildMasterId"].ToString();
+                sheet[MPChildROW, ColJWOutputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["JWOutputId"].ToString();
                 sheet[MPChildROW, ColJWOutputItem].Text = TransformationIssueReturnChilddata.Rows[i]["JWOutputItem"].ToString();
-                sheet[MPChildROW, ColJWInputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["Id"].ToString();
+                sheet[MPChildROW, ColJWInputItemId].Text = TransformationIssueReturnChilddata.Rows[i]["JwInputId"].ToString();
                 sheet[MPChildROW, ColJWInputItem].Text = TransformationIssueReturnChilddata.Rows[i]["JWInputItem"].ToString();
-                sheet[MPChildROW, ColJWInputMaterial].Text = TransformationIssueReturnChilddata.Rows[i]["JWInputMaterial"].ToString();
-                sheet[MPChildROW, ColArticle].Text = TransformationIssueReturnChilddata.Rows[i]["JWInputArticle"].ToString();
+                sheet[MPChildROW, ColJWInputMaterial].Text = TransformationIssueReturnChilddata.Rows[i]["Material"].ToString();
+                sheet[MPChildROW, ColArticle].Text = TransformationIssueReturnChilddata.Rows[i]["Article"].ToString();
                 sheet[MPChildROW, ColBalanceToIssue].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["BalanceToIssue"].ToString());
                 sheet[MPChildROW, ColRequiredQuantity].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["RequiredQuantity"].ToString());
-                sheet[MPChildROW, ColTIRCTotalQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TIRCTotalQty"].ToString());
-                sheet[MPChildROW, ColTIRCQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TIRCQty"].ToString());
+                sheet[MPChildROW, ColTIRCTotalQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TotalIssuedQty"].ToString());
+                sheet[MPChildROW, ColTIRCQty].Number = clsStaticInfo.dbl(TransformationIssueReturnChilddata.Rows[i]["TransactionQty"].ToString());
 
                 sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[MPChildROW, 1, MPChildROW, MPChildendCol].BorderAround(ExcelLineStyle.Hair);
@@ -1489,44 +1504,46 @@ namespace Aplos.Areas.JobWork.Controllers
 
         private DataTable GetTransformationContractReportDataById(string PrintTabId, string IssueId)
         {
-            var sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.VendorPartyId,tc.Remarks,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+            var sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.VendorPartyId,tc.Remarks,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime]
+                                    ,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                     FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                     e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-									,ti.Id as TransformationIssueId,FORMAT(ti.Date,'dd-MMM-yyyy') as TransformationDate,emp.EmployeeName as ByWhom
-									,JL.LocationName as JobWorkLocation,ti.IssueReturn
-									,IssueStatus=case when ti.IsConfirmed=0 then 'Not Confirmed' else 'Confirmed' End
+									,II.Id as TransformationIssueId,FORMAT(II.IssueDate,'dd-MMM-yyyy') as TransformationDate,emp.EmployeeName as ByWhom
+									,Ms.UserName as JobWorkLocation,II.Types as IssueReturn, II.IssueType
+									,IssueStatus=case when II.IsConfirmed=0 then 'Not Confirmed' else 'Confirmed' End
                                     from dbo.JobWorkTransformationContract tc left join ORG.Entity e on e.Id=tc.EntityId
 									left join HKP.Party p on p.Id=tc.VendorPartyId
-									left join dbo.JobWorkTransformationContractChild mp on tc.Id=mp.JobWorkTransformationContractMasterId
-									left join dbo.JobWorkTransformationContractChild3 mi on mp.Id=mi.JobWorkTransformationContractChildMasterId
-									left join dbo.JobWorkTransformationIssueReturnChild tic on mi.Id=tic.MaterialInputId
-									left join dbo.JobWorkTransformationIssueReturn ti on ti.Id=tic.TransformationIssueReturnMasterId
-									left join dbo.EmployeeInformation emp on emp.SystemId=ti.ByWhomId
-									left join HKP.JobWorkLocation JL on JL.Id=ti.JobWorkLocationId
-                                    WHERE tc.Id='" + PrintTabId + "' and ti.Id='"+ IssueId + "' ";
+								    left join TRN.InventoryIssue II on II.JWContractId=tc.Id
+									left join dbo.EmployeeInformation emp on emp.SystemId=II.EmployeeId
+									left join HKP.MaterialStorage Ms on Ms.Id=II.MaterialStorageId
+                                    WHERE tc.Id='"+ PrintTabId + @"' and II.Id='"+ IssueId + @"' ";
 
             return _sqlRepository.GetDataTable(sql);
         }
 
-        private DataTable GetTransformationIssueReturnChildDataById(string IssueId)
+        private DataTable GetTransformationIssueReturnChildDataById(string PrintTabId, string IssueId)
         {
-            var sql = @"select distinct mi.Id,mi.JobWorkTransformationContractChildMasterId, jwi.UserName as JWOutputItem,jwii.UserName as JWInputItem ,mm.Id as JWInputMaterialMasterId
-                            , mm.UserName as JWInputMaterial ,mma.Id as JWInputMaterialArticleId, mma.StandardName as JWInputArticle
-                            ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
-                            ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
-                            ,SUM(tirc.Quantity) as TIRCQty
-                            ,Sum(kk.TotalQuantity) as TIRCTotalQty
-                             from dbo.JobWorkTransformationIssueReturnChild tirc left join dbo.JobWorkTransformationContractChild3 mi on tirc.MaterialInputId=mi.Id
-							 left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
-							 left join MST.MaterialMasterArticle mma on mma.Id=tirc.MaterialMasterArticleId
-							 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId and mm.Id=tirc.MaterialMasterId
-                             left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
-							 left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
-                             left join(select SUM(Quantity) as TotalQuantity,MaterialInputId FROM dbo.JobWorkTransformationIssueReturnChild group by MaterialInputId) kk on kk.MaterialInputId=mi.id
-                             left join TRN.InventoryMaterial inm on inm.MaterialMasterId=mm.Id and inm.ArticleId=mma.Id
-                             left join (Select InventoryMaterialId,(sum( MaterialTranAmount)/sum(TransactionQty)) as Rate from TRN.InventoryReceiveDetail group by InventoryMaterialId) InvDetail on InvDetail.InventoryMaterialId=inm.Id
-							 where tirc.TransformationIssueReturnMasterId='"+ IssueId + @"' 
-							 group by mi.Id, mm.Id, mm.UserName,InvDetail.Rate ,mma.Id, mma.StandardName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity, InvDetail.InventoryMaterialId,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName ";
+            var sql = @"select distinct IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id as JWOutputId, jwi.UserName as JWOutputItem, mi.Id as JwInputId
+,jwii.UserName as JWInputItem,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
+							 ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalIssuedQty,'0')),IID.TransactionQty
+from TRN.InventoryIssueDetail IID left join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
+left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+left join dbo.JobWorkTransformationContractChild mp on mp.JobWorkTransformationContractMasterId=II.JWContractId
+left join (select Sum(IID.TransactionQty) as TotalIssuedQty, IM.MaterialMasterId,mm.UserName as Material,mma.StandardName as Article, IM.ArticleId,IID.InventoryMaterialId
+							            from TRN.InventoryIssue II inner join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
+                                        left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
+                                        left join MST.MaterialMaster mm on mm.Id=IM.MaterialMasterId
+                                        left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
+										where II.JWContractId='"+ PrintTabId + @"'
+										group by IM.MaterialMasterId,IM.ArticleId,IID.InventoryMaterialId,mm.UserName,mma.StandardName)
+										kk on kk.InventoryMaterialId=IM.Id
+										left join dbo.JobWorkTransformationContractChild3 mi on mi.JobWorkTransformationContractChildMasterId=mp.Id
+										left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
+										left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
+										where mp.JobWorkTransformationContractMasterId='"+ PrintTabId + @"' and II.Id='"+ IssueId + @"' and mi.Id is not null and II.Types='InventoryJWIssue'
+										group by IID.InventoryIssueId,kk.TotalIssuedQty, kk.MaterialMasterId, kk.Material,kk.ArticleId,kk.Article, mp.Id, jwi.UserName, mi.Id
+										,jwii.UserName,mp.Quantity,mi.GrossConsumption,IID.TransactionQty
+ ";
 
             return _sqlRepository.GetDataTable(sql);
         }

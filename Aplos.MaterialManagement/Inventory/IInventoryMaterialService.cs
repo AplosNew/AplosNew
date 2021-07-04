@@ -77,6 +77,8 @@ namespace Library.MaterialManagement.Inventory
 
         IEnumerable<object> GetPopUpShowStorageLocation(InventoryMaterialViewModel entity, string issueDate);
 
+        IEnumerable<object> StorageLocationStockWise(string MaterialMstId, string ArticleId, string issueDate);
+
         void JWInsertOrUpdateFromReceive(InventoryMaterialViewModel entity);
         InventoryMaterial JWGetInventoryMaterialByUpToSku(InventoryMaterialViewModel entity);
         IEnumerable<object> JWOutPutQuery(string inveReveiveId);
