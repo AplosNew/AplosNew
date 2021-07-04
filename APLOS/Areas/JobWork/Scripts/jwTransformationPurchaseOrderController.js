@@ -88,18 +88,13 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.SelectedMaterialPlanningTabList = [];
     $scope.JobWorkActivityList = [];
 
-    $scope.GetJobWorkActivityList = function () {
-        $http({
-            method: 'GET',
-            url: $scope.pathJWCBO + 'getactivitylistTransformation',
-        }).then(function successCallback(response) {
-            $scope.JobWorkActivityList = response.data;
+    $http({
+        method: 'GET',
+        url: $scope.pathJWCBO + 'getactivitylistTransformation',
+    }).then(function successCallback(response) {
+        $scope.JobWorkActivityList = response.data;
 
-        });
-    }
-    $scope.GetJobWorkActivityList();
-
-
+    });
 
     $scope.GetJWItems = function () {
         $http({
@@ -980,7 +975,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     //#region Save Update Delete Function
 
     $scope.Save = function () {
-    
+
         try {
             $scope.dbval = $scope.StateData;
             $scope.UIval = $scope.productNew.InvoicingState;
@@ -1012,7 +1007,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             $scope.modelValidation('div_docDate', 'productNew', 'DocDate');
             //$scope.modelValidation('div_entryNo', 'productNew', 'GateEntryNo');
             $scope.modelValidation('div_PODate', 'productNew', 'PODate', 'PO Entry Date');
-            
+
             $scope.manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');
 
             if ($scope.productNew.CurrencyId !== $scope.productNew.BaseCurrencyId)
@@ -1037,7 +1032,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                         data: {
                             'data': $scope.product
                             , 'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti
-                            , 'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti                            
+                            , 'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti
                         },
                         dataType: 'JSON'
                     }).then(function (response) {
@@ -1221,7 +1216,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     }).then(function successCallback(response) {
         $scope.baseCurrencyId = response.data[0].Value;
         $scope.productNew.BaseCurrencyId = response.data[0].Value;
-      
+
     });
 
 
@@ -1243,7 +1238,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         });
 
 
- 
+
 
     $scope.searchByList = [
         {
@@ -1531,7 +1526,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     // #region DetailsisSetIndex2
     $scope.detailTempModel = {
         Id: null
-        , JWTransformationPurchaseOrderId: null   
+        , JWTransformationPurchaseOrderId: null
         , JWItemId: null
         , JWItemName: null
         , JWServiceName: null
@@ -1583,14 +1578,14 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         , RequiredCapacity: null
         , ByProductApplicable: null
         , RateApplyOn: null
-        , CurrencyId :null
-		, RatePerUnit: null
+        , CurrencyId: null
+        , RatePerUnit: null
         , Rejection: null
         , ValueLoss: null
         , ResponsiblePersonId: null
         , Remarks: null
-        , Tolerance:null
-        , ServiceId:null
+        , Tolerance: null
+        , ServiceId: null
     };
     $scope.detailModel = Object.assign({}, $scope.detailTempModel);
 
@@ -2654,7 +2649,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             method: "GET",
             dataType: 'JSON',
             url: $scope.path + 'GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&JWPOId=' + $scope.productNew.Id + '&JWPODId=' + $scope.detailModel.Id + '&jwActivityId=' + activityListStr
-        }).then(function successCallback(response) { 
+        }).then(function successCallback(response) {
             $scope.GetListForMasterOrder = [];
             $scope.GetListForMasterOrder = response.data;
             gridObj.clearFiltering();
@@ -2966,10 +2961,10 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     //        dataType: 'JSON',
     //        url: $scope.path + 'GetJwTransPoDetailInputMaterial?jwpoDetailId=' + data.Id
     //    }).then(function successCallback(response) { //datagatefun     
-            
+
     //        $scope.JWPOinputList = response.data;
     //    });
-        
+
     //    angular.element(document.querySelector('#ByProductInputMaterialModal')).modal('show');
 
 

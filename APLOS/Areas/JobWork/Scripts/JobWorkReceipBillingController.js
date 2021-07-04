@@ -188,6 +188,8 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     };
 
     $scope.GetJWGRNDataChecking = function (contractId) {
+        $scope.GriddataMaster = [];
+        $scope.lst = [];
         if ($scope.GRNbyPOCheckStatus === "ForChecked") {
             $scope.GRNbyPOCheckStatus = "ForChecked";
         }
