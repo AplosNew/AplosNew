@@ -6989,7 +6989,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				var sql = @"SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId
+				var sql = @"SELECT distinct A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId
                                     , A.OrderType, A.PartyId, P.UserName AS CustomerName, A.BuyerId	
                                     , A.BuyerBrandId, A.BuyerDivisionId, A.TestingStandardId, A.MasterOrderNo, A.OrderStatusId	
                                     , A.OrderCategoryId, A.SeasonId, A.OrderYear, A.CurrencyId, A.TotalQty	
@@ -7008,7 +7008,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                                      [OwnItem]=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
 																			trn.MasterOrderItem XMOI 	  
 							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                    ,CNT.ContractNo  ContractNo,MLC.Id MasterLCNo
+                                    ,CNT.ContractNo  ContractNo,MLC.LCRef MasterLCNo
                             FROM [TRN].[MasterOrder] AS A
                             left JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
                             LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
@@ -7019,9 +7019,9 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                             LEFT JOIN TRN.Commitment COM ON COM.Id=A.CommitmentId
 							LEFT JOIN [MST].[ProductMaster] PM ON COM.ProductMasterId=PM.Id
                             LEFT JOIN HKP.OrderStatus OS ON OS.Id=A.OrderStatusId
-                            LEFT JOIN dbo.Contract CNT ON CNT.Id=A.MasterOrderNo
-							left join [TRN].[MasterOrderItem] MOI ON MOI.ContractId=CNT.Id
-							LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId                           
+                            left join [TRN].[MasterOrderItem] MOI ON MOI.MasterOrderId=A.Id
+							LEFT JOIN dbo.Contract CNT ON CNT.Id=MOI.ContractId
+							LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId                                              
                             WHERE A.CompanyId='" + identity.CompanyId + "' AND OrderType='ExternalOrder'";
 				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 			}
@@ -7161,8 +7161,18 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 			return Json(_inventoryMaterialService.GetPopUpShowStorageLocation(entity, issueDate), JsonRequestBehavior.AllowGet);
 		}
 
+        [Authorize, HttpPost]
+        public JsonResult StorageLocationStockWise(string MaterialMstId,string ArticleId, string issueDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //entity.CompanyGroupId = identity.CompanyGroupId;
+            //entity.CompanyId = identity.CompanyId;
+            //entity.PlantId = identity.PlantId;
+            return Json(_inventoryMaterialService.StorageLocationStockWise(MaterialMstId, ArticleId, issueDate), JsonRequestBehavior.AllowGet);
+        }
 
-		[Authorize, HttpGet]
+
+        [Authorize, HttpGet]
 		public ActionResult GetEntityWiseConsumption(string EntityId)
 		{
 			try

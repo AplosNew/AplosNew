@@ -679,7 +679,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
 
     // #region checkbox all
 
-    $scope.refreshTemplateemployee4 = function (args) {
+    $scope.refreshTemplateemployee = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
     };
 
