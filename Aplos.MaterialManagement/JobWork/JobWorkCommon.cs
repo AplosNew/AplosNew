@@ -113,6 +113,7 @@ namespace Library.MaterialManagement.JobWork
 									,IR.OrderSpecific
 									--,IR.PurchaseLCId
 									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
 						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -186,6 +187,7 @@ namespace Library.MaterialManagement.JobWork
 									,IR.OrderSpecific
 									--,IR.PurchaseLCId
 									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
 						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -260,6 +262,7 @@ namespace Library.MaterialManagement.JobWork
 									,IR.OrderSpecific
 									--,IR.PurchaseLCId
 									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
 						FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -331,6 +334,7 @@ namespace Library.MaterialManagement.JobWork
 									,IR.OrderSpecific
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
                         FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -399,6 +403,7 @@ namespace Library.MaterialManagement.JobWork
 									,IR.OrderSpecific
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
+                        ,IR.DeliveryInstruction,IR.SpecialInstruction
                         FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -2841,28 +2846,52 @@ namespace Library.MaterialManagement.JobWork
             string strkey = "1 = 1";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //     string sql = @"SELECT  JWI.UserName JWItemName,JWI.Id JWItemId,JTM.Id  JWTransformationMasterId
+            //,JTM.JWActivityId,JWA.UserName JWActivity,MM.UserName MaterialMaster,MM.Id MaterialMasterId
+            //,MM.WithSKU, ISNULL(ART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
+            //, hasInventory=CASE WHEN IM.Id<>'' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MM.IsOriginApplicable
+
+            //, UOM.UserName UOM,UOM.Id UOMId
+            //,JTM.ProcessId, Process.UserName Process, SM.Id ServiceId , SM.UserName ServiceName
+            //FROM JWTransformationMaster  JTM 
+            //LEFT JOIN JWActivity JWA On JWA.Id =JTM.JWActivityId
+            //LEFT JOIN HkP.Process Process On Process.Id =JTM.ProcessId
+
+            //LEFT JOIN JWItem JWI On JWI.Id =JTM.OutputMaterialId
+            //                     LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id = JWI.MaterialMasterId
+            //                     LEFT JOIN HKP.ServiceMaster SM ON SM.Id = JWA.ServiceId
+
+            //                     LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = JTM.ResponsiblePersonId
+            //                    LEFT JOIN (SELECT AttributeSetLength=CASE WHEN COUNT(MaterialMasterId)>0THEN COUNT(MaterialMasterId) ELSE 0 END
+            //                     , HasAttribute=CASE WHEN COUNT(MaterialMasterId)>0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MaterialMasterId
+            //                     FROM MST.MaterialMasterAttribute GROUP BY MaterialMasterId) AS ART ON ART.MaterialMasterId=MM.Id
+            //                         LEFT JOIN TRN.InventoryMaterial AS IM ON IM.MaterialMasterId=MM.Id
+            // LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id = JWI.UOMId  where JTM.JWActivityId IN(" + ActivityId + @")";
             string sql = @"SELECT  JWI.UserName JWItemName,JWI.Id JWItemId,JTM.Id  JWTransformationMasterId
-							,JTM.JWActivityId,JWA.UserName JWActivity,MM.UserName MaterialMaster,MM.Id MaterialMasterId
-							,MM.WithSKU, ISNULL(ART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
-							, hasInventory=CASE WHEN IM.Id<>'' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MM.IsOriginApplicable
+		                ,JTM.JobWorkActivityId,JWA.UserName JWActivity,MM.UserName MaterialMaster,MM.Id MaterialMasterId
+		                ,MM.WithSKU, ISNULL(ART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
+		                , hasInventory=CASE WHEN IM.Id<>'' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MM.IsOriginApplicable
 
-							, UOM.UserName UOM,UOM.Id UOMId
-							,JTM.ProcessId, Process.UserName Process, SM.Id ServiceId , SM.UserName ServiceName
-							FROM JWTransformationMaster  JTM 
-							LEFT JOIN JWActivity JWA On JWA.Id =JTM.JWActivityId
-							LEFT JOIN HkP.Process Process On Process.Id =JTM.ProcessId
+		                , UOM.UserName UOM,UOM.Id UOMId
+		                ,Process.ProcessId, p.UserName Process, SM.Id ServiceId , SM.UserName ServiceName
+		                FROM MST.JobWorkTransformationMaster  JTM 
+		                LEFT JOIN HKP.JobWorkActivity JWA On JWA.Id =JTM.JobWorkActivityId
+		
+		                LEFT JOIN MSt.JobWorkTransformationMasterProcess Process ON Process.JobWorkTransformationMasterId=JTM.Id
+		                LEFT JOIN [HKP].[Process] p on P.Id=Process.ProcessId
 
-							LEFT JOIN JWItem JWI On JWI.Id =JTM.OutputMaterialId
-                            LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id = JWI.MaterialMasterId
-                            LEFT JOIN HKP.ServiceMaster SM ON SM.Id = JWA.ServiceId
+		                LEFT JOIN HKP.JobWorkItem JWI On JWI.Id =JTM.JobWorkActivityChildId
+                        LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id = JWI.MaterialMasterId
+                        LEFT JOIN HKP.ServiceMaster SM ON SM.Id = JTM.ServiceId
 
-                            LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = JTM.ResponsiblePersonId
-                           LEFT JOIN (SELECT AttributeSetLength=CASE WHEN COUNT(MaterialMasterId)>0THEN COUNT(MaterialMasterId) ELSE 0 END
-                            , HasAttribute=CASE WHEN COUNT(MaterialMasterId)>0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MaterialMasterId
-                            FROM MST.MaterialMasterAttribute GROUP BY MaterialMasterId) AS ART ON ART.MaterialMasterId=MM.Id
-                                LEFT JOIN TRN.InventoryMaterial AS IM ON IM.MaterialMasterId=MM.Id
-							 LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id = JWI.UOMId  where JTM.JWActivityId IN(" + ActivityId + @")";
-
+                        LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = JTM.ResponsiblePersonId
+                        LEFT JOIN(SELECT AttributeSetLength=CASE WHEN COUNT(MaterialMasterId)>0THEN COUNT(MaterialMasterId) ELSE 0 END
+                                  ,HasAttribute=CASE WHEN COUNT(MaterialMasterId)>0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MaterialMasterId
+                                   FROM MST.MaterialMasterAttribute GROUP BY MaterialMasterId
+				                  )AS ART ON ART.MaterialMasterId=MM.Id
+		                LEFT JOIN TRN.InventoryMaterial AS IM ON IM.MaterialMasterId=MM.Id
+		                LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id = JWI.UOMId  
+		                where JTM.JobWorkActivityId IN(" + ActivityId + @")";
             return sql;
         }
 
