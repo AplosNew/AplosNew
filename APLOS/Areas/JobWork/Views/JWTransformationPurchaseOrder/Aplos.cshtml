@@ -711,115 +711,156 @@
                 <div class="table-responsive modal-table" ng-show="PoChildList.length>0 && productNew.OrderSpecific==='No'">
                     <table class="table table-striped">
                         <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Item UOM</th>
-                                <th>Material</th>
-                                <th>Article</th>
+							<tr>
+								<th>JWActicity</th>
+								<th>JWOutPutItem</th>
+								<th>MaterialSpecification</th>
+								<th>MaterialRefference</th>
+								<th>MaterialStorageLocation</th>
 
-                                <th>Sku1</th>
-                                <th>Sku2</th>
-                                <th>Sku3</th>
-                                <th>CountryName</th>
-                                <th>JWActivity</th>
-                                <th>CURR</th>
+								<th>OutPutItemUOM</th>
+								<th>Material</th>
+								<th>Article</th>
 
-                                <th>RateApplicableOn</th>
-                                <th>Process</th>
+								<th>Sku1</th>
+								<th>Sku2</th>
+								<th>Sku3</th>
+								<th>CountryName</th>
+
+								<th>CURR</th>
+
+								<th>RateApplicableOn</th>
+								<th>Process</th>
+
+								<th>OrderSpecific</th>
+								<th>RequiredCapacity</th>
+								<th>ByProductApplicable</th>
+								<th>RateApplyId</th>
 
 
-                                @*<th>UOM</th>*@
-                                <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                                <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                                <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                                <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                                <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TotalAmount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                                <th style="width:500px;">Description</th>
-                                <th style="width:500px;">ReferenceNo</th>
-                                <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DeliveryDate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                                <th class="col-sm-1"></th>
-                            </tr>
+
+								@*<th>UOM</th>*@
+								<th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TotalAmount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>Rejection</th>
+								<th>ValueLoss</th>
+								<th>Tolerance</th>
+
+								<th>ResponsiblePersonName</th>
+								<th>Remarks</th>
+								<th style="width:500px;">Description</th>
+								<th style="width:500px;">ReferenceNo</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DeliveryDate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th class="col-sm-1"></th>
+							</tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in PoChildList" ng-dblclick="GetJWPOinputByProductList(x);">
-                                <td>{{x.JWItemName}}</td>
-                                <td>{{x.JWItemUOM}}</td>
-                                <td>{{x.MaterialMasterName}}</td>
-                                <td>{{x.ArticleName}}</td>
-                                <td>{{x.FirstCharacteristicsValue}}</td>
-                                <td>{{x.SecondCharacteristicsValue}}</td>
-                                <td>{{x.ThirdCharacteristicsValue}}</td>
-                                <td>{{x.CountryName}}</td>
-                                <td>{{x.JWActivity}}</td>
-                                <td>{{x.CURR}}</td>
-                                <td>{{x.RateApplicableOn}}</td>
-                                <td>{{x.Process}}</td>
+							<tr ng-repeat="x in PoChildList" ng-dblclick="GetJWPOinputByProductList(x);">
+								<td>{{x.JobWorkActivity}}</td>
+								<td>{{x.JWItemName}}</td>
+								<td>{{x.MaterialSpecification}}</td>
+								<td>{{x.MaterialReference}}</td>
+								<td>{{x.MaterialStorage}}</td>
+								<td>{{x.JWItemUOM}}</td>
+								<td>{{x.MaterialMasterName}}</td>
+								<td>{{x.ArticleName}}</td>
+								<td>{{x.FirstCharacteristicsValue}}</td>
+								<td>{{x.SecondCharacteristicsValue}}</td>
+								<td>{{x.ThirdCharacteristicsValue}}</td>
+								<td>{{x.CountryName}}</td>
+								<td>{{x.CURR}}</td>
+								<td>{{x.RateApplicableOn}}</td>
+								<td>{{x.Process}}</td>
+
+								<td>{{x.OrderSpecific}}</td>
+								<td>{{x.RequiredCapacity}}</td>
+								<td>{{x.ByProductApplicable}}</td>
+								<td>{{x.RateApplyId}}</td>
 
 
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>  @*ng-keyup="calculateAmount(x);"*@
-                                <td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x);" ng-disabled="false"> </td>  @*{{x.TransactionRate| setDecimal:currencyPrecision| number}}*@
-                                <td class="text-right" style="width:50px;">{{x.CurrencyName}}</td>
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
-                                @*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
-                                    <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
-                                @*<td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number}}</td>*@
-                                <td>
-                                    <div class="show-message">
-                                        <input type="text" class="form-control text-left" ng-model="x.Description" style="width:500px;">
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="show-message">
-                                        <input type="text" class="form-control text-left" ng-model="x.ReferenceNo" style="width:500px;">
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group">
-                                        <div class="col-sm-12 show-message">
-                                            <input type="text" name="DeliveryDate" ng-model="x.DeliveryDate" datepicker class="form-control">
-                                        </div>
-                                    </div>
-                                </td>
-                                @*<td>{{x.DeliveryDate| dateFiltering}}</td>*@
-                                <td class="text-right">
-                                    <ul class="list-inline action-list">
-                                        @*<li ng-hide="productNew.OrderSpecific==='No'"><button ng-click="detailPopUpForEdit(x)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>*@
-                                        <li><button ng-click="ConfirmOrderWisePopUp(x)" ng-disabled="x.OrderSpecific=='NO' " class="btn btn-action tooltip-here" data-placement="top" title="Order Wise"><i class="glyphicon glyphicon-list"></i></button></li>
-                                        <li><button ng-click="ConfirmMaterialInputPopUp(x)" class="btn btn-action tooltip-here" data-placement="top" title="Material Input"><i class="glyphicon glyphicon-list"></i></button></li>
-                                        <li><button ng-click="detailPopUpForEdit(x)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>
-                                        <li><button ng-click="getReceiveTaxList(x)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                        <li><button ng-click="valuePassInDelModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="9" class="text-right"><strong>Total : </strong></td>
+
+								<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>  @*ng-keyup="calculateAmount(x);"*@
+								<td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
+								<td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x);" ng-disabled="false"> </td>  @*{{x.TransactionRate| setDecimal:currencyPrecision| number}}*@
+								<td class="text-right" style="width:50px;">{{x.CurrencyName}}</td>
+								<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
+								<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
+								@*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
+		<td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
+								<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
+								@*<td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number}}</td>*@
+
+								<td>{{x.Rejection}}</td>
+								<td>{{x.ValueLoss}}</td>
+								<td>{{x.Tolerance}}</td>
+
+								<td>{{x.ResponsiblePersonName}}</td>
+								<td>{{x.Remarks}}</td>
+								<td>
+									<div class="show-message">
+										<input type="text" class="form-control text-left" ng-model="x.Description" style="width:500px;">
+									</div>
+								</td>
+								<td>
+									<div class="show-message">
+										<input type="text" class="form-control text-left" ng-model="x.ReferenceNo" style="width:500px;">
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="col-sm-12 show-message">
+											<input type="text" name="DeliveryDate" ng-model="x.DeliveryDate" datepicker class="form-control">
+										</div>
+									</div>
+								</td>
+								@*<td>{{x.DeliveryDate| dateFiltering}}</td>*@
+								<td class="text-right">
+									<ul class="list-inline action-list">
+										@*<li ng-hide="productNew.OrderSpecific==='No'"><button ng-click="detailPopUpForEdit(x)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>*@
+										<li><button ng-click="ConfirmOrderWisePopUp(x)" ng-disabled="x.OrderSpecific=='NO' " class="btn btn-action tooltip-here" data-placement="top" title="Order Wise"><i class="glyphicon glyphicon-list"></i></button></li>
+										<li><button ng-click="ConfirmMaterialInputPopUp(x)" class="btn btn-action tooltip-here" data-placement="top" title="Material Input"><i class="glyphicon glyphicon-list"></i></button></li>
+										<li><button ng-click="detailPopUpForEdit(x)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>
+										<li><button ng-click="getReceiveTaxList(x)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+										<li><button ng-click="valuePassInDelModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+									</ul>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="9" class="text-right"><strong>Total : </strong></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionQty' }}</strong></td>
+
+								<td class="text-right" ng-hide="sumORnot"></td>
+
+								@*<td class="text-right"><strong>{{PoChildList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision| number }}</strong></td>*@
+								@*<td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision | number}}</strong></td>*@
+								<td></td>
+								<td></td>
+								<td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+								@*<td></td>*@
+								<td></td>
+								<td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+								<td></td>
 
 
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionQty' }}</strong></td>
-
-                                <td class="text-right" ng-hide="sumORnot"></td>
-
-                                @*<td class="text-right"><strong>{{PoChildList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision| number }}</strong></td>*@
-                                @*<td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision | number}}</strong></td>*@
-                                <td></td>
-                                <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:currencyPrecision | number}}</strong></td>
-                                @*<td></td>*@
-                                <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
-                                <td></td>
-
-
-                                <td class="text-right"></td>
-                            </tr>
+								<td class="text-right"></td>
+							</tr>
                         </tbody>
                     </table>
                 </div>
