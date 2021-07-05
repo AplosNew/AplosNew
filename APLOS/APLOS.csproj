@@ -335,6 +335,7 @@
     <Folder Include="POPResources\SOP\SOPCategory\" />
     <Folder Include="POPResources\SOP\SOPDocument\" />
     <Folder Include="POPResources\SOP\SOPSubCategory\" />
+    <Folder Include="POPResources\TaxOpeningBalance\" />
     <Folder Include="Reports\HumanResorce\" />
     <Folder Include="Views\GridReports\" />
   </ItemGroup>
