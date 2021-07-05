@@ -142,39 +142,17 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.GetEntityFixedAssetRegisterData();
+                    //$scope.Clear();
+                }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
         }
-
+       // $scope.GetEntityFixedAssetRegisterData();
     }
-
-
-    //try {
-    //    var NewMasterLCList = [];
-    //    for (var i = 0; i < $scope.MasterLCList.length; i++) {
-    //        if ($scope.MasterLCList[i].isSelected == true) {
-
-    //            if (NewMasterLCList, $scope.MasterLCList[i].PartyId) {
-    //                NewMasterLCList.push($scope.MasterLCList[i].PartyId);
-    //            }
-    //        }
-    //    }
-    //    if (NewMasterLCList.length == 0) {
-    //        //(angular.isUndefinedOrNull(NewMasterLCList)) 
-    //        ShowResult('Please select at least one Party', 'failure');
-    //        //throw 'Please enter to date';
-
-    //    } else {
-    //        var file_src = $scope.path + "PartyPaymentStatusReport?MasterLCList=" + NewMasterLCList;
-    //        $rootScope.report(file_src);
-    //    }
-
-
-    //} catch (e) {
-    //    ShowResult(e, 'failure');
-    //}
-
 
 
     //$scope.InvoiceSummaryReport = function () {
