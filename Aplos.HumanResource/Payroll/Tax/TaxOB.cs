@@ -184,17 +184,17 @@ namespace Library.HumanResource.Payroll.Tax
             //var _Id = string.Empty;
             try
             {
-                foreach (var item in ChildList)
-                {
-                    if (EmpList.EmpSystemID != "")
-                    {
-                        strSQL = "SELECT * FROM dbo.IncomeTaxItemTransaction WHERE EmpSystemId in (" + EmpList.EmpSystemID + ") and Id in ('" + item.Id + "')";
-                    }
-                    else
-                    {
-                        strSQL = "SELECT * FROM dbo.IncomeTaxItemTransaction ";
-                    }
-                }
+                //foreach (var item in ChildList)
+                //{
+                //    if (EmpList.EmpSystemID != "")
+                //    {
+                //        strSQL = "SELECT * FROM dbo.IncomeTaxItemTransaction WHERE EmpSystemId in (" + EmpList.EmpSystemID + ") and Id in ('" + item.Id + "')";
+                //    }
+                //    else
+                //    {
+                        strSQL = "SELECT * FROM dbo.IncomeTaxItemTransaction WHERE EmpSystemId in (" + EmpList.EmpSystemID + ")";
+                //    }
+                //}
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }
