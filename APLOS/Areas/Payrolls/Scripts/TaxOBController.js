@@ -510,26 +510,26 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
     $scope.confirmFileDelete = function () {
         angular.element(document.querySelector("#confirmFileDelete")).modal("show");
     }
-    //$scope.getFileList = function () {
-    //    var Id= '';
-    //    if (args.model.Id)
-    //        Id =args.model.Id;
-    //    $http({
-    //        method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
-    //        data: { Id: args.model.Id, TableName: $scope.UploadTableName }
+    $scope.getFileList = function () {
+        var Id= '';
+        if (args.model.Id)
+            Id =args.model.Id;
+        $http({
+            method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
+            data: { Id: args.model.Id, TableName: $scope.UploadTableName }
 
-    //    }).then(function successCallback(response) {
-    //        if (response.data.Error == true) {
-    //            ShowResult('error', 'failure');
-    //        }
-    //        else {
-    //            $scope.SelectedItemData.FileName = response.data[0].FileName;
-    //            $scope.SelectedItemData.FileOriginalName = response.data[0].FileOriginalName;
-    //        }
-    //    }, function errorCallback(response) {
-    //        ShowResult('Failed', 'failure');
-    //    });
-    //}
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult('error', 'failure');
+            }
+            else {
+                $scope.SelectedItemData.FileName = response.data[0].FileName;
+                $scope.SelectedItemData.FileOriginalName = response.data[0].FileOriginalName;
+            }
+        }, function errorCallback(response) {
+            ShowResult('Failed', 'failure');
+        });
+    }
     $scope.errorUpload = function (e) {
         ShowResult(e.error, 'failure');
         //    ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
