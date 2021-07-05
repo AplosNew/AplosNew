@@ -1042,7 +1042,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                PO Details Data Entry
+                Add Job Work Item(Out Put Item)
                 <button type="button" class="close" ng-click="closeDetaiPopUp();">×</button>
             </div>
             <div class="modal-body form-elements form-horizontal">
@@ -1369,12 +1369,12 @@
                             </div>
                         </div>
 
-                        <div class="common-btn">
+                        @*<div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="SaveMatPlanning()" ng-disabled="Transformation.Id==null" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></button></li>
                                 <li> <button ng-click="detailClear()" class="btn" tabindex="7"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
-                        </div>
+                        </div>*@
                     </div>
                 </div>
                 <div class="clearfix"></div>
@@ -1480,7 +1480,7 @@
                         <li><button ng-click="detailSave('JWITEM',false);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{detailModel.Id.length>0?'Update':'Save'}}</button></li>
                         <li><button ng-click="DetailDelete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                         <li><button ng-click="closeDetaiPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
-
+						<li> <button ng-click="detailClear()" class="btn" tabindex="7"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>
             </div>
@@ -3039,6 +3039,40 @@
             </div>
         </div>
     </div>
+</div>
+
+<div class="modal fade site-modal in" id="EmployeePopUpResPerson" role="dialog" data-backdrop="static">
+	<div class="modal-dialog modal-lg modellgModify">
+		<div class="modal-content">
+			<div class="modal-header"> Responsible Person List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+			<div class="modal-body form-elements form-horizontal">
+				<div class="col-md-12">
+					<div class="content-container-fluid" style="color:black;overflow:scroll">
+						<div style="color:black;" id="GridEmployeeResPerson" ej-grid e-datasource="EmployeeResPersonList"
+							 e-allowfiltering="true" e-recorddoubleclick="setEmpData" e-allowpaging="true"
+							 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+							<div e-columns>
+								<div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+								<div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="140"></div>
+								<div e-column e-type="string" e-field="PositionName" e-headertext="Position" e-width="140"></div>
+								<div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="80"></div>
+								<div e-column e-type="string" e-field="DepartmentName" e-headertext="Department Name" e-width="80"></div>
+								<div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+								<div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="common-btn">
+					<ul class="list-inline text-right">
+						<li>
+							<button ng-click="closeEmpResPersonPopUp('EmployeePopUpResPerson');" class="btn"><i class=""></i> Close</button>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 @* Shashank Material Pop up  *@
 
