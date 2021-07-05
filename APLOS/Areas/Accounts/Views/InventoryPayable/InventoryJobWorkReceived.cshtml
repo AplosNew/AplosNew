@@ -278,9 +278,7 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Material Info</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Service" role="tab" data-toggle="tab">Service Info</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="Transaction" role="tab" data-toggle="tab">Journal</a></li>
-                @*<li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="address" role="tab" data-toggle="tab" ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)">Parallel Currency</a></li>*@
             </ul>
         </div>
         <div class="tab-content">
@@ -367,60 +365,7 @@
 
 
                 <div class="clearfix"></div>
-                @*<div class="table-responsive modal-table" ng-show="PurchaseOrderDiscountList.length">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>GRNNO</th>
-                                    <th>PO Id</th>
-                                    <th>Material Group</th>
-                                    <th>Discount Amount </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="x in PurchaseOrderDiscountList">
-                                    <td>{{x.GRNNo}}</td>
-                                    <td>{{x.POId}}</td>
-                                    <td>{{x.MaterialGroup}}</td>
-                                    <td><input type="text" class="form-control text-right" id="Amount" ng-model="x.Amount " n-decimals="2" tabindex="11" ng-keyup="podiscountAmountCal(x)" autocomplete="off"></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3" class="text-right"><strong>Total : </strong></td>
-                                    <td class="text-right"><strong>{{PurchaseOrderDiscountList | sumByKey : 'Amount'| number| setDecimal:2 }}</strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>*@
-                @*</div>*@
-            </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div ng-form="tabForm2">
-                    <div class="table-responsive modal-table">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Service</th>
-                                    <th>Amount (TRN)</th>
-                                    <th>Total Tax Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="x in chargesList" ng-show="chargesList.length">
-                                    <td>{{x.ServiceMasterName}}</td>
-                                    <td class="text-right">{{x.Amount}}</td>
-                                    <td class="text-right">{{x.TotalTaxAmount}}</td>
-                                </tr>
-
-                                <tr ng-show="chargesList.length">
-                                    <td class="text-right"><strong>Total : </strong></td>
-                                    <td class="text-right"><strong>{{chargesList | sumByKey : 'Amount'| setDecimal:currencyPrecision| number }}</strong></td>
-                                    <td class="text-right"><strong>{{chargesList | sumByKey : 'TotalTaxAmount'| setDecimal:currencyPrecision| number }}</strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+              
             </div>
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" ng-keypress="materialConfigMassege()">
@@ -429,195 +374,117 @@
 
         </div>*@
                 <div class="col-xs-12 col-sm-4 col-md-4">
-                    <div class="common-btn">
-                        <ul class="common-btn list-inline text-left">
-                            <li> <button ng-click="materialConfigMassege();" class="btn"> Show Reason</button></li>
-                        </ul>
+                    @*<div class="common-btn">
+                <ul class="common-btn list-inline text-left">
+                    <li> <button ng-click="materialConfigMassege();" class="btn"> Show Reason</button></li>
+                </ul>
 
-                    </div>
+            </div>*@
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
 
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Additional Tax</label>
-                        <label class="switch col-sm-8" style="margin-left:18px;">
-                            <input type="checkbox" ng-disabled="modelNew.IsInvoice==false" ng-model="modelNew.AddtionalTax">
-                            <span class="slider round"></span>
-                        </label>
+                </div>
+                <div class="clearfix"></div>
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"> JobWork WIP</legend>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>GL</th>
+                                    <th>Budget</th>
+                                    <th>Activity</th>
+                                    <th>Dr</th>
+                                    <th>Cr</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in inventoryJobWorkWIPList| orderBy:'Dr'">
+                                    <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                    <td>{{x.BudgetName}}</td>
+                                    <td>{{x.ActivityName}}</td>
+                                    <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
+                                    <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3"></td>
+                                    <td class="text-right"><strong>{{inventoryJobWorkWIPList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                                    <td class="text-right"><strong>{{inventoryJobWorkWIPList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-                <div class="clearfix"></div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>GL</th>
-                                <th>Budget</th>
-                                <th>Activity</th>
-                                <th>Dr</th>
-                                <th>Cr</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="x in inventoryJobWorkWIPList| orderBy:'Dr'">
-                                <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
-                                <td>{{x.BudgetName}}</td>
-                                <td>{{x.ActivityName}}</td>
-                                <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
-                                <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="3"></td>
-                                <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
-                                <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>GL</th>
-                                <th>Budget</th>
-                                <th>Activity</th>
-                                <th>Dr</th>
-                                <th>Cr</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="x in newList| orderBy:'Dr'| groupBy: 'MaterialGroupMasterId'">
-                                <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
-                                <td>{{x.BudgetName}}</td>
-                                <td>{{x.ActivityName}}</td>
-                                <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
-                                <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="3"></td>
-                                <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
-                                <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>GL</th>
-                                <th>Budget</th>
-                                <th>Activity</th>
-                                <th>Dr</th>
-                                <th>Cr</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="x in GetInventoryJobWorkGIRI| orderBy:'Dr'">
-                                <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
-                                <td>{{x.BudgetName}}</td>
-                                <td>{{x.ActivityName}}</td>
-                                <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
-                                <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="3"></td>
-                                <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
-                                <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="clearfix"></div>
-                <div class="table-responsive modal-table" ng-show="modelNew.AddtionalTax">
-                    <table class="table table-responsive table-striped">
-                        <caption>TDS </caption>
-                        <thead>
-                            <tr>
-                                <th>Input Tax</th>
-                                <th>Percentage</th>
-                                <th>Amount</th>
-                                <th class="text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td id="td_TDS_TaxCode">
-                                    <div class="select-style show-message">
-                                        <select name="TDSTaxCodeId" ng-model="TDS.TaxCodeId" ng-change="selectTDS(TDS.TaxCodeId)" class="col-sm-3 form-control"
-                                                ng-options="item.Id as item.UserName for item in TDSCboList">
-                                            <option></option>
-                                        </select>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div>
-                                        <input type="text" n-decimals="4" class="form-control text-right" ng-disabled="TDS.Type =='FixedPercentage' && TDS.ValueOfFixed!=null" ng-model="TDS.ValueOfFixed">
-                                    </div>
-                                </td>
-                                <td id="td_TDS_TaxCodeAmount">
-                                    <div class="show-message">
-                                        <input type="text" n-decimals="4" class="form-control text-right" ng-model="TDS.TaxAmount" ng-keyup="copyTaxesAmount();">
-                                    </div>
-                                </td>
-                                <td class="text-right">
-                                    <a ng-click="addTDS();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
-                                </td>
-                            </tr>
-                            <tr ng-repeat="x in TDSList">
-                                <td>{{x.TaxName}}</td>
-                                <td>{{x.ValueOfFixed}}</td>
-                                <td class="text-right">{{x.TaxAmount | number:2 }}</td>
-                                <td class="text-right">
-                                    <button ng-click="removeTDSRow($index)" data-toggle="modal" ng-disabled="x.AdvanceId" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
-                                </td>
-                            </tr>
-                        </tbody>
-                        <tfoot ng-show="TDSList.length">
-                            <tr>
-                                <td colspan="2"><b>Sub Total</b></td>
-                                <td class="text-right"><b>{{ TDSList | sumByKey : 'TaxAmount' }}</b></td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                </fieldset>
+
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"> Change In Inventory</legend>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>GL</th>
+                                    <th>Budget</th>
+                                    <th>Activity</th>
+                                    <th>Dr</th>
+                                    <th>Cr</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in newList| orderBy:'Dr'| groupBy: 'MaterialGroupMasterId'">
+                                    <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                    <td>{{x.BudgetName}}</td>
+                                    <td>{{x.ActivityName}}</td>
+                                    <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
+                                    <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3"></td>
+                                    <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                                    <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </fieldset>
+
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"> GIRI</legend>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Other Name</th>
+                                    <th>GL</th>
+                                    <th>Budget</th>
+                                    <th>Activity</th>
+                                    <th>Dr</th>
+                                    <th>Cr</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in inventoryJobWorkGIRIList| orderBy:'Dr'">
+                                    <td>{{x.OtherName}}</td>
+                                    <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                    <td>{{x.BudgetName}}</td>
+                                    <td>{{x.ActivityName}}</td>
+                                    <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
+                                    <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4"></td>
+                                    <td class="text-right"><strong>{{inventoryJobWorkGIRIList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                                    <td class="text-right"><strong>{{inventoryJobWorkGIRIList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    </fieldset>
+                    <div class="clearfix"></div>
 
             </div>
-            @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }" ng-form="tabForm4" ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)">
-                    <div class="clearfix"></div>
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-6 col-md-6">
-                            <fieldset ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)" class="scheduler-border">
-                                <legend class="scheduler-border">Currency Exchange Rate</legend>
-                                <div class="table-responsive modal-table">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Unit</th>
-                                                <th>From</th>
-                                                <th>To</th>
-                                                <th>Rate</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr ng-repeat="x in currencyExchangeRate" ng-hide="x.ParallelCurrencyId==modelNew.CurrencyId">
-                                                <td>{{x.FromCurrencyUnit}}</td>
-                                                <td>{{x.FromCurrencyCode}}</td>
-                                                <td>{{x.CompanyCurrencyRate}}</td>
-                                                <td>
-                                                    <input n-decimals="4" ng-maxlength="3" type="text" class="form-control text-right" ng-model="x.ToCurrencyRate" ng-keyup="changeCurrencyExchangeRate();" />
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </fieldset>
-                        </div>
-                    </div>
-                </div>*@
+          
         </div>
     </div>
     <div class="clearfix"></div>

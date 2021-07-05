@@ -749,6 +749,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
             for (var i = 0; i < $scope.MaterialInputList.length > 0; i++) {
                 if ($scope.MaterialInputList[i].Id === RowData.Id) {
                     $scope.MatMstId = $scope.MaterialInputList[i].InputMaterialId;
+                    $scope.SelectedMaterialInputId = $scope.MaterialInputList[i].Id;
                     $scope.a = i;
                 }
             }
@@ -833,8 +834,9 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
 
         $scope.detailList[$scope.indexforDetail].MaterialMasterId = data.MaterialMasterId;
         $scope.detailList[$scope.indexforDetail].ArticleId = data.ArticleId;
-        $scope.GetByDefaultRate($scope.a);
-        $scope.GetLotNumberList($scope.a);
+        //$scope.GetByDefaultRate($scope.a);
+        //$scope.GetLotNumberList($scope.a);
+        $scope.GetIssuedDetailList($scope.a);
         getMaterialStock(b);
         angular.element(document.querySelector('#MaterialArticlePopUp')).modal('hide');
     };
@@ -865,6 +867,28 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
             $scope.LotNumList = response.data;
             if ($scope.LotNumList.length > 0) {
                 $scope.MaterialInputList[x].LotNumberList = response.data;
+            }
+        });
+    }
+
+    //  GET Planned, Issued, Balance Quantity
+
+    $scope.IssuedDetailList = [];
+    $scope.GetIssuedDetailList = function (x) {
+        $scope.detailList[x].PlannedQty = null;
+        $scope.detailList[x].IssuedQty = null;
+        $scope.detailList[x].BalanceQty = null;
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetIssuedDetailList?ArticleId=' + $scope.SelectedArticleId + '&MaterialId=' + $scope.MatMstId + '&MaterialInputId=' + $scope.SelectedMaterialInputId + '&ContractId=' + $scope.Transformation.Id,
+        }).then(function successCallback(response) {
+            $scope.IssuedDetailList = response.data;
+            if ($scope.IssuedDetailList.length > 0) {
+
+           //     $scope.detailList[$scope.indexforDetail].MaterialMasterId = data.MaterialMasterId;
+                $scope.detailList[x].PlannedQty = $scope.IssuedDetailList[0].RequiredQuantity;
+                $scope.detailList[x].IssuedQty = $scope.IssuedDetailList[0].TIRCTotalQty;
+                $scope.detailList[x].BalanceQty = $scope.IssuedDetailList[0].BalanceToIssue;
             }
         });
     }
@@ -944,18 +968,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
         }
     };
 
-    $scope.ConfirmPrintTab = function (data) {
-        try {
-            $scope.PrintTabId = data.ContractId;
-            $scope.IssueId = data.Id;
-            var reportFormat = "Excel";
-            window.open('JobWork/JobWorkIssueReturn/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
-         //   $scope.getData();
-
-        } catch (e) {
-
-        }
-    };
+  
 
 //
 
@@ -1575,4 +1588,50 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
         location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
 
     };
+
+  $scope.ConfirmPrintTab = function (p) {
+        try {
+        var x = "#" + p;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+
+            $scope.PrintTabId = data.JWContractId;
+            $scope.IssueId = data.Id;
+            var reportFormat = "Excel";
+            window.open('JobWork/JobWorkIssueReturn/GetTransformationPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId + '&IssueId=' + $scope.IssueId, '_blank');
+         //   $scope.getData();
+
+        } catch (e) {
+
+        }
+    };
+
+    // Transformation Stock Wise Status
+
+    $scope.GetShowStorageLocationList = [];
+    $scope.stockwisestatus = function (RowData, index) {
+        $scope.GetShowStorageLocationList = [];
+        angular.element(document.querySelector("#ShowLOcationWiseStock")).modal("show");
+
+        for (var i = 0; i < $scope.detailList.length > 0; i++) {
+            if ($scope.detailList[i].Id === RowData.Id) {
+                $scope.MatMstId = $scope.detailList[i].InputMaterialId;
+                $scope.SelectedArticleId = $scope.detailList[i].MaterialMasterArticleId;
+                $scope.a = i;
+            }
+        }
+
+        $http({
+            method: 'POST',
+            data: { MaterialMstId: $scope.MatMstId, ArticleId: $scope.SelectedArticleId, issueDate: $scope.IssueTransformation.IssueDate },
+            url: 'Products/InventoryIssue/StorageLocationStockWise/'
+        }).then(function successCallback(response) {
+            $scope.GetShowStorageLocationList = response.data;
+        });
+    }
+
+     $scope.GetPopUpShowStorageLocationClosed=function() {
+      angular.element(document.querySelector('#ShowLOcationWiseStock')).modal('hide');
+
+      }
 }

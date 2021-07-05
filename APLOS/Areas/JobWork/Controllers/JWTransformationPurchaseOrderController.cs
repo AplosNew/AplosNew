@@ -2,24 +2,17 @@
 
 using Aplos.Controllers;
 using Aplos.Properties;
-using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
+using Library.MaterialManagement.Inventory;
 using Library.Model.Enums;
 using Library.Model.Inventory;
-using Library.Model.Setups;
-using Library.Model.Taxations;
 using Library.Service.Enums;
-using Library.MaterialManagement.Inventory;
 using Library.Service.Logs;
-using Library.Service.Setups;
-using OTSBD;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;

@@ -22,7 +22,7 @@ namespace Aplos.Areas.JobWork.Controllers
 {
     public class JWItemController : BaseController
     {
-        string TableName = "JWItem";
+        string TableName = "HKP.JobWorkItem";
         //authentication for
         //GetList Create Delete
         Library.MaterialManagement.JobWork.JobWorkCommon JobWorkCommon = null;
@@ -79,7 +79,7 @@ namespace Aplos.Areas.JobWork.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT JWI.Id,JWI.MaterialMasterId,JWI.ResponsiblePersonId,JWI.UOMId UOMId,JWI.Code
                             ,JWI.Sequence,JWI.ShortName,JWI.StandardName,JWI.UserName,JWI.Remarks,MM.UserName MaterialMaster
-                            ,UOM.ShortName UOM,EEI.EmployeeName ResponsiblePersonName FROM JWItem JWI 
+                            ,UOM.ShortName UOM,EEI.EmployeeName ResponsiblePersonName FROM HKP.JobWorkItem JWI 
                             LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id = JWI.MaterialMasterId
                             LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = JWI.ResponsiblePersonId
                             LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id = JWI.UOMId WHERE " + strkey + " order by JWI.sequence";

@@ -5803,7 +5803,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                             left outer join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
 							left outer join dbo.[Contract] con on con.Id=MOI.ContractId
 							left outer join HKP.Party PA on PA.Id=con.CustomerId
-							left outer join MasterLC M on m.IsClose=con.MasterLCId
+							left outer join MasterLC M on m.Id=con.MasterLCId
 
                             left join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
                             LEFT OUTER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
