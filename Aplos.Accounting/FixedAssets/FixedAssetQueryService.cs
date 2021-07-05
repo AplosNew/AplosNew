@@ -1420,7 +1420,7 @@ namespace Library.Accounting.FixedAssets
         #region Entity Fixed Assets Register
         public List<Dictionary<string, object>> GetEntityFixedAssetRegisterDataList(string companyGroupId, string companyId, string plantId)
         {
-            var sql = @"SELECT FR.Id,FR.Id AS FixedAssetRegisterId,V.VoucherNo, FR.MaterialMasterArticleId, FR.MaterialMasterId
+            var sql = @"SELECT convert(bit,0) AS isSelected , null Entity, null Department, FR.Id,FR.Id AS FixedAssetRegisterId,V.VoucherNo, FR.MaterialMasterArticleId, FR.MaterialMasterId
                                     , FR.SerialNo, FR.Id AssetNo, FR.InvoiceNo, MM.UserName MaterialMasterName
                                     , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                                     , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
@@ -1439,7 +1439,7 @@ namespace Library.Accounting.FixedAssets
 									LEFT JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
 									LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
 									LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId 
-                                    WHERE FR.CompanyId='"+companyId+@"' and FR.IsOpeningBalance=0 and FR.Archive=0 and FR.IsAUC=0
+                                    WHERE FR.CompanyId='" + companyId+@"' and FR.IsOpeningBalance=0 and FR.Archive=0 and FR.IsAUC=0
                                     AND FR.Id NOT IN(' ')";
             return _sqlRepository.GetDataCollection(sql);
 

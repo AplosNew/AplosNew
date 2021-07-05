@@ -88,18 +88,13 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.SelectedMaterialPlanningTabList = [];
     $scope.JobWorkActivityList = [];
 
-    $scope.GetJobWorkActivityList = function () {
-        $http({
-            method: 'GET',
-            url: $scope.pathJWCBO + 'getactivitylistTransformation',
-        }).then(function successCallback(response) {
-            $scope.JobWorkActivityList = response.data;
+    $http({
+        method: 'GET',
+        url: $scope.pathJWCBO + 'getactivitylistTransformation',
+    }).then(function successCallback(response) {
+        $scope.JobWorkActivityList = response.data;
 
-        });
-    }
-    $scope.GetJobWorkActivityList();
-
-
+    });
 
     $scope.GetJWItems = function () {
         $http({
@@ -230,6 +225,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.detailModel.MaterialCode = data.Code;
         $scope.detailModel.MaterialMasterId = data.Id;
         $scope.detailModel.MaterialName = data.MaterialName;
+        $scope.detailModel.MaterialMasterName = data.MaterialName;
         $scope.detailModel.OutputMaterialUOMId = data.BaseUOMId;
         angular.element(document.querySelector('#MaterialPopUp')).modal('hide');
         $scope.MaterialMstArticlePopUp();
@@ -980,7 +976,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     //#region Save Update Delete Function
 
     $scope.Save = function () {
-    
+
         try {
             $scope.dbval = $scope.StateData;
             $scope.UIval = $scope.productNew.InvoicingState;
@@ -1012,7 +1008,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             $scope.modelValidation('div_docDate', 'productNew', 'DocDate');
             //$scope.modelValidation('div_entryNo', 'productNew', 'GateEntryNo');
             $scope.modelValidation('div_PODate', 'productNew', 'PODate', 'PO Entry Date');
-            
+
             $scope.manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');
 
             if ($scope.productNew.CurrencyId !== $scope.productNew.BaseCurrencyId)
@@ -1037,7 +1033,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                         data: {
                             'data': $scope.product
                             , 'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti
-                            , 'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti                            
+                            , 'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti
                         },
                         dataType: 'JSON'
                     }).then(function (response) {
@@ -1221,7 +1217,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     }).then(function successCallback(response) {
         $scope.baseCurrencyId = response.data[0].Value;
         $scope.productNew.BaseCurrencyId = response.data[0].Value;
-      
+
     });
 
 
@@ -1243,7 +1239,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         });
 
 
- 
+
 
     $scope.searchByList = [
         {
@@ -1531,7 +1527,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     // #region DetailsisSetIndex2
     $scope.detailTempModel = {
         Id: null
-        , JWTransformationPurchaseOrderId: null   
+        , JWTransformationPurchaseOrderId: null
         , JWItemId: null
         , JWItemName: null
         , JWServiceName: null
@@ -1583,14 +1579,17 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         , RequiredCapacity: null
         , ByProductApplicable: null
         , RateApplyOn: null
-        , CurrencyId :null
-		, RatePerUnit: null
+        , CurrencyId: null
+        , RatePerUnit: null
         , Rejection: null
         , ValueLoss: null
         , ResponsiblePersonId: null
         , Remarks: null
-        , Tolerance:null
-        , ServiceId:null
+        , Tolerance: null
+        , ServiceId: null
+        , EmployeeCode: null
+       
+        , ResponsiblePerson: null
     };
     $scope.detailModel = Object.assign({}, $scope.detailTempModel);
 
@@ -1599,6 +1598,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.productNew.TaxOptionMat = 'Yes';
         $scope.receiveTaxList = [];
         $scope.detailModel = Object.assign({}, $scope.detailTempModel);
+        //$scope.MatPlanning = Object.assign({}, $scope.MatPlanningModelTemp);
         angular.element(document.querySelector('#detailPopUp')).modal('show');
     };
 
@@ -2654,7 +2654,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             method: "GET",
             dataType: 'JSON',
             url: $scope.path + 'GetBOQItems?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&JWPOId=' + $scope.productNew.Id + '&JWPODId=' + $scope.detailModel.Id + '&jwActivityId=' + activityListStr
-        }).then(function successCallback(response) { 
+        }).then(function successCallback(response) {
             $scope.GetListForMasterOrder = [];
             $scope.GetListForMasterOrder = response.data;
             gridObj.clearFiltering();
@@ -2915,7 +2915,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         });
     $scope.EmployeeResPersonList = [];
     $scope.ResPersonPopUp = function () {
-        angular.element(document.querySelector("#EmpPopUpResPerson")).modal("show");
+        angular.element(document.querySelector("#EmployeePopUpResPerson")).modal("show");
         $scope.getEmpData();
 
     }
@@ -2923,13 +2923,20 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.EmployeeResPersonList = [];
         $http({
             method: 'POST',
-            data: { Id: $scope.Transformation.Id },
-            url: $scope.path + 'LoadAllResponsiblePersonDetails'
+            //data: { Id: $scope.ModelNew.Id },
+            url: $scope.path + 'LoadAllEmpDetails'
         }).then(function successCallback(response) {
             $scope.EmployeeResPersonList = response.data;
         });
     }
+    $scope.setEmpData = function (obj) {
 
+        var data = obj.data;
+        $scope.detailModel.EmployeeCode = data.Code;
+        $scope.detailModel.ResponsiblePersonId = data.Id;
+        $scope.detailModel.ResponsiblePerson = data.EmployeeName;
+        angular.element(document.querySelector('#EmployeePopUpResPerson')).modal('hide');
+    };
     $scope.ResPersonClear = function () {
         $scope.detailModel.ResponsiblePersonId = null;
         $scope.detailModel.ResponsiblePerson = null;
@@ -2966,13 +2973,100 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     //        dataType: 'JSON',
     //        url: $scope.path + 'GetJwTransPoDetailInputMaterial?jwpoDetailId=' + data.Id
     //    }).then(function successCallback(response) { //datagatefun     
-            
+
     //        $scope.JWPOinputList = response.data;
     //    });
-        
+
     //    angular.element(document.querySelector('#ByProductInputMaterialModal')).modal('show');
 
 
     //};
 
+    $scope.MatPlanningModelTemp = {
+        Id: null,
+        JobWorkTransformationContractMasterId: null,
+        JobWorkItemMasterId: null,
+        MaterialSpecification: null,
+        MaterialReference: null,
+        OutputMaterialUOMId: null,
+        Quantity: null,
+        ArticleCodeId: null,
+        OrderSpecific: null,
+        RequiredCapacity: null,
+        ByProductApplicable: null,
+        RateApplyId: null,
+        CurrencyId: null,
+        RatePerUnit: null,
+        Rejection: null,
+        ValueLoss: null,
+        ResponsiblePersonId: null,
+        Remarks: null,
+        FileName: null,
+        MaterialLocationId: null,
+        MaterialType: null,
+        FinalOutputCategory: null,
+        JobActivityId: null,
+        MaterialCode: null,
+        MaterialName: null,
+        MaterialMasterId: null,
+        ArticleCode: null,
+        ArticleName: null,
+        EmployeeCode: null,
+        ResponsiblePerson: null,
+        EmployeeStatus: null,
+        Tolerance: null,
+
+    };
+    $scope.MatPlanning = Object.assign({}, $scope.MatPlanningModelTemp);
+    //PO Details save
+    $scope.SaveMatPlanning = function () {
+        $scope.MatPlanning.JobWorkTransformationContractMasterId = $scope.Transformation.Id;
+        //      $scope.$broadcast('show-errors-check-validity');
+        //     if ($scope.FarmerMasterPlotForm.$valid) {
+        if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
+            throw $scope.filedata.name + ' File size must be below 2 mb';
+        var fileName = null;
+        if (!baseService.isUndefinedOrNull($scope.filedata))
+            fileName = $scope.filedata.name;
+        $scope.MatPlanning.FileName = fileName;
+        if (!baseService.isUndefinedOrNull($scope.MatPlanning.FileName)) {
+            if ($scope.MatPlanning.FileName.length > 50) {
+                throw "File Name must be less than 50 character.";
+            }
+        }
+        var formData = new FormData();
+        $scope.path = "JobWork/JobWorkValueAddedContract/";
+        $http({
+            method: 'POST',
+            url: $scope.path + 'saveUrlMatPlanning',
+            headers: { 'Content-Type': undefined },
+            transformRequest: function (data) {
+                formData.append("MatPlanning", angular.toJson(data.MatPlanning));
+                if (baseService.isUndefinedOrNull($scope.filedata) === false) {
+                    formData.append('file', data.file);
+                }
+                return formData;
+            },
+            //data: { 'MatPlanning': $scope.MatPlanning, 'file': $scope.filedata }
+            data: { 'MatPlanning': $scope.MatPlanning, 'file': $scope.filedata }
+            
+
+            
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.MatPlanning = response.data.Data;
+                $scope.getMatPlanningData();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+        //    }
+    };
+
+    //end
 }
