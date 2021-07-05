@@ -267,6 +267,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.detailModel.ArticleCode = data.ArticleCode;
         $scope.detailModel.ArticleCodeId = data.ArticleId;
         $scope.detailModel.ArticleName = data.StandardName;
+        $scope.detailModel.ArticleId = data.ArticleId;
         angular.element(document.querySelector('#MaterialArticlePopUp')).modal('hide');
     };
     // Material and Article
