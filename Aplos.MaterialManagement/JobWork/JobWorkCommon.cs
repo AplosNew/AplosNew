@@ -2470,8 +2470,6 @@ namespace Library.MaterialManagement.JobWork
 
                     }
                 }
-
-
                 else
                 {
                     for (int i = 0; i < data.Count; i++)
@@ -2841,7 +2839,7 @@ namespace Library.MaterialManagement.JobWork
             //                     LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax  where  JWTransformationPurchaseOrderId = 'JWP17' GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
             //ON jwtax.JWTransformationPurchaseOrderId  = JWTPD.JWTransformationPurchaseOrderId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
             //                   WHERE " + strkey + "  and JWTPD.JWTransformationPurchaseOrderId = '" + jwpoId + @"'";
-            string sql = @"SELECT JWTPD.*,ISNULL(JWI.UserName,'') JWItemName,ISNULL(JWItemUOM.Code,'') JWItemUOM ,MM.Id MaterialMasterId ,ISNULL(MM.UserName,'') MaterialMasterName
+            string sql = @"SELECT JWA.Id JobWorkActivityId, JWA.UserName JobWorkActivity,JWTPD.*,ISNULL(JWI.UserName,'') JWItemName,ISNULL(JWItemUOM.Code,'') JWItemUOM ,MM.Id MaterialMasterId ,ISNULL(MM.UserName,'') MaterialMasterName
                             ,MMA.Id ArticleId,ISNULL(MMA.ShortName,'') ArticleName
                             ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
                                 ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
@@ -2860,10 +2858,11 @@ namespace Library.MaterialManagement.JobWork
 	                            ,(JWTPD.Quantity*JWTPD.RatePerUnit) TransactionAmount
                             , JWTPD.ReferenceNo,((JWTPD.Quantity*JWTPD.RatePerUnit)*po.ToCurrencyRate) BaseAmount
                             , jwtax.TaxAmount,JWTPD.TransactionUoMId,TransactionUoM.Code TransactionUoM,JWTPD.BaseUOMId,BaseUOM.Code BaseUOM
+                            ,MS.Id MaterialStorageId,MS.UserName MaterialStorage
                             FROM JobWorkTransformationContractChild JWTPD      
                             left JOIN [dbo].[JWTransformationPurchaseOrder] PO On PO.Id=JWTPD.JobWorkTransformationContractMasterId
                             LEFT JOIN HKP.JobWorkItem JWI ON JWI.Id = JWTPD.JobWorkItemMasterId
-                            LEFT JOIN HKP.JobWorkActivity JWA ON JWA.Id = JWTPD.JobWorkItemMasterId
+                            LEFT JOIN HKP.JobWorkActivity JWA ON JWA.Id = JWTPD.JobActivityId
                             LEFT JOIN SCS.UnitOfMeasurement JWItemUOM  ON JWItemUOM.Id = JWTPD.OutputMaterialUOMId
                             LEFT JOIN MST.MaterialMaster MM  ON MM.Id = JWTPD.MaterialMasterId
                             LEFT JOIN MST.MaterialMasterArticle MMA  ON MMA.Id = JWTPD.ArticleId
@@ -2883,6 +2882,7 @@ namespace Library.MaterialManagement.JobWork
     
                             LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax  where  JWTransformationPurchaseOrderId = '" + jwpoId + @"' GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
                             ON jwtax.JWTransformationPurchaseOrderId  = JWTPD.JobWorkTransformationContractMasterId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
+                            left join hkp.MaterialStorage MS ON MS.Id=JWTPD.MaterialLocationId
                             WHERE " + strkey + "  and JWTPD.JobWorkTransformationContractMasterId = '" + jwpoId + @"'";
             return sql;
 		}
