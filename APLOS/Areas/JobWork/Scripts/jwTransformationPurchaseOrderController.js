@@ -3069,5 +3069,600 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         //    }
     };
 
+    $scope.BPMaterialMstList = [];
+    $scope.BPMaterialArticleMstList = [];
+
+    //  JOB WORK ORDER WISE CODE
+
+    // Order Wise Requirement tab
+
+    //  $scope.MonthsList = [];
+    $scope.ConfirmOrderWisePopUp = function (data) {
+        $scope.MatPlanningTabId = data.Id;
+        $scope.UnitId = data.OutputMaterialUOMId;
+        $scope.TransformOrderWiseReq.Quantity = data.Quantity;
+        $scope.PQuantity = data.Quantity;
+        $scope.TransformOrderWiseReq.PlanQuantity = $scope.PQuantity;
+      //  $scope.TransformOrderWiseReq.ArtclCode = data.ArticleCode 
+        $scope.TransformOrderWiseReq.ArtclCode = data.ArticleName
+        $scope.GetTransformOrderWiseUOM();
+        $scope.getTransformOrderWiseData();
+        angular.element(document.querySelector("#OrderWisePopUp")).modal("show");
+
+    }
+
+
+    $scope.closeTransformOrderWiseReqTabPopUp = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+
+    }
+
+    $scope.TransformOrderWiseRequirementList = [];
+    $scope.AllCustomerList = [];
+    $scope.AllMasterOrderNoList = [];
+    $scope.AllMasterOrderItemList = [];
+    $scope.AllUOMList = [];
+
+    $http({
+        method: 'GET',
+        url:'JobWork/JobWorkValueAddedContract/getcustomerlist/',
+    }).then(function successCallback(response) {
+        $scope.AllCustomerList = response.data;
+    });
+
+    $scope.GetAllMasterOrderNo = function () {
+        $http({
+            method: 'GET',
+            url:'JobWork/JobWorkValueAddedContract/getmasterorderlist?CustomerId=' + $scope.TransformOrderWiseReq.CustomerId,
+        }).then(function successCallback(response) {
+            $scope.AllMasterOrderNoList = response.data;
+        });
+    }
+
+    $scope.GetAllMasterOrderItem = function () {
+        $http({
+            method: 'GET',
+            url:'JobWork/JobWorkValueAddedContract/getmasterorderitemlist?MasterOrderNoId=' + $scope.TransformOrderWiseReq.MasterOrderNoId,
+        }).then(function successCallback(response) {
+            $scope.AllMasterOrderItemList = response.data;
+        });
+    }
+
+    $scope.GetTransformOrderWiseUOM = function () {
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkValueAddedContract/getoutputunit/',
+        }).then(function successCallback(response) {
+            $scope.AllUOMList = response.data;
+            if (baseService.arrayLength($scope.AllUOMList) > 0) {
+                $scope.TransformOrderWiseReq.OutputMaterialUOMId = $scope.UnitId;
+            }
+        });
+    }
+
+
+    $scope.TransformOrderWiseReqModelTemp = {
+        Id: null,
+        JobWorkTransformationContractChildMasterId: null,
+        OrderType: null,
+        CustomerId: null,
+        MasterOrderNoId: null,
+        MasterOrderItemId: null,
+        ParticularSpecification: null,
+        Remarks: null,
+        OutputMaterialUOMId: null,
+        Quantity: null,
+        PlanQuantity: null,
+        ArtclCode: null,
+
+    };
+    $scope.TransformOrderWiseReq = Object.assign({}, $scope.TransformOrderWiseReqModelTemp);
+
+    $scope.SaveTransformOrderWiseReqTab = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.TransformOrderWiseReqForm.$valid) {
+            $http({
+                method: 'POST',
+                url: 'JobWork/JobWorkValueAddedContract/SaveTransformOrderWiseReqTab/',
+                data: { 'data': $scope.TransformOrderWiseReq, 'ChildMasterId': $scope.MatPlanningTabId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.TransformOrderWiseReq = response.data.Data;
+                    ClearFieldsTransformOrderWiseChildData();
+                    $scope.getTransformOrderWiseData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.DelTransformOrderWise = function () {
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkValueAddedContract/DelTransformOrderWise?Id=' + $scope.TransformOrderWiseChildTabId
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getTransformOrderWiseData();
+                ClearFieldsTransformOrderWiseChildData();
+            }
+
+        });
+    }
+
+    $scope.ConfirmDeleteTransformOrderWiseTab = function (Id) {
+        $scope.TransformOrderWiseChildTabId = Id;
+        angular.element(document.querySelector("#DelTransformOrderWiseChildTabPopUp")).modal("show");
+    }
+
+    $scope.ClearTransformOrderWiseReqTab = function () {
+        ClearFieldsTransformOrderWiseChildData();
+    }
+
+    function ClearFieldsTransformOrderWiseChildData() {
+        $scope.TransformOrderWiseReq.Id = null;
+        $scope.TransformOrderWiseReq.JobWorkTransformationContractChildMasterId = null;
+        $scope.TransformOrderWiseReq.OrderType = null;
+        $scope.TransformOrderWiseReq.CustomerId = null;
+        $scope.TransformOrderWiseReq.MasterOrderNoId = null;
+        $scope.TransformOrderWiseReq.MasterOrderItemId = null;
+        $scope.TransformOrderWiseReq.ParticularSpecification = null;
+        $scope.TransformOrderWiseReq.Remarks = null;
+        $scope.TransformOrderWiseReq.PlanQuantity = $scope.PQuantity;
+        $scope.GetTransformOrderWiseUOM();
+    }
+
+    $scope.getTransformOrderWiseData = function () {
+
+        $http({
+            method: 'GET',
+            url:'JobWork/JobWorkValueAddedContract/getTransformOrderWiseData?MaterialMasterId=' + $scope.MatPlanningTabId
+        }).then(function successCallback(response) {
+            $scope.TransformOrderWiseRequirementList = response.data;
+
+        });
+    }
+
+    // MATERIAL INPUT DATA CODE
+
+    // MATERIAL INPUT tab
+
+    $scope.ConfirmMaterialInputPopUp = function (data) {
+        $scope.MatPlanningTabId = data.Id;
+        $scope.JWInputId = data.JobWorkItemMasterId;
+        $scope.JWActivityId = data.JobActivityId;
+        $scope.getMatInputListData();
+        $scope.getMaterialInputData();
+
+        angular.element(document.querySelector("#MaterialInputPopUp")).modal("show");
+    }
+
+
+    $scope.closeMaterialInputTabPopUp = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+
+    }
+
+    $scope.MaterialInputList = [];
+    //$scope.MaterialMasterList = [];
+    //$scope.InputUOMList = [];
+
+    $scope.MatInputList = [];
+    $scope.getMatInputListData = function () {
+
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkValueAddedContract/getMatInputListData?JobWorkItemId=' + $scope.JWInputId + '&ActivityId=' + $scope.JWActivityId + '&Id=' + $scope.MatPlanningTabId
+        }).then(function successCallback(response) {
+            $scope.MatInputList = response.data;
+        });
+    }
+
+    // Select All Check Box 
+
+    $scope.refreshTemplateMatInput = function () {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectMatInput });
+    };
+
+    function CheckBoxSelectMatInput(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#GridMatInput").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.MatInputList.length; i++) {
+                $scope.MatInputList[i].isToBeSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].isToBeSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridMatInput").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.GetGrossConsumption = function (data) {
+
+        for (var i = 0; i < $scope.MatInputList.length > 0; i++) {
+            if ($scope.MatInputList[i].Id === data.Id) {
+
+                if ($scope.MatInputList[i].NetConsumption !== null && $scope.MatInputList[i].ValueLoss !== null && $scope.MatInputList[i].Rejection !== null) {
+                    var NConsumption = parseFloat($scope.MatInputList[i].NetConsumption);
+                    var VLoss = parseFloat($scope.MatInputList[i].ValueLoss);
+                    var Rejection = parseFloat($scope.MatInputList[i].Rejection);
+                    //    var Res = Math.abs((NConsumption) / (100 - VLoss));
+                    var Res = Math.abs(NConsumption * (parseFloat(1) + (VLoss / 100) + (Rejection / 100)));
+                    //      var Result = Math.abs(Res * 100);
+                    var RoundRes = Math.round(Res * 100) / 100;
+                    $scope.MatInputList[i].GrossConsumption = RoundRes;
+                }
+            }
+        }
+
+    }
+
+
+    $scope.MaterialInputModelTemp = {
+        Id: null,
+        JobWorkTransformationContractChildMasterId: null,
+        MaterialMasterId: null,
+        MaterialSpecification: null,
+        InputMaterialUOMId: null,
+        NetConsumptionOutputUnit: null,
+        Rejection: null,
+        ValueLoss: null,
+        GrossConsumption: null,
+        ResponsiblePersonId: null,
+        Remarks: null,
+
+    };
+    $scope.MaterialInput = Object.assign({}, $scope.MaterialInputModelTemp);
+
+    //Save Function 
+    $scope.SaveMaterialInputTab = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        var MatInputSelData = [];
+        for (var i = 0; i < $scope.MatInputList.length; i++) {
+            if ($scope.MatInputList[i].isToBeSelect == true)
+                MatInputSelData.push($scope.MatInputList[i]);
+        }
+        try {
+            if (MatInputSelData.length == 0) {
+                throw 'Please Select at least one Material Input';
+            }
+            $http({
+                method: 'POST',
+                data: { SelectedMatInputData: MatInputSelData, ChildMasterId: $scope.MatPlanningTabId },
+                url: 'JobWork/JobWorkValueAddedContract/SaveMaterialInputTab/'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.getMatInputListData();
+                    $scope.getMaterialInputData();
+                }
+            });
+
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
+
+    $scope.DelMaterialInput = function () {
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkValueAddedContract/DelMaterialInput?Id=' + $scope.MaterialInputChildTabId
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getMaterialInputData();
+                $scope.getMatInputListData();
+                //ClearFieldsMaterialInputChildData();
+            }
+
+        });
+    }
+
+    $scope.ConfirmDeleteMaterialInputTab = function (Id) {
+        $scope.MaterialInputChildTabId = Id;
+        angular.element(document.querySelector("#DelMaterialInputChildTabPopUp")).modal("show");
+    }
+
+    $scope.getMaterialInputData = function () {
+
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkValueAddedContract/getMaterialInputData?MaterialMasterId=' + $scope.MatPlanningTabId
+        }).then(function successCallback(response) {
+            $scope.MaterialInputList = response.data;
+
+        });
+    }
+
+    // BY PRODUCT TAB
+
+    // Select All Check Box 
+
+    $scope.refreshTemplateemployee = function () {
+        $("#BPheadchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#GridByProductMaster").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ByProductMasterList.length; i++) {
+                $scope.ByProductMasterList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridByProductMaster").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+
+    $scope.ConfirmByProductPopUp = function (data) {
+        $scope.MatInputTabId = data.Id;
+        $scope.getByProductMasterData();
+        $scope.getByProductData();
+        angular.element(document.querySelector("#ByProductPopUp")).modal("show");
+    }
+
+    $scope.closeByProductTabPopUp = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+
+    }
+
+    $scope.ByProductList = [];
+    $scope.ByProductMasterList = [];
+    $scope.getByProductMasterData = function () {
+
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkValueAddedContract/getByProductMasterData?JobWorkItemId=' + $scope.JWInputId + '&ActivityId=' + $scope.JWActivityId + '&Id=' + $scope.MatInputTabId
+        }).then(function successCallback(response) {
+            $scope.ByProductMasterList = response.data;
+        });
+    }
+
+    // #region field By product
+
+    $scope.ByProductMaterialMstList = [];
+    $scope.ByProductMaterialMstPopUp = function (data) {
+        angular.element(document.querySelector("#ByProductMaterialPopUp")).modal("show");
+        $scope.getMaterialDetailsData(data);
+    }
+
+    $scope.getMaterialDetailsData = function (data) {
+        $scope.ByProductMaterialMstList = [];
+
+        for (var i = 0; i < $scope.ByProductMasterList.length > 0; i++) {
+            if ($scope.ByProductMasterList[i].Id === data.Id) {
+                $scope.MatMstId = $scope.ByProductMasterList[i].BPMaterialId;
+                $scope.a = i;
+            }
+        }
+
+        $http({
+            method: 'POST',
+            url: 'JobWork/JobWorkValueAddedContract/LoadMaterialMstDetails/'
+        }).then(function successCallback(response) {
+            $scope.ByProductMaterialMstList = response.data;
+        });
+    }
+
+    $scope.BPMaterialMstClear = function (data) {
+        for (var i = 0; i < $scope.ByProductMasterList.length > 0; i++) {
+            if ($scope.ByProductMasterList[i].Id === data.Id) {
+                $scope.ByProductMasterList[i].BPMaterialId = null;
+                $scope.ByProductMasterList[i].BPMaterialCode = null;
+                $scope.ByProductMasterList[i].ByProductMaterial = null;
+            }
+        }
+    };
+
+    $scope.closeByProductMaterialMstPopUp = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+
+    }
+    $scope.setByProductMaterialMstData = function (obj) {
+        var b = $scope.a;
+        var data = obj.data;
+        $scope.ByProductMasterList[b].BPMaterialId = data.Id;
+        $scope.ByProductMasterList[b].BPMaterialCode = data.Code;
+        $scope.ByProductMasterList[b].ByProductMaterial = data.MaterialName;
+
+        $scope.ByProductMasterList[b].BPArticleId = null;
+        $scope.ByProductMasterList[b].BPArticleCode = null;
+        $scope.ByProductMasterList[b].BPArticleName = null;
+
+        angular.element(document.querySelector('#ByProductMaterialPopUp')).modal('hide');
+    };
+    // # end region
+
+
+    // GET ARTICLE
+    // MATERIAL MASTER ARTICLE
+    // #region field
+
+    $scope.ByProductMaterialArticleMstList = [];
+    $scope.BPMaterialMstArticlePopUp = function (RowData) {
+        angular.element(document.querySelector("#ByProductMaterialArticlePopUp")).modal("show");
+        $scope.getArticleData(RowData);
+
+    }
+    $scope.getArticleData = function (RowData) {
+        $scope.ByProductMaterialArticleMstList = [];
+
+        for (var i = 0; i < $scope.ByProductMasterList.length > 0; i++) {
+            if ($scope.ByProductMasterList[i].Id === RowData.Id) {
+                $scope.MatMstId = $scope.ByProductMasterList[i].BPMaterialId;
+                $scope.a = i;
+            }
+        }
+
+        $http({
+            method: 'POST',
+            data: { MaterialMstId: $scope.MatMstId },
+            url: 'JobWork/JobWorkValueAddedContract/LoadMaterialMstArticle/'
+        }).then(function successCallback(response) {
+            $scope.ByProductMaterialArticleMstList = response.data;
+        });
+    }
+
+    $scope.BPMaterialMstArticleClear = function (data) {
+        for (var i = 0; i < $scope.ByProductMasterList.length > 0; i++) {
+            if ($scope.ByProductMasterList[i].Id === data.Id) {
+
+                $scope.ByProductMasterList[i].BPArticleId = null;
+                $scope.ByProductMasterList[i].BPArticleCode = null;
+                $scope.ByProductMasterList[i].BPArticleName = null;
+            }
+        }
+    };
+
+    $scope.closeByProductMaterialArticlePopUp = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+
+    }
+    $scope.setByProductMaterialArticleData = function (obj) {
+        var b = $scope.a;
+        var data = obj.data;
+        $scope.ByProductMasterList[b].BPArticleId = data.ArticleId;
+        $scope.ByProductMasterList[b].BPArticleCode = data.ArticleCode;
+        $scope.ByProductMasterList[b].BPArticleName = data.StandardName;
+        //$scope.SelectedArticleId = data.ArticleId;
+        //$scope.GetByDefaultRate($scope.a);
+        //$scope.GetLotNumberList($scope.a);
+        angular.element(document.querySelector('#ByProductMaterialArticlePopUp')).modal('hide');
+    };
+
+    $scope.ByProductModelTemp = {
+        Id: null,
+        JobWorkTransformationContractChild3MasterId: null,
+        MaterialMasterId: null,
+        MaterialSpecification: null,
+        StandardQuantityInputUnit: null,
+        CurrencyId: null,
+        StandardRatePerUnit: null,
+        ResponsiblePersonId: null,
+        Remarks: null,
+        Tolerance: null,
+
+    };
+    $scope.ByProduct = Object.assign({}, $scope.ByProductModelTemp);
+
+    // Save Function for By Product(Transformation)
+
+    //Save Function 
+    $scope.SaveByProductTab = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        var checkedData = [];
+        try {
+            for (var i = 0; i < $scope.ByProductMasterList.length; i++) {
+                if ($scope.ByProductMasterList[i].isSelected == true) {
+                    if ($scope.ByProductMasterList[i].StandardRate > 0) {
+                        checkedData.push($scope.ByProductMasterList[i]);
+                    }
+                    else {
+                        throw 'Standard Rate should be greater than zero';
+                    }
+                }
+            }
+
+            if (checkedData.length == 0) {
+                throw 'Please Select at least one By Product';
+            }
+            $http({
+                method: 'POST',
+                data: { ByProductMstData: checkedData, ChildMasterId: $scope.MatInputTabId },
+                url: 'JobWork/JobWorkValueAddedContract/SaveByProductTab/'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    //         $scope.IssueChild = response.data.Data;
+                    $scope.getByProductMasterData();
+                    $scope.getByProductData();
+                }
+            });
+
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
+
+    $scope.DelByProduct = function () {
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkValueAddedContract/DelByProduct?Id=' + $scope.ByProductTabId
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+
+                $scope.getByProductData();
+                $scope.getByProductMasterData();
+                //    ClearFieldsByProductChildData();
+            }
+
+        });
+    }
+
+    $scope.ConfirmDeleteByProductTab = function (Id) {
+        $scope.ByProductTabId = Id;
+        angular.element(document.querySelector("#DelByProductTabPopUp")).modal("show");
+    }
+
+    $scope.getByProductData = function () {
+
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkValueAddedContract/getByProductData?MaterialInputId=' + $scope.MatInputTabId
+        }).then(function successCallback(response) {
+            $scope.ByProductList = response.data;
+
+        });
+    }
+
+
     //end
 }
