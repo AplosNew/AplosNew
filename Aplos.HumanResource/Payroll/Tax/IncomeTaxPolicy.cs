@@ -1603,6 +1603,7 @@ namespace Library.HumanResource.Payroll.Tax
                             , Tax = case when c.isTax = 0 then 'Yes' else '' end 
 							, Taxable = case when c.isTaxableIncome = 0 then 'Yes' else '' end ,t.Id
                             ,[Type] = case when c.IsInvestment = 1 then 'Investment' else '' end
+                            ,t.FileName
 						from IncomeTaxItemChild c
 						left join IncomeTaxItemTransaction t on c.Id=t.IncTaxItmChildId  and  t.EmpSystemId='" + empId + @"' 
 						left join IncomeTaxItemMaster m on m.SystemId = c.IncomeTaxItemMasterId

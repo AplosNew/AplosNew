@@ -41,67 +41,119 @@ namespace Aplos.Areas.JobWork.Controllers
 
         #region Load Data
 
-        [Authorize, HttpGet]
-        public JsonResult GetListOfPOGateEntry(string partyCode)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(R.GetListOfPOGateEntry(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyCode), JsonRequestBehavior.AllowGet);
-        }
+        //[Authorize, HttpGet]
+        //public JsonResult GetListOfPOGateEntry(string partyCode)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    return Json(R.GetListOfPOGateEntry(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyCode), JsonRequestBehavior.AllowGet);
+        //}
 
-        [Authorize, HttpGet]
-        public JsonResult GetListGateEntry(string partyCode)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(R.GetListGateEntry(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyCode), JsonRequestBehavior.AllowGet);
-        }
+        //[Authorize, HttpGet]
+        //public JsonResult GetListGateEntry(string partyCode)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    return Json(R.GetListGateEntry(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyCode), JsonRequestBehavior.AllowGet);
+        //}
 
-        [Authorize, HttpGet]
-        public JsonResult GetIndividualReportData(string Id)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //[Authorize, HttpGet]
+        //public JsonResult GetIndividualReportData(string Id)
+        //{
+        //    try
+        //    {
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                return Json(R.GetIndividualReportData(Id), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+        //        return Json(R.GetIndividualReportData(Id), JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
 
-        }
+        //}
 
 
-        [Authorize, HttpGet]
-        public JsonResult GetReceiptVAChildData(string PKId)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //[Authorize, HttpGet]
+        //public JsonResult GetReceiptVAChildData(string PKId)
+        //{
+        //    try
+        //    {
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                return Json(R.GetReceiptVAChildData(PKId), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+        //        return Json(R.GetReceiptVAChildData(PKId), JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
 
-        }
+        //}
 
-        [Authorize, HttpGet]
-        public JsonResult GetReceiptVAChildDatabyId(string Id)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //[Authorize, HttpGet]
+        //public JsonResult GetReceiptVAChildDatabyId(string Id)
+        //{
+        //    try
+        //    {
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                return Json(R.GetReceiptVAChildDatabyId(Id), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        //        return Json(R.GetReceiptVAChildDatabyId(Id), JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+
+
+
+        //[Authorize, HttpGet]
+        //public JsonResult GetGradeWiseQuantityList()
+        //{
+        //    try
+        //    {
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //        return Json(R.GetGradeWiseQuantityList(), JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+
+        //}
+
+        //[Authorize, HttpGet]
+        //public JsonResult GetVAGradeWiseQuantityList(string MasterId)
+        //{
+        //    try
+        //    {
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //        return Json(R.GetVAGradeWiseQuantityList(MasterId), JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+
+        //}
+
+
+        //[Authorize, HttpPost]
+        //public ActionResult Get(string Id)
+        //{
+        //    try
+        //    {
+        //        var _master = _sqlRepository.GetDataCollection("select * from dbo.JobWorkValueAddedContract where Id = '" + Id + "' ");
+
+
+        //        return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+        //    }
+
+        //}
 
         [Authorize, HttpGet]
         public JsonResult GetReceiptTransChildData(string PKId)
@@ -119,58 +171,8 @@ namespace Aplos.Areas.JobWork.Controllers
 
         }
 
-
-        [Authorize, HttpGet]
-        public JsonResult GetGradeWiseQuantityList()
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                return Json(R.GetGradeWiseQuantityList(), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-        }
-
-        [Authorize, HttpGet]
-        public JsonResult GetVAGradeWiseQuantityList(string MasterId)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                return Json(R.GetVAGradeWiseQuantityList(MasterId), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-        }
-
-
-        [Authorize, HttpPost]
-        public ActionResult Get(string Id)
-        {
-            try
-            {
-                var _master = _sqlRepository.GetDataCollection("select * from dbo.JobWorkValueAddedContract where Id = '" + Id + "' ");
-
-
-                return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-
-        }
-
         [HttpPost, Authorize]
-        public ActionResult GetList(string column, string value, string Type)
+        public ActionResult GetContractList(string column, string value, string Type)
         {
             string sql = "";
             string strkey = "1=1";
@@ -178,25 +180,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            //if (Type == "ValueAdded")
-            //{
-            //	sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.VendorPartyId,vac.Remarks,FORMAT(vac.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-            //                                        FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-            //                                        e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-            //                                        from dbo.JobWorkValueAddedContract vac left join ORG.Entity e on e.Id=vac.EntityId
-            //             left join HKP.Party p on p.Id=vac.VendorPartyId
-            //                                        WHERE " + strkey + " order by ValueAddedDate desc ";
-
-            //}
-            //if (Type == "Transformation")
-            //{
-            //	sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.VendorPartyId,tc.Remarks,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-            //                                 FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-            //                                 e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-            //                                 from dbo.JobWorkTransformationContract tc left join ORG.Entity e on e.Id=tc.EntityId
-            //						left join HKP.Party p on p.Id=tc.VendorPartyId
-            //                                 WHERE " + strkey + " order by tc.Date desc";
-            //}
+            
             try
             {
                 sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.VendorPartyId,vac.Remarks,FORMAT(vac.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime]
@@ -222,6 +206,126 @@ namespace Aplos.Areas.JobWork.Controllers
             }
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryReceiveByTransformationContractId(string contractId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                return Json(obj.GetInventoryReceiveByTransformationContractId(identity.PlantId, contractId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult ssLoadAllEmpDetails(string Id)
+        {
+
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"DECLARE @inventoryReceiveId VARCHAR(10) = '1985'
+									,@totalReceiveAmount DECIMAL(18, 4) = 0
+									,@totalServiceAmount DECIMAL(18, 4) = 0
+									,@totalSvcTaxAmount DECIMAL(18, 4) = 0
+
+								SET @totalReceiveAmount = (
+										SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)), 1)
+										FROM [TRN].[InventoryReceiveDetail]
+										WHERE InventoryReceiveId = @inventoryReceiveId
+										)
+								SET @totalServiceAmount = (
+										SELECT ISNULL(SUM(ISNULL(Amount, 0)), 0)
+										FROM [TRN].[InventoryService]
+										WHERE InventoryReceiveId = @inventoryReceiveId
+										)
+								SET @totalSvcTaxAmount = (
+										SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)), 0)
+										FROM [TRN].[InventoryReceiveTax]
+										WHERE InventoryReceiveId = @inventoryReceiveId
+											AND InventoryServiceId <> ''
+										)
+
+								SELECT IM.Id
+									,IRD.Id AS InventoryReceiveDetailId
+									,IRD.id AS RCBDetailsID
+									,IRD.PODetailsId
+									,IRD.POId
+									,IRD.InventoryReceiveId
+									,REPLACE(CONVERT(CHAR(11), PID.AddedDate, 106), ' ', '-') AS AddedDate
+									,MGM.UserName AS MaterialGroupName
+									,IM.MaterialMasterId
+									,MM.UserName MaterialName
+									,ART.StandardName Article
+									,IM.FirstCharacteristicsId
+									,FC.UserName AS SKU1 
+									,IM.FirstCharacteristicsValueId
+									,FCV.UserName AS FirstCharacteristicsValue
+									,IM.SecondCharacteristicsId
+									,SC.UserName AS SKU2
+									,IM.SecondCharacteristicsValueId
+									,SCV.UserName AS SecondCharacteristicsValue
+									,IM.ThirdCharacteristicsId
+									,TC.UserName AS SKU3
+									,IM.ThirdCharacteristicsValueId
+									,TCV.UserName AS ThirdCharacteristicsValue
+									,IRD.TransactionUoMId
+									,TUoM.UserName AS TransactionUoM
+									,IRD.MaterialTranRate AS TransactionRate
+									,CU.Code AS CurrencyName
+									,IR.ToCurrencyRate
+									,(IRD.TransactionQty * IRD.MaterialTranRate) AS TrnAmount
+									,IRD.TotalMaterialBooksCurrencyAmount AS BaseAmount									
+									,IRD.TransactionQty
+									,(PID.TransactionQty - IRD.TransactionQty - ISNULL(Pre.OtherReceived, 0)) AS Balance
+									,IRD.TransactionUoMId
+									,IRD.BaseUOMId
+									,IRD.TotalMaterialTranAmount
+									,IRD.TotalMaterialBooksCurrencyAmount								
+									,IR.CheckedBy
+									,MRD.MaterialDetail
+                                    ,C.Id,C.UserName CountryName,IRD.GrossAmount,IRD.DiscountAmount,MOI.MasterOrderId MasterOrderNo,IRD.MaterialFor
+								FROM TRN.InventoryMaterial AS IM
+								LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+								LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+								LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+								LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+								LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+								LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+								LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+								LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+								LEFT JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId = IM.Id	
+								LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id									
+								
+								LEFT JOIN [TRN].[PurchaseOrderDetail] AS PID ON PID.Id = IRD.PODetailsId
+								LEFT JOIN (
+									SELECT PODetailsId
+										,Sum(TransactionQty) AS OtherReceived
+									FROM trn.InventoryReceiveDetail	
+									GROUP BY PODetailsId
+									) AS Pre ON pre.PODetailsId = IRD.PODetailsId
+								LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
+								LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
+								LEFT JOIN TRN.MaterialRequsitionDetails MRD ON MRD.ID = PID.RequisitionDetailId
+                                Left Join SCS.Country C ON C.Id=IM.CountryId
+								 LEFT JOIN [TRN].[MasterOrderItem] MOI ON IRD.MasterOrderItemId=MOI.Id
+								WHERE (IRD.MaterialFor='JWOUTPUTMaterial' OR IRD.MaterialFor='JWBYPRODUCTMaterial') 
+								AND IRD.InventoryReceiveId IN (Select Id from [TRN].[InventoryReceive] where TransformationContractId IN('T2119'))";
+
+                var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         [HttpPost, Authorize]
         public ActionResult GetDataById(string Id, string TabType)

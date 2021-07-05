@@ -1,6 +1,6 @@
 ﻿'use strict';
-TaxOBController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+TaxOBController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'fileReader'];
+function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, fileReader) {
     $rootScope.title = 'Tax Opening Balance';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -62,6 +62,7 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
         $scope.GetDedInvestDed();
         $scope.GetTaxableIncomePara();
         $scope.countDate();
+        //$scope.getFileList();
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
 
@@ -161,7 +162,7 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
         }).then(function successCallback(response) {
             if (response.data.length == 0) {
                 $scope.taxb = 1;
-                $scope.tab = 2;
+                $scope.tab = 3;
             }
             else {
                 $scope.taxb = 0;
@@ -499,6 +500,70 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     };
 
+    //#endregion
+
+    //#region Attachment 
+
+    $scope.SelectedItemData = {};
+    $scope.UploadTableName = 'IncomeTaxItemTransaction';
+    $scope.uploadUrl = $scope.path + "UploadAttachment/";
+    $scope.confirmFileDelete = function () {
+        angular.element(document.querySelector("#confirmFileDelete")).modal("show");
+    }
+    $scope.getFileList = function () {
+        $http({
+            method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
+            data: { taxyear: $scope.InvestMent.TaxYearId, taxtype: $scope.InvestMent.TaxTypeId, empsysteid: $scope.InvestMent.EmpSystemId }
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult('error', 'failure');
+            }
+            else {
+                $scope.SelectedItemData.FileName = response.data[0].FileName;
+                $scope.SelectedItemData.FileOriginalName = response.data[0].FileOriginalName;
+            }
+        }, function errorCallback(response) {
+            ShowResult('Failed', 'failure');
+        });
+    }
+    $scope.errorUpload = function (e) {
+        ShowResult(e.error, 'failure');
+        //    ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    }
+    $scope.onBeginUpload = function (args) {
+        try {
+            var _data = [{ Id: args.model.Id, TableName: $scope.UploadTableName }];
+            args.data = JSON.stringify(_data);
+        } catch (e) {
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
+    }
+    $scope.MasterId = null;
+    $scope.confirmFileDelete = function (args) {
+        $scope.MasterId = args.data.Id;
+        angular.element(document.querySelector("#confirmFileDelete")).modal("show");
+    }
+    $scope.DeleteFile = function () {
+        try {
+            $http({
+                method: 'POST', url: $scope.path + 'DeleteFile', dataType: 'JSON',
+                data: { Id: $scope.MasterId, TableName: $scope.UploadTableName }
+
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult('error', 'failure');
+                }
+                else {
+                    $scope.SelectedItemData.FileName = '';
+                }
+            }, function errorCallback(response) {
+                ShowResult('Failed', 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'Error');
+        }
+    }
     //#endregion
 
 }

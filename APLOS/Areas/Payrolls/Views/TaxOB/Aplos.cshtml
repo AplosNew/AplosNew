@@ -48,7 +48,7 @@
                     <label class="col-sm-6 control-label">DOB</label>
                     <label class="col-sm-6 control-label">{{leaveApplicationNew.DOB}}</label>
                 </div>
-                
+
             </div>
             <div class=" col-md-6">
                 <div class="form-group">
@@ -149,6 +149,7 @@
                                 <div e-column e-field="Tax" e-headertext="Tax" e-width="2"></div>
                                 <div e-column e-field="Taxable" e-headertext="Taxable" e-width="2"></div>
                                 <div e-column e-template="#ValueT" e-headertext="Value" e-width="5"></div>
+
                             </div>
                         </div>
                     </div>
@@ -161,9 +162,11 @@
                 <script type="text/template" id="ValueT">
                     <input type="text" name="Value" ng-model="data.Value" class="form-control" required tabindex="5" maxlength="50">
                 </script>
+
                 <script type="text/template" id="checkboxTemplate">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelect" />
                 </script>
+
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                 @*DED*@
@@ -171,18 +174,19 @@
                     <div class="table-responsive aplos-grid">
                         @*IncTaxItmChildId*@
                         <div style="color:black;" id="Grid2" ej-grid e-datasource="DeductionTax"
-                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"  e-allowSorting="true"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowSorting="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                             <div e-columns>
                                 <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplatee" e-textalign="center" e-width="1"></div>
-                                <div e-column e-field="TaxGroup" e-headertext="Tax Saving Group" e-width="8"></div>
+                                <div e-column e-template="#Files" e-headertext="Attachment" e-width="5"></div>
+                                <div e-column e-field="TaxGroup" e-headertext="Tax Saving Group" e-width="6"></div>
                                 <div e-column e-field="MaxLimit" e-headertext="TaxGroup MaxLimit" e-width="3"></div>
                                 <div e-column e-field="TaxSavingItem" e-headertext="Tax Saving Item" e-width="5"></div>
                                 <div e-column e-field="TaxSavingItemLimit" e-headertext="Tax Saving Item Limit" e-width="3"></div>
                                 <div e-column e-field="Tax" e-headertext="Tax" e-width="2"></div>
                                 <div e-column e-field="Taxable" e-headertext="Taxable" e-width="2"></div>
-                                <div e-column e-field="Type" e-headertext="Type" e-width="5"></div>
-                                <div e-column e-template="#Valuee" e-headertext="Value" e-width="5"></div>
+                                <div e-column e-field="Type" e-headertext="Type" e-width="2"></div>
+                                <div e-column e-template="#Valuee" e-headertext="Value" e-width="3"></div>
                             </div>
                         </div>
                     </div>
@@ -192,6 +196,22 @@
                 </script>
                 <script type="text/template" id="checkboxTemplatee">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelect" />
+                </script>
+                <script type="text/template" id="Files">
+                    <div class="col-md-4" ng-show="data.Id !=null && data.FileName == null " >
+                        <div id="UploadDefault" e-id="{{data.Id}}" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getFileList" e-showroundedcorner="false" @*e-height="30"*@ e-dialogtext-title="File Attachments" e-autoupload="true" e-begin="$parent.onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="$parent.uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" e-error="errorUpload"></div>
+                    </div>
+                    <div class="col-md-8" ng-hide="data.FileName==null ">
+                        <a href="POPResources/TaxOpeningBalance/{{data.FileName}}" target="_blank">
+                            <span style="color:red;padding:4px;">  </span>
+                            <span style="height:20px;width:20px;color:blue;">
+                                {{data.FileName}}
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col-md-4" ng-hide="data.FileName==null ">
+                        <button  name="submit" e-id="{{data.Id}}" ng-click="$parent.confirmFileDelete(this)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-trash"></i></button>                        
+                    </div>
                 </script>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
@@ -235,7 +255,7 @@
                 <div class="row">
                     <div class="table-responsive aplos-grid">
                         <div style="color:black;" id="Grid3" ej-grid e-datasource="TaxableIncomePara"
-                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"  e-allowSorting="true"
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowSorting="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                             <div e-columns>
                                 <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateTaxableIncomePara" e-textalign="center" e-width="1"></div>
@@ -293,3 +313,4 @@
 </div>
 
 <confirm-archive-generic modalid="confirmMasterPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteMaster();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmFileDelete" title="Confirmation" message="Are you sure to delete the selected file?" data-ng-click-right-button="DeleteFile()"></confirm-archive-generic>

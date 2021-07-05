@@ -5,6 +5,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Data.UnitOfWorks;
 using Library.Model.Employees;
 using Library.Model.Enums;
 using Library.Model.FixedAsset;
@@ -33,29 +34,17 @@ namespace Aplos.Areas.FixedAssets.Controllers
 {
     public class EntityFixedAssetsRegisterController : BaseController
     {
-        private readonly IInventoryPayableService _inventoryPayableService;
-        private readonly IFixedAssetRegisterService _fixedAssetRegisterService;
-        private readonly IFixedAssetRegisterCharacteristicsValueService _fixedAssetRegisterCharacteristicsValueService;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
-        //private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
-
-
         public EntityFixedAssetsRegisterController(
-             IFixedAssetRegisterService fixedAssetRegisterService
-            , IInventoryPayableService inventoryPayableService
-            , IFixedAssetRegisterCharacteristicsValueService fixedAssetRegisterCharacteristicsValueService
+             IUnitOfWork unitOfWork
             , ISqlRepository sqlRepository
-            //, ICompanyParallelCurrencyService companyParallelCurrencyService
             )
         {
-            _fixedAssetRegisterService = fixedAssetRegisterService;
-            _inventoryPayableService = inventoryPayableService;
-            _fixedAssetRegisterCharacteristicsValueService = fixedAssetRegisterCharacteristicsValueService;
+            _unitOfWork = unitOfWork;
             _sqlRepository = sqlRepository;
-            //_companyParallelCurrencyService = companyParallelCurrencyService;
         }
 
-       
         public ActionResult Aplos()
         {
             return View("~/Areas/FixedAssets/Views/EntityFixedAssetsRegister/Aplos.cshtml");
@@ -70,10 +59,54 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(new { DATA = fixedAssetQueryService.GetEntityFixedAssetRegisterDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public JsonResult Create(string entityId, string departmentId, IEnumerable<FixedAssetRegister> entityFixedAssetList)
+        {
+            var flag = false;
+
+            try
+            {
+                string entityFixedAssetList1 = "";
+
+                foreach (var item in entityFixedAssetList)
+                {
+                    if (string.IsNullOrEmpty(entityFixedAssetList1))
+                    {
+                        entityFixedAssetList1 += "'','" + item.Id+"'";
+                    }
+                    else
+                    {
+                        entityFixedAssetList1 += ",'" + item.Id + "'";
+                    }
+
+                }
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+                
+                    vendorAdWrsql = @"update  TRN.FixedAssetRegister set EntityId='"+ entityId + "',DepartmentId='"+ departmentId + @"' where Id in ("+ entityFixedAssetList1 + @")";
+                    vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
 
 
 
-       
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+
+
 
     }
 }
