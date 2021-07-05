@@ -16984,5 +16984,81 @@ namespace Library.MaterialManagement.InventoryManagements
             }
         }
 
+		public IEnumerable<object> GetJWPODetail(string POId)
+        {
+            try
+            {
+				string sql = @"
+							DECLARE @inventoryReceiveId VARCHAR(10)='"+ POId + @"'
+	                                  , @totalReceiveAmount DECIMAL(18, 4)=0
+	                                  , @totalServiceAmount DECIMAL(18, 4)=0
+	                                  , @totalSvcTaxAmount DECIMAL(18, 4)=0
+                        SET @totalReceiveAmount=(SELECT ISNULL(SUM(ISNULL(TransactionAmount, 0)),1) FROM [TRN].[PurchaseOrderDetail] WHERE InventoryReceiveId=@inventoryReceiveId)
+                        SET @totalServiceAmount=(SELECT ISNULL(SUM(ISNULL(Amount - GRNServiceAmount, 0)),0) As Amount FROM [TRN].[POService] WHERE InventoryReceiveId=@inventoryReceiveId)
+                        SET @totalSvcTaxAmount=(SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[PurchaseOrderTax] WHERE InventoryReceiveId=@inventoryReceiveId AND InventoryServiceId<>'')
+                           SELECT 
+                              --IM.Id
+                             IR.Id AS POID,IRD.Id AS PODetailsID
+                            ,IRD.Id AS InventoryReceiveDetailId
+                            , MGM.UserName AS MaterialGroupMasterName
+                            , MM.Id MaterialMasterId
+							, MM.UserName
+                            --,IRD.MaterialStorageId
+                            ,IRD.BaseUOMId
+                            , IRD.ArticleId, ART.StandardName
+                            , IRD.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
+                            , IRD.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue
+                            , IRD.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
+                            , IRD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue
+                            , IRD.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
+                            , IRD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
+                            , IRD.TransactionQty AS POQty
+                            , ISNULL(PAD.AcptTransactionQty,0) AS GRNRcvQty     
+                              ,'' AS TransactionQty, ISNULL(PAD.AcptTransactionQty,0) Otherqty							 
+							  ,(IRD.TransactionQty-PAD.AcptTransactionQty) As Balance
+                            ,ISNULL(IRD.QtyStatus,0) QtyStatus
+                            , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM, IRD.TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate                            
+                            ,0 AS TrnAmount  
+                            ,0 AS BaseTaxAmount
+                            ,0 AS TaxAmount
+	                        , 0 AS ChargesAmount
+                            ,0 AS  ServiceCharge
+                            , 0 AS ServiceTax
+	                        , IRD.CountryId
+                            ,'True' enableid
+                            ,null POMaterialTaxList                            
+                             ,IRD.TransactionQty*IRD.TransactionRate AS TotalMaterialTranAmount
+                            , 0 AS ToTalMaterialBooksCurrencyAmount
+                           ,IR.InvoicingByAddress,IR.DeliveryByAddress
+         --                  ,IRD.RequisitionId
+						   --,IRD.RequisitionDetailId
+                           --,MRD.MaterialDetail
+                           
+                         FROM dbo.JWTransformationPurchaseOrderDetail AS IRD
+                         left JOIN MST.MaterialMaster AS MM ON IRD.MaterialMasterId=MM.Id
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId=ART.Id
+                        LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId=FC.Id
+                        LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId=SC.Id
+                        LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId=TC.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IRD.FirstCharacteristicsValueId=FCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId=SCV.Id
+                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId=TCV.Id
+                       -- JOIN [TRN].[PurchaseOrderDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
+                        LEFT JOIN [dbo].[JWTransformationPurchaseOrder] AS IR ON IRD.JWTransformationPurchaseOrderId=IR.Id
+                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        --LEFT join [trn].MaterialRequsitionDetails MRD on MRD.Id=IRD.RequisitionDetailId
+						LEFT JOIN (SELECT POId,PODetailId,Sum(TransactionQty) AcptTransactionQty FROM TRN.PurchaseDocAcceptanceDetail GROUP BY POId,PODetailId) PAD ON PAD.POId=IRD.JWTransformationPurchaseOrderId AND PAD.PODetailId=IRD.Id
+                        WHERE IRD.JWTransformationPurchaseOrderId=@inventoryReceiveId and IRD.QtyStatus=0";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
 	}
 }

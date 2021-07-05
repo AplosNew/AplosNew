@@ -62,6 +62,7 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
         $scope.GetDedInvestDed();
         $scope.GetTaxableIncomePara();
         $scope.countDate();
+        //$scope.getFileList();
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
 
@@ -367,12 +368,6 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
             $http({
                 method: 'POST',
                 url: $scope.path + 'SaveInvestment',
-                transformRequest: function (data) {
-                    if (baseService.isUndefinedOrNull($scope.picdata) === false) {
-                        picData.append('file', data.file);
-                    }
-                    return picData;
-                },
                 data: { 'Investment': $scope.InvestMent, 'ChildList': $scope.DeductionTax },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -509,21 +504,78 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     //#region Attachment 
 
-    
-    $scope.clearImage = function () {
-        $scope.imageSrc = '';
-        document.getElementById("uploadImage").value = '';
-        document.getElementById("uploadImageSrc").setAttribute('src', null);
-    };
-    $scope.filedata = null;
-    $scope.picData = null;
-    $("#uploadImage").change(function () {
-        $scope.picData = this.files[0];
-    });
-    $("#uploadBtn").change(function () {
-        $scope.filedata = this.files[0];
-    });
+    $scope.SelectedItemData = {};
+    $scope.UploadTableName = 'IncomeTaxItemTransaction';
+    $scope.uploadUrl = $scope.path + "UploadAttachment/";
+    $scope.confirmFileDelete = function () {
+        angular.element(document.querySelector("#confirmFileDelete")).modal("show");
+    }
+    $scope.getFileList = function () {
+        var MasterID = '';
+        if (!baseService.isUndefinedOrNull($scope.MasterIdAfterFileSave))
+             MasterID = $scope.MasterIdAfterFileSave;
+        else
+            MasterID = $scope.MasterId
+        $http({
+            method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
+            data: { Id: MasterID/*$scope.InvestMent.TaxYearId, taxtype: $scope.InvestMent.TaxTypeId, empsysteid: $scope.InvestMent.EmpSystemId*/ }
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult('error', 'failure');
+            }
+            else {
+                for (var i = 0; i < $scope.DeductionTax.length; i++) {
+                    if ($scope.DeductionTax[i].Id == MasterID) {
+                        $scope.DeductionTax[i].FileName = response.data[0].FileName;
+                    }
+                }
+                $scope.MasterId = null;
+                $scope.MasterIdAfterFileSave = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult('Failed', 'failure');
+        });
+    }
+    $scope.errorUpload = function (e) {
+        ShowResult(e.error, 'failure');
+        //    ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    }
+    $scope.MasterIdAfterFileSave = null;
+    $scope.onBeginUpload = function (args) {
+        try {
+            var _data = [{ Id: args.model.Id, TableName: $scope.UploadTableName }];
+            $scope.MasterIdAfterFileSave = args.model.Id;
+            args.data = JSON.stringify(_data);
+        } catch (e) {
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
+    }
+    $scope.MasterId = null;
+    $scope.confirmFileDelete = function (args) {
+        $scope.MasterId = args.data.Id;
+        angular.element(document.querySelector("#confirmFileDelete")).modal("show");
+    }
+    $scope.DeleteFile = function () {
+        try {
+            $http({
+                method: 'POST', url: $scope.path + 'DeleteFile', dataType: 'JSON',
+                data: { Id: $scope.MasterId, TableName: $scope.UploadTableName }
 
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult('error', 'failure');
+                }
+                else {
+                    $scope.getFileList();
+                }
+            }, function errorCallback(response) {
+                ShowResult('Failed', 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'Error');
+        }
+    }
     //#endregion
 
 }

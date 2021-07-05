@@ -335,6 +335,7 @@
     <Folder Include="POPResources\SOP\SOPCategory\" />
     <Folder Include="POPResources\SOP\SOPDocument\" />
     <Folder Include="POPResources\SOP\SOPSubCategory\" />
+    <Folder Include="POPResources\TaxOpeningBalance\" />
     <Folder Include="Reports\HumanResorce\" />
     <Folder Include="Views\GridReports\" />
   </ItemGroup>
@@ -2650,7 +2651,6 @@
     <Content Include="Areas\Products\Views\GoodsReceiveNote\ApprovingIssueSlip.cshtml" />
     <Content Include="POPResources\Templates\GateEntry20188.docx" />
     <Content Include="Areas\Employees\Views\LeaveApplication\LeaveApp.cshtml" />
-    <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20171.docx" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20188.docx" />
     <Content Include="Areas\FixedAssets\Views\_FixedAssetMasterAccDepGLPopUp.cshtml" />
     <Content Include="Areas\FixedAssets\Views\_FixedAssetMasterAUCGLPopUp.cshtml" />
