@@ -226,15 +226,21 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("InventoryReceiveId", "equal", parseInt(filteredData), true).take(100));
         e.detailsElement.find("#detailGrid").ejGrid({
             dataSource: data,
-            columns: ["MaterialGroupName", "MaterialName", "Article", "SKU1", "SKU2", "SKU3", "MaterialDetail", "TransactionQty", "TransactionUoMId", "TransactionUoM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount", "MaterialFor"]
+            columns: ["MaterialName", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoM", "TransactionRate", "TotalMaterialTranAmount", "CurrencyName"]
         });
         e.detailsElement.find(".tabcontrol").ejTab();
 
 
     }
 
-    $scope.inventoryMaterialListPO1 = [];
+    $scope.JWPOList = [];
 
+    $scope.ShowJWPOPopUp = function () {
+        angula.element(document.querySelector("#JWPOPopUp")).modal("show");
+    }
+    $scope.CloseJWPOPopUp = function () {
+        angula.element(document.querySelector("#JWPOPopUp")).modal("hide");
+    }
 
     //	$scope.getData();
 

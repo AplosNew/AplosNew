@@ -367,7 +367,7 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
             $scope.InvestMent.EmpSystemId = $scope.leaveApplicationNew.EmpSystemID;
             $http({
                 method: 'POST',
-                url: $scope.path + 'SaveInvestment',                
+                url: $scope.path + 'SaveInvestment',
                 data: { 'Investment': $scope.InvestMent, 'ChildList': $scope.DeductionTax },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -511,13 +511,9 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
         angular.element(document.querySelector("#confirmFileDelete")).modal("show");
     }
     $scope.getFileList = function () {
-        var Id= '';
-        if (args.model.Id)
-            Id =args.model.Id;
         $http({
             method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
-            data: { Id: args.model.Id, TableName: $scope.UploadTableName }
-
+            data: { taxyear: $scope.InvestMent.TaxYearId, taxtype: $scope.InvestMent.TaxTypeId, empsysteid: $scope.InvestMent.EmpSystemId }
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
                 ShowResult('error', 'failure');
@@ -536,7 +532,7 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
     }
     $scope.onBeginUpload = function (args) {
         try {
-            var _data = [{ Id: args.model.Id,  TableName: $scope.UploadTableName }];
+            var _data = [{ Id: args.model.Id, TableName: $scope.UploadTableName }];
             args.data = JSON.stringify(_data);
         } catch (e) {
             args.cancel = true;

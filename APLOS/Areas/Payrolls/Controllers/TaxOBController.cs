@@ -509,15 +509,12 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetFileInfo(string Id, string TableName)
+        public ActionResult GetFileInfo(string taxyear, string taxtype,string empsysteid)
         {
 
             try
             {
-                return Json(_sqlRepository.GetDataCollection("select FileName from " + TableName + "  where Id='" + Id + "'"), JsonRequestBehavior.AllowGet);
-
-
-
+                return Json(_sqlRepository.GetDataCollection("select FileName from IncomeTaxItemTransaction  where EmpSystemId='" + empsysteid + "' and TaxYearId='"+ taxyear + "' and TaxTypeId = '"+ taxtype + "'"), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
