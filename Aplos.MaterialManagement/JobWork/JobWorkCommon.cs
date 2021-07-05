@@ -2192,6 +2192,187 @@ namespace Library.MaterialManagement.JobWork
 
 
         #region JW PO Detail : Tax, BoQChild Creation
+        //public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type)
+        //{
+        //    string JWPODId = "";
+        //    DataSet dsMaster; DataSet dsPOBOQMap; DataSet dsJwChildMaterial;
+        //    DataSet dsJwChildJWInputMaterial = new DataSet();
+        //    DataSet dsJwChildJWByProduct = new DataSet();
+
+        //    dsPOBOQMap = new DataSet();
+        //    dsJwChildMaterial = new DataSet();
+        //    string sql = "";
+        //    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+        //    if (String.IsNullOrEmpty(JWPurchaseOrderId))
+        //    {
+        //        JWPurchaseOrderId = data[0]["JWTransformationPurchaseOrderId"].ToString();
+        //    }
+
+        //    con.OpenDataSetThroughAdapter("SELECT * FROM JWTransformationPurchaseOrderDetail WHERE JWTransformationPurchaseOrderId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
+
+        //    List<Dictionary<string, object>> dataBoq = new List<Dictionary<string, object>>();
+        //    //List<Dictionary<string, object>> dataDetail = new List<Dictionary<string, object>>();
+
+        //    DataSet dsTax = null;
+        //    sql = "SELECT * FROM JWTransformationPurchaseOrderTax WHERE JWTransformationPurchaseOrderId='" + JWPurchaseOrderId + "'";
+        //    con = new ConnectionManager.DAL.ConManager("1");
+        //    con.OpenDataSetThroughAdapter(sql, out dsTax, false, "1");
+
+        //    try
+        //    {
+        //        Library.General.Conversions.UOMConversion Conversion = new Library.General.Conversions.UOMConversion();
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+        //        if (OrderSpecific == "Yes")
+        //        {
+        //            dataBoq = data;
+        //            data = MakePodetail(data);
+        //            //dataBoq = new List<Dictionary<string, object>>(data);
+        //            #region Validation
+
+        //            for (int i = 0; i < data.Count; i++)
+        //            {
+        //                if (type == "PODETAILLIST")
+        //                {
+        //                    if (data[i]["TransactionRate"] == null)
+        //                        throw new Exception("Rate Can not be Empty.");
+        //                }
+        //                if (data[i].ContainsKey("RequiredQty"))
+        //                {
+        //                    if (clsStaticInfo.dbl(data[i]["TransactionQty"].ToString()) + clsStaticInfo.dbl(data[i]["OtherPOQty"].ToString()) > clsStaticInfo.dbl(data[i]["RequiredQty"].ToString()))
+        //                    {
+        //                        throw new Exception("Current Qty can't be Greater then Transaction Qty.");
+        //                    }
+        //                }
+
+        //                var _locUOM = data.Where(ee => ee["TransactionUoMId"].ToString().Trim() != data[i]["TransactionUoMId"].ToString().Trim()).ToList();
+        //                if (_locUOM == null)
+        //                    continue;
+
+        //                if (_locUOM.Count >= 1)
+        //                    throw new Exception("UoM can't be Different.");
+
+        //            }
+        //            #endregion
+
+
+        //            for (int i = 0; i < data.Count; i++)
+        //            {
+        //                dsMaster.Tables[0].DefaultView.RowFilter = "Id='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
+
+        //                string _Id = "";
+
+        //                if (dsMaster.Tables[0].DefaultView.Count == 0)
+        //                {
+        //                    bplib.clsGenID genid = new bplib.clsGenID();
+        //                    genid.GenID("JWTransformationPurchaseOrderDetail", out _Id);
+        //                    data[i]["Id"] = "JWPD" + _Id;
+        //                    JWPODId = data[i]["Id"].ToString();
+        //                    data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+        //                    if (OrderSpecific == "Yes")
+        //                    {
+        //                        data[i]["ReferenceNo"] = data[i]["ReferenceNoM"];
+
+        //                    }
+        //                    AddNewRow(dsMaster.Tables[0], data[i]);
+
+
+        //                }
+        //                else
+        //                {
+
+        //                    data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+
+        //                    EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
+        //                }
+
+
+        //            }
+        //        }
+
+
+        //        else
+        //        {
+        //            for (int i = 0; i < data.Count; i++)
+        //            {
+
+
+        //                dsMaster.Tables[0].DefaultView.RowFilter = "Id='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
+
+        //                string _Id = "";
+
+        //                if (dsMaster.Tables[0].DefaultView.Count == 0)
+        //                {
+        //                    //if (data[i]["Id"] == null)
+        //                    //{
+        //                    //    TaxList = null;
+        //                    //}
+
+        //                    bplib.clsGenID genid = new bplib.clsGenID();
+        //                    genid.GenID("JWTransformationPurchaseOrderDetail", out _Id);
+        //                    data[i]["Id"] = "JWPD" + _Id;
+        //                    JWPODId = data[i]["Id"].ToString();
+        //                    data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+
+        //                    AddNewRow(dsMaster.Tables[0], data[i]);
+
+
+        //                }
+        //                else
+        //                {
+
+        //                    data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+
+        //                    EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
+        //                }
+
+
+        //            }
+        //        }
+
+        //        if (data != null)
+        //        {
+        //            clsStaticInfo _info = new clsStaticInfo();
+        //            if (OrderSpecific == "Yes")
+        //            {
+        //                if (data[0].ContainsKey("BOQId"))
+        //                {
+
+        //                    for (int i = 0; i < data.Count; i++)
+        //                    {
+        //                        SaveJWTransformationPurchaseOrderChildMaterial(dataBoq, data[i]["Id"].ToString(), JWActivityId, Conversion, out dsJwChildMaterial);
+
+        //                        JPOBOQMAPCreate(dataBoq, data[i]["Id"].ToString(), userName, IPAddress, out dsPOBOQMap);
+        //                    }
+        //                    _info.SaveDataSets(dsMaster);
+        //                    _info.SaveDataSets(dsPOBOQMap, dsJwChildMaterial);
+        //                }
+        //                _info.SaveDataSets(dsMaster);
+
+        //            }
+        //            else
+        //            {
+
+        //                //for (int i = 0; i < data.Count; i++)
+        //                //{
+        //                //    SaveJWTransformationPurchaseOrderInputMaterial(data, JWActivityId, Conversion, out dsJwChildJWInputMaterial);
+
+        //                //    SaveJWTransformationPurchaseOrderByProductMaterial(data, JWActivityId, Conversion, out dsJwChildJWByProduct);
+        //                //}
+
+        //                _info.SaveDataSets(dsMaster, dsJwChildJWInputMaterial, dsJwChildJWByProduct);
+
+        //            }
+        //        }
+
+        //        return data;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
         public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type)
         {
             string JWPODId = "";
@@ -2208,7 +2389,7 @@ namespace Library.MaterialManagement.JobWork
                 JWPurchaseOrderId = data[0]["JWTransformationPurchaseOrderId"].ToString();
             }
 
-            con.OpenDataSetThroughAdapter("SELECT * FROM JWTransformationPurchaseOrderDetail WHERE JWTransformationPurchaseOrderId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
+            con.OpenDataSetThroughAdapter("SELECT * FROM JobWorkTransformationContractChild WHERE JobWorkTransformationContractMasterId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
 
             List<Dictionary<string, object>> dataBoq = new List<Dictionary<string, object>>();
             //List<Dictionary<string, object>> dataDetail = new List<Dictionary<string, object>>();
@@ -2309,10 +2490,12 @@ namespace Library.MaterialManagement.JobWork
                             //}
 
                             bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID("JWTransformationPurchaseOrderDetail", out _Id);
+                            genid.GenID("JobWorkTransformationContractChild", out _Id);
                             data[i]["Id"] = "JWPD" + _Id;
                             JWPODId = data[i]["Id"].ToString();
-                            data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                            //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                            data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
+                            data[i]["Quantity"] = data[i]["TransactionQty"];
 
                             AddNewRow(dsMaster.Tables[0], data[i]);
 
@@ -2321,8 +2504,9 @@ namespace Library.MaterialManagement.JobWork
                         else
                         {
 
-                            data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
-
+                            //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                            data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
+                            data[i]["Quantity"] = data[i]["TransactionQty"];
                             EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
                         }
 
@@ -2614,52 +2798,94 @@ namespace Library.MaterialManagement.JobWork
 
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" SELECT JWTPD.*,ISNULL(JWI.UserName,'') JWItemName,ISNULL(JWItemUOM.Code,'') JWItemUOM ,ISNULL(MM.UserName,'') MaterialMasterName
-                                ,ISNULL(MMA.ShortName,'') ArticleName
-                                ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
-                                 ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
-                                 ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
-                                 ,ISNULL(BaseUOM.Code,'') BaseUOM,ISNULL(TransactionUoM.Code,'') TransactionUoM
-                                 ,ISNULL(Country.UserName,'') Country
-                                 --JWTransfromation Detail 
-                                 ,JWA.UserName JWActivity,
-								 JWTPD.ResponsiblePersonId
-                                 ,EEI.EmployeeName ResponsiblePersonName 
-                                 , JWTPD.JobWorkItemMasterId, JWI.UserName OutputMaterial, JWTPD.OutputMaterialUOMId
-                                 , JWTPD.RateApplyOn,JWTPD.CurrencyId, CURR.Code CURR--, JWTPD.MinRate, JWTM.MaxRate
-                                 , JWTPD.ByProductApplicable
-                               
-								
+            //    string sql = @" SELECT JWTPD.*,ISNULL(JWI.UserName,'') JWItemName,ISNULL(JWItemUOM.Code,'') JWItemUOM ,ISNULL(MM.UserName,'') MaterialMasterName
+            //                        ,ISNULL(MMA.ShortName,'') ArticleName
+            //                        ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
+            //                         ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
+            //                         ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
+            //                         ,ISNULL(BaseUOM.Code,'') BaseUOM,ISNULL(TransactionUoM.Code,'') TransactionUoM
+            //                         ,ISNULL(Country.UserName,'') Country
+            //                         --JWTransfromation Detail 
+            //                         ,JWA.UserName JWActivity,
+            // JWTPD.ResponsiblePersonId
+            //                         ,EEI.EmployeeName ResponsiblePersonName 
+            //                         , JWTPD.JobWorkItemMasterId, JWI.UserName OutputMaterial, JWTPD.OutputMaterialUOMId
+            //                         , JWTPD.RateApplyOn,JWTPD.CurrencyId, CURR.Code CURR--, JWTPD.MinRate, JWTM.MaxRate
+            //                         , JWTPD.ByProductApplicable
 
-                                , ReferenceNo,BaseAmount
-                                , jwtax.TaxAmount
-                                FROM JWTransformationPurchaseOrderDetail JWTPD 
-                               
-                                LEFT JOIN HKP.JobWorkItem JWI ON JWI.Id = JWTPD.JobWorkItemMasterId
-                                LEFT JOIN HKP.JobWorkActivity JWA ON JWA.Id = JWTPD.JobWorkItemMasterId
-                                LEFT JOIN SCS.UnitOfMeasurement JWItemUOM  ON JWItemUOM.Id = JWTPD.OutputMaterialUOMId
-                                LEFT JOIN MST.MaterialMaster MM  ON MM.Id = JWTPD.MaterialMasterId
-                                LEFT JOIN MST.MaterialMasterArticle MMA  ON MMA.Id = JWTPD.ArticleId
-                                LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = JWTPD.FirstCharacteristicsId
-                                LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = JWTPD.FirstCharacteristicsValueId
-                                LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = JWTPD.SecondCharacteristicsId
-                                LEFT JOIN [HKP].[CharacteristicsValue]   SCharValue  ON SCharValue.Id = JWTPD.SecondCharacteristicsValueId
-                                LEFT JOIN [HKP].[Characteristics]   TChar  ON TChar.Id = JWTPD.ThirdCharacteristicsId
-                                LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = JWTPD.ThirdCharacteristicsValueId
-                                LEFT JOIN SCS.UnitOfMeasurement BaseUOM  ON BaseUOM.Id = JWTPD.BaseUOMId
-                                LEFT JOIN SCS.UnitOfMeasurement TransactionUoM  ON TransactionUoM.Id = JWTPD.TransactionUoMId
-                                LEFT JOIN SCS.Country Country  ON Country.Id = JWTPD.CountryId
-                                LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = JWTPD.ResponsiblePersonId
+
+
+            //                        , ReferenceNo,BaseAmount
+            //                        , jwtax.TaxAmount
+            //                        FROM JWTransformationPurchaseOrderDetail JWTPD 
+
+            //                        LEFT JOIN HKP.JobWorkItem JWI ON JWI.Id = JWTPD.JobWorkItemMasterId
+            //                        LEFT JOIN HKP.JobWorkActivity JWA ON JWA.Id = JWTPD.JobWorkItemMasterId
+            //                        LEFT JOIN SCS.UnitOfMeasurement JWItemUOM  ON JWItemUOM.Id = JWTPD.OutputMaterialUOMId
+            //                        LEFT JOIN MST.MaterialMaster MM  ON MM.Id = JWTPD.MaterialMasterId
+            //                        LEFT JOIN MST.MaterialMasterArticle MMA  ON MMA.Id = JWTPD.ArticleId
+            //                        LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = JWTPD.FirstCharacteristicsId
+            //                        LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = JWTPD.FirstCharacteristicsValueId
+            //                        LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = JWTPD.SecondCharacteristicsId
+            //                        LEFT JOIN [HKP].[CharacteristicsValue]   SCharValue  ON SCharValue.Id = JWTPD.SecondCharacteristicsValueId
+            //                        LEFT JOIN [HKP].[Characteristics]   TChar  ON TChar.Id = JWTPD.ThirdCharacteristicsId
+            //                        LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = JWTPD.ThirdCharacteristicsValueId
+            //                        LEFT JOIN SCS.UnitOfMeasurement BaseUOM  ON BaseUOM.Id = JWTPD.BaseUOMId
+            //                        LEFT JOIN SCS.UnitOfMeasurement TransactionUoM  ON TransactionUoM.Id = JWTPD.TransactionUoMId
+            //                        LEFT JOIN SCS.Country Country  ON Country.Id = JWTPD.CountryId
+            //                        LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = JWTPD.ResponsiblePersonId
+
+
+            //                        LEFT JOIN SCS.Currency CURR ON CURR.Id = JWTPD.CurrencyId
+
+            //                     LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax  where  JWTransformationPurchaseOrderId = 'JWP17' GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
+            //ON jwtax.JWTransformationPurchaseOrderId  = JWTPD.JWTransformationPurchaseOrderId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
+            //                   WHERE " + strkey + "  and JWTPD.JWTransformationPurchaseOrderId = '" + jwpoId + @"'";
+            string sql = @"SELECT JWTPD.*,ISNULL(JWI.UserName,'') JWItemName,ISNULL(JWItemUOM.Code,'') JWItemUOM ,MM.Id MaterialMasterId ,ISNULL(MM.UserName,'') MaterialMasterName
+                            ,MMA.Id ArticleId,ISNULL(MMA.ShortName,'') ArticleName
+                            ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
+                                ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
+                                ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
+                                ,ISNULL(BaseUOM.Code,'') BaseUOM,ISNULL(TransactionUoM.Code,'') TransactionUoM
+                                ,ISNULL(Country.UserName,'') Country
+                                --JWTransfromation Detail 
+                                ,JWA.UserName JWActivity,
+	                            JWTPD.ResponsiblePersonId
+                                ,EEI.EmployeeName ResponsiblePersonName 
+                                , JWTPD.JobWorkItemMasterId, JWI.UserName OutputMaterial, JWTPD.OutputMaterialUOMId
+                                , JWTPD.RateApplyOn,JWTPD.CurrencyId, CURR.Code CURR--, JWTPD.MinRate, JWTM.MaxRate
+                                , JWTPD.ByProductApplicable 
+                                ,JWTPD.Quantity	TransactionQty	
+	                            ,JWTPD.RatePerUnit	TransactionRate
+	                            ,(JWTPD.Quantity*JWTPD.RatePerUnit) TransactionAmount
+                            , JWTPD.ReferenceNo,((JWTPD.Quantity*JWTPD.RatePerUnit)*po.ToCurrencyRate) BaseAmount
+                            , jwtax.TaxAmount,JWTPD.TransactionUoMId,TransactionUoM.Code TransactionUoM,JWTPD.BaseUOMId,BaseUOM.Code BaseUOM
+                            FROM JobWorkTransformationContractChild JWTPD      
+                            left JOIN [dbo].[JWTransformationPurchaseOrder] PO On PO.Id=JWTPD.JobWorkTransformationContractMasterId
+                            LEFT JOIN HKP.JobWorkItem JWI ON JWI.Id = JWTPD.JobWorkItemMasterId
+                            LEFT JOIN HKP.JobWorkActivity JWA ON JWA.Id = JWTPD.JobWorkItemMasterId
+                            LEFT JOIN SCS.UnitOfMeasurement JWItemUOM  ON JWItemUOM.Id = JWTPD.OutputMaterialUOMId
+                            LEFT JOIN MST.MaterialMaster MM  ON MM.Id = JWTPD.MaterialMasterId
+                            LEFT JOIN MST.MaterialMasterArticle MMA  ON MMA.Id = JWTPD.ArticleId
+                            LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = JWTPD.FirstCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = JWTPD.FirstCharacteristicsValueId
+                            LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = JWTPD.SecondCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   SCharValue  ON SCharValue.Id = JWTPD.SecondCharacteristicsValueId
+                            LEFT JOIN [HKP].[Characteristics]   TChar  ON TChar.Id = JWTPD.ThirdCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = JWTPD.ThirdCharacteristicsValueId
+                            LEFT JOIN SCS.UnitOfMeasurement BaseUOM  ON BaseUOM.Id = JWTPD.BaseUOMId
+                            LEFT JOIN SCS.UnitOfMeasurement TransactionUoM  ON TransactionUoM.Id = JWTPD.TransactionUoMId
+                            LEFT JOIN SCS.Country Country  ON Country.Id = JWTPD.CountryId
+                            LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = JWTPD.ResponsiblePersonId
                               
                            
-                                LEFT JOIN SCS.Currency CURR ON CURR.Id = JWTPD.CurrencyId
+                            LEFT JOIN SCS.Currency CURR ON CURR.Id = JWTPD.CurrencyId
     
-	                            LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax  where  JWTransformationPurchaseOrderId = 'JWP17' GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
-								ON jwtax.JWTransformationPurchaseOrderId  = JWTPD.JWTransformationPurchaseOrderId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
-                           WHERE " + strkey + "  and JWTPD.JWTransformationPurchaseOrderId = '" + jwpoId + @"'";
-
+                            LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax  where  JWTransformationPurchaseOrderId = '" + jwpoId + @"' GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
+                            ON jwtax.JWTransformationPurchaseOrderId  = JWTPD.JobWorkTransformationContractMasterId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
+                            WHERE " + strkey + "  and JWTPD.JobWorkTransformationContractMasterId = '" + jwpoId + @"'";
             return sql;
-        }
+		}
 
         public string GetJwPoDetailByProduct(string jwPODetailId)
         {

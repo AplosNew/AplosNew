@@ -375,7 +375,9 @@ namespace Aplos.Areas.Productions.Controllers
 
                                 ,CartonSerialNo = (Select Stuff((Select distinct ','+isc.RefNo
                                 from dbo.ItemScanChild isc 
-                                where isc.NetWeight=sc.NetWeight and isc.GWeight=sc.GWeight
+								left join trn.POLotReference pol on pol.Id = isc.PackingId
+							    left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
+                                where isc.NetWeight=sc.NetWeight and isc.GWeight=sc.GWeight and pli.PackingId = '"+ PackingId + @"'
                                 for xml path('')
                                 ),1,1,''))
 
@@ -412,10 +414,13 @@ namespace Aplos.Areas.Productions.Controllers
                                 Select sc.netWeight,sc.GWeight,
                                 Count(sc.RefNo) as NoOfPackages, sc.ProductCode ,sc.POId , sc.LotNo
                                 ,(sc.NetWeight * Count(sc.RefNo)) as TotalQtyNetWeight,(sc.GWeight * Count(sc.RefNo)) as GrossWeight
-                                from dbo.ItemScanChild sc where IsDespatch = 0
+                                from dbo.ItemScanChild sc 
+								left join trn.POLotReference pol on pol.Id = sc.PackingId
+							    left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
+							    where pli.PackingId = '" + PackingId + @"' and sc.IsDespatch = 0
                                 group by  sc.ProductCode ,sc.POId , sc.LotNo,sc.netWeight,sc.GWeight
                                 ) as sc on sc.LotNo = plr.LotNo and sc.ProductCode = plr.ProductCode and sc.POId = plr.PONo
-                                where P.PackingId ='" + PackingId + "'";
+                                where P.PackingId ='" + PackingId + @"'";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }

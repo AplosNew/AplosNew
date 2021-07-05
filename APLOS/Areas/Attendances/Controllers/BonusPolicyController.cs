@@ -299,7 +299,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 DataView dvBp = null;
                 DataRow drBp = null;
                 string BPId = string.Empty;
-                string sql = "SELECT * FROM [dbo].[BonusPolicyPlantWise] where BonusPolicyId= '"+BP[0].BonusPolicyID+@"' ";
+                string sql = "SELECT * FROM [dbo].[BonusPolicyPlantWise] where PlantId= '" + BP[0].PlantId+@"' ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsBp, false, "1");
 

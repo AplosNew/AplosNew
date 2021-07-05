@@ -35,7 +35,7 @@
 
 
 
-<div ng-form id="longabsent" name="longabsentNewForm" class="form-elements  form-horizontal">
+<div ng-form id="productionRelay" name="productionRelayNewForm" class="form-elements  form-horizontal">
 
     <div class="tab-design" id="tab_show">
 
@@ -45,10 +45,9 @@
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="completedProcess" role="tab" data-toggle="tab">Completed</a></li>
             </ul>
         </div>
-
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-
+                <div ng-show="ProductionRelayList.length>0"> Total Records: {{ProductionRelayList.length}}</div>
                 <div id="GridProductionRelay" ng-init="chkinit()" e-load="actionCompleteSearch" ej-grid e-datasource="ProductionRelayList"
                      e-allowfiltering="true" e-allowpaging="false" e-enabletouch="false" e-responsive="true" e-templaterefresh="ProductionRelayAllCheck"
                      e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
@@ -56,6 +55,8 @@
                      e-allowselection="false" e-filtersettings-filterType="excel">
                     <div e-columns>
                         <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="25"></div>
+                        <div e-column e-template="#Remarks" e-textalign="center" e-headertext="Remarks" e-width="70"></div>
+
                         <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
                         <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
                         <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
@@ -81,12 +82,12 @@
                         <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ClosedDate" e-headertext="Previous Process Completion Date" e-width="80"></div>
 
                         @*<div e-column e-type="string" e-field="BuyerRefNo" e-headertext="Cust. Order#" e-width="100"></div>
-                    <div e-column e-type="string" e-field="SONo" e-headertext="SO No." e-width="100"></div>*@
+        <div e-column e-type="string" e-field="SONo" e-headertext="SO No." e-width="100"></div>*@
                     </div>
 
                 </div>
                 <script type="text/x-jsrender" id="headerTemplate">
-                    <input type="checkbox" id="headchk"/>
+                    <input type="checkbox" id="headchk" />
                 </script>
                 <script type="text/template" id="checkboxTemplate">
                     <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Checked" e-checked="data.Checked" />
@@ -103,7 +104,17 @@
 
                         </ul>
                     </div>
-
+                </script>
+                <script type="text/template" id="Remarks">
+                    <div class="common-btn">
+                        <ul class="list-inline small">
+                            <li>
+                                <button ng-click="ShowRemarksPopUp()" class="btn small"  style="height: 28px; width: 56px; padding: 0px; margin: 0px;font-weight:bolder;">
+                                    Remarks
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                 </script>
                 <div class="common-btn" ng-show="ProductionRelayList.length>0">
                     <ul class="list-inline text-right">
@@ -153,5 +164,24 @@
         </div>
 
     </div>
+<div class="modal fade site-modal in" id="RemarksPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">remarks<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class=" col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Contract No<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Contract No" ng-model="modelNew.ContractNo" class="form-control" maxlength="50" tabindex="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>

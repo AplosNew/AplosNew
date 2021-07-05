@@ -819,5 +819,20 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
+
+		public static string TaxOpeningBalancePath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/TaxOpeningBalance/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
+		
+
 	}
 }
