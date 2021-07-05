@@ -3,8 +3,8 @@ entityFixedAssetsRegisterController.$inject = ['cboService', 'commonMessage', '$
 function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Entity Fixed Assets Register';
     $scope.Action = 'Save';
-    $scope.saveUrl = $scope.path + 'create';
     $scope.path = 'FixedAssets/EntityFixedAssetsRegister/';
+    $scope.saveUrl = $scope.path + 'create';
     var dt = new Date();
 
     //$scope.reportParameters = {
@@ -19,7 +19,7 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
 
     $scope.fixedAsset = {
         EntityId: null,
-        DepartmentId:null
+        DepartmentId: null
     };
 
 
@@ -101,54 +101,53 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
         gridObj.refreshContent();
     };
 
-
-    $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-      //if ($scope.ModelNewForm.$valid) {
-        //$scope.EntityId = null;
-        //$scope.DepartmentId = null;
-
-        $http({
-            method: 'POST',
-            url: $scope.saveUrl,
-            data: { 'entityId': $scope.fixedAsset.EntityId, 'departmentId': $scope.fixedAsset.DepartmentId, 'entityFixedAssetList': $scope.EntityFixedAssetRegisterList},
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            //if (response.data.Error === true) {
-            //    ShowResult(response.data.Message, 'failure');
-            //}
-
-            var NewEntityFixedAssetRegisterList = [];
-            for (var i = 0; i < $scope.EntityFixedAssetRegisterList.length; i++) {
-                if ($scope.EntityFixedAssetRegisterList[i].isSelected == true) {
-
-                    if (NewEntityFixedAssetRegisterList, $scope.EntityFixedAssetRegisterList[i].FixedAssetRegisterId) {
-                        NewEntityFixedAssetRegisterList.push($scope.EntityFixedAssetRegisterList[i].FixedAssetRegisterId);
-                    }
-                }
+    $scope.NewEntityFixedAssetRegisterList = [];
+    $scope.validation = function () {
+        if (baseService.isUndefinedOrNull($scope.fixedAsset.EntityId)) {
+            ShowResult('Please select Entity', 'failure');
+            return true;
+        }
+        if (baseService.isUndefinedOrNull($scope.fixedAsset.DepartmentId)) {
+            ShowResult('Please select Department', 'failure');
+            return true;
+        }
+        $scope.NewEntityFixedAssetRegisterList = [];
+        for (var i = 0; i < $scope.EntityFixedAssetRegisterList.length; i++) {
+            if ($scope.EntityFixedAssetRegisterList[i].isSelected == true) {
+                $scope.NewEntityFixedAssetRegisterList.push($scope.EntityFixedAssetRegisterList[i]);
             }
-
-            if (NewEntityFixedAssetRegisterList.length == 0) {
-                //(angular.isUndefinedOrNull(NewMasterLCList)) 
-                ShowResult('Please select at least one Fixed Assets', 'failure');
-                //throw 'Please enter to date';
-
-            }
-
-            else {
-                ShowResult(response.data.Message, 'success');
-                ClearFields(response.data.Sequence);
-                $scope.getData();
-
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
         }
 
-            ShowResult(e, 'failure');
-    }
+        if ($scope.NewEntityFixedAssetRegisterList.length == 0) {
+            //(angular.isUndefinedOrNull(NewMasterLCList)) 
+            ShowResult('Please select at least one Fixed Assets', 'failure');
+            return true;
+        }
 
-        //}
+        else {
+            return false;
+
+        }
+    }
+    $scope.Save = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if (!$scope.validation()) {
+
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'entityId': $scope.fixedAsset.EntityId, 'departmentId': $scope.fixedAsset.DepartmentId, 'entityFixedAssetList': $scope.NewEntityFixedAssetRegisterList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+
+    }
 
 
     //try {
@@ -209,8 +208,8 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
 
 };
 
-    
-   
+
+
 
 
 
