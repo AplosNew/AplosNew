@@ -139,7 +139,7 @@
                             <div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
                             <div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
                             @*<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
-                        <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
+                            <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
                             <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
                             <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
                             <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
@@ -176,7 +176,7 @@
 
 
                             @*<div e-column e-headertext="ExportTOExcel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="50"></div>
-                        <div e-column e-headertext="ExportTOPdf" e-commands="commandPdf" e-isunbound=true e-textalign="left" e-width="50"></div>*@
+                            <div e-column e-headertext="ExportTOPdf" e-commands="commandPdf" e-isunbound=true e-textalign="left" e-width="50"></div>*@
                             @*  <div e-column e-headertext="ExportTOWord" e-commands="commandWord" e-isunbound=true e-textalign="left" e-width="50"></div>*@
 
 
@@ -184,7 +184,33 @@
                     </div>
                 </div>
             </div>
+            <div class="col-lg-12">
+                <div id="GridAcceptance" ej-grid e-datasource="inventoryMaterialListPO1" e-templaterefresh="refreshTemplate" e-allowscrolling="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="InventoryReceiveDetailId" e-headertext="PODetailId" e-width="100"></div>
+                        <div e-column e-field="MaterialGroupMasterName" e-headertext="Material Group" e-width="100"></div>
+                        <div e-column e-field="UserName" e-headertext="Material" e-width="100"></div>
+                        <div e-column e-field="StandardName" e-headertext="Article" e-width="80"></div>
+                        <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
+                        <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
+                        <div e-column e-field="POQty" e-headertext="POQty" e-width="50"></div>
+                        <div e-column e-field="TransactionUoM" e-headertext="UOM" e-width="30" textAlign='Right'></div>
+                        <div e-column e-field="GRNRcvQty" e-headertext="Other Received" e-width="50" textAlign='Right'></div>
+                        <div e-column e-template="#CurrentAccept" e-headertext="Current Acceptance" e-width="80" style="height: 20px;"></div>
+                        <div e-column e-field="Balance" e-headertext="Balance" e-width="50" textAlign='Right'></div>
+                        <div e-column e-field="TransactionRate" e-headertext="Rate" e-width="30" textAlign='Right'></div>
+                        <div e-column e-field="CurrencyName" e-headertext="CurrencyName" e-width="30" textAlign='Right'></div>
+                        <div e-column e-field="TrnAmount" e-headertext="Amount" e-width="30" textAlign='Right'></div>
+                        <div e-column e-field="TaxAmount" e-headertext="Tax Amount" e-width="30" textAlign='Right'></div>
+                        <div e-column e-field="ChargesTranAmount" e-headertext="Service Charge" e-width="30" textAlign='Right'></div>
+                        <div e-column e-field="ChargesTaxTranAmount" e-headertext="Service Tax" e-width="30" textAlign='Right'></div>
+                        <div e-column e-field="TotalMaterialTranAmount" e-headertext="Material Amount" e-width="50" textAlign='Right'></div>
 
+                    </div>
+                </div>
+            </div>
             <script id="tabGridContents" type="text/x-jsrender">
                 <div class="tabcontrol" id="Test">
                     <ul>
@@ -199,6 +225,14 @@
                     </div>
                 </div>
             </script>
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> @*<button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button>*@</li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
         </div>
     </div>
 
