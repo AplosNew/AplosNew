@@ -216,7 +216,25 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
 
         });
     }
-   
+
+    $scope.detailTemp = "#tabGridContents";
+    //$scope.detailgrid = "detailGridData(e)";
+    $scope.detailgrid = function detailGridData(e) {
+        //debugger;
+
+        var filteredData = e.data["Id"];
+        var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("InventoryReceiveId", "equal", parseInt(filteredData), true).take(100));
+        e.detailsElement.find("#detailGrid").ejGrid({
+            dataSource: data,
+            columns: ["MaterialGroupName", "MaterialName", "Article", "SKU1", "SKU2", "SKU3", "MaterialDetail", "TransactionQty", "TransactionUoMId", "TransactionUoM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount", "MaterialFor"]
+        });
+        e.detailsElement.find(".tabcontrol").ejTab();
+
+
+    }
+
+    $scope.inventoryMaterialListPO1 = [];
+
 
     //	$scope.getData();
 
@@ -1978,21 +1996,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     $scope.GriddataMaster = [];
 
 
-    $scope.detailTemp = "#tabGridContents";
-    //$scope.detailgrid = "detailGridData(e)";
-    $scope.detailgrid = function detailGridData(e) {
-        //debugger;
-
-        var filteredData = e.data["Id"];
-        var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("InventoryReceiveId", "equal", parseInt(filteredData), true).take(100));
-        e.detailsElement.find("#detailGrid").ejGrid({
-            dataSource: data,
-            columns: ["MaterialGroupName", "MaterialName", "Article", "SKU1", "SKU2", "SKU3", "MaterialDetail", "TransactionQty", "TransactionUoMId", "TransactionUoM", "TransactionRate", "CurrencyName", "TotalMaterialTranAmount", "MaterialFor"]
-        });
-        e.detailsElement.find(".tabcontrol").ejTab();
-
-
-    }
+    
 
     $scope.GriddataMaster2 = [];
     $scope.getalldataMaster2 = function () {
@@ -2184,69 +2188,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
             $scope.inventoryMaterialListPO = response.data;
         });
     }
-    $scope.AllTabPrint = function (z) {
-        //debugger;
-        var x = "#" + z;
-        var gridObj = $(x).data("ejGrid");
-        var data = gridObj.getSelectedRecords()[0];
-        location.href = " GoodsReceiveNote/GRNReport?grnId=" + data.Id;
-    };
-
-    $scope.valuePassInDelModal = function (id) {
-        $scope.id = id;
-        $scope.message = 'Are you sure want to permanently delete this?';
-        angular.element(document.querySelector('#removerPopUp')).modal('show');
-    };
-
-    $scope.detailDelete = function () {
-        try {
-            $http({
-                method: 'POST',
-                url: 'Products/GoodsReceiveNote/JWDetailDelete?receiveDetailId=' + $scope.id
-                //url: $scope.detailDeleteUrl + $scope.id
-            }).then(function successCallback(response) {
-                if (response.data.Error === true)
-                    ShowResult(response.data.Message, 'failure');
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    JWOutPutQuery($scope.ReceiptTransformation.Id)
-                    JWByProductQuery($scope.ReceiptTransformation.Id)
-
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            };
-        } catch (e) {
-            ShowResult(e, 'success');
-        }
-    };
-
-    $scope.Delete = function () {
-        //debugger;
-        if (baseService.arrayLength($scope.inventoryMaterialList) === 0 && baseService.arrayLength($scope.inventoryMaterialListPO) === 0) {
-            if (!baseService.isUndefinedOrNull($scope.ReceiptTransformation.Id)) {
-                $http({
-                    method: 'POST',
-                    url: 'Products/GoodsReceiveNote/JWDeleteGRN?Id=' + $scope.ReceiptTransformation.Id,
-                    //url: $scope.deleteUrl + $scope.productNew.Id,//deleteGRNBYPO
-                    dataType: 'JSON'
-                }).then(function (response) {
-                    if (response.data.Error === true)
-                        ShowResult(response.data.Message, 'failure');
-                    else {
-                        ShowResult('Data Deleted Successfully', 'success');
-                        //$scope.getDataList();
-                        $scope.ClearReceiptTransChildTab();
-                    }
-                    function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                });
-            }
-        }
-        else
-            ShowResult('First delete all line item.', 'failure');
-    };
+  
     // end
 
 }
