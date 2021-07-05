@@ -55,7 +55,7 @@
                      e-allowselection="false" e-filtersettings-filterType="excel">
                     <div e-columns>
                         <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="25"></div>
-                        <div e-column e-template="#Remarks" e-textalign="center" e-headertext="Remarks" e-width="70"></div>
+                        <div e-column e-template="#btnRemarks" e-textalign="center" e-headertext="Remarks" e-width="70"></div>
 
                         <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
                         <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
@@ -105,13 +105,14 @@
                         </ul>
                     </div>
                 </script>
-                <script type="text/template" id="Remarks">
+                <script type="text/template" id="btnRemarks">
                     <div class="common-btn">
                         <ul class="list-inline small">
                             <li>
-                                <button ng-click="ShowRemarksPopUp()" class="btn small"  style="height: 28px; width: 56px; padding: 0px; margin: 0px;font-weight:bolder;">
-                                    Remarks
-                                </button>
+                                @*<button ng-click="$parent.ShowRemarksPopUp(data)" class="glyphicon glyphicon-pencil" style="height: 28px; width: 56px; padding: 0px; margin: 0px;font-weight:bolder;">
+                                </button>*@
+                                <button style="height:28px;width:28px; padding:2px;" type="button" ng-click="$parent.ShowRemarksPopUp(data)" class="btn"><i class="glyphicon glyphicon-pencil"></i></button>
+
                             </li>
                         </ul>
                     </div>
@@ -158,27 +159,31 @@
                             <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ClosedDate" e-headertext="Previous Process Completion Date" e-width="80"></div>
                         </div>
                     </div>
-                </div> 
-
+                </div>
             </div>
         </div>
-
     </div>
 <div class="modal fade site-modal in" id="RemarksPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
-            <div class="modal-header">remarks<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-header">Remarks<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
                 <div class="row">
                     <div class=" col-md-12">
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Contract No<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Remarks<sup>*</sup></label>
                             <div class="col-sm-8">
-                                <input type="text" name="Contract No" ng-model="modelNew.ContractNo" class="form-control" maxlength="50" tabindex="1">
+                                <input type="text" name="Remarks" ng-model="SelectedProductionRelay.Remarks" class="form-control" maxlength="100" tabindex="1">
                             </div>
                         </div>
                     </div>
                 </div>
+
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="submitRemarks()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Submit </button></li>
+                </ul>
             </div>
         </div>
     </div>
