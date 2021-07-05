@@ -4,6 +4,8 @@ ProductionDashboardController.$inject = ['cboService', 'commonMessage', '$scope'
 function ProductionDashboardController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = "Production Dashboard";
     $scope.path = "Productions/ProductionDashboard/";
+    $scope.ProductionRelaypath = 'Productions/ProductionRelay/';
+
 
     $scope.FromDateParameter = new Date();
     $scope.SelectedEntity = null;
@@ -299,6 +301,152 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
         });
         $rootScope.openPopup('dialogWorkcenterWiseWIP');
     }
+
+    
+    //$scope.SelectedProcess = null;
+    //$scope.GetProductionRelay = function (args) {
+    //    $scope.WorkcenterWiseWIPList = [];
+    //    $scope.SelectedProcess = args;
+    //    EntityText();
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.ProductionRelaypath + 'GetWorkCenterWiseWIP?PlantId=' + $scope.SelectedPlant + '&EntityId=' + $scope.SelectedEntity + '&ProcessId=' + args.Id + '&date=' + ($filter('dateFiltering')(new Date($scope.FromDateParameter), 'dd-MM-yyyy'))
+    //    }).then(function successCallback(response) {
+    //        $scope.WorkcenterWiseWIPList = response.data;
+    //    });
+    //    $rootScope.openPopup('dialogWorkcenterWiseWIP');
+    //}
+
+
+    $scope.ProductionRelayList = [];
+    
+    $scope.getProductionRelay = function (args) {
+        try {
+              $scope.SelectedProcess = args;
+            $http({
+                method: 'GET',
+                url: $scope.path +'GetProductionRelay?PlantId=' + $scope.SelectedPlant + '&EntityId=' + $scope.SelectedEntity + '&ProcessId=' + args.Id,
+
+            }).then(function successCallback(response) {
+
+                for (var i = 0; i < response.data.length; i++) {
+                    if (angular.isUndefinedOrNull(response.data[i].LSD) == false)
+                        response.data[i].LSD = new Date(response.data[i].LSD);
+
+                    if (angular.isUndefinedOrNull(response.data[i].StartDate) == false)
+                        response.data[i].StartDate = new Date(response.data[i].StartDate);
+
+                    if (angular.isUndefinedOrNull(response.data[i].PreviousProcessStartDate) == false)
+                        response.data[i].PreviousProcessStartDate = new Date(response.data[i].PreviousProcessStartDate);
+
+                    if (angular.isUndefinedOrNull(response.data[i].ClosedDate) == false)
+                        response.data[i].ClosedDate = new Date(response.data[i].ClosedDate);
+                }
+
+                $scope.ProductionRelayList = response.data;
+            })
+            
+            $rootScope.openPopup('dialogProductionRelay');            
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    }
+    $scope.rowDataBoundOrder = function rowDataBoundOrder(e) {
+        try {
+            if (angular.isUndefinedOrNull(e.data.PPRId) == true) return;
+
+            if (angular.isUndefinedOrNull(e.data.ClosedDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == false) {
+                e.row.css("background-color", "#6FEAFF");
+                return;
+            }
+
+            if (angular.isUndefinedOrNull(e.data.ClosedDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == true) {
+                e.row.css("background-color", "#FF502A");
+                return;
+            }
+
+            if (angular.isUndefinedOrNull(e.data.PreviousProcessStartDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == true) {
+                e.row.css("background-color", "#FFB42A");
+                return;
+            }
+
+            if (angular.isUndefinedOrNull(e.data.PreviousProcessStartDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == false) {
+                e.row.css("background-color", "#7EFF87");
+                return;
+            }
+
+            //e.row.css("background-color", e.data.Color);
+            //var inColor = invertColor(e.data.Color, true);
+            //e.row.css("color", inColor);
+        } catch (e) {
+
+        }
+    }
+    $scope.ProductionRelayAllCheck = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+    function CheckBoxSelectAll(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
+            $scope.ProductionRelayList[i].Checked = ChkOrUnchk;
+        }
+
+        var gridObj = $("#GridProductionRelay").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.Save = function () {
+        try {
+            $scope.ActiveList = [];
+
+            for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
+                if ($scope.ProductionRelayList[i].Checked) {
+                    $scope.ActiveList.push($scope.ProductionRelayList[i]);
+                }
+
+            }
+            $scope.$broadcast('show-errors-check-validity');
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'ProductionRelayData': $scope.ActiveList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    /*ClearFields(response.data.Sequence);*/
+                    $scope.getProductionRelay();
+                    /* $scope.GetDetails({ data: { Id: response.data.Data.Id } });*/
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+
+        }
+    };
+
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    }
+    function ClearFields() {
+        $scope.Action = "Save";
+        $scope.ProductionRelay = {}
+        $scope.ProductionRelayList = [];
+    }
+
+
     $scope.WCWIPRowDataBound = function (e) {
 
         try {
