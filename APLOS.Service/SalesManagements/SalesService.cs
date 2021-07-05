@@ -2441,7 +2441,7 @@ namespace Library.Service.SalesManagements
                                 DocDate = voucherVM.DocDate,
                                 DocRefNo = voucherVM.DocRefNo,
                                 Narration = sales.Narration,
-                                InvoiceDetailId = invoiceDetail.Id,
+                                
                                 PostingWithoutTaxAllow = invoice.IsExcludingTax,
                                 AddedBy = voucher.AddedBy,
                                 AddedDate = voucher.AddedDate,
@@ -2449,6 +2449,7 @@ namespace Library.Service.SalesManagements
                             };
                             if (voucherDetailVM.OtherName == "Customer")
                             {
+                                voucherDr.InvoiceDetailId = invoiceDetail.Id;
                                 voucherDr.PartyId = sales.PartyId;
                                 voucherDr.PartyPlantId = sales.InvoicingPartyPlantId;
                             }
