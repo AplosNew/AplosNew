@@ -150,10 +150,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetProductionRelay(string EntityId, string ProcessId)
+        public ActionResult GetProductionRelay (string EntityId, string ProcessId)
+
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,
+            string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.remarks,
 convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId, convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess,PPR.CompletedBy ClosedBy
 ,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
 ,  PO.Id,PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
@@ -283,7 +284,7 @@ PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
         public ActionResult GetProductionRelayClosed(string EntityId, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,
+            string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.remarks,
 convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId, convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess,PPR.CompletedBy ClosedBy
 ,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
 ,  PO.Id,PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
