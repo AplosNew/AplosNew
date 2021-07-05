@@ -457,6 +457,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
         #endregion
 
+        // To get Vendor for value added contract
         [HttpPost, Authorize]
         public ActionResult LoadAllPartyDetailsForSelection(string Id)
         {
