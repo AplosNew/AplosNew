@@ -877,6 +877,10 @@ var upanelApp = angular
     .controller("ManualShiftController", ManualShiftController)
     .controller("JobWorkReceiveBillingController", JobWorkReceiveBillingController)
     .controller("entityFixedAssetsRegisterController", entityFixedAssetsRegisterController)
+    .controller("voucherParkController", voucherParkController)
+
+
+    .controller("EmployeeAdditionDeductionProcessController", EmployeeAdditionDeductionProcessController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)

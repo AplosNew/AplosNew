@@ -504,7 +504,6 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     //#region Attachment 
 
-    $scope.SelectedItemData = {};
     $scope.UploadTableName = 'IncomeTaxItemTransaction';
     $scope.uploadUrl = $scope.path + "UploadAttachment/";
     $scope.confirmFileDelete = function () {
@@ -513,7 +512,7 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
     $scope.getFileList = function () {
         var MasterID = '';
         if (!baseService.isUndefinedOrNull($scope.MasterIdAfterFileSave))
-             MasterID = $scope.MasterIdAfterFileSave;
+            MasterID = $scope.MasterIdAfterFileSave;
         else
             MasterID = $scope.MasterId
         $http({
@@ -533,6 +532,18 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
                 for (var i = 0; i < $scope.IncomeTax.length; i++) {
                     if ($scope.IncomeTax[i].Id == MasterID) {
                         $scope.IncomeTax[i].FileName = response.data[0].FileName;
+                        break;
+                    }
+                }
+                for (var i = 0; i < $scope.InvestMentTax.length; i++) {
+                    if ($scope.InvestMentTax[i].Id == MasterID) {
+                        $scope.InvestMentTax[i].FileName = response.data[0].FileName;
+                        break;
+                    }
+                }
+                for (var i = 0; i < $scope.TaxableIncomePara.length; i++) {
+                    if ($scope.TaxableIncomePara[i].Id == MasterID) {
+                        $scope.TaxableIncomePara[i].FileName = response.data[0].FileName;
                         break;
                     }
                 }
@@ -575,6 +586,102 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
                 }
                 else {
                     $scope.getFileList();
+                }
+            }, function errorCallback(response) {
+                ShowResult('Failed', 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'Error');
+        }
+    }
+    //#endregion
+
+    //#region Taxable Income Parameter Attachment
+    $scope.UploadTableNames = 'TaxableIncomeparameter';
+    $scope.getTaxableIncomeFileList = function () {
+        var MasterIDs = '';
+        if (!baseService.isUndefinedOrNull($scope.MasterIdAfterFileSaves))
+            MasterIDs = $scope.MasterIdAfterFileSaves;
+        else
+            MasterIDs = $scope.MasterIds
+        $http({
+            method: 'POST', url: $scope.path + 'GetTaxableIncomeFileInfo', dataType: 'JSON',
+            data: { Id: MasterIDs/*$scope.InvestMent.TaxYearId, taxtype: $scope.InvestMent.TaxTypeId, empsysteid: $scope.InvestMent.EmpSystemId*/ }
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult('error', 'failure');
+            }
+            else {
+                for (var i = 0; i < $scope.TaxableIncomePara.length; i++) {
+                    if ($scope.TaxableIncomePara[i].Id == MasterIDs) {
+                        $scope.TaxableIncomePara[i].FileName = response.data[0].FileName;
+                        break;
+                    }
+                }
+                $scope.MasterIds = null;
+                $scope.MasterIdAfterFileSaves = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult('Failed', 'failure');
+        });
+    }
+    $scope.MasterIdAfterFileSaves = null;
+    $scope.onBeginUploadTaxableIncome = function (args) {
+        try {
+            var _data = [{ Id: args.model.Id, TableName: $scope.UploadTableNames }];
+            $scope.MasterIdAfterFileSaves = args.model.Id;
+            args.data = JSON.stringify(_data);
+        } catch (e) {
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
+    }
+
+    //$scope.onBeginUploadTaxableIncome = function (args) {
+    //    try {
+    //        var _data = [{ Id: args.model.Id, TableName: $scope.UploadTableNames }];
+    //        $scope.MasterIdAfterFileSaves = args.model.Id;
+    //        args.data = JSON.stringify(_data);
+
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.path + 'UploadAttachment',
+    //            dataType: 'JSON',
+    //            data: { UploadDefault: , UploadDefault_data: args.data}
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error == true) {
+    //                ShowResult('error', 'failure');
+    //            }
+    //            else {
+    //                $scope.getTaxableIncomeFileList();
+    //            }
+    //        }, function errorCallback(response) {
+    //            ShowResult('Failed', 'failure');
+    //        });
+
+    //    } catch (e) {
+    //        args.cancel = true;
+    //        ShowResult(e, 'Error');
+    //    }
+    //}
+
+    $scope.MasterIds = null;
+    $scope.confirmTaxableIncomeFileDelete = function (args) {
+        $scope.MasterIds = args.data.Id;
+        angular.element(document.querySelector("#confirmFileDeletes")).modal("show");
+    }
+    $scope.DeleteInfoFile = function () {
+        try {
+            $http({
+                method: 'POST', url: $scope.path + 'DeleteFile', dataType: 'JSON',
+                data: { Id: $scope.MasterIds, TableName: $scope.UploadTableNames }
+
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult('error', 'failure');
+                }
+                else {
+                    $scope.getTaxableIncomeFileList();
                 }
             }, function errorCallback(response) {
                 ShowResult('Failed', 'failure');

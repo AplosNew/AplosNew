@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Library.HumanResource.ShiftChange
+namespace Library.HumanResource.Employee
 {
     public class EmployeeAdditionDeductionService
     {
@@ -35,6 +35,20 @@ namespace Library.HumanResource.ShiftChange
                 throw e;
             }
         }
+
+        public IEnumerable<object> getEmploymentType()
+        {
+            try
+            {
+                var str = @"Select distinct EmploymentType from dbo.EmployeeInformation where EmploymentType is not null";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+        }
+
         public IEnumerable<object> getEmpType()
         {
             try
@@ -125,7 +139,7 @@ namespace Library.HumanResource.ShiftChange
         {
             try
             {
-                var sql = @"Select Id, MasterId,PlantId, EmpTypeId, isnull(DesignationId, 'All') as DesignationId from dbo.EmployeeAdditionDeductionPlantChild
+                var sql = @"Select Id, MasterId,PlantId, EmpTypeId, isnull(DesignationId, 'All') as DesignationId , isnull(EmploymentType,'ALL') as EmploymentType from dbo.EmployeeAdditionDeductionPlantChild
                              where MasterId ='" + MasterId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -316,7 +330,7 @@ namespace Library.HumanResource.ShiftChange
                 string TableName = "dbo.EmployeeAdditionDeductionPlantChild";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where MasterId = '"+Child["MasterId"]+"' and PlantId ='"+Child["PlantId"]+"' and EmpTypeId ='"+Child["EmpTypeId"]+"' and DesignationId='"+Child["DesignationId"]+"'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where MasterId = '"+Child["MasterId"]+"' and PlantId ='"+Child["PlantId"]+"' and EmpTypeId ='"+Child["EmpTypeId"]+"' and (DesignationId='"+Child["DesignationId"]+"' or DesignationId is null) and (EmploymentType='"+Child["EmploymentType"]+ "' or EmploymentType is null)", out dsMaster, false, "1");
 
                 string _Id = "";
                 #region data update

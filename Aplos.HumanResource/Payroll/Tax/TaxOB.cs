@@ -1,9 +1,11 @@
 ﻿using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Service.Extension;
+using Library.Service.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -253,13 +255,9 @@ namespace Library.HumanResource.Payroll.Tax
                 bplib.clsGenID objGenID = null;
                 objGenID = new bplib.clsGenID();
                 objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "TaxItem", out seed_detail);
-                //dtMSave = dsSaveBonusMonths.Tables[0];
                 int count = 0;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-
-                DataTable dtBp = null;
-                //DataSet dsBp = null;
                 DataView dvBp = null;
                 DataRow drBp = null;
                 string BPId = string.Empty;
@@ -267,26 +265,6 @@ namespace Library.HumanResource.Payroll.Tax
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsBp, false, "1");
 
-                //bplib.clsGenID objGenID = null;
-                //objGenID = new bplib.clsGenID();
-                //objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "Tax_POLICY_P", out BPId);
-                //int count = 0;
-                //for (int i = dsBp.Tables[0].Rows.Count - 1; i >= 0; i--)
-                //{
-                //    string policyID = dsBp.Tables[0].Rows[i]["IncTaxItmChildId"].ToString();
-                //    foreach (var item in ChildList)
-                //    {
-                //        if (item.IncTaxItmChildId == policyID && item.IsSelect == false)
-                //        {
-                //            DataView dv = new DataView(dsBp.Tables[0]);
-                //            dv.RowFilter = "Id='" + item.Id + "'";
-                //            if (dv.Count > 0)
-                //            {
-                //                Delete(item.Id);
-                //            }
-                //        }
-                //    }
-                //}
                 objCon.OpenDataSetThroughAdapter(sql, out dsBp, false, "1");
                 foreach (var item in ChildList)
                 {
@@ -332,6 +310,7 @@ namespace Library.HumanResource.Payroll.Tax
                         while (dsBp.Tables[0].DefaultView.Count>0)
                         {
                             dsBp.Tables[0].DefaultView[0].Row.Delete();
+                            Delete(item.Id);
                         }
                     }
                 }
@@ -425,12 +404,13 @@ namespace Library.HumanResource.Payroll.Tax
                 {
                     throw new Exception("Select Id first");
                 }
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from [dbo].[IncomeTaxItemTransaction] where Id ='" + ID + "'");
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from IncomeTaxItemTransaction  where Id='" + ID + "'", out dsMaster, false, "1");
 
-                con.CommitTransaction();
-
+                var destinationPath = Path.Combine(ResourcesPathReader.TaxOpeningBalancePath(), dsMaster.Tables[0].Rows[0]["FileName"].ToString());
+                if (System.IO.File.Exists(destinationPath))
+                    System.IO.File.Delete(destinationPath);
             }
             catch (Exception ex)
             {

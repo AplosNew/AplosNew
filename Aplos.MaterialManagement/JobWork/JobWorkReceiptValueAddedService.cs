@@ -663,7 +663,7 @@ namespace Library.MaterialManagement.JobWork
                         ,null POUoMId
                         ,0 Tolerance,sum(CC3.GrossConsumption*vvvv.Rate) GrossConsumption--,sum(vvvv.Rate) Rate
                         from dbo.JobWorkTransformationContractChild mp 
-                        left join dbo.JobWorkTransformationContract tc on tc.Id=mp.JobWorkTransformationContractMasterId
+                        left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
                         left join hkp.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
                         left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                         left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleCodeId
@@ -687,10 +687,10 @@ namespace Library.MaterialManagement.JobWork
 								 left join trn.InventoryMaterial IM ON IM.Id=IID.InventoryMaterialId
 								 left JOIN MST.MaterialMaster AS MM ON MM.Id=IM.MaterialMasterId
 								 left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
-								 left join dbo.JobWorkTransformationContract tc on tc.Id=II.JWContractId
+								 left join dbo.JWTransformationPurchaseOrder tc on tc.Id=II.JWContractId
 								 left join dbo.JobWorkTransformationContractChild mp1 ON mp1.JobWorkTransformationContractMasterId=Tc.Id								
 								 group by  mp1.Id,II.JWContractId )vvvv ON vvvv.JWContractId=tc.Id 
-                        where tc.Id='" + PKId + @"' group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuantity, MGM.UserName, MM.Id, MM.UserName, mma.Id ,MM.IsAsset,tc.Id, TUoM.Id, TUoM.UserName,TUoM.Id";
+                        where tc.Id='"+ PKId + @"' group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuantity, MGM.UserName, MM.Id, MM.UserName, mma.Id ,MM.IsAsset,tc.Id, TUoM.Id, TUoM.UserName,TUoM.Id";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -948,10 +948,10 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                                 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                                 left join (Select SUM(ReceivedQuantity) as TotalReceivedQuantity,ByProductId from dbo.JobWorkReceiptTransformationByProduct group by ByProductId)
                                 rvbp on rvbp.ByProductId=tbp.Id
-                                left join dbo.JobWorkTransformationContract tc on tc.Id=mp.JobWorkTransformationContractMasterId
+                                left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
                                 LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON mp.OutputMaterialUOMId=TUoM.Id
                                 left join(select JWTCMDByProductId, Sum(isnull(TransactionQty,0)) TransactionQty from trn.InventoryReceiveDetail group by JWTCMDByProductId)rcvqty ON rcvqty.JWTCMDByProductId=tbp.Id
-                                where tc.Id='" + Id + @"'
+                                where tc.Id='"+ Id + @"'
                                 group by tbp.Id
                                 ,jwit.UserName 
                                 ,jwi.UserName 

@@ -239,7 +239,7 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 	$scope.GridGateEntry = [];
 	$scope.getallGateEntry = function () {
 		if ($scope.ModelNew.TabType == "Transformation") {
-			$scope.PartyId = $scope.Transformation.VendorPartyId;
+			$scope.PartyId = $scope.Transformation.PartyId;
 			$scope.TransformationContractId = $scope.Transformation.Id;
 
 		}
