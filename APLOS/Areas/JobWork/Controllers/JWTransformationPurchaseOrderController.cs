@@ -453,10 +453,21 @@ namespace Aplos.Areas.JobWork.Controllers
             }
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetAllEntity(string PlantId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                return Json(JobWorkCommon.GetAllEntity(PlantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
     }
-
-
-
-
-
 }

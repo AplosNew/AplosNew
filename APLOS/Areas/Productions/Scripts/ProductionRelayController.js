@@ -26,6 +26,7 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
         Id: null,
         EntityId: null,
         ProcessId: null,
+        Remarks: null,
     };
     $scope.ProductionRelayNew = Object.assign({}, $scope.ProductionRelay);
 
@@ -244,9 +245,31 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
         $scope.ProductionRelayList = [];
     }
 
-    $scope.ShowRemarksPopUp = function () {
+    $scope.SelectedProductionRelay = {};
+    $scope.ShowRemarksPopUp = function (data) {
+        $scope.SelectedProductionRelay = data;
         angular.element(document.querySelector('#RemarksPopUp')).modal('show');
 
+    }
+    $scope.submitRemarks = function () {
+
+        for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
+            if ($scope.ProductionRelayList[i].Id == $scope.SelectedProductionRelay.Id) {
+
+                $scope.ProductionRelayList[i].Remarks = $scope.SelectedProductionRelay.Remarks;
+                $scope.ProductionRelayList[i].Checked = true;
+                
+                break;
+            }
+        }
+
+        var gridObjRunning = $("#GridProductionRelay").ejGrid("instance");
+       
+
+        gridObjRunning.refreshContent(true);
+        //gridObjRunning.refreshTemplate();
+
+        angular.element(document.querySelector('#RemarksPopUp')).modal('hide');
     }
     $scope.CloseRemarksPopUp = function () {
         angular.element(document.querySelector('#RemarksPopUp')).modal('hide');
