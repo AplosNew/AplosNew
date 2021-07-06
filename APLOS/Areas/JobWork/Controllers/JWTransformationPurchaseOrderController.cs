@@ -469,5 +469,21 @@ namespace Aplos.Areas.JobWork.Controllers
 
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetMaterialfromJW(string JobWorkItemId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                return Json(JobWorkCommon.GetMaterialfromJW(JobWorkItemId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
     }
 }

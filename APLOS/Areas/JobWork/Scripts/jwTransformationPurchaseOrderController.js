@@ -214,6 +214,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.detailModel.MaterialMasterId = null;
         $scope.detailModel.MaterialName = null;
         $scope.detailModel.MaterialCode = null;
+        $scope.detailModel.OutputMaterialUOMId = null;
 
     };
     $scope.closeMaterialMstPopUp = function (popupName) {
@@ -1645,6 +1646,23 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         //$scope.MatPlanning = Object.assign({}, $scope.MatPlanningModelTemp);
         angular.element(document.querySelector('#detailPopUp')).modal('show');
     };
+
+    $scope.GetMatMstJW = [];
+    $scope.GetMaterialfromJW = function () {
+        $scope.GetMatMstJW = [];
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetMaterialfromJW?JobWorkItemId=' + $scope.detailModel.JobWorkItemMasterId,
+        }).then(function successCallback(response) {
+            $scope.GetMatMstJW = response.data;
+            if ($scope.GetMatMstJW.length > 0) {
+                $scope.detailModel.MaterialMasterId = $scope.GetMatMstJW[0].Id;
+                $scope.detailModel.MaterialName = $scope.GetMatMstJW[0].Material;
+                $scope.detailModel.MaterialCode = $scope.GetMatMstJW[0].Code;
+                $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].UnitId;
+            }
+        });
+    }
 
     $scope.detailPopUpForEdit = function (args) {
         if ($scope.productNew.OrderSpecific == 'Yes') {

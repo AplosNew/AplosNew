@@ -2048,21 +2048,38 @@ namespace Library.MaterialManagement.JobWork
 
             try
             {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con2 = new ConnectionManager.DAL.ConManager("1");
 
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
-                con.executeQuery("DELETE JWPOBOQMAP where JWPODetailId = '" + id + "'");
-                con.executeQuery("DELETE JWTransformationPurchaseOrderChildMaterial where JWPODetailId = '" + id + "'");
-                con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
-                con.executeQuery("DELETE JWTransformationPurchaseOrderInputChildMaterial where JWPODetailId = '" + id + "'");
-                con.executeQuery("DELETE JWTransformationPurchaseOrderByProductChildMaterial where JWPODetailId = '" + id + "'");
 
-                con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
-                con.executeQuery("DELETE from  JWTransformationPurchaseOrderDetail where id='" + id + "'");
+                if (!string.IsNullOrEmpty(id))
+                {
+                    con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + id + "' ", out dsMaster, false, "1");
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("First Delete Material Input Data");
+                    }
+                }
+
+                
+
+                //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
+                //con.executeQuery("DELETE JWPOBOQMAP where JWPODetailId = '" + id + "'");
+                //con.executeQuery("DELETE JWTransformationPurchaseOrderChildMaterial where JWPODetailId = '" + id + "'");
+                //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
+                //con.executeQuery("DELETE JWTransformationPurchaseOrderInputChildMaterial where JWPODetailId = '" + id + "'");
+                //con.executeQuery("DELETE JWTransformationPurchaseOrderByProductChildMaterial where JWPODetailId = '" + id + "'");
+
+                //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
+                //con.executeQuery("DELETE from  JWTransformationPurchaseOrderDetail where id='" + id + "'");
+
+                con.executeQuery("delete from dbo.JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId='" + id + @"' ");
+                con.executeQuery("delete from dbo.JobWorkTransformationContractChild where Id='" + id + "' ");
 
                 con.CommitTransaction();
 
@@ -2399,6 +2416,12 @@ namespace Library.MaterialManagement.JobWork
             if (String.IsNullOrEmpty(JWPurchaseOrderId))
             {
                 JWPurchaseOrderId = data[0]["JWTransformationPurchaseOrderId"].ToString();
+            }
+
+            con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild where ArticleCodeId='" + data[0]["ArticleId"] + "' and MaterialMasterId='"+data[0]["MaterialMasterId"] + "' and JobWorkTransformationContractMasterId='" + data[0]["JWTransformationPurchaseOrderId"] + "' AND  Id<>'" + data[0]["Id"] + "' ", out dsMaster, false, "1");
+            if (dsMaster.Tables[0].Rows.Count > 0)
+            {
+                throw new Exception("Same Material and Article already exist.");
             }
 
             con.OpenDataSetThroughAdapter("SELECT * FROM JobWorkTransformationContractChild WHERE JobWorkTransformationContractMasterId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
@@ -3548,6 +3571,28 @@ namespace Library.MaterialManagement.JobWork
             {
                 var sql = "";
                 sql = @" select Id as Value, UserName as Text from ORG.Entity where PlantId='" + PlantId + "' order by UserName ";
+
+                var Data = _sqlRepository.GetDataCollection(sql);
+
+                return Data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetMaterialfromJW(string JobWorkItemId)
+        {
+            try
+            {
+                var sql = "";
+                sql = @"select mm.Id, mm.Code, mm.UserName as Material,mm.BaseUOMId, mmuom.UserName as BaseUom,jwi.UOMId, uom.UserName as JWIUom
+                     ,UnitId=case when jwi.MaterialMasterId is not null then mm.BaseUOMId else jwi.UOMId End
+                     from HKP.JobWorkItem jwi left join MST.MaterialMaster mm on mm.Id=jwi.MaterialMasterId
+                     left join scs.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
+					 left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
+                     where jwi.Id='" + JobWorkItemId + @"' ";
 
                 var Data = _sqlRepository.GetDataCollection(sql);
 
