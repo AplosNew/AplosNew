@@ -50,8 +50,8 @@
     }
 </script>
 
-<togglable name="{{FormTitle}}"></togglable>
-
+@*<togglable name="{{FormTitle}}"></togglable>*@
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>{{FormTitle}}</h3>
 <div class="row">
     <div class="form-elements form-horizontal" ng-form name="CommonForm">
 
@@ -117,7 +117,7 @@
                 </div>
 
             </div>
-            <div class="col-lg-12">
+            <div class="col-lg-12" ng-show="GriddataMaster.length>0">
                 <div class="content-container-fluid" style="color:black;overflow:scroll">
                     <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="GriddataMaster" e-templaterefresh="refreshTemplateMasterOrderOperation"
                          e-recorddoubleclick="recorddoubleclickFromMasterGrid"
@@ -140,7 +140,7 @@
                 </div>
             </div>
             <div class="clearfix"></div>
-            <div class="col-lg-12">
+            <div class="col-lg-12" ng-show="JWPOList.length>0">
                 @*<div class="common-btn">
                         <ul class="list-inline text-left">
                             <li>
@@ -150,7 +150,7 @@
                     </div>*@
                 <div class="clearfix"></div>
                 <div class="content-container-fluid" style="color:black;overflow:scroll">
-                    <div style="color:black;" id="GridJWPO" ej-grid e-datasource="JWPOList" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                    <div style="color:black;" id="GridJWPO" ej-grid e-datasource="JWPOList"  e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
 
                             <div e-column e-field="MaterialName" e-headertext="Material" e-width="30"></div>
@@ -184,32 +184,21 @@
             </script>
         </div>
 
-        <div class="common-btn">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                <li> @*<button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button>*@</li>
-                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            </ul>
+        <div class="col-lg-12" ng-show="JWPOList.length>0">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    <li> @*<button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button>*@</li>
+                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
         </div>
     </div>
 
 </div>
 
-<div class="row aplos-grid-toggle">
-    @*<div class="col-xs-4 col-sm-4 col-md-4">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Issue Type</label>
-                <div class="col-sm-8">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.Type" tabindex="5" ng-change="getData();">
-                            <option value="">--Select--</option>
-                            <option value="ValueAdded">Value Added</option>
-                            <option value="Transformation">Transformation</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>*@
+@*<div class="row aplos-grid-toggle">
+   
 </div>
 
 
@@ -217,7 +206,7 @@
     <div class="content-container-fluid" style="color:black;overflow:scroll">
 
     </div>
-</div>
+</div>*@
 
 
 
@@ -258,257 +247,5 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="EmployeePopUpResPerson" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify">
-        <div class="modal-content">
-            <div class="modal-header"> By Whom List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="GridEmployeeResPerson" ej-grid e-datasource="EmpResPersonList"
-                             e-allowfiltering="true" e-recorddoubleclick="setEmpData" e-allowpaging="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                            <div e-columns>
-                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
-                                <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="140"></div>
-                                <div e-column e-type="string" e-field="PositionName" e-headertext="Position" e-width="140"></div>
-                                <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="80"></div>
-                                <div e-column e-type="string" e-field="DepartmentName" e-headertext="Department Name" e-width="80"></div>
-                                <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
-                                <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="closeEmpResPersonPopUp('EmployeePopUpResPerson');" class="btn"><i class=""></i> Close</button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="modal fade site-modal in" id="GradeWisePopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify">
-        <div class="modal-content">
-            <div class="modal-header"> Grade Wise Quantity <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="GridGradeWise" ej-grid e-datasource="GradeWiseList"
-                             e-allowfiltering="true" e-recorddoubleclick="setGradeWiseData" e-allowpaging="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                            <div e-columns>
-                                <div e-column e-template="#checkedPBSChildTabItem" e-width="20"></div>
-                                <div e-column e-type="string" e-field="GradeNo" e-headertext="Grade No" e-width="40"></div>
-                                <div e-column e-type="string" e-field="GradeName" e-headertext="Grade" e-width="40"></div>
-                                <div e-column e-template="#GradeWQty" e-headertext="Grade Wise Quantity" e-width="50"></div>
-                                <div e-column e-template="#GWRemarks" e-headertext="Remarks" e-width="50" style="height: 20px;"></div>
-                            </div>
-                        </div>
-                        <script type="text/template" id="checkedPBSChildTabItem">
-                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
-                        </script>
-
-                        <script type="text/ng-template" id="GradeWQty">
-
-                            <input type="text" ng-model="data.GradeWQty" class="form-control" maxlength="15" e-width="100" onkeypress="return OnlyNumber(event)">
-                        </script>
-                        <script type="text/template" id="GWRemarks">
-                            <div class="col-sm-10" style="padding:0px; width:600px;height:20px;">
-                                <input type="text" ng-model="data.GWRemarks" ng-maxlength="250" style="color:black;" tabindex="16" class="form-control" />
-                            </div>
-                        </script>
-                    </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="SaveGradeWiseValueAdded();" tabindex="17" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
-                            <button ng-click="closePopUp('GradeWisePopUp');" class="btn"><i class=""></i> Close</button>
-                        </li>
-                    </ul>
-                </div>
-                <div style="color:black;" id="GridVAGradeWise" ej-grid e-datasource="VAGradeWiseList"
-                     e-allowfiltering="true" e-allowpaging="true"
-                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                    <div e-columns>
-                        <div e-column e-type="string" e-field="GradeName" e-headertext="Grade" e-width="40"></div>
-                        <div e-column e-type="string" e-field="GradeWiseQuantity" e-headertext="Grade Wise Quantity" e-width="40"></div>
-                        <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="40"></div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade site-modal in" id="EmpPopUpResPerson" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify">
-        <div class="modal-content">
-            <div class="modal-header"> By Whom List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="GridByWhom" ej-grid e-datasource="ByWhomPersonList"
-                             e-allowfiltering="true" e-recorddoubleclick="setByWhomdata" e-allowpaging="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                            <div e-columns>
-                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
-                                <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="140"></div>
-                                <div e-column e-type="string" e-field="PositionName" e-headertext="Position" e-width="140"></div>
-                                <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="80"></div>
-                                <div e-column e-type="string" e-field="DepartmentName" e-headertext="Department Name" e-width="80"></div>
-                                <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
-                                <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="closebywhomPopUp('EmpPopUpResPerson');" class="btn"><i class=""></i> Close</button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade site-modal in" id="GradePopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify">
-        <div class="modal-content">
-            <div class="modal-header"> Grade Wise Quantity <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="GridGrade" ej-grid e-datasource="GradeList"
-                             e-allowfiltering="true" e-recorddoubleclick="setGradeData" e-allowpaging="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                            <div e-columns>
-                                <div e-column e-template="#checkedPBSChildTabItem" e-width="20"></div>
-                                <div e-column e-type="string" e-field="GradeNo" e-headertext="Grade No" e-width="40"></div>
-                                <div e-column e-type="string" e-field="GradeName" e-headertext="Grade" e-width="40"></div>
-                                <div e-column e-template="#GradeWQty" e-headertext="Grade Wise Quantity" e-width="50"></div>
-                                <div e-column e-template="#GWRemarks" e-headertext="Remarks" e-width="50" style="height: 20px;"></div>
-                            </div>
-                        </div>
-                        <script type="text/template" id="checkedPBSChildTabItem">
-                            <input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
-                        </script>
-
-                        <script type="text/ng-template" id="GradeWQty">
-
-                            <input type="text" ng-model="data.GradeWQty" class="form-control" maxlength="15" e-width="100" onkeypress="return OnlyNumber(event)">
-                        </script>
-                        <script type="text/template" id="GWRemarks">
-                            <div class="col-sm-10" style="padding:0px; width:600px;height:20px;">
-                                <input type="text" ng-model="data.GWRemarks" ng-maxlength="250" style="color:black;" tabindex="16" class="form-control" />
-                            </div>
-                        </script>
-                    </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="SaveGradeWiseTrans();" tabindex="17" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
-                            <button ng-click="closeGradePopUp('GradePopUp');" class="btn"><i class=""></i> Close</button>
-                        </li>
-                    </ul>
-                </div>
-                <div style="color:black;" id="GridTransGradeWise" ej-grid e-datasource="TransGradeWiseList"
-                     e-allowfiltering="true" e-allowpaging="true"
-                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                    <div e-columns>
-                        <div e-column e-type="string" e-field="GradeName" e-headertext="Grade" e-width="40"></div>
-                        <div e-column e-type="string" e-field="GradeWiseQuantity" e-headertext="Grade Wise Quantity" e-width="40"></div>
-                        <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="40"></div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade site-modal in" id="POPopUpGateEntry" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">Gate Entry List List<button type="button" class="close" ng-click="POPopUpCloseGateEntry();">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-lg-12">
-                    <div class="content-container-fluid" style="color:black;">
-                        <div style="color:black;" id="GridGE" ej-grid e-datasource="GriddataGateEntry"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-allowselection="true" e-recorddoubleclick="recorddoubleclickGateEntry" e-filtersettings-filterType="excel" e-enabletouch="false">
-                            <div e-columns>
-                                @*Select   GE.Id ,GE.EntryDate,GE.PartyCode,GE.InvoicingPartyPlantId,GE.InvoicingByAddress,GE.DeliveryPartyPlantId,GE.DeliveryByAddress ,GE.Description ,GE.PackageQty,GE.ModeofTransport,GE.Bill,E.PersonName ,MobileNo  ,GE.Remarks,GE.AddedBy,p.UserName,p.Id FROM TRN.GateEntry GEleft Join hkp.Party p on p.Id=GE.PartyCodeWhere GE.CompanyGroupId='CG20171'*@
-                                @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>
-                                <div e-column e-field="Id" e-headertext="GateEntryNo" e-width="100"></div>
-                                <div e-column e-field="EntryDate" e-headertext="Entry Date" e-width="100"></div>
-                                <div e-column e-field="UserName" e-headertext="PartyName" e-width="100"></div>
-                                <div e-column e-field="ModeofTransport" e-headertext="ModeofTransport" e-width="70"></div>
-                                <div e-column e-field="PersonName" e-headertext="ConcernPerson" e-width="70"></div>
-                                <div e-column e-field="MobileNo" e-headertext="ConMobileNo" e-width="70"></div>
-                                <div e-column e-field="AddedBy" e-headertext="AddedBy" e-width="100"></div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-                </div>
-                <div class="clearfix"></div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li><button ng-click="POPopUpCloseGateEntry();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade site-modal in" id="PopUpGateEntry" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">Gate Entry List List<button type="button" class="close" ng-click="PopUpCloseGateEntry();">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-lg-12">
-                    <div class="content-container-fluid" style="color:black;">
-                        <div style="color:black;" id="GridGE" ej-grid e-datasource="GridGateEntry"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-allowselection="true" e-recorddoubleclick="doubleclickGateEntry" e-filtersettings-filterType="excel" e-enabletouch="false">
-                            <div e-columns>
-                                <div e-column e-field="Id" e-headertext="GateEntryNo" e-width="100"></div>
-                                <div e-column e-field="EntryDate" e-headertext="Entry Date" e-width="100"></div>
-                                <div e-column e-field="UserName" e-headertext="PartyName" e-width="100"></div>
-                                <div e-column e-field="ModeofTransport" e-headertext="ModeofTransport" e-width="70"></div>
-                                <div e-column e-field="PersonName" e-headertext="ConcernPerson" e-width="70"></div>
-                                <div e-column e-field="MobileNo" e-headertext="ConMobileNo" e-width="70"></div>
-                                <div e-column e-field="AddedBy" e-headertext="AddedBy" e-width="100"></div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-                </div>
-                <div class="clearfix"></div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li><button ng-click="PopUpCloseGateEntry();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>
