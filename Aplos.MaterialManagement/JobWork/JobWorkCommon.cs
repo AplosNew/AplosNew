@@ -1911,7 +1911,7 @@ namespace Library.MaterialManagement.JobWork
                         data["AuthorizedByStatus"] = "For Approval";
                         data["CheckedBy"] = null;
                         data["CheckedByStatus"] = null;
-                        data["POType"] = "PO";
+                        data["POType"] = "OSTransformationPO";
 
                     }
                     else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
@@ -1920,16 +1920,16 @@ namespace Library.MaterialManagement.JobWork
                         data["AuthorizedByStatus"] = null;
                         data["CheckedBy"] = null;
                         data["CheckedByStatus"] = null;
-                        data["POType"] = "PO";
+                        data["POType"] = "OSTransformationPO";
                     }
                     else
                     {
 
-                        data["CheckedBy"] = identity.EmployeeId;
+                        data["CheckedBy"] = data["CheckedBy"];//identity.EmployeeId;
                         data["CheckedByStatus"] = "Pending";
                         data["AuthorizedBy"] = null;
                         data["AuthorizedByStatus"] = null;
-                        data["POType"] = "PO";
+                        data["POType"] = "OSTransformationPO";
 
                     }
 
@@ -1962,7 +1962,7 @@ namespace Library.MaterialManagement.JobWork
                         data["AuthorizedByStatus"] = "For Approval";
                         data["CheckedBy"] = null;
                         data["CheckedByStatus"] = null;
-                        data["POType"] = "PO";
+                        data["POType"] = "OSTransformationPO";
 
                     }
                     else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
@@ -1971,16 +1971,16 @@ namespace Library.MaterialManagement.JobWork
                         data["AuthorizedByStatus"] = null;
                         data["CheckedBy"] = null;
                         data["CheckedByStatus"] = null;
-                        data["POType"] = "PO";
+                        data["POType"] = "OSTransformationPO";
                     }
                     else
                     {
 
-                        data["CheckedBy"] = 1900109;//identity.EmployeeId; //data["CheckedBy"];
+                        data["CheckedBy"] = data["CheckedBy"]; //identity.EmployeeId; //data["CheckedBy"];
                         data["CheckedByStatus"] = "Pending";
                         data["AuthorizedBy"] = null;
                         data["AuthorizedByStatus"] = null;
-                        data["POType"] = "PO";
+                        data["POType"] = "OSTransformationPO";
 
                     }
 
@@ -2909,7 +2909,7 @@ namespace Library.MaterialManagement.JobWork
 	                            ,(JWTPD.Quantity*JWTPD.RatePerUnit) TransactionAmount
                             , JWTPD.ReferenceNo,((JWTPD.Quantity*JWTPD.RatePerUnit)*po.ToCurrencyRate) BaseAmount
                             , jwtax.TaxAmount,JWTPD.TransactionUoMId,TransactionUoM.Code TransactionUoM,JWTPD.BaseUOMId,BaseUOM.Code BaseUOM
-                            ,MS.Id MaterialStorageId,MS.UserName MaterialStorage
+                            ,MS.Id MaterialStorageId,MS.UserName MaterialStorage,EEI.EmployeeName ResponsiblePerson ,ISNULL(MM.UserName,'') MaterialName
                             FROM JobWorkTransformationContractChild JWTPD      
                             left JOIN [dbo].[JWTransformationPurchaseOrder] PO On PO.Id=JWTPD.JobWorkTransformationContractMasterId
                             LEFT JOIN HKP.JobWorkItem JWI ON JWI.Id = JWTPD.JobWorkItemMasterId
