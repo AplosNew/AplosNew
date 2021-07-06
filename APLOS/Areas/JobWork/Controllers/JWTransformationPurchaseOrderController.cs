@@ -468,6 +468,38 @@ namespace Aplos.Areas.JobWork.Controllers
             }
 
         }
+        [HttpGet, Authorize]
+        public JsonResult NotificationSetting()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                var sql = @"select * from dbo.NotificationSetting  where BusinessFlow='OutSource' and plantId='" + identity.PlantId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        [Authorize, HttpGet]
+        public JsonResult GetMaterialfromJW(string JobWorkItemId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                return Json(JobWorkCommon.GetMaterialfromJW(JobWorkItemId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
 
     }
 }

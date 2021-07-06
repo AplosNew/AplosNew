@@ -3808,6 +3808,12 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			return Json(_inventoryReveiveService.GetCheckedByAndApprovedBY(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
 		}
+		[Authorize, HttpGet]
+		public JsonResult GetCheckedByAndApprovedBYForOurSource(string CheckedBy, string ApprovedBy)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			return Json(_inventoryReveiveService.GetCheckedByAndApprovedBYOutSource(CheckedBy, ApprovedBy), JsonRequestBehavior.AllowGet);
+		}
 
 		#region Notification Seting for Service Requisition  PO
 		[HttpGet, Authorize]

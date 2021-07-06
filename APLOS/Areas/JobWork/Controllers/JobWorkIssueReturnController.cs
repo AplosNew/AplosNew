@@ -126,12 +126,13 @@ namespace Aplos.Areas.JobWork.Controllers
             }
             if(Type == "Transformation")
             {
-                sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.VendorPartyId,tc.Remarks,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+                sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime]
+                                    ,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                     FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                     e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                                    from dbo.JobWorkTransformationContract tc left join ORG.Entity e on e.Id=tc.EntityId
-									left join HKP.Party p on p.Id=tc.VendorPartyId
-                                    WHERE " + strkey + " order by tc.Date desc";
+                                    from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
+									left join HKP.Party p on p.Id=tc.PartyId
+                                    WHERE " + strkey + " order by tc.PODate desc";
             }
            
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -154,12 +155,12 @@ namespace Aplos.Areas.JobWork.Controllers
             }
             if (TabType == "Transformation")
             {
-                sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.VendorPartyId,tc.Remarks,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+                sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                     FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                     e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                                    from dbo.JobWorkTransformationContract tc left join ORG.Entity e on e.Id=tc.EntityId
-									left join HKP.Party p on p.Id=tc.VendorPartyId
-                                    WHERE tc.Id='"+ Id + "' order by tc.Date desc";
+                                    from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
+									left join HKP.Party p on p.Id=tc.PartyId
+                                    WHERE tc.Id='"+ Id + @"' order by tc.PODate desc";
             }
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -205,17 +206,16 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             string sql = "";
 
-            sql = @"select distinct mp.*, jwi.UserName as JobWorkItem,jwa.UserName as JobWorkActivity, uom.UserName as OutputUnit, mma.StandardName as ArticleCode, tm.RateApplicable as RateApply
-                               ,c.Code as Currency, emp.EmployeeName as ResponsiblePerson, JL.LocationName as MaterialLocation
+            sql = @"select distinct mp.*, jwi.UserName as JobWorkItem,jwa.UserName as JobWorkActivity, uom.UserName as OutputUnit, mma.StandardName as ArticleCode
+                               ,c.Code as Currency, emp.EmployeeName as ResponsiblePerson, MS.UserName as MaterialLocation
                                from dbo.JobWorkTransformationContractChild mp left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
         					   left join SCS.UnitOfMeasurement uom on uom.Id=mp.OutputMaterialUOMId
         					   left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleCodeId
-        					   left join MST.JobWorkTransformationMaster tm on tm.Id=mp.RateApplyId
-							   left join scs.Currency c on c.Id=mp.CurrencyId and mp.CurrencyId=tm.CurrencyId
+							   left join scs.Currency c on c.Id=mp.CurrencyId
 							   left join hkp.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
         					   left join dbo.EmployeeInformation emp on emp.SystemId=mp.ResponsiblePersonId
-							   left join HKP.JobWorkLocation JL on JL.Id=mp.MaterialLocationId
-					   	   	  left join dbo.JobWorkTransformationContract tc on tc.Id=mp.JobWorkTransformationContractMasterId
+							   left join HKP.MaterialStorage MS on MS.Id=mp.MaterialLocationId
+					   	   	   left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
         					   where tc.Id='" + PKId + "' ";
 
 

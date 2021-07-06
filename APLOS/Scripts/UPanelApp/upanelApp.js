@@ -880,6 +880,7 @@ var upanelApp = angular
     .controller("voucherParkController", voucherParkController)
 
 
+    .controller("EmployeeAdditionDeductionProcessController", EmployeeAdditionDeductionProcessController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)

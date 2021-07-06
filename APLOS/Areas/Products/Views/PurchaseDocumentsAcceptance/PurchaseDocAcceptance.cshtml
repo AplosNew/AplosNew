@@ -593,7 +593,7 @@
                                             <td class="text-right">
                                                 <ul class="list-inline action-list">
                                                     <li><button ng-click="getReceiveTaxListPO(x, $index)" class="btn btn-action tooltip-here" ng-disabled="x.Id==null || PurchaseDocAcceptance.VoucherId!=null" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                                    <li><button ng-click="DeleteLineItem(x)" class="btn btn-action tooltip-here" ng-disabled="PurchaseDocAcceptance.VoucherId!=null" data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash"></i></button></li>
+                                                    <li><button ng-click="RemoveMaterialPOItem(x, $index)" class="btn btn-action tooltip-here" ng-disabled="PurchaseDocAcceptance.VoucherId!=null" data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash"></i></button></li>
 
                                                 </ul>
                                             </td>
@@ -711,7 +711,7 @@
                                             <td class="text-right">
                                                 <ul class="list-inline action-list">
                                                     <li><button ng-click="getReceiveTaxListPO(x, $index)" class="btn btn-action tooltip-here" ng-disabled="x.Id==null || PurchaseDocAcceptance.VoucherId!=null" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                                    <li><button ng-click="DeleteLineItem(x)" class="btn btn-action tooltip-here" ng-disabled="PurchaseDocAcceptance.VoucherId!=null" data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash"></i></button></li>
+                                                    <li><button ng-click="RemoveMaterialPOItem(x, $index)" class="btn btn-action tooltip-here" ng-disabled="PurchaseDocAcceptance.VoucherId!=null" data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash"></i></button></li>
 
                                                 </ul>
                                             </td>
@@ -1582,7 +1582,7 @@
     </div>
 </div>
 
-<confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteLineItem();"></confirm-archive-generic>
 <confirm-archive-generic modalid="RemoveservicePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="RemoveServiceCharges();"></confirm-archive-generic>
 <confirm-archive-generic modalid="RemoveAcceptancePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveAcceptance()"></confirm-archive-generic>
 <div class="modal fade site-modal in" id="ListOfRequisition" role="dialog" data-backdrop="static">
