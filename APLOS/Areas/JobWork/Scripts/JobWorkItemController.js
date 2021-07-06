@@ -260,7 +260,7 @@ function JobWorkItemController(addressService, $window, cboService, commonMessag
         $scope.JobWorkItem.MaterialMasterId = null;
         $scope.JobWorkItem.MaterialName = null;
         $scope.JobWorkItem.MaterialCode = null;
-   //     $scope.JobWorkItem.EmployeeStatus = null;
+        $scope.JobWorkItem.UOMId = null;
 
     };
     $scope.closeEmpResPersonPopUp = function (popupName) {

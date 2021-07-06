@@ -241,52 +241,52 @@ namespace Aplos.Areas.Payrolls.Controllers
                         }
                         else
                         {
-                            SaveList.Add(ChildList[i]);
+                            //SaveList.Add(ChildList[i]);
                         }
                     }
                     if (ChildList[i].IsSelect == false && ChildList[i].Value > 0)
                     {
-                        throw new Exception("Select the Value provided line item..");
+                        //throw new Exception("Select the Value provided line item..");
                     }
                 }
-                if (SaveList.Count == 0)
+                if (ChildList.Count == 0)
                 {
                     throw new Exception("Nothing to Update..");
                 }
 
-                SaveList = SaveList.OrderBy(w => w.GroupId).ToList();
+                ChildList = ChildList.OrderBy(w => w.GroupId).ToList();
 
 
                 string _tempGroup = "";
                 double GroupTotalVallue = 0;
-                for (var i = 0; i < SaveList.Count; i++)
+                for (var i = 0; i < ChildList.Count; i++)
                 {
                     if (i > 0)
                     {
-                        if (_tempGroup != SaveList[i].GroupId)
+                        if (_tempGroup != ChildList[i].GroupId)
                         {
-                            if (GroupTotalVallue > clsStaticInfo.dbl(SaveList[i].MaxLimit))
+                            if (GroupTotalVallue > clsStaticInfo.dbl(ChildList[i].MaxLimit))
                                 throw new Exception("Total group value Cannot be greater than Tax group amount Limit");
                             GroupTotalVallue = 0;
                         }
                     }
-                    if (clsStaticInfo.dbl(SaveList[i].TaxSavingItemLimit) < clsStaticInfo.dbl(SaveList[i].Value))
+                    if (clsStaticInfo.dbl(ChildList[i].TaxSavingItemLimit) < clsStaticInfo.dbl(ChildList[i].Value))
                     {
                         throw new Exception("Value Cannot be greater than Tax Saving Item Limit");
                     }
-                    GroupTotalVallue += clsStaticInfo.dbl(SaveList[i].Value);
+                    GroupTotalVallue += clsStaticInfo.dbl(ChildList[i].Value);
 
-                    _tempGroup = SaveList[i].GroupId;
+                    _tempGroup = ChildList[i].GroupId;
                 }
 
-                if (GroupTotalVallue > clsStaticInfo.dbl(SaveList[SaveList.Count - 1].MaxLimit))
+                if (GroupTotalVallue > clsStaticInfo.dbl(ChildList[ChildList.Count - 1].MaxLimit))
                     throw new Exception("Total Group value Cannot be greater than Tax group amount Limit");
 
 
                 #endregion
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 TaxOB ep = new TaxOB();
-                ep.SaveInvsmnt(Investment, SaveList);
+                ep.SaveInvsmnt(Investment, ChildList);
                 return Json(new { Error = false, Data = Investment, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
