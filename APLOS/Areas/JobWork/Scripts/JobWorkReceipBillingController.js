@@ -77,22 +77,8 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     };
 
     $scope.CloseContractPopUp = function () {
-        try {
-            //MakeData();
-
-            //if ($scope.NewContractList.length > 0) {
-            //    var uniqueContractId = removeDuplicates($scope.NewContractList, 'ContractId');
-            //    var ids = "";
-            //    if (uniqueContractId.length > 0) {
-            //        ids = "IN(";
-            //        ids += Array.prototype.map.call(uniqueContractId, function (item) { return "'" + item.ContractId + "'"; }).join(",") + ")";
-            //    }
-            //    $scope.sqlInStatement = ids;
-            //}
-            angular.element(document.querySelector("#ContractPopUp")).modal("hide");
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
+        angular.element(document.querySelector("#ContractPopUp")).modal("hide");
+        
     }
 
     $scope.SetContractData = function (args) {
@@ -107,7 +93,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
 
     // #region checkbox all
 
-    $scope.refreshTemplate = function (args) {
+    $scope.refreshJWPOTemplate = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
     };
 
@@ -117,10 +103,10 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
             ChkOrUnchk = true;
         }
 
-        var filtered = $("#GridContract").data("ejGrid").getFilteredRecords();
+        var filtered = $("#GridJWPO").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.ContractList.length; i++) {
-                $scope.ContractList[i].Flag = ChkOrUnchk;
+            for (var i = 0; i < $scope.JWPOList.length; i++) {
+                $scope.JWPOList[i].Flag = ChkOrUnchk;
             }
         }
         else {
@@ -128,48 +114,14 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
                 filtered[j].CheckBoxSelect = ChkOrUnchk;
             }
         }
-        var gridObj = $("#GridContract").data("ejGrid");
+        var gridObj = $("#GridJWPO").data("ejGrid");
         gridObj.refreshContent();
     };
 
     // #endregion checkbox all
 
 
-    //$scope.NewContractList = [];
-    //function MakeData() {
-    //    for (var i = 0; i < $scope.ContractList.length; i++) {
-    //        if ($scope.ContractList[i].Flag == true) {
-    //            if (checkExists($scope.NewContractList, $scope.ContractList[i].Id) === false) {
-    //                var ob = {};
-    //                ob.Id = null;
-    //                ob.ContractId = $scope.ContractList[i].Id;
-    //                ob.TabType = $scope.ContractList[i].TabType;
-    //                ob.ValueAddedDate = $scope.ContractList[i].ValueAddedDate;
-    //                ob.VACTime = $scope.ContractList[i].VACTime;
-    //                ob.Entity = $scope.ContractList[i].Entity;
-    //                ob.PartyName = $scope.ContractList[i].PartyName;
-    //                ob.VAProcessStartDate = $scope.ContractList[i].VAProcessStartDate;
-    //                ob.VAProcessEndDate = $scope.ContractList[i].VAProcessEndDate;
-    //                ob.VAContractClosingDate = $scope.ContractList[i].VAContractClosingDate;
-
-    //                $scope.NewContractList.push(ob);
-
-    //            }
-    //            else {
-    //                throw "This Contract " + $scope.ContractList[i].Id + " is already taken.";
-    //            }
-    //        }
-    //    }
-    //}
-
-    //function checkExists(list, id) {
-    //    for (var i = 0; i < list.length; i++) {
-    //        if (list[i].ContractId === id) {
-    //            return true;
-    //        }
-    //    }
-    //    return false;
-    //}
+    
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
@@ -180,6 +132,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         $scope.ReceiptTransformation.TransformationContractId = $scope.Transformation.Id;
         if ($scope.ModelNew.TabType == "Transformation") {
             $scope.GetJWGRNDataChecking($scope.ReceiptTransformation.TransformationContractId);
+            $scope.ShowJWPOPopUp($scope.ReceiptTransformation.TransformationContractId);
         }
         else {
             $scope.GetReceiptVAChildData();
@@ -234,13 +187,83 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     }
 
     $scope.JWPOList = [];
+  
+    
+    $scope.ShowJWPOPopUp = function (contractId) {
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'JobWork/JobWorkReceiveBilling/GetInventoryReceiveDetailByOutSourcePO?contractId=' + contractId,
+        }).then(function successCallback(response) {
+            $scope.JWPOList = response.data;
+        });
+    }
 
-    $scope.ShowJWPOPopUp = function () {
-        angula.element(document.querySelector("#JWPOPopUp")).modal("show");
+    //$scope.SelectedJWPOList = [];
+    //function MakeData() {
+    //    for (var i = 0; i < $scope.JWPOList.length; i++) {
+    //        if ($scope.JWPOList[i].Flag == true) {
+    //            if (checkExists($scope.SelectedJWPOList, $scope.JWPOList[i].InventoryReceiveDetailId) === false) {
+    //                var ob = {};
+    //                ob.Id = null;
+    //                ob.InventoryReceiveDetailId = $scope.JWPOList[i].InventoryReceiveDetailId;
+    //                ob.InventoryReceiveId = $scope.JWPOList[i].InventoryReceiveId;
+    //                ob.ReceiveQty = $scope.JWPOList[i].ReceiveQty;
+    //                ob.OrderQty = $scope.JWPOList[i].OrderQty;
+    //                ob.BillingQty = $scope.JWPOList[i].BillingQty;
+    //                ob.BalanceQty = $scope.JWPOList[i].BalanceQty;
+    //                ob.JWTCMId = $scope.JWPOList[i].JWTCMId;
+    //                ob.JWTCMDId = $scope.JWPOList[i].JWTCMDId;
+
+    //                $scope.SelectedJWPOList.push(ob);
+
+    //            }
+    //            else {
+    //                throw "This PO " + $scope.JWPOList[i].InventoryReceiveDetailId + " is already taken.";
+    //            }
+    //        }
+    //    }
+    //}
+
+    //function checkExists(list, id) {
+    //    for (var i = 0; i < list.length; i++) {
+    //        if (list[i].InventoryReceiveDetailId === id) {
+    //            return true;
+    //        }
+    //    }
+    //    return false;
+    //}
+
+    //$scope.CloseJWPOPopUp = function () {
+    //    try {
+    //        MakeData();
+    //        angular.element(document.querySelector("#JWPOPopUp")).modal("hide");
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //}
+
+
+    $scope.calculateBalance = function (data) {
+        data.BalanceQty = data.ReceiveQty - data.BillingQty;
+        var gridObj = $("#GridJWPO").data("ejGrid");
+        gridObj.refreshContent(true);
+        gridObj.refreshTemplate();
     }
-    $scope.CloseJWPOPopUp = function () {
-        angula.element(document.querySelector("#JWPOPopUp")).modal("hide");
+
+    $scope.Clear = function () {
+        ClearFields();
+    };
+
+    function ClearFields() {
+        $scope.GriddataMaster = [];
+        $scope.lst = [];
+        $scope.JWPOList = [];
+        $scope.SelectedJWPOList = [];
+        $scope.ReceiptVA = Object.assign({}, $scope.ReceiptVAModelTemp);
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
+
 
     //	$scope.getData();
 
@@ -282,149 +305,9 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         });
     }
 
-    // Gate Entry Value Added
-    $scope.POPopUpGateEntry = function () {
-        $scope.getalldataGateEntry();
-        angular.element(document.querySelector('#POPopUpGateEntry')).modal('show');
-    };
-    $scope.POPopUpCloseGateEntry = function () {
-        angular.element(document.querySelector('#POPopUpGateEntry')).modal('hide');
-    };
+   
 
-    $scope.GriddataGateEntry = [];
-    $scope.getalldataGateEntry = function () {
-        if ($scope.ModelNew.TabType == "Value Added") {
-            $scope.PartyId = $scope.ModelNew.VendorPartyId;
-        }
-        $scope.PartyId = $scope.ModelNew.VendorPartyId;
-        //debugger;
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            url: 'JobWork/JobWorkReceiptValueAdded/GetListOfPOGateEntry?partyCode=' + $scope.PartyId,
-        }).then(function successCallback(response) {
-            $scope.GriddataGateEntry = response.data;
-            //entrydata = copy(searchdata);
-        });
-    };
-
-    $scope.recorddoubleclickGateEntry = function (obj) {
-        var data = obj.data;
-        $scope.ReceiptVA.GateEntryNoId = data.Id;
-        angular.element(document.querySelector('#POPopUpGateEntry')).modal('hide');
-    };
-
-    // Gate Entry Transformation
-    $scope.PopUpGateEntry = function () {
-        $scope.getallGateEntry();
-        angular.element(document.querySelector('#PopUpGateEntry')).modal('show');
-    };
-    $scope.PopUpCloseGateEntry = function () {
-        angular.element(document.querySelector('#PopUpGateEntry')).modal('hide');
-    };
-
-    $scope.GridGateEntry = [];
-    $scope.getallGateEntry = function () {
-        if ($scope.ModelNew.TabType == "Transformation") {
-            $scope.PartyId = $scope.Transformation.VendorPartyId;
-            $scope.TransformationContractId = $scope.Transformation.Id;
-
-        }
-
-        //debugger;
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            url: 'JobWork/JobWorkReceiptValueAdded/GetListGateEntry?partyCode=' + $scope.PartyId,
-        }).then(function successCallback(response) {
-            $scope.GridGateEntry = response.data;
-        });
-    };
-
-    $scope.doubleclickGateEntry = function (obj) {
-        var data = obj.data;
-        $scope.ReceiptTransformation.GateEntryNo = data.Id;
-        $scope.ReceiptTransformation.PartyId = data.PartyId;
-
-        $scope.ReceiptTransformation.InvoicingPartyPlantId = data.InvoicingPartyPlantId;
-        $scope.ReceiptTransformation.InvoicingByAddress = data.InvoicingByAddress;
-        $scope.ReceiptTransformation.DeliveryPartyPlantId = data.DeliveryPartyPlantId;
-        $scope.ReceiptTransformation.DeliveryByAddress = data.DeliveryByAddress;
-        angular.element(document.querySelector('#PopUpGateEntry')).modal('hide');
-    };
-
-    $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ReceiptGeneralForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'data': $scope.ReceiptVA },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.ReceiptVA = response.data.Data;
-
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-
-        }
-    };
-
-    $scope.Clear = function () {
-        ClearFields();
-    };
-
-    function ClearFields() {
-
-        $scope.ReceiptVA = Object.assign({}, $scope.ReceiptVAModelTemp);
-    }
-
-    //   // #region field
-
-    $scope.EmpResPersonList = [];
-    $scope.ResponsiblePersonPopUp = function () {
-        angular.element(document.querySelector("#EmployeePopUpResPerson")).modal("show");
-        $scope.getEmpDetailsData();
-
-    }
-    $scope.getEmpDetailsData = function () {
-        $scope.EmpResPersonList = [];
-        $http({
-            method: 'POST',
-            data: { Id: $scope.ReceiptVA.Id },
-            url: $scope.path + 'LoadAllEmpDetails'
-        }).then(function successCallback(response) {
-            $scope.EmpResPersonList = response.data;
-        });
-    }
-
-    $scope.ResponsiblePersonClear = function () {
-        $scope.ReceiptVA.ByWhomId = null;
-        $scope.ReceiptVA.ResponsiblePerson = null;
-        $scope.ReceiptVA.EmployeeCode = null;
-        $scope.ReceiptVA.EmployeeStatus = null;
-
-    };
-    $scope.closeEmpResPersonPopUp = function (popupName) {
-        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
-
-    }
-    $scope.setEmpData = function (obj) {
-
-        var data = obj.data;
-        $scope.ReceiptVA.ByWhomId = data.Id;
-        $scope.ReceiptVA.EmployeeCode = data.Code;
-        $scope.ReceiptVA.ResponsiblePerson = data.EmployeeName;
-        angular.element(document.querySelector('#EmployeePopUpResPerson')).modal('hide');
-    };
-    //   // # end region
+   
 
     //  ISSUE CHILD DATA
 
