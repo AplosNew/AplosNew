@@ -3837,6 +3837,12 @@ namespace Library.Service.FixedAssets
             // worksheet[ROW, COL].CellStyle.Font.Bold = true;
             //  ROW++;
 
+            worksheet[ROW, COL].Text = "SerialNo";
+            int colSerialNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
             worksheet[ROW, COL].Text = "AssetNo";
             int colAssetNo = COL;
             worksheet[ROW, COL].ColumnWidth = 10;
@@ -3844,13 +3850,19 @@ namespace Library.Service.FixedAssets
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "SerialNo";
-            int colSerialNo = COL;
+    
+
+            worksheet[ROW, COL].Text = "Entity";
+            int colEntity = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-
+            worksheet[ROW, COL].Text = "Department";
+            int colDepartment = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
 
             worksheet[ROW, COL].Text = "Model";
             int colModel = COL;
@@ -3909,6 +3921,14 @@ namespace Library.Service.FixedAssets
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+
+            worksheet[ROW, COL].Text = "Base Currency";
+            int colBaseCurrency = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
             worksheet[ROW, COL].Text = "FA Base Amount";
@@ -4026,8 +4046,12 @@ namespace Library.Service.FixedAssets
 
                 worksheet[ROW, colMaterialMasterName].Text = dtGatenntryRegisterList.Rows[i]["MaterialMasterName"].ToString();
                 worksheet[ROW, colArticle].Text = dtGatenntryRegisterList.Rows[i]["Article"].ToString();
+                worksheet[ROW, colEntity].Text = dtGatenntryRegisterList.Rows[i]["Entity"].ToString();
+                worksheet[ROW, colDepartment].Text = dtGatenntryRegisterList.Rows[i]["Department"].ToString();
                 worksheet[ROW, colDescription].Text = dtGatenntryRegisterList.Rows[i]["Description"].ToString();
                 worksheet[ROW, colPurchaseCurrency].Text = dtGatenntryRegisterList.Rows[i]["PurchaseCurrency"].ToString();
+                worksheet[ROW, colBaseCurrency].Text = dtGatenntryRegisterList.Rows[i]["BaseCurrency"].ToString();
+                
                 worksheet[ROW, colQuantity].Text = dtGatenntryRegisterList.Rows[i]["Quantity"].ToString();
 
                 worksheet[ROW, colPurchasePrice].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["PurchasePrice"].ToString());

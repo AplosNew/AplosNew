@@ -343,6 +343,7 @@
     <Compile Include="Areas\Accounts\AccountsAreaRegistration.cs" />
     <Compile Include="Areas\Accounts\Controllers\AccountStatusDashboardController.cs" />
     <Compile Include="Areas\Accounts\Controllers\AdjustmentNoteController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\VoucherParkController.cs" />
     <Compile Include="Areas\Accounts\Controllers\GeneralAccountDeterminateController.cs" />
     <Compile Include="Areas\Accounts\Controllers\InvoicePostController.cs" />
     <Compile Include="Areas\Accounts\Controllers\PartyReconciliationController.cs" />
@@ -1469,7 +1470,9 @@
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\dayBooksReportController.js" />
+    <Content Include="Areas\Accounts\Scripts\voucherParkController.js" />
     <Content Include="Areas\Accounts\Scripts\expenseRegisterReportController.js" />
+    <Content Include="Areas\Accounts\Scripts\FixedAssetsRegisterReportController.js" />
     <Content Include="Areas\Accounts\Scripts\gstR2ReportController.js" />
     <Content Include="Areas\Accounts\Scripts\GSTPayableSalesReportController.js" />
     <Content Include="Areas\Accounts\Scripts\GSTReceivableReportController.js" />
@@ -3517,6 +3520,7 @@
     <Content Include="Areas\HumanResource\Views\ManualShift\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\JobWorkReceiveBilling\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\EntityFixedAssetsRegister\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\VoucherPark\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
