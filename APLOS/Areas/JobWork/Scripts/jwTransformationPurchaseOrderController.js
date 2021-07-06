@@ -280,13 +280,13 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         //debugger;
         $http({
             method: 'GET',
-            url: 'Products/PurchaseOrder/NotificationSetting',
+            url: 'JobWork/JWTransformationPurchaseOrder/NotificationSetting',
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.NotificationSetting = response.data;
             $scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
             $scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
-            //$scope.GetCheckedByAndApprovedBy1();
+            $scope.GetCheckedByAndApprovedBy1();
             if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
                 $scope.productNew.labelCheckAndApproved = 'To be checked by';
             }
@@ -299,6 +299,24 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         });
     };
     $scope.NotificationSettingStatus();
+    $scope.GetCheckedByAndApprovedBy1 = function () {
+        //debugger;
+
+        if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
+            $http({
+                method: 'GET',
+                url: 'Products/PurchaseOrder/GetCheckedByAndApprovedBYForOurSource?CheckedBy=' + $scope.CheckedByStatusForNoti + '&ApprovedBy=' + $scope.ApprovedByStatusForNoti,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.checkedByList = response.data;
+            });
+
+        }
+        else {
+
+        }
+
+    }
     $scope.HSNCode = null;
     $scope.HSNCodeId = null;
 
@@ -496,7 +514,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         , AuthorizedByStatus: null
         , ContractId: null
         , ContractNo: null
-        , OrderSpecific: 'Yes'
+        , OrderSpecific: 'No'
         , PurchaseLCId: null
         , CustomerName: null
         , PaymentMode: null
@@ -1025,19 +1043,43 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             $scope.dbval = $scope.StateData;
             $scope.UIval = $scope.productNew.InvoicingState;
 
-            if ($scope.inventoryMaterialList.length === 0) {
-                angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-            }
-            else if ($scope.dbval.length === 0) {
-                angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-            }
-            else if ($scope.dbval === $scope.UIval) {
-                angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-            }
-            else if (productNew.OrderSpecific === 'Yes') {
+            //if ($scope.inventoryMaterialList.length === 0) {
+            //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
+            //}
+            //else 
+            //if ($scope.dbval.length === 0) {
+            //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
+            //}
+            //else if ($scope.dbval === $scope.UIval) {
+            //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
+            //}
+            if ($scope.productNew.OrderSpecific === 'Yes') {
                 ShowResult('Please Select Contract');
                 return false;
             }
+           
+            else if (baseService.isUndefinedOrNull($scope.productNew.PartyName)) {
+                ShowResult('Please Select Party Name');
+                return false;
+            }
+            else if (baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
+                ShowResult('Please Select Payment Term');
+                return false;
+            }
+            
+            else if ($scope.checkedByList.length > 0 && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
+                ShowResult('Please Select Checked By/Approved By');
+                return false;
+            }
+            else if (baseService.isUndefinedOrNull($scope.productNew.EntityId)) {
+                ShowResult('Please Select Entity');
+                return false;
+            }
+            else if (baseService.isUndefinedOrNull($scope.productNew.ContractStatus)) {
+                ShowResult('Please Select Contract Status');
+                return false;
+            }
+            
             else {
                 ShowResult('You can not change Invoicing party.Line is available', 'failure', 'invoicingPartyPopUp');
 
@@ -1670,6 +1712,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         }
         else {
             $scope.taxCategoryList = [];
+            $scope.GetJWItems();
             $scope.detailModel = Object.assign({}, args);
 
             $scope.rmchar1 = {};
@@ -1748,6 +1791,102 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.detailSave = function (type, onlyTax) {
         activityListsel = null;
         $scope.detailModelList = [];
+
+        if (baseService.isUndefinedOrNull($scope.detailModel.JobActivityId)) {
+            ShowResult('Please select Job Work Acticity', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.JobWorkItemMasterId)) {
+            ShowResult('Please select Job Work Out Put Item', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.MaterialName)) {
+            ShowResult('Please select Material', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.ArticleName)) {
+            ShowResult('Please select Article', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.MaterialLocationId)) {
+            ShowResult('Please select Material Storage Location', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.MaterialType)) {
+            ShowResult('Please select Input Material Category', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.FinalOutputCategory)) {
+            ShowResult('Please select OutPut Material Category', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.MaterialSpecification)) {
+            ShowResult('Please select Material Specification', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.OutputMaterialUOMId)) {
+            ShowResult('Please select Material Specification', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) || $scope.detailModel.TransactionQty==='0') {
+            ShowResult('Please select Material Specification', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.OrderSpecific)) {
+            ShowResult('Please select Order Specific', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.RequiredCapacity)) {
+            ShowResult('Please select Required Capacity', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.ByProductApplicable)) {
+            ShowResult('Please select ByProduct Applicable', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.RateApplyId)) {
+            ShowResult('Please select Rate Apply', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.CurrencyId)) {
+            ShowResult('Please select Currency', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.RatePerUnit) || $scope.detailModel.RatePerUnit ==='0') {
+            ShowResult('Please select Currency', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.Rejection)) {
+            ShowResult('Please select Rejection', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.ValueLoss)) {
+            ShowResult('Please select ValueLoss', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.Tolerance)) {
+            ShowResult('enter the Tolerance', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.ServiceId)) {
+            ShowResult('Please select Service', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.ResponsiblePersonId)) {
+            ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
+            return false;
+        }
+
+        if (baseService.isUndefinedOrNull($scope.detailModel.EmployeeCode)) {
+            ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.ResponsiblePersonId)) {
+            ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
+            return false;
+        }
+        
+
         $scope.detailModel.JWTransformationPurchaseOrderId = $scope.productNew.Id;
         if (!baseService.isUndefinedOrNull($scope.rmchar1.CharacteristicsId)) {
             $scope.detailModel.FirstCharacteristicsId = $scope.rmchar1.CharacteristicsId;

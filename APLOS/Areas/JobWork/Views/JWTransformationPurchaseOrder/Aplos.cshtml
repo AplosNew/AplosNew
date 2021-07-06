@@ -566,47 +566,48 @@
 
     <fieldset class="scheduler-border">
         <legend class="scheduler-border">Other's Info</legend>
+		<div class="row">
+			<div class="col-xs-4 col-sm-4 col-md-4">
+				<div class="form-group" show-errors>
+					<label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+					<div class="col-sm-8 show-message">
+						<div class="select-style">
+							<select class="form-control" ng-model="productNew.EntityId" name="Entity"
+									ng-options="item.Value as item.Text for item in EntityList" required tabindex="5">
+								<option value=""></option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			@*<div class="col-xs-4 col-sm-4 col-md-4">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Time<sup>*</sup></label>
+					<div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
+						<input id="Time" type="text" class="form-control input-small" ng-model="productNew.Time" style="margin-left:-36px; width:220px" tabindex="3">
+						<span class="input-group-addon" style="float:left; width:37px"><i class="glyphicon glyphicon-time"></i></span>
+					</div>
+				</div>
+			</div>*@
+			<div class="col-xs-4 col-sm-4 col-md-4">
+				<div class="form-group" show-errors>
+					<label class="col-sm-4 control-label">Process Start Date<sup>*</sup></label>
+					<div class="col-sm-8 show-message">
+						<input type="text" name="Process Start Date" ng-model="productNew.ProcessStartDate" datepicker class="form-control" required tabindex="2">
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-4 col-sm-4 col-md-4">
+				<div class="form-group" show-errors>
+					<label class="col-sm-4 control-label">Process End Date<sup>*</sup></label>
+					<div class="col-sm-8 show-message">
+						<input type="text" name="Process End Date" ng-model="productNew.ProcessEndDate" ng-change="ValidateProcessEndDate();" datepicker class="form-control" required tabindex="2">
+					</div>
+				</div>
+			</div>
+		</div>
         <div class="row">
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="productNew.EntityId" name="Entity"
-                                    ng-options="item.Value as item.Text for item in EntityList" required tabindex="5">
-                                <option value="">--Select--</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Time<sup>*</sup></label>
-                    <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
-                        <input id="Time" type="text" class="form-control input-small" ng-model="productNew.Time" style="margin-left:-36px; width:220px" tabindex="3">
-                        <span class="input-group-addon" style="float:left; width:37px"><i class="glyphicon glyphicon-time"></i></span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Process Start Date<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Process Start Date" ng-model="productNew.ProcessStartDate" datepicker class="form-control" required tabindex="2">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Process End Date<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Process End Date" ng-model="productNew.ProcessEndDate" ng-change="ValidateProcessEndDate();" datepicker class="form-control" required tabindex="2">
-                    </div>
-                </div>
-            </div>
+            
             <div class="col-xs-4 col-sm-4 col-md-4">
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Contract Closing Date<sup>*</sup></label>
@@ -622,7 +623,7 @@
                         <div class="select-style">
                             <select class="form-control" ng-model="productNew.ContractStatus" name="Contract Status"
                                     required tabindex="5">
-                                <option value="">--Select--</option>
+                                <option value=""></option>
                                 <option value="Active">Active</option>
                                 <option value="Pending">Pending</option>
                                 <option value="Closed">Closed</option>
@@ -1195,38 +1196,38 @@
             <div class="modal-body form-elements form-horizontal">
                 <div class="row" ng-form name="ByProdcutMaterialForm">
 
-                    <input type="hidden" ng-model="ModelNewByProdcuct.Id">
-                    <div ng-form name="GeneralForm">
-                        <input type="hidden" ng-model="detailModel.Id">
-                        <div class="col-sm-12 col-md-4 col-lg-4 " style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
-                            <div class="form-group" show-errors>
-                                <label class="control-label">
-                                    Job Work Activity<sup>*</sup>
-                                </label>
-                                <div class="show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.JobActivityId" name="Job Work Activity" required ng-change="GetJWItems();"
-                                                ng-options="item.Value as item.Text for item in JobWorkActivityList" tabindex="3">
-                                            <option value="">--Select--</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-12 col-md-4 col-lg-4" style="margin-left: 0px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class="control-label">
-                                    JW Output item<sup>*</sup>
-                                </label>
-                                <div class="show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.JobWorkItemMasterId" name="Job Work Items" required
-                                                ng-options="item.Value as item.Text for item in JobWorkItemMstList" ng-change="GetArticle();GetJWitemDataFromTrans();GetRate();GetCurrencyyy();GetMaterialfromJW();" tabindex="3">
-                                            <option value="">--Select--</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+					<input type="hidden" ng-model="ModelNewByProdcuct.Id">
+					<div ng-form name="GeneralForm">
+						<input type="hidden" ng-model="detailModel.Id">
+						<div class="col-sm-12 col-md-4 col-lg-4 " style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+							<div class="form-group" show-errors>
+								<label class="control-label">
+									Job Work Activity<sup>*</sup>
+								</label>
+								<div class="show-message">
+									<div class="select-style">
+										<select class="form-control" ng-model="detailModel.JobActivityId" name="Job Work Activity" required ng-change="GetJWItems();"
+												ng-options="item.Value as item.Text for item in JobWorkActivityList" tabindex="3">
+											<option value=""></option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-12 col-md-4 col-lg-4" style="margin-left: 0px; padding-right: 44px;">
+							<div class="form-group" show-errors>
+								<label class="control-label">
+									JW Output item<sup>*</sup>
+								</label>
+								<div class="show-message">
+									<div class="select-style">
+										<select class="form-control" ng-model="detailModel.JobWorkItemMasterId" name="Job Work Items" required
+												ng-options="item.Value as item.Text for item in JobWorkItemMstList" ng-change="GetArticle();GetJWitemDataFromTrans();GetRate();GetCurrencyyy();GetMaterialfromJW();" tabindex="3">
+											<option value=""></option>
+										</select>
+									</div>
+								</div>
+							</div>
 
                         </div>
                         <div class="col-sm-12 col-md-4 col-lg-4" style="margin-left: -13px; padding-right: 44px;">
@@ -1266,51 +1267,51 @@
                             </div>
                         </div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Material Location<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.MaterialLocationId" name="Material Location"
-                                                ng-options="item.Value as item.Text for item in MaterialLocList" required tabindex="5">
-                                            <option value="">--Select--</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+						<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+							<div class="form-group" show-errors>
+								<label class=" control-label">Material Storage Location<sup>*</sup></label>
+								<div class=" show-message">
+									<div class="select-style">
+										<select class="form-control" ng-model="detailModel.MaterialLocationId" name="Material Location"
+												ng-options="item.Value as item.Text for item in MaterialLocList" required tabindex="5">
+											<option value=""></option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Input Material Category<sup>*</sup></label>
-                                <div class="show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.MaterialType" name="Material Type"
-                                                required tabindex="5">
-                                            <option value="">--Select--</option>
-                                            <option value="InProcess">In-Process</option>
-                                            <option value="Inventory">Inventory</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Output Material Category<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.FinalOutputCategory" name="Final Output Category"
-                                                required tabindex="5">
-                                            <option value="">--Select--</option>
-                                            <option value="InProcess">In-Process</option>
-                                            <option value="FinalSale">Sale</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+						<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+							<div class="form-group" show-errors>
+								<label class=" control-label">Input Material Category<sup>*</sup></label>
+								<div class="show-message">
+									<div class="select-style">
+										<select class="form-control" ng-model="detailModel.MaterialType" name="Material Type"
+												required tabindex="5">
+											<option value=""></option>
+											<option value="InProcess">In-Process</option>
+											<option value="Inventory">Inventory</option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="clearfix"></div>
+						<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+							<div class="form-group" show-errors>
+								<label class=" control-label">Output Material Category<sup>*</sup></label>
+								<div class=" show-message">
+									<div class="select-style">
+										<select class="form-control" ng-model="detailModel.FinalOutputCategory" name="Final Output Category"
+												required tabindex="5">
+											<option value=""></option>
+											<option value="InProcess">In-Process</option>
+											<option value="FinalSale">Sale</option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
 
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
@@ -1321,106 +1322,106 @@
                             </div>
                         </div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-                            <div class="form-group">
-                                <label class=" control-label">Material Reference</label>
-                                <div class="">
-                                    <input type="text" ng-model="detailModel.MaterialReference" class="form-control" tabindex="2" maxlength="50">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Output Material UOM<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.OutputMaterialUOMId" name="Output Material UOM" required
-                                                ng-options="item.Value as item.Text for item in OMatUOMList" tabindex="3">
-                                            <option value="">--Select--</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Quantity<sup>*</sup></label>
-                                <div class="show-message">
-                                    <input type="text" ng-model="detailModel.TransactionQty" name="Quantity" onkeypress="return isNumber(event)" required class="form-control" tabindex="2" maxlength="50">
-                                </div>
-                            </div>
-                        </div>
+						<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+							<div class="form-group">
+								<label class=" control-label">Material Reference</label>
+								<div class="">
+									<input type="text" ng-model="detailModel.MaterialReference" class="form-control" tabindex="2" maxlength="50">
+								</div>
+							</div>
+						</div>
+						<div class="clearfix"></div>
+						<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+							<div class="form-group" show-errors>
+								<label class=" control-label">Output Material UOM<sup>*</sup></label>
+								<div class=" show-message">
+									<div class="select-style">
+										<select class="form-control" ng-model="detailModel.OutputMaterialUOMId" name="Output Material UOM" required
+												ng-options="item.Value as item.Text for item in OMatUOMList" tabindex="3">
+											<option value=""></option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+							<div class="form-group" show-errors>
+								<label class=" control-label">Quantity<sup>*</sup></label>
+								<div class="show-message">
+									<input type="text" ng-model="detailModel.TransactionQty" name="Quantity" onkeypress="return isNumber(event)" required class="form-control" tabindex="2" maxlength="50">
+								</div>
+							</div>
+						</div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Order Specific<sup>*</sup></label>
-                                <div class="show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.OrderSpecific" name="Order Specific" required
-                                                tabindex="3">
-                                            <option value="">--Select--</option>
-                                            <option value="Yes">Yes</option>
-                                            <option value="NO">No</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Required Capacity<sup>*</sup></label>
-                                <div class="show-message">
-                                    <input type="text" ng-model="detailModel.RequiredCapacity" name="Required Capacity" required onkeypress="return isNumber(event)" class="form-control" tabindex="2" maxlength="50">
-                                </div>
-                            </div>
-                        </div>
+						<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+							<div class="form-group" show-errors>
+								<label class=" control-label">Order Specific<sup>*</sup></label>
+								<div class="show-message">
+									<div class="select-style">
+										<select class="form-control" ng-model="detailModel.OrderSpecific" name="Order Specific" required
+												tabindex="3">
+											<option value=""></option>
+											<option value="Yes">Yes</option>
+											<option value="NO">No</option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="clearfix"></div>
+						<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+							<div class="form-group" show-errors>
+								<label class=" control-label">Required Capacity<sup>*</sup></label>
+								<div class="show-message">
+									<input type="text" ng-model="detailModel.RequiredCapacity" name="Required Capacity" required onkeypress="return isNumber(event)" class="form-control" tabindex="2" maxlength="50">
+								</div>
+							</div>
+						</div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">By Product Applicable<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.ByProductApplicable" name="By Product Applicable" required
-                                                tabindex="3">
-                                            <option value="">--Select--</option>
-                                            <option value="Yes">Yes</option>
-                                            <option value="No">No</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+						<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+							<div class="form-group" show-errors>
+								<label class=" control-label">By Product Applicable<sup>*</sup></label>
+								<div class=" show-message">
+									<div class="select-style">
+										<select class="form-control" ng-model="detailModel.ByProductApplicable" name="By Product Applicable" required
+												tabindex="3">
+											<option value=""></option>
+											<option value="Yes">Yes</option>
+											<option value="No">No</option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
 
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class="control-label">Rate Apply<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.RateApplyId" name="Rate Apply" required
-                                                ng-options="item.Value as item.Text for item in RateList" tabindex="3">
-                                            <option value="">--Select--</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Currency<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.CurrencyId" name="Currency" required
-                                                ng-options="item.Value as item.Text for item in CurrencyyyList" tabindex="3">
-                                            <option value="">--Select--</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+						<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+							<div class="form-group" show-errors>
+								<label class="control-label">Rate Apply<sup>*</sup></label>
+								<div class=" show-message">
+									<div class="select-style">
+										<select class="form-control" ng-model="detailModel.RateApplyId" name="Rate Apply" required
+												ng-options="item.Value as item.Text for item in RateList" tabindex="3">
+											<option value=""></option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="clearfix"></div>
+						<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+							<div class="form-group" show-errors>
+								<label class=" control-label">Currency<sup>*</sup></label>
+								<div class=" show-message">
+									<div class="select-style">
+										<select class="form-control" ng-model="detailModel.CurrencyId" name="Currency" required
+												ng-options="item.Value as item.Text for item in CurrencyyyList" tabindex="3">
+											<option value=""></option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
 
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
