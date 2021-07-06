@@ -522,6 +522,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         ContractClosingDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
  //     Remarks: null,
         ContractStatus: "Active",
+
     };
     $scope.productNew = Object.assign({}, $scope.products);
     $scope.product = Object.assign({}, $scope.products);
@@ -803,13 +804,15 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         }
         if (isNaN($scope.detailModel.TotalTaxAmount)) $scope.detailModel.TotalTaxAmount = 0;
     };
+    $scope.productNew.TaxOptionService = 'Yes';
     $scope.changeService = function (JWServiceId) {
-
+        $scope.productNew.TaxOptionService = 'Yes';
         if (baseService.isUndefinedOrNull(JWServiceId))
             return $scope.taxCategoryList = [];
         var hsnCodeId = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCodeId;
         var HSNCode = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCode;
         getTaxCategoryList(hsnCodeId, HSNCode);
+        
     };
     function getTaxCategoryList(hsnCodeId, HSNCode) {
         $scope.taxCategoryList = [];
@@ -1101,7 +1104,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                             'data': $scope.product
                             , 'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti
                             , 'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti
-                            , 'ActivityList': activityList
+                            //, 'ActivityList': activityList
                         },
                         dataType: 'JSON'
                     }).then(function successCallback(response) {
@@ -1636,6 +1639,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
     $scope.detailPopUp = function () {
         $scope.productNew.TaxOptionMat = 'Yes';
+        $scope.productNew.TaxOptionService = 'Yes';
         $scope.receiveTaxList = [];
         $scope.detailModel = Object.assign({}, $scope.detailTempModel);
         //$scope.MatPlanning = Object.assign({}, $scope.MatPlanningModelTemp);
@@ -1780,7 +1784,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                         JWPurchaseOrderId: $scope.productNew.Id,
                         JWActivityId: activityListsel,
                         OrderSpecific: $scope.productNew.OrderSpecific,
-                        type: type
+                        type: type,
+                        taxCategoryList: $scope.taxCategoryList
 
                     },
                     dataType: 'JSON'
@@ -2428,6 +2433,27 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         }
         data.TaxAmount = Math.round($scope.serviceModel.TransactionAmount * data.Percentage) / 100;
     };
+    $scope.calculateTaxAmountForServiceOutPut = function (data) {
+        if (baseService.isUndefinedOrNull(data.Percentage)) {
+            data.Percentage = 0;
+        }
+       
+        $scope.TransactionAmount = $scope.detailModel.TransactionQty * $scope.detailModel.RatePerUnit;
+        data.TaxAmount = Math.round($scope.TransactionAmount * data.Percentage) / 100;
+    };
+    $scope.checkRowValidationServiceOutPut = function (x) {
+
+        for (var i = 0; i < $scope.taxCategoryList.length; i++) {
+            //if (baseService.isUndefinedOrNull($scope.detailModel.TransactionAmount) || $scope.detailModel.TransactionAmount === 0) {
+            //	ShowResult("Taxable Amount can not null or zero", 'failure', 'detailPopUp');
+            //}
+            $scope.TransactionAmount = $scope.detailModel.TransactionQty * $scope.detailModel.RatePerUnit;
+            if ($scope.taxCategoryList[i].Id === x.Id) {
+                $scope.taxCategoryList[i].Percentage = (parseFloat(x.TaxAmount / $scope.TransactionAmount).toFixed(4) * 100);
+            }
+
+        }
+    }
     $scope.checkRowValidationService = function (x) {
 
         for (var i = 0; i < $scope.taxCategoryList.length; i++) {
