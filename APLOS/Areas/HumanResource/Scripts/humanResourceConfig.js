@@ -518,6 +518,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/PayrollReports/SalaryProcessedReportExtraOTCTCCompany',
             controller: 'salaryProcessedReportExtraOTCTCCompanyController'
         })
-
+        .when('/employee-addition-deduction-process', {
+            templateUrl: 'humanresource/EmployeeAdditionDeductionProcess/Aplos',
+            controller: 'EmployeeAdditionDeductionProcessController'
+        })
         ;
 }

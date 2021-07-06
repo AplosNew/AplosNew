@@ -1012,6 +1012,7 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.VoucherDate = DateTime.Now;
             voucherVM.PostingDate = DateTime.Now;
             voucherVM.DocDate = DateTime.Now;
+
             if (voucherVM.Balance < voucherDetailVMList.Sum(r => r.DrAmount))
                 throw new CustomException(" Payment's Amount should not greater than Receivable Balance Amount!");
             if (voucherDetailVMList == null)
