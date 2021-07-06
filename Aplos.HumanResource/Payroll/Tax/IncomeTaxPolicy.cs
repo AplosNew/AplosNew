@@ -1568,7 +1568,7 @@ namespace Library.HumanResource.Payroll.Tax
                                 ,[Value]  = case when I.Value is null then null else I.Value end
                                 ,OptionBase = case when f.IsOptionBased = 1 then CONCAT('Option: ',f.OptionBasedValue) else '' end
                                 ,IsEnable = case when f.Formula like '%Actual Amount%' then Convert(bit, 'false') else Convert(bit, 'true') end ,I.Id
-								,m.TaxPolicyName
+								,m.TaxPolicyName,I.FileName
                                 ,IsSelect = case when I.Id is null  THEN Convert(bit, 'False')ELSE Convert(bit, 'True') END
                                     from EmployeeInformation e
                                     left join TaxPolicyPlantWise tp on tp.PlantId = e.PlantId
