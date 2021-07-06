@@ -224,7 +224,10 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
                     ShowResult(response.data.Message, 'success');
                     /*ClearFields(response.data.Sequence);*/
                     $scope.getProductionRelay();
-                    /* $scope.GetDetails({ data: { Id: response.data.Data.Id } });*/
+                /* $scope.GetDetails({ data: { Id: response.data.Data.Id } });*/
+
+
+
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
