@@ -255,6 +255,7 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-hide="acceptanceChargesCheckedList.length >0" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
             <li role="presentation" ng-show="acceptanceChargesCheckedList.length >0" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Acceptance Charges</a></li>
+            <li role="presentation" ng-show="ServicePODetailList.length >0" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Service PO</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -395,6 +396,75 @@
                 </div>
             </div>
 
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+            <div ng-form="tabForm4">
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table" ng-show="ServicePODetailList.length">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>POID</th>
+                                <th>PODetailId</th>
+                                <th>Service</th>
+                                <th>PO Qty</th>
+                                <th>UoM</th>
+                                <th>Other Received</th>
+                                <th>Current Received</th>
+                                <th>Balance</th>
+                                <th>Rate</th>
+                                <th class="text-center">PO Service Amount</th>
+                                <th>Total Tax Amount</th>
+                                <th>Total Amount</th>
+                                <th class="col-sm-1">Action</th>
+                            </tr>
+
+                        </thead>
+                        <tbody>
+
+                            <tr ng-repeat="x in ServicePODetailList">
+                                <td>{{x.Id}}</td>
+                                <td>{{x.ServicePODetailId}}</td>
+                                <td>{{x.ServicePOMasterId}}</td>
+                                <td>{{x.ServiceMasterName}}</td>
+
+                                <td class="text-right">{{x.Qty}}</td>
+                                <td>{{x.UoM}}</td>
+                                <td class="text-right">{{x.OtherReceived}}</td>
+                                <td class="text-right"><input type="text" n-decimals="{{2}}" class="form-control text-right" width="20" ng-model="x.CurrentQty" ng-disabled="true"></td>
+                                <td class="text-right">{{x.Balance}}</td>
+                                @*<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>*@
+                                <td class="text-right">{{x.Rate}}</td>
+
+                                <td class="text-right">{{x.Amount|setDecimal:2| number}}</td>
+                                <td class="text-right"><input type="text" n-decimals="{{2}}" class="form-control text-right" width="20" ng-model="x.TotalTaxAmount" ng-disabled="true"></td>
+                                <td class="text-right"><input type="text" n-decimals="{{2}}" class="form-control text-right" width="20" ng-model="x.TotalAmount" ng-disabled="true"></td>
+                            </tr>
+
+                            <tr ng-show="ServicePODetailList.length">
+                                <td></td>
+                                <td colspan="2" class="text-right"><strong>Total : </strong></td>
+                                <td></td>
+                                <td class="text-right"><strong>{{ServicePODetailList | sumByKey : 'Qty'| setDecimal:2| number }}</strong></td>
+                                <td class="text-right"><strong>{{UoM}}</strong></td>
+
+                                <td class="text-right"><strong>{{ServicePODetailList | sumByKey : 'OtherReceived'| setDecimal:2| number }}</strong></td>
+                                <td class="text-right"><strong>{{ServicePODetailList | sumByKey : 'CurrentQty'| setDecimal:2| number }}</strong></td>
+
+                                <td class="text-right"><strong>{{ServicePODetailList | sumByKey : 'Balance'| setDecimal:2| number }}</strong></td>
+                                <td class="text-right"><strong></strong></td>
+                                <td class="text-right"><strong>{{ServicePODetailList | sumByKey : 'Amount'| setDecimal:2| number }}</strong></td>
+
+                                <td class="text-right"><strong>{{ServicePODetailList | sumByKey : 'TotalTaxAmount'| setDecimal:2| number }}</strong></td>
+                                <td class="text-right"><strong>{{ServicePODetailList | sumByKey : 'TotalAmount'| setDecimal:2| number }}</strong></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
         </div>
         <div></div>
         <div class="common-btn">

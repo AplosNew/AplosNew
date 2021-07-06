@@ -552,7 +552,16 @@
         <div id="GridProductionRelay" ng-init="chkinit()" ej-grid e-datasource="ProductionRelayList"
              e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
              e-allowscrolling="true" e-minwidth="450" e-minheight="400" e-filtersettings-filterType="excel">
+            <div e-stackedheaderrows>
+                <div e-stackedheaderrow>
+                    <div e-stackedheadercolumns>
+                        <div e-stackedheadercolumn e-headertext="Current Process" e-column="Id,Material,article,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,StartDate,MasterOrderId,Remarks"></div>
+                        <div e-stackedheadercolumn e-headertext="Master Order Item" e-column="PreviousProcess,PreviousProcessQty,ClosedBy,PreviousProcessStartDate,ClosedDate"></div>
+                    </div>
+                </div>
+            </div>
             <div e-columns>
+
                 <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
                 <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
                 <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
@@ -569,12 +578,12 @@
 
                 <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>
                 <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="200"></div>
-
-                <div e-column e-type="string" e-field="PreviousProcess" e-headertext="Previous Process" e-width="80"></div>
-                <div e-column e-type="string" e-field="PreviousProcessQty" e-headertext="Previous Process Qty" e-width="80"></div>
-                <div e-column e-type="string" e-field="ClosedBy" e-headertext="Previous Process Closed By" e-width="50"></div>
-                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PreviousProcessStartDate" e-headertext="Previous Process Start Date" e-width="80"></div>
-                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ClosedDate" e-headertext="Previous Process Completion Date" e-width="80"></div>
+               
+                <div e-column e-type="string" e-field="PreviousProcess" e-headertext="Process" e-width="80"></div>
+                <div e-column e-type="string" e-field="PreviousProcessQty" e-headertext="Qty" e-width="80"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PreviousProcessStartDate" e-headertext="Start Date" e-width="80"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ClosedDate" e-headertext="Completion Date" e-width="80"></div>
+                <div e-column e-type="string" e-field="ClosedBy" e-headertext="Completed By" e-width="50"></div>
 
             </div>
 
