@@ -47,10 +47,16 @@
         </div>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-                <div ng-show="ProductionRelayList.length>0"> Total Records: {{ProductionRelayList.length}}</div>
-                <div id="GridProductionRelay" ng-init="chkinit()" e-load="actionCompleteSearch" ej-grid e-datasource="ProductionRelayList"
-                     e-allowfiltering="true" e-allowpaging="false" e-enabletouch="false" e-responsive="true" e-templaterefresh="ProductionRelayAllCheck"
-                     e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound" e-showstackedheader="true" 
+                <div class="common-btn" ng-show="ProductionRelayList.length>0">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                        <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+
+                <div id="GridProductionRelay" ng-init="chkinit()" e-load="actionCompleteSearch" ej-grid e-datasource="ProductionRelayList" e-rowdatabound="rowDataBoundOrder"
+                     e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="100" e-enabletouch="false" e-responsive="true" e-templaterefresh="ProductionRelayAllCheck"
+                     e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound" e-showstackedheader="true"
                      e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                      e-allowselection="false" e-filtersettings-filterType="excel">
                     <div e-stackedheaderrows>
@@ -62,7 +68,7 @@
                         </div>
                     </div>
                     <div e-columns>
-                        <div e-column e-headertext=""  e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="25"></div>
+                        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="25"></div>
                         <div e-column e-template="#btnRemarks" e-textalign="center" e-headertext="Remarks" e-width="70"></div>
 
                         <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
@@ -92,6 +98,12 @@
                     </div>
 
                 </div>
+                <div>
+                    <span style="background-color:#6FEAFF;color:#6FEAFF">.....</span>Pre. completed, current started
+                    <span style="background-color:#FF502A;color:#FF502A">.....</span>Pre. completed, current not started
+                    <span style="background-color:#7EFF87;color:#7EFF87">.....</span>Pre. started, current started
+                    <span style="background-color:#FFB42A;color:#FFB42A">.....</span>Pre. started, current not started
+                </div>
                 <script type="text/x-jsrender" id="headerTemplate">
                     <input type="checkbox" id="headchk" />
                 </script>
@@ -116,7 +128,7 @@
                         <ul class="list-inline small">
                             <li>
                                 @*<button ng-click="$parent.ShowRemarksPopUp(data)" class="glyphicon glyphicon-pencil" style="height: 28px; width: 56px; padding: 0px; margin: 0px;font-weight:bolder;">
-                                    </button>*@
+                        </button>*@
                                 <button style="height:28px;width:28px; padding:2px;" type="button" ng-click="$parent.ShowRemarksPopUp(data)" class="btn"><i class="glyphicon glyphicon-pencil"></i></button>
 
                             </li>
@@ -131,9 +143,8 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div ng-show="ProductionRelayClosedList.length>0"> Total Records: {{ProductionRelayClosedList.length}}</div>
-                <div id="GridProductionRelayClosed" ng-init="chkinit()" e-load="actionCompleteSearch" ej-grid e-datasource="ProductionRelayClosedList"
-                     e-allowfiltering="true" e-allowpaging="false" e-enabletouch="false" e-responsive="true" e-showstackedheader="true" 
+               <div id="GridProductionRelayClosed" ng-init="chkinit()" e-load="actionCompleteSearch" ej-grid e-datasource="ProductionRelayClosedList"
+                     e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="100" e-enabletouch="false" e-responsive="true" e-showstackedheader="true" 
                      e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
                      e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                      e-allowselection="false" e-filtersettings-filterType="excel">
