@@ -109,7 +109,7 @@ namespace Aplos.Areas.Productions.Controllers
                         dr["UpdatedBy"] = identity.Name;
                         dr["EndDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
-
+                        dr["Remarks"] = ProductionRelayData[i]["Remarks"];
                         dr.EndEdit();
 
                     }
@@ -150,10 +150,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetProductionRelay(string EntityId, string ProcessId)
+        public ActionResult GetProductionRelay (string EntityId, string ProcessId)
+
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,
+            string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
 convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId, convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess,PPR.CompletedBy ClosedBy
 ,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
 ,  PO.Id,PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
@@ -161,7 +162,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 ,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
   ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
      so.ProductCategory,so.Product,
-		ActualQTY=	case when ISNULL(st.Qty,0)>isnull(PO.Qty,0) then st.Qty else po.Qty end,							
+		ActualQTY=	case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end,							
                                 Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article,CurrentProcessPR.ProductionQtyAtPR
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
 								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
@@ -275,7 +276,8 @@ PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                             WHERE isnull(s.username,'') IN ('RUNNING') 
                             AND ((ISNULL(ppr.Id,'')<>'' AND ISNULL(ppr.StartDate,'')<>'') OR ISNULL(ppr.Id,'')=''  OR ISNULL(ppr.IsCompleted,0)=1)
-                            AND  PO.entityid='" + EntityId + @"' and  PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=0";
+                            AND  PO.entityid='" + EntityId + @"' and  PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=0 
+                            ORDER BY st.LSD";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -283,7 +285,7 @@ PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
         public ActionResult GetProductionRelayClosed(string EntityId, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,
+            string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
 convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId, convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess,PPR.CompletedBy ClosedBy
 ,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
 ,  PO.Id,PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
@@ -291,7 +293,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 ,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
   ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
      so.ProductCategory,so.Product,
-		ActualQTY=	case when ISNULL(st.Qty,0)>isnull(PO.Qty,0) then st.Qty else po.Qty end,							
+		ActualQTY=	case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end,							
                                 Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article,CurrentProcessPR.ProductionQtyAtPR
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
 								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
@@ -403,7 +405,8 @@ PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
 													
                                                     group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,pc.UserName) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-                            WHERE isnull(s.username,'') IN ('RUNNING') AND  PO.entityid='" + EntityId + @"' and  PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=1";
+                            WHERE isnull(s.username,'') IN ('RUNNING') AND  PO.entityid='" + EntityId + @"' and  PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=1 
+                            ORDER BY st.LSD";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

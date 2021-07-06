@@ -950,7 +950,7 @@ namespace Library.Service.Expenses
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"SELECT EI.DepartmentId, EB.*, C.Code AS CurrencyCode, EI.EmployeeCode, EI.EmployeeName, EBD.Amount, P.UserName AS PartyName
+                var sql = @"SELECT top(1000) EI.DepartmentId, EB.*, C.Code AS CurrencyCode, EI.EmployeeCode, EI.EmployeeName, EBD.Amount, P.UserName AS PartyName
                                         , EIR.EmployeeName AS ResponsiblePersonName
                                         ,AddedByName= case when EIRA.EmployeeName<>'' then  EIRA.EmployeeName else '' end
                                         FROM [TRN].[ExpenseBooking] AS EB
@@ -961,7 +961,8 @@ namespace Library.Service.Expenses
                                         LEFT JOIN [HKP].[Party] AS P ON P.Id=EB.PartyId
                                         LEFT JOIN (SELECT ExpenseBookingId,sum(Amount) AS Amount  FROM [TRN].[ExpenseBookingDetail] GROUP BY ExpenseBookingId) AS EBD ON EBD.ExpenseBookingId=EB.Id
 										 JOIN (SELECT  distinct ExpenseBookingId,EmployeeId,ApprovalStatus FROM TRN.ExpenseBookingApprovalHistory WHERE EmployeeId='" + identity.EmployeeId + @"' AND ApprovalStatus='" + approvalStatus + @"' ) 
-										EBAH ON EBAH.ExpenseBookingId=EB.Id AND EB.ApprovalStatus=EBAH.ApprovalStatus";
+										EBAH ON EBAH.ExpenseBookingId=EB.Id AND EB.ApprovalStatus=EBAH.ApprovalStatus
+                                        order by EB.AddedDate desc ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

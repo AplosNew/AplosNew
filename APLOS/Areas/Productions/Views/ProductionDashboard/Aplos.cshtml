@@ -41,7 +41,7 @@
                         <button ng-click="DrawWorkcenterWisePlan();" class="btn small" style="height: 32px; width: 32px; padding: 0px; margin: 0px;">
                             <i style="font-size:26px;color:blue;font-weight:bolder;" class="glyphicon glyphicon-refresh"></i>
                         </button>
-                      
+
                     </li>
                 </ul>
             </div>
@@ -50,7 +50,7 @@
             <br />
             <ul class="list-inline small" style="float:left;position:static;">
                 <li>
-                    
+
                     <button ng-click="ProductionEfficiency();" class="btn small" style="height: 32px; width: 32px; padding: 0px; margin: 0px;">
                         <i style="font-size:26px;color:darkred;font-weight:bolder;" class="glyphicon glyphicon-file"></i>
                     </button>
@@ -136,6 +136,7 @@
                     <div e-column e-field="Quantity" e-type="number" e-format="{0:N0}" e-textalign="right" e-headertext="Production" e-width="80"></div>
                     <div e-column e-template="#OrderWiseProductionNavigation" e-headertext="" e-width="40"></div>
                     <div e-column e-template="#WCWiseProductionNavigation" e-headertext="" e-width="40"></div>
+                    <div e-column e-template="#ProductionRelayWiseProductionNavigation" e-headertext="" e-width="40"></div>
                 </div>
             </div>
         </div>
@@ -373,6 +374,17 @@
         </ul>
     </div>
 </script>
+<script type="text/template" id="ProductionRelayWiseProductionNavigation">
+    <div class="common-btn">
+        <ul class="list-inline small">
+            <li>
+                <button ng-click="$parent.getProductionRelay(data);" class="btn small" style="height: 28px; width: 36px; padding: 0px; margin: 0px;font-weight:bolder;">
+                    RL
+                </button>
+            </li>
+        </ul>
+    </div>
+</script>
 
 <ej-dialog id="dialogProductionOrderWiseProduction" title=" Production(Production Order Wise)" e-enablemodal="true" e-position-y="0" e-target="#MainContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="900px" e-open="enableBtn">
     <div class="row">
@@ -509,8 +521,6 @@
             <script type="text/template" id="KillQuantityTodayTemplate">
                 <a href="" ng-click="$parent.GetInWC('FD','KILL',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.KillQuantityToday|number:0}}</span></a>
             </script>
-
-
             <script type="text/template" id="InQuantityTemplate">
                 <a href="" ng-click="$parent.GetInWC('UD','IN',data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.InQuantity|number:0}}</span></a>
             </script>
@@ -536,6 +546,51 @@
         </script>
     </div>
 </ej-dialog>
+
+<ej-dialog id="dialogProductionRelay" title=" Production Relay" e-enablemodal="true" e-position-y="0" e-target="#MainContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="900px" e-open="enableBtn">
+    <div class="row">
+        <div id="GridProductionRelay" ng-init="chkinit()" ej-grid e-datasource="ProductionRelayList"
+             e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+             e-allowscrolling="true" e-minwidth="450" e-minheight="400" e-filtersettings-filterType="excel">
+            <div e-stackedheaderrows>
+                <div e-stackedheaderrow>
+                    <div e-stackedheadercolumns>
+                        <div e-stackedheadercolumn e-headertext="Current Process" e-column="Id,Material,article,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,StartDate,MasterOrderId,Remarks"></div>
+                        <div e-stackedheadercolumn e-headertext="Master Order Item" e-column="PreviousProcess,PreviousProcessQty,ClosedBy,PreviousProcessStartDate,ClosedDate"></div>
+                    </div>
+                </div>
+            </div>
+            <div e-columns>
+
+                <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
+                <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
+                <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
+                <div e-column e-type="string" e-field="StyleNo" e-headertext="Buyer Item#" e-width="100"></div>
+                <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>
+                <div e-column e-type="string" e-field="OrderQty" e-headertext="Order Qty" e-width="80"></div>
+                <div e-column e-type="string" e-field="PlannedQty" e-headertext="Plan Order Qty" e-width="80"></div>
+
+                <div e-column e-type="string" e-field="ActualQTY" e-headertext="Actual Qty" e-width="80"></div>
+                <div e-column e-type="string" e-field="ProducedQty" e-headertext="Produced Qty" e-width="80"></div>
+                <div e-column e-type="string" e-field="Variance" e-headertext="Variance" e-width="80"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="StartDate" e-headertext="Start Date" e-width="80"></div>
+
+                <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="180"></div>
+                <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="200"></div>
+               
+                <div e-column e-type="string" e-field="PreviousProcess" e-headertext="Process" e-width="80"></div>
+                <div e-column e-type="string" e-field="PreviousProcessQty" e-headertext="Qty" e-width="80"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PreviousProcessStartDate" e-headertext="Start Date" e-width="80"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ClosedDate" e-headertext="Completion Date" e-width="80"></div>
+                <div e-column e-type="string" e-field="ClosedBy" e-headertext="Completed By" e-width="50"></div>
+
+            </div>
+
+        </div>
+    </div>
+</ej-dialog>
+
 
 <ej-dialog id="dialogPRWiseWIP" title=" WIP(PR Wise)" e-enablemodal="true" e-position-y="0" e-target="#MainContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="900px" e-open="enableBtn">
     <div class="row">

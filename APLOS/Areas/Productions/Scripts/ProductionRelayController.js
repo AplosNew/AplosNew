@@ -26,6 +26,7 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
         Id: null,
         EntityId: null,
         ProcessId: null,
+        Remarks: null,
     };
     $scope.ProductionRelayNew = Object.assign({}, $scope.ProductionRelay);
 
@@ -43,7 +44,6 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
         });
     };
     $scope.getAllEntities();
-
     $scope.processList = [];
     $scope.loadProcessList = function (entityid) {
         cboService.GetEntityProcessCbo(entityid, function (result) {
@@ -53,8 +53,6 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
             }
         });
     };
-
-
     $scope.listFromProcessOrSFGInventory = [];
     $scope.GetSFGMovementFromCbo = function (entity) {
         $http({
@@ -97,6 +95,8 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
 
     $scope.getProductionRelay = function () {
         try {
+
+
 
             if (angular.isUndefinedOrNull($scope.ProductionRelayNew.EntityId))
                 throw 'Plase select entity';
@@ -200,7 +200,6 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
         var gridObj = $("#GridProductionRelay").data("ejGrid");
         gridObj.refreshContent();
     };
-
     $scope.Save = function () {
         try {
                       $scope.ActiveList = [];
@@ -225,7 +224,10 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
                     ShowResult(response.data.Message, 'success');
                     /*ClearFields(response.data.Sequence);*/
                     $scope.getProductionRelay();
-                    /* $scope.GetDetails({ data: { Id: response.data.Data.Id } });*/
+                /* $scope.GetDetails({ data: { Id: response.data.Data.Id } });*/
+
+
+
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -236,7 +238,6 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
 
         }
     };
-
     $scope.Clear = function () {
         ClearFields();
         return true;
@@ -247,4 +248,34 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
         $scope.ProductionRelayList = [];
     }
 
+    $scope.SelectedProductionRelay = {};
+    $scope.ShowRemarksPopUp = function (data) {
+        $scope.SelectedProductionRelay = data;
+        angular.element(document.querySelector('#RemarksPopUp')).modal('show');
+
+    }
+    $scope.submitRemarks = function () {
+
+        for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
+            if ($scope.ProductionRelayList[i].Id == $scope.SelectedProductionRelay.Id) {
+
+                $scope.ProductionRelayList[i].Remarks = $scope.SelectedProductionRelay.Remarks;
+                $scope.ProductionRelayList[i].Checked = true;
+                
+                break;
+            }
+        }
+
+        var gridObjRunning = $("#GridProductionRelay").ejGrid("instance");
+       
+
+        gridObjRunning.refreshContent(true);
+        //gridObjRunning.refreshTemplate();
+
+        angular.element(document.querySelector('#RemarksPopUp')).modal('hide');
+    }
+    $scope.CloseRemarksPopUp = function () {
+        angular.element(document.querySelector('#RemarksPopUp')).modal('hide');
+
+    }
 }

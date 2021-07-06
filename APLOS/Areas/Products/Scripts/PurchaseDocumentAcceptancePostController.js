@@ -574,6 +574,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
         $scope.acceptanceChargesCheckedList=[];
         $scope.getRecordDoubleClickDetail(x);
         getServiceChargeList($scope.Id);
+        getSavedServicePODetailList($scope.Id);
         //$scope.GetCurrencyExchangeRateList();
         $scope.Action = 'Post';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
@@ -724,6 +725,16 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
             });
         }       
     };
+
+
+    $scope.ServicePODetailList = [];
+    function getSavedServicePODetailList(acceptanceID) {
+        $scope.SavedServicePODetailList = [];
+        $http.get('Products/PurchaseDocumentsAcceptance/GetSavedServicePOList?acceptanceID=' + acceptanceID)
+            .then(function (response) {
+                $scope.ServicePODetailList = response.data;
+            });
+    }
 
 
     $scope.Clear = function () {
