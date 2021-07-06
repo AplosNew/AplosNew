@@ -38,6 +38,9 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
         EffectiveDate: null,
         ResponsiblePersonId: null,
         Remarks: null,
+        Active: false,
+        isHeadApplicable: false,
+        HeadValueId: null,
     };
 
    
@@ -53,7 +56,7 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
         return $scope.tab === tabNum;
     };
 
-
+   
     
 
 
@@ -106,11 +109,19 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
     $scope.getMasterDetails = function (e) {
         $scope.Master = e.data;
         $scope.RespPerson = e.data.ResponsiblePerson;
+        $scope.fillAdditionDeductionList();
         if ($scope.Master.isPercentage == true) {
             $scope.Master.isPercentage = "Yes";
         }
         else {
             $scope.Master.isPercentage = "No";
+        }
+
+        if ($scope.Master.isHeadApplicable == true) {
+            document.getElementById("HeadValue").style.display = "block";
+        }
+        else {
+            document.getElementById("HeadValue").style.display = "none";
         }
         //Calling the Period Child List
         $http({
@@ -154,9 +165,36 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
         }
     }
 
+    //Checking for more than one entry
+    $scope.checkMonth = function () {
+        var arr = "";
+        for (var i = 0; i < $scope.periodList.length; i++) {
+            arr = arr + $scope.periodList[i].Month + " " ;
+        }
+
+        for (var i = 0; i < $scope.periodList.length; i++) {
+            var j = new RegExp($scope.periodList[i].Month, 'g');
+            
+            if (arr.match(j).length > 1) {
+                ShowResult("One Month Cannot be Chosen More than Once!!");
+                throw ("Invalid");
+            }
+        }
+    }
     
 
     //*********************  Operations for the Master Tab  *************************\\
+
+    //Refreshing the Head Value Html Element
+    $scope.refreshHead = function () {
+        if ($scope.Master.isHeadApplicable == true) {
+            document.getElementById("HeadValue").style.display = "block";
+        }
+        else {
+            document.getElementById("HeadValue").style.display = "none";
+        }
+    }
+
 
     //Getting the Responsible Persons List
     $scope.EmployeesList = [];
@@ -185,7 +223,15 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
     $scope.saveMaster = function () {
         $scope.$broadcast('show-errors-check-validity');
 
-        
+        if ($scope.Master.Frequency <= 0 || $scope.Master.Frequency > 12) {
+            ShowResult("Frequency cannot be 0 or more than 12!");
+            throw ("Invalid");
+        }
+
+        if ($scope.Master.isHeadApplicable == true && $scope.Master.HeadValueId == null) {
+            ShowResult("Select a Head Value!");
+            throw ("Invalid");
+        }
 
         if ($scope.MasterForm.$valid) {
 
@@ -197,6 +243,8 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
                 $scope.Master.isFixed = true;
                 $scope.Master.isPercentage = false;
             }
+
+            
 
             $http({
                 method: 'POST',
@@ -238,6 +286,8 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
             }
         }
     }
+
+    
 
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
@@ -298,6 +348,7 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
             EffectiveDate: null,
             ResponsiblePersonId: null,
             Remarks: null,
+            Active:false,
         };
         $scope.GetSequence();
         $scope.childDataList = [];
@@ -404,6 +455,7 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
     $scope.PlantList = [];
     $scope.EmpTypeList = [];
     $scope.DesignationList = [];
+    $scope.EmploymentTypeList = [];
     //Filling of the Plant And Employee Type List
 
     $scope.fillPlantsEmps = function () {
@@ -423,6 +475,15 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
         }).then(function success(response) {
             $scope.EmpTypeList = [];
             $scope.EmpTypeList = response.data;
+        })
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getEmploymentType',
+
+        }).then(function success(response) {
+            $scope.EmploymentTypeList  = [];
+            $scope.EmploymentTypeList  = response.data;
         })
 
     }
@@ -447,6 +508,7 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
         PlantId: null,
         EmpTypeId: null,
         DesignationId: null,
+        EmploymentType: null,
     };
     $scope.childDataList = [];
     //Saving the Period  Child
@@ -518,6 +580,8 @@ function EmployeeAdditionDeductionController(commonMessage, $scope, $rootScope, 
                 }
             }
         }
+
+        $scope.checkMonth();
     }
 
 

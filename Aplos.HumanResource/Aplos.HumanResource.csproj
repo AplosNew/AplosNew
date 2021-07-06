@@ -179,6 +179,7 @@
     <Compile Include="Dashboard\SkillMapping.cs" />
     <Compile Include="Employee\clsESICPolicy.cs" />
     <Compile Include="Employee\clsOverTimePolicy.cs" />
+    <Compile Include="Employee\EmployeeAdditionDeductionService.cs" />
     <Compile Include="Employee\EmployeeBankAccountInfo.cs" />
     <Compile Include="Employee\EmployeeProfile.cs" />
     <Compile Include="Employee\BankInformationUploadXL\clsTemplateDownloadBankInformation.cs" />
@@ -242,7 +243,6 @@
     <Compile Include="Report\Payroll\PayrollReports.cs" />
     <Compile Include="SalaryProcessActive\clsSalaryProcessAplosListR.cs" />
     <Compile Include="ShiftChange\clsShiftChangeSectionWise.cs" />
-    <Compile Include="ShiftChange\EmployeeAdditionDeductionService.cs" />
     <Compile Include="SmsSend\clsSMSSendNotification.cs" />
   </ItemGroup>
   <ItemGroup>

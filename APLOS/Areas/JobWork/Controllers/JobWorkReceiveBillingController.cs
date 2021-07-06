@@ -28,6 +28,7 @@ namespace Aplos.Areas.JobWork.Controllers
             R = new JobWorkReceiptValueAdded();
         }
         #endregion
+
         #region Pages
         public ActionResult Aplos()
         {
@@ -35,7 +36,7 @@ namespace Aplos.Areas.JobWork.Controllers
         }
         #endregion
 
-        #region Load Data
+        #region Operations
 
 
         [Authorize, HttpGet]
@@ -63,7 +64,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            
+
             try
             {
                 sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.VendorPartyId,vac.Remarks,FORMAT(vac.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime]
@@ -127,7 +128,7 @@ namespace Aplos.Areas.JobWork.Controllers
                             LEFT JOIN HKP.CharacteristicsValue AS TCV ON CTC.ThirdCharacteristicsValueId = TCV.Id
                             LEFT JOIN (select SUM(TransactionQty) TransactionQty,JWTCMId from TRN.InventoryReceiveDetail GROUP BY JWTCMId) IRD ON IRD.JWTCMId=CTC.JobWorkTransformationContractMasterId
                             LEFT JOIN (Select JWTransformationContractChildId,BillingQty,Id from dbo.JWReceiveBilling) B ON B.JWTransformationContractChildId=CTC.Id
-                            WHERE  CTC.JobWorkTransformationContractMasterId ='"+ contractId + "'";
+                            WHERE  CTC.JobWorkTransformationContractMasterId ='" + contractId + "'";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
@@ -140,17 +141,66 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data)
+        public JsonResult Create(List<Dictionary<string, object>> data)
         {
             try
             {
-                R.Create(data);
+                SaveData(data);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        private string GetPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JWReceiveBilling", out sID);
+            return sID;
+        }
+
+        private void SaveData(List<Dictionary<string, object>> data)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            objCon = new ConnectionManager.DAL.ConManager("1");
+            DataSet dsBills;
+            try
+            {
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.JWReceiveBilling", out dsBills, false, "1");
+            
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBills.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = GetPK();
+                            AddNewRow(dsBills.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsBills);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
             }
         }
 
@@ -201,9 +251,9 @@ namespace Aplos.Areas.JobWork.Controllers
 
         #endregion
 
-       
 
-        
+
+    
 
     }
 }

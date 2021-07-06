@@ -2385,7 +2385,7 @@ namespace Library.MaterialManagement.JobWork
         //    }
         //}
 
-        public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type)
+        public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type, List<Dictionary<string, object>> taxCategoryList)
         {
             string JWPODId = "";
             DataSet dsMaster; DataSet dsPOBOQMap; DataSet dsJwChildMaterial;
@@ -2489,6 +2489,7 @@ namespace Library.MaterialManagement.JobWork
 
 
                         dsMaster.Tables[0].DefaultView.RowFilter = "Id='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
+                        dsTax.Tables[0].DefaultView.RowFilter = "JWTransformationPurchaseOrderDetailId='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
 
                         string _Id = "";
 
@@ -2510,7 +2511,10 @@ namespace Library.MaterialManagement.JobWork
                             AddNewRow(dsMaster.Tables[0], data[i]);
 
 
+
                         }
+
+
                         else
                         {
 
@@ -2519,9 +2523,44 @@ namespace Library.MaterialManagement.JobWork
                             data[i]["Quantity"] = data[i]["TransactionQty"];
                             EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
                         }
+                        string DetailIdid = dsMaster.Tables[0].Rows[i]["Id"].ToString();
+                        for (int i1 = 0; i1 < taxCategoryList.Count; i1++)
+                        {
 
+
+                            if (dsTax.Tables[0].DefaultView.Count == 0)
+                            {
+                                
+
+                                bplib.clsGenID genid = new bplib.clsGenID();
+                                genid.GenID("JWTransformationPurchaseOrderTax", out _Id);
+                                taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
+                                //JWPODId = taxCategoryList[i1]["Id"].ToString();
+                                //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                                taxCategoryList[i1]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
+                                taxCategoryList[i1]["JWTransformationPurchaseOrderDetailId"] = DetailIdid;
+                                //data[i]["Quantity"] = data[i]["TransactionQty"];
+
+                                AddNewRow(dsTax.Tables[0], taxCategoryList[i1]);
+
+
+
+                            }
+
+
+                            else
+                            {
+
+                                //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                                taxCategoryList[i1]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
+                                taxCategoryList[i1]["JWTransformationPurchaseOrderDetailId"] = DetailIdid;
+                                taxCategoryList[i1]["Quantity"] = data[i]["TransactionQty"];
+                                EditRow(dsTax.Tables[0].DefaultView[0].Row, taxCategoryList[i1]);
+                            }
+                        }
 
                     }
+
                 }
 
                 if (data != null)
@@ -2554,7 +2593,7 @@ namespace Library.MaterialManagement.JobWork
                         //    SaveJWTransformationPurchaseOrderByProductMaterial(data, JWActivityId, Conversion, out dsJwChildJWByProduct);
                         //}
 
-                        _info.SaveDataSets(dsMaster, dsJwChildJWInputMaterial, dsJwChildJWByProduct);
+                        _info.SaveDataSets(dsMaster, dsTax);//, dsJwChildJWInputMaterial, dsJwChildJWByProduct,
 
                     }
                 }
