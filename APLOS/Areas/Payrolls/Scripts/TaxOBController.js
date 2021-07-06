@@ -527,6 +527,13 @@ function TaxOBController(cboService, commonMessage, $scope, $rootScope, baseServ
                 for (var i = 0; i < $scope.DeductionTax.length; i++) {
                     if ($scope.DeductionTax[i].Id == MasterID) {
                         $scope.DeductionTax[i].FileName = response.data[0].FileName;
+                        break;
+                    }
+                }
+                for (var i = 0; i < $scope.IncomeTax.length; i++) {
+                    if ($scope.IncomeTax[i].Id == MasterID) {
+                        $scope.IncomeTax[i].FileName = response.data[0].FileName;
+                        break;
                     }
                 }
                 $scope.MasterId = null;

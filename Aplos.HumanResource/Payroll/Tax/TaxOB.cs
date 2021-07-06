@@ -192,7 +192,7 @@ namespace Library.HumanResource.Payroll.Tax
                 //    }
                 //    else
                 //    {
-                        strSQL = "SELECT * FROM dbo.IncomeTaxItemTransaction WHERE EmpSystemId in (" + EmpList.EmpSystemID + ")";
+                strSQL = "SELECT * FROM dbo.IncomeTaxItemTransaction WHERE EmpSystemId in (" + EmpList.EmpSystemID + ")";
                 //    }
                 //}
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -217,10 +217,10 @@ namespace Library.HumanResource.Payroll.Tax
             {
                 //foreach (var item in ChildList)
                 //{
-                    if (EmpList.EmpSystemID != "")
-                    {
-                        strSQL = "SELECT * FROM dbo.TaxableIncomeparameter WHERE EmpSystemId in (" + EmpList.EmpSystemID + ")";
-                    }
+                if (EmpList.EmpSystemID != "")
+                {
+                    strSQL = "SELECT * FROM dbo.TaxableIncomeparameter WHERE EmpSystemId in (" + EmpList.EmpSystemID + ")";
+                }
                 //    else
                 //    {
                 //        strSQL = "SELECT * FROM dbo.TaxableIncomeparameter ";
@@ -239,7 +239,7 @@ namespace Library.HumanResource.Payroll.Tax
             }
         }//End Function
 
-        void _TaxItem(ref DataSet dsSaveBonusMonths, IncomeTaxItemTransaction List, List<IncTaxItmChild> ChildList)
+        void _TaxItem(ref DataSet dsBp, IncomeTaxItemTransaction List, List<IncTaxItmChild> ChildList)
         {
 
             DataView dvMSave = null;
@@ -253,17 +253,17 @@ namespace Library.HumanResource.Payroll.Tax
                 bplib.clsGenID objGenID = null;
                 objGenID = new bplib.clsGenID();
                 objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "TaxItem", out seed_detail);
-                dtMSave = dsSaveBonusMonths.Tables[0];
+                //dtMSave = dsSaveBonusMonths.Tables[0];
                 int count = 0;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
 
                 DataTable dtBp = null;
-                DataSet dsBp = null;
+                //DataSet dsBp = null;
                 DataView dvBp = null;
                 DataRow drBp = null;
                 string BPId = string.Empty;
-                string sql = "SELECT * FROM [dbo].[IncomeTaxItemTransaction] ";
+                string sql = "SELECT * FROM [dbo].[IncomeTaxItemTransaction] WHERE EmpSystemId = '" + List.EmpSystemID + "' ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsBp, false, "1");
 
@@ -271,58 +271,68 @@ namespace Library.HumanResource.Payroll.Tax
                 //objGenID = new bplib.clsGenID();
                 //objGenID.GenID(DateTime.Now.ToShortDateString().ToString(), "Tax_POLICY_P", out BPId);
                 //int count = 0;
-                for (int i = dsBp.Tables[0].Rows.Count - 1; i >= 0; i--)
-                {
-                    string policyID = dsBp.Tables[0].Rows[i]["IncTaxItmChildId"].ToString();
-                    foreach (var item in ChildList)
-                    {
-                        if (item.IncTaxItmChildId == policyID && item.IsSelect == true)
-                        {
-                            DataView dv = new DataView(dsBp.Tables[0]);
-                            dv.RowFilter = "Id='" + item.Id + "'";
-                            if (dv.Count > 0)
-                            {
-                                Delete(item.Id);
-                            }
-                        }
-                    }
-                }
+                //for (int i = dsBp.Tables[0].Rows.Count - 1; i >= 0; i--)
+                //{
+                //    string policyID = dsBp.Tables[0].Rows[i]["IncTaxItmChildId"].ToString();
+                //    foreach (var item in ChildList)
+                //    {
+                //        if (item.IncTaxItmChildId == policyID && item.IsSelect == false)
+                //        {
+                //            DataView dv = new DataView(dsBp.Tables[0]);
+                //            dv.RowFilter = "Id='" + item.Id + "'";
+                //            if (dv.Count > 0)
+                //            {
+                //                Delete(item.Id);
+                //            }
+                //        }
+                //    }
+                //}
                 objCon.OpenDataSetThroughAdapter(sql, out dsBp, false, "1");
                 foreach (var item in ChildList)
                 {
-                    dvMSave = new DataView(dsBp.Tables[0]);
+                    //dvMSave = new DataView(dsBp.Tables[0]);
                     //dvMSave.Table = dtMSave;
-                    dvMSave.RowFilter = "EmpSystemId ='" + List.EmpSystemID + "' and Id = '" + item.Id + "' ";
-                    if (dvMSave.Count == 0)
+                    dsBp.Tables[0].DefaultView.RowFilter = "Id = '" + item.Id + "' ";
+                    if (item.IsSelect == true)
                     {
-                        count++;
-                        string pk = "ITT" + seed_detail + "_" + count;
-                        drMSave = dtMSave.NewRow();
-                        drMSave["Id"] = pk;
-                        drMSave["EmpSystemId"] = List.EmpSystemID;
-                        drMSave["TaxYearId"] = List.TaxYearId;
-                        drMSave["TaxTypeId"] = List.TaxTypeId;
-                        drMSave["IncTaxItmChildId"] = item.IncTaxItmChildId;
-                        drMSave["Value"] = item.Value;
+                        if (dsBp.Tables[0].DefaultView.Count == 0)
+                        {
+                            count++;
+                            string pk = "ITT" + seed_detail + "_" + count;
+                            drMSave = dsBp.Tables[0].NewRow();
+                            drMSave["Id"] = pk;
+                            drMSave["EmpSystemId"] = List.EmpSystemID;
+                            drMSave["TaxYearId"] = List.TaxYearId;
+                            drMSave["TaxTypeId"] = List.TaxTypeId;
+                            drMSave["IncTaxItmChildId"] = item.IncTaxItmChildId;
+                            drMSave["Value"] = item.Value;
 
-                        drMSave["AddedBy"] = identity.Name;
-                        drMSave["AddedDate"] = DateTime.Now;
-                        drMSave["AddedFromIP"] = identity.IPAddress;
-                        dtMSave.Rows.Add(drMSave);
+                            drMSave["AddedBy"] = identity.Name;
+                            drMSave["AddedDate"] = DateTime.Now;
+                            drMSave["AddedFromIP"] = identity.IPAddress;
+                            dsBp.Tables[0].Rows.Add(drMSave);
+                        }
+                        else
+                        {
+                            drMSave = dsBp.Tables[0].DefaultView[0].Row;
+                            drMSave.BeginEdit();
+                            drMSave["TaxYearId"] = List.TaxYearId;
+                            drMSave["TaxTypeId"] = List.TaxTypeId;
+                            drMSave["IncTaxItmChildId"] = item.IncTaxItmChildId;
+                            drMSave["Value"] = item.Value;
+
+                            drMSave["UpdatedBy"] = identity.Name;
+                            drMSave["UpdatedDate"] = DateTime.Now;
+                            drMSave["UpdatedFromIP"] = identity.IPAddress;
+                            drMSave.EndEdit();
+                        }
                     }
                     else
                     {
-                        drMSave = dvMSave[0].Row;
-                        drMSave.BeginEdit();
-                        drMSave["TaxYearId"] = List.TaxYearId;
-                        drMSave["TaxTypeId"] = List.TaxTypeId;
-                        drMSave["IncTaxItmChildId"] = item.IncTaxItmChildId;
-                        drMSave["Value"] = item.Value;
-
-                        drMSave["UpdatedBy"] = identity.Name;
-                        drMSave["UpdatedDate"] = DateTime.Now;
-                        drMSave["UpdatedFromIP"] = identity.IPAddress;
-                        drMSave.EndEdit();
+                        while (dsBp.Tables[0].DefaultView.Count>0)
+                        {
+                            dsBp.Tables[0].DefaultView[0].Row.Delete();
+                        }
                     }
                 }
             }
