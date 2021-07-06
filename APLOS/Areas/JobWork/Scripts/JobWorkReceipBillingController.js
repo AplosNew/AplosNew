@@ -6,6 +6,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     $rootScope.title = 'Receive Billing';
     $scope.Action = 'Save';
     $scope.ContractList = [];
+    $scope.masterList = [];
     $scope.IssueTypeList = [];
     $scope.IndividualReportList = [];
     $scope.GateEntryNoList = [];
@@ -36,7 +37,9 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     $scope.ModelTemp = {
         Id: null,
         Type: null,
-
+        InvoiceNo: null,
+        InvoiceDate: null,
+        JWTransformationPurchaseOrderId:null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -128,11 +131,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     $scope.ReceiptTransformation = Object.assign({}, $scope.ReceiptTransformationModelTemp);
 
     $scope.ShowContractPopUp = function () {
-        //if ($scope.ModelNew.Type == null) {
-        //	var IssueType = "ValueAdded";
-        //	$scope.ModelNew.Type = IssueType;
-        //}
-        //$scope.setStatus = '';
+       
         debugger;
         $scope.ModelNew.Type = "ValueAdded";
         $http({
@@ -160,6 +159,38 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         return myArr.filter((obj, pos, arr) => {
             return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
         });
+    }
+
+   
+    $scope.GetData = function () {
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkReceiveBilling/GetJWReceiveBillingData'
+        }).then(function successCallback(response) {
+            $scope.masterList = response.data;
+          
+        });
+    }
+    $scope.GetData();
+
+    $scope.GetDetailData = function (masterId) {
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkReceiveBilling/GetJWReceiveBillingDetailData?masterId=' + masterId
+        }).then(function successCallback(response) {
+            $scope.JWPOList = response.data;
+
+        });
+    }
+
+    $scope.Get = function (obj) {
+        $scope.ModelNew = Object.assign({}, obj.data);
+        $scope.GetDetailData($scope.ModelNew.Id);
+        $scope.GetJWGRNDataChecking($scope.ModelNew.JWTransformationPurchaseOrderId);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
     }
 
     // #region checkbox all
@@ -191,19 +222,17 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
 
     // #endregion checkbox all
 
-
-    
-
-    $scope.Get = function (args) {
+    $scope.SetOutSourcePO = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.Transformation = Object.assign({}, args.data);
+        $scope.ModelNew.JWTransformationPurchaseOrderId = $scope.ModelNew.JWTransformationPurchaseOrderId;
         var PId = $scope.Transformation.Id;
         var TabType = $scope.Transformation.TabType;
         $scope.TabTypeNew = $scope.Transformation.TabType;
         $scope.ReceiptTransformation.TransformationContractId = $scope.Transformation.Id;
         if ($scope.ModelNew.TabType == "Transformation") {
-            $scope.GetJWGRNDataChecking($scope.ReceiptTransformation.TransformationContractId);
-            $scope.ShowJWPOPopUp($scope.ReceiptTransformation.TransformationContractId);
+            $scope.GetJWGRNDataChecking($scope.ModelNew.JWTransformationPurchaseOrderId);
+            $scope.ShowJWPOPopUp($scope.ModelNew.JWTransformationPurchaseOrderId);
         }
         else {
             $scope.GetReceiptVAChildData();
@@ -237,7 +266,6 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
             $scope.lst = response.data;
             //$scope.detailgrid($scope.lst);
             window.lst = response.data;
-
         });
     }
 
@@ -344,7 +372,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
                     method: 'POST',
                     url: 'JobWork/JobWorkReceiveBilling/Create',
                     data: {
-                        'data': $scope.JWPOList
+                        'master': $scope.ModelNew,'data': $scope.JWPOList
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
@@ -354,7 +382,8 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.ShowJWPOPopUp($scope.ReceiptTransformation.TransformationContractId);
+                        $scope.GetData();
+                        $scope.Clear();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
