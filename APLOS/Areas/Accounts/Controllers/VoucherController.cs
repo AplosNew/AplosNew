@@ -108,6 +108,10 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 if ((item.DrAmount + item.CrAmount == 0) || (item.DrAmount + item.CrAmount < 0))
                     throw new CustomException("Please input amount !");
+                if (string.IsNullOrEmpty(item.EntityId))
+                {
+                    item.EntityId = voucherVM.EntityId;
+                }
             }
             voucherVM.IsPark = true;
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _voucharService.InsertVoucher(voucherVM, voucherDetailVMList)) });

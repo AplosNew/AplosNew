@@ -201,7 +201,10 @@ namespace Library.Service.Enums
         [Description("Job Work Receipt ApproveBy")]
         JobWorkReceiptApproveBy,
 
-
+        [Description("Out Source CheckedBy")]
+        OutSourceCheckedBy,
+        [Description("Out Source ApproveBy")]
+        OutSourceApproveBy,
 
         [Description("Order Costing CheckedBy")]
         OrderCostingCheckedBy,

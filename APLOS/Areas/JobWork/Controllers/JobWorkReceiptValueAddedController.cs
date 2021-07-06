@@ -190,12 +190,13 @@ namespace Aplos.Areas.JobWork.Controllers
 			}
 			if (Type == "Transformation")
 			{
-				sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.VendorPartyId,tc.Remarks,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+				sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime]
+                                    ,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                     FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                     e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                                    from dbo.JobWorkTransformationContract tc left join ORG.Entity e on e.Id=tc.EntityId
-									left join HKP.Party p on p.Id=tc.VendorPartyId
-                                    WHERE " + strkey + " order by tc.Date desc";
+                                    from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
+									left join HKP.Party p on p.Id=tc.PartyId
+                                    WHERE " + strkey + " order by tc.PODate desc";
 			}
 
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -218,7 +219,7 @@ namespace Aplos.Areas.JobWork.Controllers
 			}
 			if (TabType == "Transformation")
 			{
-				sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.VendorPartyId,tc.Remarks,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+				sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                     FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                     e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
 									, P.Id InvoicingPartyPlantId
@@ -227,9 +228,9 @@ namespace Aplos.Areas.JobWork.Controllers
 									, P.Id DeliveryPartyPlantId
 									, DPP.UserName AS DeliveryBy
 									, Am.Address1 DeliveryByAddress
-                                    from dbo.JobWorkTransformationContract tc 
+                                    from dbo.JWTransformationPurchaseOrder tc 
 									left join ORG.Entity e on e.Id=tc.EntityId
-									left join HKP.Party p on p.Id=tc.VendorPartyId
+									left join HKP.Party p on p.Id=tc.PartyId
 									LEFT JOIN [HKP].[PartyPlant] AS IPP ON p.Id= IPP.PartyId
 									LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId= AM.Id
 									LEFT JOIN [SCS].[State] AS S1 ON AM.StateId= S1.Id
