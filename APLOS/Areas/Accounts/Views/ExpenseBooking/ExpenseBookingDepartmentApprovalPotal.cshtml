@@ -156,30 +156,31 @@
 				<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetApproved(2), active: isSetApproved(2) }">
 					<fieldset class="scheduler-border">
 						<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Approved Data</span></legend>
-						<div>
-							<div class="content-container-fluid" style="color:black;">
-								<div style="color:black;" id="BookingGridId2" ej-grid e-datasource="bookingApprovedList"
-									 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-									 e-recorddoubleclick="Get" e-filtersettings-filterType="excel"
-									 e-enabletouch="true" e-allowselection="true"
-									 e-scrollsettings="scroll">
-									<div e-columns>
-										<div e-column e-field="InvoiceNumber" e-headertext="Transaction Id" e-width="120"></div>
-										<div e-column e-field="BeneficiaryType" e-headertext="Beneficiary" e-width="50"></div>
-										<div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="60"></div>
-										<div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
-										<div e-column e-field="Amount" e-headertext="Amount" textAlign='Right' e-width="80"></div>
-										<div e-column e-field="ApprovalStatus" e-headertext="Status" e-width="60"></div>
-										<div e-column e-field="AddedByName" e-headertext="Prepared By" e-width="90"></div>
-										<div e-column e-field="ResponsiblePersonName" e-headertext="Checked By" e-width="90"></div>
-										@*<div e-column e-headertext="PDF" e-commands="PdfPrintApproved" e-isunbound=true e-textalign="center" e-width="50"></div>
-											<div e-column e-headertext="Excel" e-commands="ExcelPrintApproved" e-isunbound=true e-textalign="center" e-width="50"></div>*@
-									</div>
+                        <div>
+                            <div class="content-container-fluid" style="color:black;">
+                                <div style="color:black;" id="BookingGridId2" ej-grid e-datasource="bookingApprovedList"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                                     e-recorddoubleclick="Get" e-filtersettings-filterType="excel"
+                                     e-enabletouch="true" e-allowselection="true"
+                                     e-scrollsettings="scroll">
+                                    <div e-columns>
+                                        <div e-column e-field="InvoiceNumber" e-headertext="Transaction Id" e-width="120"></div>
+                                        <div e-column e-field="BeneficiaryType" e-headertext="Beneficiary" e-width="50"></div>
+                                        <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="60"></div>
+                                        <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                        <div e-column e-field="Amount" e-headertext="Amount" textAlign='Right' e-width="80"></div>
+                                        <div e-column e-field="ApprovalStatus" e-headertext="Status" e-width="60"></div>
+                                        <div e-column e-field="AddedByName" e-headertext="Prepared By" e-width="90"></div>
+                                        <div e-column e-field="ResponsiblePersonName" e-headertext="Checked By" e-width="90"></div>
+                                        @*<div e-column e-headertext="PDF" e-commands="PdfPrintApproved" e-isunbound=true e-textalign="center" e-width="50"></div>
+                    <div e-column e-headertext="Excel" e-commands="ExcelPrintApproved" e-isunbound=true e-textalign="center" e-width="50"></div>*@
+                                    </div>
 
-								</div>
+                                </div>
 
-							</div>
-						</div>
+                            </div>
+                            <i>**Showing top 1000   order by Entry Date Desc</i>
+                        </div>
 					</fieldset>
 				</div>
 				<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetApprovedHold(3), active: isSetApprovedHold(3) }">

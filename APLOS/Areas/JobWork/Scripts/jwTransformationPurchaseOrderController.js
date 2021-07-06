@@ -439,6 +439,15 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
     //#region Model
 
+    var d = new Date();
+    var hh = d.getHours();
+    var mm = d.getMinutes();
+    mm = (mm < 10 ? '0' + mm : mm);
+    var ss = d.getSeconds()
+
+    //   var _Time = hh + ":" + mm + ":" + ss;
+    var _Time = hh + ":" + mm;
+
     $scope.products = {
         Id: null
         , GRNDate: null
@@ -504,6 +513,15 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         , SystemFileName: null
         , Description: null
         , Remarks: null
+
+        ,Date: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+        Time: _Time,
+        EntityId: null,
+        ProcessStartDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+        ProcessEndDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+        ContractClosingDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+ //     Remarks: null,
+        ContractStatus: "Active",
     };
     $scope.productNew = Object.assign({}, $scope.products);
     $scope.product = Object.assign({}, $scope.products);
@@ -511,6 +529,21 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
     $scope.OrderSpecific = $scope.productNew.OrderSpecific;
 
+
+    // To get Entity plant wise
+
+    $scope.EntityList = [];
+    $scope.GetEntityPlantWise = function () {
+        var PLT = $window.plantId
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetAllEntity?PlantId=' + PLT
+        }).then(function successCallback(response) {
+            $scope.EntityList = response.data;
+
+        });
+    }
+    $scope.GetEntityPlantWise();
 
 
 
@@ -683,6 +716,12 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.productNew = x.data;
         $scope.Id = $scope.productNew.Id;
         $scope.productNew.PODate = x.data.PODate;
+
+        $scope.productNew.ProcessStartDate = x.data.TConProcessStartDate;
+        $scope.productNew.ProcessEndDate = x.data.TConProcessEndDate;
+        $scope.productNew.ContractClosingDate = x.data.TConContractClosingDate;
+        $scope.productNew.Time = x.data.TConTime;
+
         //$scope.getJwActivityId($scope.productNew.Id);
         $scope.getPoChilddata();
         $scope.detailModel.JWTransformationPurchaseOrderId = $scope.productNew.Id;
