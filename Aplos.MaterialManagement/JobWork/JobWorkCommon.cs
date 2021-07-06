@@ -2418,10 +2418,10 @@ namespace Library.MaterialManagement.JobWork
                 JWPurchaseOrderId = data[0]["JWTransformationPurchaseOrderId"].ToString();
             }
 
-            con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild where ArticleCodeId='" + data[0]["ArticleId"] + "' and MaterialMasterId='"+data[0]["MaterialMasterId"] + "' and JobWorkTransformationContractMasterId='" + data[0]["JWTransformationPurchaseOrderId"] + "' AND  Id<>'" + data[0]["Id"] + "' ", out dsMaster, false, "1");
+            con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild where JobActivityId='" + data[0]["JobActivityId"] + "' and JobWorkItemMasterId='" + data[0]["JobWorkItemMasterId"] + "' and ArticleCodeId='" + data[0]["ArticleId"] + "' and MaterialMasterId='"+data[0]["MaterialMasterId"] + "' and JobWorkTransformationContractMasterId='" + data[0]["JWTransformationPurchaseOrderId"] + "' AND  Id<>'" + data[0]["Id"] + "' ", out dsMaster, false, "1");
             if (dsMaster.Tables[0].Rows.Count > 0)
             {
-                throw new Exception("Same Material and Article already exist.");
+                throw new Exception("Same Activity, JW Output Item, Material and Article already exist.");
             }
 
             con.OpenDataSetThroughAdapter("SELECT * FROM JobWorkTransformationContractChild WHERE JobWorkTransformationContractMasterId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
