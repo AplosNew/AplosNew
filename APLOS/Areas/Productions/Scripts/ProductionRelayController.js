@@ -139,7 +139,7 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
 
                     if (angular.isUndefinedOrNull(response.data[i].EndDate) == false)
                         response.data[i].EndDate = new Date(response.data[i].EndDate);
-                    
+
 
                     if (angular.isUndefinedOrNull(response.data[i].PreviousProcessStartDate) == false)
                         response.data[i].PreviousProcessStartDate = new Date(response.data[i].PreviousProcessStartDate);
@@ -185,6 +185,35 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
 
         }
     }
+    $scope.rowDataBoundOrder = function rowDataBoundOrder(e) {
+        try {
+            if (angular.isUndefinedOrNull(e.data.PPRId) == true) return;
+
+            if (angular.isUndefinedOrNull(e.data.ClosedDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == false) {
+                e.row.css("background-color", "#6FEAFF");
+                return;
+            }
+
+            if (angular.isUndefinedOrNull(e.data.ClosedDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == true) {
+                e.row.css("background-color", "#FF502A");
+                return;
+            }
+
+            if (angular.isUndefinedOrNull(e.data.PreviousProcessStartDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == true) {
+                e.row.css("background-color", "#FFB42A");
+                return;
+            }
+
+            if (angular.isUndefinedOrNull(e.data.PreviousProcessStartDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == false) {
+                e.row.css("background-color", "#7EFF87");
+                return;
+            }
+
+        } catch (e) {
+
+        }
+    }
+
     $scope.ProductionRelayAllCheck = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
     };
@@ -193,16 +222,26 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
         }
-        for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
-            $scope.ProductionRelayList[i].Checked = ChkOrUnchk;
+
+        var filtered = $("#GridProductionRelay").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
+                $scope.ProductionRelayList[i].Checked = ChkOrUnchk;
+            }
         }
+        else {
+            for (var i = 0; i < filtered.length; i++) {
+                filtered[i].Checked = ChkOrUnchk;
+            }
+        }
+
 
         var gridObj = $("#GridProductionRelay").data("ejGrid");
         gridObj.refreshContent();
     };
     $scope.Save = function () {
         try {
-                      $scope.ActiveList = [];
+            $scope.ActiveList = [];
 
             for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
                 if ($scope.ProductionRelayList[i].Checked) {
@@ -225,6 +264,9 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
                     /*ClearFields(response.data.Sequence);*/
                     $scope.getProductionRelay();
                     /* $scope.GetDetails({ data: { Id: response.data.Data.Id } });*/
+
+
+
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -258,13 +300,13 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
 
                 $scope.ProductionRelayList[i].Remarks = $scope.SelectedProductionRelay.Remarks;
                 $scope.ProductionRelayList[i].Checked = true;
-                
+
                 break;
             }
         }
 
         var gridObjRunning = $("#GridProductionRelay").ejGrid("instance");
-       
+
 
         gridObjRunning.refreshContent(true);
         //gridObjRunning.refreshTemplate();
