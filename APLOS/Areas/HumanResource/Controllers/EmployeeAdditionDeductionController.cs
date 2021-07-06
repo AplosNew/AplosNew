@@ -1,8 +1,21 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
-using Library.HumanResource.ShiftChange;
+using Library.Core;
+using Library.Crosscutting.Security;
+using Library.Data;
+using Library.Data.Sql;
+using Library.HumanResource.Employee;
+using Library.Model.HumanResources;
+using Library.Service.Enums;
+using Library.Service.HumanResources;
+using Library.Service.Leave;
+using Library.Service.Logs;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Reflection;
+using System.Threading;
 using System.Web.Mvc;
 
 namespace Aplos.Areas.HumanResource.Controllers
@@ -26,8 +39,8 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #endregion -- Pages
 
-       [HttpPost, Authorize]
-       public ActionResult getPlants()
+        [HttpPost, Authorize]
+        public ActionResult getPlants()
         {
             return Json(ds.getPlants(), JsonRequestBehavior.AllowGet);
         }
@@ -38,7 +51,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(ds.getEmpType(), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult getDesignation(string empType)
         {
             return Json(ds.getDesignation(empType), JsonRequestBehavior.AllowGet);
@@ -63,6 +76,11 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult getEmploymentType()
+        {
+            return Json(ds.getEmploymentType(), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost,Authorize]
         public ActionResult getAdditionDeductionHead(string Type)
