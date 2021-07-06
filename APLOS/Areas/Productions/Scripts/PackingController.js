@@ -884,8 +884,8 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
     }
 
     $scope.summaryRows = [{
-        title: "Totals", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetWeight", dataMember: "NetWeight", format: "{0:N0}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GWeight", dataMember: "GWeight", format: "{0:N0}" }],
+        title: "Totals", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetWeight", dataMember: "NetWeight", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GWeight", dataMember: "GWeight", format: "{0:N2}" }],
         showCaptionSummary: true
 
     }];
@@ -1019,8 +1019,8 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
     }
 
     $scope.summaryRowsModal = [{
-        title: "Totals", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BookQty", dataMember: "BookQty", format: "{0:N0}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "PlanQty", dataMember: "PlanQty", format: "{0:N0}" }],
+        title: "Totals", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BookQty", dataMember: "BookQty", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "PlanQty", dataMember: "PlanQty", format: "{0:N2}" }],
         showCaptionSummary: true
 
     }];

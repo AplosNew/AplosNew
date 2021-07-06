@@ -950,7 +950,7 @@ namespace Library.Service.Expenses
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"SELECT top(1000) EI.DepartmentId, EB.*, C.Code AS CurrencyCode, EI.EmployeeCode, EI.EmployeeName, EBD.Amount, P.UserName AS PartyName
+                var sql = @"SELECT top(300) EI.DepartmentId, EB.*, C.Code AS CurrencyCode, EI.EmployeeCode, EI.EmployeeName, EBD.Amount, P.UserName AS PartyName
                                         , EIR.EmployeeName AS ResponsiblePersonName
                                         ,AddedByName= case when EIRA.EmployeeName<>'' then  EIRA.EmployeeName else '' end
                                         FROM [TRN].[ExpenseBooking] AS EB

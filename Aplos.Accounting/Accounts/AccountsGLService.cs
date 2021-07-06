@@ -230,7 +230,7 @@ namespace Library.Accounting.Accounts
 										LEFT OUTER JOIN [MST].[BudgetMaster] AS BM ON BA.BudgetMasterId=BM.Id
 										LEFT OUTER JOIN HKP.Budget AS B ON BM.BudgetId = B.Id
 									) AS A ON A.BudgetMasterId=BU.BudgetMasterId
-                                    WHERE glcg.CompanyGroupId='" + companyGroupId + @"' AND GLCI.CompanyId='" + companyId + @"' AND ACT.Id in ('" + AccountType + @"','Asset','Liability') AND GLGI.Active = 1 AND GLGI.Archive = 0
+                                    WHERE glcg.CompanyGroupId='" + companyGroupId + @"' AND GLCI.CompanyId='" + companyId + @"' AND GLGI.IsPostingAutomaticOnly=0 AND ACT.Id in ('" + AccountType + @"','Asset','Liability') AND GLGI.Active = 1 AND GLGI.Archive = 0
                                     AND GLGI.Id NOT IN(SELECT BM.GLGeneralInfoId FROM [MST].[BankMaster] AS BM  WHERE BM.GLGeneralInfoId <> '')
                                     AND GLGI.Id NOT IN(SELECT CM.GLGeneralInfoId FROM [MST].[CashMaster] AS CM  WHERE CM.GLGeneralInfoId <> '') 
                                     AND  GLGI.Id NOT IN (SELECT GLAT.GLGeneralInfoId FROM [HKP].[GLAccountType] as GLAT WHERE GLAT.GLGeneralInfoId<>'')";
