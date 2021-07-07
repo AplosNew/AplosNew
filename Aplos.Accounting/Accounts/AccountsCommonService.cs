@@ -715,5 +715,15 @@ namespace Library.Accounting.Accounts
             }
         }
 
+
+        #region getVoucherDataList
+        public List<Dictionary<string, object>> getVoucherDataList(string companyGroupId, string companyId, string plantId, string voucherNo)
+        {
+            var sql = @"select * from trn.Voucher where VoucherNo='"+voucherNo+"' and CompanyGroupId='" + companyGroupId + "' and CompanyId='" + companyId + "' and PlantId='" + plantId + @"'";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
+
+        #endregion getVoucherDataList
     }
 }

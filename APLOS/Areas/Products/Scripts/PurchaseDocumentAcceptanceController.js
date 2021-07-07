@@ -769,10 +769,10 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                                 ShowResult(response.data.Message, 'success');
                                 $scope.PurchaseDocAcceptance.Id = response.data.entity.Id;
                                 $scope.gridAcceptanceList();
-                                $scope.setTabAcceptenceList(1);
+                               // $scope.setTabAcceptenceList(1);
                                 $scope.Action = 'Update';
-                                //$scope.seletedLST = [];
-                                //$scope.GridListPO = [];
+                                $scope.seletedLST = [];
+                                $scope.GridListPO = [];
 
                                 $scope.getRecordDoubleClickDetail($scope.PurchaseDocAcceptance.Id);
 
@@ -825,7 +825,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                                 ShowResult(response.data.Message, 'success');
                                 $scope.PurchaseDocAcceptance.Id = response.data.entity.Id;
                                 $scope.gridAcceptanceList();
-                                $scope.setTabAcceptenceList(1);
+                                //$scope.setTabAcceptenceList(1);
 
 
                                 $scope.getRecordDoubleClickDetail($scope.PurchaseDocAcceptance.Id);
@@ -875,7 +875,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                                 ShowResult(response.data.Message, 'success');
                                 $scope.PurchaseDocAcceptance.Id = response.data.entity.Id;
                                 $scope.gridAcceptanceList();
-                                $scope.setTabAcceptenceList(1);
+                                //$scope.setTabAcceptenceList(1);
                                 $scope.Action = 'Update';
                                 $scope.seletedLST = [];
                                 $scope.GridListPO = [];
@@ -1930,10 +1930,11 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.inventoryMaterialListPO = [];
         $scope.acceptanceTaxList = [];
         $scope.gridAcceptanceList();
-        $scope.setTabAcceptenceList(1);
+        //$scope.setTabAcceptenceList(1);
         $scope.TaxAction = 'Save';
         $scope.productNew.AcceptanceFirst = null;
         $scope.ServicePODetailList = [];
+        $scope.SavedServicePODetailList = [];
     }
     $scope.productNew = {
         FixedAssetOrInventory: 'Inventory'
@@ -2821,10 +2822,10 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                             ShowResult(response.data.Message, 'success');
                             $scope.PurchaseDocAcceptance.Id = response.data.entity.Id;
                             $scope.gridAcceptanceList();
-                            $scope.setTabAcceptenceList(1);
+                            //$scope.setTabAcceptenceList(1);
                             $scope.Action = 'Update';
-                            //$scope.seletedLST = [];
-                            //$scope.GridListPO = [];
+                            $scope.seletedLST = [];
+                            $scope.GridListPO = [];
 
                             $scope.getRecordDoubleClickDetail($scope.PurchaseDocAcceptance.Id);
                             angular.element(document.querySelector('#ListOfServicePODetail')).modal('hide');

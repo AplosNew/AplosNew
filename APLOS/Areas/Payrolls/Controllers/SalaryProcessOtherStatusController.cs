@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 #endregion Using
@@ -45,452 +46,393 @@ namespace Aplos.Areas.Payrolls.Controllers
             return View();
         }
 
-        //[AllowAnonymous]
-        //public JsonResult GetCbo()
-        //{
-        //    return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpPost,Authorize]
-        //public ActionResult GetList(string column, string value)
-        //{
-        //    string strkey = "1=1";
-        //    if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-        //        strkey = column + " like '%" + value + "%'";
-
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
-            
-        //    return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetAutoSequence()
-        //{
-        //    return Json(GetSequence(), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpPost]
-        //public JsonResult Create(Dictionary<string, object> data)
-        //{
-        //    try
-        //    {
-        //        DataSet dsMaster;
-        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-        //        con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-        //        if (dsMaster.Tables[0].Rows.Count > 0)
-        //            throw new Exception("Same code already exists!!!");
-
-        //        con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-        //        if (dsMaster.Tables[0].Rows.Count > 0)
-        //            throw new Exception("Same user name already exists!!!");
-
-
-
-
-        //        con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-        //        string _Id = "";
-
-
-
-
-        //        #region data update
-        //        if (dsMaster.Tables[0].Rows.Count == 0)
-        //        {
-        //            bplib.clsGenID genid = new bplib.clsGenID();
-        //            genid.GenID(TableName, out _Id);
-
-        //            data["Id"] = "TC" + _Id;
-        //            AddNewRow(dsMaster.Tables[0], data);
-        //        }
-        //        else
-        //        {
-        //            _Id = data["Id"].ToString();
-        //            EditRow(dsMaster.Tables[0].Rows[0], data);
-        //        }
-        //        #endregion data update
-
-
-        //        clsStaticInfo _info = new clsStaticInfo();
-        //        _info.SaveDataSets(dsMaster);
-
-
-        //        return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Updated });
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return Json(new { Error = true, Message = ex.Message });
-
-        //    }
-        //}
 
         [HttpPost]
-        public JsonResult ProcessSalarySep(string FromDate, string ToDate, string pDescription, string[] eList)
+        public async Task<JsonResult> ProcessSalarySep(string FromDate, string ToDate, string pDescription, string[] eList)
         {
-            string _currencyId = "";
-            //string _EmpCount = "0";
-            clsSalaryProcessQuery objQ = null;
-            DataSet dsGrid = null;
-            clsSalaryInfo objSal = null;
-            DataSet dsCurrency = null;
-            try
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Library.General.Setups.ProcessLock _lock = new Library.General.Setups.ProcessLock(identity.Name, Library.General.Setups.ProcessLockId.SalaryProcess, "", 60);
+            _lock.LockProcess();
+
+            return await Task.Factory.StartNew(() =>
             {
-                objQ = new clsSalaryProcessQuery();
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                FunctionPara para = new FunctionPara();
-                objSal = new clsSalaryInfo();
-
-                if (string.IsNullOrEmpty(pDescription))
+                string _currencyId = "";
+                //string _EmpCount = "0";
+                clsSalaryProcessQuery objQ = null;
+                DataSet dsGrid = null;
+                clsSalaryInfo objSal = null;
+                DataSet dsCurrency = null;
+                try
                 {
-                    throw new Exception("'Description' can not be blank...");
-                }
-                DateValidation(FromDate, ToDate);                
+                    objQ = new clsSalaryProcessQuery();
+                    FunctionPara para = new FunctionPara();
+                    objSal = new clsSalaryInfo();
 
-                objSal.GetLocalCurrency(identity.CompanyGroupId, identity.PlantId, out dsCurrency);
-                if (dsCurrency.Tables[0].Rows.Count > 0)
-                {
-                    //lblLocalCurrency.Text = "" + dsLocal.Tables[0].Rows[0]["Currency"].ToString().Trim();
-                    _currencyId = "" + dsCurrency.Tables[0].Rows[0]["LocalCurrency"].ToString().Trim();
-                }
-                else
-                {
-                    throw new Exception("No currency found...");
-                }
-
-
-
-                string _emps = string.Empty;
-                foreach (var item in eList)
-                {
-                    if (_emps.Length == 0)
+                    if (string.IsNullOrEmpty(pDescription))
                     {
-                        _emps = "'" + item + "'";
+                        throw new Exception("'Description' can not be blank...");
+                    }
+                    DateValidation(FromDate, ToDate);
+
+                    objSal.GetLocalCurrency(identity.CompanyGroupId, identity.PlantId, out dsCurrency);
+                    if (dsCurrency.Tables[0].Rows.Count > 0)
+                    {
+                        //lblLocalCurrency.Text = "" + dsLocal.Tables[0].Rows[0]["Currency"].ToString().Trim();
+                        _currencyId = "" + dsCurrency.Tables[0].Rows[0]["LocalCurrency"].ToString().Trim();
                     }
                     else
                     {
-                        _emps += ", '" + item + "'";
+                        throw new Exception("No currency found...");
                     }
-                }
-                if (_emps.Length == 0)
-                {
-                    throw new Exception("No employee is selected...");
-                }
-
-                #region SALARY LOCK Current Month
-                clsSalaryProcessUI objel = new clsSalaryProcessUI();
-                string _yearno = Convert.ToDateTime(FromDate).ToString("yyyy");
-                string _monthno = Convert.ToDateTime(FromDate).ToString("MM");
-                objel.ValidationSalaryLock(_emps, _yearno, _monthno);
-                #endregion
-
-                #region SALARY LOCK Prev Month
-                //clsSalaryProcessUI objel = new clsSalaryProcessUI();
-                string dtFD = Convert.ToDateTime(FromDate).AddMonths(-1).ToString("dd-MMM-yyyy");
-                string _yearnoP = Convert.ToDateTime(dtFD).ToString("yyyy");
-                string _monthnoP = Convert.ToDateTime(dtFD).ToString("MM");
-                objel.ValidationSalaryLockPreviousMonth(_emps, _yearnoP, _monthnoP);
-                #endregion
-
-                #region allowance
-                //try
-                //{
-                //    DateTime fd = Convert.ToDateTime(FromDate);
-                //    DateTime td = Convert.ToDateTime(ToDate);
-                //    clsDailyAllowance odailyAllowance = new clsDailyAllowance();                    
-                //    odailyAllowance.UpdateDailyAllowanceSummaryData(identity, fd.ToString("dd-MMM-yyyy"), td.ToString("dd-MMM-yyyy"), _emps);
-                //}
-                //catch (Exception ex)
-                //{
-                //    throw new Exception("Allowance issue: " + ex.Message);
-                //}
-                #endregion
-
-                #region Advance
-                //try
-                //{
-                //    DateTime fd = Convert.ToDateTime(FromDate);
-                //    DateTime td = Convert.ToDateTime(ToDate);
-                //    clsAdvanceProcess oAdvProc = new clsAdvanceProcess();
-                //    oAdvProc.ProcessEmployeeAdvance(identity, fd.ToString("dd-MMM-yyyy"), td.ToString("dd-MMM-yyyy"), _emps);
-                //}
-                //catch (Exception ex)
-                //{
-                //    throw new Exception("Allowance issue: " + ex.Message);
-                //}
-                #endregion
 
 
 
-                #region Daily/Monthly
-                //try
-                //{
-                //    DateTime fd = Convert.ToDateTime(FromDate);
-                //    DateTime td = Convert.ToDateTime(ToDate);
-                //    //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                //    SalaryHeadWiseAmountTransaction o = new SalaryHeadWiseAmountTransaction();
-                //    o.SalaryHeadWiseAmountCalculation(identity, fd.ToString("dd-MMM-yyyy"), td.ToString("dd-MMM-yyyy"), _emps);
-                //}
-                //catch (Exception ex)
-                //{
-                //    throw new Exception("Salary-Head-Wise-Amount issue: " + ex.Message);
-                //}
-                #endregion
+                    string _emps = string.Empty;
+                    foreach (var item in eList)
+                    {
+                        if (_emps.Length == 0)
+                        {
+                            _emps = "'" + item + "'";
+                        }
+                        else
+                        {
+                            _emps += ", '" + item + "'";
+                        }
+                    }
+                    if (_emps.Length == 0)
+                    {
+                        throw new Exception("No employee is selected...");
+                    }
 
-                #region MonthlyFixedService
-                try
-                {
-                    //DateTime fd = Convert.ToDateTime(FromDate);
-                    //DateTime td = Convert.ToDateTime(ToDate);
-                    ////var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                    //SalaryHeadWiseFixedService o = new SalaryHeadWiseFixedService();
-                    //o.SalaryHeadWiseMonthlyFixedAmountCalculation(identity, fd.ToString("dd-MMM-yyyy"), td.ToString("dd-MMM-yyyy"), _emps);
+                    #region SALARY LOCK Current Month
+                    clsSalaryProcessUI objel = new clsSalaryProcessUI();
+                    string _yearno = Convert.ToDateTime(FromDate).ToString("yyyy");
+                    string _monthno = Convert.ToDateTime(FromDate).ToString("MM");
+                    objel.ValidationSalaryLock(_emps, _yearno, _monthno);
+                    #endregion
+
+                    #region SALARY LOCK Prev Month
+                    //clsSalaryProcessUI objel = new clsSalaryProcessUI();
+                    string dtFD = Convert.ToDateTime(FromDate).AddMonths(-1).ToString("dd-MMM-yyyy");
+                    string _yearnoP = Convert.ToDateTime(dtFD).ToString("yyyy");
+                    string _monthnoP = Convert.ToDateTime(dtFD).ToString("MM");
+                    objel.ValidationSalaryLockPreviousMonth(_emps, _yearnoP, _monthnoP);
+                    #endregion
+
+                    #region allowance
+                    //try
+                    //{
+                    //    DateTime fd = Convert.ToDateTime(FromDate);
+                    //    DateTime td = Convert.ToDateTime(ToDate);
+                    //    clsDailyAllowance odailyAllowance = new clsDailyAllowance();                    
+                    //    odailyAllowance.UpdateDailyAllowanceSummaryData(identity, fd.ToString("dd-MMM-yyyy"), td.ToString("dd-MMM-yyyy"), _emps);
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    throw new Exception("Allowance issue: " + ex.Message);
+                    //}
+                    #endregion
+
+                    #region Advance
+                    //try
+                    //{
+                    //    DateTime fd = Convert.ToDateTime(FromDate);
+                    //    DateTime td = Convert.ToDateTime(ToDate);
+                    //    clsAdvanceProcess oAdvProc = new clsAdvanceProcess();
+                    //    oAdvProc.ProcessEmployeeAdvance(identity, fd.ToString("dd-MMM-yyyy"), td.ToString("dd-MMM-yyyy"), _emps);
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    throw new Exception("Allowance issue: " + ex.Message);
+                    //}
+                    #endregion
+
+
+
+                    #region Daily/Monthly
+                    //try
+                    //{
+                    //    DateTime fd = Convert.ToDateTime(FromDate);
+                    //    DateTime td = Convert.ToDateTime(ToDate);
+                    //    //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    //    SalaryHeadWiseAmountTransaction o = new SalaryHeadWiseAmountTransaction();
+                    //    o.SalaryHeadWiseAmountCalculation(identity, fd.ToString("dd-MMM-yyyy"), td.ToString("dd-MMM-yyyy"), _emps);
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    throw new Exception("Salary-Head-Wise-Amount issue: " + ex.Message);
+                    //}
+                    #endregion
+
+                    #region MonthlyFixedService
+                    try
+                    {
+                        //DateTime fd = Convert.ToDateTime(FromDate);
+                        //DateTime td = Convert.ToDateTime(ToDate);
+                        ////var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                        //SalaryHeadWiseFixedService o = new SalaryHeadWiseFixedService();
+                        //o.SalaryHeadWiseMonthlyFixedAmountCalculation(identity, fd.ToString("dd-MMM-yyyy"), td.ToString("dd-MMM-yyyy"), _emps);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception("Monthly Fixed Service issue: " + ex.Message);
+                    }
+                    #endregion MonthlyFixedService
+
+                    // ValidationBank(_emps);
+                    ValidationAttendance(_emps, identity.PlantId, FromDate, ToDate);
+
+
+                    //string _flag = GetFlag();
+                    ///GetDataSet(_flag, out dsGrid);//get ds from db
+                    ///para.dsGrid = dsGrid;
+                    //objQ.GetEmpList(eList, FromDate, ToDate, identity.PlantId, out dsGrid);
+                    objQ.GetEmpListSepa(eList, FromDate, ToDate, identity.PlantId, out dsGrid);
+
+                    para.dsGrid = dsGrid;
+                    para.FromDate = FromDate;
+                    para.ToDate = ToDate;
+                    para.GroupId = identity.CompanyGroupId;
+                    para.PlantId = identity.PlantId;
+
+                    para.USER = identity.UserId;
+                    para.txtForeignCurRate = "1";
+                    para.lblLocalCurRate = "1";
+                    para.lblLocalCurrencyID = _currencyId;
+                    para.lblForeignCurrencyID = _currencyId;
+                    para.lblUseFrgCurID = _currencyId;
+
+
+                    //para.lblTaxYearID = lblTaxYearID.Text;
+                    //para.lblTaxPeriod = lblTaxPeriod.Text;
+
+                    para.txtDescription = pDescription;
+                    //para.lblSalaryProcSystemId = lblSalaryProcSystemId.Text;
+                    //para.lblSalaryProcId = lblSalaryProcId.Text;
+                    para.lblEmpCount = eList.Length.ToString();
+                    para.IsSeparated = true;
+
+                    para.ParaclsAdvanceProcess = (IclsAdvanceProcess)new clsAdvanceProcess();
+                    para.ParaSalaryHeadWiseAmountTransaction = (ISalaryHeadWiseAmountTransaction)new SalaryHeadWiseAmountTransaction();
+                    para.ParaSalaryHeadWiseFixedService = (ISalaryHeadWiseFixedService)new SalaryHeadWiseFixedService();
+                    para.ParaSalaryHeadWiseDailyService = (ISalaryHeadWiseDailyService)new SalaryHeadWiseDailyService();
+
+                    clsSalaryProcessAplosR obj = new clsSalaryProcessAplosR();
+                    FunctionPara m = obj.SalaryProcess(para);
+                    objQ.DeleteExceptionEmpsForSalaryProcess(_emps, para.PlantId, Convert.ToDateTime(FromDate).ToString("yyyy"), Convert.ToDateTime(FromDate).ToString("MM"));
+
+                    //log
+                    #region Save Log TBD
+                    clsSalaryProcessLog spl = new clsSalaryProcessLog();
+                    ParaLog paralog = new ParaLog();
+                    paralog.CompanyGroupId = para.GroupId;
+                    paralog.UserId = para.USER;
+                    paralog.PlantId = para.PlantId;
+                    paralog.SalaryProcessId = m.lblSalaryProcSystemId;
+
+                    //paralog.ActiveEmp = allds.dtActive;
+                    //paralog.NewlyJoinedEmp = allds.dtNewlyJoined;
+                    //paralog.PresentDaysZero = allds.dtPresetZero;
+
+                    //paralog.SalaryStructureNotDefined = allds.dtSND;
+                    //paralog.ssna = allds.dtSNA;
+                    //paralog.ApprovedSalary = allds.dtApprovedSalary;
+                    //paralog.DifferentStatus = allds.dtDifferentStatus;
+                    //paralog.SeparatedEmp = allds.dtSeparated;
+                    //paralog.AttNotLocked = allds.dtAttNotProcessed;
+                    paralog.SeparatedEmp = dsGrid.Tables[0].ToList<ActiveEmp>();
+
+                    paralog.YearNo = Convert.ToDateTime(para.FromDate).Year;
+                    paralog.MonthNo = Convert.ToDateTime(para.ToDate).Month;
+                    spl.SaveSalaryLogSeparated(paralog);
+                    #endregion
+
+                    _lock.UnlockProcess();
+                    JsonResult json = Json(new { Error = false, Message = AplosMessage.Success });
+                    json.MaxJsonLength = int.MaxValue;
+                    return json;
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("Monthly Fixed Service issue: " + ex.Message);
+                    _lock.UnlockProcess();
+                    return Json(new { Error = true, Message = ex.Message });
                 }
-                #endregion MonthlyFixedService
-
-                // ValidationBank(_emps);
-                ValidationAttendance(_emps, identity.PlantId, FromDate, ToDate);
-
-
-                //string _flag = GetFlag();
-                ///GetDataSet(_flag, out dsGrid);//get ds from db
-                ///para.dsGrid = dsGrid;
-                //objQ.GetEmpList(eList, FromDate, ToDate, identity.PlantId, out dsGrid);
-                objQ.GetEmpListSepa(eList, FromDate, ToDate, identity.PlantId, out dsGrid);
-
-                para.dsGrid = dsGrid;
-                para.FromDate = FromDate;
-                para.ToDate = ToDate;
-                para.GroupId = identity.CompanyGroupId;
-                para.PlantId = identity.PlantId;
-
-                para.USER = identity.UserId;
-                para.txtForeignCurRate = "1";
-                para.lblLocalCurRate = "1";
-                para.lblLocalCurrencyID = _currencyId;
-                para.lblForeignCurrencyID = _currencyId;
-                para.lblUseFrgCurID = _currencyId;
-
-
-                //para.lblTaxYearID = lblTaxYearID.Text;
-                //para.lblTaxPeriod = lblTaxPeriod.Text;
-
-                para.txtDescription = pDescription;
-                //para.lblSalaryProcSystemId = lblSalaryProcSystemId.Text;
-                //para.lblSalaryProcId = lblSalaryProcId.Text;
-                para.lblEmpCount = eList.Length.ToString();
-                para.IsSeparated = true;
-
-                para.ParaclsAdvanceProcess = (IclsAdvanceProcess)new clsAdvanceProcess();
-                para.ParaSalaryHeadWiseAmountTransaction = (ISalaryHeadWiseAmountTransaction)new SalaryHeadWiseAmountTransaction();
-                para.ParaSalaryHeadWiseFixedService = (ISalaryHeadWiseFixedService)new SalaryHeadWiseFixedService();
-                para.ParaSalaryHeadWiseDailyService = (ISalaryHeadWiseDailyService)new SalaryHeadWiseDailyService();
-
-                clsSalaryProcessAplosR obj = new clsSalaryProcessAplosR();
-                FunctionPara m = obj.SalaryProcess(para);
-                objQ.DeleteExceptionEmpsForSalaryProcess(_emps, para.PlantId, Convert.ToDateTime(FromDate).ToString("yyyy"), Convert.ToDateTime(FromDate).ToString("MM"));
-
-                //log
-                #region Save Log TBD
-                clsSalaryProcessLog spl = new clsSalaryProcessLog();
-                ParaLog paralog = new ParaLog();
-                paralog.CompanyGroupId = para.GroupId;
-                paralog.UserId = para.USER;
-                paralog.PlantId = para.PlantId;
-                paralog.SalaryProcessId = m.lblSalaryProcSystemId;
-
-                //paralog.ActiveEmp = allds.dtActive;
-                //paralog.NewlyJoinedEmp = allds.dtNewlyJoined;
-                //paralog.PresentDaysZero = allds.dtPresetZero;
-
-                //paralog.SalaryStructureNotDefined = allds.dtSND;
-                //paralog.ssna = allds.dtSNA;
-                //paralog.ApprovedSalary = allds.dtApprovedSalary;
-                //paralog.DifferentStatus = allds.dtDifferentStatus;
-                //paralog.SeparatedEmp = allds.dtSeparated;
-                //paralog.AttNotLocked = allds.dtAttNotProcessed;
-                paralog.SeparatedEmp = dsGrid.Tables[0].ToList<ActiveEmp>();
-
-                paralog.YearNo = Convert.ToDateTime(para.FromDate).Year;
-                paralog.MonthNo = Convert.ToDateTime(para.ToDate).Month;
-                spl.SaveSalaryLogSeparated(paralog);
-                #endregion
-
-                return Json(new { Error = false, Message = AplosMessage.Success });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
+            });
         }
-        [HttpPost, Authorize]
-        public JsonResult ProcessSalaryMLV(string FromDate, string ToDate, string pDescription, string[] eList)
+        [HttpPost]
+        public async Task<JsonResult> ProcessSalaryMLV(string FromDate, string ToDate, string pDescription, string[] eList)
         {
-           
-            string _currencyId = "";
-            //string _EmpCount = "0";
-            clsSalaryProcessQuery objQ = null;
-            DataSet dsGrid = null;
-            clsSalaryInfo objSal = null;
-            DataSet dsCurrency = null;
-            try
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Library.General.Setups.ProcessLock _lock = new Library.General.Setups.ProcessLock(identity.Name, Library.General.Setups.ProcessLockId.SalaryProcess, "", 60);
+            _lock.LockProcess();
+
+
+            return await Task.Factory.StartNew(() =>
             {
-                if (string.IsNullOrEmpty(pDescription))
+                string _currencyId = "";
+                //string _EmpCount = "0";
+                clsSalaryProcessQuery objQ = null;
+                DataSet dsGrid = null;
+                clsSalaryInfo objSal = null;
+                DataSet dsCurrency = null;
+                try
                 {
-                    throw new Exception("'Description' can not be blank...");
-                }
-                objQ = new clsSalaryProcessQuery();
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                FunctionPara para = new FunctionPara();
-
-                objSal = new clsSalaryInfo();
-
-                DateValidation(FromDate, ToDate);
-
-                objSal.GetLocalCurrency(identity.CompanyGroupId, identity.PlantId, out dsCurrency);
-                if (dsCurrency.Tables[0].Rows.Count > 0)
-                {
-                    //lblLocalCurrency.Text = "" + dsLocal.Tables[0].Rows[0]["Currency"].ToString().Trim();
-                    _currencyId = "" + dsCurrency.Tables[0].Rows[0]["LocalCurrency"].ToString().Trim();
-                }
-                else
-                {
-                    throw new Exception("No currency found...");
-                }
-
-                if (pDescription.Length == 0)
-                {
-                    throw new Exception("'Description' can not be blank...");
-                }
-
-                string _emps = string.Empty;
-                foreach (var item in eList)
-                {
-                    if (_emps.Length == 0)
+                    if (string.IsNullOrEmpty(pDescription))
                     {
-                        _emps = "'" + item + "'";
+                        throw new Exception("'Description' can not be blank...");
+                    }
+                    objQ = new clsSalaryProcessQuery();
+                    FunctionPara para = new FunctionPara();
+
+                    objSal = new clsSalaryInfo();
+
+                    DateValidation(FromDate, ToDate);
+
+                    objSal.GetLocalCurrency(identity.CompanyGroupId, identity.PlantId, out dsCurrency);
+                    if (dsCurrency.Tables[0].Rows.Count > 0)
+                    {
+                        //lblLocalCurrency.Text = "" + dsLocal.Tables[0].Rows[0]["Currency"].ToString().Trim();
+                        _currencyId = "" + dsCurrency.Tables[0].Rows[0]["LocalCurrency"].ToString().Trim();
                     }
                     else
                     {
-                        _emps += ", '" + item + "'";
+                        throw new Exception("No currency found...");
                     }
-                }
-                if (_emps.Length == 0)
-                {
-                    _emps = "''";
-                }
 
-                #region SALARY LOCK
-                clsSalaryProcessUI objel = new clsSalaryProcessUI();
-                string _yearno = Convert.ToDateTime(FromDate).ToString("yyyy");
-                string _monthno = Convert.ToDateTime(FromDate).ToString("MM");
-                objel.ValidationSalaryLock(_emps, _yearno, _monthno);
-                #endregion
+                    if (pDescription.Length == 0)
+                    {
+                        throw new Exception("'Description' can not be blank...");
+                    }
 
-             
+                    string _emps = string.Empty;
+                    foreach (var item in eList)
+                    {
+                        if (_emps.Length == 0)
+                        {
+                            _emps = "'" + item + "'";
+                        }
+                        else
+                        {
+                            _emps += ", '" + item + "'";
+                        }
+                    }
+                    if (_emps.Length == 0)
+                    {
+                        _emps = "''";
+                    }
 
-                #region SALARY LOCK Prev Month
-                //clsSalaryProcessUI objel = new clsSalaryProcessUI();
-                string dtFD = Convert.ToDateTime(FromDate).AddMonths(-1).ToString("dd-MMM-yyyy");
-                string _yearnoP = Convert.ToDateTime(dtFD).ToString("yyyy");
-                string _monthnoP = Convert.ToDateTime(dtFD).ToString("MM");
-                objel.ValidationSalaryLockPreviousMonth(_emps, _yearnoP, _monthnoP);
-                #endregion
+                    #region SALARY LOCK
+                    clsSalaryProcessUI objel = new clsSalaryProcessUI();
+                    string _yearno = Convert.ToDateTime(FromDate).ToString("yyyy");
+                    string _monthno = Convert.ToDateTime(FromDate).ToString("MM");
+                    objel.ValidationSalaryLock(_emps, _yearno, _monthno);
+                    #endregion
 
-                #region allowance
-                try
-                {
-                    //DateTime fd = Convert.ToDateTime(FromDate);
-                    //DateTime td = Convert.ToDateTime(ToDate);
-                    //clsDailyAllowance odailyAllowance = new clsDailyAllowance();
-                    //odailyAllowance.UpdateDailyAllowanceSummaryData(identity, fd.ToString("dd-MMM-yyyy"), td.ToString("dd-MMM-yyyy"), _emps);
+
+
+                    #region SALARY LOCK Prev Month
+                    //clsSalaryProcessUI objel = new clsSalaryProcessUI();
+                    string dtFD = Convert.ToDateTime(FromDate).AddMonths(-1).ToString("dd-MMM-yyyy");
+                    string _yearnoP = Convert.ToDateTime(dtFD).ToString("yyyy");
+                    string _monthnoP = Convert.ToDateTime(dtFD).ToString("MM");
+                    objel.ValidationSalaryLockPreviousMonth(_emps, _yearnoP, _monthnoP);
+                    #endregion
+
+                    #region allowance
+                    try
+                    {
+                        //DateTime fd = Convert.ToDateTime(FromDate);
+                        //DateTime td = Convert.ToDateTime(ToDate);
+                        //clsDailyAllowance odailyAllowance = new clsDailyAllowance();
+                        //odailyAllowance.UpdateDailyAllowanceSummaryData(identity, fd.ToString("dd-MMM-yyyy"), td.ToString("dd-MMM-yyyy"), _emps);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception("Allowance issue: " + ex.Message);
+                    }
+                    #endregion
+                    // ValidationBank(_emps);
+                    ValidationAttendance(_emps, identity.PlantId, FromDate, ToDate);
+
+                    //string _flag = GetFlag();
+                    ///GetDataSet(_flag, out dsGrid);//get ds from db
+                    ///para.dsGrid = dsGrid;
+                    //objQ.GetEmpList(eList, FromDate, ToDate, identity.PlantId, out dsGrid); 
+                    objQ.GetEmpList_MLV_Going(eList, FromDate, ToDate, identity.PlantId, out dsGrid);
+
+                    para.dsGrid = dsGrid;
+                    para.FromDate = FromDate;
+                    para.ToDate = ToDate;
+                    para.GroupId = identity.CompanyGroupId;
+                    para.PlantId = identity.PlantId;
+
+                    para.USER = identity.UserId;
+                    para.txtForeignCurRate = "1";
+                    para.lblLocalCurRate = "1";
+                    para.lblLocalCurrencyID = _currencyId;
+                    para.lblForeignCurrencyID = _currencyId;
+                    para.lblUseFrgCurID = _currencyId;
+
+
+                    //para.lblTaxYearID = lblTaxYearID.Text;
+                    //para.lblTaxPeriod = lblTaxPeriod.Text;
+
+                    para.txtDescription = pDescription;
+                    //para.lblSalaryProcSystemId = lblSalaryProcSystemId.Text;
+                    //para.lblSalaryProcId = lblSalaryProcId.Text;
+                    para.lblEmpCount = eList.Length.ToString();
+                    para.IsMaternity = true;
+
+                    para.ParaclsAdvanceProcess = (IclsAdvanceProcess)new clsAdvanceProcess();
+                    para.ParaSalaryHeadWiseAmountTransaction = (ISalaryHeadWiseAmountTransaction)new SalaryHeadWiseAmountTransaction();
+                    para.ParaSalaryHeadWiseFixedService = (ISalaryHeadWiseFixedService)new SalaryHeadWiseFixedService();
+                    para.ParaSalaryHeadWiseDailyService = (ISalaryHeadWiseDailyService)new SalaryHeadWiseDailyService();
+
+                    clsSalaryProcessAplosR obj = new clsSalaryProcessAplosR();
+                    FunctionPara m = obj.SalaryProcess(para);
+                    objQ.DeleteExceptionEmpsForSalaryProcess(_emps, para.PlantId, Convert.ToDateTime(FromDate).ToString("yyyy"), Convert.ToDateTime(FromDate).ToString("MM"));
+
+                    //log
+                    #region Save Log TBD
+                    clsSalaryProcessLog spl = new clsSalaryProcessLog();
+                    ParaLog paralog = new ParaLog();
+                    paralog.CompanyGroupId = para.GroupId;
+                    paralog.UserId = para.USER;
+                    paralog.PlantId = para.PlantId;
+                    paralog.SalaryProcessId = m.lblSalaryProcSystemId;
+
+                    //paralog.ActiveEmp = allds.dtActive;
+                    //paralog.NewlyJoinedEmp = allds.dtNewlyJoined;
+                    //paralog.PresentDaysZero = allds.dtPresetZero;
+
+                    //paralog.SalaryStructureNotDefined = allds.dtSND;
+                    //paralog.ssna = allds.dtSNA;
+                    //paralog.ApprovedSalary = allds.dtApprovedSalary;
+                    //paralog.DifferentStatus = allds.dtDifferentStatus;
+                    //paralog.SeparatedEmp = allds.dtSeparated;
+                    //paralog.AttNotLocked = allds.dtAttNotProcessed;
+                    paralog.MaternityGoing = dsGrid.Tables[0].ToList<MaternityRetun>();
+
+                    paralog.YearNo = Convert.ToDateTime(para.FromDate).Year;
+                    paralog.MonthNo = Convert.ToDateTime(para.ToDate).Month;
+                    spl.SaveSalaryLogMLVGoing(paralog);
+                    #endregion
+
+                    _lock.UnlockProcess();
+                    JsonResult json = Json(new { Error = false, Message = AplosMessage.Success });
+                    json.MaxJsonLength = int.MaxValue;
+                    return json;
+                    //return Json(new { Error = false, Message = AplosMessage.Success });
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("Allowance issue: " + ex.Message);
+                    _lock.UnlockProcess();
+                    return Json(new { Error = true, Message = ex.Message });
                 }
-                #endregion
-                // ValidationBank(_emps);
-                ValidationAttendance(_emps, identity.PlantId, FromDate, ToDate);
-
-                //string _flag = GetFlag();
-                ///GetDataSet(_flag, out dsGrid);//get ds from db
-                ///para.dsGrid = dsGrid;
-                //objQ.GetEmpList(eList, FromDate, ToDate, identity.PlantId, out dsGrid); 
-                objQ.GetEmpList_MLV_Going(eList, FromDate, ToDate, identity.PlantId, out dsGrid);
-
-                para.dsGrid = dsGrid;
-                para.FromDate = FromDate;
-                para.ToDate = ToDate;
-                para.GroupId = identity.CompanyGroupId;
-                para.PlantId = identity.PlantId;
-
-                para.USER = identity.UserId;
-                para.txtForeignCurRate = "1";
-                para.lblLocalCurRate = "1";
-                para.lblLocalCurrencyID = _currencyId;
-                para.lblForeignCurrencyID = _currencyId;
-                para.lblUseFrgCurID = _currencyId;
-
-
-                //para.lblTaxYearID = lblTaxYearID.Text;
-                //para.lblTaxPeriod = lblTaxPeriod.Text;
-
-                para.txtDescription = pDescription;
-                //para.lblSalaryProcSystemId = lblSalaryProcSystemId.Text;
-                //para.lblSalaryProcId = lblSalaryProcId.Text;
-                para.lblEmpCount = eList.Length.ToString();
-                para.IsMaternity = true;
-
-                para.ParaclsAdvanceProcess = (IclsAdvanceProcess)new clsAdvanceProcess();
-                para.ParaSalaryHeadWiseAmountTransaction = (ISalaryHeadWiseAmountTransaction)new SalaryHeadWiseAmountTransaction();
-                para.ParaSalaryHeadWiseFixedService = (ISalaryHeadWiseFixedService)new SalaryHeadWiseFixedService();
-                para.ParaSalaryHeadWiseDailyService = (ISalaryHeadWiseDailyService)new SalaryHeadWiseDailyService();
-
-                clsSalaryProcessAplosR obj = new clsSalaryProcessAplosR();
-                FunctionPara m = obj.SalaryProcess(para);
-                objQ.DeleteExceptionEmpsForSalaryProcess(_emps, para.PlantId, Convert.ToDateTime(FromDate).ToString("yyyy"), Convert.ToDateTime(FromDate).ToString("MM"));
-
-                //log
-                #region Save Log TBD
-                clsSalaryProcessLog spl = new clsSalaryProcessLog();
-                ParaLog paralog = new ParaLog();
-                paralog.CompanyGroupId = para.GroupId;
-                paralog.UserId = para.USER;
-                paralog.PlantId = para.PlantId;
-                paralog.SalaryProcessId = m.lblSalaryProcSystemId;
-
-                //paralog.ActiveEmp = allds.dtActive;
-                //paralog.NewlyJoinedEmp = allds.dtNewlyJoined;
-                //paralog.PresentDaysZero = allds.dtPresetZero;
-
-                //paralog.SalaryStructureNotDefined = allds.dtSND;
-                //paralog.ssna = allds.dtSNA;
-                //paralog.ApprovedSalary = allds.dtApprovedSalary;
-                //paralog.DifferentStatus = allds.dtDifferentStatus;
-                //paralog.SeparatedEmp = allds.dtSeparated;
-                //paralog.AttNotLocked = allds.dtAttNotProcessed;
-                paralog.MaternityGoing = dsGrid.Tables[0].ToList<MaternityRetun>();
-
-                paralog.YearNo = Convert.ToDateTime(para.FromDate).Year;
-                paralog.MonthNo = Convert.ToDateTime(para.ToDate).Month;
-                spl.SaveSalaryLogMLVGoing(paralog);
-                #endregion
-
-                return Json(new { Error = false, Message = AplosMessage.Success });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
+            });
         }
-   
+
         void ValidationAttendance(string emplist, string plantid, string fromdate, string todate)
         {
             clsEmployeeLoad objel = null;
@@ -593,7 +535,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 throw ex;
             }
         }
-        
+
 
         [HttpPost, Authorize]
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
@@ -648,15 +590,6 @@ namespace Aplos.Areas.Payrolls.Controllers
 
             dr.EndEdit();
         }
-        //[HttpPost, Authorize]
-        //private double GetSequence()
-        //{
-        //    DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName);
-        //    if (dt.Rows.Count > 0)
-        //        return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-        //    return 1;
-        //}
 
 
         #region SP
@@ -671,12 +604,12 @@ namespace Aplos.Areas.Payrolls.Controllers
                 DateValidation(FromDate, ToDate);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 SalaryProcessDic d = new SalaryProcessDic(_sqlRepository);
-                return Json(new { data = d.GetSeparatedEmpInfo(FromDate, ToDate, identity.PlantId),Error=false }, JsonRequestBehavior.AllowGet);
+                return Json(new { data = d.GetSeparatedEmpInfo(FromDate, ToDate, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)
             {
-                return Json(new { Message = ex.Message,Error=true }, JsonRequestBehavior.AllowGet);
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
             }
         }
         [HttpPost, Authorize]
@@ -690,7 +623,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 //DateValidation(FromDate, ToDate);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 SalaryProcessDic d = new SalaryProcessDic(_sqlRepository);
-                return Json(new {data= d.GetSeparatedEmpPresentZeroInfo(FromDate, ToDate, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+                return Json(new { data = d.GetSeparatedEmpPresentZeroInfo(FromDate, ToDate, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)

@@ -1,5 +1,6 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
+using Library.Accounting.Accounts;
 using Library.Accounting.FixedAssets;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -52,58 +53,58 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult GetEntityFixedAssetRegisterDataList()
+        public ActionResult getVoucherDataList( string voucherNo)
         {
-            FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new { DATA = fixedAssetQueryService.GetEntityFixedAssetRegisterDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(new { DATA = accountsCommonService.getVoucherDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,voucherNo), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
-        public JsonResult Create(string entityId, string departmentId, IEnumerable<FixedAssetRegister> entityFixedAssetList)
-        {
-            var flag = false;
+        //[HttpPost]
+        //public JsonResult Create(string entityId, string departmentId, IEnumerable<FixedAssetRegister> entityFixedAssetList)
+        //{
+        //    var flag = false;
 
-            try
-            {
-                string entityFixedAssetList1 = "";
+        //    try
+        //    {
+        //        string entityFixedAssetList1 = "";
 
-                foreach (var item in entityFixedAssetList)
-                {
-                    if (string.IsNullOrEmpty(entityFixedAssetList1))
-                    {
-                        entityFixedAssetList1 += "'','" + item.Id+"'";
-                    }
-                    else
-                    {
-                        entityFixedAssetList1 += ",'" + item.Id + "'";
-                    }
+        //        foreach (var item in entityFixedAssetList)
+        //        {
+        //            if (string.IsNullOrEmpty(entityFixedAssetList1))
+        //            {
+        //                entityFixedAssetList1 += "'','" + item.Id+"'";
+        //            }
+        //            else
+        //            {
+        //                entityFixedAssetList1 += ",'" + item.Id + "'";
+        //            }
 
-                }
-                _unitOfWork.BeginTransaction();
-                flag = true;
-                var vendorAdWr = new System.Text.StringBuilder();
-                var vendorAdWrsql = "";
-                
-                    vendorAdWrsql = @"update  TRN.FixedAssetRegister set EntityId='"+ entityId + "',DepartmentId='"+ departmentId + @"' where Id in ("+ entityFixedAssetList1 + @")";
-                    vendorAdWr.Append(vendorAdWrsql);
-                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
-                _unitOfWork.SaveChanges();
-                flag = false;
-                _unitOfWork.Commit();
+        //        }
+        //        _unitOfWork.BeginTransaction();
+        //        flag = true;
+        //        var vendorAdWr = new System.Text.StringBuilder();
+        //        var vendorAdWrsql = "";
+
+        //            vendorAdWrsql = @"update  TRN.FixedAssetRegister set EntityId='"+ entityId + "',DepartmentId='"+ departmentId + @"' where Id in ("+ entityFixedAssetList1 + @")";
+        //            vendorAdWr.Append(vendorAdWrsql);
+        //        _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+        //        _unitOfWork.SaveChanges();
+        //        flag = false;
+        //        _unitOfWork.Commit();
 
 
 
-                return Json(new { Error = false, Message = AplosMessage.Updated });
+        //        return Json(new { Error = false, Message = AplosMessage.Updated });
 
-            }
-            catch (Exception ex)
-            {
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                return Json(new { Error = true, Message = ex.Message });
+        //        return Json(new { Error = true, Message = ex.Message });
 
-            }
-        }
+        //    }
+        //}
 
 
 

@@ -55,7 +55,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             //});
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetEmpList(string FromDate, string ToDate)
         {
 

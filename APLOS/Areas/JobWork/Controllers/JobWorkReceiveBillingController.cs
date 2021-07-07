@@ -146,11 +146,13 @@ namespace Aplos.Areas.JobWork.Controllers
                 string sql = @"SELECT RB.*,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate
 			                ,FORMAT(tc.[Time],'hh:mm tt')[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
 			                FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-			                e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
+			                e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,tc.CurrencyId,CU.Code Currency
 			                from [dbo].[JWReceiveBilling] RB
 			                LEFT JOIN [dbo].[JWTransformationPurchaseOrder] tc ON tc.Id=RB.JWTransformationPurchaseOrderId
 			                LEFT JOIN ORG.Entity e on e.Id=tc.EntityId
-			                LEFT JOIN HKP.Party p on p.Id=tc.PartyId Where RB.PlantId='" + identity.PlantId + "'";
+			                LEFT JOIN HKP.Party p on p.Id=tc.PartyId
+                            LEFT JOIN [SCS].[Currency] AS CU ON tc.CurrencyId=CU.Id 
+                            Where RB.PlantId='" + identity.PlantId + "'";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
@@ -284,8 +286,7 @@ namespace Aplos.Areas.JobWork.Controllers
             }
             catch (Exception ex)
             {
-
-                throw;
+                throw ex;
             }
         }
 

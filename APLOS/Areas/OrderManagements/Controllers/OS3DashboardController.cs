@@ -68,6 +68,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             return Json(os3.getClickData(parameters, group, col , range , analysis, type), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost, Authorize]
+        public ActionResult getControlList(string pr)
+        {
+            return Json(os3.getControlList(pr), JsonRequestBehavior.AllowGet);
+        }
     }
 
 }
