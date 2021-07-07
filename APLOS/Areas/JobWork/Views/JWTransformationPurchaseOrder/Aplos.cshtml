@@ -54,13 +54,25 @@
                                  e-detailstemplate="detailTemp"
                                  e-detailsdatabound="detailgrid">
                                 <div e-columns>
-                                    <div e-column e-headertext="Actions" e-width="60">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
+                                    <div e-column e-headertext="Actions" e-width="100">
+                                        <ul class="list-inline text-center">
+                                            <li>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab('Grid');" style="margin: -6px;"></i></button>
+                                            </li>
+                                        </ul>
+                                        @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>*@
                                     </div>
                                     <div e-column e-field="PartyName" e-headertext="Vendor" e-width="250"></div>
                                     <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="150"></div>
                                     <div e-column e-field="Id" e-headertext="PO No" e-width="150"></div>
                                     <div e-column e-field="PODate" e-headertext="PO Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                    <div e-column e-field="TConTime" e-headertext="Time" e-width="150"></div>
+                                    <div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
+                                    <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
+                                    <div e-column e-field="TConProcessStartDate" e-headertext="Process Start Date" e-width="150"></div>
+                                    <div e-column e-field="TConProcessEndDate" e-headertext="Process End Date" e-width="150"></div>
+                                    <div e-column e-field="TConContractClosingDate" e-headertext="Contract Closing Date" e-width="150"></div>
                                     <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="170"></div>
                                     <div e-column e-field="ContractNo" e-headertext="Contact Number" e-width="170"></div>
                                     <div e-column e-field="Customer" e-headertext="Customer" e-width="170"></div>
