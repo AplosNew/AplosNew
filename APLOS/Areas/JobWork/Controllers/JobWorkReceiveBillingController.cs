@@ -67,28 +67,16 @@ namespace Aplos.Areas.JobWork.Controllers
 
             try
             {
-                //             sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.VendorPartyId,vac.Remarks,FORMAT(vac.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime]
-                //,FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-                //FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-                //e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                //from dbo.JobWorkValueAddedContract vac left join ORG.Entity e on e.Id=vac.EntityId
-                //left join HKP.Party p on p.Id=vac.VendorPartyId
-
-                //union
-                //select tc.Id,TabType='Transformation', tc.EntityId,tc.VendorPartyId,tc.Remarks,FORMAT(tc.Date,'dd-MMM-yyyy') as ValueAddedDate
-                //,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-                //FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-                //e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                //from dbo.JobWorkTransformationContract tc left join ORG.Entity e on e.Id=tc.EntityId
-                //left join HKP.Party p on p.Id=tc.VendorPartyId";
 
                 sql = @"SELECT '' Id,tc.Id JWTransformationPurchaseOrderId,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate
-			,FORMAT(tc.[Time],'hh:mm tt')[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-			FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-			e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-			from [dbo].[JWTransformationPurchaseOrder] tc
-			left join ORG.Entity e on e.Id=tc.EntityId
-			left join HKP.Party p on p.Id=tc.PartyId";
+			            ,FORMAT(tc.[Time],'hh:mm tt')[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+			            FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
+			            e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,tc.CurrencyId,CU.Code Currency
+			            from [dbo].[JWTransformationPurchaseOrder] tc
+			            left join ORG.Entity e on e.Id=tc.EntityId
+			            left join HKP.Party p on p.Id=tc.PartyId
+			            LEFT JOIN [SCS].[Currency] AS CU ON tc.CurrencyId=CU.Id
+                        WHERE tc.PlantId='" + identity .PlantId+ "'";
 
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
@@ -198,7 +186,8 @@ namespace Aplos.Areas.JobWork.Controllers
                             LEFT JOIN HKP.CharacteristicsValue AS TCV ON CTC.ThirdCharacteristicsValueId = TCV.Id
                             LEFT JOIN (select SUM(TransactionQty) TransactionQty,JWTCMId,MaterialTranRate from TRN.InventoryReceiveDetail GROUP BY JWTCMId,MaterialTranRate) IRD ON IRD.JWTCMId=CTC.JobWorkTransformationContractMasterId
                             LEFT JOIN (Select JWTransformationContractChildId,SUM(BillingQty) BillingQty from dbo.JWReceiveBillingDetail GROUP BY JWTransformationContractChildId) B ON B.JWTransformationContractChildId=CTC.Id
-                            WHERE  CTC.JobWorkTransformationContractMasterId ='" + contractId + "'";
+                            LEFT JOIN TRN.InventoryReceiveDetail GRND ON GRND.JWTCMId=CTC.JobWorkTransformationContractMasterId
+                            WHERE  CTC.JobWorkTransformationContractMasterId ='" + contractId + "' AND GRND.MaterialFor='JWOUTPUTMaterial'";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
@@ -243,7 +232,7 @@ namespace Aplos.Areas.JobWork.Controllers
             {
                 string _Id = "";
                 string masterId = "";
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.JWReceiveBilling Where Id='"+ master["Id"] + "'", out dsMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.JWReceiveBilling Where Id='" + master["Id"] + "'", out dsMaster, false, "1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.JWReceiveBillingDetail Where JWReceiveBillingId='" + master["Id"] + "'", out dsBills, false, "1");
 
                 if (master != null)
@@ -344,6 +333,48 @@ namespace Aplos.Areas.JobWork.Controllers
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
+
+        [HttpPost]
+        public JsonResult Delete(string id)
+        {
+            DeleteData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        public void DeleteData(string Id)
+        {
+            string strSQL, strCSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strCSQL = "DELETE FROM [dbo].[JWReceiveBillingDetail] WHERE JWReceiveBillingId='" + Id + "'";
+                strSQL = "DELETE FROM [dbo].[JWReceiveBilling] WHERE Id = '" + Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strCSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
 
         #endregion
 
