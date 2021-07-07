@@ -16716,6 +16716,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									,IR.CheckedBy
 									,MRD.MaterialDetail
                                     ,C.Id,C.UserName CountryName,IRD.GrossAmount,IRD.DiscountAmount,MOI.MasterOrderId MasterOrderNo,IRD.MaterialFor
+								    ,MaterialBy=CASE WHEN IRD.MaterialFor='JWOUTPUTMaterial' THEN 'OutPut' WHEN IRD.MaterialFor='JWBYPRODUCTMaterial' THEN 'By Product' END
 								FROM TRN.InventoryMaterial AS IM
 								LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
 								LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
@@ -16806,6 +16807,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									,IR.CheckedBy
 									,MRD.MaterialDetail
 	                                ,C.Id,C.UserName CountryName,IRD.GrossAmount,IRD.DiscountAmount,MOI.MasterOrderId MasterOrderNo,IRD.MaterialFor
+									,MaterialBy=CASE WHEN IRD.MaterialFor='JWOUTPUTMaterial' THEN 'OutPut' WHEN IRD.MaterialFor='JWBYPRODUCTMaterial' THEN 'By Product' END
 								FROM TRN.InventoryMaterial AS IM
 								LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
 								LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
