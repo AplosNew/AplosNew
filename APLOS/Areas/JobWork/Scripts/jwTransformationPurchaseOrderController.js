@@ -284,21 +284,25 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.NotificationSetting = response.data;
-            $scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
-            $scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
-            $scope.GetCheckedByAndApprovedBy1();
-            if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
-                $scope.productNew.labelCheckAndApproved = 'To be checked by';
+            if ($scope.NotificationSetting.length > 0) {
+                $scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
+                $scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
+                $scope.GetCheckedByAndApprovedBy1();
+                if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
+                    $scope.productNew.labelCheckAndApproved = 'To be checked by';
+                }
+                else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true) {
+                    $scope.productNew.labelCheckAndApproved = 'To be approved by';
+                }
+                else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
+                    $scope.productNew.labelCheckAndApproved = 'To be checked by';
+                }
             }
-            else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true) {
-                $scope.productNew.labelCheckAndApproved = 'To be approved by';
-            }
-            else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
-                $scope.productNew.labelCheckAndApproved = 'To be checked by';
-            }
+           
         });
     };
     $scope.NotificationSettingStatus();
+    $scope.checkedByList = [];
     $scope.GetCheckedByAndApprovedBy1 = function () {
         //debugger;
 

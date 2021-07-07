@@ -149,7 +149,7 @@ namespace Library.MaterialManagement.JobWork
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
-						WHERE  IR.PlantId='202026' AND IR.POType='PO'  --IR.AddedBy='Shashank' And
+						WHERE  IR.PlantId='202026' AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
                         --AND IR.CheckedBy IS NOT NULL 
 						AND IR.CheckedByStatus='Pending' 
 						AND isnull(IR.IsClosed,0)=0 
@@ -229,7 +229,7 @@ namespace Library.MaterialManagement.JobWork
 						Where IR.Id not in(Select distinct POId from trn.InventoryReceiveDetail where POId is not null)--and RequisitionId='110232'
 						AND IR.CheckedByStatus IS NULL 
 						AND IR.AuthorizedByStatus IS NULL						
-						 And IR.PlantId='202026' AND IR.POType='PO'--AND IR.AddedBy='Shashank'
+						 And IR.PlantId='202026' AND IR.POType='OSTransformationPO'--AND IR.AddedBy='Shashank'
 
                         AND isnull(IR.IsClosed,0)=0 
 						--Order by IR.PODate DESC
@@ -306,7 +306,7 @@ namespace Library.MaterialManagement.JobWork
 						left join ORG.Entity E on E.Id=IR.EntityId
 						Where IR.CheckedByStatus is null				
 						AND IR.AuthorizedByStatus='For Approval'						
-						And IR.PlantId='202026' AND IR.POType='PO'	--AND IR.AddedBy='Shashank'	
+						And IR.PlantId='202026' AND IR.POType='OSTransformationPO'	--AND IR.AddedBy='Shashank'	
                         AND isnull(IR.IsClosed,0)=0 
 						) x
 						Order by PODate DESC";
@@ -376,7 +376,7 @@ namespace Library.MaterialManagement.JobWork
 		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-                        WHERE  IR.PlantId='" + plantId + @"' AND IR.CheckedBy IS NOT NULL AND IR.AuthorizedBy IS NOT NULL AND IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.POType='PO' AND IR.PlantId='" + plantId + "'   AND isnull(IR.IsClosed,0)=0 Order by IR.PODate DESC";//IR.AddedBy='" + identity.Name + "' And
+                        WHERE  IR.PlantId='" + plantId + @"' AND IR.CheckedBy IS NOT NULL AND IR.AuthorizedBy IS NOT NULL AND IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.POType='OSTransformationPO' AND IR.PlantId='" + plantId + "'   AND isnull(IR.IsClosed,0)=0 Order by IR.PODate DESC";//IR.AddedBy='" + identity.Name + "' And
 
                 }
                 else if (POTypeStatus == "Checked")
@@ -451,7 +451,7 @@ namespace Library.MaterialManagement.JobWork
                          AND IR.AuthorizedBy IS NOT NULL  
                          AND IR.CheckedByStatus='Checked' 
                          AND IR.AuthorizedByStatus='For Approval'  
-                         AND IR.POType='PO'  		
+                         AND IR.POType='OSTransformationPO'  		
                          AND ISNULL(IR.IsClosed,0)=0 Order by IR.PODate DESC";
 
 
