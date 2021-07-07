@@ -507,8 +507,8 @@ namespace Library.Planning.OrderManagement
                                 DateDiff(Day,"+Dtype+@", " + DDate + @") as EarlyOrLateBy , prt.Username as customers , e.UserName as Entity , emp.EmployeeName as MResp,
                                 ps.UserName as POStatus, so.OrderStatusId as OrderStatusId,
                                 ee.EmployeeName as EResp ,  format((case when so.PlanExFactoryDate is null then so.CommitmentDate else PlanExFactoryDate end) , 'dd-MMM-yyyy') as DDate,
-                                po.Id as PRNo , mo.Id as OrderNo , moi.Id as ItemNo, rem.Remarks , prod.MainRMInHouse, prod.OtherRMInHouse,
-                                prod.MainRMShipment,prod.OtherRMShipment,prod.BaseProcessInput, 
+                                po.Id as PRNo , mo.Id as OrderNo , moi.Id as ItemNo, rem.Remarks ,
+                               
                                 mo.BuyerReferenceNo,mo.BuyerId,mo.OwnReferenceNo,moi.BuyerReferenceNo as IBuyerReferenceNo,moi.OwnReferenceNo as IOwnReferenceNo,b.UserName as Buyer
                                from trn.MasterOrder mo 
 								left join hkp.orderstatus os on os.Id = mo.OrderStatusId
@@ -534,20 +534,36 @@ namespace Library.Planning.OrderManagement
                                 where oc.SalesOrderId is not null
                                 group by oc.SalesOrderId
 								) as rem on rem.SalesOrderId = so.Id
-                                left join (
-                                Select oc.ProductionOrderId,(Case When oct.ControlType ='MainRMInHouse' then oc.Status end) as MainRMInHouse , 
-                                (Case When oct.ControlType ='OtherRMInHouse' then oc.Status end) as OtherRMInHouse , 
-                                (Case When oct.ControlType ='MainRMShipment' then oc.Status end) as MainRMShipment , 
-                                (Case When oct.ControlType ='OtherRMShipment' then oc.Status end) as OtherRMShipment ,
-                                (Case When oct.ControlType ='BaseProcessInput' then oc.Status end) as BaseProcessInput
-                                from 
-                                dbo.OrderControl oc
-                                left join dbo.OrderControlTypes oct on oct.Id = oc.ControlTypeId
-                                where oc.ProductionOrderId is not null) as prod on prod.ProductionOrderId = po.Id
+                                
 								where os.id<> 'Closed' and os.Id <>'Cancelled' and so.OrderStatusId not in ('Closed','Cancelled')
                                 " + filter+@" "+diffCols+@") da 
                                 "+ filRange + " "+timing+"";
                 
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getControlList(string pr)
+        {
+            try
+            {
+                var str = @"Select oc.ProductionOrderId,format(oc.AddedDate,'dd-MMM-yyyy') as DateAdded,(Case When oct.ControlType ='MainRMInHouse' then oc.Status end) as MainRMInHouse , 
+                                (Case When oct.ControlType ='OtherRMInHouse' then oc.Status end) as OtherRMInHouse , 
+                                (Case When oct.ControlType ='MainRMShipment' then oc.Status end) as MainRMShipment , 
+                                (Case When oct.ControlType ='OtherRMShipment' then oc.Status end) as OtherRMShipment ,
+                                (Case When oct.ControlType ='BaseProcessInput' then oc.Status end) as BaseProcessInput,
+                                ocr.Remarks 
+                                from 
+                                dbo.OrderControl oc
+                                left join dbo.OrderControlTypes oct on oct.Id = oc.ControlTypeId
+                                left join dbo.OrderControlRemarks ocr on ocr.OrderControlId = oc.Id
+                                where oc.ProductionOrderId is not null and oc.ProductionOrderId ='" + pr+@"'
+								order by oc.AddedDate desc
+								";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch(Exception e)
