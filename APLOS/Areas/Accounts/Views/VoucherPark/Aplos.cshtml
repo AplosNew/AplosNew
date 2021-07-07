@@ -1,143 +1,241 @@
 ﻿
 <h3 class="site-heading">Voucher Park Mode</h3>
 
-<div class="form-elements form-horizontal" ng-form="form0">
+
+
+@*<togglable name="Customer Invoice"></togglable>*@
+<div class="form-horizontal form-elements" ng-form id="form1" name="form1">
 
 
 
-    <div class="row">
+    <div class="col-md-12 col-sm-4 col-md-4">
 
-        <div class="table-responsive modal-table aplos-grid-toggle">
-            <div class="content-container-fluid" style="color:black;overflow:scroll">
-                <div style="color:black;" id="GridEntityFixedAssetRegister" ej-grid e-datasource="EntityFixedAssetRegisterList" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplateEntityandDepartment"
-                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
-                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
-                    <div e-columns>
-                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkEntityAndDepartment" e-textalign="center" e-width="30"></div>
-                        @*<div e-column e-field="NoOfInvoice" e-template="#hLink" e-headertext="No Of Invoice" e-width="40"></div>*@
-
-                        @*<td class="text-right">
-                              <ul class="list-inline action-list">
-                                  <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
-                              </ul>
-                            </td>*@
-
-                        <div e-column e-field="AssetNo" e-headertext="Asset No" e-width="80"></div>
-
-                        <div e-column e-type="text" e-field="Entity" @*e-template="#entityId"*@ e-headertext="Entity" e-width="150" style="height: 20px;"></div>
-                        <div e-column e-type="text" e-field="Department" @*e-template="#departmentId"*@ e-headertext="Department" e-width="150" style="height: 20px;"></div>
-                        <div e-column e-field="InvoiceNo" e-headertext="Invoice No" e-width="80"></div>
-                        @*<div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="30"></div>*@
-                        <div e-column e-type="text" e-field="MaterialMasterName" e-headertext=" Material Master" e-width="90" e-textalign="right" style="height: 20px;"></div>
-                        <div e-column e-type="text" e-field="Article" e-headertext="Article" e-width="90" e-textalign="right" style="height: 20px;"></div>
-
-                        <div e-column e-type="text" e-field="FixedAssetMasterName" e-headertext="Fixed Asset Master" e-width="90" e-textalign="right" style="height: 20px;"></div>
-                        <div e-column e-type="text" e-field="FixedAssetCategory" e-headertext="Fixed Asset Category" e-width="90" e-textalign="right" style="height: 20px;"></div>
-                        <div e-column e-type="text" e-field="FixedAssetSubCategory" e-headertext="Fixed Asset Sub Category" e-width="90" e-textalign="right" style="height: 20px;"></div>
-                        <div e-column e-type="text" e-field="AssetType" e-headertext="Asset Type" e-width="50" e-textalign="right" style="height: 20px;"></div>
-                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="FABaseAmount" e-headertext="FA Base Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SubAssetAmount" e-headertext="Sub Asset Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ADBaseAmount" e-headertext="AD Base Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NetFixedAssetsAmount" e-headertext="Net Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                        <div e-column e-type="text" e-field="IsFinancial" e-headertext="Financial" e-width="60" e-textalign="right" style="height: 20px;"></div>
-
-                        <div e-column e-type="text" e-field="SerialNo" e-headertext="Serial No" e-width="60" e-textalign="right"></div>
-
-
-
-                    </div>
-                </div>
-
-                @*<script type="text/template" id="hLink">
-                        <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
-                    </script>*@
-
-                <script type="text/template" id="checkEntityAndDepartment">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
-                </script>
-
-                <script type="text/x-jsrender" id="headerTemplate">
-                    <input type="checkbox" id="headchk" />
-                </script>
-
-
-                @*<script type="text/template" id="checkMasterLC">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
-                    </script>
-                    <script type="text/x-jsrender" id="headerTemplate">
-                        <input type="checkbox" id="headchk" />
-                    </script>*@
-
-
-
-                @*<script type="text/template" id="entityId">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="data.EntityId" name="entity">
-                                <option value="">--Select--</option>
-                                <option ng-repeat="option in $parent.entityList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
-                        </div>
-                    </script>
-
-                    <script type="text/template" id="departmentId">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="data.DepartmentId" name="department">
-                                <option value="">--Select--</option>
-                                <option ng-repeat="option in $parent.departmentList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
-                        </div>
-                    </script>*@
-
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Voucher No<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" ng-maxlength="50" name="Doc Ref" ng-model="voucher.VoucherNo" class="form-control" tabindex="4" required capitalize autocomplete="off">
             </div>
         </div>
 
-        @*<div class="common-btn">
-                <ul class="list-inline text-left">
-                    <li><button ng-click="InvoiceSummaryReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Summary</button></li>
-                </ul>
-            </div>*@
-
     </div>
-
-
-    <div id="div_entity" class="form-group" show-errors>
-        <label class="col-sm-1 control-label">Entity<sup>*</sup></label>
-        <div class="col-sm-4 show-message">
-            <div class="select-style">
-                <select id="entityId" class="form-control" name="entity" ng-model="fixedAsset.EntityId" tabindex="6" required @*ng-change="changeEntityForBankCash(fixedAsset.EntityId);"*@>
-                    <option value="">--Select--</option>
-                    <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
-                </select>
-            </div>
+    <div class="col-md-12 col-sm-2 col-md-2">
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li><button ng-click="getVoucherData();" title="Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+            </ul>
         </div>
     </div>
 
-
-    <div id="div_entity" class="form-group" show-errors>
-        <label class="col-sm-1 control-label">Department<sup>*</sup></label>
-        <div class="col-sm-4 show-message">
-            <div class="select-style">
-                <select id="departmentId" class="form-control" name="department" ng-model="fixedAsset.DepartmentId" tabindex="6" required @*ng-change="changeEntityForBankCash(fixedAsset.DepartmentId);"*@>
-                    <option value="">--Select--</option>
-                    <option ng-repeat="option in departmentList" value="{{option.Value}}">{{option.Text}}</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <div class="common-btn">
-        <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
-        </ul>
-    </div>
+    <div class="clearfix"></div>
 
 </div>
 
 
+@*<div class="col-xs-12 col-sm-2 col-md-2">
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="getTrialBalanceData();" title="Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+        </ul>
+    </div>
+</div>*@
 
-    
+<div class="clearfix"></div>
+<div class="aplos-grid-toggle">
+
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>VoucherNo</th>
+                    <th>Source Type</th>
+
+                    @*<th>@Library.Model.Parties.PartyType.Customer.ToString()</th>
+                    <th>Bill To Address</th>
+                    <th>Posting Date</th>
+                    <th>Currency</th>
+                    <th>Amount</th>
+                    <th>Set-off Amount</th>
+                    <th>Balance</th>*@
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in VoucherDataList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getById(x.Id);">
+                    <td>{{x.VoucherNo}}</td>
+                    <td>{{x.SourceType}}</td>
+                    @*<td>{{x.PartyCode}} - {{x.PartyName}}</td>
+                    <td>{{x.PartyPlantName}}</td>
+                    <td>{{x.PostingDate | dateFiltering}}</td>
+                    <td>{{x.CurrencyCode}}</td>
+                    <td class="text-right">{{x.Amount | number:2}}</td>
+                    <td class="text-right">{{x.WrittenOffAmount | number:2}}</td>
+                    <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:2}}</td>*@
+                    <td>{{x.IsPark?'Parked':'Posted'}}</td>
+                    <td class="text-right">
+                        <ul class="list-inline action-list">
+                            <li ng-show="x.IsPosted || x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                            <li ng-show="x.OtherIsPark"><a ng-click="ShowJournalPopUp(x);" href="" class="btn btn-action tooltip-here">Subsidy Post</a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+
+                            @*<li><a class="btn btn-action" href="Accounts/Invoice/GetCustomerInvoiceVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/Invoice/GetCustomerInvoiceVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>*@
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getVoucherData(newPageNumber)"></dir-pagination-controls>
+    </div>
+</div>
+@*@Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")*@
+
+
+
+
+<confirm-archive-generic modalid="confirmTaxCodeDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeTaxCodeRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(invoiceId,voucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(invoiceId)"></confirm-archive-generic>
+
+
+
+
+
+
+@*<div class="form-elements form-horizontal" ng-form="form0">
+
+        <div class="row">
+
+            <div class="table-responsive modal-table aplos-grid-toggle">
+                <div class="content-container-fluid" style="color:black;overflow:scroll">
+                    <div style="color:black;" id="GridEntityFixedAssetRegister" ej-grid e-datasource="EntityFixedAssetRegisterList" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplateEntityandDepartment"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+                        <div e-columns>
+                            <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkEntityAndDepartment" e-textalign="center" e-width="30"></div>
+                            <div e-column e-field="NoOfInvoice" e-template="#hLink" e-headertext="No Of Invoice" e-width="40"></div>
+
+                            <td class="text-right">
+                                  <ul class="list-inline action-list">
+                                      <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
+                                  </ul>
+                                </td>
+
+                            <div e-column e-field="AssetNo" e-headertext="Asset No" e-width="80"></div>
+
+                            <div e-column e-type="text" e-field="Entity" e-template="#entityId" e-headertext="Entity" e-width="150" style="height: 20px;"></div>
+                            <div e-column e-type="text" e-field="Department" e-template="#departmentId" e-headertext="Department" e-width="150" style="height: 20px;"></div>
+                            <div e-column e-field="InvoiceNo" e-headertext="Invoice No" e-width="80"></div>
+                            <div e-column e-type="text" e-field="MaterialMasterName" e-headertext=" Material Master" e-width="90" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="text" e-field="Article" e-headertext="Article" e-width="90" e-textalign="right" style="height: 20px;"></div>
+
+                            <div e-column e-type="text" e-field="FixedAssetMasterName" e-headertext="Fixed Asset Master" e-width="90" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="text" e-field="FixedAssetCategory" e-headertext="Fixed Asset Category" e-width="90" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="text" e-field="FixedAssetSubCategory" e-headertext="Fixed Asset Sub Category" e-width="90" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="text" e-field="AssetType" e-headertext="Asset Type" e-width="50" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="FABaseAmount" e-headertext="FA Base Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SubAssetAmount" e-headertext="Sub Asset Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ADBaseAmount" e-headertext="AD Base Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NetFixedAssetsAmount" e-headertext="Net Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="text" e-field="IsFinancial" e-headertext="Financial" e-width="60" e-textalign="right" style="height: 20px;"></div>
+
+                            <div e-column e-type="text" e-field="SerialNo" e-headertext="Serial No" e-width="60" e-textalign="right"></div>
+
+
+
+                        </div>
+                    </div>
+
+                    <script type="text/template" id="hLink">
+                            <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
+                        </script>
+
+                    <script type="text/template" id="checkEntityAndDepartment">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                    </script>
+
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
+                    </script>
+
+
+                    <script type="text/template" id="checkMasterLC">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplate">
+                            <input type="checkbox" id="headchk" />
+                        </script>
+
+
+
+                    <script type="text/template" id="entityId">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="data.EntityId" name="entity">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in $parent.entityList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </script>
+
+                        <script type="text/template" id="departmentId">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="data.DepartmentId" name="department">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in $parent.departmentList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </script>
+
+                </div>
+            </div>
+
+            <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="InvoiceSummaryReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Summary</button></li>
+                    </ul>
+                </div>
+
+        </div>
+
+
+        <div id="div_entity" class="form-group" show-errors>
+            <label class="col-sm-1 control-label">Entity<sup>*</sup></label>
+            <div class="col-sm-4 show-message">
+                <div class="select-style">
+                    <select id="entityId" class="form-control" name="entity" ng-model="fixedAsset.EntityId" tabindex="6" required ng-change="changeEntityForBankCash(fixedAsset.EntityId);">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="div_entity" class="form-group" show-errors>
+            <label class="col-sm-1 control-label">Department<sup>*</sup></label>
+            <div class="col-sm-4 show-message">
+                <div class="select-style">
+                    <select id="departmentId" class="form-control" name="department" ng-model="fixedAsset.DepartmentId" tabindex="6" required ng-change="changeEntityForBankCash(fixedAsset.DepartmentId);">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in departmentList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+
+    </div>*@
+
+
+
+
 
 
 
