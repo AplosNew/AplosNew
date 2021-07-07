@@ -277,8 +277,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 para.USER = identity.Name;
                                 para.dsGrid = dsGrid;
                                 //get ds
-                                ProcessMain(para, ArrearFromDate, ArrearToDate, _currencyId, alldataset);//pass ds
                                 #endregion
+
+                                ProcessMain(para, ArrearFromDate, ArrearToDate, _currencyId, alldataset);//pass ds
+
 
                                 #region MLVR
                                 string _mlvr_emps = string.Empty;
@@ -310,18 +312,20 @@ namespace Aplos.Areas.Payrolls.Controllers
                             }
                             catch (Exception ex)
                             {
-                                requestCancelled = true;
-                                _lock.UnlockProcess();
-                                return Json(new { Error = true, Message = ex.Message });
+                                //requestCancelled = true;
+                                //_lock.UnlockProcess();
+                                //return Json(new { Error = true, Message = ex.Message });
                             }
                         }
                         _lock.UnlockProcess();
+                        SendNotification("Status: Process Completed");
                         JsonResult json = Json(new { Error = false, Message = AplosMessage.Success });
                         json.MaxJsonLength = int.MaxValue;
                         return json;
                     }
                     catch (Exception ex)
                     {
+                        
                         requestCancelled = true;
                         _lock.UnlockProcess();
                         return Json(new { Error = true, Message = ex.Message });
