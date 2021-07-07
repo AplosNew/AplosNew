@@ -284,21 +284,25 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.NotificationSetting = response.data;
-            $scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
-            $scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
-            $scope.GetCheckedByAndApprovedBy1();
-            if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
-                $scope.productNew.labelCheckAndApproved = 'To be checked by';
+            if ($scope.NotificationSetting.length > 0) {
+                $scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
+                $scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
+                $scope.GetCheckedByAndApprovedBy1();
+                if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
+                    $scope.productNew.labelCheckAndApproved = 'To be checked by';
+                }
+                else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true) {
+                    $scope.productNew.labelCheckAndApproved = 'To be approved by';
+                }
+                else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
+                    $scope.productNew.labelCheckAndApproved = 'To be checked by';
+                }
             }
-            else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true) {
-                $scope.productNew.labelCheckAndApproved = 'To be approved by';
-            }
-            else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
-                $scope.productNew.labelCheckAndApproved = 'To be checked by';
-            }
+           
         });
     };
     $scope.NotificationSettingStatus();
+    $scope.checkedByList = [];
     $scope.GetCheckedByAndApprovedBy1 = function () {
         //debugger;
 
@@ -3884,6 +3888,38 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
         });
     }
+
+    //#region start Reports
+    $scope.ConfirmPrintTab = function (z) {
+        try {
+            var x = "#" + z;
+            var gridObj = $(x).data("ejGrid");
+            var data = gridObj.getSelectedRecords()[0];
+    //        location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+
+            $scope.PrintTabId = data.Id;
+
+            var reportFormat = "Excel";
+            window.open('JobWork/JobWorkValueAddedContract/GetTransformationContractReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+
+    //        var TabType = data.TabType;
+            //if (TabType == "Value Added") {
+            //    //     var data = args.data;
+            //    var reportFormat = "Excel";
+            //    window.open('JobWork/JobWorkValueAddedContract/GetValueAddedPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+            //    $scope.getData();
+            //}
+            //if (TabType == "Transformation") {
+            //    //     var data = args.data;
+            //    var reportFormat = "Excel";
+            //    window.open('JobWork/JobWorkValueAddedContract/GetTransformationContractReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+            //    $scope.getData();
+            //}
+
+        } catch (e) {
+
+        }
+    };
 
 
     //end

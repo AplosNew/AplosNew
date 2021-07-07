@@ -1698,7 +1698,25 @@ namespace Library.HumanResource.Payroll.Tax
             }
 
         }//End Function
+        public IEnumerable<object> GetTaxSurcharge(string sGroupID)
+        {
+            try
+            {
+                string strSQL = string.Empty;
 
+                strSQL = @"SELECT s.*
+                            FROM [dbo].[TaxSurcharge] s                             
+                            WHERE s.TaxPolicyMasterId = '" + sGroupID + @"'";
+
+
+                return _sqlRepository.GetDataCollection(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }//End Function
         public IEnumerable<object> GetFormulaList(string GeneralFormulaId)
         {
             try
@@ -1814,6 +1832,22 @@ namespace Library.HumanResource.Payroll.Tax
 
                 con.CommitTransaction();
 
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void DeleteTaxRebateSlab(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [TaxRebate] where TaxPolicyMasterId='" + ID + "'");
+                con.CommitTransaction();
             }
             catch (Exception ex)
             {
