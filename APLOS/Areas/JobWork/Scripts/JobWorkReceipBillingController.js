@@ -226,8 +226,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.Transformation = Object.assign({}, args.data);
         $scope.ModelNew.JWTransformationPurchaseOrderId = $scope.ModelNew.JWTransformationPurchaseOrderId;
-        var PId = $scope.Transformation.Id;
-        var TabType = $scope.Transformation.TabType;
+      
         $scope.TabTypeNew = $scope.Transformation.TabType;
         $scope.ReceiptTransformation.TransformationContractId = $scope.Transformation.Id;
         if ($scope.ModelNew.TabType == "Transformation") {
@@ -278,7 +277,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("InventoryReceiveId", "equal", parseInt(filteredData), true).take(100));
         e.detailsElement.find("#detailGrid").ejGrid({
             dataSource: data,
-            columns: ["MaterialName", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoM", "TransactionRate", "TotalMaterialTranAmount", "CurrencyName","MaterialFor"]
+            columns: ["MaterialName", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoM", "TransactionRate", "TotalMaterialTranAmount", "CurrencyName","MaterialBy"]
         });
         e.detailsElement.find(".tabcontrol").ejTab();
 
@@ -396,7 +395,27 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         }
     };
 
-
+    $scope.Delete = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetData();
+                    $scope.Clear();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
 
 
 }
