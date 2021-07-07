@@ -262,7 +262,20 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-
+        [HttpGet, Authorize]
+        public ActionResult GetTaxSurcharge(string Master)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IncomeTaxPolicy ep = new IncomeTaxPolicy();
+                return Json(ep.GetTaxSurcharge(Master), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
         #endregion
 
         #region Save
@@ -648,7 +661,21 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-
+        [HttpPost, Authorize]
+        public JsonResult DeleteTaxRebateSlab(string ID)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IncomeTaxPolicy p = new IncomeTaxPolicy();
+                p.DeleteTaxRebateSlab(ID);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         #endregion
     }
 }
