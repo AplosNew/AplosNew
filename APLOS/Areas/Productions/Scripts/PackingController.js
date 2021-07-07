@@ -568,6 +568,10 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
     $scope.cartonDetail = [];
     $scope.inactiveCartons = [];
     $scope.showCartons = function (e) {
+        if (parseFloat(e.data.PlanQty.ToString()) <= 0) {
+            ShowResult("Please First Enter the Plan Qty");
+            throw ("Invalid");
+        }
         if ($scope.cartonDetail.length > 0) {
             if ($scope.cartonDetail[0]["LotNo"] === e.data.LotNo) {
                 $scope.cartonDetal = $scope.cartonDetail;
@@ -905,6 +909,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             alert("Please Fill all the Packing Plan Fields");
             throw ("Please Fill all the Packing Plan Fields");
         }
+
     }
 
 
@@ -916,9 +921,14 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
         }
 
         for (var i = 0; i < $scope.PoLoTCollection.length; i++) {
-            if ($scope.PoLoTCollection[i]["BookQty"] < 0 || $scope.PoLoTCollection[i]["PlanQty"] == 0) {
-                alert("Please select Valid Quantity in PO Lot Reference");
-                throw ("Please select Valid Quantity in PO Lot Reference");
+            if ( $scope.PoLoTCollection[i]["PlanQty"] == 0) {
+                alert("Plan Qty cannot be 0!");
+                throw ("Invalid");
+            }
+
+            if ($scope.PoLoTCollection[i]["PlanQty"] < $scope.PoLoTCollection[i]["BookQty"]) {
+                alert("Book Qty cannot be more than Plan Qty!!");
+                throw ("Invalid");
             }
 
             if ($scope.PoLoTCollection[i]["BookQty"] > $scope.PoLoTCollection[i]["Available"] || $scope.PoLoTCollection[i]["PlanQty"] > $scope.PoLoTCollection[i]["Available"]) {

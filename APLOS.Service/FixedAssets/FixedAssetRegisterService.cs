@@ -3712,12 +3712,24 @@ namespace Library.Service.FixedAssets
                 else if (FixedAssetsId != null)
                     paramter += "FR.FixedAssetMasterId =('" + FixedAssetsId + "') AND CONVERT(VARCHAR, fr.CapitalizationDate, 23) BETWEEN '" + FromDate.ToDbDate() + "' AND '" + ToDate.ToDbDate() + "'";
 
-                sql = @"SELECT FR.SerialNo, FR.Id AssetNo,FR.Model
+                sql = @"SELECT FR.SerialNo, FR.Id AssetNo ,  e.UserName Entity, D.UserName Department  ,FR.Model
                     , FR.InvoiceNo, MM.UserName MaterialMasterName, MMA.StandardName Article,FR.[Description]
                     , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                     --, FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
                     --, FAM.FixedAssetSubCategoryId, FAM.AssetType
-                    , FR.Price PurchasePrice,ISNULL(SAR.SubAssetAmount,0) SubAssetAmount, (FR.Price + ISNULL(SAR.SubAssetAmount,0)) TotalAmount
+
+                    --, FR.Price PurchasePrice,ISNULL(SAR.SubAssetAmount,0) SubAssetAmount, (FR.Price + ISNULL(SAR.SubAssetAmount,0)) TotalAmount
+						,PC.Code PurchaseCurrency
+						,BC.Code BaseCurrency
+						,FR.Quantity
+						,isnull( FR.Price,0 )PurchasePrice
+						,isnull( FR.FABaseAmount,0)FABaseAmount
+						,ISNULL(SAR.SubAssetAmount,0) SubAssetBaseAmount
+
+						,isnull (FR.FABaseAmount,0) + (ISNULL(SAR.SubAssetAmount,0)) TotalBaseAmount
+						,ISNULL(FR.ADBaseAmount,0) ADBaseAmount
+						,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) NetFixedAssetsBaseAmount
+
                     ,OpeningBalance = case when fr.IsOpeningBalance = 1 then 'YES' else 'NO' end
                     ,format( fr.CapitalizationDate, 'dd-MMM-yyyy') CapitalizationDate
                     --, FR.IsFinancial
@@ -3740,9 +3752,22 @@ namespace Library.Service.FixedAssets
                     LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId
                     LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
                     LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-                    LEFT JOIN(SELECT FixedAssetRegisterId,sum(Amount) SubAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
+					left join scs.Currency PC on PC.Id= FR.CurrencyId
+				    left join scs.Currency BC on BC.Id= FR.FABaseCurrencyId
+
+
+					--LEFT JOIN(SELECT FixedAssetRegisterId,sum(Amount) SubAssetAmount FROM TRN.SubFixedAssetRegister 
+					--group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
+
+			    LEFT JOIN(SELECT FixedAssetRegisterId,sum(isnull( Amount,0)) SubAssetAmount 
+				FROM TRN.SubFixedAssetRegister 
+				group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
+
+               left join ORG.Entity E on E.Id= FR.EntityId
+			   left join ORG.Department D on D.Id = FR.DepartmentId
                     WHERE FR.CompanyId='" + companyId + @"' and FR.Archive=0 and FR.IsAUC=0
-                    AND FR.Id NOT IN(' ')AND " + paramter + @"";
+                    --AND FR.Id NOT IN(' ')
+                    AND " + paramter + @"";
 
 
             }
