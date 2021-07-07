@@ -168,11 +168,16 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
 
     $scope.TaxRebate = {
         Id: null,
-        CumulativeOrBrakeUp:'Brake Up',
-        FixedOrPercentage:'Fixed',
-        TaxableIncomeOrTax:'Tax',
+        CumulativeOrBrakeUp: 'Brake Up',
+        FixedOrPercentage: 'Fixed',
+        TaxableIncomeOrTax: 'Tax',
     }
-
+    $scope.TaxSurcharge = {
+        Id: null,
+        CumulativeOrBrakeUp: 'Brake Up',
+        FixedOrPercentage: 'Fixed',
+        TaxableIncomeOrTax: 'Tax',
+    }
     // #endregion Model
 
     //#region Get Master
@@ -290,6 +295,7 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
         $scope.getValidationForPlant($scope.TaxPolicyMaster.SystemID);
         $scope.GetSequence($scope.TaxPolicyMaster.SystemID);
         $scope.getTaxRebate($scope.TaxPolicyMaster.SystemID);
+        $scope.getTaxSurcharge($scope.TaxPolicyMaster.SystemID);
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -918,14 +924,14 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
         $scope.radiovalueGg = true;
         $scope.radioCug = true;
         $scope.radioBrg = false;
-        $scope.TaxSlabDefineeg.IsBrakeInvestmentCredit = false ;
-        $scope.TaxSlabDefineeg.IsCumulativeInvestmentCredit =  true;
+        $scope.TaxSlabDefineeg.IsBrakeInvestmentCredit = false;
+        $scope.TaxSlabDefineeg.IsCumulativeInvestmentCredit = true;
     }
     $scope.setRadioBrg = function () {
         $scope.radiovalueGg = true;
         $scope.radioCug = false;
         $scope.radioBr = true;
-        $scope.TaxSlabDefineeg.IsCumulativeInvestmentCredit = false ;
+        $scope.TaxSlabDefineeg.IsCumulativeInvestmentCredit = false;
         $scope.TaxSlabDefineeg.IsBrakeInvestmentCredit = true;
     }
 
@@ -1316,11 +1322,24 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
         $scope.GeneralTaxList = [];
 
     };
+    $scope.TaxRebateSlab = {
+        SystemID: null,
+        TaxPolicyMstID: $scope.TaxPolicyMaster.SystemID,
+        Minimum: null,
+        Maximum: null,
+        TaxRate: null,
+    }
+    $scope.TaxRebate = {
+        Id: null,
+        CumulativeOrBrakeUp: 'Brake Up',
+        FixedOrPercentage: 'Fixed',
+        TaxableIncomeOrTax: 'Tax',
+    }
     //#endregion
 
     //#region Clear Other
     $scope.ClearIncome = function () {
-        $scope.Action = 'Save';
+        
         $scope.TaxSlabDefine = {
             SystemID: null,
             TaxPolicyMstID: $scope.TaxPolicyMaster.SystemID,
@@ -1413,6 +1432,24 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
         $scope.NoticePeriodNew.FormulaDescription = null;
         $scope.FormulaDetails = [];
     };
+
+    $scope.ClearRebateTax = function () {
+
+        $scope.TaxRebateSlab = {
+            SystemID: null,
+            TaxPolicyMstID: $scope.TaxPolicyMaster.SystemID,
+            Minimum: null,
+            Maximum: null,
+            TaxRate: null,
+        }
+        $scope.TaxRebate = {
+            Id: null,
+            CumulativeOrBrakeUp: 'Brake Up',
+            FixedOrPercentage: 'Fixed',
+            TaxableIncomeOrTax: 'Tax',
+        }
+    };
+
     //#endregion
 
     //#region Save General Tax
@@ -1838,7 +1875,7 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
             $http({
                 method: 'POST',
                 url: $scope.path + "DeleteIncomeSlab",
-                data: { ID: $scope.DeleteIncomeSlab},
+                data: { ID: $scope.DeleteIncomeSlab },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -2001,4 +2038,136 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
 
     //#endregion
 
+    //#region Delete Tax Rebate
+
+    $scope.DeleteTaxRebateSlabe = function (obj) {
+        $scope.DeleteTaxRebateSlabe = $scope.TaxPolicyMaster.SystemID;
+        if (!baseService.isUndefinedOrNull($scope.DeleteTaxRebateSlabe))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmTaxRebateSlab')).modal('show');
+    }
+
+    $scope.DeleteTaxRebate = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteTaxRebateSlab",
+                data: { ID: $scope.DeleteTaxRebateSlabe },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearRebateTax();
+                    $scope.getTaxRebate($scope.TaxPolicyMaster.SystemID);
+                    $scope.getMaster();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    //#endregion
+
+    //#region Tax Surcharge
+
+    $scope.TaxSurchargeList = [];
+    $scope.TaxSurchargeSlab = {
+        SystemID: null,
+        TaxPolicyMstID: $scope.TaxPolicyMaster.SystemID,
+        Minimum: null,
+        Maximum: null,
+        TaxRate: null,
+    }
+    //$scope.TaxRebateSlabb = Object.assign({}, $scope.TaxRebateSlab);
+    $scope.TaxSurchargeList.push(Object.assign({}, $scope.TaxSurchargeSlab));
+
+    $scope.SubmitTaxSurcharge = function (data) {
+
+        try {
+            if (data.Minimum < 0)
+                throw 'Minimum value cannot be negative';
+            if (data.Minimum == null) {
+                throw 'Enter Minimum Value';
+            }
+
+            if (data.Maximum < 0)
+                throw 'Maximum value cannot be negative';
+
+
+            if (data.Minimum >= data.Maximum)
+                throw 'Maximum value should be greater than minimum value';
+
+
+
+            var newObj = Object.assign({}, $scope.TaxSurchargeSlab);
+            if (data != null) {
+                newObj = {
+                    SystemID: null,
+                    TaxRate: null,
+                    Minimum: data.Maximum,
+                    Maximum: null,
+                    TaxPolicyMstID: $scope.TaxPolicyMaster.SystemID,
+                }
+            }
+
+            $scope.TaxSurchargeList.push(newObj);
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    };
+    $scope.RemoveTaxSurcharge = function () {
+        var removed = $scope.TaxSurchargeList.splice(index, 1);
+        $scope.Detail = removed;
+        if ($scope.TaxSurchargeList.length == 0) {
+            $scope.TaxSurchargeList.push(Object.assign({}, $scope.TaxSurchargeSlab));
+        }
+    };
+    $scope.SaveTaxSurcharge = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "SaveTaxRebate",
+                data: { 'TaxSurchargeList': $scope.TaxSurchargeList, 'Master': $scope.TaxPolicyMaster.SystemID, 'Slab': $scope.TaxSurcharge },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getTaxSurcharge($scope.TaxPolicyMaster.SystemID);
+                    $scope.getMaster();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.getTaxSurcharge = function (Master) {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetTaxRebate?Master=" + Master,
+        }).then(function successCallback(response) {
+            if (response.data.length == 0) {
+                $scope.TaxSurchargeList = [];
+                $scope.TaxSurchargeList.push(Object.assign({}, $scope.TaxSurchargeSlab));
+            }
+            else {
+                $scope.TaxSurchargeList = response.data;
+            }
+        });
+    };
+
+    //#endregion
 }
