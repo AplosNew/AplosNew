@@ -156,7 +156,7 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId,string JWActivityId,string OrderSpecific,string type)
+        public JsonResult detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId,string JWActivityId,string OrderSpecific,string type, List<Dictionary<string, object>> taxCategoryList)
         {
 
             try
@@ -164,7 +164,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
-                data = JobWorkCommon.detailcreate(data,  JWPurchaseOrderId, JWActivityId,identity.Name,identity.IPAddress,OrderSpecific,type);
+                data = JobWorkCommon.detailcreate(data,  JWPurchaseOrderId, JWActivityId,identity.Name,identity.IPAddress,OrderSpecific,type, taxCategoryList);
                 return Json(new { Data = data, Message = AplosMessage.Success });
             }
             catch (Exception ex)
@@ -461,6 +461,38 @@ namespace Aplos.Areas.JobWork.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
                 return Json(JobWorkCommon.GetAllEntity(PlantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        [HttpGet, Authorize]
+        public JsonResult NotificationSetting()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                var sql = @"select * from dbo.NotificationSetting  where BusinessFlow='OutSource' and plantId='" + identity.PlantId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        [Authorize, HttpGet]
+        public JsonResult GetMaterialfromJW(string JobWorkItemId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                return Json(JobWorkCommon.GetMaterialfromJW(JobWorkItemId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

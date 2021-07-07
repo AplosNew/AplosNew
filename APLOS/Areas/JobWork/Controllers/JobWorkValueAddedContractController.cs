@@ -2760,7 +2760,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
                 sheet[ROW, ColArticleCode].Text = data.Rows[i]["ArticleCode"].ToString();
 
-                sheet[ROW, ColOrderSpecific].Text = data.Rows[i]["OrderSpecific"].ToString();
+                sheet[ROW, ColOrderSpecific].Text = data.Rows[i]["OutputOrderSpecific"].ToString();
                 sheet[ROW, ColRequiredCapacity].Number = clsStaticInfo.dbl(data.Rows[i]["RequiredCapacity"].ToString());
                 sheet[ROW, ColByProductApplicable].Text = data.Rows[i]["ByProductApplicable"].ToString();
                 sheet[ROW, ColRateApplicable].Text = data.Rows[i]["RateApplyId"].ToString();
@@ -3143,31 +3143,58 @@ namespace Aplos.Areas.JobWork.Controllers
             return workbook;
         }
 
+        //private DataTable GetTransformationContractDataById(string PrintTabId)
+        //{
+        //    var sql = @"select tc.*,tcc.Id as LineItemId, TabType='Transformation',FORMAT(tc.Date,'dd-MMM-yyyy') as TransformationDate,CONVERT(varchar(5),tc.[Time],108)[TCTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as TCProcessStartDate,
+        //                            FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as TCProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as TCContractClosingDate,
+        //                            Pnt.UserName as Plant,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,jwi.UserName as JobWorkItem, tcc.MaterialSpecification, tcc.MaterialReference
+        //	,uom.UserName as UOM, tcc.Quantity, mma.StandardName as ArticleCode, tcc.OrderSpecific, tcc.RequiredCapacity,tcc.ByProductApplicable ,tcc.RateApplyId, c.Code as Currency
+        //	,tcc.RatePerUnit, tcc.Rejection,tcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,tcc.Remarks as TCCRemarks,jl.LocationName as MaterialLocation,tcc.MaterialType,tcc.FinalOutputCategory
+        //	, mi.TotalGrossConsumptionPerUnit, TotalGrossInputQuantity=(mi.TotalGrossConsumptionPerUnit * tcc.Quantity)
+        //	, Amount= case when tcc.RateApplyId='Output' then (tcc.Quantity * tcc.RatePerUnit) else ((mi.TotalGrossConsumptionPerUnit * tcc.Quantity) * tcc.RatePerUnit) End
+        //                            from dbo.jobworktransformationcontract tc left join ORG.Entity e on e.Id=tc.EntityId
+        //	left join ORG.Plant Pnt on Pnt.Id=tc.PlantId
+        //	left join HKP.Party p on p.Id=tc.VendorPartyId
+        //	left join dbo.jobworktransformationcontractchild tcc on tcc.JobWorkTransformationContractMasterId=tc.Id
+        //	left join HKP.JobWorkItem jwi on jwi.Id=tcc.JobWorkItemMasterId
+        //	left join SCS.UnitOfMeasurement uom on uom.Id=tcc.OutputMaterialUOMId
+        //	left join MST.MaterialMasterArticle mma on mma.Id=tcc.ArticleCodeId
+        //	left join SCS.Currency c on c.Id=tcc.CurrencyId
+        //	left join dbo.EmployeeInformation emp on emp.SystemId=tcc.ResponsiblePersonId
+        //	left join HKP.JobWorkLocation jl on jl.Id=tcc.MaterialLocationId
+        //	left join (select Sum(GrossConsumption) as TotalGrossConsumptionPerUnit, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
+        //	mi on mi.JobWorkTransformationContractChildMasterId=tcc.Id			
+        //                            where tc.Id = '"+ PrintTabId + @"' ";
+
+        //    return _sqlRepository.GetDataTable(sql);
+        //}
+
         private DataTable GetTransformationContractDataById(string PrintTabId)
         {
-            var sql = @"select tc.*,tcc.Id as LineItemId, TabType='Transformation',FORMAT(tc.Date,'dd-MMM-yyyy') as TransformationDate,CONVERT(varchar(5),tc.[Time],108)[TCTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as TCProcessStartDate,
+            var sql = @"select tc.*,tcc.Id as LineItemId, TabType='Transformation',FORMAT(tc.PODate,'dd-MMM-yyyy') as TransformationDate,CONVERT(varchar(5),tc.[Time],108)[TCTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as TCProcessStartDate,
                                     FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as TCProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as TCContractClosingDate,
                                     Pnt.UserName as Plant,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,jwi.UserName as JobWorkItem, tcc.MaterialSpecification, tcc.MaterialReference
-									,uom.UserName as UOM, tcc.Quantity, mma.StandardName as ArticleCode, tcc.OrderSpecific, tcc.RequiredCapacity,tcc.ByProductApplicable ,tcc.RateApplyId, c.Code as Currency
-									,tcc.RatePerUnit, tcc.Rejection,tcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,tcc.Remarks as TCCRemarks,jl.LocationName as MaterialLocation,tcc.MaterialType,tcc.FinalOutputCategory
+									,uom.UserName as UOM, tcc.Quantity, mma.StandardName as ArticleCode, tcc.OrderSpecific as OutputOrderSpecific, tcc.RequiredCapacity,tcc.ByProductApplicable ,tcc.RateApplyId, c.Code as Currency
+									,tcc.RatePerUnit, tcc.Rejection,tcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,tcc.Remarks as TCCRemarks,MS.UserName as MaterialLocation,tcc.MaterialType,tcc.FinalOutputCategory
 									, mi.TotalGrossConsumptionPerUnit, TotalGrossInputQuantity=(mi.TotalGrossConsumptionPerUnit * tcc.Quantity)
 									, Amount= case when tcc.RateApplyId='Output' then (tcc.Quantity * tcc.RatePerUnit) else ((mi.TotalGrossConsumptionPerUnit * tcc.Quantity) * tcc.RatePerUnit) End
-                                    from dbo.jobworktransformationcontract tc left join ORG.Entity e on e.Id=tc.EntityId
+                                    from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
 									left join ORG.Plant Pnt on Pnt.Id=tc.PlantId
-									left join HKP.Party p on p.Id=tc.VendorPartyId
+									left join HKP.Party p on p.Id=tc.PartyId
 									left join dbo.jobworktransformationcontractchild tcc on tcc.JobWorkTransformationContractMasterId=tc.Id
 									left join HKP.JobWorkItem jwi on jwi.Id=tcc.JobWorkItemMasterId
 									left join SCS.UnitOfMeasurement uom on uom.Id=tcc.OutputMaterialUOMId
-									left join MST.MaterialMasterArticle mma on mma.Id=tcc.ArticleCodeId
+									left join MST.MaterialMasterArticle mma on mma.Id=tcc.ArticleId
 									left join SCS.Currency c on c.Id=tcc.CurrencyId
 									left join dbo.EmployeeInformation emp on emp.SystemId=tcc.ResponsiblePersonId
-									left join HKP.JobWorkLocation jl on jl.Id=tcc.MaterialLocationId
+									left join HKP.MaterialStorage MS on MS.Id=tcc.MaterialLocationId
 									left join (select Sum(GrossConsumption) as TotalGrossConsumptionPerUnit, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
-									mi on mi.JobWorkTransformationContractChildMasterId=tcc.Id			
-                                    where tc.Id = '"+ PrintTabId + @"' ";
+									mi on mi.JobWorkTransformationContractChildMasterId=tcc.Id		
+                                    where tc.Id = '" + PrintTabId + @"' ";
 
             return _sqlRepository.GetDataTable(sql);
         }
+
 
         private DataTable GetMatPlanningChildDataById(string PrintTabId)
         {
@@ -3178,8 +3205,8 @@ namespace Aplos.Areas.JobWork.Controllers
 													left join MST.MaterialMaster mm on mm.Id=moi.MaterialMasterId
 													left join SCS.UnitOfMeasurement uom on uom.Id=owr.OutputMaterialUOMId
 													left join dbo.JobWorkTransformationContractChild mp on mp.Id=owr.JobWorkTransformationContractChildMasterId
-													left join dbo.JobWorkTransformationContract tc on tc.Id=mp.JobWorkTransformationContractMasterId
-										            where tc.Id='"+ PrintTabId + "' ";
+													left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
+										            where tc.Id='" + PrintTabId + "' ";
 
             return _sqlRepository.GetDataTable(sql);
         }
@@ -3198,7 +3225,7 @@ namespace Aplos.Areas.JobWork.Controllers
 													left join scs.UnitOfMeasurement juom on juom.Id=jwi.UOMId
 													left join dbo.EmployeeInformation emp on emp.SystemId=mi.ResponsiblePersonId
 													left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
-													left join dbo.JobWorkTransformationContract tc on tc.Id=mp.JobWorkTransformationContractMasterId
+													left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
 													left join (select SUM(GrossConsumption) as GrossConsumptionPerUnit, JobWorkTransformationContractChildMasterId from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)
 													tmi on tmi.JobWorkTransformationContractChildMasterId=mp.Id
 										            where tc.Id='" + PrintTabId + "' ";
@@ -3219,7 +3246,7 @@ namespace Aplos.Areas.JobWork.Controllers
 										            left join dbo.JobWorkTransformationContractChild3 mi on mi.Id=bp.JobWorkTransformationContractChild3MasterId
 													left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
 													left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
-													left join dbo.JobWorkTransformationContract tc on tc.Id=mp.JobWorkTransformationContractMasterId
+													left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
 										            where tc.Id='" + PrintTabId + "' ";
 
             return _sqlRepository.GetDataTable(sql);

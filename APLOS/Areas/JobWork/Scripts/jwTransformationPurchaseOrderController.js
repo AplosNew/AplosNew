@@ -214,6 +214,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.detailModel.MaterialMasterId = null;
         $scope.detailModel.MaterialName = null;
         $scope.detailModel.MaterialCode = null;
+        $scope.detailModel.OutputMaterialUOMId = null;
 
     };
     $scope.closeMaterialMstPopUp = function (popupName) {
@@ -279,25 +280,47 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         //debugger;
         $http({
             method: 'GET',
-            url: 'Products/PurchaseOrder/NotificationSetting',
+            url: 'JobWork/JWTransformationPurchaseOrder/NotificationSetting',
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.NotificationSetting = response.data;
-            $scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
-            $scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
-            //$scope.GetCheckedByAndApprovedBy1();
-            if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
-                $scope.productNew.labelCheckAndApproved = 'To be checked by';
+            if ($scope.NotificationSetting.length > 0) {
+                $scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
+                $scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
+                $scope.GetCheckedByAndApprovedBy1();
+                if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
+                    $scope.productNew.labelCheckAndApproved = 'To be checked by';
+                }
+                else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true) {
+                    $scope.productNew.labelCheckAndApproved = 'To be approved by';
+                }
+                else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
+                    $scope.productNew.labelCheckAndApproved = 'To be checked by';
+                }
             }
-            else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true) {
-                $scope.productNew.labelCheckAndApproved = 'To be approved by';
-            }
-            else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
-                $scope.productNew.labelCheckAndApproved = 'To be checked by';
-            }
+           
         });
     };
     $scope.NotificationSettingStatus();
+    $scope.checkedByList = [];
+    $scope.GetCheckedByAndApprovedBy1 = function () {
+        //debugger;
+
+        if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
+            $http({
+                method: 'GET',
+                url: 'Products/PurchaseOrder/GetCheckedByAndApprovedBYForOurSource?CheckedBy=' + $scope.CheckedByStatusForNoti + '&ApprovedBy=' + $scope.ApprovedByStatusForNoti,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.checkedByList = response.data;
+            });
+
+        }
+        else {
+
+        }
+
+    }
     $scope.HSNCode = null;
     $scope.HSNCodeId = null;
 
@@ -495,7 +518,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         , AuthorizedByStatus: null
         , ContractId: null
         , ContractNo: null
-        , OrderSpecific: 'Yes'
+        , OrderSpecific: 'No'
         , PurchaseLCId: null
         , CustomerName: null
         , PaymentMode: null
@@ -522,6 +545,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         ContractClosingDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
  //     Remarks: null,
         ContractStatus: "Active",
+
     };
     $scope.productNew = Object.assign({}, $scope.products);
     $scope.product = Object.assign({}, $scope.products);
@@ -803,13 +827,15 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         }
         if (isNaN($scope.detailModel.TotalTaxAmount)) $scope.detailModel.TotalTaxAmount = 0;
     };
+    $scope.productNew.TaxOptionService = 'Yes';
     $scope.changeService = function (JWServiceId) {
-
+        $scope.productNew.TaxOptionService = 'Yes';
         if (baseService.isUndefinedOrNull(JWServiceId))
             return $scope.taxCategoryList = [];
         var hsnCodeId = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCodeId;
         var HSNCode = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCode;
         getTaxCategoryList(hsnCodeId, HSNCode);
+        
     };
     function getTaxCategoryList(hsnCodeId, HSNCode) {
         $scope.taxCategoryList = [];
@@ -1021,19 +1047,43 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             $scope.dbval = $scope.StateData;
             $scope.UIval = $scope.productNew.InvoicingState;
 
-            if ($scope.inventoryMaterialList.length === 0) {
-                angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-            }
-            else if ($scope.dbval.length === 0) {
-                angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-            }
-            else if ($scope.dbval === $scope.UIval) {
-                angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-            }
-            else if (productNew.OrderSpecific === 'Yes') {
+            //if ($scope.inventoryMaterialList.length === 0) {
+            //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
+            //}
+            //else 
+            //if ($scope.dbval.length === 0) {
+            //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
+            //}
+            //else if ($scope.dbval === $scope.UIval) {
+            //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
+            //}
+            if ($scope.productNew.OrderSpecific === 'Yes') {
                 ShowResult('Please Select Contract');
                 return false;
             }
+           
+            else if (baseService.isUndefinedOrNull($scope.productNew.PartyName)) {
+                ShowResult('Please Select Party Name');
+                return false;
+            }
+            else if (baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
+                ShowResult('Please Select Payment Term');
+                return false;
+            }
+            
+            else if ($scope.checkedByList.length > 0 && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
+                ShowResult('Please Select Checked By/Approved By');
+                return false;
+            }
+            else if (baseService.isUndefinedOrNull($scope.productNew.EntityId)) {
+                ShowResult('Please Select Entity');
+                return false;
+            }
+            else if (baseService.isUndefinedOrNull($scope.productNew.ContractStatus)) {
+                ShowResult('Please Select Contract Status');
+                return false;
+            }
+            
             else {
                 ShowResult('You can not change Invoicing party.Line is available', 'failure', 'invoicingPartyPopUp');
 
@@ -1101,7 +1151,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                             'data': $scope.product
                             , 'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti
                             , 'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti
-                            , 'ActivityList': activityList
+                            //, 'ActivityList': activityList
                         },
                         dataType: 'JSON'
                     }).then(function successCallback(response) {
@@ -1636,11 +1686,29 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
     $scope.detailPopUp = function () {
         $scope.productNew.TaxOptionMat = 'Yes';
+        $scope.productNew.TaxOptionService = 'Yes';
         $scope.receiveTaxList = [];
         $scope.detailModel = Object.assign({}, $scope.detailTempModel);
         //$scope.MatPlanning = Object.assign({}, $scope.MatPlanningModelTemp);
         angular.element(document.querySelector('#detailPopUp')).modal('show');
     };
+
+    $scope.GetMatMstJW = [];
+    $scope.GetMaterialfromJW = function () {
+        $scope.GetMatMstJW = [];
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetMaterialfromJW?JobWorkItemId=' + $scope.detailModel.JobWorkItemMasterId,
+        }).then(function successCallback(response) {
+            $scope.GetMatMstJW = response.data;
+            if ($scope.GetMatMstJW.length > 0) {
+                $scope.detailModel.MaterialMasterId = $scope.GetMatMstJW[0].Id;
+                $scope.detailModel.MaterialName = $scope.GetMatMstJW[0].Material;
+                $scope.detailModel.MaterialCode = $scope.GetMatMstJW[0].Code;
+                $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].UnitId;
+            }
+        });
+    }
 
     $scope.detailPopUpForEdit = function (args) {
         if ($scope.productNew.OrderSpecific == 'Yes') {
@@ -1648,6 +1716,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         }
         else {
             $scope.taxCategoryList = [];
+            $scope.GetJWItems();
             $scope.detailModel = Object.assign({}, args);
 
             $scope.rmchar1 = {};
@@ -1726,6 +1795,102 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.detailSave = function (type, onlyTax) {
         activityListsel = null;
         $scope.detailModelList = [];
+
+        if (baseService.isUndefinedOrNull($scope.detailModel.JobActivityId)) {
+            ShowResult('Please select Job Work Acticity', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.JobWorkItemMasterId)) {
+            ShowResult('Please select Job Work Out Put Item', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.MaterialName)) {
+            ShowResult('Please select Material', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.ArticleName)) {
+            ShowResult('Please select Article', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.MaterialLocationId)) {
+            ShowResult('Please select Material Storage Location', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.MaterialType)) {
+            ShowResult('Please select Input Material Category', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.FinalOutputCategory)) {
+            ShowResult('Please select OutPut Material Category', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.MaterialSpecification)) {
+            ShowResult('Please select Material Specification', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.OutputMaterialUOMId)) {
+            ShowResult('Please select Material Specification', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) || $scope.detailModel.TransactionQty==='0') {
+            ShowResult('Please select Material Specification', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.OrderSpecific)) {
+            ShowResult('Please select Order Specific', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.RequiredCapacity)) {
+            ShowResult('Please select Required Capacity', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.ByProductApplicable)) {
+            ShowResult('Please select ByProduct Applicable', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.RateApplyId)) {
+            ShowResult('Please select Rate Apply', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.CurrencyId)) {
+            ShowResult('Please select Currency', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.RatePerUnit) || $scope.detailModel.RatePerUnit ==='0') {
+            ShowResult('Please select Currency', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.Rejection)) {
+            ShowResult('Please select Rejection', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.ValueLoss)) {
+            ShowResult('Please select ValueLoss', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.Tolerance)) {
+            ShowResult('enter the Tolerance', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.ServiceId)) {
+            ShowResult('Please select Service', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.ResponsiblePersonId)) {
+            ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
+            return false;
+        }
+
+        if (baseService.isUndefinedOrNull($scope.detailModel.EmployeeCode)) {
+            ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.detailModel.ResponsiblePersonId)) {
+            ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
+            return false;
+        }
+        
+
         $scope.detailModel.JWTransformationPurchaseOrderId = $scope.productNew.Id;
         if (!baseService.isUndefinedOrNull($scope.rmchar1.CharacteristicsId)) {
             $scope.detailModel.FirstCharacteristicsId = $scope.rmchar1.CharacteristicsId;
@@ -1780,7 +1945,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                         JWPurchaseOrderId: $scope.productNew.Id,
                         JWActivityId: activityListsel,
                         OrderSpecific: $scope.productNew.OrderSpecific,
-                        type: type
+                        type: type,
+                        taxCategoryList: $scope.taxCategoryList
 
                     },
                     dataType: 'JSON'
@@ -2428,6 +2594,27 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         }
         data.TaxAmount = Math.round($scope.serviceModel.TransactionAmount * data.Percentage) / 100;
     };
+    $scope.calculateTaxAmountForServiceOutPut = function (data) {
+        if (baseService.isUndefinedOrNull(data.Percentage)) {
+            data.Percentage = 0;
+        }
+       
+        $scope.TransactionAmount = $scope.detailModel.TransactionQty * $scope.detailModel.RatePerUnit;
+        data.TaxAmount = Math.round($scope.TransactionAmount * data.Percentage) / 100;
+    };
+    $scope.checkRowValidationServiceOutPut = function (x) {
+
+        for (var i = 0; i < $scope.taxCategoryList.length; i++) {
+            //if (baseService.isUndefinedOrNull($scope.detailModel.TransactionAmount) || $scope.detailModel.TransactionAmount === 0) {
+            //	ShowResult("Taxable Amount can not null or zero", 'failure', 'detailPopUp');
+            //}
+            $scope.TransactionAmount = $scope.detailModel.TransactionQty * $scope.detailModel.RatePerUnit;
+            if ($scope.taxCategoryList[i].Id === x.Id) {
+                $scope.taxCategoryList[i].Percentage = (parseFloat(x.TaxAmount / $scope.TransactionAmount).toFixed(4) * 100);
+            }
+
+        }
+    }
     $scope.checkRowValidationService = function (x) {
 
         for (var i = 0; i < $scope.taxCategoryList.length; i++) {
@@ -3701,6 +3888,38 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
         });
     }
+
+    //#region start Reports
+    $scope.ConfirmPrintTab = function (z) {
+        try {
+            var x = "#" + z;
+            var gridObj = $(x).data("ejGrid");
+            var data = gridObj.getSelectedRecords()[0];
+    //        location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
+
+            $scope.PrintTabId = data.Id;
+
+            var reportFormat = "Excel";
+            window.open('JobWork/JobWorkValueAddedContract/GetTransformationContractReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+
+    //        var TabType = data.TabType;
+            //if (TabType == "Value Added") {
+            //    //     var data = args.data;
+            //    var reportFormat = "Excel";
+            //    window.open('JobWork/JobWorkValueAddedContract/GetValueAddedPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+            //    $scope.getData();
+            //}
+            //if (TabType == "Transformation") {
+            //    //     var data = args.data;
+            //    var reportFormat = "Excel";
+            //    window.open('JobWork/JobWorkValueAddedContract/GetTransformationContractReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+            //    $scope.getData();
+            //}
+
+        } catch (e) {
+
+        }
+    };
 
 
     //end

@@ -653,7 +653,7 @@ public class clsSalaryProcessAplosArrear
             //for Pratibha DOS/DOJ weekoff count
             DataSet dsWeekOffAll = null;
             Dictionary<string, int> WeekOffList = null;
-            SendNotification("Generating Calendar");
+            SendNotification("Generating Calendar", para.FromDate);
             GetWeekOffAll(para.PlantId, para.ToDate, out dsWeekOffAll);
             GetSundayMondayCount(para.FromDate, para.ToDate, out WeekOffList);
             //************************************************NO Past Data************************************************
@@ -769,7 +769,7 @@ public class clsSalaryProcessAplosArrear
                             TotProcComp += grdRowMaxCnt;
 
 
-                            SendNotification("Deleting existing data");
+                            SendNotification("Deleting existing data", para.FromDate);
 
 
                             /////////////////////////////////***********************************************//////////////////////////////////////
@@ -778,7 +778,7 @@ public class clsSalaryProcessAplosArrear
 
 
                             #region weekoff original count
-                            SendNotification("Fetching Weekoff Employees");
+                            SendNotification("Fetching Weekoff Employees", para.FromDate);
 
                             GetWeekOffCountForEmployee(sEmpSysIDColl, para.FromDate, para.ToDate, out dsWeekOffCount);
                             List<EmployeeWeekOffOriginal> dicWeekOffOriginal = new List<EmployeeWeekOffOriginal>();
@@ -802,7 +802,7 @@ public class clsSalaryProcessAplosArrear
                             #endregion
 
                             //////Get Employee Information For Save Loop
-                            SendNotification("Fetching Employees");
+                            SendNotification("Fetching Employees", para.FromDate);
                             ///
                             objSlrProc.GetSelectedEmployee(sEmpSysIDColl, para.FromDate, para.ToDate, out dsSelectedEmp);
 
@@ -828,7 +828,7 @@ public class clsSalaryProcessAplosArrear
                             #region Attendance
                             if (para.IsMaternity)
                             {
-                                SendNotification("Processing Materninty Attendances", TotProcComp, TotSelectEmpForProc);
+                                SendNotification("Processing Materninty Attendances", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                                 clsSalaryProcessQuery obj = new clsSalaryProcessQuery();
                                 string _wc;
@@ -840,7 +840,7 @@ public class clsSalaryProcessAplosArrear
                             }
                             else if (para.IsMaternityReturn)
                             {
-                                SendNotification("Processing Materninty Return", TotProcComp, TotSelectEmpForProc);
+                                SendNotification("Processing Materninty Return", para.FromDate, TotProcComp, TotSelectEmpForProc);
                                 clsSalaryProcessQuery obj = new clsSalaryProcessQuery();
                                 string _wc;
                                 ///create emp with fd and to
@@ -853,13 +853,13 @@ public class clsSalaryProcessAplosArrear
 
                                 if ((fstDT.ToString("dd-MMM-yyyy").ToUpper() == para.FromDate.ToUpper().Trim()) && (lstDT.ToString("dd-MMM-yyyy").ToUpper() == para.ToDate.ToUpper().Trim()))
                                 {
-                                    SendNotification("Getting Monthly Attendance Summary", TotProcComp, TotSelectEmpForProc);
+                                    SendNotification("Getting Monthly Attendance Summary", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                                     objSlrProc.GetAttdnDataMonthlySummary(intMonthNo, intYearNo, sEmpSysID, out dsMMDSSI);
                                 }
                                 else
                                 {
-                                    SendNotification("Getting Attendance Process Data", TotProcComp, TotSelectEmpForProc);
+                                    SendNotification("Getting Attendance Process Data", para.FromDate, TotProcComp, TotSelectEmpForProc);
                                     objSlrProc.GetAttdnDataForMonthlyProc(sEmpSysID, para.FromDate, para.ToDate, out dsMMDSSI);
                                 }
                             }
@@ -867,7 +867,7 @@ public class clsSalaryProcessAplosArrear
 
                             #region DataSet
 
-                            SendNotification("Getting Salary Process Prerequisite Data", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Getting Salary Process Prerequisite Data", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                             #region ds 01
                             List<dicMMDSSI> dicMMDSSI = new List<global::dicMMDSSI>();
@@ -876,19 +876,19 @@ public class clsSalaryProcessAplosArrear
 
                             //////Add OR UPDate 
                             //List<dicSalaryProceAttdnData> ListSPA = new List<global::dicSalaryProceAttdnData>();
-                            SendNotification("Fetching Attendance data", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Attendance data", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                             objSlrProc.GetSalaryProceAttdnData(intMonthNo, intYearNo, sEmpSysID, out dsSPAttdnProc);
                             dtSPAttdnProc = dsSPAttdnProc.Tables[0];
                             //weekend
-                            SendNotification("Fetching Extra Absent", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Extra Absent", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                             objSlrProc.GetExtraAbsent(intMonthNo, intYearNo, sEmpSysID, out dsExtraAbsent);
                             List<ExtraAbsenteeism> dicExtraAbsenteeism = new List<global::ExtraAbsenteeism>();
                             if (dsExtraAbsent.Tables[0].Rows.Count > 0)
                                 dicExtraAbsenteeism = dsExtraAbsent.Tables[0].ToList<ExtraAbsenteeism>();
                             //holiday
-                            SendNotification("Fetching Extra Absent holiday", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Extra Absent holiday", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                             objSlrProc.GetExtraAbsentHoliday(intMonthNo, intYearNo, sEmpSysID, out dsExtraAbsentHoliday);
                             List<ExtraAbsenteeism> dicExtraAbsenteeismHoliday = new List<global::ExtraAbsenteeism>();
@@ -899,31 +899,31 @@ public class clsSalaryProcessAplosArrear
                             //{
                             //    ListSPA = dsSPAttdnProc.Tables[0].ToList<dicSalaryProceAttdnData>();
                             //}
-                            SendNotification("Fetching OT Entitlement Info", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching OT Entitlement Info", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                             DataSet dsEmpOTEntitlement = null;
                             GetOTEntitlementInfo(para.PlantId, sEmpSysIDColl, para.FromDate, para.ToDate, out dsEmpOTEntitlement);
 
 
                             //////Add OR UPDate
-                            SendNotification("Fetching Retention Allow Month Wise", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Retention Allow Month Wise", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             ///
                             objSlrProc.GetRetentionAllowMonthWise(intMonthNo, intYearNo, sEmpSysIDColl, out dsRetenAllow);
                             dtRetenAllow = dsRetenAllow.Tables[0];
 
-                            SendNotification("Fetching Loan Advance Monthly", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Loan Advance Monthly", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicLoanAdv> dicLoanAdv = new List<global::dicLoanAdv>();
                             objSlrProc.GetLoanAdvanceMonthly(para.PlantId, sEmpInfoSysID, intMonthNo, intYearNo, out dsLoanAdv);
                             if (dsLoanAdv.Tables[0].Rows.Count > 0)
                                 dicLoanAdv = dsLoanAdv.Tables[0].ToList<dicLoanAdv>();
 
-                            SendNotification("Fetching Month Wise Extra Salary Amount", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Month Wise Extra Salary Amount", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicMonWiExtAmt> dicMonWiExtAmt = new List<global::dicMonWiExtAmt>();
                             objSlrProc.GetMonthWiseExtraSalaryAmt(sEmpSysIDColl, intMonthNo, intYearNo, out dsMonWiExtAmt);
                             if (dsMonWiExtAmt.Tables[0].Rows.Count > 0)
                                 dicMonWiExtAmt = dsMonWiExtAmt.Tables[0].ToList<dicMonWiExtAmt>();
                             ///201129
-                            SendNotification("Fetching Payment Mode Wise Head Amount", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Payment Mode Wise Head Amount", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             DataSet dsPMP = null;
                             List<dicPaymentModeWiseHeadAmount> dicPMP = new List<global::dicPaymentModeWiseHeadAmount>();
                             objSlrProc.GetPaymentModeWiseHeadAmount(para.PlantId, para.GroupId, out dsPMP);
@@ -932,14 +932,14 @@ public class clsSalaryProcessAplosArrear
 
 
                             //Get Bonus Amount
-                            SendNotification("Fetching Bonus Amount", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Bonus Amount", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicBonus> dicBonus = new List<global::dicBonus>();
                             objSlrProc.GetBonusAmount(sEmpSysID, intMonthNo, intYearNo, out dsBonus);
                             if (dsBonus.Tables[0].Rows.Count > 0)
                                 dicBonus = dsBonus.Tables[0].ToList<dicBonus>();
 
                             //Get General Salary Amount Head Wise
-                            SendNotification("Fetching Empployee Salary Definition For Salary Process List", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Empployee Salary Definition For Salary Process List", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             objSlrProc.LoadEmpSlrDefForSlrProcessList(para.PlantId, sEmpInfoSysID, ArrearFromDate, ArrearToDate, out Dictionary<string, List<dicLocal>> dicLocal);//LoadEmpSlrDefForSlrProcessList
                             #endregion
 
@@ -983,7 +983,7 @@ public class clsSalaryProcessAplosArrear
 
                             #region ds 02 
                             //Get Currency Rule Salary Head Category
-                            SendNotification("Fetching Currency Rule Salary Head Category", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Currency Rule Salary Head Category", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicCrRulSlrHD> dicCrRulSlrHD = new List<global::dicCrRulSlrHD>();
                             objSlrProc.GetCurrencyRuleChildWithSlrHDCat("", para.PlantId, out dsCrRulSlrHD);
                             //objSlrProc.GetCurrencyRuleChildWithSlrHDCat("", ddlPlant.SelectedValue.Trim(), out dsCrRulSlrHD);
@@ -991,33 +991,33 @@ public class clsSalaryProcessAplosArrear
                                 dicCrRulSlrHD = dsCrRulSlrHD.Tables[0].ToList<dicCrRulSlrHD>();
 
                             //Only Shift Type
-                            SendNotification("Fetching Shift Type", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Shift Type", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicSalRulDayStOnlySfTp> dicSalRulDayStOnlySfTp = new List<global::dicSalRulDayStOnlySfTp>();
                             objSlrProc.GetSalaryRuleDayStatusOnlyShiftType(sEmpInfoSysID, sAllSalaryID, para.FromDate, para.ToDate.Trim(), out dsSalRulDayStOnlySfTp);
                             if (dsSalRulDayStOnlySfTp.Tables[0].Rows.Count > 0)
                                 dicSalRulDayStOnlySfTp = dsSalRulDayStOnlySfTp.Tables[0].ToList<dicSalRulDayStOnlySfTp>();
 
                             //Only DayStatus
-                            SendNotification("Fetching Day Status", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Day Status", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicSalRulDayStOnlyDayTp> dicSalRulDayStOnlyDayTp = new List<global::dicSalRulDayStOnlyDayTp>();
                             objSlrProc.GetSalaryRuleDayStatusOnlyDayType(sEmpInfoSysID, sAllSalaryID, para.FromDate, para.ToDate.Trim(), out dsSalRulDayStOnlyDayTp);
                             if (dsSalRulDayStOnlyDayTp.Tables[0].Rows.Count > 0)
                                 dicSalRulDayStOnlyDayTp = dsSalRulDayStOnlyDayTp.Tables[0].ToList<dicSalRulDayStOnlyDayTp>();
 
                             //Shift Type AND DayStatus
-                            SendNotification("Fetching Shift Type and Day Status", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Shift Type and Day Status", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicSalRulDayStSfTpDayTp> dicSalRulDayStSfTpDayTp = new List<global::dicSalRulDayStSfTpDayTp>();
                             objSlrProc.GetSalaryRuleDayStatusShiftTypeDayType(sEmpInfoSysID, sAllSalaryID, para.FromDate, para.ToDate.Trim(), out dsSalRulDayStSfTpDayTp);
                             if (dsSalRulDayStSfTpDayTp.Tables[0].Rows.Count > 0)
                                 dicSalRulDayStSfTpDayTp = dsSalRulDayStSfTpDayTp.Tables[0].ToList<dicSalRulDayStSfTpDayTp>();
 
-                            SendNotification("Fetching Company Off Day", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Company Off Day", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicCmpOffDay> dicCmpWrkOff = new List<global::dicCmpOffDay>();
                             objSlrProc.GetCompanyOffDay(para.PlantId, para.FromDate, para.ToDate.Trim(), out dsCmpOffDay);
                             if (dsCmpOffDay.Tables[0].Rows.Count > 0)
                                 dicCmpWrkOff = dsCmpOffDay.Tables[0].ToList<dicCmpOffDay>();
 
-                            SendNotification("Fetching Company Week Off Day", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Company Week Off Day", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicCmpWeekOffDay> dicCmpWeekOffDay = new List<global::dicCmpWeekOffDay>();
                             objSlrProc.GetCompanyWeekOffDay(para.PlantId, para.FromDate, para.ToDate.Trim(), out dsCmpWeekOffDay);
                             if (dsCmpWeekOffDay.Tables[0].Rows.Count > 0)
@@ -1033,90 +1033,90 @@ public class clsSalaryProcessAplosArrear
                             DataSet dsLWP = null;
                             DataSet dsLeaveSpecific = null;
                             DataSet dsRouteEmp = null;
-                            SendNotification("Fetching LateIN,EarlyOUT,LunchOUT", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching LateIN,EarlyOUT,LunchOUT", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             spq.LoadLateINEarlyOUTLunchOUT(sEmpSysIDColl, para.FromDate, para.ToDate, out dsEOLILU);
-                            SendNotification("Fetching Leave without pay", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Leave without pay", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             spq.LoadLWP(sEmpSysIDColl, para.FromDate, para.ToDate, out dsLWP);
-                            SendNotification("Fetching Specific Leave", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Specific Leave", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             spq.LoadSpecificLeave(sEmpSysIDColl, para.PlantId, para.FromDate, para.ToDate, out dsLeaveSpecific);
-                            SendNotification("Fetching Route Employee List", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Route Employee List", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             spq.LoadRouteEmpList(sEmpSysIDColl, out dsRouteEmp);
 
-                            SendNotification("Fetching Attdn Bonus", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Attdn Bonus", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicAttdnBns> dicAttdnBns = new List<global::dicAttdnBns>();
                             objSlrProc.GetEmployeeWiseAttdnBonus(sEmpSysIDColl, out dsAttdnBns);
                             if (dsAttdnBns.Tables[0].Rows.Count > 0)
                                 dicAttdnBns = dsAttdnBns.Tables[0].ToList<dicAttdnBns>();
 
-                            SendNotification("Fetching Attdn Bonus Day Type", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Attdn Bonus Day Type", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicAttdnBnsDT> dicAttdnBnsDT = new List<global::dicAttdnBnsDT>();
                             objSlrProc.GetEmployeeWiseAttdnBonusDayType(sEmpSysIDColl, out dsAttdnBnsDT);
                             if (dsAttdnBnsDT.Tables[0].Rows.Count > 0)
                                 dicAttdnBnsDT = dsAttdnBnsDT.Tables[0].ToList<dicAttdnBnsDT>();
 
-                            SendNotification("Fetching Attdn Bonus Leave Type", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Attdn Bonus Leave Type", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicAttdnBnsLT> dicAttdnBnsLT = new List<global::dicAttdnBnsLT>();
                             objSlrProc.GetEmployeeWiseAttdnBonusLeaveType(sEmpSysIDColl, out dsAttdnBnsLT);
                             if (dsAttdnBnsLT.Tables[0].Rows.Count > 0)
                                 dicAttdnBnsLT = dsAttdnBnsLT.Tables[0].ToList<dicAttdnBnsLT>();
 
-                            SendNotification("Fetching OT Policy", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching OT Policy", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicOTPol> dicOTPol = new List<global::dicOTPol>();
                             objSlrProc.GetEmployeeWiseOTPolicy(para.FromDate, para.ToDate, sEmpSysIDColl, para.PlantId, out dsOTPol);
                             if (dsOTPol.Tables[0].Rows.Count > 0)
                                 dicOTPol = dsOTPol.Tables[0].ToList<dicOTPol>();
                             //OT entittle
-                            SendNotification("Fetching OT Hour", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching OT Hour", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicOTHour> dicOTHour = new List<global::dicOTHour>();
                             objSlrProc.GetOTHour(sEmpSysIDColl, para.FromDate, para.ToDate.Trim(), out dsOTHour);
                             if (dsOTHour.Tables[0].Rows.Count > 0)
                                 dicOTHour = dsOTHour.Tables[0].ToList<dicOTHour>();
 
                             //Get Leave Transaction For Attendance Bonus
-                            SendNotification("Fetching Leave Transaction For Attendance Bonus", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Leave Transaction For Attendance Bonus", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicLvTrns> dicLvTrns = new List<global::dicLvTrns>();
                             objSlrProc.GetLeaveTransactionForAttdnBonus(sEmpSysIDColl, para.FromDate, para.ToDate.Trim(), out dsLvTrns);
                             if (dsLvTrns.Tables[0].Rows.Count > 0)
                                 dicLvTrns = dsLvTrns.Tables[0].ToList<dicLvTrns>();
                             //EarlyOut
-                            SendNotification("Fetching Early Out", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Early Out", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             DataSet dsEarlyOut = null;
                             objSlrProc.GetEarlyOut(sEmpSysIDColl, para.FromDate, para.ToDate.Trim(), out dsEarlyOut);
 
-                            SendNotification("Fetching Leave Transaction For Attendance Bonus PRE_POST", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Leave Transaction For Attendance Bonus PRE_POST", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             DataSet dsLeavePost = null;
                             List<dicLvTrns> dicLeavePost = new List<global::dicLvTrns>();
                             objSlrProc.GetLeaveTransactionForAttdnBonusPRE_POST(sEmpSysIDColl, para.FromDate, para.ToDate.Trim(), out dsLeavePost);
                             if (dsLeavePost.Tables[0].Rows.Count > 0)
                                 dicLeavePost = dsLeavePost.Tables[0].ToList<dicLvTrns>();
 
-                            SendNotification("Fetching Salary Value Montly Basis", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Salary Value Montly Basis", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicSlrValMntBs> dicSlrValMntBs = new List<global::dicSlrValMntBs>();
                             objSlrProc.GetEmployeeWiseSalaryValueMontlyBasis(intMonthNo, intYearNo, sEmpSysIDColl, out dsSlrValMntBs);
                             if (dsSlrValMntBs.Tables[0].Rows.Count > 0)
                                 dicSlrValMntBs = dsSlrValMntBs.Tables[0].ToList<dicSlrValMntBs>();
 
-                            SendNotification("Fetching Salary Value Montly Continued Basis-1", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Salary Value Montly Continued Basis-1", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicSlrValMntCntBs> dicSlrValMntCntBs = new List<global::dicSlrValMntCntBs>();
                             objSlrProc.GetEmployeeWiseSalaryValueMontlyContinuedBasis(para.ToDate.Trim(), sEmpSysIDColl, out dsSlrValMntCntBs);
                             if (dsSlrValMntCntBs.Tables[0].Rows.Count > 0)
                                 dicSlrValMntCntBs = dsSlrValMntCntBs.Tables[0].ToList<dicSlrValMntCntBs>();
 
-                            SendNotification("Fetching Salary Value Montly Continued Basis-2", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Salary Value Montly Continued Basis-2", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicSlrValDailyBs> dicSlrValDailyBs = new List<global::dicSlrValDailyBs>();
                             objSlrProc.GetEmployeeWiseSalaryValueMontlyContinuedBasis(para.ToDate.Trim(), sEmpSysIDColl, out dsSlrValDailyBs);
                             if (dsSlrValDailyBs.Tables[0].Rows.Count > 0)
                                 dicSlrValDailyBs = dsSlrValDailyBs.Tables[0].ToList<dicSlrValDailyBs>();
 
 
-                            SendNotification("Fetching Retention Allowance Month Wise", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Retention Allowance Month Wise", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<dicRetentionAllow> dicRetentionAllow = new List<global::dicRetentionAllow>();
                             objSlrProc.GetEmployeeListRetentionAllowMonthWise(sEmpSysIDColl, sAllSalaryID, intMonthNo, intYearNo, out dsRetentionAllow);
                             if (dsRetentionAllow.Tables[0].Rows.Count > 0)
                                 dicRetentionAllow = dsRetentionAllow.Tables[0].ToList<dicRetentionAllow>();
 
 
-                            SendNotification("Fetching Salary Head", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Fetching Salary Head", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             List<SPSalaryHead> dicSalaryHead = new List<SPSalaryHead>();
                             GetSalaryHead(out dsSalHd);
                             DataView dvsh = new DataView(dsSalHd.Tables[0]);
@@ -1183,7 +1183,7 @@ public class clsSalaryProcessAplosArrear
                                 int _child_emp_seed = 0;
                                 bool _NewlyJoined_Dos = false;//sadma (absenteeism on gross)
 
-                                SendNotification("Calculating Salary Heads", TotProcComp, TotSelectEmpForProc);
+                                SendNotification("Calculating Salary Heads", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                                 for (int gd = 0; gd < dsSelectedEmp.Tables[0].Rows.Count; gd++)
                                 {
@@ -3533,7 +3533,7 @@ public class clsSalaryProcessAplosArrear
                             dsDw.Tables.Add(dtDw);
 
 
-                            SendNotification("Saving Salary Process Master Data", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Saving Salary Process Master Data", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             objSlrProc.SaveDataSets(dsSPMst);
                             #endregion Salary Head calculations
 
@@ -3544,7 +3544,7 @@ public class clsSalaryProcessAplosArrear
                             {
 
                                 #region Bonus Monthly Retain
-                                SendNotification("Calculating monthly Bonus Retain", TotProcComp, TotSelectEmpForProc);
+                                SendNotification("Calculating monthly Bonus Retain", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                                 BnsParaList Bnspara = new OTSBD.BnsParaList();
                                 Bnspara.GroupID = para.GroupId.ToString().Trim();
@@ -3570,7 +3570,7 @@ public class clsSalaryProcessAplosArrear
                                 #endregion Bonus Monthly Retain
 
                                 #region Generate PF
-                                SendNotification("Calculating Earned PF", TotProcComp, TotSelectEmpForProc);
+                                SendNotification("Calculating Earned PF", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
 
                                 ParaList PFpara = new OTSBD.ParaList();
@@ -3601,14 +3601,14 @@ public class clsSalaryProcessAplosArrear
                             #region Calculate Monthly Bonus and PF
                             try
                             {
-                                SendNotification("Processing Bonus Retention and PF", TotProcComp, TotSelectEmpForProc);
+                                SendNotification("Processing Bonus Retention and PF", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                                 List<dicBonusRetain> dicBonusRetain = new List<global::dicBonusRetain>();
                                 objSlrProc.GetBonusRetainStructureData(sEmpSysIDColl, ArrearToDate, out dsBonusRetain);
                                 if (dsBonusRetain.Tables[0].Rows.Count > 0)
                                     dicBonusRetain = dsBonusRetain.Tables[0].ToList<dicBonusRetain>();
 
-                                SendNotification("Processing Bonus PF", TotProcComp, TotSelectEmpForProc);
+                                SendNotification("Processing Bonus PF", para.FromDate, TotProcComp, TotSelectEmpForProc);
                                 List<dicPF> dicPF = new List<global::dicPF>();
                                 objSlrProc.GetPFStructureData(sEmpSysIDColl, ArrearToDate, out dsPF);
                                 if (dsPF.Tables[0].Rows.Count > 0)
@@ -4062,7 +4062,7 @@ public class clsSalaryProcessAplosArrear
                                     }//for
                                 }// if (dicLocal_Sub.Count > 0)
                             }//for emp
-                            
+
                             #endregion Trimming and Polishing Salary Head values
 
                             ///esic new                            
@@ -4072,7 +4072,7 @@ public class clsSalaryProcessAplosArrear
                             try
                             {
                                 #region Generate ESIC
-                                SendNotification("Calculating Earned ESIC", TotProcComp, TotSelectEmpForProc);
+                                SendNotification("Calculating Earned ESIC", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                                 ESICParaList ESICpara = new OTSBD.ESICParaList();
                                 ESICpara.GroupID = para.GroupId.ToString().Trim();
@@ -4099,7 +4099,7 @@ public class clsSalaryProcessAplosArrear
                             #region Calculating ESIC
                             try
                             {
-                                SendNotification("Processing ESIC", TotProcComp, TotSelectEmpForProc);
+                                SendNotification("Processing ESIC", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                                 List<dicESIC> dicESIC = new List<global::dicESIC>();
                                 objSlrProc.GetESICStructureData(sEmpSysIDColl, ArrearToDate, out dsESIC);
@@ -4262,7 +4262,7 @@ public class clsSalaryProcessAplosArrear
 
                             #endregion Calculating ESIC
 
-                            SendNotification("Creating Carry Forward Salary", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Creating Carry Forward Salary", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
 
                             //GetCarryForwardSalary(dsSelectedEmp, para, dicLocal, dicProcChild, dtValue, dicSalaryHead, dicCarryForwardSalary);
@@ -4272,14 +4272,14 @@ public class clsSalaryProcessAplosArrear
                             GetDS(dicProcChild, out dsSPChd);
                             //objSlrProc.SaveDataSetsForSalaryProcess(dsSPChd, dsRetenAllow, dsSPAttdnProc);
                             ///BCP201013
-                            SendNotification("Saving Data", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Saving Data", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                             OTSBD.clsStaticInfo _save = new clsStaticInfo();
                             //_save.SaveDataSets(dsSPChd, dsRetenAllow, dsSPAttdnProc, dsCarryForwardSalary);
                             _save.SaveDataSets(dsSPChd);//this is new line
                             dsSPChd.Tables[0].DefaultView.RowFilter = null;
 
-                            SendNotification("Transporting Processed Salary", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Transporting Processed Salary", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             string SalaryProcessMasterId = "";
                             if (dsSPChd.Tables[0].DefaultView.Count > 0)
                                 SalaryProcessMasterId = dsSPChd.Tables[0].DefaultView[0]["SlrProcMstSystemID"].ToString();
@@ -4299,7 +4299,7 @@ public class clsSalaryProcessAplosArrear
                             connection.executeQuery(@"DELETE FROM ArrearProcChildTemp WHERE SlrProcMstSystemID='" + SalaryProcessMasterId + @"'");
                             connection.CommitTransaction();
 
-                            SendNotification("Processing Bank Cash Percentages", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Processing Bank Cash Percentages", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             ProcessBankCashPercentage(dsSPChd, dtValue, dicSalaryHead, para);
 
                             dtLocal = dsSPChd.Tables[0].DefaultView.ToTable(true, "EmpInfoSystemID");
@@ -4307,14 +4307,14 @@ public class clsSalaryProcessAplosArrear
                             TotalEmpProcess += dtLocal.Rows.Count;
 
                             //PT
-                            SendNotification("Processing Professional Tax", TotProcComp, TotSelectEmpForProc);
+                            SendNotification("Processing Professional Tax", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                             PT(sEmpSysIDColl, para.PlantId, Convert.ToDateTime(para.FromDate).ToString("MM"), Convert.ToDateTime(para.FromDate).ToString("yyyy"));
 
                             clsCarryForwardSalary cfob = new clsCarryForwardSalary();
                             if (para.IsNegativeSalaryApplicable)
                             {
-                                SendNotification("Processing Negative Salary", TotProcComp, TotSelectEmpForProc);
+                                SendNotification("Processing Negative Salary", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                                 cfob.UploadCarryForwardSalaryDataForNextMonthProcess(Convert.ToDateTime(para.FromDate).Year.ToString(), Convert.ToDateTime(para.FromDate).Month.ToString(), para.FromDate, sEmpSysIDColl, para.NegativeSalaryHeadId, para.PlantId, para.USER);
                             }
@@ -4339,14 +4339,14 @@ public class clsSalaryProcessAplosArrear
             if (strAbstractEmp != "")
             {
                 para.ShowLog = "Process sucessfully Completed... " + strAbstractEmp;
-                SendNotification(para.ShowLog);
+                SendNotification(para.ShowLog, para.FromDate);
                 //sendMessage("Processed sucessfully Completed... " + strAbstractEmp);
             }
             else
             {
                 //sendMessage("Processed sucessfully Completed... ");
                 para.ShowLog = "Processed sucessfully Completed... ";
-                SendNotification(para.ShowLog);
+                SendNotification(para.ShowLog, para.FromDate);
 
             }
             return para;
@@ -4356,7 +4356,7 @@ public class clsSalaryProcessAplosArrear
         catch (Exception ex)
         {
             //sendMessage(ex.Message);
-            SendNotification(ex.ToString());
+            SendNotification(ex.ToString(), para.FromDate);
 
             throw ex;
         }
@@ -4386,10 +4386,16 @@ public class clsSalaryProcessAplosArrear
         try_for_next_slab,
         Violeted
     }
-    private void SendNotification(string Message, int CurrentEmpCount = 0, int totalEmp = 0)
+    private void SendNotification(string Message, string FromDate, int CurrentEmpCount = 0, int totalEmp = 0)
     {
         try
         {
+            string monthyear = "";
+            if (string.IsNullOrEmpty(FromDate) == false)
+                monthyear = Convert.ToDateTime(FromDate).ToString("MMM/yyyy");
+
+            Message = monthyear + " " + Message;
+
             var _identitySignal = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if (CurrentEmpCount == 0)
                 clsMobileNotification.SendMessage(_identitySignal.CompanyGroupId, _identitySignal.PlantId, _identitySignal.UserId, Message);

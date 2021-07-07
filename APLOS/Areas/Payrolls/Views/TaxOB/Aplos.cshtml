@@ -148,7 +148,8 @@
                                 <div e-column e-field="TaxSavingItemLimit" e-headertext="Tax Saving Item Limit" e-width="3"></div>
                                 <div e-column e-field="Tax" e-headertext="Tax" e-width="2"></div>
                                 <div e-column e-field="Taxable" e-headertext="Taxable" e-width="2"></div>
-                                <div e-column e-template="#ValueT" e-headertext="Value" e-width="5"></div>
+                                <div e-column e-template="#ValueT" e-headertext="Value" e-width="3"></div>
+                                <div e-column e-template="#IncomeFiles" e-headertext="Attachment" e-width="5"></div>
 
                             </div>
                         </div>
@@ -232,7 +233,7 @@
                                 <div e-column e-field="TaxSavingItemLimit" e-headertext="Tax Saving Item Limit" e-width="3"></div>
                                 <div e-column e-field="Tax" e-headertext="Tax" e-width="2"></div>
                                 <div e-column e-field="Taxable" e-headertext="Taxable" e-width="2"></div>
-                                <div e-column e-field="Type" e-headertext="Type" e-width="5"></div>
+                                <div e-column e-field="Type" e-headertext="Type" e-width="3"></div>
                                 <div e-column e-template="#ValueeT" e-headertext="Value" e-width="5"></div>
                                 <div e-column e-template="#IncomeFiles" e-headertext="Attachment" e-width="5"></div>
                             </div>
@@ -252,7 +253,7 @@
                 </script>
                 <script type="text/template" id="IncomeFiles">
                     <div class="col-md-4" ng-show="data.Id !=null && data.FileName == null ||  data.FileName == ''">
-                        <div id="UploadDefault" e-id="{{data.Id}}" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getIncomeFileList" e-showroundedcorner="false" e-autoupload="true" e-begin="$parent.onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="$parent.uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" ></div>
+                        <div id="UploadDefault" e-id="{{data.Id}}" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getFileList" e-showroundedcorner="false" e-autoupload="true" e-begin="$parent.onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="$parent.uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" ></div>
                     </div>
                     <div class="col-md-8" ng-hide="data.FileName==null ">
                         <a href="POPResources/TaxOpeningBalance/{{data.FileName}}">
@@ -278,6 +279,7 @@
                                 <div e-column e-field="Description" e-headertext="Description" e-width="3"></div>
                                 <div e-column e-field="OptionBase" e-headertext="Option Base" e-width="3"></div>
                                 <div e-column e-template="#templateValue" e-headertext="Value" e-width="5"></div>
+                                <div e-column e-template="#TaxableIncomeFiles" e-headertext="Attachment" e-width="5"></div>
                             </div>
                         </div>
                     </div>
@@ -292,6 +294,21 @@
                 </script>
                 <script type="text/template" id="checkboxTemplateTaxableIncomePara">
                     <input type="checkbox" e-id="{{data.TaxFormulaId}}" ej-checkbox class="rowCheckbox" e-checked="data.IsSelect" e-change="$parent.CheckValidation" />
+                </script>
+                <script type="text/template" id="TaxableIncomeFiles">
+                    <div class="col-md-4" ng-show="data.Id !=null && data.FileName == null ||  data.FileName == ''">
+                        <div id="UploadDefault" e-id="{{data.Id}}" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getTaxableIncomeFileList" e-showroundedcorner="false" e-autoupload="true" e-begin="$parent.onBeginUploadTaxableIncome" e-filesize="2097152" ej-uploadbox e-saveurl="$parent.uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt"></div>
+                    </div>
+                    <div class="col-md-8" ng-hide="data.FileName==null ">
+                        <a href="POPResources/TaxOpeningBalance/{{data.FileName}}">
+                            <span style="height:20px;width:20px;color:blue;">
+                                {{data.FileName}}
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col-md-4" ng-hide="data.FileName==null ">
+                        <button name="submit" e-id="{{data.Id}}" ng-click="$parent.confirmTaxableIncomeFileDelete(this)" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
+                    </div>
                 </script>
             </div>
         </div>
@@ -329,3 +346,4 @@
 
 <confirm-archive-generic modalid="confirmMasterPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteMaster();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmFileDelete" title="Confirmation" message="Are you sure to delete the selected file?" data-ng-click-right-button="DeleteFile()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmFileDeletes" title="Confirmation" message="Are you sure to delete the selected file?" data-ng-click-right-button="DeleteInfoFile()"></confirm-archive-generic>

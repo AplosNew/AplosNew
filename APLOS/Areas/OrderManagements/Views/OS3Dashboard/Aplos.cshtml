@@ -17,7 +17,9 @@
         height: 300px;
         overflow: auto;
     }
-
+    .modal {
+        overflow-y: auto;
+    }
     .table-responsive {
         display: block;
     }
@@ -107,30 +109,7 @@
         </div>
 
 
-        <div class="modal fade site-modal in" id="clickModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button class="close" data-dismiss="modal">&times;</button>
-                        <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">SO Details</h1>
-                    </div>
-                    <div class="modal-body" style="min-height:300px; min-width:100%;">
-                        <div class="row" style="margin: 20px; font-style:italic"> </div>
-                        <p style="margin:10px;">
-                            The Selection that are made are :<b> {{Detail1}} : {{Detail2}} : {{Detail3}}</b>.
-                        <p>
 
-                            <div id="slabClickGrid"></div>
-
-
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-primary" data-dismiss="modal" ng-click="closeModal()">Close</button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
 
 
 
@@ -139,5 +118,99 @@
 
 </div>
 
+<div class="modal site-modal" id="clickModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">SO Details</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row" style="margin: 20px; font-style:italic"> </div>
+                <p style="margin:10px;">
+                    The Selection that are made are :<b> {{Detail1}} : {{Detail2}} : {{Detail3}}</b>.
+                <p>
 
+                    @*<div id="slabClickGrid"></div>*@
+                    <div id="slabClickGrid" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplate"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-recordDoubleClick="orderControlShow">
+                        <div e-columns>
+                            <div e-column e-field='Id' e-width="80" e-headerText="So Id" e-type="string"></div>
+                            <div e-column e-field='Qty' e-width="80" e-headerText="SO Oty" e-type="number"></div>
+                            <div e-column e-field='Entity' e-width="80" e-headerText="Entity" e-type="string"></div>
+                            <div e-column e-field='customers' e-width="120" e-headerText="Customer" e-type="string"></div>
+                            <div e-column e-field='Remarks' e-width="150" e-headerText="Remarks" e-type="string"></div>
+                            <div e-column e-field='Buyer' e-width="120" e-headerText="Buyer" e-type="string"></div>
+                            <div e-column e-field='BuyerReferenceNo' e-width="120" e-headerText="Buyer Ref No" e-type="string"></div>
+                            <div e-column e-field='OwnReferenceNo' e-width="120" e-headerText="Own Ref No" e-type="string"></div>
+                            <div e-column e-field='IBuyerReferenceNo' e-width="120" e-headerText="Buyer Item Ref No" e-type="string"></div>
+                            <div e-column e-field='IOwnReferenceNo' e-width="120" e-headerText="Own Item Ref No" e-type="string"></div>
+                            <div e-column e-field='DeliveryDate' e-width="80" e-headerText="Delivery Date" e-type="string"></div>
+                            <div e-column e-field='CommitmentDate' e-width="120" e-headerText="Commitment Date" e-type="string"></div>
+                            <div e-column e-field='ProductionDate' e-width="120" e-headerText="Production Date" e-type="string"></div>
+                            <div e-column e-field='DDate' e-width="120" e-headerText="Ex Factory Date" e-type="string"></div>
+                            <div e-column e-field='OrderNo' e-width="120" e-headerText="Order No" e-type="string"></div>
+                            <div e-column e-field='ItemNo' e-width="120" e-headerText="Item No" e-type="string"></div>
+                            <div e-column e-field='PRNo' e-width="120" e-headerText="Production Order No" e-type="string"></div>
+                            <div e-column e-field='MResp' e-width="80" e-headerText="Marketing Responsible Person" e-type="string"></div>
+                            <div e-column e-field='EarlyOrLateBy' e-width="80" e-headerText="Early Or Late By" e-type="string"></div>
+                            <div e-column e-field='OrderStatusId' e-width="100" e-headerText="SO Status" e-type="string"></div>
+                            <div e-column e-field='POStatus' e-width="100" e-headerText="Production Order Status" e-type="string"></div>
+
+                        </div>
+                    </div>
+
+
+            </div>
+            <div class="modal-footer">
+                @*ng-click="closeModal()"*@
+                <button class="btn btn-primary" data-dismiss="modal" ng-click="closePopup('clickModal')" >Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="modal site-modal" id="orderControl" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Control Remarks</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row" style="margin: 20px; font-style:italic"> </div>
+
+
+                <div id="orderCtrl" ej-grid e-datasource="ControlList" e-templaterefresh="refreshTemplate"
+                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+                    <div e-columns>
+                        <div e-column e-field="ProductionOrderId" e-headertext="Production Order" e-width="80"></div>
+                        <div e-column e-field="DateAdded" e-headertext="Employee Name" e-width="120"></div>
+                        <div e-column e-field="MainRMInHouse" e-headertext="Main RM InHouse" e-width="120"></div>
+                        <div e-column e-field="OtherRMInHouse" e-headertext="Other RM InHouse" e-width="120"></div>
+                        <div e-column e-field="MainRMShipment" e-headertext="Main RM Shipment" e-width="120"></div>
+                        <div e-column e-field="OtherRMShipment" e-headertext="Other RM Shipment" e-width="120"></div>
+                        <div e-column e-field="BaseProcessInput" e-headertext="Base Process Input" e-width="120"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="120"></div>
+
+
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+
+                <button class="btn btn-primary " ng-click="closePopup('orderControl')" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
 

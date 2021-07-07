@@ -6468,7 +6468,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                     sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                 }
 
-
+                sheet1.IsDisplayZeros = false;
                 sheet1.Name = "EmpPayRegister" + para.SalaryProcessId;
                 #endregion
 

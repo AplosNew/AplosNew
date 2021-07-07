@@ -143,13 +143,13 @@ namespace Library.MaterialManagement.JobWork
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
 						LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM JWTransformationPurchaseOrderDetail AS A
-									JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id WHERE B.PlantId='202026' GROUP BY A.JWTransformationPurchaseOrderId) AS IRD ON IRD.JWTransformationPurchaseOrderId=IR.Id
+									JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId) AS IRD ON IRD.JWTransformationPurchaseOrderId=IR.Id
 						LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, A.TransactionUoMId FROM JWTransformationPurchaseOrderDetail AS A JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id
-									WHERE B.PlantId='202026' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
+									WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
-						WHERE  IR.PlantId='202026' AND IR.POType='PO'  --IR.AddedBy='Shashank' And
+						WHERE  IR.PlantId='"+ plantId + @"' AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
                         --AND IR.CheckedBy IS NOT NULL 
 						AND IR.CheckedByStatus='Pending' 
 						AND isnull(IR.IsClosed,0)=0 
@@ -220,16 +220,16 @@ namespace Library.MaterialManagement.JobWork
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
 						LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM JWTransformationPurchaseOrderDetail AS A
-									JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id WHERE B.PlantId='202026' GROUP BY A.JWTransformationPurchaseOrderId) AS IRD ON IRD.JWTransformationPurchaseOrderId=IR.Id
+									JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId) AS IRD ON IRD.JWTransformationPurchaseOrderId=IR.Id
 						LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, A.TransactionUoMId FROM JWTransformationPurchaseOrderDetail AS A JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id
-									WHERE B.PlantId='202026' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
+									WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
 						Where IR.Id not in(Select distinct POId from trn.InventoryReceiveDetail where POId is not null)--and RequisitionId='110232'
 						AND IR.CheckedByStatus IS NULL 
 						AND IR.AuthorizedByStatus IS NULL						
-						 And IR.PlantId='202026' AND IR.POType='PO'--AND IR.AddedBy='Shashank'
+						 And IR.PlantId='"+ plantId + @"' AND IR.POType='OSTransformationPO'--AND IR.AddedBy='Shashank'
 
                         AND isnull(IR.IsClosed,0)=0 
 						--Order by IR.PODate DESC
@@ -298,22 +298,22 @@ namespace Library.MaterialManagement.JobWork
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
 						LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM JWTransformationPurchaseOrderDetail AS A
-									JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id WHERE B.PlantId='202026' GROUP BY A.JWTransformationPurchaseOrderId) AS IRD ON IRD.JWTransformationPurchaseOrderId=IR.Id
+									JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId) AS IRD ON IRD.JWTransformationPurchaseOrderId=IR.Id
 						LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, A.TransactionUoMId FROM JWTransformationPurchaseOrderDetail AS A JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id
-									WHERE B.PlantId='202026' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
+									WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
 						Where IR.CheckedByStatus is null				
 						AND IR.AuthorizedByStatus='For Approval'						
-						And IR.PlantId='202026' AND IR.POType='PO'	--AND IR.AddedBy='Shashank'	
+						And IR.PlantId='"+ plantId + @"' AND IR.POType='OSTransformationPO'	--AND IR.AddedBy='Shashank'	
                         AND isnull(IR.IsClosed,0)=0 
 						) x
 						Order by PODate DESC";
                 }
                 else if (POTypeStatus == "CheckedHoldRej")
                 {
-                    Sql = @"--DECLARE @plantId VARCHAR(10)='" + plantId + @"';
+                    Sql = @"--DECLARE @plantId VARCHAR(10)='"+ plantId + @"';
                          SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
                                     --,IR.PODate
@@ -333,11 +333,11 @@ namespace Library.MaterialManagement.JobWork
 									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
                                     ,isnull(pgl.CtnId,0) CtnId
                                     ,IR.AddedBy
-                                    ,PLC.LCANo PurchaseLC
-									,ISNULL(Ctc.ContractNo,'') ContractNo
-									, ISNULL(MLC.Id,'') MasterLCNo
-							,ISNULL(MLC.LCRef,'') LCRef
-									,Par.UserName Customer
+                                 --   ,PLC.LCANo PurchaseLC
+							--		,ISNULL(Ctc.ContractNo,'') ContractNo
+								--	, ISNULL(MLC.Id,'') MasterLCNo
+					--		,ISNULL(MLC.LCRef,'') LCRef
+						--			,Par.UserName Customer
                                     ,IR.CheckedByStatus AS CheckedByStatus
 			                        ,IR.AuthorizedByStatus AS AuthorizedByStatus
                            ,eI.EmployeeName CheckedBy
@@ -347,6 +347,9 @@ namespace Library.MaterialManagement.JobWork
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
+                        ,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks
                         FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -354,7 +357,7 @@ namespace Library.MaterialManagement.JobWork
                           --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
 						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
                         
-						LEFT JOIN [HKP].[Party] Par ON Par.Id= Ctc.CustomerId
+					--	LEFT JOIN [HKP].[Party] Par ON Par.Id= Ctc.CustomerId
                         LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
                         LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
 
@@ -373,10 +376,11 @@ namespace Library.MaterialManagement.JobWork
                         LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM JWTransformationPurchaseOrderDetail AS A
 		                            JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId) AS IRD ON IRD.JWTransformationPurchaseOrderId=IR.Id
                         LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, A.TransactionUoMId FROM JWTransformationPurchaseOrderDetail AS A JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id
-		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
+		                            WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-                        WHERE  IR.PlantId='" + plantId + @"' AND IR.CheckedBy IS NOT NULL AND IR.AuthorizedBy IS NOT NULL AND IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.POType='PO' AND IR.PlantId='" + plantId + "'   AND isnull(IR.IsClosed,0)=0 Order by IR.PODate DESC";//IR.AddedBy='" + identity.Name + "' And
+                        left join ORG.Entity E on E.Id=IR.EntityId
+                        WHERE  IR.PlantId='" + plantId + @"' AND IR.CheckedBy IS NOT NULL AND IR.AuthorizedBy IS NOT NULL AND IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.POType='OSTransformationPO' AND IR.PlantId='"+ plantId + @"'   AND isnull(IR.IsClosed,0)=0 Order by IR.PODate DESC";//IR.AddedBy='" + identity.Name + "' And
 
                 }
                 else if (POTypeStatus == "Checked")
@@ -401,11 +405,11 @@ namespace Library.MaterialManagement.JobWork
 									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
                                     ,isnull(pgl.CtnId,0) CtnId
                                     ,IR.AddedBy
-                                    ,PLC.LCANo PurchaseLC
-									,ISNULL(Ctc.ContractNo,'') ContractNo
+                                    --,PLC.LCANo PurchaseLC
+									--,ISNULL(Ctc.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							,ISNULL(MLC.LCRef,'') LCRef
-									,Par.UserName Customer
+									--,Par.UserName Customer
                                     ,eI.EmployeeName CheckedBy
                                     ,IR.CheckedByStatus AS CheckedByStatus
 			                        ,IR.AuthorizedByStatus AS AuthorizedByStatus
@@ -416,6 +420,9 @@ namespace Library.MaterialManagement.JobWork
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
+                         ,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks
                         FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -446,12 +453,13 @@ namespace Library.MaterialManagement.JobWork
 		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-                        WHERE IR.PlantId='" + plantId + @"' 
+                        left join ORG.Entity E on E.Id=IR.EntityId
+                         WHERE IR.PlantId='" + plantId + @"' 
                          AND IR.CheckedBy IS NOT NULL 
                          AND IR.AuthorizedBy IS NOT NULL  
                          AND IR.CheckedByStatus='Checked' 
                          AND IR.AuthorizedByStatus='For Approval'  
-                         AND IR.POType='PO'  		
+                         AND IR.POType='OSTransformationPO'  		
                          AND ISNULL(IR.IsClosed,0)=0 Order by IR.PODate DESC";
 
 
@@ -1911,7 +1919,7 @@ namespace Library.MaterialManagement.JobWork
                         data["AuthorizedByStatus"] = "For Approval";
                         data["CheckedBy"] = null;
                         data["CheckedByStatus"] = null;
-                        data["POType"] = "PO";
+                        data["POType"] = "OSTransformationPO";
 
                     }
                     else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
@@ -1920,16 +1928,16 @@ namespace Library.MaterialManagement.JobWork
                         data["AuthorizedByStatus"] = null;
                         data["CheckedBy"] = null;
                         data["CheckedByStatus"] = null;
-                        data["POType"] = "PO";
+                        data["POType"] = "OSTransformationPO";
                     }
                     else
                     {
 
-                        data["CheckedBy"] = identity.EmployeeId;
+                        data["CheckedBy"] = data["CheckedBy"];//identity.EmployeeId;
                         data["CheckedByStatus"] = "Pending";
                         data["AuthorizedBy"] = null;
                         data["AuthorizedByStatus"] = null;
-                        data["POType"] = "PO";
+                        data["POType"] = "OSTransformationPO";
 
                     }
 
@@ -1962,7 +1970,7 @@ namespace Library.MaterialManagement.JobWork
                         data["AuthorizedByStatus"] = "For Approval";
                         data["CheckedBy"] = null;
                         data["CheckedByStatus"] = null;
-                        data["POType"] = "PO";
+                        data["POType"] = "OSTransformationPO";
 
                     }
                     else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
@@ -1971,16 +1979,16 @@ namespace Library.MaterialManagement.JobWork
                         data["AuthorizedByStatus"] = null;
                         data["CheckedBy"] = null;
                         data["CheckedByStatus"] = null;
-                        data["POType"] = "PO";
+                        data["POType"] = "OSTransformationPO";
                     }
                     else
                     {
 
-                        data["CheckedBy"] = 1900109;//identity.EmployeeId; //data["CheckedBy"];
+                        data["CheckedBy"] = data["CheckedBy"]; //identity.EmployeeId; //data["CheckedBy"];
                         data["CheckedByStatus"] = "Pending";
                         data["AuthorizedBy"] = null;
                         data["AuthorizedByStatus"] = null;
-                        data["POType"] = "PO";
+                        data["POType"] = "OSTransformationPO";
 
                     }
 
@@ -2048,21 +2056,38 @@ namespace Library.MaterialManagement.JobWork
 
             try
             {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con2 = new ConnectionManager.DAL.ConManager("1");
 
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
-                con.executeQuery("DELETE JWPOBOQMAP where JWPODetailId = '" + id + "'");
-                con.executeQuery("DELETE JWTransformationPurchaseOrderChildMaterial where JWPODetailId = '" + id + "'");
-                con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
-                con.executeQuery("DELETE JWTransformationPurchaseOrderInputChildMaterial where JWPODetailId = '" + id + "'");
-                con.executeQuery("DELETE JWTransformationPurchaseOrderByProductChildMaterial where JWPODetailId = '" + id + "'");
 
-                con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
-                con.executeQuery("DELETE from  JWTransformationPurchaseOrderDetail where id='" + id + "'");
+                if (!string.IsNullOrEmpty(id))
+                {
+                    con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + id + "' ", out dsMaster, false, "1");
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("First Delete Material Input Data");
+                    }
+                }
+
+                
+
+                //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
+                //con.executeQuery("DELETE JWPOBOQMAP where JWPODetailId = '" + id + "'");
+                //con.executeQuery("DELETE JWTransformationPurchaseOrderChildMaterial where JWPODetailId = '" + id + "'");
+                //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
+                //con.executeQuery("DELETE JWTransformationPurchaseOrderInputChildMaterial where JWPODetailId = '" + id + "'");
+                //con.executeQuery("DELETE JWTransformationPurchaseOrderByProductChildMaterial where JWPODetailId = '" + id + "'");
+
+                //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
+                //con.executeQuery("DELETE from  JWTransformationPurchaseOrderDetail where id='" + id + "'");
+
+                con.executeQuery("delete from dbo.JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId='" + id + @"' ");
+                con.executeQuery("delete from dbo.JobWorkTransformationContractChild where Id='" + id + "' ");
 
                 con.CommitTransaction();
 
@@ -2385,7 +2410,7 @@ namespace Library.MaterialManagement.JobWork
         //    }
         //}
 
-        public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type)
+        public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type, List<Dictionary<string, object>> taxCategoryList)
         {
             string JWPODId = "";
             DataSet dsMaster; DataSet dsPOBOQMap; DataSet dsJwChildMaterial;
@@ -2399,6 +2424,12 @@ namespace Library.MaterialManagement.JobWork
             if (String.IsNullOrEmpty(JWPurchaseOrderId))
             {
                 JWPurchaseOrderId = data[0]["JWTransformationPurchaseOrderId"].ToString();
+            }
+
+            con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild where JobActivityId='" + data[0]["JobActivityId"] + "' and JobWorkItemMasterId='" + data[0]["JobWorkItemMasterId"] + "' and ArticleCodeId='" + data[0]["ArticleId"] + "' and MaterialMasterId='"+data[0]["MaterialMasterId"] + "' and JobWorkTransformationContractMasterId='" + data[0]["JWTransformationPurchaseOrderId"] + "' AND  Id<>'" + data[0]["Id"] + "' ", out dsMaster, false, "1");
+            if (dsMaster.Tables[0].Rows.Count > 0)
+            {
+                throw new Exception("Same Activity, JW Output Item, Material and Article already exist.");
             }
 
             con.OpenDataSetThroughAdapter("SELECT * FROM JobWorkTransformationContractChild WHERE JobWorkTransformationContractMasterId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
@@ -2489,6 +2520,7 @@ namespace Library.MaterialManagement.JobWork
 
 
                         dsMaster.Tables[0].DefaultView.RowFilter = "Id='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
+                        dsTax.Tables[0].DefaultView.RowFilter = "JWTransformationPurchaseOrderDetailId='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
 
                         string _Id = "";
 
@@ -2510,7 +2542,10 @@ namespace Library.MaterialManagement.JobWork
                             AddNewRow(dsMaster.Tables[0], data[i]);
 
 
+
                         }
+
+
                         else
                         {
 
@@ -2519,9 +2554,44 @@ namespace Library.MaterialManagement.JobWork
                             data[i]["Quantity"] = data[i]["TransactionQty"];
                             EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
                         }
+                        string DetailIdid = dsMaster.Tables[0].Rows[i]["Id"].ToString();
+                        for (int i1 = 0; i1 < taxCategoryList.Count; i1++)
+                        {
 
+
+                            if (dsTax.Tables[0].DefaultView.Count == 0)
+                            {
+                                
+
+                                bplib.clsGenID genid = new bplib.clsGenID();
+                                genid.GenID("JWTransformationPurchaseOrderTax", out _Id);
+                                taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
+                                //JWPODId = taxCategoryList[i1]["Id"].ToString();
+                                //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                                taxCategoryList[i1]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
+                                taxCategoryList[i1]["JWTransformationPurchaseOrderDetailId"] = DetailIdid;
+                                //data[i]["Quantity"] = data[i]["TransactionQty"];
+
+                                AddNewRow(dsTax.Tables[0], taxCategoryList[i1]);
+
+
+
+                            }
+
+
+                            else
+                            {
+
+                                //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                                taxCategoryList[i1]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
+                                taxCategoryList[i1]["JWTransformationPurchaseOrderDetailId"] = DetailIdid;
+                                taxCategoryList[i1]["Quantity"] = data[i]["TransactionQty"];
+                                EditRow(dsTax.Tables[0].DefaultView[0].Row, taxCategoryList[i1]);
+                            }
+                        }
 
                     }
+
                 }
 
                 if (data != null)
@@ -2554,7 +2624,7 @@ namespace Library.MaterialManagement.JobWork
                         //    SaveJWTransformationPurchaseOrderByProductMaterial(data, JWActivityId, Conversion, out dsJwChildJWByProduct);
                         //}
 
-                        _info.SaveDataSets(dsMaster, dsJwChildJWInputMaterial, dsJwChildJWByProduct);
+                        _info.SaveDataSets(dsMaster, dsTax);//, dsJwChildJWInputMaterial, dsJwChildJWByProduct,
 
                     }
                 }
@@ -2870,7 +2940,7 @@ namespace Library.MaterialManagement.JobWork
 	                            ,(JWTPD.Quantity*JWTPD.RatePerUnit) TransactionAmount
                             , JWTPD.ReferenceNo,((JWTPD.Quantity*JWTPD.RatePerUnit)*po.ToCurrencyRate) BaseAmount
                             , jwtax.TaxAmount,JWTPD.TransactionUoMId,TransactionUoM.Code TransactionUoM,JWTPD.BaseUOMId,BaseUOM.Code BaseUOM
-                            ,MS.Id MaterialStorageId,MS.UserName MaterialStorage
+                            ,MS.Id MaterialStorageId,MS.UserName MaterialStorage,EEI.EmployeeName ResponsiblePerson ,ISNULL(MM.UserName,'') MaterialName
                             FROM JobWorkTransformationContractChild JWTPD      
                             left JOIN [dbo].[JWTransformationPurchaseOrder] PO On PO.Id=JWTPD.JobWorkTransformationContractMasterId
                             LEFT JOIN HKP.JobWorkItem JWI ON JWI.Id = JWTPD.JobWorkItemMasterId
@@ -3509,6 +3579,28 @@ namespace Library.MaterialManagement.JobWork
             {
                 var sql = "";
                 sql = @" select Id as Value, UserName as Text from ORG.Entity where PlantId='" + PlantId + "' order by UserName ";
+
+                var Data = _sqlRepository.GetDataCollection(sql);
+
+                return Data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetMaterialfromJW(string JobWorkItemId)
+        {
+            try
+            {
+                var sql = "";
+                sql = @"select mm.Id, mm.Code, mm.UserName as Material,mm.BaseUOMId, mmuom.UserName as BaseUom,jwi.UOMId, uom.UserName as JWIUom
+                     ,UnitId=case when jwi.MaterialMasterId is not null then mm.BaseUOMId else jwi.UOMId End
+                     from HKP.JobWorkItem jwi left join MST.MaterialMaster mm on mm.Id=jwi.MaterialMasterId
+                     left join scs.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
+					 left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
+                     where jwi.Id='" + JobWorkItemId + @"' ";
 
                 var Data = _sqlRepository.GetDataCollection(sql);
 

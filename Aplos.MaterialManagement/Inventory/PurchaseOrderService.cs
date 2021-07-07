@@ -12340,6 +12340,39 @@ ORDER BY IR.ID DESC";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
+
+        public IEnumerable<object> GetCheckedByAndApprovedBYOutSource(string CheckedBy, string ApprovedBy)
+        {
+            var sql = "";
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (CheckedBy == "true" && ApprovedBy == "true")
+                {
+                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='OutSourceCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                }
+                else if (CheckedBy == "false" && ApprovedBy == "true")
+                {
+                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='OutSourceApprovedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                }
+                else if (CheckedBy == "false" && ApprovedBy == "false")
+                {
+
+                }
+                return _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
         #region Notification Seting code for Service PO Requisition
 
         public IEnumerable<object> GetCheckedByAndApprovedBYServicePORequisition(string CheckedBy, string ApprovedBy)

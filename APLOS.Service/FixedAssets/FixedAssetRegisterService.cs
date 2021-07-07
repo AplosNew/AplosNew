@@ -3651,15 +3651,25 @@ namespace Library.Service.FixedAssets
 
             if (PartyType == "All")
             {
-                sql = @"SELECT FR.SerialNo, FR.Id AssetNo,FR.Model
+                sql = @"SELECT FR.SerialNo, FR.Id AssetNo,  e.UserName Entity, D.UserName Department, FR.Model
                 , FR.InvoiceNo, MM.UserName MaterialMasterName, MMA.StandardName Article,FR.[Description]
                 , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                 --, FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
                 --, FAM.FixedAssetSubCategoryId, FAM.AssetType
-                , FR.Price PurchasePrice,ISNULL(SAR.SubAssetAmount,0) SubAssetAmount, (FR.Price + ISNULL(SAR.SubAssetAmount,0)) TotalAmount
+				,PC.Code PurchaseCurrency
+				,BC.Code BaseCurrency
+				,FR.Quantity
+                ,isnull( FR.Price,0 )PurchasePrice
+				,isnull( FR.FABaseAmount,0)FABaseAmount
+				,ISNULL(SAR.SubAssetAmount,0) SubAssetBaseAmount
+
+				,isnull (FR.FABaseAmount,0) + (ISNULL(SAR.SubAssetAmount,0)) TotalBaseAmount
+				,ISNULL(FR.ADBaseAmount,0) ADBaseAmount
+				,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) NetFixedAssetsBaseAmount
+
                 ,OpeningBalance = case when fr.IsOpeningBalance = 1 then 'YES' else 'NO' end
                 ,format( fr.CapitalizationDate, 'dd-MMM-yyyy') CapitalizationDate
-                --, FR.IsFinancial
+                --, FR.IsFinanciali
                 ,P.UserName VendorName
                 ,FR.[LifeTime]
                 ,C.UserName OriginName
@@ -3679,7 +3689,16 @@ namespace Library.Service.FixedAssets
                 LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId
                 LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
                 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-                LEFT JOIN(SELECT FixedAssetRegisterId,sum(Amount) SubAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
+				left join scs.Currency PC on PC.Id= FR.CurrencyId
+				left join scs.Currency BC on BC.Id= FR.FABaseCurrencyId
+
+	
+                LEFT JOIN(SELECT FixedAssetRegisterId,sum(isnull( Amount,0)) SubAssetAmount 
+				FROM TRN.SubFixedAssetRegister 
+				group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
+
+               left join ORG.Entity E on E.Id= FR.EntityId
+			   left join ORG.Department D on D.Id = FR.DepartmentId
                 WHERE FR.CompanyId='" + companyId + @"' and FR.Archive=0 and FR.IsAUC=0
                 AND FR.Id NOT IN(' ')";
             }
@@ -3693,12 +3712,24 @@ namespace Library.Service.FixedAssets
                 else if (FixedAssetsId != null)
                     paramter += "FR.FixedAssetMasterId =('" + FixedAssetsId + "') AND CONVERT(VARCHAR, fr.CapitalizationDate, 23) BETWEEN '" + FromDate.ToDbDate() + "' AND '" + ToDate.ToDbDate() + "'";
 
-                sql = @"SELECT FR.SerialNo, FR.Id AssetNo,FR.Model
+                sql = @"SELECT FR.SerialNo, FR.Id AssetNo ,  e.UserName Entity, D.UserName Department  ,FR.Model
                     , FR.InvoiceNo, MM.UserName MaterialMasterName, MMA.StandardName Article,FR.[Description]
                     , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                     --, FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
                     --, FAM.FixedAssetSubCategoryId, FAM.AssetType
-                    , FR.Price PurchasePrice,ISNULL(SAR.SubAssetAmount,0) SubAssetAmount, (FR.Price + ISNULL(SAR.SubAssetAmount,0)) TotalAmount
+
+                    --, FR.Price PurchasePrice,ISNULL(SAR.SubAssetAmount,0) SubAssetAmount, (FR.Price + ISNULL(SAR.SubAssetAmount,0)) TotalAmount
+						,PC.Code PurchaseCurrency
+						,BC.Code BaseCurrency
+						,FR.Quantity
+						,isnull( FR.Price,0 )PurchasePrice
+						,isnull( FR.FABaseAmount,0)FABaseAmount
+						,ISNULL(SAR.SubAssetAmount,0) SubAssetBaseAmount
+
+						,isnull (FR.FABaseAmount,0) + (ISNULL(SAR.SubAssetAmount,0)) TotalBaseAmount
+						,ISNULL(FR.ADBaseAmount,0) ADBaseAmount
+						,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) NetFixedAssetsBaseAmount
+
                     ,OpeningBalance = case when fr.IsOpeningBalance = 1 then 'YES' else 'NO' end
                     ,format( fr.CapitalizationDate, 'dd-MMM-yyyy') CapitalizationDate
                     --, FR.IsFinancial
@@ -3721,9 +3752,22 @@ namespace Library.Service.FixedAssets
                     LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId
                     LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
                     LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-                    LEFT JOIN(SELECT FixedAssetRegisterId,sum(Amount) SubAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
+					left join scs.Currency PC on PC.Id= FR.CurrencyId
+				    left join scs.Currency BC on BC.Id= FR.FABaseCurrencyId
+
+
+					--LEFT JOIN(SELECT FixedAssetRegisterId,sum(Amount) SubAssetAmount FROM TRN.SubFixedAssetRegister 
+					--group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
+
+			    LEFT JOIN(SELECT FixedAssetRegisterId,sum(isnull( Amount,0)) SubAssetAmount 
+				FROM TRN.SubFixedAssetRegister 
+				group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
+
+               left join ORG.Entity E on E.Id= FR.EntityId
+			   left join ORG.Department D on D.Id = FR.DepartmentId
                     WHERE FR.CompanyId='" + companyId + @"' and FR.Archive=0 and FR.IsAUC=0
-                    AND FR.Id NOT IN(' ')AND " + paramter + @"";
+                    --AND FR.Id NOT IN(' ')
+                    AND " + paramter + @"";
 
 
             }
@@ -3818,6 +3862,12 @@ namespace Library.Service.FixedAssets
             // worksheet[ROW, COL].CellStyle.Font.Bold = true;
             //  ROW++;
 
+            worksheet[ROW, COL].Text = "SerialNo";
+            int colSerialNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
             worksheet[ROW, COL].Text = "AssetNo";
             int colAssetNo = COL;
             worksheet[ROW, COL].ColumnWidth = 10;
@@ -3825,13 +3875,19 @@ namespace Library.Service.FixedAssets
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "SerialNo";
-            int colSerialNo = COL;
+    
+
+            worksheet[ROW, COL].Text = "Entity";
+            int colEntity = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-
+            worksheet[ROW, COL].Text = "Department";
+            int colDepartment = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
 
             worksheet[ROW, COL].Text = "Model";
             int colModel = COL;
@@ -3845,7 +3901,7 @@ namespace Library.Service.FixedAssets
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "FixedAsset Master";
+            worksheet[ROW, COL].Text = "Fixed Asset Master";
             int colFixedAssetMasterName = COL;
             worksheet[ROW, COL].ColumnWidth = 25;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
@@ -3871,34 +3927,84 @@ namespace Library.Service.FixedAssets
             // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "PurchasePrice";
+            worksheet[ROW, COL].Text = "Pur. Currency";
+            int colPurchaseCurrency = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Quantity";
+            int colQuantity = COL;
+            worksheet[ROW, COL].ColumnWidth = 8;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Purchase Price";
             int colPurchasePrice = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            //worksheet[ROW, COL].Text = "IsFinancial";
-            //int colIsFinancial  = COL;
-            //worksheet[ROW, COL].ColumnWidth = 8;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //// worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            //COL++;
 
-            worksheet[ROW, COL].Text = "InvoiceNo";
+            worksheet[ROW, COL].Text = "Base Currency";
+            int colBaseCurrency = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "FA Base Amount";
+            int colFABaseAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "SubAsset Base Amount";
+            int colSubAssetAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Total Base Amount";
+            int colTotalAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "AD Base Amount";
+            int colADBaseAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+            COL++;
+            worksheet[ROW, COL].Text = "Net FABase Amount";
+            int colNetFixedAssetsBaseAmount = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Invoice No.";
             int colInvoiceNo = COL;
             worksheet[ROW, COL].ColumnWidth = 17;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "GRNNo";
+            worksheet[ROW, COL].Text = "GRN No.";
             int colGRNNo = COL;
             worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "PONo";
+            worksheet[ROW, COL].Text = "PO No.";
             int colPONo = COL;
             worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
@@ -3914,7 +4020,7 @@ namespace Library.Service.FixedAssets
             //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "LifeTime";
+            worksheet[ROW, COL].Text = "Life Time";
             int colLifeTime = COL;
             worksheet[ROW, COL].ColumnWidth = 10;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
@@ -3928,32 +4034,19 @@ namespace Library.Service.FixedAssets
             // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "YearOfInstallation";
+            worksheet[ROW, COL].Text = "Year Of Installation";
             int colYearOfInstallation = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            worksheet[ROW, COL].Text = "OpeningBalance";
+            worksheet[ROW, COL].Text = "Opening Balance";
             int colIsOpeningBalance = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-            worksheet[ROW, COL].Text = "SubAsse Amount";
-            int colSubAssetAmount = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Total Amount";
-            int colTotalAmount = COL;
-            worksheet[ROW, COL].ColumnWidth = 12;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            // COL++;
+            //COL++;
 
 
             int endCol = COL;
@@ -3978,15 +4071,27 @@ namespace Library.Service.FixedAssets
 
                 worksheet[ROW, colMaterialMasterName].Text = dtGatenntryRegisterList.Rows[i]["MaterialMasterName"].ToString();
                 worksheet[ROW, colArticle].Text = dtGatenntryRegisterList.Rows[i]["Article"].ToString();
+                worksheet[ROW, colEntity].Text = dtGatenntryRegisterList.Rows[i]["Entity"].ToString();
+                worksheet[ROW, colDepartment].Text = dtGatenntryRegisterList.Rows[i]["Department"].ToString();
                 worksheet[ROW, colDescription].Text = dtGatenntryRegisterList.Rows[i]["Description"].ToString();
+                worksheet[ROW, colPurchaseCurrency].Text = dtGatenntryRegisterList.Rows[i]["PurchaseCurrency"].ToString();
+                worksheet[ROW, colBaseCurrency].Text = dtGatenntryRegisterList.Rows[i]["BaseCurrency"].ToString();
+                
+                worksheet[ROW, colQuantity].Text = dtGatenntryRegisterList.Rows[i]["Quantity"].ToString();
+
                 worksheet[ROW, colPurchasePrice].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["PurchasePrice"].ToString());
                 worksheet[ROW, colPurchasePrice].NumberFormat = clsStaticInfo.NumberFormat();
                 worksheet[ROW, colVendorName].Text = dtGatenntryRegisterList.Rows[i]["VendorName"].ToString();
                 worksheet[ROW, colLifeTime].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["LifeTime"].ToString());
                 worksheet[ROW, colOriginName].Text = dtGatenntryRegisterList.Rows[i]["OriginName"].ToString();
                 worksheet[ROW, colYearOfInstallation].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["YearOfInstallation"].ToString());
-                worksheet[ROW, colSubAssetAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["SubAssetAmount"].ToString());
-                worksheet[ROW, colTotalAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["TotalAmount"].ToString());
+                worksheet[ROW, colPurchasePrice].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["PurchasePrice"].ToString());
+                worksheet[ROW, colFABaseAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["FABaseAmount"].ToString());
+                worksheet[ROW, colSubAssetAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["SubAssetBaseAmount"].ToString());
+                worksheet[ROW, colTotalAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["TotalBaseAmount"].ToString());
+
+                worksheet[ROW, colADBaseAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["ADBaseAmount"].ToString());
+                worksheet[ROW, colNetFixedAssetsBaseAmount].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["NetFixedAssetsBaseAmount"].ToString());
 
                 worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);

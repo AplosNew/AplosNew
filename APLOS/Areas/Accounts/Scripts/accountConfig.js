@@ -912,5 +912,9 @@ function accountConfig($routeProvider) {
             controller: "inventoryJobWorkReceivedController"
         })
 
+        .when("/voucher-park", {
+            templateUrl: "Accounts/VoucherPark/Aplos",
+            controller: "voucherParkController"
+        })
         ;
 } 

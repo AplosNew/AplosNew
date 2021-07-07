@@ -27,7 +27,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Item Standard Name</label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="Master.StandardName" name="Item Standard Name" class="form-control" maxlength="50" required tabindex="4">
+                        <input type="text" ng-model="Master.StandardName" name="Item Standard Name" class="form-control" maxlength="100" required tabindex="4">
                     </div>
                 </div>
 
@@ -42,7 +42,7 @@
                     <label class="col-sm-4 control-label">Calculation Head</label>
                     <div class="col-sm-8">
                         <div class="select-style">
-                            <select class="form-control" ng-model="Master.CalculationHeadId" 
+                            <select class="form-control" ng-model="Master.CalculationHeadId"
                                     ng-options="item.Value as item.Text for item in salaryHeadList" tabindex="8">
                                 <option value="">--Select--</option>
                             </select>
@@ -68,7 +68,6 @@
                         <div class="select-style">
                             <select id="Period" class="form-control" ng-model="Master.Period" name="Period" required tabindex="12">
                                 <option value="">-Select-</option>
-                                <option Value="Weekly">Weekly</option>
                                 <option Value="Monthly">Monthly</option>
                             </select>
                         </div>
@@ -89,6 +88,18 @@
                         <input type="text" ng-model="Master.Remarks" class="form-control" maxlength="100" tabindex="16">
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Head value Applicable</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site" style="margin-top:7px;">
+                            <label>
+                                <input type="checkbox" ng-model="Master.isHeadApplicable" ng-change="refreshHead()" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="col-xs-12 col-sm-6 col-md-6">
@@ -96,28 +107,28 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Category</label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="Master.Category" name="Category" class="form-control" maxlength="30" tabindex="2" required>
+                        <input type="text" ng-model="Master.Category" name="Category" class="form-control" maxlength="100" tabindex="2" required>
                     </div>
                 </div>
 
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Sub Category</label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="Master.SubCategory" name="Sub Category" class="form-control" maxlength="30" tabindex="3" required>
+                        <input type="text" ng-model="Master.SubCategory" name="Sub Category" class="form-control" maxlength="100" tabindex="3" required>
                     </div>
                 </div>
 
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">User Name</label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="Master.UserName" name="User Name" class="form-control" maxlength="50" tabindex="5" required>
+                        <input type="text" ng-model="Master.UserName" name="User Name" class="form-control" maxlength="100" tabindex="5" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Policy Ref (If Any)</label>
                     <div class="col-sm-8">
-                        <input type="text" ng-model="Master.PolicyRef" class="form-control" maxlength="50" tabindex="7">
+                        <input type="text" ng-model="Master.PolicyRef" class="form-control" maxlength="100" tabindex="7">
                     </div>
                 </div>
 
@@ -152,7 +163,29 @@
                         <input type="text" name="Responsible Person" ng-model="RespPerson" ng-click="selectRespPerson()" class="form-control" maxlength="200" tabindex="15" required>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Active</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site" style="margin-top:7px;">
+                            <label>
+                                <input type="checkbox" ng-model="Master.Active" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="form-group" style="display:none;" id="HeadValue">
+                    <label class="col-sm-4 control-label">Head Value</label>
+                    <div class="col-sm-8 ">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="Master.HeadValueId" name="Head Value"
+                                    ng-options="item.Value as item.Text for item in AdditionDeductionList"  tabindex="10">
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="col-xs-12">
                 <div class="common-btn">
@@ -258,12 +291,23 @@
                                         <input type="text" ng-model="Child.MasterId" class="form-control" maxlength="100" tabindex="2" readonly>
                                     </div>
                                 </div>
-                                <div class="form-group" >
+                                <div class="form-group">
                                     <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
                                         <div class="select-style">
                                             <select class="form-control" ng-model="Child.PlantId" name="Plant"
                                                     ng-options="item.Value as item.Text for item in PlantList" required tabindex="2">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label"> Employment Type </label>
+                                    <div class="col-sm-8">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="Child.EmploymentType" name="Employement Type"
+                                                    ng-options="item.EmploymentType as item.EmploymentType for item in EmploymentTypeList"  tabindex="2">
                                                 <option value="">--Select--</option>
                                             </select>
                                         </div>
@@ -312,6 +356,7 @@
                                         <div e-column e-field="PlantId" e-headertext="Plant Id" e-width="120"></div>
                                         <div e-column e-field="EmpTypeId" e-headertext="Emp Type Id" e-width="120"></div>
                                         <div e-column e-field="DesignationId" e-headertext="Designation Id" e-width="120"></div>
+                                        <div e-column e-field="EmploymentType" e-headertext="Employment Type" e-width="120"></div>
                                         <div e-column e-template="#DeleteFile" e-headertext="" e-width="30"></div>
 
                                     </div>

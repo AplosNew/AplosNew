@@ -343,6 +343,7 @@
     <Compile Include="Areas\Accounts\AccountsAreaRegistration.cs" />
     <Compile Include="Areas\Accounts\Controllers\AccountStatusDashboardController.cs" />
     <Compile Include="Areas\Accounts\Controllers\AdjustmentNoteController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\VoucherParkController.cs" />
     <Compile Include="Areas\Accounts\Controllers\GeneralAccountDeterminateController.cs" />
     <Compile Include="Areas\Accounts\Controllers\InvoicePostController.cs" />
     <Compile Include="Areas\Accounts\Controllers\PartyReconciliationController.cs" />
@@ -521,6 +522,7 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\EmployeeAdditionDeductionProcessController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManualShiftController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ConsecutiveAttendaceAndOTController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\BlackListController.cs" />
@@ -1469,7 +1471,9 @@
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\dayBooksReportController.js" />
+    <Content Include="Areas\Accounts\Scripts\voucherParkController.js" />
     <Content Include="Areas\Accounts\Scripts\expenseRegisterReportController.js" />
+    <Content Include="Areas\Accounts\Scripts\FixedAssetsRegisterReportController.js" />
     <Content Include="Areas\Accounts\Scripts\gstR2ReportController.js" />
     <Content Include="Areas\Accounts\Scripts\GSTPayableSalesReportController.js" />
     <Content Include="Areas\Accounts\Scripts\GSTReceivableReportController.js" />
@@ -1720,6 +1724,7 @@
     <Content Include="Areas\FixedAssets\Scripts\entityFixedAssetsRegisterController.js" />
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
+    <Content Include="Areas\HumanResource\Scripts\EmployeeAdditionDeductionProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ManualShiftControllerController.js" />
     <Content Include="Areas\HumanResource\Scripts\bonusProvisionReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\bonusReportCController.js" />
@@ -3517,6 +3522,8 @@
     <Content Include="Areas\HumanResource\Views\ManualShift\Aplos.cshtml" />
     <Content Include="Areas\JobWork\Views\JobWorkReceiveBilling\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\EntityFixedAssetsRegister\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\EmployeeAdditionDeductionProcess\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\VoucherPark\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
