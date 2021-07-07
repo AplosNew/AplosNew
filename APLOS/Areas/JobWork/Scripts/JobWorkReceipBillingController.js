@@ -278,7 +278,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("InventoryReceiveId", "equal", parseInt(filteredData), true).take(100));
         e.detailsElement.find("#detailGrid").ejGrid({
             dataSource: data,
-            columns: ["MaterialName", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoM", "TransactionRate", "TotalMaterialTranAmount", "CurrencyName"]
+            columns: ["MaterialName", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoM", "TransactionRate", "TotalMaterialTranAmount", "CurrencyName","MaterialFor"]
         });
         e.detailsElement.find(".tabcontrol").ejTab();
 
@@ -345,6 +345,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
 
     $scope.calculateBalance = function (data) {
         data.BalanceQty = data.ReceiveQty - data.BillingQty;
+        data.Amount = data.BillingQty * data.MaterialTranRate;
         var gridObj = $("#GridJWPO").data("ejGrid");
         gridObj.refreshContent(true);
         gridObj.refreshTemplate();
@@ -355,6 +356,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     };
 
     function ClearFields() {
+        $scope.Action = 'Save';
         $scope.GriddataMaster = [];
         $scope.lst = [];
         $scope.JWPOList = [];

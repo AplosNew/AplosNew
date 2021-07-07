@@ -177,6 +177,8 @@
                             <div e-column e-field="ReceiveQty" e-headertext="ReceiveQty" e-width="10" textAlign='Right'></div>
                             <div e-column e-field="OtherBillingQty" e-headertext="OtherBillingQty" e-width="10" textAlign='Right'></div>
                             <div e-column e-template="#BillingQty" e-headertext="Billing Qty" e-width="10" style="height: 20px;" textAlign='Right'></div>
+                            <div e-column e-field="MaterialTranRate" e-headertext="Rate" e-width="10" textAlign='Right'></div>
+                            <div e-column e-field="Amount" e-headertext="Amount" e-width="10" textAlign='Right'></div>
                             @*<div e-column e-field="BalanceQty" e-headertext="Balance Qty" e-width="10" textAlign='Right'></div>*@
                         </div>
                     </div>
@@ -203,7 +205,7 @@
             </script>
         </div>
 
-        <div class="col-lg-12" ng-show="JWPOList.length>0">
+        <div class="col-lg-12">
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -222,7 +224,7 @@
              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
             <div e-columns>
-                <div e-column e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
+                <div e-column e-field="Id" e-headertext="Id" e-width="20" e-visible="true"></div>
                 <div e-column e-field="JWTransformationPurchaseOrderId" e-headertext="OutSourcePOId" e-width="20"></div>
                 <div e-column e-field="TabType" e-headertext="Type" e-width="30"></div>
                 <div e-column e-field="ValueAddedDate" e-headertext="Date" e-width="30" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
