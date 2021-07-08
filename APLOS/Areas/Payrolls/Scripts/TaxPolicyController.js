@@ -168,13 +168,13 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
 
     $scope.TaxRebate = {
         Id: null,
-        CumulativeOrBrakeUp: 'Brake Up',
+        CumulativeOrBrakeUp: 'Break Up',
         FixedOrPercentage: 'Fixed',
         TaxableIncomeOrTax: 'Tax',
     }
     $scope.TaxSurcharge = {
         Id: null,
-        CumulativeOrBrakeUp: 'Brake Up',
+        CumulativeOrBrakeUp: 'Break Up',
         FixedOrPercentage: 'Fixed',
         TaxableIncomeOrTax: 'Tax',
     }
@@ -263,7 +263,7 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
             $scope.TaxRebate.CumulativeOrBrakeUp = 'Cumulative';
         }
         else {
-            $scope.TaxRebate.CumulativeOrBrakeUp = 'Brake Up';
+            $scope.TaxRebate.CumulativeOrBrakeUp = 'Break Up';
         }
 
         if ($scope.TaxPolicyMaster.IsTaxRebateFixed) {
@@ -278,6 +278,27 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
         }
         else {
             $scope.TaxRebate.TaxableIncomeOrTax = 'Tax';
+        }
+
+        if ($scope.TaxPolicyMaster.IsTaxSurchargeCumulative) {
+            $scope.TaxSurcharge.CumulativeOrBrakeUp = 'Cumulative';
+        }
+        else {
+            $scope.TaxSurcharge.CumulativeOrBrakeUp = 'Break Up';
+        }
+
+        if ($scope.TaxPolicyMaster.IsTaxSurchargeFixed) {
+            $scope.TaxSurcharge.FixedOrPercentage = 'Fixed';
+        }
+        else {
+            $scope.TaxSurcharge.FixedOrPercentage = 'Percentage';
+        }
+
+        if ($scope.TaxPolicyMaster.IsTaxSurchargeTaxableIncome) {
+            $scope.TaxSurcharge.TaxableIncomeOrTax = 'Taxable Income';
+        }
+        else {
+            $scope.TaxSurcharge.TaxableIncomeOrTax = 'Tax';
         }
 
         if (baseService.arrayLength($scope.TaxTypeList) > 0) {
@@ -1331,7 +1352,7 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
     }
     $scope.TaxRebate = {
         Id: null,
-        CumulativeOrBrakeUp: 'Brake Up',
+        CumulativeOrBrakeUp: 'Break Up',
         FixedOrPercentage: 'Fixed',
         TaxableIncomeOrTax: 'Tax',
     }
@@ -1444,7 +1465,7 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
         }
         $scope.TaxRebate = {
             Id: null,
-            CumulativeOrBrakeUp: 'Brake Up',
+            CumulativeOrBrakeUp: 'Break Up',
             FixedOrPercentage: 'Fixed',
             TaxableIncomeOrTax: 'Tax',
         }
@@ -1958,7 +1979,7 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
         }
 
     };
-    $scope.RemoveTaxRebate = function () {
+    $scope.RemoveTaxRebate = function (index) {
         var removed = $scope.TaxRebateList.splice(index, 1);
         $scope.Detail = removed;
         if ($scope.TaxRebateList.length == 0) {
@@ -2041,18 +2062,18 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
     //#region Delete Tax Rebate
 
     $scope.DeleteTaxRebateSlabe = function (obj) {
-        $scope.DeleteTaxRebateSlabe = $scope.TaxPolicyMaster.SystemID;
-        if (!baseService.isUndefinedOrNull($scope.DeleteTaxRebateSlabe))
+        $scope.DeleteTaxRebateSlab = $scope.TaxPolicyMaster.SystemID;
+        if (!baseService.isUndefinedOrNull($scope.DeleteTaxRebateSlab))
             $scope.message_confirmation = 'Are you sure want to delete permanently ?';
         angular.element(document.querySelector('#confirmTaxRebateSlab')).modal('show');
     }
 
-    $scope.DeleteTaxRebate = function () {
+    $scope.DeleteTaxRebateSlabs = function () {
         try {
             $http({
                 method: 'POST',
                 url: $scope.path + "DeleteTaxRebateSlab",
-                data: { ID: $scope.DeleteTaxRebateSlabe },
+                data: { ID: $scope.DeleteTaxRebateSlab },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -2123,7 +2144,7 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
         }
 
     };
-    $scope.RemoveTaxSurcharge = function () {
+    $scope.RemoveTaxSurcharge = function (index) {
         var removed = $scope.TaxSurchargeList.splice(index, 1);
         $scope.Detail = removed;
         if ($scope.TaxSurchargeList.length == 0) {
@@ -2134,7 +2155,7 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
         try {
             $http({
                 method: 'POST',
-                url: $scope.path + "SaveTaxRebate",
+                url: $scope.path + "SaveTaxSurcharge",
                 data: { 'TaxSurchargeList': $scope.TaxSurchargeList, 'Master': $scope.TaxPolicyMaster.SystemID, 'Slab': $scope.TaxSurcharge },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -2157,7 +2178,7 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
     $scope.getTaxSurcharge = function (Master) {
         $http({
             method: 'GET',
-            url: $scope.path + "GetTaxRebate?Master=" + Master,
+            url: $scope.path + "GetTaxSurcharge?Master=" + Master,
         }).then(function successCallback(response) {
             if (response.data.length == 0) {
                 $scope.TaxSurchargeList = [];
@@ -2168,6 +2189,40 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
             }
         });
     };
+
+    $scope.DeleteTaxSurchargeSlabe = function (obj) {
+        $scope.DeleteTaxSurchargeSlabId = $scope.TaxPolicyMaster.SystemID;
+        if (!baseService.isUndefinedOrNull($scope.DeleteTaxSurchargeSlabId))
+            $scope.message_confirmation = 'Are you sure want to delete permanently ?';
+        angular.element(document.querySelector('#confirmDeleteTaxSurchargeSlab')).modal('show');
+    }
+
+    $scope.DeleteTaxSurchargeSlab = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "DeleteTaxSurchargeSlab",
+                data: { ID: $scope.DeleteTaxSurchargeSlabId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearRebateTax();
+                    $scope.getTaxRebate($scope.TaxPolicyMaster.SystemID);
+                    $scope.getMaster();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
 
     //#endregion
 }

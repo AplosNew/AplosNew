@@ -143,13 +143,13 @@ namespace Library.MaterialManagement.JobWork
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
 						LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM JWTransformationPurchaseOrderDetail AS A
-									JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id WHERE B.PlantId='202026' GROUP BY A.JWTransformationPurchaseOrderId) AS IRD ON IRD.JWTransformationPurchaseOrderId=IR.Id
+									JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId) AS IRD ON IRD.JWTransformationPurchaseOrderId=IR.Id
 						LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, A.TransactionUoMId FROM JWTransformationPurchaseOrderDetail AS A JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id
-									WHERE B.PlantId='202026' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
+									WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
-						WHERE  IR.PlantId='202026' AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
+						WHERE  IR.PlantId='"+ plantId + @"' AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
                         --AND IR.CheckedBy IS NOT NULL 
 						AND IR.CheckedByStatus='Pending' 
 						AND isnull(IR.IsClosed,0)=0 
@@ -220,16 +220,16 @@ namespace Library.MaterialManagement.JobWork
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
 						LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM JWTransformationPurchaseOrderDetail AS A
-									JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id WHERE B.PlantId='202026' GROUP BY A.JWTransformationPurchaseOrderId) AS IRD ON IRD.JWTransformationPurchaseOrderId=IR.Id
+									JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId) AS IRD ON IRD.JWTransformationPurchaseOrderId=IR.Id
 						LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, A.TransactionUoMId FROM JWTransformationPurchaseOrderDetail AS A JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id
-									WHERE B.PlantId='202026' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
+									WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
 						Where IR.Id not in(Select distinct POId from trn.InventoryReceiveDetail where POId is not null)--and RequisitionId='110232'
 						AND IR.CheckedByStatus IS NULL 
 						AND IR.AuthorizedByStatus IS NULL						
-						 And IR.PlantId='202026' AND IR.POType='OSTransformationPO'--AND IR.AddedBy='Shashank'
+						 And IR.PlantId='"+ plantId + @"' AND IR.POType='OSTransformationPO'--AND IR.AddedBy='Shashank'
 
                         AND isnull(IR.IsClosed,0)=0 
 						--Order by IR.PODate DESC
@@ -298,22 +298,22 @@ namespace Library.MaterialManagement.JobWork
 						LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PL.AddressMasterId
 						LEFT JOIN [SCS].[State] AS SP ON SP.Id=AMP.StateId
 						LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM JWTransformationPurchaseOrderDetail AS A
-									JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id WHERE B.PlantId='202026' GROUP BY A.JWTransformationPurchaseOrderId) AS IRD ON IRD.JWTransformationPurchaseOrderId=IR.Id
+									JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId) AS IRD ON IRD.JWTransformationPurchaseOrderId=IR.Id
 						LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, A.TransactionUoMId FROM JWTransformationPurchaseOrderDetail AS A JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id
-									WHERE B.PlantId='202026' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
+									WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
 						Where IR.CheckedByStatus is null				
 						AND IR.AuthorizedByStatus='For Approval'						
-						And IR.PlantId='202026' AND IR.POType='OSTransformationPO'	--AND IR.AddedBy='Shashank'	
+						And IR.PlantId='"+ plantId + @"' AND IR.POType='OSTransformationPO'	--AND IR.AddedBy='Shashank'	
                         AND isnull(IR.IsClosed,0)=0 
 						) x
 						Order by PODate DESC";
                 }
                 else if (POTypeStatus == "CheckedHoldRej")
                 {
-                    Sql = @"--DECLARE @plantId VARCHAR(10)='" + plantId + @"';
+                    Sql = @"--DECLARE @plantId VARCHAR(10)='"+ plantId + @"';
                          SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
                                     --,IR.PODate
@@ -333,11 +333,11 @@ namespace Library.MaterialManagement.JobWork
 									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
                                     ,isnull(pgl.CtnId,0) CtnId
                                     ,IR.AddedBy
-                                    ,PLC.LCANo PurchaseLC
-									,ISNULL(Ctc.ContractNo,'') ContractNo
-									, ISNULL(MLC.Id,'') MasterLCNo
-							,ISNULL(MLC.LCRef,'') LCRef
-									,Par.UserName Customer
+                                 --   ,PLC.LCANo PurchaseLC
+							--		,ISNULL(Ctc.ContractNo,'') ContractNo
+								--	, ISNULL(MLC.Id,'') MasterLCNo
+					--		,ISNULL(MLC.LCRef,'') LCRef
+						--			,Par.UserName Customer
                                     ,IR.CheckedByStatus AS CheckedByStatus
 			                        ,IR.AuthorizedByStatus AS AuthorizedByStatus
                            ,eI.EmployeeName CheckedBy
@@ -347,6 +347,9 @@ namespace Library.MaterialManagement.JobWork
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
+                        ,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks
                         FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -354,7 +357,7 @@ namespace Library.MaterialManagement.JobWork
                           --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
 						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
                         
-						LEFT JOIN [HKP].[Party] Par ON Par.Id= Ctc.CustomerId
+					--	LEFT JOIN [HKP].[Party] Par ON Par.Id= Ctc.CustomerId
                         LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
                         LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
 
@@ -373,10 +376,11 @@ namespace Library.MaterialManagement.JobWork
                         LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.TransactionAmount) AS TransactionAmount, SUM(A.BaseAmount) AS BaseAmount FROM JWTransformationPurchaseOrderDetail AS A
 		                            JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId) AS IRD ON IRD.JWTransformationPurchaseOrderId=IR.Id
                         LEFT JOIN (SELECT A.JWTransformationPurchaseOrderId, A.TransactionUoMId FROM JWTransformationPurchaseOrderDetail AS A JOIN JWTransformationPurchaseOrder AS B ON A.JWTransformationPurchaseOrderId=B.Id
-		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
+		                            WHERE B.PlantId='"+ plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-                        WHERE  IR.PlantId='" + plantId + @"' AND IR.CheckedBy IS NOT NULL AND IR.AuthorizedBy IS NOT NULL AND IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.POType='OSTransformationPO' AND IR.PlantId='" + plantId + "'   AND isnull(IR.IsClosed,0)=0 Order by IR.PODate DESC";//IR.AddedBy='" + identity.Name + "' And
+                        left join ORG.Entity E on E.Id=IR.EntityId
+                        WHERE  IR.PlantId='" + plantId + @"' AND IR.CheckedBy IS NOT NULL AND IR.AuthorizedBy IS NOT NULL AND IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.POType='OSTransformationPO' AND IR.PlantId='"+ plantId + @"'   AND isnull(IR.IsClosed,0)=0 Order by IR.PODate DESC";//IR.AddedBy='" + identity.Name + "' And
 
                 }
                 else if (POTypeStatus == "Checked")
@@ -401,11 +405,11 @@ namespace Library.MaterialManagement.JobWork
 									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
                                     ,isnull(pgl.CtnId,0) CtnId
                                     ,IR.AddedBy
-                                    ,PLC.LCANo PurchaseLC
-									,ISNULL(Ctc.ContractNo,'') ContractNo
+                                    --,PLC.LCANo PurchaseLC
+									--,ISNULL(Ctc.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							,ISNULL(MLC.LCRef,'') LCRef
-									,Par.UserName Customer
+									--,Par.UserName Customer
                                     ,eI.EmployeeName CheckedBy
                                     ,IR.CheckedByStatus AS CheckedByStatus
 			                        ,IR.AuthorizedByStatus AS AuthorizedByStatus
@@ -416,6 +420,9 @@ namespace Library.MaterialManagement.JobWork
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
+                         ,IR.EntityId,E.UserName as Entity,CONVERT(varchar(5),IR.[Time],108)[TConTime],FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
+                        FORMAT(IR.ProcessEndDate,'dd-MMM-yyyy') as TConProcessEndDate,FORMAT(IR.ContractClosingDate,'dd-MMM-yyyy') as TConContractClosingDate
+						,IR.ContractStatus, IR.Remarks
                         FROM JWTransformationPurchaseOrder AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -446,7 +453,8 @@ namespace Library.MaterialManagement.JobWork
 		                            WHERE B.PlantId='" + plantId + @"' GROUP BY A.JWTransformationPurchaseOrderId, A.TransactionUoMId HAVING COUNT(A.JWTransformationPurchaseOrderId)> COUNT(A.TransactionUoMId)) AS TU ON TU.JWTransformationPurchaseOrderId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
-                        WHERE IR.PlantId='" + plantId + @"' 
+                        left join ORG.Entity E on E.Id=IR.EntityId
+                         WHERE IR.PlantId='" + plantId + @"' 
                          AND IR.CheckedBy IS NOT NULL 
                          AND IR.AuthorizedBy IS NOT NULL  
                          AND IR.CheckedByStatus='Checked' 
