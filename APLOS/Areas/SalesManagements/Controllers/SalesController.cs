@@ -177,7 +177,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
             _salesService.Update(voucherVM, salesMaterialVMList, salesServiceVMList);
 
-            return Json(new { Data = voucherVM, Message = AplosMessage.Updated });
+            return Json(new { Data = voucherVM, Message = AplosMessage.Updated + "Invoice No: " + voucherVM.Id + "" });
         }
 
         [HttpPost]
@@ -459,7 +459,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 }
             }
             _salesService.MasterOrderSalesUpdate(voucherVM, salesMaterialVMList, selectedMasterOrderList, salesServiceVMList);
-            return Json(new { Data = voucherVM, Message = AplosMessage.Updated });
+            return Json(new { Data = voucherVM, Message = AplosMessage.Updated + "Invoice No: " + voucherVM.Id + "" });
         }
 
 
