@@ -31,22 +31,10 @@ function voucherParkController(cboService, commonMessage, $scope, $rootScope, ba
             $http({
                 method: 'POST',
                 url: $scope.path + "getVoucherDataList",
-                data: { voucherNo: $scope.voucher.VoucherNo  /*FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate */},
+                data: { voucherNo: $scope.voucher.VoucherNo},
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
-
-                //if (response.data.Error == false) {
-                //    for (var i = 0; i < response.data.DATA.length; i++) {
-                //      response.data.DATA[i].MasterLCDate = new Date(response.data.DATA[i].MasterLCDate);
-                //    }
-                //    $scope.EntityFixedAssetRegister = response.data.DATA;
-                //}
-                //else {
-                //    ShowResult(response.data.Message, 'failure');
-                //}
-
-
                 $scope.VoucherDataList = response.data.DATA;
 
             }),
@@ -62,8 +50,9 @@ function voucherParkController(cboService, commonMessage, $scope, $rootScope, ba
    // $scope.getVoucherData();
 
     $scope.voucherId = null;
-    $scope.confirmPost = function (voucherId) {
+    $scope.confirmPost = function (voucherId,sourceType) {
         $scope.voucherId = voucherId;
+        $scope.sourceType = sourceType;
         $scope.message_confirmation = "Are you sure to Park Mode?";
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
@@ -72,7 +61,8 @@ function voucherParkController(cboService, commonMessage, $scope, $rootScope, ba
             method: "POST",
             url: $scope.parkUrl,
             data: {
-                "voucherId": vId
+                "voucherId": vId,
+                "sourceType":sourceType
             },
             dataType: "JSON"
         }).then(function successCallback(response) {

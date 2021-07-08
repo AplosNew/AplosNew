@@ -6343,7 +6343,7 @@ public class clsSalaryProcessAplosR
         {
             DateTime fd = Convert.ToDateTime(FromDate);
             DateTime td = Convert.ToDateTime(ToDate);
-            while (fd < td)
+            while (fd <= td)
             {
                 string _day = fd.ToString("dddd").ToUpper();
                 if (ListDic.ContainsKey(_day))
