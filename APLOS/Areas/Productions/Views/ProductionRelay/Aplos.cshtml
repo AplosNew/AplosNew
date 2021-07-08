@@ -63,7 +63,7 @@
                     <div e-stackedheaderrows>
                         <div e-stackedheaderrow>
                             <div e-stackedheadercolumns>
-                                <div e-stackedheadercolumn e-headertext="Current Process" e-column="Id,Material,article,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,StartDate,MasterOrderId,Remarks"></div>
+                                <div e-stackedheadercolumn e-headertext="Current Process" e-column="Id,Material,article,CurrentProcess,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,StartDate,MasterOrderId,Remarks"></div>
                                 <div e-stackedheadercolumn e-headertext="Previous Process" e-column="PreviousProcess,PreviousProcessQty,ClosedBy,PreviousProcessStartDate,ClosedDate"></div>
                             </div>
                         </div>
@@ -75,6 +75,8 @@
                         <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
                         <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
                         <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
+                        <div e-column e-type="string" e-field="CurrentProcess" e-headertext="Process" e-width="100"></div>
+
                         <div e-column e-type="string" e-field="StyleNo" e-headertext="Buyer Item#" e-width="100"></div>
                         <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
                         <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>
@@ -152,7 +154,7 @@
                     <div e-stackedheaderrows>
                         <div e-stackedheaderrow>
                             <div e-stackedheadercolumns>
-                                <div e-stackedheadercolumn e-headertext="Current Process" e-column="Id,Material,article,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,StartDate,EndDate,CompletedBy,MasterOrderId,Remarks"></div>
+                                <div e-stackedheadercolumn e-headertext="Current Process" e-column="Id,Material,article,CurrentProcess,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,StartDate,EndDate,CompletedBy,MasterOrderId,Remarks"></div>
                                 <div e-stackedheadercolumn e-headertext="Previous Process" e-column="PreviousProcess,PreviousProcessQty,ClosedBy,PreviousProcessStartDate,ClosedDate"></div>
                             </div>
                         </div>
@@ -161,6 +163,8 @@
                         <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
                         <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
                         <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
+                        <div e-column e-type="string" e-field="CurrentProcess" e-headertext="Process" e-width="100"></div>
+
                         <div e-column e-type="string" e-field="StyleNo" e-headertext="Buyer Item#" e-width="100"></div>
                         <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
                         <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>

@@ -147,5 +147,17 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProductionRelay/Aplos',
             controller: 'ProductionRelayController'
         })
+        .when('/shrinkage-group', {
+            templateUrl: 'Productions/ShrinkageGroup/Aplos',
+            controller: 'ShrinkageGroupController'
+        })
+        .when('/fabric-width', {
+            templateUrl: 'Productions/FabricWidth/Aplos',
+            controller: 'FabricWidthController'
+        })
+        .when('/shade', {
+            templateUrl: 'Productions/Shade/Aplos',
+            controller: 'ShadeController'
+        })
         ;
 }

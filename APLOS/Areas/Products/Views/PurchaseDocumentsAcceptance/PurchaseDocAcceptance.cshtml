@@ -901,6 +901,7 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
+                                            <th>State</th>
                                             <th>Service</th>
                                             <th>PO Amount (TRN)</th>
                                             <th>Balance Amount (TRN)</th>
@@ -910,6 +911,7 @@
                                     </thead>
                                     <tbody>
                                         <tr ng-repeat="x in serviceList">
+                                            <td>{{x.State}}</td>
                                             <td>{{x.ServiceMasterName}}</td>
                                             <td class="text-right">{{x.POAmount|number}}</td>
                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountForServiceCharge(x);" ng-model="x.Amount"></td> @*ng-disabled="x.enableid1"*@

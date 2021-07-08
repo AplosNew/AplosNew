@@ -832,6 +832,7 @@
         <thead>
             <tr>
                 <th>InvoiceNo</th>
+                <th>Invoice Date</th>
                 <th>@Library.Model.Parties.PartyType.Customer.ToString()</th>
                 <th>Bill To</th>
                 <th>DocRef No</th>
@@ -844,6 +845,7 @@
         <tbody>
             <tr dir-paginate="x in invoiceList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x);">
                 <td>{{x.InvoiceNo}}</td>
+                <td>{{x.InvoiceDate}}</td>
                 <td>{{x.PartyCode}} - {{x.PartyName}}</td>
                 <td>{{x.BillTo}}</td>
                 <td>{{x.DocRefNo}}</td>
@@ -861,20 +863,20 @@
                         </li>
 
                         @*<li>
-            <a class="btn btn-action" ng-click="SalesReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a>
-        </li>*@
+                    <a class="btn btn-action" ng-click="SalesReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a>
+                </li>*@
 
                         <!--<li>
-        <a class="btn btn-action"-->
+            <a class="btn btn-action"-->
                         @*href="SalesManagements/Sales/SalesReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&salesId={{x.SalesId}}"*@
                         <!--target="_blank"><i class="fa fa-file-pdf-o"></i></a>
-    </li>-->
+            </li>-->
                         @*<li>
-            <a class="btn btn-action" href="SalesManagements/Sales/SalesReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&salesId={{x.SalesId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a>
-        </li>
-        <li ng-show="x.VoucherId">
-            <a class="btn btn-action" href="SalesManagements/Sales/SalesReceivableReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a>
-        </li>*@
+                    <a class="btn btn-action" href="SalesManagements/Sales/SalesReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&salesId={{x.SalesId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a>
+                </li>
+                <li ng-show="x.VoucherId">
+                    <a class="btn btn-action" href="SalesManagements/Sales/SalesReceivableReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a>
+                </li>*@
                     </ul>
                 </td>
             </tr>

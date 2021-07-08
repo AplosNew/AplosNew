@@ -756,6 +756,7 @@ namespace Library.MaterialManagement.Inventory
                         service.Amount = item.Amount;
                         service.TotalTaxAmount = item.TotalTaxAmount;
                         service.ServiceMasterId = item.ServiceMasterId;
+                        service.State = "PO";
                         AuditService.AddedLog(service);
                         _purchaseDocAcceptanceServiceService.Insert(service);
 
@@ -996,7 +997,8 @@ namespace Library.MaterialManagement.Inventory
                             PurchaseDocAcceptanceId = PurchaseDocAcceptanceId,
                             ServiceMasterId = purDocAccService.ServiceMasterId,
                             Amount = purDocAccService.Amount,
-                            TotalTaxAmount = purDocAccService.TotalTaxAmount
+                            TotalTaxAmount = purDocAccService.TotalTaxAmount,
+                            State = purDocAccService.State
                         };
 
                         if (purDocAccService.Id == null)
@@ -1355,51 +1357,7 @@ namespace Library.MaterialManagement.Inventory
                                             }
                                         }
 
-                                        var POServiceList = _inventoryService.Query(r => r.InventoryReceiveId == itemDetail.POId).Select().ToList();
-                                        var _purchaseDocAcceptanceServiceTax = _receiveTaxRepository.Query(r => r.InventoryReceiveId == itemDetail.POId && r.InventoryReceiveDetailId == null).Select().ToList();
-
-                                        if (POServiceList != null)
-                                        {
-                                            foreach (var item in POServiceList)
-                                            {
-                                                PurchaseDocAcceptanceService service = new PurchaseDocAcceptanceService();
-
-                                                servicecurrentId++;
-                                                service.Id = MakePK(entity.Id + 2, servicecurrentId, 2);
-                                                service.PurchaseDocAcceptanceId = entity.Id;
-                                                service.Amount = item.Amount;
-                                                service.TotalTaxAmount = item.TotalTaxAmount;
-                                                service.ServiceMasterId = item.ServiceMasterId;
-                                                AuditService.AddedLog(service);
-                                                _purchaseDocAcceptanceServiceService.Insert(service);
-
-
-                                                if (_purchaseDocAcceptanceServiceTax.IsNotNull())
-                                                {
-
-                                                    foreach (var POserviceTax in _purchaseDocAcceptanceServiceTax)
-                                                    {
-                                                        PurchaseDocAcceptanceTax purchaseDocAcceptanceTax = new PurchaseDocAcceptanceTax();
-
-                                                        currentId++;
-                                                        purchaseDocAcceptanceTax.Id = "ST" + MakePK(entity.Id, currentId, 2);
-                                                        purchaseDocAcceptanceTax.PurchaseDocAcceptanceId = entity.Id;
-                                                        purchaseDocAcceptanceTax.PurchaseDocAcceptanceDetailId = null;
-                                                        purchaseDocAcceptanceTax.AcceptanceServiceId = service.Id;
-                                                        purchaseDocAcceptanceTax.TaxCategoryId = POserviceTax.TaxCategoryId;
-                                                        purchaseDocAcceptanceTax.HSNCodeId = POserviceTax.HSNCodeId;
-                                                        purchaseDocAcceptanceTax.Percentage = POserviceTax.Percentage;
-                                                        purchaseDocAcceptanceTax.TaxAmount = POserviceTax.TaxAmount;
-
-                                                        AuditService.AddedLog(purchaseDocAcceptanceTax);
-                                                        _purchaseDocAcceptanceTax.Insert(purchaseDocAcceptanceTax);
-
-                                                    }
-                                                }
-
-
-                                            }
-                                        }
+                                        
 
 
                                     }
@@ -1484,6 +1442,55 @@ namespace Library.MaterialManagement.Inventory
                         }
                     }
                 }
+
+                var poId = PurchaseDocAcceptanceDetail.Select(r => r.POId).FirstOrDefault();
+                var POServiceList = _inventoryService.Query(r => r.InventoryReceiveId == poId).Select().ToList();
+                var _purchaseDocAcceptanceServiceTax = _receiveTaxRepository.Query(r => r.InventoryReceiveId == poId && r.InventoryReceiveDetailId == null).Select().ToList();
+
+                if (POServiceList != null)
+                {
+                    foreach (var item in POServiceList)
+                    {
+                        PurchaseDocAcceptanceService service = new PurchaseDocAcceptanceService();
+
+                        servicecurrentId++;
+                        service.Id = MakePK(entity.Id + 2, servicecurrentId, 2);
+                        service.PurchaseDocAcceptanceId = entity.Id;
+                        service.Amount = item.Amount;
+                        service.TotalTaxAmount = item.TotalTaxAmount;
+                        service.ServiceMasterId = item.ServiceMasterId;
+                        service.State = "PO";
+                        AuditService.AddedLog(service);
+                        _purchaseDocAcceptanceServiceService.Insert(service);
+
+
+                        if (_purchaseDocAcceptanceServiceTax.IsNotNull())
+                        {
+
+                            foreach (var POserviceTax in _purchaseDocAcceptanceServiceTax)
+                            {
+                                PurchaseDocAcceptanceTax purchaseDocAcceptanceTax = new PurchaseDocAcceptanceTax();
+
+                                currentId++;
+                                purchaseDocAcceptanceTax.Id = "ST" + MakePK(entity.Id, currentId, 2);
+                                purchaseDocAcceptanceTax.PurchaseDocAcceptanceId = entity.Id;
+                                purchaseDocAcceptanceTax.PurchaseDocAcceptanceDetailId = null;
+                                purchaseDocAcceptanceTax.AcceptanceServiceId = service.Id;
+                                purchaseDocAcceptanceTax.TaxCategoryId = POserviceTax.TaxCategoryId;
+                                purchaseDocAcceptanceTax.HSNCodeId = POserviceTax.HSNCodeId;
+                                purchaseDocAcceptanceTax.Percentage = POserviceTax.Percentage;
+                                purchaseDocAcceptanceTax.TaxAmount = POserviceTax.TaxAmount;
+
+                                AuditService.AddedLog(purchaseDocAcceptanceTax);
+                                _purchaseDocAcceptanceTax.Insert(purchaseDocAcceptanceTax);
+
+                            }
+                        }
+
+
+                    }
+                }
+
 
                 if (PurchaseDocAcceptanceServiceDetail != null)
                 {
@@ -1745,6 +1752,7 @@ namespace Library.MaterialManagement.Inventory
 	                                ,0 GRNServiceAmount
 	                                ,A.Amount
 	                                ,0 AmountStatus
+                                    ,A.[State]
 	                                FROM TRN.PurchaseDocAcceptanceService AS A
 	                                INNER JOIN[HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id
 	                                LEFT JOIN (select PurchaseDocAcceptanceId, Sum(TaxAmount) as TaxAmount from TRN.PurchaseDocAcceptanceTax group by PurchaseDocAcceptanceId) AS POT on A.PurchaseDocAcceptanceId=POT.PurchaseDocAcceptanceId

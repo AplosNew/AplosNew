@@ -115,7 +115,7 @@ namespace Library.MaterialManagement.JobWork
                             ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode, uom.UserName as MMUnit
                             ,RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
                             ,BalanceToIssue=(mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0'))
-                            ,SUM(tirc.Quantity) as TIRCQty
+                            --,SUM(tirc.Quantity) as TIRCQty
                             ,Sum(kk.TotalQuantity) as TIRCTotalQty
                             ,0 PlannedQty,0 IssuedQty,0 BalanceQty
                             ,0 TotalQty
@@ -124,13 +124,14 @@ namespace Library.MaterialManagement.JobWork
 							,0 ApprovedQty
 							,0 UnApprovedQty,null MaterialStorageId,uom.Id as TransactionUoMid,uom.Id as BaseUoMid
                              from dbo.JobWorkTransformationContractChild3 mi
-                             left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
+                             --left join dbo.JobWorkTransformationIssueReturnChild tirc on tirc.MaterialInputId=mi.Id
 							 left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
 							 left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 							 left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
                              left join dbo.JobWorkTransformationContractChild mp on mp.Id=mi.JobWorkTransformationContractChildMasterId
 							 left  join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
-                             left join(select SUM(Quantity) as TotalQuantity,MaterialInputId FROM dbo.JobWorkTransformationIssueReturnChild group by MaterialInputId) kk on kk.MaterialInputId=mi.id
+                             left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
+                             on iid.InventoryIssueId=II.Id group by II.JWContractId) kk on kk.JWContractId=mp.JobWorkTransformationContractMasterId
                              where mi.JobWorkTransformationContractChildMasterId IN (" + MPId + @")
 							 group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,mi.JobWorkTransformationContractChildMasterId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code  ";
 
