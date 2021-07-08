@@ -10,10 +10,19 @@ namespace Library.Model.Inventory
 
         public string Id { get; set; }
         public string PurchaseDocAcceptanceId { get; set; }
-        public string ServiceMasterId { get; set; }
+        public string AcceptanceServiceId { get; set; }
+        public string CurrencyId { get; set; }
+        public string OpeningBankMasterId { get; set; }
+        public string VoucherId { get; set; }
+        public decimal BankAmount { get; set; }
         public decimal Amount { get; set; }
         public decimal TotalTaxAmount { get; set; }
- 
+        public decimal Rate { get; set; }
+        public string PartyId { get; set; }
+        public string PartyPlantId { get; set; }
+        public string State { get; set; }
+        public string ServiceMasterId { get; set; }
+
         #endregion Scalar Properties
 
         #region Audit Properties
