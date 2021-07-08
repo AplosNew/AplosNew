@@ -733,6 +733,30 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetAcceptancePOServiceNonPostedList()
+        {
+            AccountsDocAcceptanceService accountsDocAcceptanceService = new AccountsDocAcceptanceService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(accountsDocAcceptanceService.GetAcceptancePOServiceNonPostedList(identity.PlantId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetAcceptancePOServicePostedList()
+        {
+            AccountsDocAcceptanceService accountsDocAcceptanceService = new AccountsDocAcceptanceService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(accountsDocAcceptanceService.GetAcceptancePOServicePostedList(identity.PlantId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetAcceptanceDetailForPost(string Id, string PoType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

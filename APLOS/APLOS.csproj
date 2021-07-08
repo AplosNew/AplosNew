@@ -1800,7 +1800,6 @@
     <Content Include="Areas\Leave\Scripts\onDutyTransactionController.js" />
     <Content Include="Areas\Leave\Scripts\leaveTypeController.js" />
     <Content Include="Areas\Leave\Scripts\SandWichLeaveOnHolidayController.js" />
-    <Content Include="Areas\Logs\Views\web.config" />
     <Content Include="Areas\Materials\Scripts\RackController.js" />
     <Content Include="Areas\OrderManagements\Scripts\DispatchMasterController.js" />
     <Content Include="Areas\OrderManagements\Scripts\OS3DashboardController.js" />
