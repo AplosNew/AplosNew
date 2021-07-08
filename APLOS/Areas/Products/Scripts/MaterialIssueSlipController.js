@@ -57,7 +57,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		{ 'name': 'Buyer', 'value': 'buyer' },
 		{ 'name': 'Customer', 'value': 'Customer' },
 	];
-	$scope.getData = function () {
+	$scope.getDataProductions = function () {
 		$scope.modelList = [];
 		$http({
 			method: 'GET',
@@ -67,7 +67,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 			$scope.modelList = response.data;
 		});
 	};
-	$scope.getData();
+	$scope.getDataProductions();
 
 	$scope.DisableActionButtons = false;
 	$scope.model = {
@@ -928,6 +928,11 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 	$scope.Clear = function () {
 		$scope.FilterList123 = [];
+		$scope.MaterialColorList = [];
+		$scope.modelList = [];
+		$scope.SOListSelected = [];
+		$scope.getDataProductions();
+
 		$scope.CheckedBy = "";
 		var gridObj = $("#Grid22").data("ejGrid");
 		gridObj.clearFiltering();
@@ -2507,7 +2512,13 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		}
 	}
 	$scope.uiType();
-	
 
+	$scope.ClearFilter = function () {
+		$scope.MaterialColorList = [];
+		$scope.modelList = [];
+		$scope.SOListSelected = [];
+		$scope.FilterList123 = [];
+	}
+	
 }
 	

@@ -4057,7 +4057,8 @@ namespace Library.MaterialManagement.Inventory
 							,TCV.UserName AS Sku3,C.UserName CountryName,C.Id CountryId
 							,TUoM.Id BaseUOMId
 							,TUoM.Id TransactionUoMId
-							,TUoM.UserName UOM
+							--,TUoM.UserName UOM
+							 ,isnull(PostingQty.UoM,'') UOM
 							,TUoM.UserName TransactionUoM
 							,IR.CostCenterId
 							,CC.UserName AS CostCenterName
@@ -4098,7 +4099,7 @@ namespace Library.MaterialManagement.Inventory
 							Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
 							LEFT JOIN HKP.Activity IA1 ON IA1.Id=IR.ExpenseActivityId
 							LEFT JOIN(
-										SELECT 0 TotalQty,0 PostingQty,ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
+										SELECT TUoM.UserName UoM,0 TotalQty,0 PostingQty,ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
 											,IM.MaterialMasterId
 												,IM.ArticleId
 												,IM.FirstCharacteristicsValueId
@@ -4120,7 +4121,7 @@ namespace Library.MaterialManagement.Inventory
 												,IM.FirstCharacteristicsValueId
 												, IM.SecondCharacteristicsValueId
 												,IM.ThirdCharacteristicsValueId
-												, IRD.MaterialStorageId
+												, IRD.MaterialStorageId,TUoM.UserName
 									)ApprovedQty ON 
 												ApprovedQty.MaterialMasterId=IR.MaterialMasterId 
 												AND ApprovedQty.ArticleId=IR.ArticleId
@@ -4130,7 +4131,7 @@ namespace Library.MaterialManagement.Inventory
 												AND ApprovedQty.MaterialStorageId='" + StorageLocationId + @"'
 
                             LEFT JOIN(
-										  SELECT 0 TotalQty,0 PostingQty,0 ApprovedQty, UnApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0))))
+										  SELECT TUoM.UserName UoM,0 TotalQty,0 PostingQty,0 ApprovedQty, UnApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0))))
 										  ,IM.MaterialMasterId
 																,IM.ArticleId
 																,IM.FirstCharacteristicsValueId
@@ -4152,7 +4153,7 @@ namespace Library.MaterialManagement.Inventory
 												,IM.FirstCharacteristicsValueId
 												, IM.SecondCharacteristicsValueId
 												,IM.ThirdCharacteristicsValueId
-												, IRD.MaterialStorageId
+												, IRD.MaterialStorageId,TUoM.UserName
 								)UnApprovedQty ON UnApprovedQty.MaterialMasterId=IR.MaterialMasterId 
 												AND UnApprovedQty.ArticleId=IR.ArticleId
 												AND ISNULL(UnApprovedQty.FirstCharacteristicsValueId,'')=ISNULL(IR.FirstCharacteristicsValueId,'')
@@ -4161,7 +4162,7 @@ namespace Library.MaterialManagement.Inventory
 												AND ApprovedQty.MaterialStorageId='" + StorageLocationId + @"'
 
 								Left JOIN(
-										SELECT 0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
+										SELECT TUoM.UserName UoM,0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
 										,IM.MaterialMasterId
 																,IM.ArticleId
 																,IM.FirstCharacteristicsValueId
@@ -4183,7 +4184,7 @@ namespace Library.MaterialManagement.Inventory
 																,IM.FirstCharacteristicsValueId
 																, IM.SecondCharacteristicsValueId
 																,IM.ThirdCharacteristicsValueId
-																, IRD.MaterialStorageId
+																, IRD.MaterialStorageId,TUoM.UserName
 												)PostingQty  ON PostingQty.MaterialMasterId=IR.MaterialMasterId 
 												AND PostingQty.ArticleId=IR.ArticleId
 												AND ISNULL(PostingQty.FirstCharacteristicsValueId,'')=ISNULL(IR.FirstCharacteristicsValueId,'')
