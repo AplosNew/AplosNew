@@ -3465,53 +3465,99 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             //                     WHERE " + strkey + "  ";
 
 
-            string sql = @"SELECT JWTPD.*,ISNULL(JWI.UserName,'') JWItemName,ISNULL(JWItemUOM.Code,'') JWItemUOM 
-                                ,ISNULL(MM.UserName,'') MaterialMasterName
-                                ,ISNULL(MMA.ShortName,'') ArticleName
-                                ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
-                                 ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
-                                 ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
-                                 ,ISNULL(BaseUOM.Code,'') BaseUOM,ISNULL(TransactionUoM.Code,'') TransactionUoM
-                                 ,ISNULL(Country.UserName,'') Country
-                               
-                                 --,JWA.UserName JWActivity
-								 , JWTPD.ResponsiblePersonId
-								 --,ISNULL(JWTM.ProcessId,'') ProcessId
-                                 --, Process.UserName Process
-								 ,EEI.EmployeeName ResponsiblePersonName 
-                                 , OUM. Id OutputMaterialId, OUM.UserName OutputMaterial,  OUM.UOMId OutputMaterialUOMId,UOM.ShortName UOM
-                                 , JWTPD.RateApplyOn,JWTPD.CurrencyId, CURR.Code CurrencyName, JWTPD.RateApplyOn, JWTPD.RatePerUnit
-                                
-								 ,  JWTPD.ByProductApplicable
-                                 , ISNULL(SM.UserName,'') JWServiceName, ISNULL(SM.Id,'') ServiceId                    
-                                , ReferenceNo,BaseAmount
-                                , ISNULL(jwtax.TaxAmount,0),JWTPD.RatePerUnit as TransactionRate
-								,ISNULL(JWTPD.Quantity * JWTPD.RatePerUnit,0) TransactionAmount,ISNULL(JWTPD.Quantity * JWTPD.RatePerUnit,0) + ISNULL(jwtax.TaxAmount,0) TotalAmount
-                                FROM dbo.JobWorkTransformationContractChild JWTPD 
-                               -- LEFT JOIN MST.JobWorkTransformationMaster JWTM ON JWTM.Id = JWTPD.JWTransformationMasterITId
-                                LEFT JOIN HKP.JobWorkItem JWI ON JWI.Id = JWTPD.JobWorkItemMasterId
-                               -- LEFT JOIN HKP.JOBWORKActivity JWA ON JWA.Id = JWTPD.JWActivityId
-                                LEFT JOIN SCS.UnitOfMeasurement JWItemUOM  ON JWItemUOM.Id = JWTPD.OutputMaterialUOMId
-                                LEFT JOIN MST.MaterialMaster MM  ON MM.Id = JWTPD.MaterialMasterId
-                                LEFT JOIN MST.MaterialMasterArticle MMA  ON MMA.Id = JWTPD.ArticleId
-                                LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = JWTPD.FirstCharacteristicsId
-                                LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = JWTPD.FirstCharacteristicsValueId
-                                LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = JWTPD.SecondCharacteristicsId
-                                LEFT JOIN [HKP].[CharacteristicsValue]   SCharValue  ON SCharValue.Id = JWTPD.SecondCharacteristicsValueId
-                                LEFT JOIN [HKP].[Characteristics]   TChar  ON TChar.Id = JWTPD.ThirdCharacteristicsId
-                                LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = JWTPD.ThirdCharacteristicsValueId
-                                LEFT JOIN SCS.UnitOfMeasurement BaseUOM  ON BaseUOM.Id = JWTPD.BaseUOMId
-                                LEFT JOIN SCS.UnitOfMeasurement TransactionUoM  ON TransactionUoM.Id = JWTPD.TransactionUoMId
-                                LEFT JOIN SCS.Country Country  ON Country.Id = JWTPD.CountryId
-                                LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = JWTPD.ResponsiblePersonId
-                                LEFT JOIN HKP.JobWorkItem OUM ON OUM.Id = JWTPD.JobActivityId
-                                LEFT JOIN [SCS].[UnitOfMeasurement] UOM  oN UOM.Id = OUM.UOMId
-                                --LEFT JOIN [HKP].[Process] Process  oN Process.Id = JWTM.ProcessId
-                                LEFT JOIN SCS.Currency CURR ON CURR.Id = JWTPD.CurrencyId
-                                Left Join HKP.ServiceMaster SM ON JWTPD.ServiceId = SM.Id
-	                            LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax   GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
-								on jwtax.JWTransformationPurchaseOrderId  = JWTPD.JobWorkTransformationContractMasterId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
-                             WHERE  " + strkey + " ";
+            //    string sql = @"SELECT JWTPD.*,ISNULL(JWI.UserName,'') JWItemName,ISNULL(JWItemUOM.Code,'') JWItemUOM 
+            //                        ,ISNULL(MM.UserName,'') MaterialMasterName
+            //                        ,ISNULL(MMA.ShortName,'') ArticleName
+            //                        ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
+            //                         ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
+            //                         ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
+            //                         ,ISNULL(BaseUOM.Code,'') BaseUOM,ISNULL(TransactionUoM.Code,'') TransactionUoM
+            //                         ,ISNULL(Country.UserName,'') Country
+
+            //                         --,JWA.UserName JWActivity
+            // , JWTPD.ResponsiblePersonId
+            // --,ISNULL(JWTM.ProcessId,'') ProcessId
+            //                         --, Process.UserName Process
+            // ,EEI.EmployeeName ResponsiblePersonName 
+            //                         , OUM. Id OutputMaterialId, OUM.UserName OutputMaterial,  OUM.UOMId OutputMaterialUOMId,UOM.ShortName UOM
+            //                         , JWTPD.RateApplyOn,JWTPD.CurrencyId, CURR.Code CurrencyName, JWTPD.RateApplyOn, JWTPD.RatePerUnit
+
+            // ,  JWTPD.ByProductApplicable
+            //                         , ISNULL(SM.UserName,'') JWServiceName, ISNULL(SM.Id,'') ServiceId                    
+            //                        , ReferenceNo,BaseAmount
+            //                        , ISNULL(jwtax.TaxAmount,0),JWTPD.RatePerUnit as TransactionRate
+            //,ISNULL(JWTPD.Quantity * JWTPD.RatePerUnit,0) TransactionAmount,ISNULL(JWTPD.Quantity * JWTPD.RatePerUnit,0) + ISNULL(jwtax.TaxAmount,0) TotalAmount
+            //                        FROM dbo.JobWorkTransformationContractChild JWTPD 
+            //                       -- LEFT JOIN MST.JobWorkTransformationMaster JWTM ON JWTM.Id = JWTPD.JWTransformationMasterITId
+            //                        LEFT JOIN HKP.JobWorkItem JWI ON JWI.Id = JWTPD.JobWorkItemMasterId
+            //                       -- LEFT JOIN HKP.JOBWORKActivity JWA ON JWA.Id = JWTPD.JWActivityId
+            //                        LEFT JOIN SCS.UnitOfMeasurement JWItemUOM  ON JWItemUOM.Id = JWTPD.OutputMaterialUOMId
+            //                        LEFT JOIN MST.MaterialMaster MM  ON MM.Id = JWTPD.MaterialMasterId
+            //                        LEFT JOIN MST.MaterialMasterArticle MMA  ON MMA.Id = JWTPD.ArticleId
+            //                        LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = JWTPD.FirstCharacteristicsId
+            //                        LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = JWTPD.FirstCharacteristicsValueId
+            //                        LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = JWTPD.SecondCharacteristicsId
+            //                        LEFT JOIN [HKP].[CharacteristicsValue]   SCharValue  ON SCharValue.Id = JWTPD.SecondCharacteristicsValueId
+            //                        LEFT JOIN [HKP].[Characteristics]   TChar  ON TChar.Id = JWTPD.ThirdCharacteristicsId
+            //                        LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = JWTPD.ThirdCharacteristicsValueId
+            //                        LEFT JOIN SCS.UnitOfMeasurement BaseUOM  ON BaseUOM.Id = JWTPD.BaseUOMId
+            //                        LEFT JOIN SCS.UnitOfMeasurement TransactionUoM  ON TransactionUoM.Id = JWTPD.TransactionUoMId
+            //                        LEFT JOIN SCS.Country Country  ON Country.Id = JWTPD.CountryId
+            //                        LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = JWTPD.ResponsiblePersonId
+            //                        LEFT JOIN HKP.JobWorkItem OUM ON OUM.Id = JWTPD.JobActivityId
+            //                        LEFT JOIN [SCS].[UnitOfMeasurement] UOM  oN UOM.Id = OUM.UOMId
+            //                        --LEFT JOIN [HKP].[Process] Process  oN Process.Id = JWTM.ProcessId
+            //                        LEFT JOIN SCS.Currency CURR ON CURR.Id = JWTPD.CurrencyId
+            //                        Left Join HKP.ServiceMaster SM ON JWTPD.ServiceId = SM.Id
+            //                     LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax   GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
+            //on jwtax.JWTransformationPurchaseOrderId  = JWTPD.JobWorkTransformationContractMasterId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
+            //                     WHERE  " + strkey + " ";
+
+            string sql = @"SELECT JWA.Id JobWorkActivityId, JWA.UserName JobWorkActivity,JWTPD.*,ISNULL(JWI.UserName,'') JWItemName,ISNULL(JWItemUOM.Code,'') JWItemUOM ,MM.Id MaterialMasterId ,ISNULL(MM.UserName,'') MaterialMasterName
+                            ,MMA.Id ArticleId,ISNULL(MMA.ShortName,'') ArticleName
+                            ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
+                                ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
+                                ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
+                                ,ISNULL(BaseUOM.Code,'') BaseUOM,ISNULL(TransactionUoM.Code,'') TransactionUoM
+                                ,ISNULL(Country.UserName,'') Country
+                                --JWTransfromation Detail 
+                                ,JWA.UserName JWActivity,
+	                            JWTPD.ResponsiblePersonId
+                                ,EEI.EmployeeName ResponsiblePersonName 
+                                , JWTPD.JobWorkItemMasterId, JWI.UserName OutputMaterial, JWTPD.OutputMaterialUOMId
+                                , JWTPD.RateApplyOn,JWTPD.CurrencyId, CURR.Code CURR--, JWTPD.MinRate, JWTM.MaxRate
+                                , JWTPD.ByProductApplicable 
+                                ,JWTPD.Quantity	TransactionQty	
+	                            ,JWTPD.RatePerUnit	TransactionRate
+	                            ,(JWTPD.Quantity*JWTPD.RatePerUnit) TransactionAmount
+                            , JWTPD.ReferenceNo,((JWTPD.Quantity*JWTPD.RatePerUnit)*po.ToCurrencyRate) BaseAmount
+                            , jwtax.TaxAmount,JWTPD.TransactionUoMId,TransactionUoM.Code TransactionUoM,JWTPD.BaseUOMId,BaseUOM.Code BaseUOM
+                            ,MS.Id MaterialStorageId,MS.UserName MaterialStorage,EEI.EmployeeName ResponsiblePerson ,ISNULL(MM.UserName,'') MaterialName
+                            FROM JobWorkTransformationContractChild JWTPD      
+                            left JOIN [dbo].[JWTransformationPurchaseOrder] PO On PO.Id=JWTPD.JobWorkTransformationContractMasterId
+                            LEFT JOIN HKP.JobWorkItem JWI ON JWI.Id = JWTPD.JobWorkItemMasterId
+                            LEFT JOIN HKP.JobWorkActivity JWA ON JWA.Id = JWTPD.JobActivityId
+                            LEFT JOIN SCS.UnitOfMeasurement JWItemUOM  ON JWItemUOM.Id = JWTPD.OutputMaterialUOMId
+                            LEFT JOIN MST.MaterialMaster MM  ON MM.Id = JWTPD.MaterialMasterId
+                            LEFT JOIN MST.MaterialMasterArticle MMA  ON MMA.Id = JWTPD.ArticleId
+                            LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = JWTPD.FirstCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = JWTPD.FirstCharacteristicsValueId
+                            LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = JWTPD.SecondCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   SCharValue  ON SCharValue.Id = JWTPD.SecondCharacteristicsValueId
+                            LEFT JOIN [HKP].[Characteristics]   TChar  ON TChar.Id = JWTPD.ThirdCharacteristicsId
+                            LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = JWTPD.ThirdCharacteristicsValueId
+                            LEFT JOIN SCS.UnitOfMeasurement BaseUOM  ON BaseUOM.Id = JWTPD.BaseUOMId
+                            LEFT JOIN SCS.UnitOfMeasurement TransactionUoM  ON TransactionUoM.Id = JWTPD.TransactionUoMId
+                            LEFT JOIN SCS.Country Country  ON Country.Id = JWTPD.CountryId
+                            LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = JWTPD.ResponsiblePersonId
+                              
+                           
+                            LEFT JOIN SCS.Currency CURR ON CURR.Id = JWTPD.CurrencyId
+    
+                            LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
+                            ON jwtax.JWTransformationPurchaseOrderId  = JWTPD.JobWorkTransformationContractMasterId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
+                            left join hkp.MaterialStorage MS ON MS.Id=JWTPD.MaterialLocationId
+                            WHERE " + strkey + " ";
 
             return sql;
         }
@@ -3519,7 +3565,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         public string GetList(string column, string value)
         {
 
-            string strkey = "1=1";
+            string strkey = "1 =1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
 

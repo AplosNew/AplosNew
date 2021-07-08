@@ -3902,7 +3902,8 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 							, SUM(IRD.TotalMaterialTranAmount) + SUM(IRD.TotalTaxAmount)+ SUM(IRD.ChargesTaxTranAmount) AS Amount
 						FROM [TRN].[InventoryReceiveDetail] AS IRD 
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOIN [HKP].[GeneralAccountDeterminate] GAD ON GAD.CompanyId=IR.CompanyId AND GAD.Id='ReceiveGoodsFromJobWork'
+						LEFT JOIN ORG.Company C ON C.Id=IR.CompanyId
+						LEFT JOIN [HKP].[GeneralAccountDeterminate] GAD ON GAD.COAId=C.COAId AND GAD.Id='ReceiveGoodsFromJobWork'
 						--JOIN [TRN].[InventoryService] AS INS ON IRD.InventoryReceiveId=INS.InventoryReceiveId
 						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
@@ -3951,7 +3952,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 		{
 			try
 			{
-					var sql = @"DECLARE @receiveId varchar(10)= '"+ inveReveiveId + @"'
+					var sql = @"DECLARE @receiveId varchar(10)= '"+ inveReveiveId + @"',@plantId varchar(10)='" + plantId + @"'
 
 						SELECT  'JobWork' AS OtherName, 'Dr' AS TrnType
 							,GLGeneralInfoId =SVGL.ExpenseGLId
@@ -3963,19 +3964,20 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 							,ActivityId =SVGL.ExpenseActivityId
 							,ActivityCode =AF.Code 
 							,ActivityName = AF.UserName 
-							, SUM(IRD.TotalMaterialBooksCurrencyAmount) AS Dr, NULL Cr
-							, SUM(IRD.TotalMaterialBooksCurrencyAmount) AS Amount
+							, SUM(IRD.TransactionQty*JWTCC.RatePerUnit) AS Dr, NULL Cr
+							, SUM(IRD.TransactionQty*JWTCC.RatePerUnit) AS Amount
 						FROM [TRN].[InventoryReceiveDetail] AS IRD
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.JWTCMId
-						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTM.ServiceId
+						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IRD.JWTCMDId
+						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTCC.ServiceId
 						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId
 						LEFT JOIN HKP.ServiceGroupGL SVGL ON SVGL.ServiceGroupId=SVG.Id
 						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON SVGL.ExpenseGLId=GLF.Id
 						LEFT JOIN[MST].[BudgetMaster] AS BMF ON SVGL.ExpenseBudgetMasterId= BMF.Id
 						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
 						LEFT JOIN [HKP].[Activity] AS AF ON SVGL.ExpenseActivityId= AF.Id
-						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial'
+						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial' AND IR.PlantId=@plantId
 						GROUP BY SVGL.ExpenseGLId,SVGL.ExpenseBudgetMasterId,SVGL.ExpenseActivityId,GLF.AccountCode,GLF.UserName
 						,BF.Code,BF.UserName
 						,AF.Code,AF.UserName,IRD.Id
@@ -3992,19 +3994,20 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 							,ActivityId =SVGL.ExpenseActivityId
 							,ActivityCode =AF.Code 
 							,ActivityName = AF.UserName 
-							, NULL Dr, SUM(IRD.TotalMaterialBooksCurrencyAmount) AS Cr
-							, SUM(IRD.TotalMaterialBooksCurrencyAmount) AS Amount
+							, NULL Dr, SUM(IRD.TransactionQty*JWTCC.RatePerUnit) AS Cr
+							, SUM(IRD.TransactionQty*JWTCC.RatePerUnit) AS Amount
 						FROM [TRN].[InventoryReceiveDetail] AS IRD
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN [MST].[JobWorkTransformationMaster] JWTM ON JWTM.Id=IRD.JWTCMId
-						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTM.ServiceId
+						LEFT JOIN dbo.JobWorkTransformationContractChild JWTCC ON JWTCC.Id=IRD.JWTCMDId
+						LEFT JOIN HKP.ServiceMaster SM ON SM.Id=JWTCC.ServiceId
 						LEFT JOIN HKP.ServiceGroup SVG ON SVG.Id=SM.ServiceGroupId
 						LEFT JOIN HKP.ServiceGroupGL SVGL ON SVGL.ServiceGroupId=SVG.Id
 						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON SVGL.ClearingAccountGLId=GLF.Id
 						LEFT JOIN[MST].[BudgetMaster] AS BMF ON SVGL.ClearingAccountBudgetMasterId= BMF.Id
 						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
 						LEFT JOIN [HKP].[Activity] AS AF ON SVGL.ClearingAccountActivityId= AF.Id
-						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial'
+						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial' AND IR.PlantId=@plantId
 						GROUP BY SVGL.ExpenseGLId,SVGL.ExpenseBudgetMasterId,SVGL.ExpenseActivityId,GLF.AccountCode,GLF.UserName
 						,BF.Code,BF.UserName
 						,AF.Code,AF.UserName,IRD.Id";
@@ -4022,7 +4025,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 		{
 			try
 			{
-				var sql = @"DECLARE @receiveId varchar(10)= '" + inveReveiveId + @"' , @companyId varchar(10)='" + companyId + @"'
+				var sql = @"DECLARE @receiveId varchar(10)= '" + inveReveiveId + @"' , @companyId varchar(10)='" + companyId + @"',@plantId varchar(10)='" + plantId + @"'
 
 						SELECT  'CostOfGoodsSold' AS OtherName, 'Dr' AS TrnType
 							,GLGeneralInfoId =MGGL.ExpenseGLId
@@ -4046,7 +4049,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.ExpenseBudgetMasterId= BM.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON MGGL.ExpenseActivityId= A.Id
-						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial'
+						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial' AND IR.PlantId=@plantId
 						GROUP BY MGGL.ExpenseGLId,GL.AccountCode,GL.UserName,MGGL.ExpenseBudgetMasterId
 						,B.Code,B.UserName,MGGL.ExpenseActivityId,A.Code,A.UserName
 
@@ -4068,12 +4071,13 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
-						LEFT JOIN HKP.GeneralAccountDeterminate GAD ON GAD.CompanyId=IR.CompanyId AND GAD.Id='IssueOfRawMaterialForJobWork'
+						LEFT JOIN ORG.Company C ON C.Id=IR.CompanyId
+						LEFT JOIN [HKP].[GeneralAccountDeterminate] GAD ON GAD.COAId=C.COAId AND GAD.Id='IssueOfRawMaterialForJobWork'
 						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
 						LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
-						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial'
+						WHERE IRD.InventoryReceiveId=@receiveId and IRD.MaterialFor='JWOUTPUTMaterial' AND IR.PlantId=@plantId
 						GROUP BY GAD.GLGeneralInfoId,GL.AccountCode,GL.UserName,GAD.BudgetMasterId
 						,B.Code,B.UserName,GAD.ActivityId,A.Code,A.UserName";
 

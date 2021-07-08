@@ -467,6 +467,9 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("MaterialMovementPurposeController", MaterialMovementPurposeController)
     .controller("ItemConsumptionController", ItemConsumptionController)
     .controller("AccountsGroupController", AccountsGroupController)
+    .controller("ShrinkageGroupController", ShrinkageGroupController)
+    .controller("FabricWidthController", FabricWidthController)
+    .controller("ShadeController", ShadeController)
 
 
 

@@ -2119,6 +2119,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             $scope.serviceModel.ServiceMasterName = $("#ServiceMasterId option:selected").text();
             $scope.serviceModel.CurrencyId = $scope.productNew.CurrencyId;
             $scope.serviceModel.BaseCurrencyId = $scope.baseCurrencyId;
+            $scope.serviceModel.State = 'Acceptance';
 
             $scope.serviceModel.TotalTaxAmount = $filter('sumByKey')($filter('filter')($scope.taxCategoryList), 'TaxAmount');
             for (var i = 0; i < $scope.taxCategoryList.length; i++) {
@@ -2142,6 +2143,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 , TotalTaxAmount: 0
                 , ToCurrencyRate: null
                 , IsNonCreditable: null
+                , State: 'Acceptance'
             };
             $scope.SaveServiceAndServiceTax();
         }

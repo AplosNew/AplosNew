@@ -635,9 +635,9 @@ namespace Library.Service.Advances
 
                 sheet.Range[row, colVoucherDateValue].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, colVoucherDateValue, "Authorized By", true);
-
-                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Credit Note", companyId, plantName, null);
-                reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
+                
+                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Credit Note", companyId,plantId, plantName, null);
+                //reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
 
                 //    //else
                 //    //{
@@ -650,7 +650,8 @@ namespace Library.Service.Advances
             {
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.CellStyle.Font.Size = 8;
-                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Credit Note", companyId, plantName, null);
+                
+                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Credit Note", companyId, plantId, plantName, null);
                 reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
             }
 
