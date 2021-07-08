@@ -449,7 +449,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.detailgrid = function detailGridData(e) {
 
         var filteredData = e.data["Id"];
-        var data = ej.DataManager($scope.PoChildListAll).executeLocal(ej.Query().where("JWTransformationPurchaseOrderId", "equal", filteredData, true).take(100));
+        var data = ej.DataManager($scope.PoChildListAll).executeLocal(ej.Query().where("JobWorkTransformationContractMasterId", "equal", filteredData, true).take(100));
         e.detailsElement.find("#detailGrid").ejGrid({
 
             dataSource: data,
