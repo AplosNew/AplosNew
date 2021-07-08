@@ -1,35 +1,13 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Accounting.Accounts;
-using Library.Accounting.FixedAssets;
-using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
-using Library.Model.Employees;
 using Library.Model.Enums;
-using Library.Model.FixedAsset;
-using Library.Model.FixedAssets;
-using Library.Model.Inventory;
-using Library.Model.Materials;
-using Library.Service.Enums;
-using Library.Service.FixedAssets;
-using Library.Service.Helpers;
-using Library.Service.Invoices;
-using Library.ViewModel.Materials;
-using Library.ViewModel.Vouchers;
-using OTSBD;
-using Syncfusion.ExcelToPdfConverter;
-using Syncfusion.Pdf;
-using Syncfusion.XlsIO;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using System.Threading;
 using System.Web.Mvc;
-using System.Web.Script.Serialization;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -53,25 +31,127 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult getVoucherDataList( string voucherNo)
+        public ActionResult GetVoucherDataList(string voucherNo)
         {
             AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new { DATA = accountsCommonService.getVoucherDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,voucherNo), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(new { DATA = accountsCommonService.getVoucherDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, voucherNo), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public ActionResult parkModeVoucher(string voucherId)
+        public ActionResult ParkModeVoucher(string voucherId,string sourceType)
         {
-            //_invoiceService.Post(invoiceId);
-            return Json(new { Message = AplosMessage.Posted });
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var rdBuilder = new System.Text.StringBuilder();
+                if(sourceType== SourceType.JournalVoucher.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                }
+                if (sourceType == SourceType.BankJournal.ToString() || sourceType == SourceType.CashJournal.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    var bankJournalSql = @"UPDATE [TRN].BankJournal SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                    rdBuilder.Append(bankJournalSql);
+                }
+                if (sourceType == SourceType.VendorInvoice.ToString()|| sourceType == SourceType.InventoryPayable.ToString()||sourceType == SourceType.CustomerInvoice.ToString() )
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    var InvoiceSql = @"UPDATE [TRN].Invoice SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                    rdBuilder.Append(InvoiceSql);
+                }
+                if (sourceType == SourceType.VendorPayment.ToString() || sourceType == SourceType.CustomerReceipt.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    var bankJournalSql = @"UPDATE [TRN].InvoiceWriteOff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                    rdBuilder.Append(bankJournalSql);
+                }
+                if (sourceType == SourceType.CustomerAdvance.ToString() || sourceType == SourceType.VendorAdvance.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    var bankJournalSql = @"UPDATE [TRN].Advance SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                    rdBuilder.Append(bankJournalSql);
+                }
+                if (sourceType == SourceType.VendorAdvanceWriteOff.ToString() || sourceType == SourceType.CustomerAdvanceWriteOff.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    var bankJournalSql = @"UPDATE [TRN].AdvanceWriteOff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                    rdBuilder.Append(bankJournalSql);
+                }
+                if (sourceType == SourceType.Loan.ToString()|| sourceType == SourceType.Investment.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    var bankJournalSql = @"UPDATE [TRN].Financing SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                    rdBuilder.Append(bankJournalSql);
+                }
+                if (sourceType == "AdditionalLoanPayable")
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    var bankJournalSql = @"UPDATE [TRN].FinancingSubsequentTransaction SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                    rdBuilder.Append(bankJournalSql);
+                }
+                if (sourceType == SourceType.LoanPayment.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    var bankJournalSql = @"UPDATE [TRN].FinancingWriteOff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                    rdBuilder.Append(bankJournalSql);
+                }
+                if (sourceType == SourceType.DebitNote.ToString() || sourceType == SourceType.CreditNote.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    var bankJournalSql = @"UPDATE [TRN].AdjustmentNote SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                    rdBuilder.Append(bankJournalSql);
+                }
+                if (sourceType == SourceType.EmployeePayable.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    var bankJournalSql = @"UPDATE [TRN].EmployeePayable SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                    rdBuilder.Append(bankJournalSql);
+                }
+                if (sourceType == SourceType.EmployeePayment.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    var bankJournalSql = @"UPDATE [TRN].EmployeePayableWriteOff SET RowState='Parked' WHERE VoucherId='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);
+                    rdBuilder.Append(bankJournalSql);
+                }
+                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                return Json(new { Message = " Successfully Parked" });
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
         }
 
 
 
 
 
- 
+
 
 
 
