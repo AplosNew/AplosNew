@@ -759,6 +759,9 @@
     <Compile Include="Areas\PerformanceManagement\Controllers\JobEvaluationMasterController.cs" />
     <Compile Include="Areas\PerformanceManagement\Controllers\JobEvaluationReportController.cs" />
     <Compile Include="Areas\PerformanceManagement\PerformanceManagementAreaRegistration.cs" />
+    <Compile Include="Areas\Productions\Controllers\ShadeController.cs" />
+    <Compile Include="Areas\Productions\Controllers\FebricWidthController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ShrinkageGroupController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionRelayController.cs" />
     <Compile Include="Areas\Productions\Controllers\DailyTargetController.cs" />
     <Compile Include="Areas\Productions\Controllers\EfficiencySlabController.cs" />
@@ -2043,6 +2046,9 @@
     <Content Include="Areas\PerformanceManagement\Scripts\JobEvaluationMasterController.js" />
     <Content Include="Areas\PerformanceManagement\Scripts\JobEvaluationReportController.js" />
     <Content Include="Areas\PerformanceManagement\Scripts\PerformanceManagementConfig.js" />
+    <Content Include="Areas\Productions\Scripts\ShadeController.js" />
+    <Content Include="Areas\Productions\Scripts\FebricWidthController.js" />
+    <Content Include="Areas\Productions\Scripts\ShrinkageGroupController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionRelayController.js" />
     <Content Include="Areas\Productions\Scripts\DailyTargetController.js" />
     <Content Include="Areas\Productions\Scripts\EfficiencySlabController.js" />
@@ -3524,6 +3530,9 @@
     <Content Include="Areas\FixedAssets\Views\EntityFixedAssetsRegister\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployeeAdditionDeductionProcess\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\VoucherPark\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ShrinkageGroup\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\FabricWidth\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\Shade\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
