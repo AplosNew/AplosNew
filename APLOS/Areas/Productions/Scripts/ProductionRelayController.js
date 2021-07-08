@@ -209,7 +209,6 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
 
         }
     }
-
     $scope.ProductionRelayAllCheck = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
     };

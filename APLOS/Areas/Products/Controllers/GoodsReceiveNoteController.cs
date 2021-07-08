@@ -3283,7 +3283,7 @@ UNION ALL
 			if (string.IsNullOrEmpty(column) == false)
 				strkey = column + " like '%" + value + "%'";
 
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;//
 			string sql = @"select top 100 * from (SELECT PO.*,isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
             isnull(PS.UserName,'') AS ProductionStatusName,ISNULL(so.Qty,0) AS SOQuantity           
                     FROM [TRN].[ProductionOrder] AS PO
