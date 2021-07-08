@@ -25,7 +25,8 @@ function FixedAssetsRegisterReportController(commonMessage, $scope, $rootScope, 
         partyType: 'All',  
         PartyName: null,
         MaterialMasterName: null,
-        FixedAssetMasterName: null
+        FixedAssetMasterName: null,
+        EntityId: null
     };
 
     //For From date and To date
