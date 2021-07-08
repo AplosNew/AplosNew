@@ -112,7 +112,15 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
 
     $scope.POPopUp = function () {
-        $scope.getalldata();
+        var PoType = 'PO';
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            //url: $scope.getSearchListUrl,
+            url: 'Products/PurchaseDocumentsAcceptance/GetPOWithLCList?PoType=' + PoType,
+        }).then(function successCallback(response) {
+            $scope.Griddata = response.data;
+        });
 
         angular.element(document.querySelector('#POPopUp')).modal('show');
     };
@@ -2908,7 +2916,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
     $scope.DeleteServicePOItem = function () {
         if (baseService.isUndefinedOrNull($scope.LCChargesId)) {
-            $scope.ServicePODetailList.splice($scope.bActivityIndex, 1);
+            $scope.SavedServicePODetailList.splice($scope.bActivityIndex, 1);
         }
         else {
             $http({
@@ -2920,7 +2928,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.ServicePODetailList.splice($scope.bActivityIndex, 1);
+                    $scope.SavedServicePODetailList.splice($scope.bActivityIndex, 1);
                 }
             }, function () {
                 ShowResult(commonMessage.NetworkError, 'failure');

@@ -130,9 +130,33 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     };
     $scope.ReceiptTransformation = Object.assign({}, $scope.ReceiptTransformationModelTemp);
 
-    $scope.ShowContractPopUp = function () {
 
-        debugger;
+    $scope.ShowExCurrency = true;
+    $scope.CurrencyId = null;
+    $scope.currencyList = [];
+    cboService.getCboTransactionCurrencyByCompany('', function (result) {
+        $scope.currencyList = [];
+        $scope.currencyList = result;
+        $scope.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+       
+    });
+
+    $scope.GetCurrencyExchangeRateList = function () {
+        if (!baseService.isUndefinedOrNull($scope.CurrencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter("dateFiltering")(Date.now()) + "&currencyId=" + $scope.CurrencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.ModelNew.BillingRate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = [];
+        }
+    };
+
+    $scope.ShowContractPopUp = function () {
         $scope.ModelNew.Type = "ValueAdded";
         $http({
             method: 'POST',
@@ -187,6 +211,10 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         $scope.ModelNew = Object.assign({}, obj.data);
         $scope.GetDetailData($scope.ModelNew.Id);
         $scope.GetJWGRNDataChecking($scope.ModelNew.JWTransformationPurchaseOrderId);
+        if ($scope.ModelNew.CurrencyId == $scope.CurrencyId) {
+            $scope.ShowExCurrency = false;
+        }
+
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -229,6 +257,13 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
 
         $scope.TabTypeNew = $scope.Transformation.TabType;
         $scope.ReceiptTransformation.TransformationContractId = $scope.Transformation.Id;
+
+
+        if ($scope.ModelNew.CurrencyId == $scope.CurrencyId) {
+            $scope.ShowExCurrency = false;
+        }
+
+
         if ($scope.ModelNew.TabType == "Transformation") {
             $scope.GetJWGRNDataChecking($scope.ModelNew.JWTransformationPurchaseOrderId);
             $scope.ShowJWPOPopUp($scope.ModelNew.JWTransformationPurchaseOrderId);
@@ -236,6 +271,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         else {
             $scope.GetReceiptVAChildData();
         }
+        $scope.GetCurrencyExchangeRateList();
         angular.element(document.querySelector("#ContractPopUp")).modal("hide");
     };
 
@@ -319,6 +355,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         $scope.SelectedJWPOList = [];
         $scope.ReceiptVA = Object.assign({}, $scope.ReceiptVAModelTemp);
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.ShowExCurrency = true;
     }
 
     $scope.Action = 'Save';
