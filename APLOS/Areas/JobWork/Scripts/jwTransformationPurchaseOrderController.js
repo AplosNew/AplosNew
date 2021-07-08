@@ -431,7 +431,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             method: "GET",
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
-            url: 'Products/PurchaseOrder/GetListForHold11?ApproveRejectHold=' + $scope.ApproveRejectHold,
+            url: 'JobWork/JWTransformationPurchaseOrder/GetListForHoldRejectApproved?ApproveRejectHold=' + $scope.ApproveRejectHold,
         }).then(function successCallback(response) {
             $scope.GriddataPoApp = response.data;
             //entrydata = copy(searchdata);
