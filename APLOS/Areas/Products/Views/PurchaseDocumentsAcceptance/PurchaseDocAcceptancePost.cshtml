@@ -398,7 +398,7 @@
 
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-            <div ng-form="tabForm4">
+            <div ng-form="tabForm3">
                 <div class="clearfix"></div>
                 <div class="table-responsive modal-table" ng-show="ServicePODetailList.length">
                     <table class="table table-striped">
@@ -485,6 +485,8 @@
                 <li role="presentation" ng-class="{ active: isSetAcceptenceList(2) }"><a ng-click="setTabAcceptenceList(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Posted List </a></li>
                 <li role="presentation" ng-class="{ active: isSetAcceptenceList(3) }"><a ng-click="setTabAcceptenceList(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Non Posted Charges</a></li>
                 <li role="presentation" ng-class="{ active: isSetAcceptenceList(4) }"><a ng-click="setTabAcceptenceList(4)" href="" aria-controls="general" role="tab" data-toggle="tab">Posted Charges</a></li>
+                <li role="presentation" ng-class="{ active: isSetAcceptenceList(5) }"><a ng-click="setTabAcceptenceList(5)" href="" aria-controls="general" role="tab" data-toggle="tab">Non Posted PO Service</a></li>
+                <li role="presentation" ng-class="{ active: isSetAcceptenceList(6) }"><a ng-click="setTabAcceptenceList(6)" href="" aria-controls="general" role="tab" data-toggle="tab">Posted PO Service</a></li>
             </ul>
 
 
@@ -515,8 +517,8 @@
                                     <div e-column e-field="ServiceAmount" e-headertext="Charges Amount" e-width="80"></div>
                                     <div e-column e-field="IsChargePark" e-headertext="Charges Park/Post" e-width="120"></div>
                                     @*<div e-column e-headertext="Actions" e-width="50">
-                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridAcceptanceList');" style="margin: -6px;"></i></button>
-                                        </div>*@
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridAcceptanceList');" style="margin: -6px;"></i></button>
+                                </div>*@
                                 </div>
                             </div>
                         </div>
@@ -585,8 +587,8 @@
                                     <div e-column e-field="AcceptanceAmount" e-headertext="Acceptance Amount" e-width="120"></div>
                                     <div e-column e-field="IsAcceptancePark" e-headertext="Acceptance Park/Post" e-width="120"></div>
                                     @*<div e-column e-headertext="Actions" e-width="50">
-                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridAcceptanceList');" style="margin: -6px;"></i></button>
-                                        </div>*@
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridAcceptanceList');" style="margin: -6px;"></i></button>
+                                </div>*@
                                 </div>
                             </div>
                         </div>
@@ -598,6 +600,39 @@
                     <div>
                         <div class="content-container-fluid" style="color:black;">
                             <div style="color:black;" id="GridAcceptanceList4" ej-grid e-datasource="GetAcceptanceChargesPostedList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="true"
+                                 e-recorddoubleclick="nonPostedAcceptanceService"
+                                 e-filtersettings-filterType="excel"
+                                 e-enabletouch="true"
+                                 e-detailstemplate="detailTemp"
+                                 e-detailsdatabound="detailgrid">
+                                <div e-columns>
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                                    <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="120"></div>
+                                    <div e-column e-field="PartyName" e-headertext="Party" e-width="120"></div>
+                                    <div e-column e-field="AcceptanceDate" e-headertext="Date" e-width="120"></div>
+
+                                    <div e-column e-field="AcceptanceNo" e-headertext="AcceptanceNo" e-width="120"></div>
+                                    <div e-column e-field="Amount" e-headertext="Amount" e-width="120"></div>
+                                    <div e-column e-field="AcceptanceAmount" e-headertext="Acceptance Amount" e-width="120"></div>
+                                    <div e-column e-field="IsAcceptancePark" e-headertext="Acceptance Park/Post" e-width="120"></div>
+                                    <div e-column e-headertext="Actions" e-width="50">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GridAcceptanceList4');" style="margin: -6px;"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetAcceptenceList(5), active: isSetAcceptenceList(5) }">
+                <fieldset class="scheduler-border">
+                    <div>
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color:black;" id="GridAcceptanceList5" ej-grid e-datasource="AcceptancePOServiceList"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                  e-allowselection="true"
                                  e-recorddoubleclick="nonPostedAcceptanceService"

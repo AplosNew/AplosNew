@@ -166,7 +166,7 @@
                         </div>
                     </div>
                     <div class="col-lg-6">
-                        <div class="form-group">
+                        <div class="form-group" ng-show="ShowExCurrency">
                             <label class="col-sm-4 control-label" title="Exchange Rate">Ex. Rate<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <input n-decimals="2" type="text" name="Exchange Rate" ng-model="ModelNew.BillingRate" class="form-control" tabindex="5" autocomplete="off">
@@ -295,7 +295,7 @@
                             <div e-column e-field="VAProcessStartDate" e-headertext="Process Start Date" e-width="30" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                             <div e-column e-field="VAProcessEndDate" e-headertext="Process End Date" e-width="30" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                             <div e-column e-field="VAContractClosingDate" e-headertext="Contract Closing Date" e-width="30" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-
+                            <div e-column e-field="Currency" e-headertext="Currency" e-width="20"></div>
                         </div>
                     </div>
                 </div>

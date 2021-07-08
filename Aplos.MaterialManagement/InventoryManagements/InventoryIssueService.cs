@@ -99,8 +99,8 @@ namespace Library.MaterialManagement.InventoryManagements
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			try
-			{
-				var sql = @"select top 100 * from ( SELECT 
+			{//top 100
+				var sql = @"select  * from ( SELECT 
                     case when PO.PlantId='"+ identity .PlantId+ @"' AND PO.PlantId=EN.PlantId then 'OWN' else 
                      case when PO.PlantId='" + identity.PlantId + @"' and EN.PlantId<>PO.PlantId then 'OUT' ELSE
                     case when PO.PlantId<>'" + identity.PlantId + @"' AND EN.PlantId='" + identity.PlantId + @"' THEN 'IN' ELSE '' END END END AS Owner,

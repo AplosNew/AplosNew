@@ -60,51 +60,18 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { DATA = accountsCommonService.getVoucherDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,voucherNo), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
-        //[HttpPost]
-        //public JsonResult Create(string entityId, string departmentId, IEnumerable<FixedAssetRegister> entityFixedAssetList)
-        //{
-        //    var flag = false;
-
-        //    try
-        //    {
-        //        string entityFixedAssetList1 = "";
-
-        //        foreach (var item in entityFixedAssetList)
-        //        {
-        //            if (string.IsNullOrEmpty(entityFixedAssetList1))
-        //            {
-        //                entityFixedAssetList1 += "'','" + item.Id+"'";
-        //            }
-        //            else
-        //            {
-        //                entityFixedAssetList1 += ",'" + item.Id + "'";
-        //            }
-
-        //        }
-        //        _unitOfWork.BeginTransaction();
-        //        flag = true;
-        //        var vendorAdWr = new System.Text.StringBuilder();
-        //        var vendorAdWrsql = "";
-
-        //            vendorAdWrsql = @"update  TRN.FixedAssetRegister set EntityId='"+ entityId + "',DepartmentId='"+ departmentId + @"' where Id in ("+ entityFixedAssetList1 + @")";
-        //            vendorAdWr.Append(vendorAdWrsql);
-        //        _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
-        //        _unitOfWork.SaveChanges();
-        //        flag = false;
-        //        _unitOfWork.Commit();
+        [HttpPost]
+        public ActionResult parkModeVoucher(string voucherId)
+        {
+            //_invoiceService.Post(invoiceId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
 
 
 
-        //        return Json(new { Error = false, Message = AplosMessage.Updated });
 
-        //    }
-        //    catch (Exception ex)
-        //    {
 
-        //        return Json(new { Error = true, Message = ex.Message });
-
-        //    }
-        //}
+ 
 
 
 
