@@ -112,7 +112,15 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
 
     $scope.POPopUp = function () {
-        $scope.getalldata();
+        var PoType = 'PO';
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            //url: $scope.getSearchListUrl,
+            url: 'Products/PurchaseDocumentsAcceptance/GetPOWithLCList?PoType=' + PoType,
+        }).then(function successCallback(response) {
+            $scope.Griddata = response.data;
+        });
 
         angular.element(document.querySelector('#POPopUp')).modal('show');
     };
@@ -769,10 +777,10 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                                 ShowResult(response.data.Message, 'success');
                                 $scope.PurchaseDocAcceptance.Id = response.data.entity.Id;
                                 $scope.gridAcceptanceList();
-                                $scope.setTabAcceptenceList(1);
+                               // $scope.setTabAcceptenceList(1);
                                 $scope.Action = 'Update';
-                                //$scope.seletedLST = [];
-                                //$scope.GridListPO = [];
+                                $scope.seletedLST = [];
+                                $scope.GridListPO = [];
 
                                 $scope.getRecordDoubleClickDetail($scope.PurchaseDocAcceptance.Id);
 
@@ -825,7 +833,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                                 ShowResult(response.data.Message, 'success');
                                 $scope.PurchaseDocAcceptance.Id = response.data.entity.Id;
                                 $scope.gridAcceptanceList();
-                                $scope.setTabAcceptenceList(1);
+                                //$scope.setTabAcceptenceList(1);
 
 
                                 $scope.getRecordDoubleClickDetail($scope.PurchaseDocAcceptance.Id);
@@ -875,7 +883,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                                 ShowResult(response.data.Message, 'success');
                                 $scope.PurchaseDocAcceptance.Id = response.data.entity.Id;
                                 $scope.gridAcceptanceList();
-                                $scope.setTabAcceptenceList(1);
+                                //$scope.setTabAcceptenceList(1);
                                 $scope.Action = 'Update';
                                 $scope.seletedLST = [];
                                 $scope.GridListPO = [];
@@ -1213,7 +1221,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             });
     }
 
-    
+
 
     $scope.getRecordDoubleClickDetailGRN = function (Id) {
         $scope.seletedLST = [];
@@ -1581,13 +1589,29 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         return false;
     }
 
-    $scope.DeleteLineItem = function (x) {
+    $scope.RemoveMaterialPOItem = function (data, index) {
+        try {
+
+            $scope.AcceptenceDetailId = data.AcceptenceDetailId;
+            $scope.POID = data.POID;
+            $scope.PODetailsID = data.PODetailsID;
+            $scope.TransactionQty = data.TransactionQty;
+            $scope.bIndex = index;
+
+            $scope.message = 'Are you sure want to delete permanently [ ' + data.UserName + ' ]';
+            angular.element(document.querySelector('#removerPopUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.DeleteLineItem = function () {
         //if (baseService.arrayLength($scope.inventoryMaterialList) === 0 && baseService.arrayLength($scope.serviceList) === 0) {
 
-        if (!baseService.isUndefinedOrNull(x.AcceptenceDetailId)) {
+        if (!baseService.isUndefinedOrNull($scope.AcceptenceDetailId)) {
             $http({
                 method: 'POST',
-                url: 'Products/PurchaseDocumentsAcceptance/DeleteLineItem?id=' + x.AcceptenceDetailId + '&POID=' + x.POID + '&PODetailsID=' + x.PODetailsID + '&Qty=' + x.TransactionQty,
+                url: 'Products/PurchaseDocumentsAcceptance/DeleteLineItem?id=' + $scope.AcceptenceDetailId + '&POID=' + $scope.POID + '&PODetailsID=' + $scope.PODetailsID + '&Qty=' + $scope.TransactionQty,
                 dataType: 'JSON'
             }).then(function (response) {
                 if (response.data.Error === true)
@@ -1603,9 +1627,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             });
         }
         else {
-            for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-                $scope.inventoryMaterialListPO.splice($scope.inventoryMaterialListPO[i], 1);
-            }
+            $scope.inventoryMaterialListPO.splice($scope.bIndex, 1);
         }
         // ShowResult('First delete all line item.', 'failure');
     };
@@ -1916,10 +1938,11 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.inventoryMaterialListPO = [];
         $scope.acceptanceTaxList = [];
         $scope.gridAcceptanceList();
-        $scope.setTabAcceptenceList(1);
+        //$scope.setTabAcceptenceList(1);
         $scope.TaxAction = 'Save';
         $scope.productNew.AcceptanceFirst = null;
         $scope.ServicePODetailList = [];
+        $scope.SavedServicePODetailList = [];
     }
     $scope.productNew = {
         FixedAssetOrInventory: 'Inventory'
@@ -2807,10 +2830,10 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                             ShowResult(response.data.Message, 'success');
                             $scope.PurchaseDocAcceptance.Id = response.data.entity.Id;
                             $scope.gridAcceptanceList();
-                            $scope.setTabAcceptenceList(1);
+                            //$scope.setTabAcceptenceList(1);
                             $scope.Action = 'Update';
-                            //$scope.seletedLST = [];
-                            //$scope.GridListPO = [];
+                            $scope.seletedLST = [];
+                            $scope.GridListPO = [];
 
                             $scope.getRecordDoubleClickDetail($scope.PurchaseDocAcceptance.Id);
                             angular.element(document.querySelector('#ListOfServicePODetail')).modal('hide');
@@ -2880,10 +2903,10 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
     $scope.RemoveServicePOItem = function (data, index) {
         try {
-            
+
             $scope.LCChargesId = data.Id;
             $scope.bActivityIndex = index;
-          
+
             $scope.message = 'Are you sure want to delete permanently [ ' + data.ServiceMasterName + ' ]';
             angular.element(document.querySelector('#RemoveServicePOItemPopUp')).modal('show');
         } catch (e) {
@@ -2893,7 +2916,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
     $scope.DeleteServicePOItem = function () {
         if (baseService.isUndefinedOrNull($scope.LCChargesId)) {
-            $scope.ServicePODetailList.splice($scope.bActivityIndex, 1);
+            $scope.SavedServicePODetailList.splice($scope.bActivityIndex, 1);
         }
         else {
             $http({
@@ -2905,7 +2928,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.ServicePODetailList.splice($scope.bActivityIndex, 1);
+                    $scope.SavedServicePODetailList.splice($scope.bActivityIndex, 1);
                 }
             }, function () {
                 ShowResult(commonMessage.NetworkError, 'failure');
@@ -2983,7 +3006,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         data.TaxAmount = Math.round($scope.taxAbleAmnt * data.Percentage) / 100;
     };
     $scope.checkRowValidationServicePO = function (x) {
-       
+
         for (var i = 0; i < $scope.ServicePOTaxList.length; i++) {
             if ($scope.ServicePOTaxList[i].Id === x.Id) {
                 $scope.ServicePOTaxList[i].Percentage = (parseFloat(x.TaxAmount / $scope.taxAbleAmnt).toFixed(4) * 100);

@@ -917,8 +917,9 @@ namespace Aplos.Areas.JobWork.Controllers
                                LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                                LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
 
-                           WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.CompanyId='" + identity.CompanyId + @"' and emp.EmployeeStatus='Active' and EMP.EmpType='Local'
-                      AND isnull(Emp.SystemID,'') not in (select isnull(ByWhomId,'') from dbo.JobWorkTransformationIssueReturn where Id='" + Id + @"')
+                           WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.CompanyId='" + identity.CompanyId + @"' and emp.EmployeeStatus='Active' 
+                      --and EMP.EmpType='Local'
+                      --AND isnull(Emp.SystemID,'') not in (select isnull(ByWhomId,'') from dbo.JobWorkTransformationIssueReturn where Id='" + Id + @"')
                      order by EMP.EmployeeCode";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

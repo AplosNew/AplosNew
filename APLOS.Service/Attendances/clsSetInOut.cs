@@ -473,15 +473,21 @@ namespace SetINOUT
                         dvRaw.RowFilter = "Id='" + _rid + "'";
                         if (dvRaw.Count > 0)
                         {
-                            string _Type = GetINOUTType(workdate, dsEmpShift, dvRaw[0]);
-                            if (string.IsNullOrEmpty(_Type) == false)
+                            
+                            if (bplib.clsWebLib.GetBoolData(dvRaw[0]["FlagSetByProcess"]) == true
+                            || string.IsNullOrEmpty(dvRaw[0]["PType"].ToString()) == true)
                             {
-                                DataRow drRaw = dvRaw[0].Row;
-                                drRaw.BeginEdit();
-                                drRaw["PType"] = _Type;
-                                drRaw["dateupdated"] = DateTime.Now;
-                                drRaw.EndEdit();
-                            }//type found                      
+                                string _Type = GetINOUTType(workdate, dsEmpShift, dvRaw[0]);
+                                if (string.IsNullOrEmpty(_Type) == false)
+                                {
+                                    DataRow drRaw = dvRaw[0].Row;
+                                    drRaw.BeginEdit();
+                                    drRaw["FlagSetByProcess"] = true;
+                                    drRaw["PType"] = _Type;
+                                    drRaw["dateupdated"] = DateTime.Now;
+                                    drRaw.EndEdit();
+                                }//type found
+                            }
                         }//if
                     }//for
                     SaveDataSets(dsRaw);

@@ -160,6 +160,7 @@ function OS3DashboardController(cboService, commonMessage, $scope, $rootScope, b
     $scope.Detail1;
     $scope.Detail2;
     $scope.Detail3;
+    $scope.DetailList = [];
     $scope.cellDoubleClick = function (e) {
         var d = 0;
         if ($scope.group == 'Delivery') {
@@ -180,53 +181,45 @@ function OS3DashboardController(cboService, commonMessage, $scope, $rootScope, b
                 url: $scope.path + 'getClickData',
                 data: { 'parameters': $scope.parameters, 'group': $scope.group, 'col': two, 'range': e.columnName, 'analysis': $scope.dateCgroup, 'type': $scope.chartTypeG }
             }).then(function success(response) {
-                console.log(response);
-                var ColumnList = [
-                    { field: 'Id', width: 80, headerText: "So Id", type: "string" },
-                    { field: 'Qty', width: 80, headerText: "SO Oty", type: "number" },
-                    { field: 'Entity', width: 80, headerText: "Entity", type: "string" },
-                    { field: 'customers', width: 120, headerText: "Customer", type: "string" },
-                    { field: 'Buyer', width: 120, headerText: "Buyer", type: "string" },
-                    { field: 'BuyerReferenceNo', width: 120, headerText: "Buyer Ref No", type: "string" },
-                    { field: 'OwnReferenceNo', width: 120, headerText: "Own Ref No", type: "string" },
-                    { field: 'IBuyerReferenceNo', width: 120, headerText: "Buyer Item Ref No", type: "string" },
-                    { field: 'IOwnReferenceNo', width: 120, headerText: "Own Item Ref No", type: "string" },
-                    { field: 'Remarks', width: 150, headerText: "Remarks", type: "string" },
-                    { field: 'DeliveryDate', width: 80, headerText: "Delivery Date", type: "string" },
-                    
-                    { field: 'CommitmentDate', width: 120, headerText: "Commitment Date", type: "string" },
-                    { field: 'ProductionDate', width: 120, headerText: "Production Date", type: "string" },
-                    { field: 'DDate', width: 120, headerText: "Ex Factory Date", type: "string" },
-                    { field: 'OrderNo', width: 120, headerText: "Order No", type: "string" },
-                    { field: 'ItemNo', width: 120, headerText: "Item No", type: "string" },
-                    { field: 'PRNo', width: 120, headerText: "Production Order No", type: "string" },
-                    { field: 'MResp', width: 80, headerText: "Marketing Responsible Person", type: "string" },
-                    { field: 'EarlyOrLateBy', width: 80, headerText: "Early Or Late By", type: "string" },
-                    { field: 'OrderStatusId', width: 100, headerText: "SO Status", type: "string" },
-                    { field: 'POStatus', width: 100, headerText: "Production Order Status", type: "string" },
-                    { field: 'MainRMInHouse', width: 100, headerText: "Main RMInHouse Status", type: "string" },
-                    { field: 'OtherRMInHouse', width: 100, headerText: "Other RMInHouse Status", type: "string" },
-                    { field: 'MainRMShipment', width: 100, headerText: "Main RMShipment Status", type: "string" },
-                    { field: 'OtherRMShipment', width: 100, headerText: "Other RMShipment Status", type: "string" },
-                    { field: 'BaseProcessInput', width: 100, headerText: "Base Process Input Status", type: "string" },
-                    
+               // console.log(response);
+                $scope.DetailList = response.data;
+                //var ColumnList = [
+                //    { field: 'Id', width: 80, headerText: "So Id", type: "string" },
+                //    { field: 'Qty', width: 80, headerText: "SO Oty", type: "number" },
+                //    { field: 'Entity', width: 80, headerText: "Entity", type: "string" },
+                //    { field: 'customers', width: 120, headerText: "Customer", type: "string" },
+                //    { field: 'Remarks', width: 150, headerText: "Remarks", type: "string" },
+                //    { field: 'Buyer', width: 120, headerText: "Buyer", type: "string" },
+                //    { field: 'BuyerReferenceNo', width: 120, headerText: "Buyer Ref No", type: "string" },
+                //    { field: 'OwnReferenceNo', width: 120, headerText: "Own Ref No", type: "string" },
+                //    { field: 'IBuyerReferenceNo', width: 120, headerText: "Buyer Item Ref No", type: "string" },
+                //    { field: 'IOwnReferenceNo', width: 120, headerText: "Own Item Ref No", type: "string" },
+                //    { field: 'DeliveryDate', width: 80, headerText: "Delivery Date", type: "string" },
+                //    { field: 'CommitmentDate', width: 120, headerText: "Commitment Date", type: "string" },
+                //    { field: 'ProductionDate', width: 120, headerText: "Production Date", type: "string" },
+                //    { field: 'DDate', width: 120, headerText: "Ex Factory Date", type: "string" },
+                //    { field: 'OrderNo', width: 120, headerText: "Order No", type: "string" },
+                //    { field: 'ItemNo', width: 120, headerText: "Item No", type: "string" },
+                //    { field: 'PRNo', width: 120, headerText: "Production Order No", type: "string" },
+                //    { field: 'MResp', width: 80, headerText: "Marketing Responsible Person", type: "string" },
+                //    { field: 'EarlyOrLateBy', width: 80, headerText: "Early Or Late By", type: "string" },
+                //    { field: 'OrderStatusId', width: 100, headerText: "SO Status", type: "string" },
+                //    { field: 'POStatus', width: 100, headerText: "Production Order Status", type: "string" }
 
+                //];
 
+                //$("#slabClickGrid").ejGrid({
+                //    dataSource: response.data,
+                //    minWidth: 450, minHeight: 4000,
+                //    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true, allowResizing: true,
+                //    filterSettings: { filterType: "excel" },
+                //    recordDoubleClick: $scope.orderControlShow,
+                //    columns: ColumnList
+                //});
 
-
-
-                ];
-                $("#slabClickGrid").ejGrid({
-                    dataSource: response.data,
-                    minWidth: 450, minHeight: 4000,
-                    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowSelection: true, allowTextWrap: true, allowScrolling: true, allowResizing: true,
-                    filterSettings: { filterType: "excel" },
-                    columns: ColumnList
-                });
-
-                var gridObj = $("#slabClickGrid").data("ejGrid");
-                gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
+                //var gridObj = $("#slabClickGrid").data("ejGrid");
+                //gridObj.refreshContent(true);
+                //gridObj.refreshTemplate();
                 angular.element(document.querySelector('#clickModal')).modal('show');
             });
         }
@@ -401,8 +394,23 @@ function OS3DashboardController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.slabGrid();
 
+    // The double Click PO From Order Controls
 
-
+    $scope.ControlList = [];
+    $scope.orderControlShow = function (e) {
+       
+        var pr = e.data.PRNo;
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getControlList',
+            data: {'pr':pr}
+        }).then(function succ(resp) {
+            $scope.ControlList = [];
+            $scope.ControlList = resp.data;
+            angular.element(document.querySelector('#orderControl')).modal('show');
+        });
+    }
+   
 
     /// Charts Section
 

@@ -7541,7 +7541,7 @@ namespace Library.HumanResource.Payroll
                 sheet1.UsedRange.WrapText = true;
                 sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
                 //sheet1.UsedRange.CellStyle.Font.FontName = printFont;
-
+                sheet1.IsDisplayZeros = false;
                 #endregion UsedRange Alignment
 
                 #region Page Setup

@@ -192,8 +192,9 @@ namespace Library.MaterialManagement.Inventory
 
 
 		IEnumerable<object> GetCheckedByAndApprovedBY(string CheckedBy, string ApprovedBy);
-
-        IEnumerable<object> GetCheckedByAndApprovedBYServicePORequisition(string CheckedBy, string ApprovedBy);
+		IEnumerable<object> GetCheckedByAndApprovedBYOutSource(string CheckedBy, string ApprovedBy);
+		
+		IEnumerable<object> GetCheckedByAndApprovedBYServicePORequisition(string CheckedBy, string ApprovedBy);
 
 
         IEnumerable<object> GetCheckedByAndApprovedBYServicePOAcknowledgement(string CheckedBy, string ApprovedBy);

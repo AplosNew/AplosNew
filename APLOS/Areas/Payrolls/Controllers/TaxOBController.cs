@@ -524,6 +524,21 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
         [HttpPost, Authorize]
+        public ActionResult GetTaxableIncomeFileInfo(string Id )
+        {
+
+            try
+            {
+                return Json(_sqlRepository.GetDataCollection("select FileName from TaxableIncomeparameter  where Id='" + Id + "' "), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+        [HttpPost, Authorize]
         public ActionResult DeleteFile(string Id, string TableName)
         {
 

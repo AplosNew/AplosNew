@@ -262,7 +262,20 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-
+        [HttpGet, Authorize]
+        public ActionResult GetTaxSurcharge(string Master)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IncomeTaxPolicy ep = new IncomeTaxPolicy();
+                return Json(ep.GetTaxSurcharge(Master), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
         #endregion
 
         #region Save
@@ -322,6 +335,18 @@ namespace Aplos.Areas.Payrolls.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IncomeTaxPolicy p = new IncomeTaxPolicy();
+
+                for (int i = 0; i < BP.Count; i++)
+                {
+                    if (BP[i].IsSelectPolicy == false)
+                    {
+                        if (BP[i].IsDefaultPolicy==true)
+                        {
+                            throw new Exception("Please Select [" + BP[i].TaxPolicyName + "] to save as Default Policy..");
+                        }
+                    }
+                }
+
                 p.SaveTPPW(BP, plantID);
                 return Json(new { Error = false, Data = BP, Message = AplosMessage.Updated });
             }
@@ -536,6 +561,59 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
 
+        [HttpPost, Authorize]
+        public JsonResult SaveTaxSurcharge(List<Dictionary<string, object>> TaxSurchargeList, string Master, TaxRebate Slab)
+        {
+            IncomeTaxPolicy p = new IncomeTaxPolicy();
+            p.SaveTaxSurcharge(Slab, Master);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster;
+            try
+            {
+                string DetailsId = string.Empty;
+                string sql = "SELECT * FROM [dbo].[TaxSurcharge] WHERE TaxPolicyMasterId='" + Master + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                while (dsMaster.Tables[0].DefaultView.Count > 0)
+                {
+                    dsMaster.Tables[0].DefaultView[0].Delete();
+                }
+
+                for (int i = 0; i < TaxSurchargeList.Count; i++)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    string sID = string.Empty;
+                    bplib.clsGenID objGenID = new bplib.clsGenID();
+                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[TaxRebate]", out sID);
+                    DetailsId = "TR" + sID;
+                    dr["Id"] = DetailsId;
+                    dr["TaxPolicyMasterId"] = Master;
+                    dr["Minimum"] = clsStaticInfo.dbl(TaxSurchargeList[i]["Minimum"]);
+                    dr["Maximum"] = clsStaticInfo.dbl(TaxSurchargeList[i]["Maximum"]);
+                    dr["TaxRate"] = clsStaticInfo.dbl(TaxSurchargeList[i]["TaxRate"]);
+                    //dr["SlabType"] = (IncomeSlab[i]["SlabType"]);
+
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+                return Json(new { Error = false, Data = TaxSurchargeList, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
         #endregion
 
         #region Delete
@@ -648,7 +726,36 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-
+        [HttpPost, Authorize]
+        public JsonResult DeleteTaxRebateSlab(string ID)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IncomeTaxPolicy p = new IncomeTaxPolicy();
+                p.DeleteTaxRebateSlab(ID);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpPost, Authorize]
+        public JsonResult DeleteTaxSurchargeSlab(string ID)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IncomeTaxPolicy p = new IncomeTaxPolicy();
+                p.DeleteTaxSurchargeSlab(ID);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         #endregion
     }
 }
