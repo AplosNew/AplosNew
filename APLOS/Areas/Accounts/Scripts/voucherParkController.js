@@ -4,6 +4,8 @@ function voucherParkController(cboService, commonMessage, $scope, $rootScope, ba
     $rootScope.title = 'VoucherPark';
     $scope.Action = 'Save';
     $scope.path = 'Accounts/VoucherPark/';
+    $scope.url = "Accounts/VoucherPark";
+    $scope.parkUrl = $scope.url + "/parkModeVoucher";
     $scope.saveUrl = $scope.path + 'create';
     var dt = new Date();
 
@@ -58,6 +60,69 @@ function voucherParkController(cboService, commonMessage, $scope, $rootScope, ba
         }
     }
    // $scope.getVoucherData();
+
+    $scope.voucherId = null;
+    $scope.confirmPost = function (voucherId) {
+        $scope.voucherId = voucherId;
+        $scope.message_confirmation = "Are you sure to Park Mode?";
+        angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
+    };
+    $scope.park = function (vId) {
+        $http({
+            method: "POST",
+            url: $scope.parkUrl,
+            data: {
+                "voucherId": vId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getVoucherData();
+                //$scope.Clear();
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+
+    //$scope.invoiceId = null;
+    //$scope.confirmDelete = function (invoiceId, voucherId) {
+    //    $scope.invoiceId = invoiceId;
+    //    $scope.voucherId = voucherId;
+    //    $scope.message_delete_confirmation = "Are you sure to Delete?";
+    //    angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+    //};
+
+    //$scope.delete = function (invoiceId, voucherId) {
+    //    $http({
+    //        method: "POST",
+    //        url: $scope.deleteUrl,
+    //        data: {
+    //            "invoiceId": invoiceId, "voucherId": voucherId
+    //        },
+    //        dataType: "JSON"
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error === true) {
+    //            ShowResult(response.data.Message, "failure");
+    //        }
+    //        else {
+    //            ShowResult(response.data.Message, "success");
+    //            $scope.getData();
+    //            $scope.Clear();
+    //            $scope.invoiceId = null;
+    //            $scope.voucherId = null;
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.status.Message, "failure");
+    //    });
+    //    return true;
+    //};
 
 
 

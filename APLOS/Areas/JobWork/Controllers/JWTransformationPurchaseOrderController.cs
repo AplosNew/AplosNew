@@ -223,6 +223,7 @@ namespace Aplos.Areas.JobWork.Controllers
             return Json(_sqlRepository.GetDataCollection(JobWorkCommon.GetJWItemMAList(ActivityId), null), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
         public ActionResult Delete(string id)
         {
 
@@ -235,7 +236,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
                 JobWorkCommon.Delete(id);
 
-                return Json(new { Error = false, Sequence = JobWorkCommon.GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)
@@ -493,6 +494,22 @@ namespace Aplos.Areas.JobWork.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
                 return Json(JobWorkCommon.GetMaterialfromJW(JobWorkItemId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetListForHoldRejectApproved(string ApproveRejectHold)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                return Json(JobWorkCommon.GetListForHoldRejectApproved(identity.PlantId, ApproveRejectHold), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
