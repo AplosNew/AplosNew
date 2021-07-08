@@ -4,7 +4,6 @@ ProductionDashboardController.$inject = ['cboService', 'commonMessage', '$scope'
 function ProductionDashboardController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = "Production Dashboard";
     $scope.path = "Productions/ProductionDashboard/";
-    $scope.ProductionRelaypath = 'Productions/ProductionRelay/';
 
 
     $scope.FromDateParameter = new Date();
@@ -445,7 +444,18 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
         $scope.ProductionRelay = {}
         $scope.ProductionRelayList = [];
     }
+    $scope.ProductionRelayReport = function () {
 
+        try {
+          
+
+            var file_src = $scope.path + 'GetProductionRelayReport?PlantId=' + $scope.SelectedPlant + '&EntityId=' + $scope.SelectedEntity + '&ProcessId=' + $scope.SelectedProcess.Id ;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
 
     $scope.WCWIPRowDataBound = function (e) {
 
@@ -794,5 +804,7 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
 
         }
     }
+
+
 
 }
