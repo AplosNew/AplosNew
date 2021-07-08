@@ -2166,4 +2166,21 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
     };
 
     //#endregion
+
+    //#region set default tax policy 
+
+    $scope.CheckValidation = function (args) {
+        if (args.isInteraction == false)
+            return;
+        for (var i = 0; i < $scope.PlantWiseBPolicyList.length; i++) {
+            if (args.model.id == $scope.PlantWiseBPolicyList[i].TaxPolicyID) {
+                $scope.PlantWiseBPolicyList[i].IsDefaultPolicy = true;
+            }
+            else {
+                $scope.PlantWiseBPolicyList[i].IsDefaultPolicy = false;
+            }            
+        }
+    };
+
+    //#endregion
 }

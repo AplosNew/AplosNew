@@ -335,6 +335,18 @@ namespace Aplos.Areas.Payrolls.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IncomeTaxPolicy p = new IncomeTaxPolicy();
+
+                for (int i = 0; i < BP.Count; i++)
+                {
+                    if (BP[i].IsSelectPolicy == false)
+                    {
+                        if (BP[i].IsDefaultPolicy==true)
+                        {
+                            throw new Exception("Please Select [" + BP[i].TaxPolicyName + "] to save as Default Policy..");
+                        }
+                    }
+                }
+
                 p.SaveTPPW(BP, plantID);
                 return Json(new { Error = false, Data = BP, Message = AplosMessage.Updated });
             }

@@ -2162,6 +2162,7 @@ public class TaxPolicyPlantWise : BaseModel
     #region Scalar Properties            
     public string Id { get; set; }
     public string TaxPolicyID { get; set; }
+    public string TaxPolicyName { get; set; }
     public string TaxPolicyYearID { get; set; }
     public string PlantId { get; set; }
     public bool IsSelectPolicy { get; set; }
