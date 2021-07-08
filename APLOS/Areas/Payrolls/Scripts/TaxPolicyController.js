@@ -152,8 +152,7 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
         TaxRate: null,
     }
     $scope.TaxSlabDefinee = {
-        Cumulative: null,
-        BrakeUp: null,
+        CumulativeOrBrakeUp: 'Break Up',
     }
     $scope.TaxPolicyGeneralFormula = {
         Id: null,
@@ -197,7 +196,6 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
     $scope.getDetail = function (obj) {
         $scope.Action = 'Update';
         $scope.TaxPolicyMaster = Object.assign({}, obj.data);
-        //$scope.TaxPolicyMaster = obj.data;
         if ($scope.TaxPolicyMaster.IsFixedTaxInvestAll) {
             $scope.radioFixedValue = true;
         }
@@ -231,18 +229,10 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
             $scope.radioB7Value = true;
         }
         if ($scope.TaxPolicyMaster.IsCumulativeTaxSlabDefine == true) {
-            $scope.TaxSlabDefinee.Cumulative = true;
-            $scope.radioCu = true;
-
-            $scope.TaxSlabDefinee.BrakeUp = false;
-            $scope.radioBr = false;
+            $scope.TaxSlabDefinee.Cumulative = 'Cumulative';
         }
         else {
-            $scope.TaxSlabDefinee.BrakeUp = true;
-            $scope.radioBr = true;
-
-            $scope.TaxSlabDefinee.Cumulative = false;
-            $scope.radioCu = false;
+            $scope.TaxSlabDefinee.BrakeUp = 'Break Up';
         }
 
         if ($scope.TaxPolicyMaster.IsCumulativeInvestmentCredit) {
@@ -367,7 +357,6 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
     $scope.getTaxGroup();
 
     $scope.setvalue = function () {
-        // $scope.TaxPolicyMaster.TaxType = $("#TaxType option:selected").text();
         $scope.TaxPolicyMaster.TaxType = $.grep($scope.TaxTypeList, function (item) {
             return item.Id === $scope.TaxPolicyMaster.TaxTypeId;
         })[0].Category;
@@ -405,7 +394,6 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
             url: $scope.path + "GetGeneralFormula?GeneralID=" + TaxGeneralID,
         }).then(function successCallback(response) {
             $scope.GeneralTaxFormulaList = response.data;
-            //$scope.getData();
         });
     }
     $scope.getTax = function (obj) {
@@ -466,7 +454,6 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
             url: $scope.path + "GetPro?Master=" + Master + '&YearId=' + $scope.TaxPolicyMaster.TaxYearID,
         }).then(function successCallback(response) {
             $scope.ProTaxList = response.data;
-            //$scope.getData();
         });
     }
 
@@ -520,8 +507,8 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
             $scope.radioBr = true;
         }
     }
-    $scope.TaxSlabDefinee = Object.assign({}, $scope.TaxSlabDefine);
-    $scope.DataList.push(Object.assign({}, $scope.TaxSlabDefinee));
+    $scope.TaxSlabDefines = Object.assign({}, $scope.TaxSlabDefine);
+    $scope.DataList.push(Object.assign({}, $scope.TaxSlabDefines));
 
     $scope.TaxRebateSlabDefinee = Object.assign({}, $scope.TaxRebateSlabDefine);
     $scope.RebateTaxList.push(Object.assign({}, $scope.TaxRebateSlabDefinee));
@@ -590,16 +577,11 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
 
             if (data.TaxAbleIncomeLowerForRebate >= data.TaxAbleIncomeUpperForRebate)
                 throw 'Maximum value should be greater than minimum value';
-            //if (data.SlabDefine == null || data.SlabDefine == '')
-            //    throw 'Select Slab Define';
-
-
 
             var newObjs = Object.assign({}, $scope.TaxRebateSlabDefine);
             if (data != null) {
                 newObjs = {
                     SystemID: null,
-                    //SlabDefine: null,
                     TaxAbleIncomeLowerForRebate: data.TaxAbleIncomeUpperForRebate,
                     TaxAbleIncomeUpperForRebate: null,
                     TaxPolicyMstID: $scope.TaxPolicyMaster.SystemID,
@@ -917,7 +899,7 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
 
     // #region Radio button Value for Slab Definition
     $scope.radiovalueG = false;
-    $scope.radioCu = false;
+    $scope.radioCu = true;
     $scope.radioBr = false;
     $scope.setRadioCu = function () {
         $scope.radiovalueG = true;
@@ -1314,15 +1296,13 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
         $scope.TaxSlabDefine = {
             SystemID: null,
             TaxPolicyMstID: null,
-            //SlabDefine: null,
             TaxAbleIncome: 0,
             TaxRate: 0,
             SequenceNo: 0,
         }
-        //$scope.TaxSlabDefinee = {
-        //    Cumulative: false,
-        //    BrakeUp: true,
-        //}
+        $scope.TaxSlabDefinee = {
+            CumulativeOrBrakeUp: 'Break Up',
+        }
         $scope.TaxSlabDefineProfessional = {
             Id: null,
             TaxPolicyMasterId: null,
@@ -1941,7 +1921,6 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
         Maximum: null,
         TaxRate: null,
     }
-    //$scope.TaxRebateSlabb = Object.assign({}, $scope.TaxRebateSlab);
     $scope.TaxRebateList.push(Object.assign({}, $scope.TaxRebateSlab));
 
     $scope.SubmitTaxRebate = function (data) {
@@ -1960,8 +1939,6 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
             if (data.Minimum >= data.Maximum)
                 throw 'Maximum value should be greater than minimum value';
 
-
-
             var newObj = Object.assign({}, $scope.TaxRebateSlab);
             if (data != null) {
                 newObj = {
@@ -1972,7 +1949,6 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
                     TaxPolicyMstID: $scope.TaxPolicyMaster.SystemID,
                 }
             }
-
             $scope.TaxRebateList.push(newObj);
         } catch (e) {
             ShowResult(e, 'failure');
@@ -2027,38 +2003,6 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
 
     //#endregion
 
-    //#region Validation For Plant
-
-    //$scope.CheckValidation = function (args) {
-    //    if (args.isInteraction == false)
-    //        return;
-    //    if (args.isChecked == false)
-    //        return;
-
-    //    var optionBase = '';
-    //    for (var i = 0; i < $scope.PlantWiseBPolicyList.length; i++) {
-    //        if (args.model.id == $scope.PlantWiseBPolicyList[i].TaxFormulaId) {
-    //            optionBase = $scope.PlantWiseBPolicyList[i].OptionBase;
-    //            break;
-    //        }
-    //    }
-
-    //    for (var i = 0; i < $scope.PlantWiseBPolicyList.length; i++) {
-    //        if (optionBase == $scope.PlantWiseBPolicyList[i].OptionBase) {
-    //            if (args.model.id == $scope.PlantWiseBPolicyList[i].TaxFormulaId)
-    //                continue;
-
-    //            $scope.PlantWiseBPolicyList[i].IsDefaultPolicy = false;
-    //            break;
-    //        }
-    //    }
-
-    //    var gridObj = $("#Grid3").data("ejGrid");
-    //    gridObj.refreshContent();
-    //}
-
-    //#endregion
-
     //#region Delete Tax Rebate
 
     $scope.DeleteTaxRebateSlabe = function (obj) {
@@ -2106,7 +2050,6 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
         Maximum: null,
         TaxRate: null,
     }
-    //$scope.TaxRebateSlabb = Object.assign({}, $scope.TaxRebateSlab);
     $scope.TaxSurchargeList.push(Object.assign({}, $scope.TaxSurchargeSlab));
 
     $scope.SubmitTaxSurcharge = function (data) {
@@ -2217,12 +2160,27 @@ function TaxPolicyController(cboService, commonMessage, $scope, $rootScope, base
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-
         } catch (e) {
             ShowResult(e, "failure");
         }
     };
 
+    //#endregion
+
+    //#region set default tax policy 
+
+    $scope.CheckValidation = function (args) {
+        if (args.isInteraction == false)
+            return;
+        for (var i = 0; i < $scope.PlantWiseBPolicyList.length; i++) {
+            if (args.model.id == $scope.PlantWiseBPolicyList[i].TaxPolicyID) {
+                $scope.PlantWiseBPolicyList[i].IsDefaultPolicy = true;
+            }
+            else {
+                $scope.PlantWiseBPolicyList[i].IsDefaultPolicy = false;
+            }            
+        }
+    };
 
     //#endregion
 }

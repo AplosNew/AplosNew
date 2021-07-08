@@ -294,6 +294,7 @@
                                                 <div e-column e-field="LCOpeningDate" e-headertext="LCOpening Date" e-width="100"></div>
                                                 <div e-column e-field="LCExpiryDate" e-headertext="LCExpiry Date" e-width="100"></div>
                                                 <div e-column e-field="LCOpeningBank" e-headertext="LCOpening Bank" e-width="100"></div>
+                                                <div e-column e-field="CurrencyName" e-headertext="Currency" e-width="30"></div>
                                                 <div e-column e-field="AcceptanceFirst" e-headertext="Acceptance First" e-width="100"></div>
                                             </div>
                                         </div>
@@ -900,6 +901,7 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
+                                            <th>State</th>
                                             <th>Service</th>
                                             <th>PO Amount (TRN)</th>
                                             <th>Balance Amount (TRN)</th>
@@ -909,6 +911,7 @@
                                     </thead>
                                     <tbody>
                                         <tr ng-repeat="x in serviceList">
+                                            <td>{{x.State}}</td>
                                             <td>{{x.ServiceMasterName}}</td>
                                             <td class="text-right">{{x.POAmount|number}}</td>
                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountForServiceCharge(x);" ng-model="x.Amount"></td> @*ng-disabled="x.enableid1"*@

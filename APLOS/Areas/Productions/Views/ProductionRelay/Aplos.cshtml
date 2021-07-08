@@ -39,6 +39,7 @@
 
     <div class="tab-design" id="tab_show">
 
+
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="runningProcess" role="tab" data-toggle="tab">To Act</a></li>
@@ -62,7 +63,7 @@
                     <div e-stackedheaderrows>
                         <div e-stackedheaderrow>
                             <div e-stackedheadercolumns>
-                                <div e-stackedheadercolumn e-headertext="Current Process" e-column="Id,Material,article,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,StartDate,MasterOrderId,Remarks"></div>
+                                <div e-stackedheadercolumn e-headertext="Current Process" e-column="Id,Material,article,CurrentProcess,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,StartDate,MasterOrderId,Remarks"></div>
                                 <div e-stackedheadercolumn e-headertext="Previous Process" e-column="PreviousProcess,PreviousProcessQty,ClosedBy,PreviousProcessStartDate,ClosedDate"></div>
                             </div>
                         </div>
@@ -74,6 +75,8 @@
                         <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
                         <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
                         <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
+                        <div e-column e-type="string" e-field="CurrentProcess" e-headertext="Process" e-width="100"></div>
+
                         <div e-column e-type="string" e-field="StyleNo" e-headertext="Buyer Item#" e-width="100"></div>
                         <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
                         <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>
@@ -151,7 +154,7 @@
                     <div e-stackedheaderrows>
                         <div e-stackedheaderrow>
                             <div e-stackedheadercolumns>
-                                <div e-stackedheadercolumn e-headertext="Current Process" e-column="Id,Material,article,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,StartDate,EndDate,CompletedBy,MasterOrderId,Remarks"></div>
+                                <div e-stackedheadercolumn e-headertext="Current Process" e-column="Id,Material,article,CurrentProcess,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,StartDate,EndDate,CompletedBy,MasterOrderId,Remarks"></div>
                                 <div e-stackedheadercolumn e-headertext="Previous Process" e-column="PreviousProcess,PreviousProcessQty,ClosedBy,PreviousProcessStartDate,ClosedDate"></div>
                             </div>
                         </div>
@@ -160,6 +163,8 @@
                         <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
                         <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
                         <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
+                        <div e-column e-type="string" e-field="CurrentProcess" e-headertext="Process" e-width="100"></div>
+
                         <div e-column e-type="string" e-field="StyleNo" e-headertext="Buyer Item#" e-width="100"></div>
                         <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
                         <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="80"></div>
@@ -216,6 +221,35 @@
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="submitRemarks()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Submit </button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal site-modal" id="IsLastProcessPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-elements form-horizontal">
+                        <div class=" col-md-12">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">The following production orders: {{LastProcessPRList}} are going to be closed.<br />
+                                Are you sure to procced??
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class=" col-md-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="SaveWithLastProcess();" class="btn"><i class="glyphicon glyphicon-floppy-save"></i> Yes </button></li>
+                                <li> <button ng-click="closePopup('IsLastProcessPopUp')" class="btn"><i class="glyphicon glyphicon-backward"></i> No</button></li>
                             </ul>
                         </div>
                     </div>

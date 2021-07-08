@@ -67,7 +67,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN HKP.Party P ON P.Id=PDA.PartyId
                             LEFT JOIN HKP.PartyPlant PP ON PP.Id=PDA.PartyPlantId
 							LEFT JOIN TRN.Voucher V ON V.Id=PDA.VoucherId
-                            WHERE PDA.VoucherId IS NULL
+                            WHERE PDA.VoucherId IS NULL AND PDA.PlantId='" + plantId + @"'
                             ";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -116,7 +116,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN HKP.Party P ON P.Id=PDA.PartyId
                             LEFT JOIN HKP.PartyPlant PP ON PP.Id=PDA.PartyPlantId
 							LEFT JOIN TRN.Voucher V ON V.Id=PDA.VoucherId
-                            WHERE PDA.VoucherId <>''
+                            WHERE PDA.VoucherId <>'' AND PDA.PlantId='" + plantId + @"'
                             order by V.PostingDate desc
                             ";
                 return _sqlRepository.GetDataCollection(sql);
@@ -156,7 +156,7 @@ namespace Library.Accounting.Accounts
 							LEFT JOIN MST.BankMaster OBM ON OBM.Id=PLC.OpeningBankMasterId
 							 LEFT JOIN(select PurchaseDocAcceptanceId,SUM(ISNULL(MaterialTranAmount,0)) AcceptanceAmount
 							 FROM  trn.PurchaseDocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAS ON PDAS.PurchaseDocAcceptanceId=PDA.id
-							WHERE PDAD.VoucherId IS NULL AND PDAD.PurchaseDocAcceptanceId<>''
+							WHERE PDAD.VoucherId IS NULL AND PDAD.PurchaseDocAcceptanceId<>'' AND PDA.PlantId='" + plantId + @"'
                             ";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -194,7 +194,7 @@ namespace Library.Accounting.Accounts
 							LEFT JOIN(select PurchaseDocAcceptanceId,SUM(ISNULL(MaterialTranAmount,0)) AcceptanceAmount
 							FROM  TRN.PurchaseDocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAS ON PDAS.PurchaseDocAcceptanceId=PDA.id
 							LEFT JOIN TRN.Voucher V ON V.Id=PDAD.VoucherId
-							WHERE PDAD.VoucherId<>''
+							WHERE PDAD.VoucherId<>'' AND PDA.PlantId='" + plantId + @"'
                             ";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -205,6 +205,83 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public IEnumerable<object> GetAcceptancePOServicePostedList(string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT   PDA.Id
+	                        ,REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106),' ','-') AS AcceptanceDate		
+	                        ,PDA.Remarks
+	                        ,PDA.AcceptanceNo
+	                        ,PDAD.Amount,PDA.PurchaseLCId,PDAD.CurrencyId
+							,C.Code CurrencyName
+							,PDA.PurchaseLCId,PDA.PartyId,PDA.PartyPlantId
+							,P.UserName PartyName,OBM.AccountTitle LCOpeningBank
+							,IsAcceptancePark=CASE WHEN  PDA.VoucherId<>'' THEN 'Post' ELSE 'Park' END
+							,PDAS.AcceptanceAmount
+							,REPLACE(CONVERT(CHAR(11), PLC.LCDate, 106),' ','-') AS LCOpeningDate	
+							,REPLACE(CONVERT(CHAR(11), PLC.ExpiryDate, 106),' ','-') AS LCExpiryDate
+                            ,PDA.AcceptanceRate ToCurrencyRate, PDA.IsNonCreditable
+	                        FROM trn.PurchasedocAcceptance AS PDA
+	                        LEFT JOIN(select distinct VoucherId,PurchasedocAcceptanceId,CurrencyId
+							,SUM(isnull(Amount,0)) Amount from trn.PurchaseDocAcceptanceService 
+							group by VoucherId,PurchasedocAcceptanceId,CurrencyId ) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.id
+	                        LEFT JOIN SCS.Currency C ON C.Id=PDAD.CurrencyId
+							LEFT JOIN HKP.Party P ON P.Id=PDA.PartyId
+							LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=PDA.PurchaseLCId
+							LEFT JOIN MST.BankMaster OBM ON OBM.Id=PLC.OpeningBankMasterId
+							 LEFT JOIN(select PurchaseDocAcceptanceId,SUM(ISNULL(MaterialTranAmount,0)) AcceptanceAmount
+							 FROM  trn.PurchaseDocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAS ON PDAS.PurchaseDocAcceptanceId=PDA.id
+							WHERE PDAD.VoucherId<>'' AND PDAD.PurchaseDocAcceptanceId<>'' AND PDA.PlantId='" + plantId + @"'
+                            ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
 
+
+        }
+        public IEnumerable<object> GetAcceptancePOServiceNonPostedList(string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT   PDA.Id
+	                        ,REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106),' ','-') AS AcceptanceDate		
+	                        ,PDA.Remarks
+	                        ,PDA.AcceptanceNo
+	                        ,PDAD.Amount,PDA.PurchaseLCId,PDAD.CurrencyId
+							,C.Code CurrencyName
+							,PDA.PurchaseLCId,PDA.PartyId,PDA.PartyPlantId
+							,P.UserName PartyName,OBM.AccountTitle LCOpeningBank
+							,IsAcceptancePark=CASE WHEN  PDA.VoucherId<>'' THEN 'Post' ELSE 'Park' END
+							,PDAS.AcceptanceAmount
+							,REPLACE(CONVERT(CHAR(11), PLC.LCDate, 106),' ','-') AS LCOpeningDate	
+							,REPLACE(CONVERT(CHAR(11), PLC.ExpiryDate, 106),' ','-') AS LCExpiryDate
+                            ,PDA.AcceptanceRate ToCurrencyRate, PDA.IsNonCreditable
+	                        FROM trn.PurchasedocAcceptance AS PDA
+	                        LEFT JOIN(select distinct VoucherId,PurchasedocAcceptanceId,CurrencyId
+							,SUM(isnull(Amount,0)) Amount from trn.PurchaseDocAcceptanceService 
+							group by VoucherId,PurchasedocAcceptanceId,CurrencyId ) AS PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.id
+	                        LEFT JOIN SCS.Currency C ON C.Id=PDAD.CurrencyId
+							LEFT JOIN HKP.Party P ON P.Id=PDA.PartyId
+							LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=PDA.PurchaseLCId
+							LEFT JOIN MST.BankMaster OBM ON OBM.Id=PLC.OpeningBankMasterId
+							 LEFT JOIN(select PurchaseDocAcceptanceId,SUM(ISNULL(MaterialTranAmount,0)) AcceptanceAmount
+							 FROM  trn.PurchaseDocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAS ON PDAS.PurchaseDocAcceptanceId=PDA.id
+							WHERE PDAD.VoucherId IS NULL AND PDAD.PurchaseDocAcceptanceId<>'' AND PDA.PlantId='" + plantId + @"'
+                            ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
     }
 }

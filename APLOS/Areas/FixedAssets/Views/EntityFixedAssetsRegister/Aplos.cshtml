@@ -99,31 +99,37 @@
 
     </div>
 
+    @*<div class="form-group">*@
 
-    <div id="div_entity" class="form-group" show-errors>
-        <label class="col-sm-1 control-label">Entity<sup>*</sup></label>
-        <div class="col-sm-4 show-message">
-            <div class="select-style">
-                <select id="entityId" class="form-control" name="entity" ng-model="fixedAsset.EntityId" tabindex="6" required @*ng-change="changeEntityForBankCash(fixedAsset.EntityId);"*@>
-                    <option value="">--Select--</option>
-                    <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
-                </select>
+        <div id="div_entity" class="form-group" show-errors>
+            <label class="col-sm-1 control-label">Entity<sup>*</sup></label>
+            <div class="col-sm-3 show-message">
+                <div class="select-style">
+                    <select id="entityId" class="form-control" name="entity" ng-model="fixedAsset.EntityId" tabindex="6" required @*ng-change="changeEntityForBankCash(fixedAsset.EntityId);"*@>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
             </div>
-        </div>
-    </div>
 
 
-    <div id="div_entity" class="form-group" show-errors>
-        <label class="col-sm-1 control-label">Department<sup>*</sup></label>
-        <div class="col-sm-4 show-message">
-            <div class="select-style">
-                <select id="departmentId" class="form-control" name="department" ng-model="fixedAsset.DepartmentId" tabindex="6" required @*ng-change="changeEntityForBankCash(fixedAsset.DepartmentId);"*@>
-                    <option value="">--Select--</option>
-                    <option ng-repeat="option in departmentList" value="{{option.Value}}">{{option.Text}}</option>
-                </select>
+            <div id="div_entity" class="form-group" show-errors>
+                <label class="col-sm-1 control-label">Department<sup>*</sup></label>
+                <div class="col-sm-3 show-message">
+                    <div class="select-style">
+                        <select id="departmentId" class="form-control" name="department" ng-model="fixedAsset.DepartmentId" tabindex="6" required @*ng-change="changeEntityForBankCash(fixedAsset.DepartmentId);"*@>
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in departmentList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
             </div>
+
         </div>
-    </div>
+
+
+
+    @*</div>*@
 
     <div class="common-btn">
         <ul class="list-inline text-right">
@@ -137,7 +143,7 @@
 
 
 
-    
+
 
 
 

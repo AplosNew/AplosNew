@@ -164,6 +164,7 @@ namespace Library.Service.SalesManagements
                     PartyId = voucherVM.PartyId,
                     PartyType = voucherVM.PartyType,
                     Narration = voucherVM.Narration,
+                    ItemDescription = voucherVM.ItemDescription,
                     PaymentTermId = voucherVM.PaymentTermId,
                     RowState = RowState.Parked.ToString(),
                     DeliveryByAddress = voucherVM.DeliveryByAddress,
@@ -379,6 +380,7 @@ namespace Library.Service.SalesManagements
                     PartyId = voucherVM.PartyId,
                     PartyType = voucherVM.PartyType,
                     Narration = voucherVM.Narration,
+                    ItemDescription = voucherVM.ItemDescription,
                     PaymentTermId = voucherVM.PaymentTermId,
                     RowState = RowState.Parked.ToString(),
 

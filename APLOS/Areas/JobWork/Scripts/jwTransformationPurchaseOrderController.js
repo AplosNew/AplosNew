@@ -431,7 +431,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             method: "GET",
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
-            url: 'Products/PurchaseOrder/GetListForHold11?ApproveRejectHold=' + $scope.ApproveRejectHold,
+            url: 'JobWork/JWTransformationPurchaseOrder/GetListForHoldRejectApproved?ApproveRejectHold=' + $scope.ApproveRejectHold,
         }).then(function successCallback(response) {
             $scope.GriddataPoApp = response.data;
             //entrydata = copy(searchdata);
@@ -449,11 +449,12 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.detailgrid = function detailGridData(e) {
 
         var filteredData = e.data["Id"];
-        var data = ej.DataManager($scope.PoChildListAll).executeLocal(ej.Query().where("JWTransformationPurchaseOrderId", "equal", filteredData, true).take(100));
+        var data = ej.DataManager($scope.PoChildListAll).executeLocal(ej.Query().where("JobWorkTransformationContractMasterId", "equal", filteredData, true).take(100));
         e.detailsElement.find("#detailGrid").ejGrid({
 
             dataSource: data,
-            columns: ["JWItemName", "JWItemUOM", "MaterialMasterName", "ArticleName", "FirstCharacteristicsValue", "SecondCharacteristicsValue", "ThirdCharacteristicsValue", "TransactionQty", "TransactionUoM", "TransactionRate", "TransactionAmount", "CurrencyName", "TotalAmount"]
+            columns: ["JobWorkActivity", "JWItemName", "MaterialSpecification", "MaterialReference", "MaterialStorage", "JWItemUOM", "MaterialMasterName", "ArticleName", "CURR", "RateApplyId", "Process", "TransactionQty", "TransactionRate", "TransactionAmount", "TaxAmount", "BaseAmount", "Rejection", "ValueLoss", "Tolerance","ResponsiblePersonName"]
+            //columns: ["JWItemName", "JWItemUOM", "MaterialMasterName", "ArticleName", "FirstCharacteristicsValue", "SecondCharacteristicsValue", "ThirdCharacteristicsValue", "TransactionQty", "TransactionUoM", "TransactionRate", "TransactionAmount", "CurrencyName", "TotalAmount"]
             //columns: ["MaterialGroupName", "MaterialName", "Article", "Sku1", "Sku2", "Sku3", "MaterialDetail", "TransactionQty", "TransactionUoMId", "TransactionUoM", "TransactionRate", "CurrencyName", "TotalAmount"]
         });
         e.detailsElement.find(".tabcontrol").ejTab();
@@ -839,6 +840,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     };
     function getTaxCategoryList(hsnCodeId, HSNCode) {
         $scope.taxCategoryList = [];
+        $scope.TotalAmount = $scope.detailModel.TransactionQty * $scope.detailModel.RatePerUnit;
         $http({
             method: 'GET'
             , url: $scope.path + 'GetTaxCategoryList?receiveId=' + $scope.productNew.Id + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.productNew.PODate
@@ -851,7 +853,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                     $scope.taxCategoryList[i].JWTransformationPurchaseOrderId = $scope.productNew.Id;
                     $scope.taxCategoryList[i].JWTransformationPurchaseOrderDetailId = $scope.detailModel.Id;
                     //$scope.taxCategoryList[i].JWTransformationPurchaseOrderDetailId = $scope.detailModel.Id;
-
+                    $scope.taxCategoryList[i].TaxAmount = ($scope.TotalAmount * $scope.taxCategoryList[i].Percentage) / 100;
 
                     //$scope.HSNCode = HSNCode;
                 }
@@ -3923,4 +3925,13 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
 
     //end
+
+    $scope.calculateSvcTaxCategory = function () {
+        $scope.serviceModel.TotalTaxAmount = 0;
+        for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
+            $scope.taxCategoryList[i].TaxAmount = ((parseFloat($scope.taxCategoryList[i].Percentage) * $scope.serviceModel.TransactionAmount) / 100).toFixed($rootScope.currencyPrecision);
+            $scope.serviceModel.TotalTaxAmount = (parseFloat($scope.serviceModel.TotalTaxAmount) + parseFloat($scope.taxCategoryList[i].TaxAmount)).toFixed($rootScope.currencyPrecision);
+        }
+        if (isNaN($scope.serviceModel.TotalTaxAmount)) $scope.serviceModel.TotalTaxAmount = 0;
+    };
 }

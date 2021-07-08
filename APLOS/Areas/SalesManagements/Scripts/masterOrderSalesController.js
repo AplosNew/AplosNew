@@ -35,6 +35,10 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             "value": "InvoiceNo"
         },
         {
+            "name": "Invoice Date",
+            "value": "InvoiceDate"
+        },
+        {
             "name": "Customer Name",
             "value": "PartyName"
         },

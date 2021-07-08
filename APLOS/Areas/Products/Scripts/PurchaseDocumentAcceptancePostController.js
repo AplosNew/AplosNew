@@ -375,6 +375,19 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
     };
     $scope.gridAcceptanceChargesPostedList();
 
+    $scope.AcceptancePOServiceList = [];
+    $scope.getAcceptancePOService = function () {
+        //debugger;
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Products/PurchaseDocumentsAcceptance/GetAcceptancePOServiceNonPostedList',
+        }).then(function successCallback(response) {
+            $scope.AcceptancePOServiceList = response.data;
+        });
+
+    };
+    $scope.getAcceptancePOService();
 
 
     $scope.GridAcceptanceListDetail = [];

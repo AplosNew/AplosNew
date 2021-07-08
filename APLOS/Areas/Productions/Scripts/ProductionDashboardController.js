@@ -319,14 +319,15 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
 
 
     $scope.ProductionRelayList = [];
-    
+
     $scope.getProductionRelay = function (args) {
         try {
-              $scope.SelectedProcess = args;
+
+            $scope.SelectedProcess = args;
+
             $http({
                 method: 'GET',
-                url: $scope.path +'GetProductionRelay?PlantId=' + $scope.SelectedPlant + '&EntityId=' + $scope.SelectedEntity + '&ProcessId=' + args.Id,
-
+                url: $scope.path + 'GetProductionRelay?PlantId=' + $scope.SelectedPlant + '&EntityId=' + $scope.SelectedEntity + '&ProcessId=' + args.Id,
             }).then(function successCallback(response) {
 
                 for (var i = 0; i < response.data.length; i++) {
@@ -345,13 +346,11 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
 
                 $scope.ProductionRelayList = response.data;
             })
-            
             $rootScope.openPopup('dialogProductionRelay');            
-        }
-        catch (e) {
+
+        } catch (e) {
             ShowResult(e, 'failure');
         }
-
     }
     $scope.rowDataBoundOrder = function rowDataBoundOrder(e) {
         try {
@@ -384,6 +383,34 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
 
         }
     }
+    $scope.rowDataBoundOrder = function rowDataBoundOrder(e) {
+        try {
+            if (angular.isUndefinedOrNull(e.data.PPRId) == true) return;
+
+            if (angular.isUndefinedOrNull(e.data.ClosedDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == false) {
+                e.row.css("background-color", "#6FEAFF");
+                return;
+            }
+
+            if (angular.isUndefinedOrNull(e.data.ClosedDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == true) {
+                e.row.css("background-color", "#FF502A");
+                return;
+            }
+
+            if (angular.isUndefinedOrNull(e.data.PreviousProcessStartDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == true) {
+                e.row.css("background-color", "#FFB42A");
+                return;
+            }
+
+            if (angular.isUndefinedOrNull(e.data.PreviousProcessStartDate) == false && angular.isUndefinedOrNull(e.data.StartDate) == false) {
+                e.row.css("background-color", "#7EFF87");
+                return;
+            }
+
+        } catch (e) {
+
+        }
+    }
     $scope.ProductionRelayAllCheck = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
     };
@@ -392,50 +419,23 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
         }
-        for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
-            $scope.ProductionRelayList[i].Checked = ChkOrUnchk;
+
+        var filtered = $("#GridProductionRelay").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
+                $scope.ProductionRelayList[i].Checked = ChkOrUnchk;
+            }
         }
+        else {
+            for (var i = 0; i < filtered.length; i++) {
+                filtered[i].Checked = ChkOrUnchk;
+            }
+        }
+
 
         var gridObj = $("#GridProductionRelay").data("ejGrid");
         gridObj.refreshContent();
     };
-
-    $scope.Save = function () {
-        try {
-            $scope.ActiveList = [];
-
-            for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
-                if ($scope.ProductionRelayList[i].Checked) {
-                    $scope.ActiveList.push($scope.ProductionRelayList[i]);
-                }
-
-            }
-            $scope.$broadcast('show-errors-check-validity');
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'ProductionRelayData': $scope.ActiveList },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    /*ClearFields(response.data.Sequence);*/
-                    $scope.getProductionRelay();
-                    /* $scope.GetDetails({ data: { Id: response.data.Data.Id } });*/
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-
-        } catch (e) {
-            ShowResult(e, 'failure');
-
-        }
-    };
-
     $scope.Clear = function () {
         ClearFields();
         return true;
