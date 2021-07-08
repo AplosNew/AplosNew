@@ -39,7 +39,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         Type: null,
         InvoiceNo: null,
         InvoiceDate: null,
-        JWTransformationPurchaseOrderId:null
+        JWTransformationPurchaseOrderId: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -130,9 +130,33 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     };
     $scope.ReceiptTransformation = Object.assign({}, $scope.ReceiptTransformationModelTemp);
 
-    $scope.ShowContractPopUp = function () {
+
+    $scope.ShowExCurrency = true;
+    $scope.CurrencyId = null;
+    $scope.currencyList = [];
+    cboService.getCboTransactionCurrencyByCompany('', function (result) {
+        $scope.currencyList = [];
+        $scope.currencyList = result;
+        $scope.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
        
-        debugger;
+    });
+
+    $scope.GetCurrencyExchangeRateList = function () {
+        if (!baseService.isUndefinedOrNull($scope.CurrencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter("dateFiltering")(Date.now()) + "&currencyId=" + $scope.CurrencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.ModelNew.BillingRate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = [];
+        }
+    };
+
+    $scope.ShowContractPopUp = function () {
         $scope.ModelNew.Type = "ValueAdded";
         $http({
             method: 'POST',
@@ -148,7 +172,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
 
     $scope.CloseContractPopUp = function () {
         angular.element(document.querySelector("#ContractPopUp")).modal("hide");
-        
+
     }
 
     $scope.SetContractData = function (args) {
@@ -161,14 +185,14 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         });
     }
 
-   
+
     $scope.GetData = function () {
         $http({
             method: 'GET',
             url: 'JobWork/JobWorkReceiveBilling/GetJWReceiveBillingData'
         }).then(function successCallback(response) {
             $scope.masterList = response.data;
-          
+
         });
     }
     $scope.GetData();
@@ -187,6 +211,10 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         $scope.ModelNew = Object.assign({}, obj.data);
         $scope.GetDetailData($scope.ModelNew.Id);
         $scope.GetJWGRNDataChecking($scope.ModelNew.JWTransformationPurchaseOrderId);
+        if ($scope.ModelNew.CurrencyId == $scope.CurrencyId) {
+            $scope.ShowExCurrency = false;
+        }
+
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -226,9 +254,16 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.Transformation = Object.assign({}, args.data);
         $scope.ModelNew.JWTransformationPurchaseOrderId = $scope.ModelNew.JWTransformationPurchaseOrderId;
-      
+
         $scope.TabTypeNew = $scope.Transformation.TabType;
         $scope.ReceiptTransformation.TransformationContractId = $scope.Transformation.Id;
+
+
+        if ($scope.ModelNew.CurrencyId == $scope.CurrencyId) {
+            $scope.ShowExCurrency = false;
+        }
+
+
         if ($scope.ModelNew.TabType == "Transformation") {
             $scope.GetJWGRNDataChecking($scope.ModelNew.JWTransformationPurchaseOrderId);
             $scope.ShowJWPOPopUp($scope.ModelNew.JWTransformationPurchaseOrderId);
@@ -236,6 +271,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         else {
             $scope.GetReceiptVAChildData();
         }
+        $scope.GetCurrencyExchangeRateList();
         angular.element(document.querySelector("#ContractPopUp")).modal("hide");
     };
 
@@ -277,7 +313,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("InventoryReceiveId", "equal", parseInt(filteredData), true).take(100));
         e.detailsElement.find("#detailGrid").ejGrid({
             dataSource: data,
-            columns: ["MaterialName", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoM", "TransactionRate", "TotalMaterialTranAmount", "CurrencyName","MaterialBy"]
+            columns: ["MaterialName", "Article", "SKU1", "SKU2", "SKU3", "TransactionQty", "TransactionUoM", "TransactionRate", "TotalMaterialTranAmount", "CurrencyName", "MaterialBy"]
         });
         e.detailsElement.find(".tabcontrol").ejTab();
 
@@ -285,8 +321,8 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
     }
 
     $scope.JWPOList = [];
-  
-    
+
+
     $scope.ShowJWPOPopUp = function (contractId) {
         $http({
             method: "GET",
@@ -297,49 +333,6 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         });
     }
 
-    //$scope.SelectedJWPOList = [];
-    //function MakeData() {
-    //    for (var i = 0; i < $scope.JWPOList.length; i++) {
-    //        if ($scope.JWPOList[i].Flag == true) {
-    //            if (checkExists($scope.SelectedJWPOList, $scope.JWPOList[i].InventoryReceiveDetailId) === false) {
-    //                var ob = {};
-    //                ob.Id = null;
-    //                ob.InventoryReceiveDetailId = $scope.JWPOList[i].InventoryReceiveDetailId;
-    //                ob.InventoryReceiveId = $scope.JWPOList[i].InventoryReceiveId;
-    //                ob.ReceiveQty = $scope.JWPOList[i].ReceiveQty;
-    //                ob.OrderQty = $scope.JWPOList[i].OrderQty;
-    //                ob.BillingQty = $scope.JWPOList[i].BillingQty;
-    //                ob.BalanceQty = $scope.JWPOList[i].BalanceQty;
-    //                ob.JWTCMId = $scope.JWPOList[i].JWTCMId;
-    //                ob.JWTCMDId = $scope.JWPOList[i].JWTCMDId;
-
-    //                $scope.SelectedJWPOList.push(ob);
-
-    //            }
-    //            else {
-    //                throw "This PO " + $scope.JWPOList[i].InventoryReceiveDetailId + " is already taken.";
-    //            }
-    //        }
-    //    }
-    //}
-
-    //function checkExists(list, id) {
-    //    for (var i = 0; i < list.length; i++) {
-    //        if (list[i].InventoryReceiveDetailId === id) {
-    //            return true;
-    //        }
-    //    }
-    //    return false;
-    //}
-
-    //$scope.CloseJWPOPopUp = function () {
-    //    try {
-    //        MakeData();
-    //        angular.element(document.querySelector("#JWPOPopUp")).modal("hide");
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //}
 
 
     $scope.calculateBalance = function (data) {
@@ -362,18 +355,42 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         $scope.SelectedJWPOList = [];
         $scope.ReceiptVA = Object.assign({}, $scope.ReceiptVAModelTemp);
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.ShowExCurrency = true;
     }
 
     $scope.Action = 'Save';
 
+    function CheckField(fieldname, field) {
+        try {
+            if (baseService.isUndefinedOrNull(field)) {
+                throw "[" + fieldname + "] is required.";
+            }
+
+        } catch (ex) {
+            throw ex;
+        }
+    }
+
+    function ValidationMaster() {
+        CheckField("OutSource POID", $scope.ModelNew.JWTransformationPurchaseOrderId);
+        CheckField("Invoice No", $scope.ModelNew.InvoiceNo);
+        CheckField("Invoice Date", $scope.ModelNew.InvoiceDate);
+    }
+
     $scope.Save = function () {
         try {
+
+            ValidationMaster();
+            if (baseService.arrayLength($scope.JWPOList) < 0) {
+                throw "Billing detail is required";
+            }
+
             if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
                     url: 'JobWork/JobWorkReceiveBilling/Create',
                     data: {
-                        'master': $scope.ModelNew,'data': $scope.JWPOList
+                        'master': $scope.ModelNew, 'data': $scope.JWPOList
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"

@@ -112,7 +112,15 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
 
     $scope.POPopUp = function () {
-        $scope.getalldata();
+        var PoType = 'PO';
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            //url: $scope.getSearchListUrl,
+            url: 'Products/PurchaseDocumentsAcceptance/GetPOWithLCList?PoType=' + PoType,
+        }).then(function successCallback(response) {
+            $scope.Griddata = response.data;
+        });
 
         angular.element(document.querySelector('#POPopUp')).modal('show');
     };
@@ -769,10 +777,10 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                                 ShowResult(response.data.Message, 'success');
                                 $scope.PurchaseDocAcceptance.Id = response.data.entity.Id;
                                 $scope.gridAcceptanceList();
-                                $scope.setTabAcceptenceList(1);
+                               // $scope.setTabAcceptenceList(1);
                                 $scope.Action = 'Update';
-                                //$scope.seletedLST = [];
-                                //$scope.GridListPO = [];
+                                $scope.seletedLST = [];
+                                $scope.GridListPO = [];
 
                                 $scope.getRecordDoubleClickDetail($scope.PurchaseDocAcceptance.Id);
 
@@ -825,7 +833,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                                 ShowResult(response.data.Message, 'success');
                                 $scope.PurchaseDocAcceptance.Id = response.data.entity.Id;
                                 $scope.gridAcceptanceList();
-                                $scope.setTabAcceptenceList(1);
+                                //$scope.setTabAcceptenceList(1);
 
 
                                 $scope.getRecordDoubleClickDetail($scope.PurchaseDocAcceptance.Id);
@@ -875,7 +883,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                                 ShowResult(response.data.Message, 'success');
                                 $scope.PurchaseDocAcceptance.Id = response.data.entity.Id;
                                 $scope.gridAcceptanceList();
-                                $scope.setTabAcceptenceList(1);
+                                //$scope.setTabAcceptenceList(1);
                                 $scope.Action = 'Update';
                                 $scope.seletedLST = [];
                                 $scope.GridListPO = [];
@@ -1930,10 +1938,11 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.inventoryMaterialListPO = [];
         $scope.acceptanceTaxList = [];
         $scope.gridAcceptanceList();
-        $scope.setTabAcceptenceList(1);
+        //$scope.setTabAcceptenceList(1);
         $scope.TaxAction = 'Save';
         $scope.productNew.AcceptanceFirst = null;
         $scope.ServicePODetailList = [];
+        $scope.SavedServicePODetailList = [];
     }
     $scope.productNew = {
         FixedAssetOrInventory: 'Inventory'
@@ -2110,6 +2119,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             $scope.serviceModel.ServiceMasterName = $("#ServiceMasterId option:selected").text();
             $scope.serviceModel.CurrencyId = $scope.productNew.CurrencyId;
             $scope.serviceModel.BaseCurrencyId = $scope.baseCurrencyId;
+            $scope.serviceModel.State = 'Acceptance';
 
             $scope.serviceModel.TotalTaxAmount = $filter('sumByKey')($filter('filter')($scope.taxCategoryList), 'TaxAmount');
             for (var i = 0; i < $scope.taxCategoryList.length; i++) {
@@ -2133,6 +2143,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 , TotalTaxAmount: 0
                 , ToCurrencyRate: null
                 , IsNonCreditable: null
+                , State: 'Acceptance'
             };
             $scope.SaveServiceAndServiceTax();
         }
@@ -2821,10 +2832,10 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                             ShowResult(response.data.Message, 'success');
                             $scope.PurchaseDocAcceptance.Id = response.data.entity.Id;
                             $scope.gridAcceptanceList();
-                            $scope.setTabAcceptenceList(1);
+                            //$scope.setTabAcceptenceList(1);
                             $scope.Action = 'Update';
-                            //$scope.seletedLST = [];
-                            //$scope.GridListPO = [];
+                            $scope.seletedLST = [];
+                            $scope.GridListPO = [];
 
                             $scope.getRecordDoubleClickDetail($scope.PurchaseDocAcceptance.Id);
                             angular.element(document.querySelector('#ListOfServicePODetail')).modal('hide');
@@ -2907,7 +2918,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
     $scope.DeleteServicePOItem = function () {
         if (baseService.isUndefinedOrNull($scope.LCChargesId)) {
-            $scope.ServicePODetailList.splice($scope.bActivityIndex, 1);
+            $scope.SavedServicePODetailList.splice($scope.bActivityIndex, 1);
         }
         else {
             $http({
@@ -2919,7 +2930,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.ServicePODetailList.splice($scope.bActivityIndex, 1);
+                    $scope.SavedServicePODetailList.splice($scope.bActivityIndex, 1);
                 }
             }, function () {
                 ShowResult(commonMessage.NetworkError, 'failure');

@@ -512,7 +512,7 @@ namespace Aplos.Areas.Accounts.Controllers
         #region InventoryJobWorkReceived
         [HttpPost]
         public JsonResult InventoryJobWorkReceivedPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> inventoryJobWorkWIPList
-        , IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+        , IEnumerable<VoucherDetailViewModel> changeInInventoryList
         , IEnumerable<VoucherDetailViewModel> inventoryJobWorkGIRIList
         )
         {
@@ -527,32 +527,53 @@ namespace Aplos.Areas.Accounts.Controllers
             if (voucherVM.IsInvoice && voucherVM.EmployeeId == null && voucherVM.BaseNoOfDays == 0 || voucherVM.IsInvoice && voucherVM.BaseNoOfDays < 0)
                 throw new CustomException("Please inpute BaseNoOfDays Term");
 
-            if (voucherDetailVMList != null)
+            if (changeInInventoryList != null)
             {
-                foreach (var item in voucherDetailVMList)
+                foreach (var item in changeInInventoryList)
                 {
-                    if (item.IsAsset)
-                    {
+                    
                         if (item.GLGeneralInfoId == null)
                             throw new CustomException("AUC GL is Not Mapped !");
                         if (item.BudgetMasterId == null)
                             throw new CustomException("AUC Budget is Not Mapped !");
                         if (item.ActivityId == null)
                             throw new CustomException(" AUC Activity is Not Mapped!");
-                    }
-                    else
-                    {
-                        if (item.GLGeneralInfoId == null)
-                            throw new CustomException("GL is Not Mapped !");
-                        if (item.BudgetMasterId == null)
-                            throw new CustomException("Budget is Not Mapped !");
-                        if (item.ActivityId == null)
-                            throw new CustomException("Activity is Not Mapped!");
-                    }
-
                 }
 
-                if (voucherDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != voucherDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
+                
+                if (changeInInventoryList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != changeInInventoryList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
+                    throw new CustomException("Dr Cr Amount not equal");
+            }
+            if (inventoryJobWorkWIPList != null)
+            {
+                foreach (var item in inventoryJobWorkWIPList)
+                {
+
+                    if (item.GLGeneralInfoId == null)
+                        throw new CustomException("AUC GL is Not Mapped !");
+                    if (item.BudgetMasterId == null)
+                        throw new CustomException("AUC Budget is Not Mapped !");
+                    if (item.ActivityId == null)
+                        throw new CustomException(" AUC Activity is Not Mapped!");
+                }
+
+                if (inventoryJobWorkWIPList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != inventoryJobWorkWIPList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
+                    throw new CustomException("Dr Cr Amount not equal");
+            }
+            if (inventoryJobWorkGIRIList != null)
+            {
+                foreach (var item in inventoryJobWorkGIRIList)
+                {
+
+                    if (item.GLGeneralInfoId == null)
+                        throw new CustomException("AUC GL is Not Mapped !");
+                    if (item.BudgetMasterId == null)
+                        throw new CustomException("AUC Budget is Not Mapped !");
+                    if (item.ActivityId == null)
+                        throw new CustomException(" AUC Activity is Not Mapped!");
+                }
+
+                if (inventoryJobWorkGIRIList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != inventoryJobWorkGIRIList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
                     throw new CustomException("Dr Cr Amount not equal");
             }
             else
@@ -560,7 +581,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 return Json(new
                 {
-                    Message = string.Format(AplosMessage.VoucherSave, _inventoryPayableService.InventoryJobWorkReceivedPost(voucherVM, inventoryJobWorkWIPList, voucherDetailVMList
+                    Message = string.Format(AplosMessage.VoucherSave, _inventoryPayableService.InventoryJobWorkReceivedPost(voucherVM, inventoryJobWorkWIPList, changeInInventoryList
                         , inventoryJobWorkGIRIList))
                 });
 

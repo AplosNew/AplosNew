@@ -5,7 +5,6 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
     $rootScope.title = "Production Relay";
     $scope.Action = 'Save';
     $scope.index = -1;
-    $scope.costingTypeses = [];
     $scope.path = 'Productions/ProductionRelay/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
@@ -95,9 +94,6 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
 
     $scope.getProductionRelay = function () {
         try {
-
-
-
             if (angular.isUndefinedOrNull($scope.ProductionRelayNew.EntityId))
                 throw 'Plase select entity';
 
@@ -213,7 +209,6 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
 
         }
     }
-
     $scope.ProductionRelayAllCheck = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
     };
@@ -239,15 +234,28 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
         var gridObj = $("#GridProductionRelay").data("ejGrid");
         gridObj.refreshContent();
     };
+
+    $scope.LastProcessPRList = '';
     $scope.Save = function () {
         try {
             $scope.ActiveList = [];
-
+            $scope.LastProcessPRList = '';
             for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
                 if ($scope.ProductionRelayList[i].Checked) {
                     $scope.ActiveList.push($scope.ProductionRelayList[i]);
-                }
 
+                    if ($scope.ProductionRelayList[i].IsLastProcess) {
+                        if ($scope.LastProcessPRList == '')
+                            $scope.LastProcessPRList = $scope.ProductionRelayList[i].Id;
+                        else
+                            $scope.LastProcessPRList +="," + $scope.ProductionRelayList[i].Id;
+                    }
+                }
+            }
+
+            if ($scope.LastProcessPRList != '') {
+                angular.element(document.querySelector('#IsLastProcessPopUp')).modal('show');
+                return;
             }
             $scope.$broadcast('show-errors-check-validity');
             $http({
@@ -264,9 +272,6 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
                     /*ClearFields(response.data.Sequence);*/
                     $scope.getProductionRelay();
                     /* $scope.GetDetails({ data: { Id: response.data.Data.Id } });*/
-
-
-
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -277,6 +282,49 @@ function ProductionRelayController(cboService, commonMessage, $scope, $rootScope
 
         }
     };
+
+    $scope.SaveWithLastProcess = function () {
+        try {
+            $scope.ActiveList = [];
+           
+            for (var i = 0; i < $scope.ProductionRelayList.length; i++) {
+                if ($scope.ProductionRelayList[i].Checked) {
+                    $scope.ActiveList.push($scope.ProductionRelayList[i]);
+
+                }
+            }
+
+
+            $scope.$broadcast('show-errors-check-validity');
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'ProductionRelayData': $scope.ActiveList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    /*ClearFields(response.data.Sequence);*/
+                    $scope.getProductionRelay();
+                    angular.element(document.querySelector('#IsLastProcessPopUp')).modal('hide');
+
+                    /* $scope.GetDetails({ data: { Id: response.data.Data.Id } });*/
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+
+        }
+    };
+
+
+
     $scope.Clear = function () {
         ClearFields();
         return true;

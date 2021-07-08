@@ -193,7 +193,21 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
-
+        public void SaveTaxSurcharge(TaxRebate Slab, string masterID)
+        {
+            try
+            {
+                DataSet dsUpdateMaster;
+                GetTexPolicyMaster(masterID, out dsUpdateMaster);
+                _UpdateMasterTaxSurcharge(ref dsUpdateMaster, Slab, masterID);
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsUpdateMaster);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         void valid(MasterData masterData, ref bool IsAvailable, ref string Year, string msg, ref decimal AgeFrom, ref decimal AgeTo)
         {
 
@@ -304,11 +318,11 @@ namespace Library.HumanResource.Payroll.Tax
                         var ForMale = db.Where(r => r.SystemID == item.TaxPolicyID && r.Male == true && r.Female == false && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
                         var ForFemale = db.Where(r => r.SystemID == item.TaxPolicyID && r.Female && r.Male == false && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
 
-                        valid(ForAll, ref IsForAll, ref YearId, "Only one policy is allowed for 'No Gender Specific'", ref ageFromall,ref ageToAll);
-                        valid(ForMale, ref IsForMale, ref YearIda, "Only one policy is allowed for 'Male'", ref ageFromMale,ref ageToMale);
+                        valid(ForAll, ref IsForAll, ref YearId, "Only one policy is allowed for 'No Gender Specific'", ref ageFromall, ref ageToAll);
+                        valid(ForMale, ref IsForMale, ref YearIda, "Only one policy is allowed for 'Male'", ref ageFromMale, ref ageToMale);
                         valid(ForFemale, ref IsForFemale, ref YearIdaa, "Only one policy is allowed for 'Female'", ref ageFromFemale, ref ageToFemale);
 
-                        if (IsForAll && YearId == item.TaxPolicyYearID )
+                        if (IsForAll && YearId == item.TaxPolicyYearID)
                         {
                             if (IsForMale == true && YearIda == item.TaxPolicyYearID || IsForFemale == true && YearIdaa == item.TaxPolicyYearID)
                             {
@@ -1021,7 +1035,6 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
-
         void _UpdateMasterTaxRebate(ref DataSet dsUpdateMaster, TaxRebate ui_master, string masterID)
         {
             DataView _dvSave = null;
@@ -1035,6 +1048,29 @@ namespace Library.HumanResource.Payroll.Tax
                     DataRow dr = _dvSave[0].Row;
                     dr.BeginEdit();
                     _UpdateMasterColTaxRebate("Edit", ui_master, ref dr);
+                    dr.EndEdit();
+                }
+            }
+
+
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        void _UpdateMasterTaxSurcharge(ref DataSet dsUpdateMaster, TaxRebate ui_master, string masterID)
+        {
+            DataView _dvSave = null;
+            //_masterpk = string.Empty;
+            try
+            {
+                _dvSave = new DataView(dsUpdateMaster.Tables[0]);
+                _dvSave.RowFilter = "SystemID ='" + masterID + "'";
+                if (_dvSave.Count > 0)
+                {
+                    DataRow dr = _dvSave[0].Row;
+                    dr.BeginEdit();
+                    _UpdateMasterColTaxSurCharge("Edit", ui_master, ref dr);
                     dr.EndEdit();
                 }
             }
@@ -1074,8 +1110,16 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                drLocal["IsCumulativeTaxSlabDefine"] = ui_master.Cumulative;
-                drLocal["IsBrakeTaxSlabDefine"] = ui_master.BrakeUp;
+                if (ui_master.CumulativeOrBrakeUp == "Cumulative")
+                {
+                    drLocal["IsCumulativeTaxSlabDefine"] = true;
+                    drLocal["IsBrakeTaxSlabDefine"] = false;
+                }
+                else
+                {
+                    drLocal["IsBrakeTaxSlabDefine"] = true;
+                    drLocal["IsCumulativeTaxSlabDefine"] = false;
+                }
             }
             catch (Exception ex)
             {
@@ -1122,6 +1166,54 @@ namespace Library.HumanResource.Payroll.Tax
                 {
                     drLocal["IsTaxRebateTaxableIncome"] = false;
                     drLocal["IsTaxRebateTax"] = true;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                //
+            }
+        }//End Function
+
+        private void _UpdateMasterColTaxSurCharge(string OPN_FLAG, TaxRebate ui_master, ref DataRow drLocal)
+        {
+            try
+            {
+                if (ui_master.CumulativeOrBrakeUp == "Cumulative")
+                {
+                    drLocal["IsTaxSurchargeCumulative"] = true;
+                    drLocal["IsTaxSurchargeBreakUp"] = false;
+                }
+                else
+                {
+                    drLocal["IsTaxSurchargeCumulative"] = false;
+                    drLocal["IsTaxSurchargeBreakUp"] = true;
+                }
+
+                if (ui_master.FixedOrPercentage == "Fixed")
+                {
+                    drLocal["IsTaxSurchargeFixed"] = true;
+                    drLocal["IsTaxSurchargePercentage"] = false;
+                }
+                else
+                {
+                    drLocal["IsTaxSurchargeFixed"] = false;
+                    drLocal["IsTaxSurchargePercentage"] = true;
+                }
+
+                if (ui_master.TaxableIncomeOrTax == "Taxable Income")
+                {
+                    drLocal["IsTaxSurchargeTaxableIncome"] = true;
+                    drLocal["IsTaxSurchargeTax"] = false;
+                }
+                else
+                {
+                    drLocal["IsTaxSurchargeTaxableIncome"] = false;
+                    drLocal["IsTaxSurchargeTax"] = true;
                 }
 
             }
@@ -1854,6 +1946,23 @@ namespace Library.HumanResource.Payroll.Tax
                 throw ex;
             }
         }
+        public void DeleteTaxSurchargeSlab(string ID)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ID))
+                    throw new Exception("Select Id first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [TaxSurcharge] where TaxPolicyMasterId='" + ID + "'");
+                con.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public void DeleteRebate(string ID)
         {
             try
@@ -2053,6 +2162,7 @@ public class TaxPolicyPlantWise : BaseModel
     #region Scalar Properties            
     public string Id { get; set; }
     public string TaxPolicyID { get; set; }
+    public string TaxPolicyName { get; set; }
     public string TaxPolicyYearID { get; set; }
     public string PlantId { get; set; }
     public bool IsSelectPolicy { get; set; }
@@ -2097,8 +2207,7 @@ public class TaxGeneralFormulaDetail
 
 public class TaxSlabDefinee
 {
-    public bool Cumulative { get; set; }
-    public bool BrakeUp { get; set; }
+    public string CumulativeOrBrakeUp { get; set; }
 }
 
 public class InvestmentCredits

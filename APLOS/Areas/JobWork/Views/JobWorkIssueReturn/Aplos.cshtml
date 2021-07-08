@@ -479,15 +479,15 @@
                                                 <td>{{x.Sku3}}</td>
                                                 <td>{{x.CountryName}}</td>
                                                 <td>{{x.TransactionUoM}}</td>
-                                                <td>{{x.PlannedQty}}</td>
+                                                <td>{{x.RequiredQuantity}}</td>
                                                 <td>{{x.ApprovedQty}}</td>
                                                 <td>{{x.UnApprovedQty}}</td>
                                                 <td>{{x.TotalQty}}</td>
                                                 <td>{{x.PostingQty}}</td>
                                                 <td ng-hide="true">{{x.IssuedQty}}</td>
                                                 <td>{{x.RequestedQty}}</td>
-                                                <td>{{x.IssuedQty}}</td>
-                                                <td>{{x.BalanceQty}}</td>
+                                                <td>{{x.TIRCTotalQty}}</td>
+                                                <td>{{x.BalanceToIssue}}</td>
                                                 <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionQty" ng-change="qtyFunc(x, $index)" ;></td>
                                                 <td class="text-right" ng-hide="false"><input type="text" class="form-control text-right" width="400" ng-model="x.Comments"></td>
                                                 @*<td>{{x.char3.FreeText}}</td>*@

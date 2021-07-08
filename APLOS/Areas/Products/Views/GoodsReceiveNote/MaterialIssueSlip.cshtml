@@ -63,6 +63,23 @@
 										<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Select Production Order</span></legend>
 										<div class="row text-right">
 											<div class="col-xs-12 col-sm-12 col-sm-12">
+												@*<div class="search-form">
+			<div class="row">
+				<div class="col-xs-12 col-sm-3 col-md-3">
+					<div class="select-style">
+						<select value="Material" ng-model="PRsearchBy">
+							<option ng-repeat="option in PRFilterList" value="{{option.value}}">{{option.name}}</option>
+						</select>
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-3 col-md-3">
+					<input type="text" class="form-control" placeholder="Search" ng-model="PRsearch" ng-enter="getData()">
+				</div>
+				<div class="col-xs-12 col-sm-1 col-md-1">
+					<button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+				</div>
+			</div>
+		</div>*@
 												<div class="search-form">
 													<div class="row">
 														<div class="col-xs-12 col-sm-3 col-md-3">
@@ -72,11 +89,13 @@
 																</select>
 															</div>
 														</div>
-														<div class="col-xs-12 col-sm-3 col-md-3">
-															<input type="text" class="form-control" placeholder="Search" ng-model="PRsearch" ng-enter="getData()">
+														<div class="col-xs-12 col-sm-7 col-md-7">
+															<input type="text" class="form-control" placeholder="Search" ng-model="PRsearch" ng-enter="getDataProductions()">
 														</div>
-														<div class="col-xs-12 col-sm-1 col-md-1">
-															<button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+														<div class="col-xs-12 col-sm-2 col-md-2">
+															<button type="button" ng-click="getDataProductions()" class="btn">
+																<i class="glyphicon glyphicon-search"></i> Search
+															</button>
 														</div>
 													</div>
 												</div>
@@ -237,6 +256,7 @@
 					<div id='divInner1' ng-hide="productNew.OrderSpecific==='No'">
 						<ul class="common-btn list-inline text-right">
 							<li> <button ng-click="GetMaterialListForProductionReq();" class="btn"><i class="glyphicon glyphicon-download"></i> Generate Issue Slip</button></li>
+							
 						</ul>
 					</div>
 

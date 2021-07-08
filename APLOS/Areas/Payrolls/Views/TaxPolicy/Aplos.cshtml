@@ -476,18 +476,18 @@
                                             <div class="col-xs-12 col-sm-12 col-md-12">
                                                 <div class="form-group" @*style="margin-left: 10px;"*@>
                                                     <div class="col-xs-2 ">
-                                                        <div class="checkbox-site radio">
+                                                        <div class="radio ">
                                                             <label>
-                                                                <input type="checkbox" name="Fixed" ng-model="TaxSlabDefinee.Cumulative" ng-change="setRadioCu()">
+                                                                <input type="radio" name="TaxSlabCumulativeOrBrakeUp" ng-model="TaxSlabDefinee.CumulativeOrBrakeUp" value="Cumulative" @*ng-change="setRadioCu()"*@>
                                                                 <span class="cr"><i class="cr-icon"></i></span>Cumulative
                                                             </label>
                                                         </div>
                                                     </div>
                                                     <div class="col-xs-2 ">
-                                                        <div class="checkbox-site radio">
+                                                        <div class="radio ">
                                                             <label>
-                                                                <input type="checkbox" name="Formula" ng-model="TaxSlabDefinee.BrakeUp" ng-change="setRadioBr()">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Brake Up
+                                                                <input type="radio" name="TaxSlabCumulativeOrBrakeUp" ng-model="TaxSlabDefinee.CumulativeOrBrakeUp" value="Break Up" @*ng-change="setRadioBr()"*@>
+                                                                <span class="cr"><i class="cr-icon"></i></span>Break Up
                                                             </label>
                                                         </div>
                                                     </div>
@@ -633,8 +633,8 @@
                                                     <div class="col-xs-6 ">
                                                         <div class="radio">
                                                             <label>
-                                                                <input type="radio" name="CumulativeOrBrakeUp" ng-model="TaxRebate.CumulativeOrBrakeUp" value="Brake Up">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Brake Up
+                                                                <input type="radio" name="CumulativeOrBrakeUp" ng-model="TaxRebate.CumulativeOrBrakeUp" value="Break Up">
+                                                                <span class="cr"><i class="cr-icon"></i></span>Break Up
                                                             </label>
                                                         </div>
                                                     </div>
@@ -733,7 +733,7 @@
                                                     <div class="col-xs-6 ">
                                                         <div class="radio">
                                                             <label>
-                                                                <input type="radio" name="CumulativeOrBrakeUp" ng-model="TaxSurcharge.CumulativeOrBrkeUp" value="Cumulative">
+                                                                <input type="radio" name="TaxSurchargeCumulativeOrBrakeUp" ng-model="TaxSurcharge.CumulativeOrBrakeUp" value="Cumulative">
                                                                 <span class="cr"><i class="cr-icon"></i></span>Cumulative
                                                             </label>
                                                         </div>
@@ -741,8 +741,8 @@
                                                     <div class="col-xs-6 ">
                                                         <div class="radio">
                                                             <label>
-                                                                <input type="radio" name="CumulativeOrBrakeUp" ng-model="TaxSurcharge.CumulativeOrrakeUp" value="Brake Up">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Brake Up
+                                                                <input type="radio" name="TaxSurchargeCumulativeOrBrakeUp" ng-model="TaxSurcharge.CumulativeOrBrakeUp" value="Break Up">
+                                                                <span class="cr"><i class="cr-icon"></i></span>Break Up
                                                             </label>
                                                         </div>
                                                     </div>
@@ -755,7 +755,7 @@
                                                     <div class="col-xs-6 ">
                                                         <div class="radio">
                                                             <label>
-                                                                <input type="radio" name="FixedOrPercentage" ng-model="TaxSurcharge.FixedOrPercetage" value="Fixed">
+                                                                <input type="radio" name="TaxSurchargeFixedOrPercentage" ng-model="TaxSurcharge.FixedOrPercentage" value="Fixed">
                                                                 <span class="cr"><i class="cr-icon"></i></span>Fixed
                                                             </label>
                                                         </div>
@@ -763,7 +763,7 @@
                                                     <div class="col-xs-6 ">
                                                         <div class="radio">
                                                             <label>
-                                                                <input type="radio" name="FixedOrPercentage" ng-model="TaxSurcharge.FixedOrPercetage" value="Percentage">
+                                                                <input type="radio" name="TaxSurchargeFixedOrPercentage" ng-model="TaxSurcharge.FixedOrPercentage" value="Percentage">
                                                                 <span class="cr"><i class="cr-icon"></i></span>Percentage
                                                             </label>
                                                         </div>
@@ -777,7 +777,7 @@
                                                     <div class="col-xs-6 ">
                                                         <div class="radio">
                                                             <label>
-                                                                <input type="radio" name="TaxableIncomeOrTax" ng-model="TaxSurcharge.TaxableIncomerTax" value="Taxable Income">
+                                                                <input type="radio" name="TaxSurchargeTaxableIncomeOrTax" ng-model="TaxSurcharge.TaxableIncomeOrTax" value="Taxable Income">
                                                                 <span class="cr"><i class="cr-icon"></i></span>Taxable Income
                                                             </label>
                                                         </div>
@@ -785,7 +785,7 @@
                                                     <div class="col-xs-6 ">
                                                         <div class="radio">
                                                             <label>
-                                                                <input type="radio" name="TaxableIncomeOrTax" ng-model="TaxSurcharge.TaxableIncomerTax" value="Tax">
+                                                                <input type="radio" name="TaxSurchargeTaxableIncomeOrTax" ng-model="TaxSurcharge.TaxableIncomeOrTax" value="Tax">
                                                                 <span class="cr"><i class="cr-icon"></i></span>Tax
                                                             </label>
                                                         </div>
@@ -917,7 +917,7 @@
                                 <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelectPolicy" />
                             </script>
                             <script type="text/template" id="IsDefaultPolicy">
-                                <input type="checkbox" ej-checkbox class="rowCheckbox" @*e-id="{{data.Id}}"*@ e-checked="data.IsDefaultPolicy" @*e-change="$parent.CheckValidation"*@ />
+                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-id="{{data.TaxPolicyID}}" e-checked="data.IsDefaultPolicy" e-change="$parent.CheckValidation" />
                             </script>
                         </div>
                     </fieldset>
@@ -959,7 +959,7 @@
                         <div class="checkbox-site radio">
                             <label>
                                 <input type="checkbox" name="IsBrakeInvestmentCredit" ng-model="TaxSlabDefineeg.IsBrakeInvestmentCredit" ng-change="setRadioBrg()">
-                                <span class="cr"><i class="cr-icon"></i></span>Brake Up
+                                <span class="cr"><i class="cr-icon"></i></span>Break Up
                             </label>
                         </div>
                     </div>
@@ -973,9 +973,6 @@
                         <th></th>
                         <th>From (Minimum)</th>
                         <th>To (Maximum)</th>
-                        @*<th>Slab Define</th>*@
-                        @*<th>Investment Amount</th>*@
-                        <th>Investment Allowance (%)</th>
                         <th>Add</th>
                     </tr>
                 </thead>
@@ -984,19 +981,6 @@
                         <th>{{$index>0?'Above':''}}</th>
                         <td><input type="number" min="0" ng-model="item.TaxAbleIncomeLowerForRebate" class="form-control" ng-disabled="RebateTaxList.length>1" /></td>
                         <td><input type="number" min="0" ng-model="item.TaxAbleIncomeUpperForRebate" class="form-control" ng-disabled="$index<RebateTaxList.length-1" /></td>
-                        @*<td>
-                                <div class="select-style">
-                                    <select class="form-control" name="{{'saad'+item.TaxAbleIncomeLowerForRebate}}" id="SlabDefine" ng-model="item.SlabDefine">
-                                        <option value=""></option>
-                                        <option value="First">First</option>
-                                        <option value="Next">Next</option>
-                                        <option value="On Balance Amount">On Balance Amount</option>
-                                    </select>
-                                </div>
-                            </td>*@
-                        @*<td>
-                                <input type="text" n-decimals="2" ng-model="item.InvesmentAmtForRebate" class="form-control" maxlength="100" tabindex="2">
-                            </td>*@
                         <td>
                             <input type="text" n-decimals="2" ng-model="item.InvestAmtTaxPercentageRebate" class="form-control" maxlength="100" tabindex="2">
                         </td>
@@ -1019,17 +1003,6 @@
 
         </ul>
     </div>
-    @*<div class="col-xs-12 col-sm-12 col-sm-12" id="NewId">
-            <div style="color:black;" ej-grid e-datasource="RebateTaxList"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                 e-allowselection="true" e-recorddoubleclick="getRebateD" e-filtersettings-filterType="excel" e-actioncomplete="actionCompleteSelected">
-                <div e-columns>
-                    <div e-column e-field="TaxAbleIncomeLowerForRebate" e-headertext="Tax Able Income Lower Amount" e-width="6"></div>
-                    <div e-column e-field="TaxAbleIncomeUpperForRebate" e-headertext="Tax Able Income Upper Amount" e-width="6"></div>
-                    <div e-column e-field="SlabDefine" e-headertext="Slab Define" e-width="6"></div>
-                </div>
-            </div>
-        </div>*@
 </ej-dialog>
 
 <ej-dialog id="General"
@@ -1289,7 +1262,9 @@
 
 <confirm-archive-generic modalid="confirmProcessIncomeSlab" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteIncomeSlabs();"></confirm-archive-generic>
 
-<confirm-archive-generic modalid="confirmTaxRebateSlab" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteIncomeSlabs();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmTaxRebateSlab" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteTaxRebateSlabs();"></confirm-archive-generic>
+
+<confirm-archive-generic modalid="confirmDeleteTaxSurchargeSlab" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteTaxSurchargeSlab();"></confirm-archive-generic>
 
 
 <style>
