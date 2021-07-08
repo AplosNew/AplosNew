@@ -1,5 +1,5 @@
 ﻿
-<script>
+@*<script>
 
 
     $(document).ready(function () {
@@ -12,9 +12,9 @@
         $("#PartyCode").text(Id);
         $("#Vendor").val(UserName);
         $('#partyPopUp').modal('hide');
-        //alert('Session==' + UserName);
+      
         PartyId = $("#PartyCode").text();
-        //$scope.getPartyPlantList(Id);
+       
     }
     function getMasterId(Id) {
         debugger;
@@ -24,15 +24,12 @@
 </script>
 <style>
     .e-filterset:before {
-        /*content: "";*/
+       
         color: white;
     }
 
-    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
-        /*background: #a2f1ff;
-        color: #080076;
-        min-height: 100%;
-        border-bottom-color: #8B4513;*/
+    .e-gridheader .e-headercell { 
+        
         background-color: #1c1f32;
         color: White;
         min-height: 100%;
@@ -62,7 +59,7 @@
             color: #222222
         }
 
-    /* Dropdown */
+   
 
     .dropdown {
         display: inline-block;
@@ -145,7 +142,7 @@
     .e-grid td.e-active, .e-grid .e-form-titlebar {
         background: #17d7ac;
     }
-</style>
+</style>*@
 <link href="~/css/PObyRequisition.css" rel="stylesheet" />
 <togglable name="Store Issue Slip/Request"></togglable>
 <div id="scroll">
