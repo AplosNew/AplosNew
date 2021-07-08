@@ -318,11 +318,11 @@ namespace Library.HumanResource.Payroll.Tax
                         var ForMale = db.Where(r => r.SystemID == item.TaxPolicyID && r.Male == true && r.Female == false && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
                         var ForFemale = db.Where(r => r.SystemID == item.TaxPolicyID && r.Female && r.Male == false && r.TaxYearID == item.TaxPolicyYearID).FirstOrDefault();
 
-                        valid(ForAll, ref IsForAll, ref YearId, "Only one policy is allowed for 'No Gender Specific'", ref ageFromall,ref ageToAll);
-                        valid(ForMale, ref IsForMale, ref YearIda, "Only one policy is allowed for 'Male'", ref ageFromMale,ref ageToMale);
+                        valid(ForAll, ref IsForAll, ref YearId, "Only one policy is allowed for 'No Gender Specific'", ref ageFromall, ref ageToAll);
+                        valid(ForMale, ref IsForMale, ref YearIda, "Only one policy is allowed for 'Male'", ref ageFromMale, ref ageToMale);
                         valid(ForFemale, ref IsForFemale, ref YearIdaa, "Only one policy is allowed for 'Female'", ref ageFromFemale, ref ageToFemale);
 
-                        if (IsForAll && YearId == item.TaxPolicyYearID )
+                        if (IsForAll && YearId == item.TaxPolicyYearID)
                         {
                             if (IsForMale == true && YearIda == item.TaxPolicyYearID || IsForFemale == true && YearIdaa == item.TaxPolicyYearID)
                             {
@@ -1110,8 +1110,16 @@ namespace Library.HumanResource.Payroll.Tax
         {
             try
             {
-                drLocal["IsCumulativeTaxSlabDefine"] = ui_master.Cumulative;
-                drLocal["IsBrakeTaxSlabDefine"] = ui_master.BrakeUp;
+                if (ui_master.CumulativeOrBrakeUp == "Cumulative")
+                {
+                    drLocal["IsCumulativeTaxSlabDefine"] = true;
+                    drLocal["IsBrakeTaxSlabDefine"] = false;
+                }
+                else
+                {
+                    drLocal["IsBrakeTaxSlabDefine"] = true;
+                    drLocal["IsCumulativeTaxSlabDefine"] = false;
+                }
             }
             catch (Exception ex)
             {
@@ -2198,8 +2206,7 @@ public class TaxGeneralFormulaDetail
 
 public class TaxSlabDefinee
 {
-    public bool Cumulative { get; set; }
-    public bool BrakeUp { get; set; }
+    public string CumulativeOrBrakeUp { get; set; }
 }
 
 public class InvestmentCredits

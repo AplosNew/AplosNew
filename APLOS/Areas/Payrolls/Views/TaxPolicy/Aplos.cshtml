@@ -476,17 +476,17 @@
                                             <div class="col-xs-12 col-sm-12 col-md-12">
                                                 <div class="form-group" @*style="margin-left: 10px;"*@>
                                                     <div class="col-xs-2 ">
-                                                        <div class="checkbox-site radio">
+                                                        <div class="radio ">
                                                             <label>
-                                                                <input type="checkbox" name="Fixed" ng-model="TaxSlabDefinee.Cumulative" ng-change="setRadioCu()">
+                                                                <input type="radio" name="TaxSlabCumulativeOrBrakeUp" ng-model="TaxSlabDefinee.CumulativeOrBrakeUp" value="Cumulative" @*ng-change="setRadioCu()"*@>
                                                                 <span class="cr"><i class="cr-icon"></i></span>Cumulative
                                                             </label>
                                                         </div>
                                                     </div>
                                                     <div class="col-xs-2 ">
-                                                        <div class="checkbox-site radio">
+                                                        <div class="radio ">
                                                             <label>
-                                                                <input type="checkbox" name="Formula" ng-model="TaxSlabDefinee.BrakeUp" ng-change="setRadioBr()">
+                                                                <input type="radio" name="TaxSlabCumulativeOrBrakeUp" ng-model="TaxSlabDefinee.CumulativeOrBrakeUp" value="Break Up" @*ng-change="setRadioBr()"*@>
                                                                 <span class="cr"><i class="cr-icon"></i></span>Break Up
                                                             </label>
                                                         </div>

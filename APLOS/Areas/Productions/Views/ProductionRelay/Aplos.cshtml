@@ -39,6 +39,7 @@
 
     <div class="tab-design" id="tab_show">
 
+
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="runningProcess" role="tab" data-toggle="tab">To Act</a></li>
@@ -216,6 +217,35 @@
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="submitRemarks()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Submit </button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal site-modal" id="IsLastProcessPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-elements form-horizontal">
+                        <div class=" col-md-12">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">The following production orders: {{LastProcessPRList}} are going to be closed.<br />
+                                Are you sure to procced??
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class=" col-md-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="SaveWithLastProcess();" class="btn"><i class="glyphicon glyphicon-floppy-save"></i> Yes </button></li>
+                                <li> <button ng-click="closePopup('IsLastProcessPopUp')" class="btn"><i class="glyphicon glyphicon-backward"></i> No</button></li>
                             </ul>
                         </div>
                     </div>
