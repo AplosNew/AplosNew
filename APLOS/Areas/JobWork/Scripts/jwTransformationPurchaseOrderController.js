@@ -453,7 +453,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         e.detailsElement.find("#detailGrid").ejGrid({
 
             dataSource: data,
-            columns: ["JWItemName", "JWItemUOM", "MaterialMasterName", "ArticleName", "FirstCharacteristicsValue", "SecondCharacteristicsValue", "ThirdCharacteristicsValue", "TransactionQty", "TransactionUoM", "TransactionRate", "TransactionAmount", "CurrencyName", "TotalAmount"]
+            columns: ["JobWorkActivity", "JWItemName", "MaterialSpecification", "MaterialReference", "MaterialStorage", "JWItemUOM", "MaterialMasterName", "ArticleName", "CURR", "RateApplyId", "Process", "TransactionQty", "TransactionRate", "TransactionAmount", "TaxAmount", "BaseAmount", "Rejection", "ValueLoss", "Tolerance","ResponsiblePersonName"]
+            //columns: ["JWItemName", "JWItemUOM", "MaterialMasterName", "ArticleName", "FirstCharacteristicsValue", "SecondCharacteristicsValue", "ThirdCharacteristicsValue", "TransactionQty", "TransactionUoM", "TransactionRate", "TransactionAmount", "CurrencyName", "TotalAmount"]
             //columns: ["MaterialGroupName", "MaterialName", "Article", "Sku1", "Sku2", "Sku3", "MaterialDetail", "TransactionQty", "TransactionUoMId", "TransactionUoM", "TransactionRate", "CurrencyName", "TotalAmount"]
         });
         e.detailsElement.find(".tabcontrol").ejTab();

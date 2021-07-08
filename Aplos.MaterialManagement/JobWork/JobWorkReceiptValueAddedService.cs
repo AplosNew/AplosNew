@@ -677,7 +677,8 @@ namespace Library.MaterialManagement.JobWork
                         --LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId=SCV.Id
                         --LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId=TCV.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON mp.OutputMaterialUOMId=TUoM.Id
-                        left join (select Sum(ReceivedQuantity) as TotalReceivedQuantity,MaterialPlanningId from dbo.JobWorkReceiptTransformationChild group by MaterialPlanningId)kk on kk.MaterialPlanningId=mp.Id
+                        left join (select Sum(IRD.TransactionQty) as TotalReceivedQuantity,IR.TransformationContractId from TRN.InventoryReceiveDetail IRD left join TRN.InventoryReceive IR
+                        on IRD.InventoryReceiveId=IR.Id where MaterialFor='JWOUTPUTMaterial' group by IR.TransformationContractId)kk on kk.TransformationContractId=mp.JobWorkTransformationContractMasterId
                         left join (select JobWorkTransformationContractChildMasterId, Sum(GrossConsumption) GrossConsumption  from dbo.JobWorkTransformationContractChild3 group by JobWorkTransformationContractChildMasterId)CC3 ON CC3.JobWorkTransformationContractChildMasterId=mp.Id
                         left join(select JWTCMDId, Sum(isnull(TransactionQty,0)) TransactionQty from trn.InventoryReceiveDetail group by JWTCMDId)rcvqty ON rcvqty.JWTCMDId=mp.Id
                         left join( select  mp1.Id ,II.JWContractId 
@@ -690,7 +691,7 @@ namespace Library.MaterialManagement.JobWork
 								 left join dbo.JWTransformationPurchaseOrder tc on tc.Id=II.JWContractId
 								 left join dbo.JobWorkTransformationContractChild mp1 ON mp1.JobWorkTransformationContractMasterId=Tc.Id								
 								 group by  mp1.Id,II.JWContractId )vvvv ON vvvv.JWContractId=tc.Id 
-                        where tc.Id='"+ PKId + @"' group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuantity, MGM.UserName, MM.Id, MM.UserName, mma.Id ,MM.IsAsset,tc.Id, TUoM.Id, TUoM.UserName,TUoM.Id";
+                        where tc.Id='" + PKId + @"' group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuantity, MGM.UserName, MM.Id, MM.UserName, mma.Id ,MM.IsAsset,tc.Id, TUoM.Id, TUoM.UserName,TUoM.Id";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -946,12 +947,14 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                                 left join HKP.JobWorkItem jwit on jwit.Id=mp.JobWorkItemMasterId
                                 left join MST.MaterialMasterArticle mma on mma.Id=tbp.ArticleId
                                 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
-                                left join (Select SUM(ReceivedQuantity) as TotalReceivedQuantity,ByProductId from dbo.JobWorkReceiptTransformationByProduct group by ByProductId)
-                                rvbp on rvbp.ByProductId=tbp.Id
+                                left join (select Sum(IRD.TransactionQty) as TotalReceivedQuantity,IR.TransformationContractId from TRN.InventoryReceiveDetail IRD left join TRN.InventoryReceive IR
+                                 on IRD.InventoryReceiveId=IR.Id where MaterialFor='JWBYPRODUCTMaterial' group by IR.TransformationContractId)
+                                rvbp on rvbp.TransformationContractId=mp.JobWorkTransformationContractMasterId
+                                --rvbp on rvbp.ByProductId=tbp.Id
                                 left join dbo.JWTransformationPurchaseOrder tc on tc.Id=mp.JobWorkTransformationContractMasterId
                                 LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON mp.OutputMaterialUOMId=TUoM.Id
                                 left join(select JWTCMDByProductId, Sum(isnull(TransactionQty,0)) TransactionQty from trn.InventoryReceiveDetail group by JWTCMDByProductId)rcvqty ON rcvqty.JWTCMDByProductId=tbp.Id
-                                where tc.Id='"+ Id + @"'
+                                where tc.Id='" + Id + @"'
                                 group by tbp.Id
                                 ,jwit.UserName 
                                 ,jwi.UserName 
