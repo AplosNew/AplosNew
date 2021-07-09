@@ -450,7 +450,30 @@ namespace Library.Service.EmployeeServices
                 throw ex;
             }
         }
-     
+
+        public string UpdateInLive(string EmpId,string WkDate,string Shift)
+        {
+            try
+            {
+                var sql = @"update attdnprocessdata set 
+                ShiftSystemID='"+Shift+"' where EmpSystemID='"+EmpId+@"' 
+                and WorkDate='"+WkDate+"'";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                objCone.CommitTransaction();
+                return "true";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetROEmp(string Code,string Date)
         {
             try
