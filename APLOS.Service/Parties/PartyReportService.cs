@@ -3413,7 +3413,7 @@ namespace Library.Service.Parties
 	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                             ) AS CC ON CC.VoucherDetailId=VD.Id
                             WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND V.PostingDate BETWEEN '" + fromDate.ToDbDate() + "' AND '" + toDate + @"'
-                            AND V.SourceType<>'OpeningBalance'";
+                            AND V.SourceType not in ('OpeningBalance','VendorAdvanceWriteOff','CustomerAdvanceWriteOff')";
             if (!string.IsNullOrEmpty(partyPlantId))
                 cmdText += " AND VD.PartyPlantId='" + partyPlantId + "'";
             if (!string.IsNullOrEmpty(gSTINId))

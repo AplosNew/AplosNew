@@ -91,7 +91,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data)
+        public JsonResult Create(Dictionary<string, object> data/*, List<Dictionary<string, object>> details*/)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace Aplos.Areas.Productions.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "SG" + _Id;
+                    data["Id"] = "M" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else

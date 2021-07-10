@@ -4090,5 +4090,76 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+
+		public IEnumerable<object> GetJWPostedList(string column, string value, string plantId)
+		{
+			try
+			{
+				string strkey = "1=1";
+				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+					strkey = column + " like '%" + value + "%'";
+				var sql = @"DECLARE @plantId VARCHAR(10)='" + plantId + @"';
+                        select top 100 * from (SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate,  P.Code AS PartyCode, P.UserName AS PartyName
+                                    , Particular= P.UserName
+	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, CU.Code AS CurrencyCode
+	                                ,VD.DrAmount Amount
+									,IR.GateEntryNo,IR.ToCurrencyRate,IR.NoteForAccounts Narration
+									,VoucherNo = V.VoucherNo
+									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')
+									,[Type] ='JW WIP' 
+						FROM [TRN].[InventoryReceive] AS IR 
+						LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN TRN.Voucher V ON  V.Id=IR.JWWIPVoucherId
+						LEFT JOIN(SELECT VoucherId,SUM(DrAmount) DrAmount FROM  TRN.VoucherDetail GROUP BY VoucherId) VD ON VD.VoucherId=V.Id
+                        WHERE IR.PlantId=@plantId AND IR.JWWIPVoucherId<>''
+
+						UNION ALL
+						SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate,  P.Code AS PartyCode, P.UserName AS PartyName
+                                    , Particular= P.UserName
+	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, CU.Code AS CurrencyCode
+	                                ,VD.DrAmount Amount
+									,IR.GateEntryNo,IR.ToCurrencyRate,IR.NoteForAccounts Narration
+									,VoucherNo = V.VoucherNo
+									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')
+									,[Type] ='JW ChangeInInv' 
+						FROM [TRN].[InventoryReceive] AS IR 
+						LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN TRN.Voucher V ON  V.Id=IR.JWChangeInInvVoucherId
+						LEFT JOIN(SELECT VoucherId,SUM(DrAmount) DrAmount FROM  TRN.VoucherDetail GROUP BY VoucherId) VD ON VD.VoucherId=V.Id
+                        WHERE IR.PlantId=@plantId AND IR.JWChangeInInvVoucherId<>''
+
+						UNION ALL
+						SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate,  P.Code AS PartyCode, P.UserName AS PartyName
+                                    , Particular= P.UserName
+	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, CU.Code AS CurrencyCode
+	                                ,VD.DrAmount Amount
+									,IR.GateEntryNo,IR.ToCurrencyRate,IR.NoteForAccounts Narration
+									,VoucherNo = V.VoucherNo
+									,PostingDate= REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-')
+									,[Type] ='JW GIRI' 
+						FROM [TRN].[InventoryReceive] AS IR 
+						LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+						LEFT JOIN TRN.Voucher V ON  V.Id=IR.JWGRIRVoucherId
+						LEFT JOIN(SELECT VoucherId,SUM(DrAmount) DrAmount FROM  TRN.VoucherDetail GROUP BY VoucherId) VD ON VD.VoucherId=V.Id
+                        WHERE IR.PlantId=@plantId AND IR.JWGRIRVoucherId<>'') AS TEMP WHERE " + strkey + " order by PostingDate DESC";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
+
 	}
 }
