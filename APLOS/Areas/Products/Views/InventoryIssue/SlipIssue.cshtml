@@ -202,6 +202,14 @@
         <table class="table table-striped">
             <thead>
 				<tr>
+					<th>
+						<div class="checkbox-site text-center">
+							<label>
+								<input type="checkbox" ng-click="CheckAll1($event);">
+								<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+							</label>
+						</div>
+					</th>
 					<th style="width:500px;">CostCenter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 					@*<th>Cost Center</th>*@
 					<th>Budget</th>
@@ -235,6 +243,15 @@
             </thead>
             <tbody>
 				<tr ng-repeat="x in detailList">
+					<td>
+						@*<input type="checkbox" ng-click="Change($index)" ng-model=x.chk>*@
+						<div class="checkbox-site">
+							<label>
+								<input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-disabled="x.TransactionQty===0 || x.TransactionQty==='' || x.TransactionQty===null">
+								<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+							</label>
+						</div>
+					</td>
 					<td>
 						<div class="select-style">
 							<select class="form-control" ng-model="x.CostCenterId" ng-options="item.Value as item.Text for item in costCenterList"></select>
