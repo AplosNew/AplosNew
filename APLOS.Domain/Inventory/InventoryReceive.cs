@@ -141,6 +141,14 @@ namespace Library.Model.Inventory
         public Voucher ToVoucher { get; set; }
         public string ToVoucherId { get; set; }
 
+        public Voucher JWWIPVoucher { get; set; }
+        public string JWWIPVoucherId { get; set; }
+        public Voucher JWChangeInInvVoucher { get; set; }
+        public string JWChangeInInvVoucherId { get; set; }
+
+        public Voucher JWGRIRVoucher { get; set; }
+        public string JWGRIRVoucherId { get; set; }
+
         #endregion Navigation Properties
     }
 }
