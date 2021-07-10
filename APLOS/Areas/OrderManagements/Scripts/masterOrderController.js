@@ -1311,8 +1311,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                             ProductLibraryId: null,
                             FileName: null,
                             Remark: null,
-                            OrderStatusId:null
-
+                            OrderStatusId: null,
+                            UOMId: $scope.fileNew.TotalQtyUOMId
                         });
                     }
                 }
@@ -1356,8 +1356,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             ProductLibraryId: null,
             FileName: null,
             Remark: null,
-            OrderStatusId: null
-
+            OrderStatusId: null,
+            UOMId: $scope.fileNew.TotalQtyUOMId
         });
     };
 
@@ -2866,9 +2866,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
 
         for (var j = 0; j < $scope.skuList.length; j++) {
-            $scope.skuList[j].Qty = 0;
-            for (var i = 0; i < $scope.skuList[j].childList.length; i++) {
-                $scope.skuList[j].Qty += $scope.skuList[j].childList[i].Qty;
+            if (baseService.arrayLength($scope.skuList[j].childList) > 0) {
+                $scope.skuList[j].Qty = 0;
+                for (var i = 0; i < $scope.skuList[j].childList.length; i++) {
+                    $scope.skuList[j].Qty += $scope.skuList[j].childList[i].Qty;
+                }
             }
         }
 
@@ -4181,7 +4183,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.SaveContract = function () {
         try {
-            
+
 
             if (baseService.isUndefinedOrNull($scope.modelNew.MasterOrderId)) {
                 $scope.modelNew.MasterOrderId = $scope.fileNew.Id;
