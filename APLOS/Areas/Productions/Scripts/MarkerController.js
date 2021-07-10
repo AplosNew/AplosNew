@@ -11,6 +11,19 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
 
+    //#region Finishing Goods
+
+    $scope.getMaterial = function (index) {
+
+        $scope.materialType = 'ProductDefinition';
+        $scope.itemIndex = index;
+        $scope.getMaterialMasterbyTypePopUp();
+
+
+    };
+
+    //#endregion
+
     $scope.getData = function () {
         $http({
             method: 'POST',
@@ -121,6 +134,5 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         //$scope.ModelNew.CompanyId;
         $scope.ModelNew.Sequence = seq;
     }
-
-    
+        
 }
