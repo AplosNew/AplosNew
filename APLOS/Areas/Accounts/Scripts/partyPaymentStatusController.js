@@ -3352,7 +3352,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $http({
                 method: 'POST',
                 url: $scope.path + "GetOthersLiabilityDataList",
-                // data: { FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate },
+                data: { /*FromDate: $scope.reportParameters.FromDate,*/ ToDate: $scope.report.ToDate },
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
@@ -3379,61 +3379,64 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.GetOthersLiabilityData();
-
-    $scope.refreshTemplateOthersLiab = function (args) {
-        $("#headchkOLia").ejCheckBox({ "change": CheckBoxSelectAllOthersLiab });
-    };
-
-    function CheckBoxSelectAllOthersLiab(liab) {
-
-        var ChkOrUnchk = false;
-        if (liab.model.checkState === "check") {
-            ChkOrUnchk = true;
-
-        }
-
-        var filtered = $("#GrideOhtersLiability").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.OthersLiabilityList.length; i++) {
-                $scope.OthersLiabilityList[i].isSelected = ChkOrUnchk;
-            }
-        }
-        else {
-
-            for (var j = 0; j < filtered.length; j++) {
-
-                filtered[j].isSelected = ChkOrUnchk;
-            }
+   // $scope.GetOthersLiabilityData();
 
 
-        }
-        var gridObj = $("#GrideOhtersLiability").data("ejGrid");
-        gridObj.refreshContent();
-    };
+    //$scope.refreshTemplateOthersLiab = function (args) {
+    //    $("#headchkOLia").ejCheckBox({ "change": CheckBoxSelectAllOthersLiab });
+    //};
+
+    //function CheckBoxSelectAllOthersLiab(liab) {
+
+    //    var ChkOrUnchk = false;
+    //    if (liab.model.checkState === "check") {
+    //        ChkOrUnchk = true;
+
+    //    }
+
+    //    var filtered = $("#GrideOhtersLiability").data("ejGrid").getFilteredRecords();
+    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+    //        for (var i = 0; i < $scope.OthersLiabilityList.length; i++) {
+    //            $scope.OthersLiabilityList[i].isSelected = ChkOrUnchk;
+    //        }
+    //    }
+    //    else {
+
+    //        for (var j = 0; j < filtered.length; j++) {
+
+    //            filtered[j].isSelected = ChkOrUnchk;
+    //        }
+
+
+    //    }
+    //    var gridObj = $("#GrideOhtersLiability").data("ejGrid");
+    //    gridObj.refreshContent();
+    //};
 
     $scope.OthersLiabilitySummaryReport = function () {
 
         try {
-            var NewOthersLiabilityList = [];
-            for (var i = 0; i < $scope.OthersLiabilityList.length; i++) {
-                if ($scope.OthersLiabilityList[i].isSelected == true) {
+            //var NewOthersLiabilityList = [];
+            //for (var i = 0; i < $scope.OthersLiabilityList.length; i++) {
+            //    if ($scope.OthersLiabilityList[i].isSelected == true) {
 
-                    if (NewOthersLiabilityList, $scope.OthersLiabilityList[i].PartyId) {
-                        NewOthersLiabilityList.push($scope.OthersLiabilityList[i].PartyId);
-                    }
-                }
-            }
-            if (NewOthersLiabilityList.length == 0) {
-                //(angular.isUndefinedOrNull(NewMasterLCList)) 
-                ShowResult('Please select at least one Party', 'failure');
-                //throw 'Please enter to date';
+            //        if (NewOthersLiabilityList, $scope.OthersLiabilityList[i].PartyId) {
+            //            NewOthersLiabilityList.push($scope.OthersLiabilityList[i].PartyId);
+            //        }
+            //    }
+            //}
+            //if (NewOthersLiabilityList.length == 0) {
+            //    //(angular.isUndefinedOrNull(NewMasterLCList)) 
+            //    ShowResult('Please select at least one Party', 'failure');
+            //    //throw 'Please enter to date';
 
-            } else {
-                var file_src = $scope.path + "OthersLiabilitySummaryReport?othersLiabilityList=" + NewOthersLiabilityList;
-                $rootScope.report(file_src);
-            }
+            //} else {
+            //    var file_src = $scope.path + "OthersLiabilitySummaryReport?othersLiabilityList=" + NewOthersLiabilityList;
+            //    $rootScope.report(file_src);
+            //}
 
+            var file_src = $scope.path + 'OthersLiabilitySummaryReport?toDate=' + $scope.report.ToDate;
+            $rootScope.report(file_src);
 
         } catch (e) {
             ShowResult(e, 'failure');
