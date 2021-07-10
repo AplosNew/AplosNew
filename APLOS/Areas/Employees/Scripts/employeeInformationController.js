@@ -835,6 +835,36 @@ function employeeInformationController(addressService, fileReader, cboService, c
         }
     }
 
+    // #region checkbox all
+
+    $scope.refreshTemplateOperation = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridMultioperation").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.OperationList.length; i++) {
+                $scope.OperationList[i].check = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridMultioperation").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
+
     $scope.empReferenceInformation = {
         SystemID: null,
         EmpSystemID: null,
@@ -3268,29 +3298,29 @@ function employeeInformationController(addressService, fileReader, cboService, c
     //# region Multiple Operation   
     $scope.EmployeeOperationList = [];
 
-    $scope.refreshTemplate = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllOperationWise });
-    };
+    //$scope.refreshTemplate = function (args) {
+    //    $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllOperationWise });
+    //};
 
-    function CheckBoxSelectAllOperationWise(e) {
-        var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
-            ChkOrUnchk = true;
-        }
-        var filtered = $("#GridMultioperation").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.OperationList.length; i++) {
-                $scope.OperationList[i].check = ChkOrUnchk;
-            }
-        }
-        else {
-            for (var j = 0; j < filtered.length; j++) {
-                filtered[j].check = ChkOrUnchk;
-            }
-        }
-        var gridObj = $("#GridMultioperation").data("ejGrid");
-        gridObj.refreshContent();
-    };
+    //function CheckBoxSelectAllOperationWise(e) {
+    //    var ChkOrUnchk = false;
+    //    if (e.model.checkState === "check") {
+    //        ChkOrUnchk = true;
+    //    }
+    //    var filtered = $("#GridMultioperation").data("ejGrid").getFilteredRecords();
+    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+    //        for (var i = 0; i < $scope.OperationList.length; i++) {
+    //            $scope.OperationList[i].check = ChkOrUnchk;
+    //        }
+    //    }
+    //    else {
+    //        for (var j = 0; j < filtered.length; j++) {
+    //            filtered[j].check = ChkOrUnchk;
+    //        }
+    //    }
+    //    var gridObj = $("#GridMultioperation").data("ejGrid");
+    //    gridObj.refreshContent();
+    //};
 
     function MakeOperationData() {
         for (var i = 0; i < $scope.OperationList.length; i++) {

@@ -1,4 +1,4 @@
-﻿<togglable name="{{title}}"></togglable>
+﻿<togglable name="{{FormTitle}}"></togglable>
 <div class="form-horizontal" ng-form name="ModelNewForm">
     <div class="form-elements">
         <input type="hidden" ng-model="ModelNew.Id">
@@ -6,7 +6,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label" title="Material">Finish Goods<sup>*</sup></label>
                 <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                    <input type="text" ng-model="bomNew.FGMaterialMaster" class="form-control" readonly>
+                    <input type="text" ng-model="ModelNew.FGMaterialMaster" class="form-control" readonly>
                     <span class="input-group-btn">
                         <button ng-click="getMaterial()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
@@ -30,10 +30,36 @@
                     <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
                 </div>
             </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Length</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Length" ng-model="ModelNew.Length" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Fabric Width</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select name="UOM" class="form-control" ng-model="ModelNew.FabricWidthId" tabindex="13">
+                            <option value=""></option>
+                            <option ng-repeat="item in FabricWidthList" value="{{item.Id}} ">{{ item.FabricWidthName }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label">Description</label>
                 <div class="col-sm-8">
                     <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="7" maxlength="250"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">SKU</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select name="UOM" id="SKU" class="form-control" ng-model="ModelNew.CharacteristicsId" ng-options="item.Value as item.Text for item in characteristicsList" tabindex="13" ng-change="GetFGCharacteristicsValueCbo()">
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -41,7 +67,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label" title="Article">Finish Goods Article<sup>*</sup></label>
                 <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                    <input type="text" ng-model="bomNew.FGArticle" class="form-control" readonly>
+                    <input type="text" ng-model="ModelNew.FGArticle" class="form-control" readonly>
                     <span class="input-group-btn">
                         <button ng-click="getArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                         <button ng-click="clearArticle();" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
@@ -61,6 +87,29 @@
                 </div>
             </div>
             <div class="form-group">
+                <label class="col-sm-4 control-label">Shrinkage Group</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select name="UOM" class="form-control" ng-model="ModelNew.ShrinkageGroupId" tabindex="13">
+                            <option value=""></option>
+                            <option ng-repeat="item in ShrinkageGroupList" value="{{item.Id}} ">{{ item.ShrinkageGroupName }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Shade</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select name="UOM" class="form-control" ng-model="ModelNew.ShadeId" tabindex="13">
+                            <option value=""></option>
+                            <option ng-repeat="item in ShadeList" value="{{item.Id}} ">{{ item.ShadeName }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
                 <label class="col-sm-4 control-label">Remarks</label>
                 <div class="col-sm-8">
                     <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
@@ -78,6 +127,27 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-md-12">
+            <div class="table-responsive modal-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{{HeaderName}}</th>
+                            <th>Ratio</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in FGCharacteristicsValueList">
+                            <td>{{x.Value}}</td>
+                            <td><input type="text" class="form-control" ng-model="x.Ratio" ></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="common-btn">
             <ul class="list-inline text-right">
                 <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -104,6 +174,12 @@
 
     </div>
 </div>
+
+
+
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
+
 <div class="modal fade site-modal in" id="rmaterialmastersearchpopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -238,5 +314,4 @@
         </div>
     </div>
 </div>
-
 <confirm-modal></confirm-modal>

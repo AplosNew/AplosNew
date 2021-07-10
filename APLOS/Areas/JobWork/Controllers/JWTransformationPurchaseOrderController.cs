@@ -518,5 +518,21 @@ namespace Aplos.Areas.JobWork.Controllers
 
         }
 
+        [Authorize, HttpPost]
+        public JsonResult LoadInputArticle(string MaterialMstId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                return Json(JobWorkCommon.LoadInputArticle(MaterialMstId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
     }
 }

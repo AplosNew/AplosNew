@@ -19,7 +19,8 @@ namespace Aplos.Areas.Productions.Controllers
     public class MarkerController : BaseController
     {
         #region Constructor
-        string TableName = "dbo.Shade";
+        string TableName = "dbo.MarkerMaster";
+        string DetailTableName = "dbo.MarkerDetails";
         private readonly ISqlRepository _sqlRepository;
         public MarkerController(ISqlRepository R)
         {
@@ -39,6 +40,21 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetFabricWidth()
+        {
+            return Json(_sqlRepository.GetDataCollection("select Id,UserName FabricWidthName From FabricWidth"), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetShrinkageGroup()
+        {
+            return Json(_sqlRepository.GetDataCollection("select Id,UserName ShrinkageGroupName From ShrinkageGroup"), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetShade()
+        {
+            return Json(_sqlRepository.GetDataCollection("select Id,UserName ShadeName From Shade"), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpPost]
         public ActionResult Get(string Id)
         {
@@ -75,7 +91,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data)
+        public JsonResult Create(Dictionary<string, object> data/*, List<Dictionary<string, object>> details*/)
         {
             try
             {
@@ -100,7 +116,7 @@ namespace Aplos.Areas.Productions.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "SG" + _Id;
+                    data["Id"] = "M" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
