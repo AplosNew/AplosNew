@@ -921,7 +921,11 @@ namespace Library.Service.Helpers
         {
             try
             {
-                var sql = @"SELECT COM.Id, COM.UserName, COM.LegalName, COM.WebDomain, AM.Address1, AM.Address2, CO.UserName AS Country, CT.UserName AS City, CM.Phone1 AS Phone, CM.Email1 AS Email
+                var sql = @"SELECT COM.Id, COM.UserName, COM.LegalName, COM.WebDomain
+
+                , AM.Address1
+
+                , AM.Address2, CO.UserName AS Country, CT.UserName AS City, CM.Phone1 AS Phone, CM.Email1 AS Email
                         , CM.Website AS Website, AR.UserName AS Area
                         , [Address]=CASE ISNULL(AM.Address1,'') WHEN '' THEN '' ELSE AM.Address1 +', ' END+
 			                        CASE ISNULL(AR.UserName,'') WHEN '' THEN '' ELSE AR.UserName +', ' END+
