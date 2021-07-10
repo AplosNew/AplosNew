@@ -24,7 +24,7 @@ namespace Aplos.Areas.Parties.Controllers
         {
             return View("~/Areas/Parties/Views/PartyLedgerReport.cshtml");
         }
-        public ActionResult partyPaymentStatusReport()
+        public ActionResult PartyPaymentStatusReport()
         {
             return View("~/Areas/Parties/Views/partyPaymentStatusReport.cshtml");
         }
