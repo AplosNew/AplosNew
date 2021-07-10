@@ -1120,14 +1120,15 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult LoadAllMaterialMstArticle(string MaterialMstId)
+        public ActionResult LoadAllMaterialMstArticle(string MaterialMstId, string MaterialInputId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             string sql = @"Select mm.Code as MaterialCode,mm.UserName as Material,mgm.UserName as MaterialGroupMaster,mm.Id MaterialMasterId,mma.Id as ArticleId ,mma.Code as ArticleCode, mma.ShortName, mma.StandardName 
                            from MST.MaterialMasterArticle mma left join MST.MaterialMaster mm on mma.MaterialMasterId=mm.Id
                            left join MST.MaterialGroupMaster mgm on mm.MaterialGroupMasterId=mgm.Id
-                            where mm.Id='" + MaterialMstId + @"' order by mm.Code";
+                           left join dbo.JobWorkTransformationContractChild3 mi on mi.ArticleId=mma.Id
+                            where mm.Id='" + MaterialMstId + @"' and mi.Id='"+ MaterialInputId + @"' order by mm.Code";
 
             var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
