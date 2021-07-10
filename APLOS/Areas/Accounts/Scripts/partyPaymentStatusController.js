@@ -3345,6 +3345,103 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     //------------------#endregion Acceptance liability-------------------------
 
+    //------------------#region Others Liability ---------------
+    $scope.OthersLiabilityList = [];
+    $scope.GetOthersLiabilityData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetOthersLiabilityDataList",
+                // data: { FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate },
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+
+                //if (response.data.Error == false) {
+                //    for (var i = 0; i < response.data.DATA.length; i++) {
+                //        // response.data.DATA[i].MasterLCDate = new Date(response.data.DATA[i].MasterLCDate);
+                //    }
+                //    $scope.OthersLiabilityList = response.data.DATA;
+                //}
+                //else {
+                //    ShowResult(response.data.Message, 'failure');
+                //}
+
+                $scope.OthersLiabilityList = response.data.DATA;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+
+        }
+
+        catch (e) {
+
+        }
+    }
+    $scope.GetOthersLiabilityData();
+
+    $scope.refreshTemplateOthersLiab = function (args) {
+        $("#headchkOLia").ejCheckBox({ "change": CheckBoxSelectAllOthersLiab });
+    };
+
+    function CheckBoxSelectAllOthersLiab(liab) {
+
+        var ChkOrUnchk = false;
+        if (liab.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#GrideOhtersLiability").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.OthersLiabilityList.length; i++) {
+                $scope.OthersLiabilityList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+
+
+        }
+        var gridObj = $("#GrideOhtersLiability").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.OthersLiabilitySummaryReport = function () {
+
+        try {
+            var NewOthersLiabilityList = [];
+            for (var i = 0; i < $scope.OthersLiabilityList.length; i++) {
+                if ($scope.OthersLiabilityList[i].isSelected == true) {
+
+                    if (NewOthersLiabilityList, $scope.OthersLiabilityList[i].PartyId) {
+                        NewOthersLiabilityList.push($scope.OthersLiabilityList[i].PartyId);
+                    }
+                }
+            }
+            if (NewOthersLiabilityList.length == 0) {
+                //(angular.isUndefinedOrNull(NewMasterLCList)) 
+                ShowResult('Please select at least one Party', 'failure');
+                //throw 'Please enter to date';
+
+            } else {
+                var file_src = $scope.path + "OthersLiabilitySummaryReport?othersLiabilityList=" + NewOthersLiabilityList;
+                $rootScope.report(file_src);
+            }
+
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+
+    //---------------#endregion others liability-------------------
 }
 
 

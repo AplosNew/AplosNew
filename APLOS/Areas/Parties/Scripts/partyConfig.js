@@ -132,5 +132,15 @@ function PartyConfig($routeProvider, $locationProvider) {
         .when("/party-outstanding-report", {
             templateUrl: "Parties/PartyReport/PartyOutstandingReport",
             controller: "partyOutstandingReportController"
-        });
+        })
+        .when("/party-payment-status-report", {
+            templateUrl: "Parties/PartyReport/PartyPaymentStatusReport",
+            controller: "partyPaymentStatusReportController"
+        })
+
+
+
+        ;
+
+
 }
