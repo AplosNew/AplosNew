@@ -32,8 +32,12 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
 
     $scope.searchInvoiceList = [
         {
-            "name": "InvoiceNo",
+            "name": "Invoice No",
             "value": "InvoiceNo"
+        },
+        {
+            "name": "Invoice Date",
+            "value": "InvoiceDate"
         },
         {
             "name": "Voucher No",
@@ -1627,6 +1631,24 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
             $scope.materialMaster.TransactionRate = tAmount / tQty;
         else
             $scope.materialMaster.TransactionRate = 0;
+        for (var i = 0; i < baseService.arrayLength($scope.materialtaxCategoryList); i++) {
+            $scope.materialtaxCategoryList[i].TotalAmount = ((parseFloat($scope.materialtaxCategoryList[i].Percentage) * $scope.materialMaster.TransactionAmount) / 100).toFixed(2);
+            $scope.materialMaster.TaxAmount = (parseFloat($scope.materialMaster.TaxAmount) + parseFloat($scope.materialtaxCategoryList[i].TotalAmount)).toFixed(2);
+        }
+        $scope.materialMaster.NetAmount = parseFloat($scope.materialMaster.TransactionAmount) + parseFloat($scope.materialMaster.TaxAmount);
+        if (isNaN($scope.materialMaster.TaxAmount)) $scope.materialMaster.TaxAmount = 0;
+    };
+
+    $scope.calculateAmountTaxCategory = function () {
+        $scope.materialMaster.TotalTaxAmount = 0;
+        $scope.materialMaster.NetAmount = 0;
+        $scope.materialMaster.TaxAmount = 0;
+        var tQty = baseService.isUndefinedOrNull($scope.materialMaster.TransactionQty) ? 0 : parseFloat($scope.materialMaster.TransactionQty);
+        var tRate = baseService.isUndefinedOrNull($scope.materialMaster.TransactionRate) ? 0 : parseFloat($scope.materialMaster.TransactionRate);
+        if (tQty > 0 && tRate > 0)
+            $scope.materialMaster.TransactionAmount = tRate * tQty;
+        else
+            $scope.materialMaster.TransactionAmount = 0;
         for (var i = 0; i < baseService.arrayLength($scope.materialtaxCategoryList); i++) {
             $scope.materialtaxCategoryList[i].TotalAmount = ((parseFloat($scope.materialtaxCategoryList[i].Percentage) * $scope.materialMaster.TransactionAmount) / 100).toFixed(2);
             $scope.materialMaster.TaxAmount = (parseFloat($scope.materialMaster.TaxAmount) + parseFloat($scope.materialtaxCategoryList[i].TotalAmount)).toFixed(2);

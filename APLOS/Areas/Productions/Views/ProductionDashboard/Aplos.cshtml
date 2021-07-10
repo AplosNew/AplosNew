@@ -564,7 +564,7 @@
             </div>
             <div e-columns>
                 @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="25"></div>
-        <div e-column e-template="#btnRemarks" e-textalign="center" e-headertext="Remarks" e-width="70"></div>*@
+                    <div e-column e-template="#btnRemarks" e-textalign="center" e-headertext="Remarks" e-width="70"></div>*@
 
                 <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
                 <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
@@ -593,14 +593,24 @@
                 <div e-column e-type="string" e-field="ClosedBy" e-headertext="Completed By" e-width="100"></div>
 
             </div>
-
         </div>
         <div>
             <span style="background-color:#6FEAFF;color:#6FEAFF">.....</span>Pre. completed, current started
             <span style="background-color:#FF502A;color:#FF502A">.....</span>Pre. completed, current not started
             <span style="background-color:#7EFF87;color:#7EFF87">.....</span>Pre. started, current started
             <span style="background-color:#FFB42A;color:#FFB42A">.....</span>Pre. started, current not started
-        </div>
+        </div>`
+    </div>
+    <div>
+            <ul>
+            <li>
+                <button class="btn" ng-click="ProductionRelayReport(this);" style="background-color:cornflowerblue;"><i class="glyphicon glyphicon-file"></i>Download Report</button>
+                @*<button ng-click="$parent.getProductionRelay(data);" class="btn small" style="height: 28px; width: 36px; padding: 0px; margin: 0px;font-weight:bolder;">
+                    RL
+                </button>*@
+            </li>
+
+        </ul>
     </div>
 </ej-dialog>
 

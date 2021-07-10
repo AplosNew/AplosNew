@@ -30,15 +30,6 @@
 
 </div>
 
-
-@*<div class="col-xs-12 col-sm-2 col-md-2">
-    <div class="common-btn">
-        <ul class="list-inline text-right">
-            <li><button ng-click="getTrialBalanceData();" title="Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
-        </ul>
-    </div>
-</div>*@
-
 <div class="clearfix"></div>
 <div class="aplos-grid-toggle">
 
@@ -48,8 +39,6 @@
                 <tr>
                     <th>VoucherNo</th>
                     <th>Source Type</th>
-
-                    @*<th>@Library.Model.Parties.PartyType.Customer.ToString()</th>*@
                      <th>Transaction RefNo</th>
                      <th>DocRef No</th>
                      <th>Doc Date</th>
@@ -72,34 +61,18 @@
                     <td>{{x.PostingDate | dateFiltering}}</td>
                     <td>{{x.Narration}}</td>
                     <td>{{x.EntityId}}</td>
-
-
-                 @* <td class="text-right">{{x.Amount | number:2}}</td>
-                    <td class="text-right">{{x.WrittenOffAmount | number:2}}</td>
-                    <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:2}}</td>*@
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
-                            <li ng-show="x.IsPosted || x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Park</a></li>
-
-                            @*<li ng-show="x.OtherIsPark"><a ng-click="ShowJournalPopUp(x);" href="" class="btn btn-action tooltip-here">Subsidy Post</a></li>
-                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>*@
-                            @*<li><a class="btn btn-action" href="Accounts/Invoice/GetCustomerInvoiceVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                            <li><a class="btn btn-action" href="Accounts/Invoice/GetCustomerInvoiceVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>*@
+                            <li><a ng-click="confirmPost(x.Id,x.SourceType);" href="" class="btn btn-action tooltip-here">Park</a></li>
                         </ul>
                     </td>
                 </tr>
             </tbody>
         </table>
-        <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getVoucherData(newPageNumber)"></dir-pagination-controls>
     </div>
 </div>
-
-
-@*<confirm-archive-generic modalid="confirmTaxCodeDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeTaxCodeRow()"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(invoiceId,voucherId)"></confirm-archive-generic>*@
-
-<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="park(voucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="park(voucherId,sourceType)"></confirm-archive-generic>
 
 
 

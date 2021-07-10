@@ -864,6 +864,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     };
     function getTaxCategoryList(hsnCodeId, HSNCode) {
         $scope.taxCategoryList = [];
+        $scope.TotalAmount = $scope.detailModel.TransactionQty * $scope.detailModel.RatePerUnit;
         $http({
             method: 'GET'
             , url: $scope.path + 'GetTaxCategoryList?receiveId=' + $scope.productNew.Id + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.productNew.PODate
@@ -876,7 +877,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                     $scope.taxCategoryList[i].JWTransformationPurchaseOrderId = $scope.productNew.Id;
                     $scope.taxCategoryList[i].JWTransformationPurchaseOrderDetailId = $scope.detailModel.Id;
                     //$scope.taxCategoryList[i].JWTransformationPurchaseOrderDetailId = $scope.detailModel.Id;
-
+                    $scope.taxCategoryList[i].TaxAmount = ($scope.TotalAmount * $scope.taxCategoryList[i].Percentage) / 100;
 
                     //$scope.HSNCode = HSNCode;
                 }
@@ -4070,4 +4071,13 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
 
     //end
+
+    $scope.calculateSvcTaxCategory = function () {
+        $scope.serviceModel.TotalTaxAmount = 0;
+        for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
+            $scope.taxCategoryList[i].TaxAmount = ((parseFloat($scope.taxCategoryList[i].Percentage) * $scope.serviceModel.TransactionAmount) / 100).toFixed($rootScope.currencyPrecision);
+            $scope.serviceModel.TotalTaxAmount = (parseFloat($scope.serviceModel.TotalTaxAmount) + parseFloat($scope.taxCategoryList[i].TaxAmount)).toFixed($rootScope.currencyPrecision);
+        }
+        if (isNaN($scope.serviceModel.TotalTaxAmount)) $scope.serviceModel.TotalTaxAmount = 0;
+    };
 }

@@ -4069,14 +4069,16 @@ namespace Library.MaterialManagement.Inventory
 							,IR.ExpenseActivityId
 							,IA1.UserName ActivityName	
 							,IRM.Id IssueRequestMasterId
-							,IR.Id IssueRequest	
-							,Isnull(ApprovedQty.ApprovedQty,0) ApprovedQty
-							,Isnull(UnApprovedQty.UnApprovedQty,0) UnApprovedQty
-							,TotalStock=(isnull(ApprovedQty.ApprovedQty,0) + ISNULL(UnApprovedQty.UnApprovedQty,0))
-							,Isnull(PostingQty.PostingQty,0) PostingQty
-                           --,RequestedQty=Isnull(IR.RequestedQty,0)-ISNULL(ABC.Qty,0)
-							,IR.RequestedQty
-                            , PostingQty.MaterialStorageId ,IDRM.Qty IssuedQty,BalanceQty=Isnull(IR.RequestedQty,0)-ISNULL(IDRM.Qty,0)
+							,IR.Id IssueRequest								
+                           --,RequestedQty=Isnull(IR.RequestedQty,0)-ISNULL(ABC.Qty,0)							
+                            , PostingQty.MaterialStorageId ,Convert(bit,0)  'check'
+							,sum(IR.RequestedQty) RequestedQty
+							,sum(IDRM.Qty) IssuedQty
+							,sum(Isnull(ApprovedQty.ApprovedQty,0)) ApprovedQty
+							,sum(Isnull(UnApprovedQty.UnApprovedQty,0)) UnApprovedQty
+							,TotalStock=Sum((isnull(ApprovedQty.ApprovedQty,0) + ISNULL(UnApprovedQty.UnApprovedQty,0)))
+							,Sum(Isnull(PostingQty.PostingQty,0)) PostingQty
+							,BalanceQty=Sum(Isnull(IR.RequestedQty,0)-ISNULL(IDRM.Qty,0))
 							FROM trn.IssueRequest IR									
 							LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id=IR.IssueRequestMasterId                                    
 							Left JOIN MST.MaterialMaster AS MM ON IR.MaterialMasterId = MM.Id
@@ -4209,7 +4211,41 @@ namespace Library.MaterialManagement.Inventory
 															where cc.IssueRequestBOQMapId is not null --and  dd.Id='2150'
 															group by aa.Id
 												) IDRM ON IDRM.Id=IR.id
-								                Where IRM.Id='" + Id + "'";
+								                Where IRM.Id='" + Id + @"' Group BY
+												MGM.UserName
+                            ,IR.MaterialMasterId
+							,mm.UserName
+	                        ,IR.ArticleId
+							,ART.StandardName
+							,MT.UserName
+							,IR.FirstCharacteristicsId
+							,FC.UserName
+							,IR.FirstCharacteristicsValueId
+							,FCV.UserName
+							,IR.SecondCharacteristicsId
+							,SC.UserName
+							,IR.SecondCharacteristicsValueId
+							,SCV.UserName
+							,IR.ThirdCharacteristicsId
+							,TC.UserName
+							,IR.ThirdCharacteristicsValueId
+							,TCV.UserName ,C.UserName ,C.Id
+							,TUoM.Id
+							,TUoM.Id
+							--,TUoM.UserName UOM
+							 , PostingQty.UoM
+							,TUoM.UserName
+							,IR.CostCenterId
+							,CC.UserName
+							,IR.GLGeneralInfoId
+							,IGL1.UserName
+							,IR.BudgetMasterId
+							,B1.UserName
+							,IR.ExpenseActivityId
+							,IA1.UserName
+							,IRM.Id
+							,IR.Id
+                            , PostingQty.MaterialStorageId";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)

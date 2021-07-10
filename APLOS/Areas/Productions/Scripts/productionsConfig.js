@@ -159,5 +159,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/Shade/Aplos',
             controller: 'ShadeController'
         })
+        .when('/marker', {
+            templateUrl: 'Productions/Marker/Aplos',
+            controller: 'MarkerController'
+        })
         ;
 }

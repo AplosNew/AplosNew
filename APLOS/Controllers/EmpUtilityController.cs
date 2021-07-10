@@ -533,6 +533,24 @@ namespace Aplos.Controllers
             }
         }
 
+        [HttpGet]
+        public IHttpActionResult UpdateInFinal(string EmpId,string WKdate,string Shift)
+        {
+            try
+            {
+                var result = _emp.UpdateInLive(EmpId,WKdate,Shift);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
 
     }
 }

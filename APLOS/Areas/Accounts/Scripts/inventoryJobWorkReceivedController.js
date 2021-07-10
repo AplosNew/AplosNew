@@ -6,7 +6,7 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
     $scope.index = -1;
     $scope.products = [];
     $scope.path = 'Accounts/InventoryPayable/';
-    $scope.getListUrl = 'Accounts/InventoryPayable/GetPostingList/';
+    $scope.getListUrl = 'Accounts/InventoryPayable/GetJobWorkInventoryReceivePostedList/';
     $scope.saveUrl = 'Accounts/InvoicePost/InventoryJobWorkReceivedPost/';
     $scope.AcceptanceId = null;
     $scope.TotalPayableAmount = 0;
@@ -245,6 +245,8 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
         var voucherTypeId = $scope.modelNew.VoucherTypeId;
         $scope.modelNew = data.data;
         $scope.modelNew.VoucherTypeId = voucherTypeId;
+        $scope.modelNew.InventoryReceiveId = $scope.modelNew.Id;
+        $scope.modelNew.PostingDate = $filter("date")($scope.modelNew.GRNDate, "dd-MMM-yyyy");
         $scope.modelNew.EmployeeTransactionTypeId = null;
         $scope.TempEmployeeId = data.data.EmployeeId;
         $scope.AcceptanceId = data.data.AcceptanceId;
@@ -764,42 +766,15 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
 
     $scope.Post = function () {
         if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
-        if (!baseService.isUndefinedOrNull($scope.modelNew.EmployeeId)) {
-            var data = $filter('filter')($scope.newList, { OtherName: 'Vendor' }, true);
-            if (baseService.isUndefinedOrNull(data[0].GLGeneralInfoId)) return ShowResult('Employee GL not found', 'failure');
-            if (baseService.isUndefinedOrNull(data[0].BudgetMasterId)) return ShowResult('Employee budget not found', 'failure');
-            if (baseService.isUndefinedOrNull(data[0].ActivityId)) return ShowResult('Employee activity not found', 'failure');
-            for (var i = 0; i < baseService.arrayLength($scope.inventoryMaterialList); i++) {
-                if ($scope.inventoryMaterialList[i].OtherName === 'Vendor') {
-                    $scope.inventoryMaterialList[i].GLGeneralInfoId = data[0].GLGeneralInfoId;
-                    $scope.inventoryMaterialList[i].GLGeneralInfoCode = data[0].GLGeneralInfoCode;
-                    $scope.inventoryMaterialList[i].GLGeneralInfoName = data[0].GLGeneralInfoName;
-                    $scope.inventoryMaterialList[i].BudgetMasterId = data[0].BudgetMasterId;
-                    $scope.inventoryMaterialList[i].BudgetCode = data[0].BudgetCode;
-                    $scope.inventoryMaterialList[i].BudgetName = data[0].BudgetName;
-                    $scope.inventoryMaterialList[i].ActivityId = data[0].ActivityId;
-                    $scope.inventoryMaterialList[i].ActivityCode = data[0].ActivityCode;
-                    $scope.inventoryMaterialList[i].ActivityName = data[0].ActivityName;
-                }
-            }
-            $scope.modelNew.MatureDate = $filter("date")($scope.modelNew.NewBaseOnDueDate, "dd-MMM-yyyy");
-            $scope.modelNew.BaseOnDueDate = $filter("date")($scope.modelNew.NewBaseOnDueDate, "dd-MMM-yyyy");
-        }
-        for (var i = 0; i < $scope.newList.length; i++) {
-            $scope.newList[i].Amount = parseFloat($scope.newList[i].Amount).toFixed(4);
-        }
-        $http({
+      
+               $http({
             method: 'POST',
             url: $scope.saveUrl,
             data: {
-                receiveId: $scope.modelNew.Id
-                , acceptanceId: $scope.AcceptanceId
-                , voucherVM: $scope.modelNew
-                , voucherDetailVMList: $scope.newList/*$scope.inventoryMaterialList*/
-                , voucherDetailCurrencyVMList: $scope.currencyExchangeRate
-                , inventoryPayableVMList: $scope.inventoryPayableList
-                , inventoryReceiveDetailVMList: $scope.inventoryReceiveDetailList
-                , tdsTaxList: $scope.TDSList
+                 'voucherVM': $scope.modelNew
+                , 'inventoryJobWorkWIPList': $scope.inventoryJobWorkWIPList/*$scope.inventoryMaterialList*/
+                , 'changeInInventoryList': $scope.newList
+                , 'inventoryJobWorkGIRIList': $scope.inventoryJobWorkGIRIList
             },
             dataType: 'JSON'
         }).then(function (response) {
