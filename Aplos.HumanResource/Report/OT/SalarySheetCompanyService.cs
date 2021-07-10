@@ -699,6 +699,9 @@ namespace Library.HumanResource.Report.OT
 
                                     }
 
+
+                                   
+
                                 }
 
                             }
@@ -1882,7 +1885,7 @@ namespace Library.HumanResource.Report.OT
                     }//SalaryHead 
                     #endregion
                 }//for
-                int countCTCNOTNETPosition = countDeductionPosition;
+                int countCTCNOTNETPosition = countDeductionPosition + 1;
 
 
                 for (int ci = 0; ci < dtSalaryHead.Rows.Count; ci++)

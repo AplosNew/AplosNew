@@ -3929,8 +3929,7 @@ namespace Library.HumanResource.Payroll
                 #region Freeze Panes
                 var freezePan = RowIndex - 1;
                 sheet1.UsedRange["A" + freezePan].FreezePanes();
-                sheet1.FirstVisibleColumn = 1;
-                sheet1.FirstVisibleRow = 10;
+               
                 #endregion
 
                 #region UsedRange Alignment

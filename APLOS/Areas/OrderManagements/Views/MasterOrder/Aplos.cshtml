@@ -402,6 +402,7 @@
                                         <th>Own Ref.No</th>
                                         <th>Total Quantity</th>
                                         <th>SO Total Quantity</th>
+                                        <th>UoM</th>
                                         <th>Order Wastage Percentage</th>
                                         <th>Extra Order Percentage</th>
                                         <th>Repeat</th>
@@ -494,6 +495,11 @@
                                             <label ng-class="{'control-label redClr':x.SOQty != x.TotalQty, 'control-label': x.SOQty == x.TotalQty}">
                                                 {{x.SOQty}}
                                             </label>
+                                        </td>
+                                        <td>
+                                            <div class="select-style">
+                                                <select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>
+                                            </div>
                                         </td>
                                         <td>
                                             <input type="text" n-decimals="2" ng-model=" x.OrderWastagePercentage" class="form-control text-right">
@@ -607,7 +613,7 @@
                                                 {{itemList | sumByKey : 'SOQty'}}
                                             </label>
                                         </td>
-                                        <td colspan="11"></td>
+                                        <td colspan="12"></td>
                                         <td class="text-center">
                                             <button ng-click="addNewItem();" ng-disabled="fileNew.Id===null" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add Line Item</button>
                                         </td>

@@ -77,6 +77,7 @@ namespace Library.Model.OrderManagements
         public string EntityIdWithinGroup { get; set; }
         public string PartyId { get; set; }
         public string ContractId { get; set; }
+        public string UOMId { get; set; }
 
         #endregion Navigation Properties
     }
