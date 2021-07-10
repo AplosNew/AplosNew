@@ -56,6 +56,17 @@ namespace Aplos.Areas.Productions.Controllers
                     ProductionOrderIds += ",'" + ProductionRelayData[i]["Id"].ToString() + "'";
                     ProcessSetIds += ",'" + ProductionRelayData[i]["PSSId"].ToString() + "'";
                 }
+                string PrNo = null;
+                for (int i = 0; i < ProductionRelayData.Count; i++)
+                {
+                    PrNo = ProductionRelayData[i]["Id"].ToString();
+                    if (Convert.ToInt32(clsStaticInfo.nullrecorder( ProductionRelayData[i]["ProducedQty"]).ToString()) < Convert.ToInt32(clsStaticInfo.nullrecorder( ProductionRelayData[i]["OrderQty"]).ToString()) 
+                        || Convert.ToInt32(clsStaticInfo.nullrecorder(ProductionRelayData[i]["ProducedQty"]).ToString()) < Convert.ToInt32(clsStaticInfo.nullrecorder( ProductionRelayData[i]["PreviousProcessQty"]).ToString()))
+                        if (clsStaticInfo.nullrecorder(ProductionRelayData[i]["Remarks"]) == "")
+                        {
+                            throw new Exception("Please add Remarks for" + PrNo);
+                        }
+                }
 
                 DataSet dsProductionRelay;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -157,7 +168,7 @@ namespace Aplos.Areas.Productions.Controllers
             string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
 convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId, convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess,CP.UserName CurrentProcess,PPR.CompletedBy ClosedBy
 ,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
-,  PO.Id,PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
+,  PO.Id,PO.EntityId,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
 isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 ,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
   ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
@@ -167,7 +178,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
 								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
 								PSS.CompletedBy ,
-PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
+isnull(PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
 								      MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -290,7 +301,7 @@ PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
             string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
 convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId, convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess,CP.UserName CurrentProcess,PPR.CompletedBy ClosedBy
 ,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
-,  PO.Id,PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
+,  PO.Id,PO.EntityId,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
 isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 ,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
   ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
@@ -300,7 +311,7 @@ isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
 								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
 								PSS.CompletedBy ,
-PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
+isnull(PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
 								      MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 

@@ -206,17 +206,38 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
             ShowResult('Please select Atlest one material');
             return false;
         }
+        $scope.detailListNew = [];
         //debugger;
         for (var i = 0; i < $scope.detailList.length; i++) {
-            if ($scope.detailList[i].TransactionQty > $scope.detailList[i].PostingQty) {
-                ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
-                return false;
-            }
-            if ($scope.detailList[i].TransactionQty > $scope.detailList[i].BalanceQty) {
-                ShowResult("Issue qty can not gaterthen  Balance Qty");
-                return false;
-            }
+            if ($scope.detailList[i].check === true) {
 
+
+                if ($scope.detailList[i].TransactionQty > $scope.detailList[i].PostingQty) {
+                    ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
+                    return false;
+                }
+                if ($scope.detailList[i].TransactionQty > $scope.detailList[i].BalanceQty) {
+                    ShowResult("Issue qty can not gaterthen  Balance Qty");
+                    return false;
+                }
+                if ($scope.detailList[i].check === true && baseService.isUndefinedOrNull($scope.detailList[i].TransactionQty)) {
+                    ShowResult("Enter the Qty");
+                    return false;
+                }
+                if ($scope.detailList[i].check === false && !baseService.isUndefinedOrNull($scope.detailList[i].TransactionQty)) {
+                    ShowResult("Enter the Qty");
+                    return false;
+                }
+                if ($scope.detailList[i].check === true && $scope.detailList[i].TransactionQty===0) {
+                    ShowResult("Enter the Qty");
+                    return false;
+                }
+                if ($scope.detailList[i].check === false && $scope.detailList[i].TransactionQty === 0) {
+                    ShowResult("Enter the Qty");
+                    return false;
+                }
+                $scope.detailListNew.push($scope.detailList[i]);
+            }
 
         }
         //for (var i = 0; i < $scope.detailList.length; i++) {
@@ -232,7 +253,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
                 method: 'POST'
                 , url: $scope.saveUrl
                 , data: {
-                    entities: $scope.detailList
+                    entities: $scope.detailListNew
                     , specificStockList: $scope.specificStockList
                     , inventoryIssue: $scope.productNew
                     , IssueTypeStatus: UIStatus
