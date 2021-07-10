@@ -56,13 +56,13 @@ function voucherParkController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.message_confirmation = "Are you sure to Park Mode?";
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
-    $scope.park = function (vId) {
+    $scope.park = function (vId, vSourceType) {
         $http({
             method: "POST",
             url: $scope.parkUrl,
             data: {
                 "voucherId": vId,
-                "sourceType":sourceType
+                "sourceType": vSourceType
             },
             dataType: "JSON"
         }).then(function successCallback(response) {

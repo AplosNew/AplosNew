@@ -11695,7 +11695,7 @@ INNER JOIN
                                                                        ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
                                         LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = EmpSlr.SalaryHeadID
 
-                                                WHERE EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId = '" + plantId + @"'";
+                                                WHERE ISNULL(EmpSlr.DisbusmentAmount,0)<>0 AND EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId = '" + plantId + @"'";
                 if (parameters.Count > 0)
                 {
                     if (parameters.Keys.ElementAt(0) != "")
