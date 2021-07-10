@@ -19,7 +19,8 @@ namespace Aplos.Areas.Productions.Controllers
     public class MarkerController : BaseController
     {
         #region Constructor
-        string TableName = "dbo.Shade";
+        string TableName = "dbo.MarkerMaster";
+        string DetailTableName = "dbo.MarkerDetails";
         private readonly ISqlRepository _sqlRepository;
         public MarkerController(ISqlRepository R)
         {

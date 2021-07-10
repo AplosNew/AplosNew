@@ -1103,5 +1103,63 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         #endregion Acceptance Liability Maturity
+
+        #region Others liability
+        [HttpPost, Authorize]
+        public ActionResult GetOthersLiabilityDataList()
+        {
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(new { DATA = accountsStatusDashboardService.GetOthersLiabilityDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+        }
+
+        //Others Liability Summary Report
+        [HttpGet, Authorize]
+        public ActionResult OthersLiabilitySummaryReport(string[] othersLiabilityList)
+        {
+
+            try
+            {
+                //if (string.IsNullOrEmpty(MasterLCList))
+                //    throw new Exception("Please select at least one Invoice");
+
+                string othersLiabList = "";
+
+                foreach (var item in othersLiabilityList)
+                {
+                    if (string.IsNullOrEmpty(othersLiabList))
+                    {
+                        othersLiabList += "''," + item;
+                    }
+                    else
+                    {
+                        othersLiabList += "," + item;
+                    }
+
+                }
+
+                //if (string.IsNullOrEmpty(masterLCList))
+                //   throw new Exception("Please select at least one Invoice");
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+                ExcelEngine excelEngine = new ExcelEngine();
+                IWorkbook workbook = accountsStatusDashboardService.GetOthersLiabilitySummaryReport(excelEngine, othersLiabList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+
+                string strFileName = "OthersLiabilitySummary.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+            return null;
+        }
+
+        #endregion Others Liability
     }
 }

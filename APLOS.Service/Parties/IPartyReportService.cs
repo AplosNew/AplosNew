@@ -19,6 +19,9 @@ namespace Library.Service.Parties
 
         IWorkbook PartyReport(string type, string companyGroupId, string companyId, string plantId);
         IWorkbook GetPartyOutstandingReport(string companyGroupId, string companyId, string plantId, string plantName, PartyType partyType, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId);
-        
+        IWorkbook GetPartyPaymentStatusReportGL(string companyGroupId, string companyId, string plantId, string plantName, PartyType partyType, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId);
+        IWorkbook GetPartyPaymentStatusReportGroupByGLXls(string companyGroupId, string companyId, string plantId, string plantName, PartyType partyType, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId);
+        IWorkbook GetPartyPaymentStatusLedgerReport3(string companyGroupId, string companyId, string plantId, string plantName, PartyType partyType, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId);
+        IWorkbook GetPartyPaymentStatusLedgerReportXls(string companyGroupId, string companyId, string plantId, string plantName, PartyType partyType, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId);
     }
 }

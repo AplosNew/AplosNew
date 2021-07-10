@@ -1838,6 +1838,7 @@
     <Content Include="Areas\OrderManagements\Scripts\TermsAndConditionsController.js" />
     <Content Include="Areas\Organizations\Scripts\DesignationBudgetController.js" />
     <Content Include="Areas\Organizations\Scripts\PositionGroupingDataController.js" />
+    <Content Include="Areas\Parties\Scripts\partyPaymentStatusReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\DeductionInvestmentMasterController.js" />
     <Content Include="Areas\Payrolls\Scripts\ESICStatementsCompanyController.js" />
     <Content Include="Areas\Payrolls\Scripts\GraruityInsuranceReportController.js" />
@@ -3535,6 +3536,7 @@
     <Content Include="Areas\Productions\Views\FabricWidth\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\Shade\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\Marker\Aplos.cshtml" />
+    <Content Include="Areas\Parties\Views\PartyPaymentStatusReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

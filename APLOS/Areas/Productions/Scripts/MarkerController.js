@@ -148,7 +148,9 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         FGArticle: null,
         FabricWidthId: null,
         ShrinkageGroupId: null,
+        CharacteristicsId: null,
         ShadeId: null,
+        Length: null,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -175,7 +177,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         $http({
             method: 'POST',
             url: $scope.saveUrl,
-            data: { 'data': $scope.ModelNew },
+            data: { 'data': $scope.ModelNew, 'details': $scope.FGCharacteristicsValueList },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {

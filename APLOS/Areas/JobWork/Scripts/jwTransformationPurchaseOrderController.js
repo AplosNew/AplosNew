@@ -88,18 +88,20 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.SelectedMaterialPlanningTabList = [];
     $scope.JobWorkActivityList = [];
 
-    $http({
-        method: 'GET',
-        url: $scope.pathJWCBO + 'getactivitylistTransformation',
-    }).then(function successCallback(response) {
-        $scope.JobWorkActivityList = response.data;
-
-    });
+    $scope.GetJWActivityListByPOType = function () {
+        $http({
+            method: 'GET',
+            url: $scope.pathJWCBO + 'getactivitylistTransformation?ContractType=' + $scope.productNew.POType,
+        }).then(function successCallback(response) {
+            $scope.JobWorkActivityList = response.data;
+        });
+    }
+  
 
     $scope.GetJWItems = function () {
         $http({
             method: 'GET',
-            url: $scope.pathJWCBO + 'getTransformationjobworkitemlist?ActivityId=' + $scope.detailModel.JobActivityId,
+            url: $scope.pathJWCBO + 'getTransformationjobworkitemlist?ActivityId=' + $scope.detailModel.JobActivityId + '&ContractType=' + $scope.productNew.POType,
         }).then(function successCallback(response) {
             $scope.JobWorkItemMstList = response.data;
             $scope.detailModel.OutputMaterialUOMId = null;
@@ -110,17 +112,20 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
     $scope.GetTransmstList = [];
     $scope.GetJWitemDataFromTrans = function () {
-        $http({
-            method: 'GET',
-            url: $scope.pathJWCBO + 'GetJWitemDataFromTrans?ActivityId=' + $scope.detailModel.JobActivityId + '&JWItemId=' + $scope.detailModel.JobWorkItemMasterId,
-        }).then(function successCallback(response) {
-            $scope.GetTransmstList = response.data;
-            if ($scope.GetTransmstList.length > 0) {
+        if ($scope.productNew.POType == "OSTransformationPO") {
+            $http({
+                method: 'GET',
+                url: $scope.pathJWCBO + 'GetJWitemDataFromTrans?ActivityId=' + $scope.detailModel.JobActivityId + '&JWItemId=' + $scope.detailModel.JobWorkItemMasterId + '&ContractType=' + $scope.productNew.POType,
+            }).then(function successCallback(response) {
+                $scope.GetTransmstList = response.data;
+                if ($scope.GetTransmstList.length > 0) {
 
-                $scope.detailModel.ByProductApplicable = $scope.GetTransmstList[0].ByProductApplicable;
-            }
-        });
+                    $scope.detailModel.ByProductApplicable = $scope.GetTransmstList[0].ByProductApplicable;
+                }
+            });
+        }   
     }
+
     $http({
         method: 'GET',
         url: $scope.pathJWCBO + 'getmateriallocation/',
@@ -135,24 +140,24 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.OMatUOMList = response.data;
     });
 
-    $scope.GetArticle = function () {
-        $scope.ArticleList = [];
-        $http({
-            method: 'GET',
-            url: $scope.pathJWCBO + 'getarticlecode?JobWorkItemId=' + $scope.detailModel.JobWorkItemMasterId,
-        }).then(function successCallback(response) {
-            $scope.ArticleList = response.data;
-            if ($scope.ArticleList.length > 0) {
-                $scope.detailModel.ArticleCodeId = $scope.ArticleList[0].Value;
+    //$scope.GetArticle = function () {
+    //    $scope.ArticleList = [];
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.pathJWCBO + 'getarticlecode?JobWorkItemId=' + $scope.detailModel.JobWorkItemMasterId,
+    //    }).then(function successCallback(response) {
+    //        $scope.ArticleList = response.data;
+    //        if ($scope.ArticleList.length > 0) {
+    //            $scope.detailModel.ArticleCodeId = $scope.ArticleList[0].Value;
 
-            }
-        });
-    }
+    //        }
+    //    });
+    //}
     $scope.GetRate = function () {
         $scope.RateList = [];
         $http({
             method: 'GET',
-            url: $scope.pathJWCBO + 'gettransformationrateapplylist?JobWorkItemId=' + $scope.detailModel.JobWorkItemMasterId + '&ActivityId=' + $scope.detailModel.JobActivityId,
+            url: $scope.pathJWCBO + 'gettransformationrateapplylist?JobWorkItemId=' + $scope.detailModel.JobWorkItemMasterId + '&ActivityId=' + $scope.detailModel.JobActivityId + '&ContractType=' + $scope.productNew.POType,
         }).then(function successCallback(response) {
             $scope.RateList = response.data;
             if ($scope.RateList.length > 0) {
@@ -183,7 +188,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.CurrencyyyList = [];
         $http({
             method: 'GET',
-            url: $scope.pathJWCBO + 'gettransformationcurrency?JobWorkItemId=' + $scope.detailModel.JobWorkItemMasterId + '&ActivityId=' + $scope.detailModel.JobActivityId,
+            url: $scope.pathJWCBO + 'gettransformationcurrency?JobWorkItemId=' + $scope.detailModel.JobWorkItemMasterId + '&ActivityId=' + $scope.detailModel.JobActivityId + '&ContractType=' + $scope.productNew.POType,
         }).then(function successCallback(response) {
             $scope.CurrencyyyList = response.data;
             if ($scope.CurrencyyyList.length > 0) {
@@ -254,9 +259,10 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     }
 
     $scope.MaterialMstArticleClear = function () {
-        $scope.detailModel.ArticleCodeId = null;
+   //     $scope.detailModel.ArticleCodeId = null;
         $scope.detailModel.ArticleName = null;
         $scope.detailModel.ArticleCode = null;
+        $scope.detailModel.ArticleId = null;
 
     };
     $scope.closeMaterialArticlePopUp = function (popupName) {
@@ -266,7 +272,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.setMaterialArticleData = function (obj) {
         var data = obj.data;
         $scope.detailModel.ArticleCode = data.ArticleCode;
-        $scope.detailModel.ArticleCodeId = data.ArticleId;
+  //      $scope.detailModel.ArticleCodeId = data.ArticleId;
         $scope.detailModel.ArticleName = data.StandardName;
         $scope.detailModel.ArticleId = data.ArticleId;
         angular.element(document.querySelector('#MaterialArticlePopUp')).modal('hide');
@@ -537,6 +543,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         , SystemFileName: null
         , Description: null
         , Remarks: null
+        , POType: null
 
         ,Date: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
         Time: _Time,
@@ -550,6 +557,18 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     };
     $scope.productNew = Object.assign({}, $scope.products);
     $scope.product = Object.assign({}, $scope.products);
+
+    $scope.productNew.POType = "OSTransformationPO";
+    $scope.SetPOType = function () {
+        if ($scope.productNew.POType == "OSTransformationPO") {
+            $scope.productNew.POType = "OSTransformationPO";
+         //   alert($scope.productNew.POType);
+        }
+        else {
+            $scope.productNew.POType == "OSValueAddedPO";
+     //       alert($scope.productNew.POType);
+        }
+    }
 
 
     $scope.OrderSpecific = $scope.productNew.OrderSpecific;
@@ -746,6 +765,11 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.productNew.ProcessEndDate = x.data.TConProcessEndDate;
         $scope.productNew.ContractClosingDate = x.data.TConContractClosingDate;
         $scope.productNew.Time = x.data.TConTime;
+        $scope.productNew.POType = x.data.POType;
+        //if ($scope.productNew.POType == "OSTransformationPO") {
+           
+        //}
+        
 
         //$scope.getJwActivityId($scope.productNew.Id);
         $scope.getPoChilddata();
@@ -1693,6 +1717,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.detailModel = Object.assign({}, $scope.detailTempModel);
         //$scope.MatPlanning = Object.assign({}, $scope.MatPlanningModelTemp);
         angular.element(document.querySelector('#detailPopUp')).modal('show');
+        $scope.GetJWActivityListByPOType();
     };
 
     $scope.GetMatMstJW = [];
@@ -1704,10 +1729,19 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         }).then(function successCallback(response) {
             $scope.GetMatMstJW = response.data;
             if ($scope.GetMatMstJW.length > 0) {
-                $scope.detailModel.MaterialMasterId = $scope.GetMatMstJW[0].Id;
-                $scope.detailModel.MaterialName = $scope.GetMatMstJW[0].Material;
-                $scope.detailModel.MaterialCode = $scope.GetMatMstJW[0].Code;
-                $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].UnitId;
+                if ($scope.GetMatMstJW[0].Id != null) {
+                    $scope.detailModel.MaterialMasterId = $scope.GetMatMstJW[0].Id;
+                    $scope.detailModel.MaterialName = $scope.GetMatMstJW[0].Material;
+                    $scope.detailModel.MaterialCode = $scope.GetMatMstJW[0].Code;
+                    $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].UnitId;
+                }
+                else {
+                    $scope.detailModel.MaterialMasterId = null;
+                    $scope.detailModel.MaterialName = null;
+                    $scope.detailModel.MaterialCode = null;
+                    $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].UnitId;
+                }
+                
             }
         });
     }
@@ -1806,14 +1840,17 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             ShowResult('Please select Job Work Out Put Item', 'failure', 'detailPopUp');
             return false;
         }
-        if (baseService.isUndefinedOrNull($scope.detailModel.MaterialName)) {
-            ShowResult('Please select Material', 'failure', 'detailPopUp');
-            return false;
+        //if (baseService.isUndefinedOrNull($scope.detailModel.MaterialName)) {
+        //    ShowResult('Please select Material', 'failure', 'detailPopUp');
+        //    return false;
+        //}
+        if (!baseService.isUndefinedOrNull($scope.detailModel.MaterialName)) {
+            if (baseService.isUndefinedOrNull($scope.detailModel.ArticleName)) {
+                ShowResult('Please select Article', 'failure', 'detailPopUp');
+                return false;
+            }
         }
-        if (baseService.isUndefinedOrNull($scope.detailModel.ArticleName)) {
-            ShowResult('Please select Article', 'failure', 'detailPopUp');
-            return false;
-        }
+        
         if (baseService.isUndefinedOrNull($scope.detailModel.MaterialLocationId)) {
             ShowResult('Please select Material Storage Location', 'failure', 'detailPopUp');
             return false;
@@ -1831,7 +1868,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             return false;
         }
         if (baseService.isUndefinedOrNull($scope.detailModel.OutputMaterialUOMId)) {
-            ShowResult('Please select Material Specification', 'failure', 'detailPopUp');
+            ShowResult('Please select UOM', 'failure', 'detailPopUp');
             return false;
         }
         if (baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) || $scope.detailModel.TransactionQty==='0') {
@@ -1846,10 +1883,14 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             ShowResult('Please select Required Capacity', 'failure', 'detailPopUp');
             return false;
         }
-        if (baseService.isUndefinedOrNull($scope.detailModel.ByProductApplicable)) {
-            ShowResult('Please select ByProduct Applicable', 'failure', 'detailPopUp');
-            return false;
+
+        if ($scope.productNew.POType == "OSTransformationPO") {
+            if (baseService.isUndefinedOrNull($scope.detailModel.ByProductApplicable)) {
+                ShowResult('Please select ByProduct Applicable', 'failure', 'detailPopUp');
+                return false;
+            }
         }
+ 
         if (baseService.isUndefinedOrNull($scope.detailModel.RateApplyId)) {
             ShowResult('Please select Rate Apply', 'failure', 'detailPopUp');
             return false;
@@ -3543,8 +3584,63 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                 }
             }
         }
+    }
+
+    // Get Input Article
+
+    // #region field
+
+    $scope.InpArticleMstList = [];
+    $scope.InputArticlePopUp = function (RowData) {
+        angular.element(document.querySelector("#InpArticlePopUp")).modal("show");
+        $scope.getInpArticleData(RowData);
 
     }
+    $scope.getInpArticleData = function (RowData) {
+        $scope.InpArticleMstList = [];
+
+        for (var i = 0; i < $scope.MatInputList.length > 0; i++) {
+            if ($scope.MatInputList[i].Id === RowData.Id) {
+                $scope.MatMstId = $scope.MatInputList[i].InputMaterialId;
+                $scope.a = i;
+            }
+        }
+
+        $http({
+            method: 'POST',
+            data: { MaterialMstId: $scope.MatMstId },
+            url: $scope.path + 'LoadInputArticle'
+        }).then(function successCallback(response) {
+            $scope.InpArticleMstList = response.data;
+        });
+    }
+
+    $scope.BPMaterialMstArticleClear = function (data) {
+        for (var i = 0; i < $scope.MatInputList.length > 0; i++) {
+            if ($scope.MatInputList[i].Id === data.Id) {
+
+                $scope.MatInputList[i].ArticleId = null;
+                $scope.MatInputList[i].InputArticleCode = null;
+                $scope.MatInputList[i].InputArticleName = null;
+            }
+        }
+    };
+
+    $scope.closeInpArticlePopUp = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+
+    }
+    $scope.setInpArticleData = function (obj) {
+        var b = $scope.a;
+        var data = obj.data;
+        $scope.MatInputList[b].ArticleId = data.ArticleId;
+        $scope.MatInputList[b].InputArticleCode = data.ArticleCode;
+        $scope.MatInputList[b].InputArticleName = data.StandardName;
+        //$scope.SelectedArticleId = data.ArticleId;
+        //$scope.GetByDefaultRate($scope.a);
+        //$scope.GetLotNumberList($scope.a);
+        angular.element(document.querySelector('#InpArticlePopUp')).modal('hide');
+    };
 
 
     $scope.MaterialInputModelTemp = {
@@ -3567,11 +3663,22 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.SaveMaterialInputTab = function () {
         $scope.$broadcast('show-errors-check-validity');
         var MatInputSelData = [];
+        try {
         for (var i = 0; i < $scope.MatInputList.length; i++) {
             if ($scope.MatInputList[i].isToBeSelect == true)
-                MatInputSelData.push($scope.MatInputList[i]);
+                if ($scope.MatInputList[i].InputMaterialId !== null) {
+                    if ($scope.MatInputList[i].ArticleId == null) {
+                        throw 'Please Select Article';
+                    }
+                    else {
+                        MatInputSelData.push($scope.MatInputList[i]);
+                    }
+                }
+                else {
+                    MatInputSelData.push($scope.MatInputList[i]);
+                }     
         }
-        try {
+       
             if (MatInputSelData.length == 0) {
                 throw 'Please Select at least one Material Input';
             }
@@ -3823,11 +3930,25 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             for (var i = 0; i < $scope.ByProductMasterList.length; i++) {
                 if ($scope.ByProductMasterList[i].isSelected == true) {
                     if ($scope.ByProductMasterList[i].StandardRate > 0) {
-                        checkedData.push($scope.ByProductMasterList[i]);
+
+                        if ($scope.ByProductMasterList[i].BPMaterialId !== null) {
+                            if (!baseService.isUndefinedOrNull($scope.ByProductMasterList[i].BPArticleId)) {
+                                checkedData.push($scope.ByProductMasterList[i]);
+                            }
+                            else {
+                                throw 'Please Select Article';
+                            }
+                        }
+                        else {
+                            checkedData.push($scope.ByProductMasterList[i]);
+                        }
+
+                   //     checkedData.push($scope.ByProductMasterList[i]);
                     }
                     else {
                         throw 'Standard Rate should be greater than zero';
                     }
+                   
                 }
             }
 
@@ -3902,7 +4023,14 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             $scope.PrintTabId = data.Id;
 
             var reportFormat = "Excel";
-            window.open('JobWork/JobWorkValueAddedContract/GetTransformationContractReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+            if (data.POType == "OSTransformationPO") {
+                window.open('JobWork/JobWorkValueAddedContract/GetTransformationContractReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+            }
+
+            if (data.POType == "OSValueAddedPO") {
+                window.open('JobWork/JobWorkValueAddedContract/GetValueAddedPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
+            }
+           
 
     //        var TabType = data.TabType;
             //if (TabType == "Value Added") {
@@ -3922,6 +4050,24 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
         }
     };
+
+    //$scope.showTcontract = function () {
+    //    if ($scope.productNew.Transformation == "Yes") {
+    //        $scope.productNew.ValueAdded = null;
+    //    }
+    //    else {
+    //        $scope.productNew.Transformation = null;
+    //    }
+    //}
+
+    //$scope.showValcontract = function () {
+    //    if ($scope.productNew.ValueAdded == "Yes") {
+    //        $scope.productNew.Transformation = null;
+    //    }
+    //    else {
+    //        $scope.productNew.ValueAdded = null;
+    //    }
+    //}
 
 
     //end

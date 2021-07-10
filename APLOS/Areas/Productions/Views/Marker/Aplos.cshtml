@@ -30,11 +30,20 @@
                     <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
                 </div>
             </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Length</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Length" ng-model="ModelNew.Length" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+                </div>
+            </div>
             <div class="form-group">
-                <label class="col-sm-4 control-label">Febric Width</label>
+                <label class="col-sm-4 control-label">Fabric Width</label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select name="UOM" class="form-control" ng-model="ModelNew.FabricWidthId" ng-options="item.Id as item.FabricWidthName for item in FabricWidthList" tabindex="13"></select>
+                        <select name="UOM" class="form-control" ng-model="ModelNew.FabricWidthId" tabindex="13">
+                            <option value=""></option>
+                            <option ng-repeat="item in FabricWidthList" value="{{item.Id}} ">{{ item.FabricWidthName }}</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -48,7 +57,8 @@
                 <label class="col-sm-4 control-label">SKU</label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select name="UOM" id="SKU" class="form-control" ng-model="ModelNew.CharacteristicsId" ng-options="item.Value as item.Text for item in characteristicsList" tabindex="13" ng-change="GetFGCharacteristicsValueCbo()"></select>
+                        <select name="UOM" id="SKU" class="form-control" ng-model="ModelNew.CharacteristicsId" ng-options="item.Value as item.Text for item in characteristicsList" tabindex="13" ng-change="GetFGCharacteristicsValueCbo()">
+                        </select>
                     </div>
                 </div>
             </div>
@@ -80,7 +90,10 @@
                 <label class="col-sm-4 control-label">Shrinkage Group</label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select name="UOM" class="form-control" ng-model="ModelNew.ShrinkageGroupId" ng-options="item.Id as item.ShrinkageGroupName for item in ShrinkageGroupList" tabindex="13"></select>
+                        <select name="UOM" class="form-control" ng-model="ModelNew.ShrinkageGroupId" tabindex="13">
+                            <option value=""></option>
+                            <option ng-repeat="item in ShrinkageGroupList" value="{{item.Id}} ">{{ item.ShrinkageGroupName }}</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -88,16 +101,14 @@
                 <label class="col-sm-4 control-label">Shade</label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select name="UOM" class="form-control" ng-model="ModelNew.ShadeId" ng-options="item.Id as item.ShadeName for item in ShadeList" tabindex="13"></select>
+                        <select name="UOM" class="form-control" ng-model="ModelNew.ShadeId" tabindex="13">
+                            <option value=""></option>
+                            <option ng-repeat="item in ShadeList" value="{{item.Id}} ">{{ item.ShadeName }}</option>
+                        </select>
                     </div>
                 </div>
             </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Length</label>
-                <div class="col-sm-8 show-message">
-                    <input type="number" name="Length" ng-model="ModelNew.Length" class="form-control" maxlength="15" step="0.1" required tabindex="3">
-                </div>
-            </div>
+            
             <div class="form-group">
                 <label class="col-sm-4 control-label">Remarks</label>
                 <div class="col-sm-8">
@@ -303,162 +314,4 @@
         </div>
     </div>
 </div>
-
-<!-- #region First Characteristics -->
-<div class="modal fade site-modal in" id="firstPopup" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">SKU <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-element-ctrl form-horizontal">
-
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>{{ProductionSummaryDetail[0].FirstChar}}</th>
-                                <th>Qty</th>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="x in ProductionSummaryDetail">
-                                <td>{{x.FirstCharValue}}</td>
-                                <td><input type="text" class="form-control" ng-model="x.Qty" ng-change="countProductQty();" n-decimals="2"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="common-btn" style="padding-right: 15px;">
-                    <ul class="list-inline text-right">
-                        <li><button ng-click="SaveMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
-                        <li><button ng-click="closeCharPopUp();" class="btn"><i class=""></i> Close</button></li>
-                    </ul>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div>
-<!-- #endregion First Characteristics -->
-<!-- #region Second Characteristics -->
-<div class="modal fade site-modal in" id="secondPopup" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">SKU <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body">
-                <div class="modal-body">
-                    <div class="col-xs-12 col-sm-6 col-md-6 form-elements">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Characteristics Value</label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="CharacteristicsValueId" name="Characteristics Value" ng-change="getCharInfo();"
-                                            ng-options="item.Value as item.Text for item in characteristicsValueList">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="col-xs-12">
-                        <div class="form-elements form-horizontal table-responsive modal-table">
-                            <div class="table-responsive modal-table">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>{{ProductionSummaryDetail[0].SecondChar}}</th>
-                                            <th>Qty</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr ng-repeat="x in ProductionSummaryDetail">
-                                            <td>{{x.SecondCharValue}}</td>
-                                            <td><input type="text" n-decimals="2" class="form-control" ng-model="x.Qty" ng-change="countProductQty();"></td>
-                                        </tr>
-
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="clearfix"></div>
-                <div class="common-btn" style="padding-right: 15px;">
-                    <ul class="list-inline text-right">
-                        <li><button ng-click="SaveMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
-                        <li><button ng-click="closeCharPopUp();" class="btn">Close</button></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- #endregion Second Characteristics -->
-<!-- #region Third Characteristics -->
-<div class="modal fade site-modal in" id="thirdPopup" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">SKU <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">{{char1.Name}}<sup>*</sup></label>
-                        <div class="col-sm-8">
-                            <div class="select-style">
-                                <select name="Order Status" class="form-control" ng-model="char1.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
-                                    <option value=""></option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>{{rowName}}</th>
-                            <th ng-repeat="x in skuList[0].childList">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char3.Id }:true"
-                                            ng-change="chvChange(x.CharacteristicsValueId, $index);">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index);" class="form-control">
-                                </div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="x in skuList">
-                            <td>
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <input type="text" ng-model="x.ValueFreeText" class="form-control">
-                                </div>
-                            </td>
-                            <td ng-repeat="y in x.childList">
-                                <input type="text" only-numbers ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right">
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="common-btn" style="padding-right: 15px;">
-                    <ul class="list-inline text-right">
-                        <li><button ng-click="charSave();" class="btn"><i class=""></i> Save</button></li>
-                        <li><button ng-click="closeCharPopUp();" class="btn">Close</button></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- #endregion Third Characteristics -->
-
 <confirm-modal></confirm-modal>

@@ -756,7 +756,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
        
         $http({
             method: 'POST',
-            data: { MaterialMstId: $scope.MatMstId },
+            data: { MaterialMstId: $scope.MatMstId, MaterialInputId: $scope.SelectedMaterialInputId },
             url: $scope.path + 'LoadAllMaterialMstArticle'
         }).then(function successCallback(response) {
             $scope.MaterialArticleMstList = response.data;
