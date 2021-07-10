@@ -11,7 +11,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
 
-    //#region Finishing Goods
+    //#region Finishing Goods & Articale
 
     $scope.getMaterial = function (index) {
 
@@ -22,7 +22,14 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
 
     };
 
+    $scope.getArticle = function (index) {
+        $scope.itemIndex = index;
+        $scope.getArticleSearchList($scope.bomNew.FGMaterialMasterId);
+    };
+
     //#endregion
+
+
 
     $scope.getData = function () {
         $http({
