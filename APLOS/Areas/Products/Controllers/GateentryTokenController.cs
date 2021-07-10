@@ -2973,206 +2973,206 @@ namespace Aplos.Areas.Products.Controllers
 
 
             DataTable dtGatenntryRegisterList = _sqlRepository.GetDataTable(@"SELECT  ROW_NUMBER() Over (Order by GE.Id) As [S.N],
-'Gate Entry For GRN' GateEntryFor
-,CG.Id CompanyGroupId
-, CG.UserName CompanyGroup
-,C.UserName Company
-,p.Id PlantId
-,P.UserName PlantName
-,Format(GE.EntryDate,'dd-MMM-yyyy') EntryDate
-,party.UserName PartyName
---,InvParty.UserName InvoicingPartyName
---,DeliParty.UserName DeliveryPartyName
-,GE.Description
-,GE.PackageQty
-,GE.ModeofTransport
-,GE.Bill
-,GE.PersonName
-,GE.MobileNo
-,GE.Remarks
-,Format (GE.GateEntryTime, N'hh:mm tt') GateEntryTime
-,EI.EmployeeName
-,EI1.EmployeeName GateEntryBy
-,GE.GateEntryType
-,GE.LocalImported 
-,IR.Id GRNNo
-,GE.Id GateEntryNo
+							'Gate Entry For GRN' GateEntryFor
+							,CG.Id CompanyGroupId
+							, CG.UserName CompanyGroup
+							,C.UserName Company
+							,p.Id PlantId
+							,P.UserName PlantName
+							,Format(GE.EntryDate,'dd-MMM-yyyy') EntryDate
+							,party.UserName PartyName
+							--,InvParty.UserName InvoicingPartyName
+							--,DeliParty.UserName DeliveryPartyName
+							,GE.Description
+							,cast(CAST(GE.PackageQty AS bigint) as nvarchar(255)) PackageQty
+							,GE.ModeofTransport
+							,GE.Bill
+							,GE.PersonName
+							,GE.MobileNo
+							,GE.Remarks
+							,Format (GE.GateEntryTime, N'hh:mm tt') GateEntryTime
+							,EI.EmployeeName
+							,EI1.EmployeeName GateEntryBy
+							,GE.GateEntryType
+							,GE.LocalImported 
+							,IR.Id GRNNo
+							,GE.Id GateEntryNo
 
---------From Here You have to Add Column--
-,'' GatePassType 
-,'' GatePassStatus
-,'' GatePassDetailId
-,'' GatePassMasterId 
-,'' MaterialMasterId 
-,''  Material 
-, '' ArticleId
-, '' Article
-,'' FirstCharacteristicsId
-,'' FirstCharacteristics
-, ''FirstCharacteristicsValueId
-,  ''FirstCharacteristicsValue
-,''SecondCharacteristicsId
-, ''SecondCharacteristics
-, ''SecondCharacteristicsValueId
-, '' SecondCharacteristicsValue
-,''ThirdCharacteristicsId
-, '' ThirdCharacteristics
-,''ThirdCharacteristicsValueId
-, ''ThirdCharacteristicsValue
-,''MaterialDetail 
-,0 TransactionQty 
-, ''TransactionUoMId 
-, '' UOM
-, ''GPDRemarks 
-, 0 IsReturnable
-,'' GPDReturnableDate
-,0 IsMutilated 
-, 0 Rate
-, '' ChallanNo 
-, ''ChallanNoDetailId 
-, ''PurposeofGatePass 
-,''ConsignmentNo 
-, '' GPDDriverName
---- Master Table
+							--------From Here You have to Add Column--
+							,'' GatePassType 
+							,'' GatePassStatus
+							,'' GatePassDetailId
+							,'' GatePassMasterId 
+							,'' MaterialMasterId 
+							,''  Material 
+							, '' ArticleId
+							, '' Article
+							,'' FirstCharacteristicsId
+							,'' FirstCharacteristics
+							, ''FirstCharacteristicsValueId
+							,  ''FirstCharacteristicsValue
+							,''SecondCharacteristicsId
+							, ''SecondCharacteristics
+							, ''SecondCharacteristicsValueId
+							, '' SecondCharacteristicsValue
+							,''ThirdCharacteristicsId
+							, '' ThirdCharacteristics
+							,''ThirdCharacteristicsValueId
+							, ''ThirdCharacteristicsValue
+							,''MaterialDetail 
+							,0 TransactionQty 
+							, ''TransactionUoMId 
+							, '' UOM
+							, ''GPDRemarks 
+							, 0 IsReturnable
+							,'' GPDReturnableDate
+							,0 IsMutilated 
+							, 0 Rate
+							, '' ChallanNo 
+							, ''ChallanNoDetailId 
+							, ''PurposeofGatePass 
+							,''ConsignmentNo 
+							, '' GPDDriverName
+							--- Master Table
 
-,'' GPMReturnableDate
-, ''FromEmployeeId 
-,'' FromEmployee
-,''Through
-,''CourierName
-,'' RunnerEmployeeId
-,'' ToType
-,'' ToPartyCode 
-,''  ToParty
-,'' ToBuyerId
-,'' ToBuyer
-,''ToPlantId
-, '' ToPlant
-, ''ToUnitId 
-, '' ToUnit
-,''ToDivisionId
-, '' ToDivision
-,'' ToDepartmentId
-,'' ToDepartment
-,''DepartmentEmployeeId
-, '' DepartmentEmployee
-, ''OtherCompanyName
-,''GatePassPersonName
-,''GatePassMobileNo
-,''Address
-,'' GPMRemarks
-,''CheckedBy
-, '' CheckedByEmployee
-, ''CheckedByStatus 
-, ''CheckedHoldRejectReason
-, ''ApprovedBy 
-, '' ApprovedByEmployee
-,''ApprovedHoldRejectReason
-, ''SenderSecurityEmployeeId 
-, '' SenderSecurityEmployee 
-, ''SenderSecurityApprovedStatus
-,''ReceiverSecurityEmployeeId 
-,'' ReceiverSecurityEmployee 
-, ''ReceiverSecurityApprovedStatus 
-, ''VendorBuyerOtherCompanyReceivedStatus
-,'' GPMChallanNo 
-, '' TransportAgentMobileNo
-, '' TransportAgentName 
-, '' VehicleNo
-, '' GateOutStatus
-, '' GateRegisterType
-, '' ReceivedChallanNO
-, ''InvoiceNo
-, '' GPMPurposeOfGatePass
-, '' GPMConsignmentNo
-, ''DriverName
-FROM 
-[TRN].[GateEntry] GE
-LEFT JOIN ORG.CompanyGroup CG ON CG.Id=GE.CompanyGroupId
-LEFT JOIN ORG.Company C ON C.Id=GE.CompanyId
-LEFT JOIN ORG.Plant P On P.Id=GE.PlantId
-LEFT JOIN HKP.Party party ON party.Id=GE.PartyId
--- LEFT JOIN HKP.Party InvParty ON party.Id=GE.InvoicingPartyPlantId
---LEFT JOIN HKP.Party DeliParty ON party.Id=GE.DeliveryPartyPlantId
-LEFT JOIN [dbo].[PlantWiseGate] PWG ON PWG.Id=GE.PlantWiseGateId
-LEFT JOIN EmployeeInformation EI ON EI.SystemId=GE.EmployeeId
-LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=GE.EmployeeId
-left Join TRN.InventoryReceive IR On IR.GateEntryNo=GE.Id
+							,'' GPMReturnableDate
+							, ''FromEmployeeId 
+							,'' FromEmployee
+							,''Through
+							,''CourierName
+							,'' RunnerEmployeeId
+							,'' ToType
+							,'' ToPartyCode 
+							,''  ToParty
+							,'' ToBuyerId
+							,'' ToBuyer
+							,''ToPlantId
+							, '' ToPlant
+							, ''ToUnitId 
+							, '' ToUnit
+							,''ToDivisionId
+							, '' ToDivision
+							,'' ToDepartmentId
+							,'' ToDepartment
+							,''DepartmentEmployeeId
+							, '' DepartmentEmployee
+							, ''OtherCompanyName
+							,''GatePassPersonName
+							,''GatePassMobileNo
+							,''Address
+							,'' GPMRemarks
+							,''CheckedBy
+							, '' CheckedByEmployee
+							, ''CheckedByStatus 
+							, ''CheckedHoldRejectReason
+							, ''ApprovedBy 
+							, '' ApprovedByEmployee
+							,''ApprovedHoldRejectReason
+							, ''SenderSecurityEmployeeId 
+							, '' SenderSecurityEmployee 
+							, ''SenderSecurityApprovedStatus
+							,''ReceiverSecurityEmployeeId 
+							,'' ReceiverSecurityEmployee 
+							, ''ReceiverSecurityApprovedStatus 
+							, ''VendorBuyerOtherCompanyReceivedStatus
+							,'' GPMChallanNo 
+							, '' TransportAgentMobileNo
+							, '' TransportAgentName 
+							, '' VehicleNo
+							, '' GateOutStatus
+							, '' GateRegisterType
+							, '' ReceivedChallanNO
+							, ''InvoiceNo
+							, '' GPMPurposeOfGatePass
+							, '' GPMConsignmentNo
+							, ''DriverName
+							FROM 
+							[TRN].[GateEntry] GE
+							LEFT JOIN ORG.CompanyGroup CG ON CG.Id=GE.CompanyGroupId
+							LEFT JOIN ORG.Company C ON C.Id=GE.CompanyId
+							LEFT JOIN ORG.Plant P On P.Id=GE.PlantId
+							LEFT JOIN HKP.Party party ON party.Id=GE.PartyId
+							-- LEFT JOIN HKP.Party InvParty ON party.Id=GE.InvoicingPartyPlantId
+							--LEFT JOIN HKP.Party DeliParty ON party.Id=GE.DeliveryPartyPlantId
+							LEFT JOIN [dbo].[PlantWiseGate] PWG ON PWG.Id=GE.PlantWiseGateId
+							LEFT JOIN EmployeeInformation EI ON EI.SystemId=GE.EmployeeId
+							LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=GE.EmployeeId
+							left Join TRN.InventoryReceive IR On IR.GateEntryNo=GE.Id
 
 					where GE.EntryDate between '" + fromDate +@"' AND '"+ toDate + @"'
 
 					UNION ALL
 
-select  ROW_NUMBER() Over (Order by gpm.Id) As [S.N],
-'Gate Pass For Material' GateEntryFor
-, gpm.CompanyGroupId
-, cg.UserName as CompanyGroup
-,'' Company
-,gpm.PlantId 
-, p.UserName as PlantName
-,format(gpm.GatePassEntryDate,'dd-MMM-yyyy') as EntryDate
-,'' PartyName
-,'' Description
-, gpm.NoOfPackages PackageQty
-,'' ModeofTransport
-,'' Bill
-,'' PersonName
-,'' MobileNo
-,'' Remarks
-,'' GateEntryTime
-,'' EmployeeName
-,'' GateEntryBy
-,'' GateEntryType
-,'' LocalImported 
-,'' GRNNo
-,gpm.Id GateEntryNo
---------From Here You have to Add Column--
-, gpm.GatePassType 
-, gpm.GatePassStatus
-,gpd.Id as GatePassDetailId,gpd.GatePassMasterId , gpd.MaterialMasterId ,mm.UserName as Material , gpd.ArticleId, mma.StandardName as Article,
-gpd.FirstCharacteristicsId, cf.UserName as FirstCharacteristics, gpd.FirstCharacteristicsValueId, cvf.UserName as FirstCharacteristicsValue,
-gpd.SecondCharacteristicsId, cs.UserName as SecondCharacteristics, gpd.SecondCharacteristicsValueId, cvs.UserName as SecondCharacteristicsValue,
-gpd.ThirdCharacteristicsId, ct.UserName as ThirdCharacteristics, gpd.ThirdCharacteristicsValueId, cvt.UserName as ThirdCharacteristicsValue,
-gpd.MaterialDetail ,gpd.TransactionQty , gpd.TransactionUoMId , uom.Username as UOM, gpd.Remarks GPDRemarks, gpd.IsReturnable , 
-format(gpd.ReturnableDate,'dd-MMM-yyyy') as GPDReturnableDate,gpd.IsMutilated , gpd.Rate, gpd.ChallanNo , gpd.ChallanNoDetailId , gpd.PurposeofGatePass ,
-gpd.ConsignmentNo , gpd.DriverName as GPDDriverName,
---- Master Table
+						select  ROW_NUMBER() Over (Order by gpm.Id) As [S.N],
+						'Gate Pass For Material' GateEntryFor
+						, gpm.CompanyGroupId
+						, cg.UserName as CompanyGroup
+						,'' Company
+						,gpm.PlantId 
+						, p.UserName as PlantName
+						,format(gpm.GatePassEntryDate,'dd-MMM-yyyy') as EntryDate
+						,'' PartyName
+						,'' Description
+						, gpm.NoOfPackages PackageQty
+						,'' ModeofTransport
+						,'' Bill
+						,'' PersonName
+						,'' MobileNo
+						,'' Remarks
+						,'' GateEntryTime
+						,'' EmployeeName
+						,'' GateEntryBy
+						,'' GateEntryType
+						,'' LocalImported 
+						,'' GRNNo
+						,gpm.Id GateEntryNo
+						--------From Here You have to Add Column--
+						, gpm.GatePassType 
+						, gpm.GatePassStatus
+						,gpd.Id as GatePassDetailId,gpd.GatePassMasterId , gpd.MaterialMasterId ,mm.UserName as Material , gpd.ArticleId, mma.StandardName as Article,
+						gpd.FirstCharacteristicsId, cf.UserName as FirstCharacteristics, gpd.FirstCharacteristicsValueId, cvf.UserName as FirstCharacteristicsValue,
+						gpd.SecondCharacteristicsId, cs.UserName as SecondCharacteristics, gpd.SecondCharacteristicsValueId, cvs.UserName as SecondCharacteristicsValue,
+						gpd.ThirdCharacteristicsId, ct.UserName as ThirdCharacteristics, gpd.ThirdCharacteristicsValueId, cvt.UserName as ThirdCharacteristicsValue,
+						gpd.MaterialDetail ,gpd.TransactionQty , gpd.TransactionUoMId , uom.Username as UOM, gpd.Remarks GPDRemarks, gpd.IsReturnable , 
+						format(gpd.ReturnableDate,'dd-MMM-yyyy') as GPDReturnableDate,gpd.IsMutilated , gpd.Rate, gpd.ChallanNo , gpd.ChallanNoDetailId , gpd.PurposeofGatePass ,
+						gpd.ConsignmentNo , gpd.DriverName as GPDDriverName,
+						--- Master Table
 
-format(gpm.ReturnableDate,'dd-MMM-yyyy') as GPMReturnableDate, gpm.FromEmployeeId ,
-fromemp.EmployeeName as FromEmployee, gpm.Through, gpm.CourierName,gpm.RunnerEmployeeId, gpm.ToType, gpm.ToPartyCode , 
-pty.Username as ToParty, gpm.ToBuyerId, b.UserName as ToBuyer,gpm.ToPlantId, pl.Username as ToPlant, gpm.ToUnitId , u.UserName as ToUnit,
-gpm.ToDivisionId , div.Username as ToDivision,gpm.ToDepartment as ToDepartmentId, dept.UserName as ToDepartment,
-gpm.DepartmentEmployeeId, DeptEmp.EmployeeName as DepartmentEmployee, gpm.OtherCompanyName,gpm.PersonName GatePassPersonName,gpm.MobileNo GatePassMobileNo,gpm.Address,gpm.Remarks as GPMRemarks,
-gpm.CheckedBy, CheckEmp.EmployeeName as CheckedByEmployee, gpm.CheckedByStatus , gpm.CheckedHoldRejectReason, gpm.ApprovedBy , ApprEmp.EmployeeName as ApprovedByEmployee,
-gpm.ApprovedHoldRejectReason, gpm.SenderSecurityEmployeeId , SenderSecEmp.EmployeeName as SenderSecurityEmployee , gpm.SenderSecurityApprovedStatus,
-gpm.ReceiverSecurityEmployeeId , ReceiverSecEmp.EmployeeName as ReceiverSecurityEmployee , gpm.ReceiverSecurityApprovedStatus , gpm.VendorBuyerOtherCompanyReceivedStatus,
-gpm.ChallanNo as GPMChallanNo , gpm.TransportAgentMobileNo, gpm.TransportAgentName , gpm.VehicleNo, gpm.GateOutStatus, gpm.GateRegisterType, gpm.ReceivedChallanNO,
-gpm.InvoiceNo, gpm.PurposeofGatePass as GPMPurposeOfGatePass, gpm.ConsignmentNo as GPMConsignmentNo, gpm.DriverName
-from trn.GatePassDetails gpd
-left join mst.MaterialMaster mm on mm.Id = gpd.MaterialMasterId
-left join mst.MaterialMasterArticle mma on mma.Id = gpd.ArticleId
-left join hkp.Characteristics cf on cf.Id = gpd.FirstCharacteristicsId
-left join hkp.CharacteristicsValue cvf on cvf.Id = gpd.FirstCharacteristicsValueId
-left join hkp.Characteristics cs on cs.Id = gpd.SecondCharacteristicsId
-left join hkp.CharacteristicsValue cvs on cvs.Id = gpd.SecondCharacteristicsValueId
-left join hkp.Characteristics ct on ct.Id = gpd.ThirdCharacteristicsId
-left join hkp.CharacteristicsValue cvt on cvt.Id = gpd.ThirdCharacteristicsValueId
-left join scs.UnitOfMeasurement uom on uom.Id = gpd.TransactionUoMId
-left join trn.GatePassMaster gpm on gpm.Id = gpd.GatePassMasterId
-left join org.CompanyGroup cg on cg.Id = gpm.CompanyGroupId
-left join org.Plant p on p.Id = gpm.PlantId
-left join dbo.EmployeeInformation FromEmp on fromemp.SystemId = gpm.FromEmployeeId
-left join dbo.EmployeeInformation DeptEmp on DeptEmp.SystemId = gpm.DepartmentEmployeeId
-left join dbo.EmployeeInformation CheckEmp on CheckEmp.SystemId = gpm.CheckedBy
-left join dbo.EmployeeInformation ApprEmp on ApprEmp.SystemId = gpm.ApprovedBy
-left join dbo.EmployeeInformation SenderSecEmp on SenderSecEmp.SystemId = gpm.SenderSecurityEmployeeId
-left join dbo.EmployeeInformation ReceiverSecEmp on ReceiverSecEmp.SystemId = gpm.ReceiverSecurityEmployeeId
-left join hkp.Party pty on pty.Id = gpm.ToPartyCode
-left join hkp.Buyer b on b.Id = gpm.ToBuyerId
-left join org.Plant pl on pl.Id = gpm.ToPlantId
-left join org.Unit u on u.Id = gpm.ToUnitId
-left join org.Division div on div.Id= gpm.ToDivisionId
-left join org.Department dept on dept.Id = gpm.ToDepartment
+						format(gpm.ReturnableDate,'dd-MMM-yyyy') as GPMReturnableDate, gpm.FromEmployeeId ,
+						fromemp.EmployeeName as FromEmployee, gpm.Through, gpm.CourierName,gpm.RunnerEmployeeId, gpm.ToType, gpm.ToPartyCode , 
+						pty.Username as ToParty, gpm.ToBuyerId, b.UserName as ToBuyer,gpm.ToPlantId, pl.Username as ToPlant, gpm.ToUnitId , u.UserName as ToUnit,
+						gpm.ToDivisionId , div.Username as ToDivision,gpm.ToDepartment as ToDepartmentId, dept.UserName as ToDepartment,
+						gpm.DepartmentEmployeeId, DeptEmp.EmployeeName as DepartmentEmployee, gpm.OtherCompanyName,gpm.PersonName GatePassPersonName,gpm.MobileNo GatePassMobileNo,gpm.Address,gpm.Remarks as GPMRemarks,
+						gpm.CheckedBy, CheckEmp.EmployeeName as CheckedByEmployee, gpm.CheckedByStatus , gpm.CheckedHoldRejectReason, gpm.ApprovedBy , ApprEmp.EmployeeName as ApprovedByEmployee,
+						gpm.ApprovedHoldRejectReason, gpm.SenderSecurityEmployeeId , SenderSecEmp.EmployeeName as SenderSecurityEmployee , gpm.SenderSecurityApprovedStatus,
+						gpm.ReceiverSecurityEmployeeId , ReceiverSecEmp.EmployeeName as ReceiverSecurityEmployee , gpm.ReceiverSecurityApprovedStatus , gpm.VendorBuyerOtherCompanyReceivedStatus,
+						gpm.ChallanNo as GPMChallanNo , gpm.TransportAgentMobileNo, gpm.TransportAgentName , gpm.VehicleNo, gpm.GateOutStatus, gpm.GateRegisterType, gpm.ReceivedChallanNO,
+						gpm.InvoiceNo, gpm.PurposeofGatePass as GPMPurposeOfGatePass, gpm.ConsignmentNo as GPMConsignmentNo, gpm.DriverName
+						from trn.GatePassDetails gpd
+						left join mst.MaterialMaster mm on mm.Id = gpd.MaterialMasterId
+						left join mst.MaterialMasterArticle mma on mma.Id = gpd.ArticleId
+						left join hkp.Characteristics cf on cf.Id = gpd.FirstCharacteristicsId
+						left join hkp.CharacteristicsValue cvf on cvf.Id = gpd.FirstCharacteristicsValueId
+						left join hkp.Characteristics cs on cs.Id = gpd.SecondCharacteristicsId
+						left join hkp.CharacteristicsValue cvs on cvs.Id = gpd.SecondCharacteristicsValueId
+						left join hkp.Characteristics ct on ct.Id = gpd.ThirdCharacteristicsId
+						left join hkp.CharacteristicsValue cvt on cvt.Id = gpd.ThirdCharacteristicsValueId
+						left join scs.UnitOfMeasurement uom on uom.Id = gpd.TransactionUoMId
+						left join trn.GatePassMaster gpm on gpm.Id = gpd.GatePassMasterId
+						left join org.CompanyGroup cg on cg.Id = gpm.CompanyGroupId
+						left join org.Plant p on p.Id = gpm.PlantId
+						left join dbo.EmployeeInformation FromEmp on fromemp.SystemId = gpm.FromEmployeeId
+						left join dbo.EmployeeInformation DeptEmp on DeptEmp.SystemId = gpm.DepartmentEmployeeId
+						left join dbo.EmployeeInformation CheckEmp on CheckEmp.SystemId = gpm.CheckedBy
+						left join dbo.EmployeeInformation ApprEmp on ApprEmp.SystemId = gpm.ApprovedBy
+						left join dbo.EmployeeInformation SenderSecEmp on SenderSecEmp.SystemId = gpm.SenderSecurityEmployeeId
+						left join dbo.EmployeeInformation ReceiverSecEmp on ReceiverSecEmp.SystemId = gpm.ReceiverSecurityEmployeeId
+						left join hkp.Party pty on pty.Id = gpm.ToPartyCode
+						left join hkp.Buyer b on b.Id = gpm.ToBuyerId
+						left join org.Plant pl on pl.Id = gpm.ToPlantId
+						left join org.Unit u on u.Id = gpm.ToUnitId
+						left join org.Division div on div.Id= gpm.ToDivisionId
+						left join org.Department dept on dept.Id = gpm.ToDepartment
 					where gpm.GatePassEntryDate between '" + fromDate + @"' AND '" + toDate + @"'");
 
             if (dtGatenntryRegisterList.Rows.Count == 0)
@@ -3634,7 +3634,7 @@ left join org.Department dept on dept.Id = gpm.ToDepartment
 				worksheet[ROW, colModeofTransport].Text = dtGatenntryRegisterList.Rows[i]["ModeofTransport"].ToString();
 				worksheet[ROW, colBill].Text = dtGatenntryRegisterList.Rows[i]["Bill"].ToString();
 				worksheet[ROW, colPersonName].Text = dtGatenntryRegisterList.Rows[i]["PersonName"].ToString();
-				worksheet[ROW, colMobileNo].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["MobileNo"].ToString());
+				worksheet[ROW, colMobileNo].Text = dtGatenntryRegisterList.Rows[i]["MobileNo"].ToString();
 				worksheet[ROW, colRemarks].Text = dtGatenntryRegisterList.Rows[i]["Remarks"].ToString();
 				worksheet[ROW, colGateEntryTime].Text = dtGatenntryRegisterList.Rows[i]["GateEntryTime"].ToString();
 				worksheet[ROW, colEmployeeName].Text = dtGatenntryRegisterList.Rows[i]["EmployeeName"].ToString();
