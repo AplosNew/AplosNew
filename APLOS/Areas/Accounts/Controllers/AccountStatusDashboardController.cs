@@ -1073,7 +1073,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #endregion Acceptance Liability Maturity
 
-        #region Acceptance Liability Maturity
+        #region Acceptance Liability 
 
         [HttpPost, Authorize]
         public ActionResult GetAcceptanceLiabilityList(string toDate)
@@ -1102,7 +1102,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
-        #endregion Acceptance Liability Maturity
+        #endregion Acceptance Liability 
 
         #region Others liability
         [HttpPost, Authorize]

@@ -12476,7 +12476,8 @@ group by Id) O60 ON O60.Id=IV.Id
 							LEFT JOIN TRN.Invoice I ON I.PurchaseDocAcceptanceId=PDA.Id
 							LEFT JOIN (SELECT PurchaseDocAcceptanceId,SUM(ISNULL(Amount,0)) LoanAccAmount FROM TRN.LoanAgainstAcceptance WHERE ISNULL(VoucherId,'') ='' GROUP BY PurchaseDocAcceptanceId)LAA ON LAA.PurchaseDocAcceptanceId=PDA.Id  
                             --WHERE PDA.VoucherId <>'' and V.Plantid='" + plantId + "'  " + dateStatus + @"
-                            WHERE PDA.VoucherId <>'' and V.Plantid='" + plantId + @"' and I.ActualDueDate <= '" + toDate + @"'
+                            WHERE PDA.VoucherId <>'' and V.Plantid='" + plantId + @"' 
+                            and I.PostingDate <= '" + toDate + @"'
 
                             AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)-ISNULL(LAA.LoanAccAmount,0)>0
 							ORDER BY I.ActualDueDate ASC ";
@@ -12583,7 +12584,7 @@ group by Id) O60 ON O60.Id=IV.Id
 							LEFT JOIN TRN.Invoice I ON I.PurchaseDocAcceptanceId=PDA.Id
 							LEFT JOIN (SELECT PurchaseDocAcceptanceId,SUM(ISNULL(Amount,0)) LoanAccAmount FROM TRN.LoanAgainstAcceptance WHERE ISNULL(VoucherId,'') ='' GROUP BY PurchaseDocAcceptanceId)LAA ON LAA.PurchaseDocAcceptanceId=PDA.Id  
                          
-                            WHERE PDA.VoucherId <>'' and V.Plantid='" + PlantId + @"' and I.ActualDueDate <= '" + toDate + @"'
+                            WHERE PDA.VoucherId <>'' and V.Plantid='" + PlantId + @"' and I.PostingDate <= '" + toDate + @"'
 
                             AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)-ISNULL(LAA.LoanAccAmount,0)>0
 							ORDER BY I.ActualDueDate ASC ";
@@ -13243,7 +13244,7 @@ group by Id) O60 ON O60.Id=IV.Id
             IWorksheet worksheet = workbook.Worksheets[0];
             try
             {
-                worksheet.Name = "OthersLiabilitySummaryReport";
+                worksheet.Name = "OthersLiabilityWithAdvanceSummaryReport";
 
                 int COL = 1; int ROW = 6;
 
@@ -13401,7 +13402,8 @@ group by Id) O60 ON O60.Id=IV.Id
                         SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,X.PartyId,X.PartyPlantId,X.PartyCode,X.PartyName,X.PartyPlantName
                         --,x.CurrencyCode
                             ,x.PartyCountry
-                  	    ,isnull(sum( x.Advance),0) Advance
+                  	    --,isnull(sum( x.Advance),0) Advance
+         	            ,isnull(Ad.Advance,0)Advance --CHANGE Advance
                         , SUM(X.Gross) Gross
                         ,sum(x.TranDiscountAmount)TranDiscountAmount
 
@@ -13417,8 +13419,8 @@ group by Id) O60 ON O60.Id=IV.Id
                         ,sum(x.DebitNoteAmount) DebitNoteAmount,sum(x.BooksDebitNoteAmount)BooksDebitNoteAmount,sum(x.TaxAmount)BooksTaxAmount
                         ,SUM(X.BooksSetOff) BooksSetOff
                         ,SUM(X.BooksBalance) BooksBalance
-		              	, ActualBalance = isnull(sum (x.BooksBalance),0 )- ISNULL(sum( x.Advance),0)
-
+		              	--, ActualBalance = isnull(sum (x.BooksBalance),0 )- ISNULL(sum( x.Advance),0)
+                         , ActualBalance = isnull(sum (x.BooksBalance),0 )- ISNULL(Ad.Advance,0)--CHANGE
 
                         ,sum(X.ODueMoreThan30) OverDueMoreThan30
 
@@ -13774,8 +13776,15 @@ group by Id) O60 ON O60.Id=IV.Id
 
                         )
                         X
+                						 
+						 --CHANGE********vendor Advance***********
+                        LEFT JOIN (SELECT A.PartyId,sum(A.Amount-A.WrittenOffAmount) Advance FROM TRN.Advance A
+                        where A.PlantId='"+plantId+@"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        group by A.PartyId
+                        ) Ad ON Ad.PartyId=X.PartyId
+
                         --where x.PartyCode='2020100'
-                        GROUP BY PartyId,PartyPlantId,PartyName,PartyPlantName,PartyCode,PartyCountry
+                        GROUP BY X.PartyId,X.PartyPlantId,X.PartyName,X.PartyPlantName,X.PartyCode,X.PartyCountry,Ad.Advance--CHANGE
                             --,CurrencyCode
                              
                             order by X.PartyName";
@@ -14025,11 +14034,11 @@ group by Id) O60 ON O60.Id=IV.Id
                 worksheet[ROW, COL].ColumnWidth = 12;
                 COL++;
 
-                worksheet[ROW, COL].Text = "Advance";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colAdvance = COL;
-                worksheet[ROW, COL].ColumnWidth = 15;
-                COL++;
+                //worksheet[ROW, COL].Text = "Advance";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colAdvance = COL;
+                //worksheet[ROW, COL].ColumnWidth = 15;
+                //COL++;
 
                 worksheet[ROW, COL].Text = "Books Gross";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -14143,7 +14152,8 @@ group by Id) O60 ON O60.Id=IV.Id
                         SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,X.PartyId,X.PartyPlantId,X.PartyCode,X.PartyName,X.PartyPlantName
                         --,x.CurrencyCode
                             ,x.PartyCountry
-                        ,x.Advance
+                  	    --,isnull(sum( x.Advance),0) Advance
+         	            ,isnull(Ad.Advance,0)Advance --CHANGE Advance
                         , SUM(X.Gross) Gross
                         ,sum(x.TranDiscountAmount)TranDiscountAmount
 
@@ -14159,8 +14169,8 @@ group by Id) O60 ON O60.Id=IV.Id
                         ,sum(x.DebitNoteAmount) DebitNoteAmount,sum(x.BooksDebitNoteAmount)BooksDebitNoteAmount,sum(x.TaxAmount)BooksTaxAmount
                         ,SUM(X.BooksSetOff) BooksSetOff
                         ,SUM(X.BooksBalance) BooksBalance
-		               -- , ActualBalance = isnull(sum (x.BooksBalance),0 )- ISNULL(sum( x.Advance),0)
-
+		              	--, ActualBalance = isnull(sum (x.BooksBalance),0 )- ISNULL(sum( x.Advance),0)
+                         , ActualBalance = isnull(sum (x.BooksBalance),0 )- ISNULL(Ad.Advance,0)--CHANGE
 
                         ,sum(X.ODueMoreThan30) OverDueMoreThan30
 
@@ -14238,7 +14248,7 @@ group by Id) O60 ON O60.Id=IV.Id
                         ) Ad ON Ad.PartyId=IV.PartyId
 
 
-                      		LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
+                      				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30 
 							and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
@@ -14516,11 +14526,17 @@ group by Id) O60 ON O60.Id=IV.Id
 
                         )
                         X
+                						 
+						 --CHANGE********vendor Advance***********
+                        LEFT JOIN (SELECT A.PartyId,sum(A.Amount-A.WrittenOffAmount) Advance FROM TRN.Advance A
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        group by A.PartyId
+                        ) Ad ON Ad.PartyId=X.PartyId
+
                         --where x.PartyCode='2020100'
-                        GROUP BY PartyId,PartyPlantId,PartyName,PartyPlantName,PartyCode,PartyCountry
+                        GROUP BY X.PartyId,X.PartyPlantId,X.PartyName,X.PartyPlantName,X.PartyCode,X.PartyCountry,Ad.Advance--CHANGE
                             --,CurrencyCode
-                            ,Advance 
-                            
+                             
                             order by X.PartyName";
 
 
@@ -14565,8 +14581,8 @@ group by Id) O60 ON O60.Id=IV.Id
                     worksheet[ROW, colBooksBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksBalance"].ToString());
                     worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    worksheet[ROW, colAdvance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Advance"].ToString());
-                    worksheet[ROW, colAdvance].NumberFormat = "#,##0.00;(#,##0.00)";
+                    //worksheet[ROW, colAdvance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Advance"].ToString());
+                    //worksheet[ROW, colAdvance].NumberFormat = "#,##0.00;(#,##0.00)";
 
                     //worksheet[ROW, colActualBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["ActualBalance"].ToString());
                     //worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";
