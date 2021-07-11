@@ -470,7 +470,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("ShrinkageGroupController", ShrinkageGroupController)
     .controller("FabricWidthController", FabricWidthController)
     .controller("ShadeController", ShadeController)
-
+    .controller("baseMaterialAndArticleController", baseMaterialAndArticleController)
 
 
 

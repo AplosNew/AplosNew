@@ -1083,11 +1083,11 @@
 							<tr ng-show="inventoryMaterialListPO.length">
 								<th>
 									@*<div class="checkbox-site text-center">
-											<label>
-												<input type="checkbox" ng-click="CheckAll($event);">
-												<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-											</label>
-										</div>*@
+				<label>
+					<input type="checkbox" ng-click="CheckAll($event);">
+					<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+				</label>
+			</div>*@
 								</th>
 								<th ng-show="x.POID !='null' && x.POID!='null'">PO Id</th>
 								<th ng-show="x.InventoryReceiveDetailId !='null' && x.InventoryReceiveDetailId!='null'">PORowId</th> @*ng-show="x.InventoryReceiveDetailId !='null' && x.PurchaseDocAcceptanceDetailId==='null'"*@
@@ -1126,6 +1126,7 @@
 								<th>TotalMaterialAmount(TRN)</th>
 								<th>TotalMaterialAmount(BC)</th>
 								<th>CountryName</th>
+								<th>RefferenceNo</th>
 								<th>MaterialDetail</th>
 								<th>MaterialLotNumber </th>
 								<th>MaterialDiameter</th>
@@ -1171,6 +1172,7 @@
 								<th>TotalMaterialAmount(TRN)</th>
 								<th>TotalMaterialAmount(BC)</th>
 								<th>CountryName</th>
+								<th>RefferenceNo</th>								
 								<th>MaterialDetail</th>
 								<th>MaterialLotNumber </th>
 								<th>MaterialDiameter</th>
@@ -1274,6 +1276,8 @@
 
 
 								<td>{{x.CountryName}}</td>
+								<td>{{x.RefferenceNo}}</td>
+								
 								<td>{{x.MaterialDetail}}</td>
 
 								<td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
@@ -1297,7 +1301,7 @@
 										@*<li><button ng-click="getReceiveTaxListPOValueSet(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Others Info" ><i class="glyphicon glyphicon-info-sign"></i></button></li>*@
 										<li><button ng-click="getReceiveTaxListPO(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
 										@*<li><button ng-click="GRNAllowcationForSOInSavingTime(x, MaterialMasterId,x.InventoryReceiveDetailId,x.PODetailsID)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation For SO" ng-hide="x.PurchaseDocumentAcceptanceId===null">Allocation For SO</button></li>
-											<li><button ng-click="GRNAllowcationForRequisition(x,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="GRN Allocation For Requisition" ng-hide="x.PurchaseDocumentAcceptanceId!=null">Allocation For Requisition</button></li>*@
+				<li><button ng-click="GRNAllowcationForRequisition(x,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="GRN Allocation For Requisition" ng-hide="x.PurchaseDocumentAcceptanceId!=null">Allocation For Requisition</button></li>*@
 										@*<li><button ng-click="PODetailsUpdatePOPUp(x.PODetailsID,x.MaterialMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation to Requisition"><i class="glyphicon glyphicon-zoom-out"></i></button></li>*@
 										@*<li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>*@
 									</ul>
@@ -1344,8 +1348,8 @@
 								<td></td>
 								<td class="text-right">
 									@*<ul class="list-inline action-list">
-											<li><button ng-click="getTotalReceiveTaxList(inventoryMaterialList | sumByKey : 'TrnAmount',true)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-										</ul>*@
+				<li><button ng-click="getTotalReceiveTaxList(inventoryMaterialList | sumByKey : 'TrnAmount',true)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+			</ul>*@
 								</td>
 								<td></td>
 								<td></td>
@@ -1353,6 +1357,8 @@
 								<td></td>
 								<td></td>
 								<td></td>
+								<td></td>
+								
 							</tr>
 
 							<tr ng-repeat="x in inventoryMaterialList" ng-show="inventoryMaterialList.length">
@@ -1379,13 +1385,13 @@
 									</div>
 								</td>
 								@*<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x);" width="20" ng-model="x.TransactionQty" ng-disabled="x.enableid"></td>
-									<td class="text-right">{{x.TransactionUoM}}</td>
-									<td class="text-right">{{x.TransactionRate| setDecimal:currencyPrecision| number}}  {{x.CurrencyName}}</td>
-									<td class="text-right">{{x.TrnAmount| setDecimal:currencyPrecision| number}}</td>
-									<td class="text-right">{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}</td>
-									<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
-									<td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>
-									<td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number}}</td>*@
+		<td class="text-right">{{x.TransactionUoM}}</td>
+		<td class="text-right">{{x.TransactionRate| setDecimal:currencyPrecision| number}}  {{x.CurrencyName}}</td>
+		<td class="text-right">{{x.TrnAmount| setDecimal:currencyPrecision| number}}</td>
+		<td class="text-right">{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}</td>
+		<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
+		<td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>
+		<td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number}}</td>*@
 								@*<td class="text-right">  {{x.TransactionUoM}}</td>*@
 
 								<td ng-show="GriddataSelected.length===0">{{x.OriginalPOQty}}</td>
@@ -1434,6 +1440,7 @@
 
 
 								<td>{{x.CountryName}}</td>
+								<td>{{x.RefferenceNo}}</td>								
 								<td>{{x.MaterialDetail}}</td>
 								<td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
 								<td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="false"></td>
@@ -1497,6 +1504,7 @@
 								<td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TotalMaterialTranAmount'| setDecimal:currencyPrecision | number}}</strong></td>
 								<td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TotalMaterialBaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
 								<td class="text-right"></td>
+								<td></td>
 								<td></td>
 								<td></td>
 								<td></td>

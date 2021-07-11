@@ -42,9 +42,6 @@
             </div>
         </div>
     </div>
-
-
-
     <div class="clearfix"></div>
     <div class="form-elements">
         <div class="row" style="border:1px solid">
@@ -144,6 +141,10 @@
                                     <th>+/-</th>
                                     <th style="width: 130px;">Lead/Lag {{processSetNew.RequiredTimeUnit}}</th>
                                     <th style="width: 130px;">Production Cycle Time({{processSetNew.RequiredTimeUnit}})</th>
+                                    <th>Material</th>
+                                    <th>Article</th>
+                                    <th>Qty</th>
+                                    <th>UoM</th>
                                     <th style="width: 10px">Job Work Applicable</th>
                                     <th style="width:170px;">Job Work Type</th>
                                     <th>Entity/Vendor</th>
@@ -169,6 +170,31 @@
                                     <td>{{x.Symbol}}</td>
                                     <td><input type="text" ng-model="x.Days" class="form-control" only-numbers ng-disabled="x.IsBaseProcess"></td>
                                     <td><input type="text" ng-model="x.ProductionCycleTime" class="form-control" only-numbers></td>
+                                    <td>
+                                        <div class="input-group">
+                                            <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 80px;">
+                                            <span class="input-group-btn">
+                                                <button ng-click="getMaterial($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="input-group">
+                                            <input type="text" name="Customer" ng-model="x.ArticleName" class="form-control" readonly style="width: 80px;">
+                                            <span class="input-group-btn">
+                                                <button ng-click="getArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="clearArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" n-decimals="2" ng-model=" x.Qty" style="width: 50px;" class="form-control text-right" />
+                                    </td>
+                                    <td>
+                                        <div class="select-style">
+                                            <select name="UOM" style="width: 60px; padding-top:8px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>
+                                        </div>
+                                    </td>
                                     <td class="text-center">
                                         <div class="checkbox-site">
                                             <label>
@@ -180,12 +206,12 @@
                                     <td>
                                         <div class="select-style">
                                             <select class="form-control" ng-model="x.JobWorkType" ng-disabled="!x.JobWorkApplicable" ng-change="clearEntityOrVendor(processSetDetails,x.Id);"
-                                                    ng-options="item.Value as item.Text for item in jobWorkTypeList">
+                                                  style="width: 60px; padding-top:8px;"   ng-options="item.Value as item.Text for item in jobWorkTypeList">
                                                 <option value=""></option>
                                             </select>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td style="width: 290px;">
                                         <input type="hidden" ng-model="x.EntityIdWithinCompany">
                                         <input type="hidden" ng-model="x.EntityIdWithinGroup">
                                         <input type="hidden" ng-model="x.VendorId">
@@ -222,123 +248,125 @@
     </div>
 </div>
 <div class="row text-right aplos-grid-toggle">
-	<div class="col-xs-12 col-sm-12 col-sm-12">
-		<div class="search-form">
-			<div class="row">
-				<div class="col-xs-12 col-sm-3 col-md-3">
-					<div class="select-style">
-						<select ng-model="$root.parameters.searchBy">
-							<option ng-repeat="option in searchFromProcessSetList" value="{{option.value}}">{{option.name}}</option>
-						</select>
-					</div>
-				</div>
-				<div class="col-xs-12 col-sm-7 col-md-7">
-					<input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
-				</div>
-				<div class="col-xs-12 col-sm-2 col-md-2">
-					<button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchFromProcessSetList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="table-responsive modal-table aplos-grid-toggle">
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th>Process Category</th>
-				<th>Process Criteria</th>
-				<th>Code</th>
-				<th>Description</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr dir-paginate="x in processSets |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
-				<td>{{x.ProcessCategory}}</td>
-				<td>{{x.ProcessCriteria}}</td>
-				<td>{{x.Code}}</td>
-				<td>{{x.Description}}</td>
-			</tr>
-		</tbody>
-	</table>
-	<dir-pagination-controls max-size="10"
-							 direction-links="true"
-							 boundary-links="true"
-							 on-page-change="getData(newPageNumber)">
-	</dir-pagination-controls>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Process Category</th>
+                <th>Process Criteria</th>
+                <th>Code</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in processSets |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                <td>{{x.ProcessCategory}}</td>
+                <td>{{x.ProcessCriteria}}</td>
+                <td>{{x.Code}}</td>
+                <td>{{x.Description}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getData(newPageNumber)">
+    </dir-pagination-controls>
 </div>
 <confirm-modal></confirm-modal>
 <!-- #region Process PopUp -->
 <modal-table modalid="processSetDetailPopUp"
-			 data-title="Process"
-			 data-search-parameters="processSetDetailParameters"
-			 data-exclued-column-list=""
-			 data-field-list="processSetDetailList"
-			 data-data-list="processSetDetailDataList"
-			 data-search-function="getProcessPopUpData"
-			 data-single-click="selectPSDSingleClick(data)"
-			 data-double-click="selectPSDDoubleClick(data)"
-			 data-right-button="true"
-			 data-left-button="true"
-			 data-ng-click-left-button="selectPSDByButton()"
-			 data-ng-click-cancel="closePSDPopUp()">
+             data-title="Process"
+             data-search-parameters="processSetDetailParameters"
+             data-exclued-column-list=""
+             data-field-list="processSetDetailList"
+             data-data-list="processSetDetailDataList"
+             data-search-function="getProcessPopUpData"
+             data-single-click="selectPSDSingleClick(data)"
+             data-double-click="selectPSDDoubleClick(data)"
+             data-right-button="true"
+             data-left-button="true"
+             data-ng-click-left-button="selectPSDByButton()"
+             data-ng-click-cancel="closePSDPopUp()">
 </modal-table>
 <confirm-archive-generic modalid="confirmDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
 <!-- #endregion -->
 <!-- #region modal tbl -->
 <div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content" ng-form name="materialgridCharacteristicsForm">
-			<div class="modal-header"> {{popUpTitle}} <button type="button" class="close" data-dismiss="modal">&times;</button> </div>
-			<div class="modal-body">
-				<div class="row text-right">
-					<div class="col-xs-12 col-sm-12 col-sm-12">
-						<div class="search-form">
-							<div class="row">
-								<div class="col-xs-12 col-sm-3 col-md-3">
-									<div class="select-style">
-										<select ng-model="popUpParameters.searchBy">
-											<option ng-repeat="option in popUpList|orderBy:'Text'" value="{{option.Value}}">{{option.Text}}</option>
-										</select>
-									</div>
-								</div>
-								<div class="col-xs-12 col-sm-7 col-md-7">
-									<input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData()">
-								</div>
-								<div class="col-xs-12 col-sm-2 col-md-2">
-									<button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="table-responsive modal-table">
-					<table class="table table-striped">
-						<thead>
-							<tr><th ng-repeat="x in popUpList" ng-show="{{x.Value!='Archive'}}">{{x.Text}}</th></tr>
-						</thead>
-						<tbody>
-							<tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count"
-								pagination-id="metaData.name + 'popUpDataList'" ng-click="selectSingleClick(x)" ng-dblclick="selectDoubleClick(x)">
-								<td ng-repeat="hh in popUpList">{{x[hh.Value]}}</td>
-							</tr>
-						</tbody>
-					</table>
-					<dir-pagination-controls max-size="10"
-											 pagination-id="metaData.name + 'popUpDataList'"
-											 direction-links="true"
-											 boundary-links="true"
-											 on-page-change="getPopUpData(newPageNumber)">
-					</dir-pagination-controls>
-				</div>
-				<div class="common-btn">
-					<ul class="list-inline text-right">
-						<li> <button ng-click="selectByButton()" class="btn">Select</button></li>
-						<li> <button ng-click="closePopUp()" class="btn">Cancel</button></li>
-					</ul>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="materialgridCharacteristicsForm">
+            <div class="modal-header"> {{popUpTitle}} <button type="button" class="close" data-dismiss="modal">&times;</button> </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="popUpParameters.searchBy">
+                                            <option ng-repeat="option in popUpList|orderBy:'Text'" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr><th ng-repeat="x in popUpList" ng-show="{{x.Value!='Archive'}}">{{x.Text}}</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count"
+                                pagination-id="metaData.name + 'popUpDataList'" ng-click="selectSingleClick(x)" ng-dblclick="selectDoubleClick(x)">
+                                <td ng-repeat="hh in popUpList">{{x[hh.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'popUpDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getPopUpData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="selectByButton()" class="btn">Select</button></li>
+                        <li> <button ng-click="closePopUp()" class="btn">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <!-- #endregion -->
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
