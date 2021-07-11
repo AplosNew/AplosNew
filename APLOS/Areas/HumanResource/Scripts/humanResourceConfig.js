@@ -304,6 +304,11 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 templateUrl: 'humanresource/PayrollReports/SalaryProcessedReport',
                 controller: 'salaryProcessedReportController'
             })
+        .when('/arrear-Processed-report',
+            {
+                templateUrl: 'humanresource/PayrollReports/ArrearVsPayroll',
+                controller: 'ArrearProcessedReportController'
+            })
         .when('/bulk-leave-entry',
             {
                 templateUrl: 'humanresource/BulkLeaveEntry',

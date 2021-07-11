@@ -54,7 +54,11 @@ IEmployeeProfileService employeeProfileService
         {
             return View();
         }
-
+        public ActionResult ArrearVsPayroll()
+        {
+            return View();
+        }
+        
         public ActionResult SalaryStructureReportPlantWise()
         {
             return View();
@@ -302,7 +306,7 @@ IEmployeeProfileService employeeProfileService
 
 
                 var workbook = _payrollReportsService.GetEmployeeSalaryProcessedReportSalaryLogWise(out int xlsRow, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false);
-               // workbook = _payrollReportsService.GetEmployeeArrearSalaryProcessedReportSalaryLogWise(workbook.Worksheets[0], xlsRow, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false);
+                workbook = _payrollReportsService.GetEmployeeArrearSalaryProcessedReportSalaryLogWise(workbook.Worksheets[0], xlsRow, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false);
 
 
                 workbook.Version = ExcelVersion.Excel97to2003;
