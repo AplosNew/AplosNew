@@ -61,7 +61,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                         $scope.FGmsg = "has no";
                     }
                     $scope.getFGCharacteristicsList($scope.ModelNew.FGMaterialMasterId);
-                    $scope.HSNCodeId = ob.HSNCodeId;                   
+                    $scope.HSNCodeId = ob.HSNCodeId;
                     $scope.closeMaterialMasterbyTypePopUp();
                 }
             })
@@ -70,7 +70,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         }
     };
 
-    
+
 
     $scope.selectarticle = function (ob) {
         try {
@@ -98,10 +98,11 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             }
         }).then(function (response) {
             $scope.characteristicsList = [];
-            $scope.characteristicsList = response.data.charData;            
+            $scope.characteristicsList = response.data.charData;
         });
 
     };
+
 
     $scope.getFGCharacteristicsListNew = function (id) {
         //$scope.clearCharNames();
@@ -114,10 +115,42 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         }).then(function (response) {
             $scope.characteristicsList = [];
             $scope.characteristicsList = response.data.charData;
-            $scope.GetFGCharacteristicsValueCbo();
+            $scope.GetFGCharacteristicsValueCboAfterSave();
         });
 
     };
+
+    $scope.FGCharacteristicsValueList = [];
+    $scope.GetFGCharacteristicsValueCboAfterSave = function () {
+        for (var i = 0; i < $scope.characteristicsList.length; i++) {
+            if ($scope.ModelNew.CharacteristicsId == $scope.characteristicsList[i].Value) {
+                var valueAssignmentLevel = $scope.characteristicsList[i].ValueAssignmentLevel;
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.path + "getCharacteristicsValueByCharacteristicsIdAfterSave",
+            data: { 'materialMasterId': $scope.ModelNew.FGMaterialMasterId, 'characteristicsId': $scope.ModelNew.CharacteristicsId, 'valueAssignmentLevel': valueAssignmentLevel },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.FGCharacteristicsValueList = response.data;
+            for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
+                if ($scope.FGCharacteristicsValueList[i].Ratio != 0 || !baseService.isUndefinedOrNull($scope.FGCharacteristicsValueList[i].Ratio)) {
+                    $scope.SKUDisable = true;
+                    break;
+                }
+                else {
+                    $scope.SKUDisable = false;
+                }
+            }
+        });
+        if (baseService.isUndefinedOrNull($scope.ModelNew.HeaderName)) {
+            $scope.HeaderName = $("#SKU option:selected").text();
+        }
+        else {
+            $scope.HeaderName = $scope.ModelNew.HeaderName;
+        }
+    }
 
     $scope.FGCharacteristicsValueList = [];
     $scope.GetFGCharacteristicsValueCbo = function () {
@@ -129,28 +162,23 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         $http({
             method: 'POST',
             url: $scope.path + "getCharacteristicsValueByCharacteristicsId",
-            data: { 'materialMasterId': $scope.ModelNew.FGMaterialMasterId, 'characteristicsId': $scope.ModelNew.CharacteristicsId, 'valueAssignmentLevel': valueAssignmentLevel},
+            data: { 'materialMasterId': $scope.ModelNew.FGMaterialMasterId, 'characteristicsId': $scope.ModelNew.CharacteristicsId, 'valueAssignmentLevel': valueAssignmentLevel },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.FGCharacteristicsValueList = response.data;
         });
-        if (baseService.isUndefinedOrNull($scope.ModelNew.HeaderName)) {
-            $scope.HeaderName = $("#SKU option:selected").text();
-        }
-        else {
-            $scope.HeaderName = $scope.ModelNew.HeaderName;
-        }
+        $scope.HeaderName = $("#SKU option:selected").text();
     }
-    
+
     //#endregion
 
-
+    $scope.SKUDisable = false;
 
     $scope.getData = function () {
         $http({
             method: 'POST',
             url: $scope.path + "GetList",
-            data: { },
+            data: {},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
@@ -202,7 +230,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         $http({
             method: 'POST',
             url: $scope.path + "GetDetailsList",
-            data: { 'masterid': MasterId},
+            data: { 'masterid': MasterId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.FGCharacteristicsValueList = response.data;
@@ -210,28 +238,31 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     };
 
     $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
-        $http({
-            method: 'POST',
-            url: $scope.saveUrl,
-            data: { 'data': $scope.ModelNew, 'details': $scope.FGCharacteristicsValueList },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                ClearFields(response.data.Sequence);
-                //$scope.getFGCharacteristicsListNew($scope.ModelNew.FGMaterialMasterId);
-                $scope.getData();
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelNewForm.$valid) {
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: { 'data': $scope.ModelNew, 'details': $scope.FGCharacteristicsValueList },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        ClearFields(response.data.Sequence);
+                        //$scope.getFGCharacteristicsListNew($scope.ModelNew.FGMaterialMasterId);
+                        $scope.getData();
 
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
             }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
-
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
 
@@ -287,6 +318,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         $scope.ModelNew.Sequence = seq;
         $scope.FGCharacteristicsValueList = [];
         $scope.characteristicsList = [];
+        $scope.SKUDisable = false;
     }
 
     $scope.FabricWidthList = [];

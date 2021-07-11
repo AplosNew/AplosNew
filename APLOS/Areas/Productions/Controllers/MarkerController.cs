@@ -100,6 +100,19 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
+        public ActionResult getCharacteristicsValueByCharacteristicsIdAfterSave(string materialMasterId, string characteristicsId, string valueAssignmentLevel)
+        {
+            try
+            {
+                clsMaterial ep = new clsMaterial();
+                return Json(ep.GetCharacteristicsValueCboByCharacteristicsIdAfterSave(materialMasterId, characteristicsId, valueAssignmentLevel), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [HttpPost, Authorize]
         public ActionResult getCharacteristicsValueByCharacteristicsId(string materialMasterId, string characteristicsId, string valueAssignmentLevel)
         {
             try
@@ -112,7 +125,6 @@ namespace Aplos.Areas.Productions.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> details)
         {
