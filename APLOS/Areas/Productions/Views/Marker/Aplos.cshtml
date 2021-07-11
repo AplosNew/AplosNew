@@ -8,14 +8,14 @@
                 <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
                     <input type="text" ng-model="ModelNew.FGMaterialMaster" class="form-control" readonly>
                     <span class="input-group-btn">
-                        <button ng-click="getMaterial()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="getMaterial()" ng-disabled="FGCharacteristicsValueList.length>0" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100" required />
+                    <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence"  required />
                 </div>
             </div>
             <div class="form-group" show-errors>
@@ -30,19 +30,13 @@
                     <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
                 </div>
             </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Length</label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Length" ng-model="ModelNew.Length" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
-                </div>
-            </div>
             <div class="form-group">
-                <label class="col-sm-4 control-label">Fabric Width</label>
+                <label class="col-sm-4 control-label">Shrinkage Group</label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select name="UOM" class="form-control" ng-model="ModelNew.FabricWidthId" tabindex="13">
+                        <select name="UOM" class="form-control" ng-model="ModelNew.ShrinkageGroupId" tabindex="13">
                             <option value=""></option>
-                            <option ng-repeat="item in FabricWidthList" value="{{item.Id}} ">{{ item.FabricWidthName }}</option>
+                            <option ng-repeat="item in ShrinkageGroupList" value="{{item.Id}} ">{{ item.ShrinkageGroupName }}</option>
                         </select>
                     </div>
                 </div>
@@ -57,7 +51,7 @@
                 <label class="col-sm-4 control-label">SKU</label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select name="UOM" id="SKU" class="form-control" ng-model="ModelNew.CharacteristicsId" ng-options="item.Value as item.Text for item in characteristicsList" tabindex="13" ng-change="GetFGCharacteristicsValueCbo()">
+                        <select name="UOM" id="SKU" class="form-control" ng-disabled="FGCharacteristicsValueList.length>0" ng-model="ModelNew.CharacteristicsId" ng-options="item.Value as item.Text for item in characteristicsList" tabindex="13" ng-change="GetFGCharacteristicsValueCbo()">
                         </select>
                     </div>
                 </div>
@@ -86,17 +80,24 @@
                     <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
                 </div>
             </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Length</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Length" ng-model="ModelNew.Length" class="form-control" maxlength="15" n-decimals="4" required tabindex="3">
+                </div>
+            </div>
             <div class="form-group">
-                <label class="col-sm-4 control-label">Shrinkage Group</label>
+                <label class="col-sm-4 control-label">Fabric Width</label>
                 <div class="col-sm-8">
                     <div class="select-style">
-                        <select name="UOM" class="form-control" ng-model="ModelNew.ShrinkageGroupId" tabindex="13">
+                        <select name="UOM" class="form-control" ng-model="ModelNew.FabricWidthId" tabindex="13">
                             <option value=""></option>
-                            <option ng-repeat="item in ShrinkageGroupList" value="{{item.Id}} ">{{ item.ShrinkageGroupName }}</option>
+                            <option ng-repeat="item in FabricWidthList" value="{{item.Id}} ">{{ item.FabricWidthName }}</option>
                         </select>
                     </div>
                 </div>
             </div>
+            
             <div class="form-group">
                 <label class="col-sm-4 control-label">Shade</label>
                 <div class="col-sm-8">
@@ -108,7 +109,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label class="col-sm-4 control-label">Remarks</label>
                 <div class="col-sm-8">
@@ -133,6 +134,7 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
+                            <th>Code</th>
                             <th>{{HeaderName}}</th>
                             <th>Ratio</th>
 
@@ -140,7 +142,8 @@
                     </thead>
                     <tbody>
                         <tr ng-repeat="x in FGCharacteristicsValueList">
-                            <td>{{x.Value}}</td>
+                            <td>{{x.Code}}</td>
+                            <td>{{x.Text}}</td>
                             <td><input type="text" class="form-control" ng-model="x.Ratio" ></td>
                         </tr>
                     </tbody>

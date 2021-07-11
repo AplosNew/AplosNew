@@ -89,7 +89,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         $scope.ModelNew.FGArticle = null;
     };
     $scope.getFGCharacteristicsList = function (id) {
-        $scope.clearCharNames();
+        //$scope.clearCharNames();
         $http({
             method: 'GET',
             url: 'Materials/MaterialMaster/getcharacteristicsbymaterialmasterid/',
@@ -103,6 +103,22 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
 
     };
 
+    $scope.getFGCharacteristicsListNew = function (id) {
+        //$scope.clearCharNames();
+        $http({
+            method: 'GET',
+            url: 'Materials/MaterialMaster/getcharacteristicsbymaterialmasterid/',
+            params: {
+                materialMasterId: id
+            }
+        }).then(function (response) {
+            $scope.characteristicsList = [];
+            $scope.characteristicsList = response.data.charData;
+            $scope.GetFGCharacteristicsValueCbo();
+        });
+
+    };
+
     $scope.FGCharacteristicsValueList = [];
     $scope.GetFGCharacteristicsValueCbo = function () {
         for (var i = 0; i < $scope.characteristicsList.length; i++) {
@@ -110,10 +126,20 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                 var valueAssignmentLevel = $scope.characteristicsList[i].ValueAssignmentLevel;
             }
         }
-        cboService.getCharacteristicsValueCboByCharacteristicsId($scope.ModelNew.FGMaterialMasterId, $scope.ModelNew.CharacteristicsId, valueAssignmentLevel, function (response) {
-            $scope.FGCharacteristicsValueList = response;
+        $http({
+            method: 'POST',
+            url: $scope.path + "getCharacteristicsValueByCharacteristicsId",
+            data: { 'materialMasterId': $scope.ModelNew.FGMaterialMasterId, 'characteristicsId': $scope.ModelNew.CharacteristicsId, 'valueAssignmentLevel': valueAssignmentLevel},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.FGCharacteristicsValueList = response.data;
         });
-        $scope.HeaderName = $("#SKU option:selected").text();
+        if (baseService.isUndefinedOrNull($scope.ModelNew.HeaderName)) {
+            $scope.HeaderName = $("#SKU option:selected").text();
+        }
+        else {
+            $scope.HeaderName = $scope.ModelNew.HeaderName;
+        }
     }
     
     //#endregion
@@ -163,12 +189,24 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     $scope.GetSequence();
 
     $scope.Get = function (args) {
-
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.getFGCharacteristicsListNew($scope.ModelNew.FGMaterialMasterId);
+        $scope.HeaderName = $scope.ModelNew.HeaderName;
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
+    };
+
+    $scope.getDetails = function (MasterId) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDetailsList",
+            data: { 'masterid': MasterId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.FGCharacteristicsValueList = response.data;
+        });
     };
 
     $scope.Save = function () {
@@ -186,6 +224,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             else {
                 ShowResult(response.data.Message, 'success');
                 ClearFields(response.data.Sequence);
+                //$scope.getFGCharacteristicsListNew($scope.ModelNew.FGMaterialMasterId);
                 $scope.getData();
 
             }
@@ -234,10 +273,20 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             UserName: null,
             Description: null,
             Remarks: null,
-            Active: true
+            Active: true,
+            FGMaterialMasterId: null,
+            FGMaterialMaster: null,
+            FGArticleId: null,
+            FGArticle: null,
+            FabricWidthId: null,
+            ShrinkageGroupId: null,
+            CharacteristicsId: null,
+            ShadeId: null,
+            Length: null,
         };
-        //$scope.ModelNew.CompanyId;
         $scope.ModelNew.Sequence = seq;
+        $scope.FGCharacteristicsValueList = [];
+        $scope.characteristicsList = [];
     }
 
     $scope.FabricWidthList = [];
