@@ -204,6 +204,10 @@
                                 <th>+/-</th>
                                 <th style="width: 130px;">Lead/Lag Days</th>
                                 <th style="width: 130px;">Production Cycle Time({{model.RequiredTimeUnit}})/Per unit</th>
+                                <th>Material</th>
+                                <th>Article</th>
+                                <th>Qty</th>
+                                <th>UoM</th>
                                 <th style="width: 10px">Job Work Applicable</th>
                                 <th style="width: 170px;">Job Work Type</th>
                                 <th>Entity/Vendor</th>
@@ -229,6 +233,32 @@
                                 <td>{{x.Symbol}}</td>
                                 <td><input type="text" ng-model="x.Days" class="form-control" only-numbers ng-disabled="x.IsBaseProcess"></td>
                                 <td><input type="text" ng-model="x.ProductionCycleTime" class="form-control" only-numbers></td>
+                                <td>
+                                    <div class="input-group">
+                                        <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 80px;">
+                                        <span class="input-group-btn">
+                                            <button ng-click="getMaterial($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <input type="text" name="Customer" ng-model="x.ArticleName" class="form-control" readonly style="width: 80px;">
+                                        <span class="input-group-btn">
+                                            <button ng-click="getArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="clearArticle($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" n-decimals="2" ng-model=" x.Qty" style="width: 50px;" class="form-control text-right" />
+                                </td>
+                                <td>
+                                    <div class="select-style">
+                                        <select name="UOM" style="width: 60px; padding-top:8px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>
+                                        @*<select class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList| filter:{ UOMId: x.UOMId }:true"></select>*@
+                                    </div>
+                                </td>
                                 <td class="text-center">
                                     <div class="checkbox-site">
                                         <label>
@@ -2381,6 +2411,7 @@
         </div>
     </div>
 </div>
-
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 @*<confirm-archive-generic modalid="confirmBulletinSavePopUp" title="Confirmation" message={{message_BulletinSave}} data-ng-click-right-button="SaveBulletin();"></confirm-archive-generic>*@
 <confirm-archive-generic modalid="confirmPBProcessPopUp" title="Confirmation" message={{message_PBconfirmation}} data-ng-click-right-button="DeleteProductionBulletin();"></confirm-archive-generic>
