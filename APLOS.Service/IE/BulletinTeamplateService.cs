@@ -1100,6 +1100,7 @@ namespace Library.Service.IEnumerable
 
                 string CopiedBulletinId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                 string NewBulletinId = dsMaster.Tables[0].Rows[1]["Id"].ToString();
+                string PicFileName = dsMaster.Tables[0].Rows[1]["PicFileName"].ToString();
 
                 DataSet dataSetBuyer = GetBulletinTemplateBuyer(CopiedBulletinId);
                 SaveBulletinTemplateBuyerData(dataSetBuyer, NewBulletinId, CopiedBulletinId, out dsBuyer);
@@ -1113,26 +1114,25 @@ namespace Library.Service.IEnumerable
                 DataSet dataSetProcess = GetBulletinTemplateMaster(CopiedBulletinId);
                 SaveBulletinMasterData(dataSetProcess, NewBulletinId, CopiedBulletinId, out dsProcess, out dsOperation);
 
+                MoveImage(CopiedBulletinId, PicFileName, NewBulletinId);
             }
             catch (Exception ex)
             {
                 throw (ex);
             }
         }
-        public static void MoveImage(string fromName, string toName)
+        public static void MoveImage(string fromName, string toName, string NewBulletinId)
         {
-            var Fromdirectory = ResourcesPathReader.GetEmployeePicPath();
-            //new AppSettingsReader().GetValue("USERPIC_SOURCE", typeof(string)).ToString(); //get pic from web config
-            var Todirectory = ResourcesPathReader.GetEmployeeDestinationPicPath();
-            //new AppSettingsReader().GetValue("USERPIC_DESTINATION", typeof(string)).ToString();
-            //if (!System.IO.Directory.Exists(Fromdirectory)) //CreateDirectory
-            //    System.IO.Directory.CreateDirectory(Fromdirectory);
+            var Fromdirectory = ResourcesPathReader.GetBulletinImagePath();
+            var Todirectory = ResourcesPathReader.GetBulletinImagePath();
             if (!string.IsNullOrEmpty(fromName))
             {
-                var path = Path.Combine(Fromdirectory, fromName);
+                string path = Path.Combine(Fromdirectory, fromName + Path.GetExtension(toName));
+                //var path = Path.Combine(Fromdirectory, fromName);
                 if (File.Exists(path))
                 {
-                    File.Copy(Path.Combine(Fromdirectory, fromName), Path.Combine(Todirectory, toName), true);
+                    //File.Copy(Path.Combine(Fromdirectory, fromName), Path.Combine(Todirectory, NewBulletinId), true);
+                    File.Copy(Path.Combine(Fromdirectory, fromName + Path.GetExtension(toName)), Path.Combine(Todirectory, NewBulletinId + Path.GetExtension(toName)), true);
                 }
             }
         }
