@@ -1,6 +1,6 @@
 ﻿'use strict';
-ProcessSetController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$window'];
-function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $window) {
+ProcessSetController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$window','$controller'];
+function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $window, $controller) {
     $rootScope.title = "Process Set";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -13,6 +13,7 @@ function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $r
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl, null, null, null, "Entity", "Entity");
+   $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 
     $scope.processSet = {
         Id: null,
@@ -117,6 +118,11 @@ function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $r
         $scope.jobWorkTypeList = result;
     });
 
+    $scope.uOMList = [];
+    cboService.getUoMCbo(function (response) {
+        $scope.uOMList = response;
+    });
+
     // #endregion
 
     // #region
@@ -136,6 +142,59 @@ function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $r
             }
         });
     };
+
+    $scope.materialType = 'ProductDefinition';
+
+    $scope.getMaterial = function (index) {
+        $scope.itemIndex = index;
+        $scope.getMaterialMasterbyTypePopUp();
+    };
+
+    $scope.selectMaterialByType = function (ob) {
+        $scope.processSetDetails[$scope.itemIndex].MaterialMasterId = ob.Id;
+        $scope.processSetDetails[$scope.itemIndex].MaterialMasterName = ob.UserName;
+        $scope.processSetDetails[$scope.itemIndex].ArticleId = null;
+        $scope.processSetDetails[$scope.itemIndex].ArticleName = null;
+        $scope.processSetDetails[$scope.itemIndex].HasAttribute = ob.HasAttribute;
+        $scope.mmChangeFlag = true;
+        if ($scope.processSetDetails[$scope.itemIndex].HasAttribute) {
+            $scope.getArticleSearchList(ob.Id);
+        } else {
+            $scope.closeMaterialMasterbyTypePopUp();
+            return ShowResult('This material has no attribute', 'failure');
+        }
+        // getTaxCategoryList(ob.HSNCodeId);
+        $scope.HSNCodeId = ob.HSNCodeId;
+        $scope.closeMaterialMasterbyTypePopUp();
+    };
+
+    $scope.getArticle = function (index) {
+        $scope.itemIndex = index;
+        if (!baseService.isUndefinedOrNull($scope.processSetDetails[$scope.itemIndex].MaterialMasterId) && !$scope.processSetDetails[$scope.itemIndex].HasAttribute)
+            return ShowResult('This material has no attribute', 'failure');
+        $scope.getArticleSearchList($scope.processSetDetails[$scope.itemIndex].MaterialMasterId);
+    };
+
+    $scope.selectarticle = function (ob) {
+        try {
+            $scope.processSetDetails[$scope.itemIndex].MaterialMasterId = ob.MaterialMasterId;
+            $scope.processSetDetails[$scope.itemIndex].MaterialMasterName = ob.MaterialMasterName;
+            $scope.processSetDetails[$scope.itemIndex].ArticleId = ob.Id;
+            $scope.processSetDetails[$scope.itemIndex].ArticleName = ob.StandardName;
+            angular.element(document.querySelector('#articleSearchPop')).modal('hide');
+            $scope.itemIndex = -1;
+            $scope.mmChangeFlag = true;
+        } catch (e) {
+            ShowResult(e, '', 'articleSearchPop');
+        }
+    };
+
+    $scope.clearArticle = function (index) {
+        $scope.processSetDetails[index].ArticleId = null;
+        $scope.processSetDetails[index].ArticleName = null;
+    };
+
+
 
     // #endregion
 
@@ -373,6 +432,10 @@ function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $r
             , Archive: false
             , setDisable: true
             , class: 'new'
+            , MaterialMasterId:null
+            , ArticleId:null
+            , Qty:null
+            , UOMId:null
         });
         if (!$scope.processSetDetailTblShow)
             $scope.processSetDetailTblShow = true;

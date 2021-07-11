@@ -82,7 +82,8 @@ namespace Library.MaterialManagement.InventoryManagements
 						,b.RequiredQtyPO RequiredQtyPOOrginal
 						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
 						--,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '-' + ISNULL(mo.BuyerReferenceNo,'') +'-'+ ISNULL(moi.OwnReferenceNo,'')+'-'+ISNULL(moi.BuyerReferenceNo,'')
-						,RefferenceNo=ISNULL(moi.OwnReferenceNo,'') 
+						--,RefferenceNo=ISNULL(moi.OwnReferenceNo,'') 
+						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  
 						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,ISNULL(uom1.UserName,'') POUoM,null TrnsactionQty
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId

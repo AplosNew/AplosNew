@@ -12891,7 +12891,7 @@ group by Id) O60 ON O60.Id=IV.Id
         #endregion acceptance liability 
 
         #region Others Liability
-        public List<Dictionary<string, object>> GetOthersLiabilityDataList(string companyGroupId, string companyId, string plantId)
+        public List<Dictionary<string, object>> GetOthersLiabilityDataList(string companyGroupId, string companyId, string plantId, string ToDate)
         {
             var sql = @"SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,X.PartyId,X.PartyPlantId
                     ,X.PartyCode,X.PartyName,X.PartyPlantName,x.CurrencyCode
@@ -13013,6 +13013,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable')
                 AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                and IV.PostingDate <= '" + ToDate + @"'
                 and IV.PurchaseDocAcceptanceId IS NULL  
 
                 UNION ALL
@@ -13113,6 +13114,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventoryPayable')
                  AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                 and IV.PostingDate <= '" + ToDate + @"'
                 AND IR.PurchaseDocumentAcceptanceId IS NULL
                 and IV.PurchaseDocAcceptanceId IS NULL
 
@@ -13211,7 +13213,8 @@ group by Id) O60 ON O60.Id=IV.Id
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.SourceType in ('VendorPayment')
-               AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                   AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                   and IV.PostingDate <= '" + ToDate + @"'
                 
 				)
                 X
@@ -13224,7 +13227,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
         //Summary Report
         //Summary Report
-        public IWorkbook GetOthersLiabilitySummaryReport(ExcelEngine excelEngine, string othersLiabList, string companyGroupId, string companyId, string plantId)
+        public IWorkbook GetOthersLiabilitySummaryReport(ExcelEngine excelEngine, string toDate, string companyGroupId, string companyId, string plantId)
         {
             excelEngine = new ExcelEngine();
             //Instantiate the Excel application object
@@ -13320,98 +13323,58 @@ group by Id) O60 ON O60.Id=IV.Id
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colBooksBalance = COL;
                 worksheet[ROW, COL].ColumnWidth = 15;
-                COL++;
+               // COL++;
 
-                //worksheet[ROW, COL].Text = "Currency";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //int colCurrencyCode = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
+                
 
-                //worksheet[ROW, COL].Text = "Gross";
+
+    
+                //worksheet[ROW, COL].Text = "Over DueMoreThan30";
                 //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colGrossTranAmount = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
+                //int colODueMoreThan30 = COL;
+                //worksheet[ROW, COL].ColumnWidth = 20;
                 //COL++;
 
-                //worksheet[ROW, COL].Text = "Debit Note";
+                //worksheet[ROW, COL].Text = "Over DueMoreThan15";
                 //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colDebitNoteTranAmount = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
+                //int colODueMoreThan15 = COL;
+                //worksheet[ROW, COL].ColumnWidth = 20;
                 //COL++;
 
-                //worksheet[ROW, COL].Text = "Discount";
+                //worksheet[ROW, COL].Text = "Over DueLessThan15";
                 //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colTranDiscountAmount = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
+                //int colODueLessThan15 = COL;
+                //worksheet[ROW, COL].ColumnWidth = 20;
                 //COL++;
 
-                //worksheet[ROW, COL].Text = "Tax";
+                //worksheet[ROW, COL].Text = "Today Balance";
                 //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colTranTaxAmount = COL;
+                //int colTodayBalance = COL;
                 //worksheet[ROW, COL].ColumnWidth = 15;
                 //COL++;
 
-                //worksheet[ROW, COL].Text = "Payment";
+                //worksheet[ROW, COL].Text = "1-7 Balance";
                 //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colSetOff = COL;
+                //int colOneToSevenBalance = COL;
                 //worksheet[ROW, COL].ColumnWidth = 15;
                 //COL++;
 
-                //worksheet[ROW, COL].Text = "Balance";
+                //worksheet[ROW, COL].Text = "8-30 Balance";
                 //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colBalance = COL;
+                //int colEightToThirtyBalance = COL;
                 //worksheet[ROW, COL].ColumnWidth = 15;
                 //COL++;
 
+                //worksheet[ROW, COL].Text = "30-60 Balance";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colThirtyToSixtyBalance = COL;
+                //worksheet[ROW, COL].ColumnWidth = 15;
+                //COL++;
 
-                //TodayBalance
-                worksheet[ROW, COL].Text = "Over DueMoreThan30";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colODueMoreThan30 = COL;
-                worksheet[ROW, COL].ColumnWidth = 20;
-                COL++;
-
-                worksheet[ROW, COL].Text = "Over DueMoreThan15";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colODueMoreThan15 = COL;
-                worksheet[ROW, COL].ColumnWidth = 20;
-                COL++;
-
-                worksheet[ROW, COL].Text = "Over DueLessThan15";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colODueLessThan15 = COL;
-                worksheet[ROW, COL].ColumnWidth = 20;
-                COL++;
-
-                worksheet[ROW, COL].Text = "Today Balance";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colTodayBalance = COL;
-                worksheet[ROW, COL].ColumnWidth = 15;
-                COL++;
-
-                worksheet[ROW, COL].Text = "1-7 Balance";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colOneToSevenBalance = COL;
-                worksheet[ROW, COL].ColumnWidth = 15;
-                COL++;
-
-                worksheet[ROW, COL].Text = "8-30 Balance";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colEightToThirtyBalance = COL;
-                worksheet[ROW, COL].ColumnWidth = 15;
-                COL++;
-
-                worksheet[ROW, COL].Text = "30-60 Balance";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colThirtyToSixtyBalance = COL;
-                worksheet[ROW, COL].ColumnWidth = 15;
-                COL++;
-
-                worksheet[ROW, COL].Text = "Onward 60";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colOnword60 = COL;
-                worksheet[ROW, COL].ColumnWidth = 15;
+                //worksheet[ROW, COL].Text = "Onward 60";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colOnword60 = COL;
+                //worksheet[ROW, COL].ColumnWidth = 15;
                 // COL++;
 
                 int endCol = COL;
@@ -13528,37 +13491,37 @@ group by Id) O60 ON O60.Id=IV.Id
 
                       				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30 
-							and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
+							and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM30 ON OM30.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30
-							and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
+							and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM15 ON OM15.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OverDdueBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-15
-							and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
+							and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OV ON OV.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.Invoice I 
-							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)=0 and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)=0 and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
                                group by Id) TB ON TB.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=7 
-							and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
+							and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) OTS ON OTS.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=30 
-							and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
+							and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) ETT ON ETT.Id=IV.Id
 
 								LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=60
-							and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
+							and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) TTS ON TTS.Id=IV.Id
 
@@ -13566,7 +13529,7 @@ group by Id) TTS ON TTS.Id=IV.Id
 
 				 LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>60 and 
-							I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') 
+							I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
 group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN (
@@ -13578,7 +13541,8 @@ group by Id) O60 ON O60.Id=IV.Id
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
-               AND IV.CompanyGroupId='" + companyGroupId + "'  and IV.PartyId in 	(" + othersLiabList + @")  AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+               AND IV.CompanyGroupId='" + companyGroupId + "'    AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                and IV.PostingDate <= '" + toDate + @"'
 		       and IV.PurchaseDocAcceptanceId IS NULL
 
 
@@ -13687,7 +13651,9 @@ group by Id) O60 ON O60.Id=IV.Id
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventoryPayable')
-                 AND IV.CompanyGroupId='" + companyGroupId + "'  and IV.PartyId in 	(" + othersLiabList + @")  AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                 AND IV.CompanyGroupId='" + companyGroupId + @"'  
+                AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                    and IV.PostingDate <= '" + toDate + @"'
                 AND IR.PurchaseDocumentAcceptanceId IS NULL
 		       and IV.PurchaseDocAcceptanceId IS NULL
                         union all
@@ -13795,7 +13761,9 @@ group by Id) O60 ON O60.Id=IV.Id
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.SourceType in ('VendorPayment','CreditNote')
-               and IV.PartyId in 	(" + othersLiabList + @") AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+            
+                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                and IV.PostingDate <= '" + toDate + @"'
 
                         )
                         X
@@ -13869,29 +13837,29 @@ group by Id) O60 ON O60.Id=IV.Id
 
 
 
-                    worksheet[ROW, colODueMoreThan30].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueMoreThan30"].ToString());
-                    worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
+                    //worksheet[ROW, colODueMoreThan30].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueMoreThan30"].ToString());
+                    //worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    worksheet[ROW, colODueMoreThan15].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueMoreThan15"].ToString());
-                    worksheet[ROW, colODueMoreThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+                    //worksheet[ROW, colODueMoreThan15].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueMoreThan15"].ToString());
+                    //worksheet[ROW, colODueMoreThan15].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    worksheet[ROW, colODueLessThan15].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueLessThan15"].ToString());
-                    worksheet[ROW, colODueLessThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+                    //worksheet[ROW, colODueLessThan15].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueLessThan15"].ToString());
+                    //worksheet[ROW, colODueLessThan15].NumberFormat = "#,##0.00;(#,##0.00)";
 
 
-                    worksheet[ROW, colTodayBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TodayBalance"].ToString());
-                    worksheet[ROW, colTodayBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                    worksheet[ROW, colOneToSevenBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OneToSevenBalance"].ToString());
-                    worksheet[ROW, colOneToSevenBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                    //worksheet[ROW, colTodayBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TodayBalance"].ToString());
+                    //worksheet[ROW, colTodayBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                    //worksheet[ROW, colOneToSevenBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OneToSevenBalance"].ToString());
+                    //worksheet[ROW, colOneToSevenBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    worksheet[ROW, colEightToThirtyBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["EightToThirtyBalance"].ToString());
-                    worksheet[ROW, colEightToThirtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                    //worksheet[ROW, colEightToThirtyBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["EightToThirtyBalance"].ToString());
+                    //worksheet[ROW, colEightToThirtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    worksheet[ROW, colThirtyToSixtyBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["ThirtyToSixtyBalance"].ToString());
-                    worksheet[ROW, colThirtyToSixtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                    //worksheet[ROW, colThirtyToSixtyBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["ThirtyToSixtyBalance"].ToString());
+                    //worksheet[ROW, colThirtyToSixtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    worksheet[ROW, colOnword60].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Onword60"].ToString());
-                    worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
+                    //worksheet[ROW, colOnword60].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Onword60"].ToString());
+                    //worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
 
                     ROW++;
                 }
@@ -13917,38 +13885,38 @@ group by Id) O60 ON O60.Id=IV.Id
                 worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
-                worksheet[ROW, colODueMoreThan30].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colODueMoreThan30].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //worksheet[ROW, colODueMoreThan30].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colODueMoreThan30].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                worksheet[ROW, colODueMoreThan15].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan15) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan15) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colODueMoreThan15].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colODueMoreThan15].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //worksheet[ROW, colODueMoreThan15].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan15) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan15) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colODueMoreThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colODueMoreThan15].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
-                worksheet[ROW, colODueLessThan15].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueLessThan15) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueLessThan15) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colODueLessThan15].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colODueLessThan15].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //worksheet[ROW, colODueLessThan15].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueLessThan15) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueLessThan15) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colODueLessThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colODueLessThan15].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                worksheet[ROW, colTodayBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTodayBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colTodayBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colTodayBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colTodayBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //worksheet[ROW, colTodayBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTodayBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colTodayBalance) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colTodayBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colTodayBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                worksheet[ROW, colOneToSevenBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOneToSevenBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colOneToSevenBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colOneToSevenBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colOneToSevenBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //worksheet[ROW, colOneToSevenBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOneToSevenBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colOneToSevenBalance) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colOneToSevenBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colOneToSevenBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                worksheet[ROW, colEightToThirtyBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colEightToThirtyBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colEightToThirtyBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colEightToThirtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colEightToThirtyBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //worksheet[ROW, colEightToThirtyBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colEightToThirtyBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colEightToThirtyBalance) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colEightToThirtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colEightToThirtyBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                worksheet[ROW, colThirtyToSixtyBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colThirtyToSixtyBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colThirtyToSixtyBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colThirtyToSixtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colThirtyToSixtyBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //worksheet[ROW, colThirtyToSixtyBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colThirtyToSixtyBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colThirtyToSixtyBalance) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colThirtyToSixtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colThirtyToSixtyBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                worksheet[ROW, colOnword60].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOnword60) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colOnword60) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colOnword60].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //worksheet[ROW, colOnword60].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOnword60) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colOnword60) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colOnword60].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
                 worksheet.Range[ROW, colBooksGross - 1, ROW, COL].CellStyle.Font.Bold = true;

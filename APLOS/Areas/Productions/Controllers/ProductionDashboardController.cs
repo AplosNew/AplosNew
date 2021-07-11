@@ -377,7 +377,7 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
                              LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
 												,MIN(s.ProductionDate) AS ProductionStartDateAtPR,MAX(s.ProductionDate) AS ProductionEndDateAtPR
 											FROM  trn.ProductionSummary S 
-											where s.ProcessId='PRO20172'
+											where s.ProcessId='"+ProcessId+@"'
 											GROUP BY  s.ProductionOrderId,s.ProcessId
 							) AS CurrentProcessPR ON  CurrentProcessPR.ProductionOrderId=po.id AND CurrentProcessPR.ProcessId=PSS.ProcessId
 							
@@ -525,7 +525,7 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
                              LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
 												,MIN(s.ProductionDate) AS ProductionStartDateAtPR,MAX(s.ProductionDate) AS ProductionEndDateAtPR
 											FROM  trn.ProductionSummary S 
-											where s.ProcessId='PRO20172'
+											where s.ProcessId='" + ProcessId + @"'
 											GROUP BY  s.ProductionOrderId,s.ProcessId
 							) AS CurrentProcessPR ON  CurrentProcessPR.ProductionOrderId=po.id AND CurrentProcessPR.ProcessId=PSS.ProcessId
 							
@@ -672,6 +672,12 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
                 int colVariance = COL;
 
                 COL++;
+                sheet[ROW, COL].Text = "WIP";
+                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colCurrentProcessWIP = COL;
+
+                COL++;
                 sheet[ROW, COL].Text = "Start Date";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colStartDate = COL;
@@ -691,6 +697,12 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
                 COL++;
                 sheet[ROW, COL].Text = "Qty";
                 sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                COL++;
+                sheet[ROW, COL].Text = "WIP";
+                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colPreviousProcessWIP = COL;
 
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colQty = COL;
@@ -749,10 +761,12 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
                     sheet[ROW, colActualQty].Number = clsStaticInfo.dbl(dtPurchaseLc.Rows[i]["ActualQTY"].ToString());
                     sheet[ROW, colProducedQty].Number = clsStaticInfo.dbl(dtPurchaseLc.Rows[i]["ProducedQty"].ToString());
                     sheet[ROW, colVariance].Number = clsStaticInfo.dbl(dtPurchaseLc.Rows[i]["Variance"].ToString());
+                    sheet[ROW, colCurrentProcessWIP].Number = clsStaticInfo.dbl(dtPurchaseLc.Rows[i]["CurrentProcessWIP"].ToString());
                     sheet[ROW, colStartDate].Text = dtPurchaseLc.Rows[i]["StartDate"].ToString();
                     sheet[ROW, colRemarks].Text = dtPurchaseLc.Rows[i]["Remarks"].ToString();
                     sheet[ROW, colPreviousProcess].Text = dtPurchaseLc.Rows[i]["PreviousProcess"].ToString();
                     sheet[ROW, colQty].Number = clsStaticInfo.dbl(dtPurchaseLc.Rows[i]["PreviousProcessQty"].ToString());
+                    sheet[ROW, colPreviousProcessWIP].Number = clsStaticInfo.dbl(dtPurchaseLc.Rows[i]["PreviousProcessWIP"].ToString());
                     sheet[ROW, colPreviousProcessStartDate].Text = dtPurchaseLc.Rows[i]["PreviousProcessStartDate"].ToString();
                     sheet[ROW, colCompletionDate].Text = dtPurchaseLc.Rows[i]["ClosedDate"].ToString();
                     sheet[ROW, colCompletedBy].Text = dtPurchaseLc.Rows[i]["ClosedBy"].ToString();
@@ -824,150 +838,24 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
             if (string.IsNullOrEmpty(EntityId) || EntityId.ToUpper() == "NULL")
             {
                return @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
-convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId, convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess,CP.UserName CurrentProcess,PPR.CompletedBy ClosedBy
+convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId,NPR.Id NPRId ,convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess
+,CP.UserName CurrentProcess,NP.UserName NextProcess,PPR.CompletedBy ClosedBy
 ,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
 ,  PO.Id,PO.EntityId,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
 isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 ,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
-  ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
+ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
      so.ProductCategory,so.Product,
 		ActualQTY=	case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end,							
-                                Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article,CurrentProcessPR.ProductionQtyAtPR
+                                Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
 								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
 								PSS.CompletedBy ,
-PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
-								      MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
-																			trn.MasterOrder XMOI 	 
-								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
-								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
-								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
-                                                    BuyerRefNo =STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
-																			trn.MasterOrder XMOI 	 
-								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
-								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
-								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+ isnull( PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
+isnull (NextProcessPR.ProductionQtyAtPR,0) NextProcessQty,
+CurrentProcessWIP=isnull(CurrentProcessPR.ProductionQtyAtPR,0)-isnull (NextProcessPR.ProductionQtyAtPR,0),
+PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
 
-                                                   OwnRefNo =STUFF((select distinct ','+XMOI.OwnReferenceNo from 
-																			trn.MasterOrder XMOI 	 
-								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
-								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
-								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							                                where podx.ProductionOrderId=PO.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
-
-													StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
-																			trn.MasterOrderItem XMOI 	  
-								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
-								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
-	                                                
-                                                    OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
-																			trn.MasterOrderItem XMOI 	  
-								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
-								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
-
-                                                    SONo=STUFF((select distinct ','+sox.Id from 
-								                                trn.MasterOrderItem XMOI 	 
-								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
-								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-
-                                                    SODesc=STUFF((select distinct ','+sox.[Description] from 
-								                                trn.MasterOrderItem XMOI 	 
-								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
-								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-
-                                                    buyer=STUFF((select distinct ','+XB.UserName from 
-	                                                    trn.SalesOrder XSO 
-		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-
-
-                                                    Customer=STUFF((select distinct ','+XP.UserName from 
-		                                                    trn.SalesOrder XSO 
-		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
-			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')                                  			
-  
-                            FROM [TRN].[ProductionOrder] AS PO
-							left outer join ProductionOrderSchedulingParametersType1 st on st.ProductionOrderID=PO.Id
-                            JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
-                            LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
-							left join trn.ProductionOrderProcessSet PSS ON PSS.ProductionOrderId=PO.Id
-							left outer join HKP.Process CP on CP.Id=PSS.ProcessId					
-
-							left join trn.ProductionOrderProcessSet PLST ON PLST.ProductionOrderId=PO.Id and PLST.Id=(select top 1 Id from trn.ProductionOrderProcessSet XP where XP.ProductionOrderId=PO.Id order by XP.Sequence DESC)
-							left join trn.ProductionOrderProcessSet PPR ON PSS.ProductionOrderId=PO.Id 
-							and PPR.id=(select A.Id from (
-							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] desc) AS RNK,P.*
-							from TRN.ProductionOrderProcessSet P 
-							
-							where p.ProductionOrderId=PSS.ProductionOrderId AND P.Sequence<PSS.sequence) AS A where a.RNK=1)
-							left outer join HKP.Process P on p.Id=PPR.ProcessId					
-
-                             LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
-												,MIN(s.ProductionDate) AS ProductionStartDateAtPR,MAX(s.ProductionDate) AS ProductionEndDateAtPR
-											FROM  trn.ProductionSummary S 
-											where s.ProcessId='" + ProcessId + @"'
-											GROUP BY  s.ProductionOrderId,s.ProcessId
-							) AS CurrentProcessPR ON  CurrentProcessPR.ProductionOrderId=po.id AND CurrentProcessPR.ProcessId=PSS.ProcessId
-							
-                             LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
-												,MIN(s.ProductionDate) AS ProductionStartDate,MAX(s.ProductionDate) AS ProductionEndDate
-											FROM  trn.ProductionSummary S											
-											GROUP BY  s.ProductionOrderId,s.ProcessId
-							) AS PreviousProcessPR ON  PreviousProcessPR.ProductionOrderId=po.id AND PreviousProcessPR.ProcessId=PPR.ProcessId
-							 
-                            LEFT OUTER  JOIN (select
-                                                    pod.ProductionOrderId,
-                                                    mm.userName AS Material,ma.StandardName AS Article, PM.UserName AS Product,pc.UserName AS ProductCategory,
-                                                     min(so.DeliveryDate) AS FirstShipmentDate,  max(so.DeliveryDate) AS LastShipmentDate,
-                                                    sum(so.Qty) AS OrderQty,
-                                                    SUM(CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) AS PlannedQty
-                                                      from 
-                                                     trn.SalesOrder SO 
-                                                      JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
-                                                    left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
-                                                    left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
-                                                    left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
-                                                    left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
-                                                    left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
-													
-                                                    group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,pc.UserName) AS SO ON so.ProductionOrderId=po.Id
-                            LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-                            WHERE isnull(s.username,'') IN ('RUNNING') 
-                            AND ((ISNULL(ppr.Id,'')<>'' AND ISNULL(ppr.StartDate,'')<>'') OR ISNULL(ppr.Id,'')=''  OR ISNULL(ppr.IsCompleted,0)=1)
-                           AND EN.PlantId ='" + PlantId + @"' AND PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=0 
-                            ORDER BY st.LSD";
-                
-
-            }
-            else
-            {
-               return @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
-convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId, convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess,CP.UserName CurrentProcess,PPR.CompletedBy ClosedBy
-,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
-,  PO.Id,PO.EntityId,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
-isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
-,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
-  ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
-     so.ProductCategory,so.Product,
-		ActualQTY=	case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end,							
-                                Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article,CurrentProcessPR.ProductionQtyAtPR
-								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
-								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
-								PSS.CompletedBy ,
-PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
 								      MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -1040,10 +928,16 @@ PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
 							left join trn.ProductionOrderProcessSet PPR ON PSS.ProductionOrderId=PO.Id 
 							and PPR.id=(select A.Id from (
 							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] desc) AS RNK,P.*
-							from TRN.ProductionOrderProcessSet P 
-							
+							from TRN.ProductionOrderProcessSet P 							
 							where p.ProductionOrderId=PSS.ProductionOrderId AND P.Sequence<PSS.sequence) AS A where a.RNK=1)
-							left outer join HKP.Process P on p.Id=PPR.ProcessId					
+							left outer join HKP.Process P on p.Id=PPR.ProcessId
+
+						    left join trn.ProductionOrderProcessSet NPR ON PSS.ProductionOrderId=PO.Id 
+							and NPR.id=(select A.Id from (
+							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] ASC) AS RNK,P.*
+							from TRN.ProductionOrderProcessSet P 							
+							where p.ProductionOrderId=PSS.ProductionOrderId AND P.Sequence>PSS.sequence) AS A where a.RNK=1)
+							left outer join HKP.Process NP on NP.Id=NPR.ProcessId
 
                              LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
 												,MIN(s.ProductionDate) AS ProductionStartDateAtPR,MAX(s.ProductionDate) AS ProductionEndDateAtPR
@@ -1058,6 +952,12 @@ PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
 											GROUP BY  s.ProductionOrderId,s.ProcessId
 							) AS PreviousProcessPR ON  PreviousProcessPR.ProductionOrderId=po.id AND PreviousProcessPR.ProcessId=PPR.ProcessId
 							 
+							  LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
+												,MIN(s.ProductionDate) AS ProductionStartDate,MAX(s.ProductionDate) AS ProductionEndDate
+											FROM  trn.ProductionSummary S											
+											GROUP BY  s.ProductionOrderId,s.ProcessId
+							) AS NextProcessPR ON  NextProcessPR.ProductionOrderId=po.id AND NextProcessPR.ProcessId=NPR.ProcessId
+							 
                             LEFT OUTER  JOIN (select
                                                     pod.ProductionOrderId,
                                                     mm.userName AS Material,ma.StandardName AS Article, PM.UserName AS Product,pc.UserName AS ProductCategory,
@@ -1066,7 +966,155 @@ PreviousProcessPR.ProductionQtyAtPR PreviousProcessQty,
                                                     SUM(CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) AS PlannedQty
                                                       from 
                                                      trn.SalesOrder SO 
-                                                      JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
+                                                    JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
+                                                    left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+                                                    left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+                                                    left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                                    left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+                                                    left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+													
+                                                    group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,pc.UserName) AS SO ON so.ProductionOrderId=po.Id
+                            LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
+                            WHERE isnull(s.username,'') IN ('RUNNING') 
+                            AND ((ISNULL(ppr.Id,'')<>'' AND ISNULL(ppr.StartDate,'')<>'') OR ISNULL(ppr.Id,'')=''  OR ISNULL(ppr.IsCompleted,0)=1)
+                             AND EN.PlantId ='" + PlantId + @"' AND PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=0 
+                            ORDER BY st.LSD";
+                
+
+            }
+            else
+            {
+               return @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
+convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId,NPR.Id NPRId ,convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess
+,CP.UserName CurrentProcess,NP.UserName NextProcess,PPR.CompletedBy ClosedBy
+,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
+,  PO.Id,PO.EntityId,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
+isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
+,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
+ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
+     so.ProductCategory,so.Product,
+		ActualQTY=	case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end,							
+                                Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article
+								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
+								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
+								PSS.CompletedBy ,
+ isnull( PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
+isnull (NextProcessPR.ProductionQtyAtPR,0) NextProcessQty,
+CurrentProcessWIP=isnull(CurrentProcessPR.ProductionQtyAtPR,0)-isnull (NextProcessPR.ProductionQtyAtPR,0),
+PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
+
+								      MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+                                                    BuyerRefNo =STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+                                                   OwnRefNo =STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=PO.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+													StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+	                                                
+                                                    OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+                                                    SONo=STUFF((select distinct ','+sox.Id from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                                                    SODesc=STUFF((select distinct ','+sox.[Description] from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=PO.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                                                    buyer=STUFF((select distinct ','+XB.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+
+                                                    Customer=STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')                                  			
+  
+                            FROM [TRN].[ProductionOrder] AS PO
+							left outer join ProductionOrderSchedulingParametersType1 st on st.ProductionOrderID=PO.Id
+                            JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
+                            LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
+							left join trn.ProductionOrderProcessSet PSS ON PSS.ProductionOrderId=PO.Id
+							left outer join HKP.Process CP on CP.Id=PSS.ProcessId				
+
+							left join trn.ProductionOrderProcessSet PLST ON PLST.ProductionOrderId=PO.Id and PLST.Id=(select top 1 Id from trn.ProductionOrderProcessSet XP where XP.ProductionOrderId=PO.Id order by XP.Sequence DESC)
+							left join trn.ProductionOrderProcessSet PPR ON PSS.ProductionOrderId=PO.Id 
+							and PPR.id=(select A.Id from (
+							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] desc) AS RNK,P.*
+							from TRN.ProductionOrderProcessSet P 							
+							where p.ProductionOrderId=PSS.ProductionOrderId AND P.Sequence<PSS.sequence) AS A where a.RNK=1)
+							left outer join HKP.Process P on p.Id=PPR.ProcessId
+
+						    left join trn.ProductionOrderProcessSet NPR ON PSS.ProductionOrderId=PO.Id 
+							and NPR.id=(select A.Id from (
+							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] ASC) AS RNK,P.*
+							from TRN.ProductionOrderProcessSet P 							
+							where p.ProductionOrderId=PSS.ProductionOrderId AND P.Sequence>PSS.sequence) AS A where a.RNK=1)
+							left outer join HKP.Process NP on NP.Id=NPR.ProcessId
+
+                             LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
+												,MIN(s.ProductionDate) AS ProductionStartDateAtPR,MAX(s.ProductionDate) AS ProductionEndDateAtPR
+											FROM  trn.ProductionSummary S 
+											where s.ProcessId='" + ProcessId + @"'
+											GROUP BY  s.ProductionOrderId,s.ProcessId
+							) AS CurrentProcessPR ON  CurrentProcessPR.ProductionOrderId=po.id AND CurrentProcessPR.ProcessId=PSS.ProcessId
+							
+                             LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
+												,MIN(s.ProductionDate) AS ProductionStartDate,MAX(s.ProductionDate) AS ProductionEndDate
+											FROM  trn.ProductionSummary S											
+											GROUP BY  s.ProductionOrderId,s.ProcessId
+							) AS PreviousProcessPR ON  PreviousProcessPR.ProductionOrderId=po.id AND PreviousProcessPR.ProcessId=PPR.ProcessId
+							 
+							  LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
+												,MIN(s.ProductionDate) AS ProductionStartDate,MAX(s.ProductionDate) AS ProductionEndDate
+											FROM  trn.ProductionSummary S											
+											GROUP BY  s.ProductionOrderId,s.ProcessId
+							) AS NextProcessPR ON  NextProcessPR.ProductionOrderId=po.id AND NextProcessPR.ProcessId=NPR.ProcessId
+							 
+                            LEFT OUTER  JOIN (select
+                                                    pod.ProductionOrderId,
+                                                    mm.userName AS Material,ma.StandardName AS Article, PM.UserName AS Product,pc.UserName AS ProductCategory,
+                                                     min(so.DeliveryDate) AS FirstShipmentDate,  max(so.DeliveryDate) AS LastShipmentDate,
+                                                    sum(so.Qty) AS OrderQty,
+                                                    SUM(CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) AS PlannedQty
+                                                      from 
+                                                     trn.SalesOrder SO 
+                                                    JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
                                                     left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                                     left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
                                                     left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
