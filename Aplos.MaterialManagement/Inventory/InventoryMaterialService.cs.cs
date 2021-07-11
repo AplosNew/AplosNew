@@ -1035,7 +1035,7 @@ namespace Library.MaterialManagement.Inventory
 						   ,0 RejectionQty
                            --,MRD.MaterialDetail
                            ,null AS [check] ,IRD.Description MaterialDetail,'null' PurchaseDocAcceptanceDetailId,0 POClosStatus,C.UserName CountryName,C.Id CountryId ,MM.IsAsset,IRD.TotalTaxAmount,0 GrossAmount,0 DiscountAmount,'' QualityStatus
-						,IRD.TransactionUoMId POUoMId,IRD.Tolerance
+						,IRD.TransactionUoMId POUoMId,IRD.Tolerance,IRD.RefferenceNo
                          FROM TRN.PurchaseOrderDetail AS IRD
 						--LEFT JOIN TRN.PurchaseOrderDetail AS IRD ON IRD.InventoryMaterialId=PM.Id
                          left JOIN MST.MaterialMaster AS MM ON IRD.InventoryMaterialId=MM.Id
@@ -1100,7 +1100,7 @@ namespace Library.MaterialManagement.Inventory
 						   ,0 RejectionQty
                            --,MRD.MaterialDetail
                            ,null AS [check] ,IRD.Description MaterialDetail,'null' PurchaseDocAcceptanceDetailId,0 POClosStatus,C.UserName CountryName,C.Id CountryId ,MM.IsAsset,IRD.TotalTaxAmount,0 GrossAmount,0 DiscountAmount,'' QualityStatus
-							,IRD.TransactionUoMId POUoMId,IRD.Tolerance
+							,IRD.TransactionUoMId POUoMId,IRD.Tolerance,IRD.RefferenceNo
 					    
                          FROM TRN.PurchaseOrderDetail AS IRD
 						--LEFT JOIN TRN.PurchaseOrderDetail AS IRD ON IRD.InventoryMaterialId=PM.Id

@@ -3526,8 +3526,8 @@ UNION ALL
 					LEFT  JOIN MST.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
 					LEFT JOIN mst.MaterialMasterArticle Article ON Article.Id=MOI.ArticleId
 					left join [TRN].[FirstCharacteristics] FCS ON FCS.SalesOrderId=so.Id
-					left join [TRN].[SecondCharacteristics] SCS ON SCS.SalesOrderId=so.Id
-					left join [TRN].[ThirdCharacteristics] TCS ON TCS.SalesOrderId=so.Id
+					left join [TRN].[SecondCharacteristics] SCS ON SCS.FirstCharacteristicsId=FCS.Id
+					Left join [TRN].[ThirdCharacteristics] TCS ON TCS.SecondCharacteristicsId=SCS.Id
 					LEFT OUTER JOIN[HKP].[CharacteristicsValue] V1 ON v1.Id = FCS.CharacteristicsValueId
 					LEFT OUTER JOIN[HKP].[CharacteristicsValue] V2 ON v2.Id = SCS.CharacteristicsValueId
 					LEFT OUTER JOIN[HKP].[CharacteristicsValue] V3 ON v3.Id = TCS.CharacteristicsValueId
