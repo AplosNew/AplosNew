@@ -267,73 +267,10 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult GetJobWorkInventoryReceivePostedList(string column, string value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(GetJWPostedList(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(_accountsInventoryPayableService.GetJWPostedList(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
-        public IEnumerable<object> GetJWPostedList(string column, string value, string plantId)
-        {
-            try
-            {
-                string strkey = "1=1";
-                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                    strkey = column + " like '%" + value + "%'";
-                var sql = @"DECLARE @plantId VARCHAR(10)='" + plantId + @"';
-                        select top 100 * from (SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
-			                        , CP.UserName AS PartyAccountGroupName
-			                        , IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
-                                    , Particular=CASE WHEN IR.EmployeeId<>'' THEN EI.EmployeeName WHEN IR.PartyId<>'' THEN P.UserName  ELSE P.UserName END
-	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-	                                , REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
-	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
-	                                , IR.FixedAssetOrInventory, IR.PODepended, IR.AlongwithInvoice, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
-	                                , IR.InvoicingPartyPlantId, IR.InvoicingPartyPlantId PartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
-                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, IR.IsTaxApplicable
-                                    , COUNT(*) OVER () AS TotalRows
-									,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
-									,IR.GateEntryNo,IR.POId,IR.ToCurrencyRate,IR.NoteForAccounts Narration
-									,VoucherNo = CASE WHEN IR.EmployeeId <>'' THEN VE.VoucherNo ELSE V.VoucherNo END
-									,VoucherTypeId = CASE WHEN IR.EmployeeId <>'' THEN VE.VoucherTypeId ELSE V.VoucherTypeId END
-									,PostingDate= CASE WHEN IR.EmployeeId <>'' THEN REPLACE(CONVERT(CHAR(11), VE.PostingDate, 106),' ','-') ELSE REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') END
-                                    ,MS.UserName MaterialStorageName, IR.IsFOC, ISNULL(ADT.TaxAmount,0) TDSTax, ADT.VoucherId TDSTaxVoucherId, ADT.Id AdditionalTaxId
-                                    ,IsTDSTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'Posted' WHEN  ADT.InventoryReceiveId IS NULL THEN '' ELSE 'Parked' end
-									,VT.VoucherNo TDSVoucherNo
-						FROM [TRN].[InventoryReceive] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
-                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
-			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
-                        LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
-                        JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
-                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
-                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
-                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
-                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
-                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
-                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
-                        LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.MaterialTranAmount) AS TransactionAmount, SUM(A.TotalMaterialTranAmount) AS BaseAmount FROM [TRN].[InventoryReceiveDetail] AS A
-		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId=@plantId GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
-                        LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
-		                            WHERE B.PlantId=@plantId GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
-                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
-                        LEFT JOIN TRN.GRNAcceptanceMap IGD ON IGD.GRNId=IR.Id
-                        LEFT JOIN TRN.Invoice IV ON IV.Id=IGD.InvoiceId
-						LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
-						LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IR.Id
-						LEFT JOIN TRN.Voucher VE ON VE.Id=EP.VoucherId
-                        LEFT JOIN HKP.MaterialStorage MS ON MS.Id=IR.MaterialStorageId
-                        LEFT JOIN TRN.AdditionalTax ADT ON ADT.InventoryReceiveId=IR.Id
-						LEFT JOIN TRN.Voucher VT ON VT.Id=ADT.VoucherId
-                        WHERE IR.PlantId=@plantId AND IR.[Status]='Posting' AND IR.IsPaymentHold=0 AND IR.PlantId=@plantId AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL
-                        ) AS TEMP WHERE " + strkey + " order by PostingDate DESC";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-            }
-        }
-
+        
         #endregion
 
         #region Service Payable

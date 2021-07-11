@@ -7,7 +7,7 @@
                     <label class="col-sm-4 control-label">Company<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select name="Company" class="form-control" ng-model="fileNew.CompanyId" ng-change="getPlantCbo();getData();" ng-options="item.Value as item.Text for item in companyList" required>
+                            <select name="Company" class="form-control" ng-model="fileNew.CompanyId" ng-change="getPlantCbo();getData();GetProcessByCompany();" ng-options="item.Value as item.Text for item in companyList" required>
                                 <option value="">--Select--</option>
                             </select>
                         </div>
@@ -142,11 +142,11 @@
                                 <label class="col-sm-4 control-label">Buyer Division<sup>*</sup></label>
                                 <div class="col-sm-8">
                                     @*
-                                        <div class="select-style">
-                                                                                <select name="Buyer Division" class="form-control" ng-model="fileNew.BuyerDivisionId" ng-options="item.Value as item.Text for item in divisionList" tabindex="13">
-                                                                                    <option value=""></option>
-                                                                                </select>
-                                                                            </div>*@
+                <div class="select-style">
+                                                        <select name="Buyer Division" class="form-control" ng-model="fileNew.BuyerDivisionId" ng-options="item.Value as item.Text for item in divisionList" tabindex="13">
+                                                            <option value=""></option>
+                                                        </select>
+                                                    </div>*@
                                     <div class="select-style">
                                         <select class="form-control" name="Division" id="Division" ng-model="fileNew.BuyerDivisionId" tabindex="8">
                                             @*<option value="ALL">ALL</option>*@
@@ -213,7 +213,16 @@
                                     <input type="text" n-decimals="2" name="Extra Order Percentage" ng-model="fileNew.ExtraOrderPercentage" tabindex="17" ng-disabled="fileNew.IsExtraOrderPercentage != true" class="form-control text-right" />
                                 </div>
                             </div>
-
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Exceptional Process</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="Exceptional Process" class="form-control" ng-model="fileNew.ExceptionalProcessId" ng-change="GetSubProcessByProcess();" ng-options="item.Value as item.Text for item in ProcessList">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
@@ -335,6 +344,16 @@
                                 <label class="col-sm-4 control-label">No. of Line Item<sup>*</sup></label>
                                 <div class="col-sm-8">
                                     <input type="text" only-numbers name="No of Line Item" ng-model="fileNew.NoOfLineItem" class="form-control text-right" tabindex="20">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Exceptional SubProcess</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="Exceptional SubProcess" class="form-control" ng-model="fileNew.ExceptionalSubProcessId" ng-options="item.Value as item.Text for item in SubProcessList">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>

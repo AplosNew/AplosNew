@@ -90,6 +90,11 @@ function baseMaterialAndArticleController(cboService, commonMessage, $scope, $ro
         $scope.loadMMData();
     };
 
+    $scope.closeMaterialMasterSearchPopUp = function () {
+        CloseModalShowResult('materialmastersearchpopup');
+        angular.element(document.querySelector('#materialmastersearchpopup')).modal('hide');
+    };
+
     // #endregion Material Search By Business Process
 
     // #region Material Article Search

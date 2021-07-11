@@ -96,27 +96,61 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult getactivitylistTransformation()
+        public JsonResult getactivitylistTransformation(string ContractType)
         {
-            return Json(_sqlRepository.GetDataCollection("select distinct jwa.Id as Value, jwa.UserName as Text from MST.JobWorkTransformationMaster tm left join HKP.JobWorkActivity jwa on jwa.Id=tm.JobWorkActivityId order by jwa.UserName"), JsonRequestBehavior.AllowGet);
+            string sql = "";
+            if(ContractType== "OSTransformationPO")
+            {
+                sql = @"select distinct jwa.Id as Value, jwa.UserName as Text from MST.JobWorkTransformationMaster tm 
+                        left join HKP.JobWorkActivity jwa on jwa.Id=tm.JobWorkActivityId order by jwa.UserName ";
+            }
+
+            if (ContractType == "OSValueAddedPO")
+            {
+                sql = @"select distinct jwa.Id as Value, jwa.UserName as Text from MST.JobWorkValueAddedMaster tm 
+                        left join HKP.JobWorkActivity jwa on jwa.Id=tm.JobWorkActivityId order by jwa.UserName ";
+            }
+
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public JsonResult getTransformationjobworkitemlist(string ActivityId)
+        public JsonResult getTransformationjobworkitemlist(string ActivityId, string ContractType)
         {
-            return Json(_sqlRepository.GetDataCollection("select jwi.Id as Value, jwi.UserName as Text from MST.JobWorkTransformationMaster tm left join HKP.JobWorkItem jwi on jwi.Id=tm.JobWorkActivityChildId where tm.JobWorkActivityId='"+ ActivityId + @"' order by jwi.UserName"), JsonRequestBehavior.AllowGet);
+            string sql = "";
+            if (ContractType == "OSTransformationPO")
+            {
+                sql = @"select jwi.Id as Value, jwi.UserName as Text from MST.JobWorkTransformationMaster tm 
+                        left join HKP.JobWorkItem jwi on jwi.Id=tm.JobWorkActivityChildId where tm.JobWorkActivityId='" + ActivityId + @"' order by jwi.UserName ";
+            }
+
+            if (ContractType == "OSValueAddedPO")
+            {
+                sql = @"select jwi.Id as Value, jwi.UserName as Text from MST.JobWorkValueAddedMaster vm 
+                        left join HKP.JobWorkItem jwi on jwi.Id=vm.JobWorkActivityChildId where vm.JobWorkActivityId='" + ActivityId + @"' order by jwi.UserName";
+            }
+
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+          //  return Json(_sqlRepository.GetDataCollection("select jwi.Id as Value, jwi.UserName as Text from MST.JobWorkTransformationMaster tm left join HKP.JobWorkItem jwi on jwi.Id=tm.JobWorkActivityChildId where tm.JobWorkActivityId='"+ ActivityId + @"' order by jwi.UserName"), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetJWitemDataFromTrans(string ActivityId, string JWItemId)
+        public JsonResult GetJWitemDataFromTrans(string ActivityId, string JWItemId, string ContractType)
         {
             string sql = "";
-            sql = @"select tm.Id, tm.RateApplicable,tm.ByProductApplicable,c.Id as CId,c.Code as Currency,uom.Id as UOMId ,uom.UserName as Unit from MST.JobWorkTransformationMaster tm left join scs.Currency c on c.Id=tm.CurrencyId
+            if(ContractType== "OSTransformationPO")
+            {
+                sql = @"select tm.Id, tm.RateApplicable,tm.ByProductApplicable,c.Id as CId,c.Code as Currency,uom.Id as UOMId ,uom.UserName as Unit 
+                    from MST.JobWorkTransformationMaster tm left join scs.Currency c on c.Id=tm.CurrencyId
                     left join HKP.JobWorkItem jwi on jwi.Id=tm.JobWorkActivityChildId
                     left join scs.UnitOfMeasurement uom on uom.Id=jwi.UOMId
-                    where tm.JobWorkActivityId='" + ActivityId + @"' and tm.JobWorkActivityChildId='"+ JWItemId + @"' ";
+                    where tm.JobWorkActivityId='" + ActivityId + @"' and tm.JobWorkActivityChildId='" + JWItemId + @"' ";
+            }
 
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection(sql,null), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -165,21 +199,54 @@ namespace Aplos.Areas.JobWork.Controllers
         //}
 
         [HttpGet, Authorize]
-        public JsonResult gettransformationrateapplylist(string JobWorkItemId, string ActivityId)
+        public JsonResult gettransformationrateapplylist(string JobWorkItemId, string ActivityId, string ContractType)
         {
+
             string sql = "";
-            sql = @"Select RateApplicable as Value, RateApplicable as Text,MinRate, MaxRate from MST.JobWorkTransformationMaster where JobWorkActivityChildId='" + JobWorkItemId + "' and JobWorkActivityId='"+ ActivityId + @"' order by RateApplicable";
+            if (ContractType == "OSTransformationPO")
+            {
+                sql = @"Select RateApplicable as Value, RateApplicable as Text,MinRate, MaxRate from MST.JobWorkTransformationMaster 
+                        where JobWorkActivityChildId='" + JobWorkItemId + "' and JobWorkActivityId='" + ActivityId + @"' order by RateApplicable ";
+            }
+
+            if (ContractType == "OSValueAddedPO")
+            {
+                sql = @"Select RateApplicable as Value, RateApplicable as Text,MinRate, MaxRate from MST.JobWorkValueAddedMaster 
+                        where JobWorkActivityChildId='"+ JobWorkItemId + @"' and JobWorkActivityId='"+ ActivityId + @"' order by RateApplicable";
+            }
+
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+            //string sql = "";
+            //sql = @"Select RateApplicable as Value, RateApplicable as Text,MinRate, MaxRate from MST.JobWorkTransformationMaster where JobWorkActivityChildId='" + JobWorkItemId + "' and JobWorkActivityId='"+ ActivityId + @"' order by RateApplicable";
+
+            //return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
-        public JsonResult gettransformationcurrency(string JobWorkItemId, string ActivityId)
+        public JsonResult gettransformationcurrency(string JobWorkItemId, string ActivityId, string ContractType)
         {
             string sql = "";
-            sql = @"Select distinct c.Id as Value, c.Code as Text from scs.Currency c left join MST.JobWorkTransformationMaster tm on tm.CurrencyId=c.Id where tm.JobWorkActivityId='"+ ActivityId + @"' and tm.JobWorkActivityChildId='" + JobWorkItemId + "' order by c.Code";
+            if (ContractType == "OSTransformationPO")
+            {
+                sql = @"Select distinct c.Id as Value, c.Code as Text from scs.Currency c left join MST.JobWorkTransformationMaster tm on tm.CurrencyId=c.Id 
+                        where tm.JobWorkActivityId='" + ActivityId + @"' and tm.JobWorkActivityChildId='" + JobWorkItemId + "' order by c.Code ";
+            }
+
+            if (ContractType == "OSValueAddedPO")
+            {
+                sql = @"Select distinct c.Id as Value, c.Code as Text from scs.Currency c left join MST.JobWorkValueAddedMaster vam on vam.CurrencyId=c.Id 
+                        where vam.JobWorkActivityId='" + ActivityId + @"' and vam.JobWorkActivityChildId='" + JobWorkItemId + "' order by c.Code";
+            }
+
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+            //string sql = "";
+            //sql = @"Select distinct c.Id as Value, c.Code as Text from scs.Currency c left join MST.JobWorkTransformationMaster tm on tm.CurrencyId=c.Id where tm.JobWorkActivityId='"+ ActivityId + @"' and tm.JobWorkActivityChildId='" + JobWorkItemId + "' order by c.Code";
+
+            //return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -1545,7 +1612,8 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult getMatInputListData(string JobWorkItemId, string ActivityId, string Id)
         {
 
-            string sql = @"select tmi.*, jwi.UserName as JWInputItem,jwi.UOMId as JWIUnitId,juom.UserName as JWIUnit, emp.EmployeeCode, emp.EmployeeName, mm.UserName as InputMaterial, uom.UserName as MMUnit
+            string sql = @"select tmi.*, jwi.UserName as JWInputItem,jwi.UOMId as JWIUnitId,juom.UserName as JWIUnit, emp.EmployeeCode, emp.EmployeeName,mm.Id as InputMaterialId
+                                        , mm.UserName as InputMaterial, uom.UserName as MMUnit
                                         ,Unit=case when jwi.MaterialMasterId is not null then uom.UserName else juom.UserName end 
 										from MST.JobWorkTransformationMasterMaterialInput tmi left join HKP.JobWorkItem jwi on jwi.Id=tmi.JobWorkItemId
                                         left join dbo.EmployeeInformation emp on emp.SystemId=tmi.ResponsiblePersonId
@@ -1604,6 +1672,7 @@ namespace Aplos.Areas.JobWork.Controllers
                         dr["GrossConsumption"] = item.GrossConsumption;
                         dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
                         dr["Remarks"] = item.Remarks;
+                        dr["ArticleId"] = item.ArticleId;
 
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -1628,6 +1697,7 @@ namespace Aplos.Areas.JobWork.Controllers
                         dr["GrossConsumption"] = item.GrossConsumption;
                         dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
                         dr["Remarks"] = item.Remarks;
+                        dr["ArticleId"] = item.ArticleId;
 
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -1695,7 +1765,7 @@ namespace Aplos.Areas.JobWork.Controllers
         {
 
             string sql = @"select mi.*,jwi.UserName as JWInputItem,juom.UserName as JWIUnit, emp.EmployeeCode, emp.EmployeeStatus, emp.EmployeeName as ResponsiblePerson
-                                                   ,mm.UserName as InputMaterial, uom.UserName as MMUnit
+                                                   ,mm.UserName as InputMaterial, uom.UserName as MMUnit, mma.StandardName as InputArticle, mma.Id as InputArticleId
                                                     ,Unit=case when jwi.MaterialMasterId is not null then uom.UserName else juom.UserName end 
 													from dbo.JobWorkTransformationContractChild3 mi 
 													left join HKP.JobWorkItem jwi on jwi.Id=mi.JobWorkItemId
@@ -1703,6 +1773,7 @@ namespace Aplos.Areas.JobWork.Controllers
 													left join MST.MaterialMaster mm on mm.Id=jwi.MaterialMasterId
 							             			left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
 							            			left join scs.UnitOfMeasurement juom on juom.Id=jwi.UOMId
+													left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 										            where mi.JobWorkTransformationContractChildMasterId='" + MaterialMasterId + "' ";
 
 
@@ -1877,6 +1948,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
             string sql = @"select bp.*,jwi.UserName as ByProductItem, c.Code as Currency, emp.EmployeeCode, emp.EmployeeName,mm.Id as BPMaterialId, mm.UserName as ByProductMaterial, mm.Code as BPMaterialCode
                            ,Unit= case when jwi.MaterialMasterId is not null then mmuom.UserName else uom.UserName End
+                           ,0 Tolerance
                            from MST.JobWorkTransformationMasterByProduct bp left join HKP.JobWorkItem jwi on jwi.Id=bp.JobWorkItemId
                            left join scs.Currency c on c.Id=bp.CurrencyId
                            left join dbo.EmployeeInformation emp on emp.SystemId=bp.ResponsiblePersonId
@@ -2134,11 +2206,11 @@ namespace Aplos.Areas.JobWork.Controllers
                 //   ROW++;
                 ColVAContractClosingDateEnd++;
 
-                SetHeaderTextTop(ref sheet, ROW, ColVAContractClosingDateEnd, "UserContractReference", 20, ExcelHAlign.HAlignLeft);
+                SetHeaderTextTop(ref sheet, ROW, ColVAContractClosingDateEnd, "Contract Id", 20, ExcelHAlign.HAlignLeft);
                 ColVAContractClosingDateEnd++;
                 int ColUserContractReference = ColVAContractClosingDateEnd;
                 int ColUserContractReferenceEnd = ColVAContractClosingDateEnd + 1;
-                sheet.Range[ROW, ColUserContractReference, ROW, ColUserContractReferenceEnd].Text = data.Rows[0]["UserContractReference"].ToString();
+                sheet.Range[ROW, ColUserContractReference, ROW, ColUserContractReferenceEnd].Text = data.Rows[0]["Id"].ToString();
                 sheet.Range[ROW, ColUserContractReference, ROW, ColUserContractReferenceEnd].Merge();
                 sheet.Range[ROW, ColUserContractReference, ROW, ColUserContractReferenceEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColUserContractReference, ROW, ColUserContractReferenceEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2191,7 +2263,11 @@ namespace Aplos.Areas.JobWork.Controllers
             int ColQuantity = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Article Code", 8, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Material", 10, ExcelHAlign.HAlignLeft);
+            int ColMaterial = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Article", 10, ExcelHAlign.HAlignLeft);
             int ColArticleCode = COL;
             COL++;
 
@@ -2275,16 +2351,16 @@ namespace Aplos.Areas.JobWork.Controllers
                 sheet[ROW, ColUOM].Text = data.Rows[i]["UOM"].ToString();
                 sheet[ROW, ColQuantity].Text = data.Rows[i]["Quantity"].ToString();
 
+                sheet[ROW, ColMaterial].Text = data.Rows[i]["Material"].ToString();
+                sheet[ROW, ColArticleCode].Text = data.Rows[i]["Article"].ToString();
 
-                sheet[ROW, ColArticleCode].Text = data.Rows[i]["ArticleCode"].ToString();
-
-                sheet[ROW, ColOrderSpecific].Text = data.Rows[i]["OrderSpecific"].ToString();
-                sheet[ROW, ColRequiredCapacity].Number = clsStaticInfo.dbl(data.Rows[i]["RequiredCapacity"].ToString());
+                sheet[ROW, ColOrderSpecific].Text = data.Rows[i]["MOutOrderSpecific"].ToString();
+                sheet[ROW, ColRequiredCapacity].Number = clsStaticInfo.dbl(data.Rows[i]["ReqCapacity"].ToString());
                 sheet[ROW, ColRateApplicable].Text = data.Rows[i]["RateApplicable"].ToString();
                 sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
 
                 sheet[ROW, ColRatePerUnit].Number = clsStaticInfo.dbl(data.Rows[i]["RatePerUnit"].ToString());
-                sheet[ROW, ColRejection].Number = clsStaticInfo.dbl(data.Rows[i]["Rejection"].ToString());
+                sheet[ROW, ColRejection].Number = clsStaticInfo.dbl(data.Rows[i]["VccRejection"].ToString());
                 sheet[ROW, ColValueLoss].Number = clsStaticInfo.dbl(data.Rows[i]["ValueLoss"].ToString());
                 sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
                 sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
@@ -2416,21 +2492,21 @@ namespace Aplos.Areas.JobWork.Controllers
 
         private DataTable GetContractReportDataById(string PrintTabId)
         {
-            var sql = @"select vac.*,TabType='Value Added',FORMAT(vac.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+            var sql = @"select vac.*,TabType='Value Added',FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                     FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                     e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,jwi.UserName as JobWorkItem, vcc.MaterialSpecification, vcc.MaterialReference
-									,uom.UserName as UOM, vcc.Quantity, mma.StandardName as ArticleCode, vcc.OrderSpecific, vcc.RequiredCapacity, vam.RateApplicable, c.Code as Currency
-									,vcc.RatePerUnit, vcc.Rejection,vcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,vcc.Remarks as VCCRemarks,jl.LocationName as MaterialLocation,vcc.MaterialType,vcc.FinalOutputCategory
-                                    from dbo.JobWorkValueAddedContract vac left join ORG.Entity e on e.Id=vac.EntityId
-									left join HKP.Party p on p.Id=vac.VendorPartyId
-									left join dbo.JobWorkValueAddedContractChild vcc on vcc.JobWorkValueAddedContractMasterId=vac.Id
+									,uom.UserName as UOM, vcc.Quantity,mm.UserName as Material, mma.StandardName as Article, vcc.OrderSpecific as MOutOrderSpecific,isnull(vcc.RequiredCapacity,'0') as ReqCapacity, vcc.RateApplyId as RateApplicable, c.Code as Currency
+									,vcc.RatePerUnit, ISNULL(vcc.Rejection,'0') as VccRejection,vcc.ValueLoss,emp.EmployeeName,emp.EmployeeCode,vcc.Remarks as VCCRemarks,jl.UserName as MaterialLocation,vcc.MaterialType,vcc.FinalOutputCategory
+                                    from dbo.JWTransformationPurchaseOrder vac left join ORG.Entity e on e.Id=vac.EntityId
+									left join HKP.Party p on p.Id=vac.PartyId
+									left join dbo.JobWorkTransformationContractChild vcc on vcc.JobWorkTransformationContractMasterId=vac.Id
 									left join HKP.JobWorkItem jwi on jwi.Id=vcc.JobWorkItemMasterId
 									left join SCS.UnitOfMeasurement uom on uom.Id=vcc.OutputMaterialUOMId
-									left join MST.MaterialMasterArticle mma on mma.Id=vcc.ArticleCodeId
-									left join MST.JobWorkValueAddedMaster vam on vam.Id=vcc.RateApplyId
+									left join MST.MaterialMasterArticle mma on mma.Id=vcc.ArticleId
+									left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
 									left join SCS.Currency c on c.Id=vcc.CurrencyId
 									left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
-									left join HKP.JobWorkLocation jl on jl.Id=vcc.MaterialLocationId
+									left join HKP.MaterialStorage jl on jl.Id=vcc.MaterialLocationId
                                     where vac.Id = '" + PrintTabId + "' ";
 
             return _sqlRepository.GetDataTable(sql);
@@ -2439,13 +2515,13 @@ namespace Aplos.Areas.JobWork.Controllers
         private DataTable GetMaterialPlanningChildReportDataById(string PrintTabId)
         {
             var sql = @"select owr.*,P.UserName as Customer,mo.MasterOrderNo,mm.UserName as MaterialOrderItem, uom.UserName as UOM 
-                                                    from dbo.JobWorkValueAddedContractChild2 owr left join HKP.Party P on P.Id=owr.CustomerId
+                                                    from dbo.JobWorkTransformationContractChild2 owr left join HKP.Party P on P.Id=owr.CustomerId
                                                     left join TRN.MasterOrder mo on mo.Id=owr.MasterOrderNoId												
 													left join TRN.MasterOrderItem moi on moi.Id=owr.MasterOrderItemId
 													left join MST.MaterialMaster mm on mm.Id=moi.MaterialMasterId
 													left join SCS.UnitOfMeasurement uom on uom.Id=owr.OutputMaterialUOMId
-													left join dbo.JobWorkValueAddedContractChild mp on mp.Id=owr.JobWorkValueAddedContractChildMasterId
-													left join dbo.JobWorkValueAddedContract vac on vac.Id=mp.JobWorkValueAddedContractMasterId
+													left join dbo.JobWorkTransformationContractChild mp on mp.Id=owr.JobWorkTransformationContractChildMasterId
+													left join dbo.JWTransformationPurchaseOrder vac on vac.Id=mp.JobWorkTransformationContractMasterId
 													where vac.Id='" + PrintTabId + "' ";
 
             return _sqlRepository.GetDataTable(sql);
@@ -2611,10 +2687,21 @@ namespace Aplos.Areas.JobWork.Controllers
                 //   ROW++;
                 ColVAContractClosingDateEnd++;
 
-                SetHeaderTextTop(ref sheet, ROW, ColVAContractClosingDateEnd, "Remarks", 20, ExcelHAlign.HAlignLeft);
+                SetHeaderTextTop(ref sheet, ROW, ColVAContractClosingDateEnd, "Contract Id", 20, ExcelHAlign.HAlignLeft);
                 ColVAContractClosingDateEnd++;
-                int ColRemarks = ColVAContractClosingDateEnd;
-                int ColRemarksEnd = ColVAContractClosingDateEnd + 1;
+                int ColTransContractId = ColVAContractClosingDateEnd;
+                int ColTransContractIdEnd = ColVAContractClosingDateEnd + 1;
+                sheet.Range[ROW, ColTransContractId, ROW, ColTransContractIdEnd].Text = data.Rows[0]["Id"].ToString();
+                sheet.Range[ROW, ColTransContractId, ROW, ColTransContractIdEnd].Merge();
+                sheet.Range[ROW, ColTransContractId, ROW, ColTransContractIdEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[ROW, ColTransContractId, ROW, ColTransContractIdEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //   ROW++;
+                ColTransContractIdEnd++;
+
+                SetHeaderTextTop(ref sheet, ROW, ColTransContractIdEnd, "Remarks", 20, ExcelHAlign.HAlignLeft);
+                ColTransContractIdEnd++;
+                int ColRemarks = ColTransContractIdEnd;
+                int ColRemarksEnd = ColTransContractIdEnd + 1;
                 sheet.Range[ROW, ColRemarks, ROW, ColRemarksEnd].Text = data.Rows[0]["Remarks"].ToString();
                 sheet.Range[ROW, ColRemarks, ROW, ColRemarksEnd].Merge();
                 sheet.Range[ROW, ColRemarks, ROW, ColRemarksEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -3457,6 +3544,7 @@ public class JobWorkMaterialInputData
     public string EmployeeName { get; set; }
     public string EmployeeCode { get; set; }
     public string Remarks { get; set; }
+    public string ArticleId { get; set; }
 
     #endregion Scalar Properties
 }

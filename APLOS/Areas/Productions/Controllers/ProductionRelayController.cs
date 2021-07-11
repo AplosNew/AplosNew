@@ -166,19 +166,24 @@ namespace Aplos.Areas.Productions.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
-convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId, convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess,CP.UserName CurrentProcess,PPR.CompletedBy ClosedBy
+convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId,NPR.Id NPRId ,convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess
+,CP.UserName CurrentProcess,NP.UserName NextProcess,PPR.CompletedBy ClosedBy
 ,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
 ,  PO.Id,PO.EntityId,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
 isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 ,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
-  ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
+ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
      so.ProductCategory,so.Product,
 		ActualQTY=	case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end,							
-                                Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article,CurrentProcessPR.ProductionQtyAtPR
+                                Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
 								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
 								PSS.CompletedBy ,
-isnull(PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
+ isnull( PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
+isnull (NextProcessPR.ProductionQtyAtPR,0) NextProcessQty,
+CurrentProcessWIP=isnull(CurrentProcessPR.ProductionQtyAtPR,0)-isnull (NextProcessPR.ProductionQtyAtPR,0),
+PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
+
 								      MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -245,16 +250,22 @@ isnull(PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
                             JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
                             LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
 							left join trn.ProductionOrderProcessSet PSS ON PSS.ProductionOrderId=PO.Id
-							left outer join HKP.Process CP on CP.Id=PSS.ProcessId					
+							left outer join HKP.Process CP on CP.Id=PSS.ProcessId				
 
 							left join trn.ProductionOrderProcessSet PLST ON PLST.ProductionOrderId=PO.Id and PLST.Id=(select top 1 Id from trn.ProductionOrderProcessSet XP where XP.ProductionOrderId=PO.Id order by XP.Sequence DESC)
 							left join trn.ProductionOrderProcessSet PPR ON PSS.ProductionOrderId=PO.Id 
 							and PPR.id=(select A.Id from (
 							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] desc) AS RNK,P.*
-							from TRN.ProductionOrderProcessSet P 
-							
+							from TRN.ProductionOrderProcessSet P 							
 							where p.ProductionOrderId=PSS.ProductionOrderId AND P.Sequence<PSS.sequence) AS A where a.RNK=1)
-							left outer join HKP.Process P on p.Id=PPR.ProcessId					
+							left outer join HKP.Process P on p.Id=PPR.ProcessId
+
+						    left join trn.ProductionOrderProcessSet NPR ON PSS.ProductionOrderId=PO.Id 
+							and NPR.id=(select A.Id from (
+							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] ASC) AS RNK,P.*
+							from TRN.ProductionOrderProcessSet P 							
+							where p.ProductionOrderId=PSS.ProductionOrderId AND P.Sequence>PSS.sequence) AS A where a.RNK=1)
+							left outer join HKP.Process NP on NP.Id=NPR.ProcessId
 
                              LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
 												,MIN(s.ProductionDate) AS ProductionStartDateAtPR,MAX(s.ProductionDate) AS ProductionEndDateAtPR
@@ -269,6 +280,12 @@ isnull(PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
 											GROUP BY  s.ProductionOrderId,s.ProcessId
 							) AS PreviousProcessPR ON  PreviousProcessPR.ProductionOrderId=po.id AND PreviousProcessPR.ProcessId=PPR.ProcessId
 							 
+							  LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
+												,MIN(s.ProductionDate) AS ProductionStartDate,MAX(s.ProductionDate) AS ProductionEndDate
+											FROM  trn.ProductionSummary S											
+											GROUP BY  s.ProductionOrderId,s.ProcessId
+							) AS NextProcessPR ON  NextProcessPR.ProductionOrderId=po.id AND NextProcessPR.ProcessId=NPR.ProcessId
+							 
                             LEFT OUTER  JOIN (select
                                                     pod.ProductionOrderId,
                                                     mm.userName AS Material,ma.StandardName AS Article, PM.UserName AS Product,pc.UserName AS ProductCategory,
@@ -277,7 +294,7 @@ isnull(PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
                                                     SUM(CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) AS PlannedQty
                                                       from 
                                                      trn.SalesOrder SO 
-                                                      JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
+                                                    JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
                                                     left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                                     left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
                                                     left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
@@ -289,7 +306,7 @@ isnull(PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                             WHERE isnull(s.username,'') IN ('RUNNING') 
                             AND ((ISNULL(ppr.Id,'')<>'' AND ISNULL(ppr.StartDate,'')<>'') OR ISNULL(ppr.Id,'')=''  OR ISNULL(ppr.IsCompleted,0)=1)
-                            AND  PO.entityid='" + EntityId + @"' and  PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=0 
+                             AND  PO.entityid='" + EntityId + @"' and  PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=0 
                             ORDER BY st.LSD";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -299,19 +316,24 @@ isnull(PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT convert(bit,case when  PLST.processId='" + ProcessId + @"' then 1 else 0 END) AS IsLastProcess,PSS.Remarks,
-convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId, convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess,CP.UserName CurrentProcess,PPR.CompletedBy ClosedBy
+convert(bit,0) AS Checked, pss.Id PSSId,ppr.Id PPRId,NPR.Id NPRId ,convert(bit ,isnull(ppr.IsCompleted,0)) AS IsCompleted,P.UserName PreviousProcess
+,CP.UserName CurrentProcess,NP.UserName NextProcess,PPR.CompletedBy ClosedBy
 ,Format(PPR.CompletionEntryDate,'dd-MMM-yyyy') ClosedDate ,Format(PPR.StartDate,'dd-MMM-yyyy') PreviousProcessStartDate
 ,  PO.Id,PO.EntityId,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
 isnull(CurrentProcessPR.ProductionQtyAtPR,0) ProducedQty
 ,Variance=case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
-  ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
+ISNULL(PO.Qty,0) AS POQuantity,ISNULL(SO.PlannedQty,0) AS PlannedQty,ISNULL(SO.OrderQty,0) AS OrderQty,so.Material,
      so.ProductCategory,so.Product,
 		ActualQTY=	case when ISNULL(st.Qty,0)>0 then st.Qty else po.Qty end,							
-                                Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article,CurrentProcessPR.ProductionQtyAtPR
+                                Format(so.LastShipmentDate,'dd-MMM-yyyy') LastShipmentDate, so.article
 								,Format(CurrentProcessPR.ProductionStartDateAtPR,'dd-MMM-yyyy') ProductionStartDateAtPR,
 								Format(PSS.StartDate,'dd-MMM-yyyy') StartDate,Format(PSS.EndDate,'dd-MMM-yyyy') EndDate,Format(st.LSD,'dd-MMM-yyyy') LSD,
 								PSS.CompletedBy ,
-isnull(PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
+ isnull( PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
+isnull (NextProcessPR.ProductionQtyAtPR,0) NextProcessQty,
+CurrentProcessWIP=isnull(CurrentProcessPR.ProductionQtyAtPR,0)-isnull (NextProcessPR.ProductionQtyAtPR,0),
+PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(CurrentProcessPR.ProductionQtyAtPR,0),
+
 								      MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -378,15 +400,22 @@ isnull(PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
                             JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
                             LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
 							left join trn.ProductionOrderProcessSet PSS ON PSS.ProductionOrderId=PO.Id
-							left outer join HKP.Process CP on CP.Id=PSS.ProcessId					
+							left outer join HKP.Process CP on CP.Id=PSS.ProcessId				
 
 							left join trn.ProductionOrderProcessSet PLST ON PLST.ProductionOrderId=PO.Id and PLST.Id=(select top 1 Id from trn.ProductionOrderProcessSet XP where XP.ProductionOrderId=PO.Id order by XP.Sequence DESC)
 							left join trn.ProductionOrderProcessSet PPR ON PSS.ProductionOrderId=PO.Id 
 							and PPR.id=(select A.Id from (
 							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] desc) AS RNK,P.*
-							from TRN.ProductionOrderProcessSet P 
+							from TRN.ProductionOrderProcessSet P 							
 							where p.ProductionOrderId=PSS.ProductionOrderId AND P.Sequence<PSS.sequence) AS A where a.RNK=1)
-							left outer join HKP.Process P on p.Id=PPR.ProcessId					
+							left outer join HKP.Process P on p.Id=PPR.ProcessId
+
+						    left join trn.ProductionOrderProcessSet NPR ON PSS.ProductionOrderId=PO.Id 
+							and NPR.id=(select A.Id from (
+							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] ASC) AS RNK,P.*
+							from TRN.ProductionOrderProcessSet P 							
+							where p.ProductionOrderId=PSS.ProductionOrderId AND P.Sequence>PSS.sequence) AS A where a.RNK=1)
+							left outer join HKP.Process NP on NP.Id=NPR.ProcessId
 
                              LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
 												,MIN(s.ProductionDate) AS ProductionStartDateAtPR,MAX(s.ProductionDate) AS ProductionEndDateAtPR
@@ -397,10 +426,15 @@ isnull(PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
 							
                              LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
 												,MIN(s.ProductionDate) AS ProductionStartDate,MAX(s.ProductionDate) AS ProductionEndDate
-											FROM  trn.ProductionSummary S 
-											
+											FROM  trn.ProductionSummary S											
 											GROUP BY  s.ProductionOrderId,s.ProcessId
 							) AS PreviousProcessPR ON  PreviousProcessPR.ProductionOrderId=po.id AND PreviousProcessPR.ProcessId=PPR.ProcessId
+							 
+							  LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
+												,MIN(s.ProductionDate) AS ProductionStartDate,MAX(s.ProductionDate) AS ProductionEndDate
+											FROM  trn.ProductionSummary S											
+											GROUP BY  s.ProductionOrderId,s.ProcessId
+							) AS NextProcessPR ON  NextProcessPR.ProductionOrderId=po.id AND NextProcessPR.ProcessId=NPR.ProcessId
 							 
                             LEFT OUTER  JOIN (select
                                                     pod.ProductionOrderId,
@@ -408,9 +442,9 @@ isnull(PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
                                                      min(so.DeliveryDate) AS FirstShipmentDate,  max(so.DeliveryDate) AS LastShipmentDate,
                                                     sum(so.Qty) AS OrderQty,
                                                     SUM(CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) AS PlannedQty
-                                                        from 
+                                                      from 
                                                      trn.SalesOrder SO 
-                                                      JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
+                                                    JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
                                                     left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                                     left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
                                                     left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
@@ -420,7 +454,9 @@ isnull(PreviousProcessPR.ProductionQtyAtPR,0) PreviousProcessQty,
 													
                                                     group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,pc.UserName) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-                            WHERE isnull(s.username,'') IN ('RUNNING') AND  PO.entityid='" + EntityId + @"' and  PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=1 
+                            WHERE isnull(s.username,'') IN ('RUNNING') 
+                            AND ((ISNULL(ppr.Id,'')<>'' AND ISNULL(ppr.StartDate,'')<>'') OR ISNULL(ppr.Id,'')=''  OR ISNULL(ppr.IsCompleted,0)=1)
+                             AND  PO.entityid='" + EntityId + @"' and  PSS.ProcessId = '" + ProcessId + @"' and isnull(pss.IsCompleted,0)=1
                             ORDER BY st.LSD";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

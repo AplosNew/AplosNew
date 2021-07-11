@@ -355,7 +355,7 @@ namespace Library.Service.Invoices
             return glTemp;
         }
         public string InsertVendorPayment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-                , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList)
+                , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<VoucherDetailViewModel> glVMList)
         {
             var flag = false;
             try
@@ -957,6 +957,38 @@ namespace Library.Service.Invoices
                     _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, voucherDetailCurrencyCr);
                     totalCurrencyAmountCr += voucherDetailCurrencyCr.CrAmount;
                 }
+                if (voucherVM.PaymentSource == PaymentSource.GL.ToString())
+                {
+                    if (null != glVMList && glVMList.Count() > 0)
+                    {
+                        foreach (var glVM in glVMList)
+                        {
+                            var voucherDetailTax = new VoucherDetail
+                            {
+                                GLGeneralInfoId = glVM.GLGeneralInfoId,
+                                BudgetMasterId = glVM.BudgetMasterId,
+                                ActivityId = glVM.ActivityId,
+                                InvoiceTaxDetailId = glVM.Id,
+                                CrAmount = glVM.Amount,
+                            };
+                            currentVoucherDetailId++;
+                            _voucherService.InsertVoucherDetail(voucher, voucherDetailTax, currentVoucherDetailId);
+                            totalAmountCr += voucherDetailTax.CrAmount;
+                            var voucherDetailCurrencyTax = new VoucherDetailCurrency
+                            {
+                                ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                                ToCurrencyId = companyCurrencyId,
+                                ParallelCurrencyId = companyCurrencyId,
+                                FromCurrencyId = companyCurrencyId,
+                                CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.CrAmount,
+                                ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate
+                            };
+                            _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencyTax);
+                            totalCurrencyAmountCr += voucherDetailCurrencyTax.CrAmount;
+                        }
+                    }
+                }
+
 
                 if (voucherVM.PaymentSource == PaymentSource.Discount.ToString())
                 {

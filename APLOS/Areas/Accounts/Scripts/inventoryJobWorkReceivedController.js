@@ -16,7 +16,7 @@ function inventoryJobWorkReceivedController(cboService, commonMessage, $scope, $
         , { value: 'PostingDate', name: "PostingDate" }, { value: 'GateEntryNo', name: "Gate EntryNo" }, { value: 'DocRefNo', name: "DocRef No" }
         , { value: 'DocDate', name: "Doc Date" }];
 
-    $scope.products = [];    $scope.getDataList = function () {        $http({            method: 'POST',            url: 'Accounts/InventoryPayable/GetPostingList',            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
+    $scope.products = [];    $scope.getDataList = function () {        $http({            method: 'POST',            url: 'Accounts/InventoryPayable/GetJobWorkInventoryReceivePostedList',            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
             dataType: 'JSON',        }).then(function successCallback(response) {            $scope.products = response.data;        });    };
     $scope.getDataList();
 
