@@ -1464,7 +1464,7 @@
                             <div class="form-group" id="div_WDToDate">
                                 <label class="col-sm-2 control-label">As On Date<sup>*</sup></label>
                                 <div class="col-sm-2 show-message">
-                                    <input e-dateformat="dd-MMM-yyyy" ng-model="report.ToDate" ej-datepicker @*class="form-control"*@ tabindex="4">
+                                    <input e-dateformat="dd-MMM-yyyy" ng-model="reportParameters.ToDate" ej-datepicker @*class="form-control"*@ tabindex="4">
                                     @*<input e-dateformat="dd-MMM-yyyy" e-change="getDateRangeWisePaymentData" ej-datepicker e-value="reportParameters.ToDate" />*@
 
                                 </div>
@@ -1492,7 +1492,7 @@
                                         @*<div e-column e-field="NoOfInvoice" e-template="#hLink" e-headertext="No Of Invoice" e-width="40"></div>*@
 
 
-                                        <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="60" e-textalign="right"></div>
+                                        <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="60"></div>
                                         <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
                                         <div e-column e-field="PartyPlantName" e-headertext="Party Plant" e-width="150"></div>
                                         @*<div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="30"></div>*@
@@ -1528,10 +1528,28 @@
                             </div>
                         </div>
 
+                        
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="col-sm-3" @*style="font-weight:normal;"*@>With Advance<sup></sup></label>
+
+                                <div class="col-sm-2" style="margin-left: -96px;">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input tabindex="8" type="checkbox" ng-model="reportParameters.IsWithAdvance">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+     
+                            </div>
+                        </div>
+
                         <div class="common-btn">
                             <ul class="list-inline text-left">
                                 <li><button ng-click="OthersLiabilitySummaryReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Summary</button></li>
-                                @*<li><button ng-click="InvoiceAgingReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Detail</button></li>*@
+                                <li><button ng-click="InvoiceAgingReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Detail</button></li>
                             </ul>
                         </div>
 
