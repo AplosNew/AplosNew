@@ -1127,7 +1127,7 @@ group by Id) O60 ON O60.Id=IV.Id
         }
 
         //Detail Or Aging Report
-        public IWorkbook GetPartyPaymentStatusAgingReport(ExcelEngine excelEngine, string MasterLCList, string CompanyGroupId, string CompanyId, string PlantId, string name) // , string MasterLCList
+        public IWorkbook GetPartyPaymentStatusAgingReport(ExcelEngine excelEngine, string MasterLCList, string CompanyGroupId, string CompanyId, string PlantId, string name) 
         {
             clsReport objRpt = null;
             clsReport objRptSR = null;
@@ -13225,9 +13225,9 @@ group by Id) O60 ON O60.Id=IV.Id
 
         }
 
+   
         //Summary Report
-        //Summary Report
-        public IWorkbook GetOthersLiabilitySummaryReport(ExcelEngine excelEngine, string toDate, string companyGroupId, string companyId, string plantId)
+        public IWorkbook GetOthersLiabilityWithAdvanceSummaryReport(ExcelEngine excelEngine, string toDate, bool isWithAdvance, string companyGroupId, string companyId, string plantId)
         {
             excelEngine = new ExcelEngine();
             //Instantiate the Excel application object
@@ -13323,12 +13323,16 @@ group by Id) O60 ON O60.Id=IV.Id
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colBooksBalance = COL;
                 worksheet[ROW, COL].ColumnWidth = 15;
-               // COL++;
+                COL++;
 
-                
+                worksheet[ROW, COL].Text = "Actual Balance";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colActualBalance = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                //COL++;
 
 
-    
+
                 //worksheet[ROW, COL].Text = "Over DueMoreThan30";
                 //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 //int colODueMoreThan30 = COL;
@@ -13397,7 +13401,7 @@ group by Id) O60 ON O60.Id=IV.Id
                         SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,X.PartyId,X.PartyPlantId,X.PartyCode,X.PartyName,X.PartyPlantName
                         --,x.CurrencyCode
                             ,x.PartyCountry
-                        ,x.Advance
+                  	    ,isnull(sum( x.Advance),0) Advance
                         , SUM(X.Gross) Gross
                         ,sum(x.TranDiscountAmount)TranDiscountAmount
 
@@ -13412,8 +13416,11 @@ group by Id) O60 ON O60.Id=IV.Id
 
                         ,sum(x.DebitNoteAmount) DebitNoteAmount,sum(x.BooksDebitNoteAmount)BooksDebitNoteAmount,sum(x.TaxAmount)BooksTaxAmount
                         ,SUM(X.BooksSetOff) BooksSetOff
+                        ,SUM(X.BooksBalance) BooksBalance
+		              	, ActualBalance = isnull(sum (x.BooksBalance),0 )- ISNULL(sum( x.Advance),0)
 
-                        ,SUM(X.BooksBalance) BooksBalance,sum(X.ODueMoreThan30) OverDueMoreThan30
+
+                        ,sum(X.ODueMoreThan30) OverDueMoreThan30
 
                         ,sum(X.ODueMoreThan15) OverDueMoreThan15,sum(X.ODueLessThan15) OverDueLessThan15,sum(X.TodayBalance) TodayBalance,sum(X.OneToSevenBalance) OneToSevenBalance
 
@@ -13770,7 +13777,7 @@ group by Id) O60 ON O60.Id=IV.Id
                         --where x.PartyCode='2020100'
                         GROUP BY PartyId,PartyPlantId,PartyName,PartyPlantName,PartyCode,PartyCountry
                             --,CurrencyCode
-                            ,Advance
+                             
                             order by X.PartyName";
 
 
@@ -13817,6 +13824,9 @@ group by Id) O60 ON O60.Id=IV.Id
 
                     worksheet[ROW, colAdvance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Advance"].ToString());
                     worksheet[ROW, colAdvance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colActualBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["ActualBalance"].ToString());
+                    worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
                     // worksheet[ROW, colGrossTranAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["GrossTranAmount"].ToString());
                     // worksheet[ROW, colGrossTranAmount].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -13956,6 +13966,2008 @@ group by Id) O60 ON O60.Id=IV.Id
 
 
 
+        }
+
+
+        public IWorkbook GetOthersLiabilitySummaryReport(ExcelEngine excelEngine, string toDate, string companyGroupId, string companyId, string plantId)
+        {
+            excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+            try
+            {
+                worksheet.Name = "OthersLiabilitySummaryReport";
+
+                int COL = 1; int ROW = 6;
+
+                int startCol = COL;
+                worksheet[ROW, COL].Text = "SL. No";
+                int colSLNO = COL;
+                worksheet[ROW, COL].ColumnWidth = 7;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Party Code";
+                int colPartyCode = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Party";
+                int colPartyName = COL;
+                worksheet[ROW, COL].ColumnWidth = 35;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Party Plant";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                int colPartyPlantName = COL;
+                worksheet[ROW, COL].ColumnWidth = 35;
+                COL++;
+
+
+                worksheet[ROW, COL].Text = "Party Country";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                int colPartyCountry = COL;
+                worksheet[ROW, COL].ColumnWidth = 35;
+                COL++;
+
+                worksheet[ROW, COL].Text = "No Of Invoice";
+                int colNoOfInvoice = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Advance";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colAdvance = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Books Gross";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colBooksGross = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Books Debit Note";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colDebitNoteAmount = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Books Discount";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colBooksDiscount = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Books Tax";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colTaxAmount = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Books Payment";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colBooksSetOff = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Books Balance";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colBooksBalance = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+               // COL++;
+
+                //worksheet[ROW, COL].Text = "Actual Balance";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colActualBalance = COL;
+                //worksheet[ROW, COL].ColumnWidth = 15;
+                //COL++;
+
+
+
+                //worksheet[ROW, COL].Text = "Over DueMoreThan30";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colODueMoreThan30 = COL;
+                //worksheet[ROW, COL].ColumnWidth = 20;
+                //COL++;
+
+                //worksheet[ROW, COL].Text = "Over DueMoreThan15";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colODueMoreThan15 = COL;
+                //worksheet[ROW, COL].ColumnWidth = 20;
+                //COL++;
+
+                //worksheet[ROW, COL].Text = "Over DueLessThan15";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colODueLessThan15 = COL;
+                //worksheet[ROW, COL].ColumnWidth = 20;
+                //COL++;
+
+                //worksheet[ROW, COL].Text = "Today Balance";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colTodayBalance = COL;
+                //worksheet[ROW, COL].ColumnWidth = 15;
+                //COL++;
+
+                //worksheet[ROW, COL].Text = "1-7 Balance";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colOneToSevenBalance = COL;
+                //worksheet[ROW, COL].ColumnWidth = 15;
+                //COL++;
+
+                //worksheet[ROW, COL].Text = "8-30 Balance";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colEightToThirtyBalance = COL;
+                //worksheet[ROW, COL].ColumnWidth = 15;
+                //COL++;
+
+                //worksheet[ROW, COL].Text = "30-60 Balance";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colThirtyToSixtyBalance = COL;
+                //worksheet[ROW, COL].ColumnWidth = 15;
+                //COL++;
+
+                //worksheet[ROW, COL].Text = "Onward 60";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colOnword60 = COL;
+                //worksheet[ROW, COL].ColumnWidth = 15;
+                // COL++;
+
+                int endCol = COL;
+
+                worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Size = 12;
+                worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Bold = true;
+
+                //worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Yellow;
+                worksheet.Range[ROW, startCol, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+
+                worksheet.Range[ROW, startCol, ROW, COL].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, startCol, ROW, COL].BorderInside(ExcelLineStyle.Hair);
+                // worksheet.Range[ROW,  ROW].BorderInside(ExcelLineStyle.Hair);
+
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+
+                string sql = @"--select * from TRN.Advance where SourceType='VendorAdvance' and PartyId='2021242'
+                DECLARE @plantCountryId varchar(10)= (SELECT CountryId FROM ORG.Plant p join MST.AddressMaster m on m.Id=p.AddressMasterId WHERE p.Id='" + plantId + @"')
+                        SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,X.PartyId,X.PartyPlantId,X.PartyCode,X.PartyName,X.PartyPlantName
+                        --,x.CurrencyCode
+                            ,x.PartyCountry
+                        ,x.Advance
+                        , SUM(X.Gross) Gross
+                        ,sum(x.TranDiscountAmount)TranDiscountAmount
+
+                        ,SUM(X.GrossTranAmount) GrossTranAmount
+                        ,sum(x.DebitNoteTranAmount) DebitNoteTranAmount,sum(x.BooksDebitNoteTranAmount)BooksDebitNoteTranAmount,sum(x.TranTaxAmount)TranTaxAmount
+                        --,SUM(X.BooksSetOff) BooksSetOff
+
+                        ,SUM(X.SetOff) SetOff,SUM(X.Balance) Balance
+
+                        ,SUM(X.BooksGross) BooksGross
+                        ,sum(x.BooksDiscountAmount)BooksDiscountAmount
+
+                        ,sum(x.DebitNoteAmount) DebitNoteAmount,sum(x.BooksDebitNoteAmount)BooksDebitNoteAmount,sum(x.TaxAmount)BooksTaxAmount
+                        ,SUM(X.BooksSetOff) BooksSetOff
+                        ,SUM(X.BooksBalance) BooksBalance
+		               -- , ActualBalance = isnull(sum (x.BooksBalance),0 )- ISNULL(sum( x.Advance),0)
+
+
+                        ,sum(X.ODueMoreThan30) OverDueMoreThan30
+
+                        ,sum(X.ODueMoreThan15) OverDueMoreThan15,sum(X.ODueLessThan15) OverDueLessThan15,sum(X.TodayBalance) TodayBalance,sum(X.OneToSevenBalance) OneToSevenBalance
+
+                        ,sum(X.EightToThirtyBalance) EightToThirtyBalance
+                        ,sum(X.ThirtyToSixtyBalance) ThirtyToSixtyBalance
+                        ,sum(X.Onword60) Onword60
+
+
+                        FROM (
+                        SELECT IV.PartyId NoOfInvoice,IV.PartyId, IV.PartyPlantId,P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
+                        --,c.Code CurrencyCode
+									,PartyCountry= case when am.CountryId=@plantCountryId then 'Local' Else 'Foriegn' end
+
+                        ,ISNULL(Ad.AdvanceAmount,0) Advance
+                        , ISNULL(IVD.Amount,0) AS Gross
+                        ,ISNULL(IVD.WrittenOffAmount ,0)-ISNULL(IWD.TaxAmount*IV.CompanyCurrencyRate,0)- isnull( DIWD.DiscountAmount,0) AS SetOff
+                        , ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
+                        , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGross
+                        ,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0)-ISNULL(IWD.TaxAmount*IV.CompanyCurrencyRate,0)-isnull( DIWD.DiscountAmount*CC.CompanyCurrencyRate,0) AS BooksSetOff
+                        , ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
+                        , ISNULL(OM30.ODueMoreThan30,0) ODueMoreThan30
+                        , ISNULL(OM15.ODueMoreThan15,0) ODueMoreThan15
+                        , ISNULL(OV.OverDdueBalance,0) ODueLessThan15
+                        , ISNULL(TB.TodayBalance,0) TodayBalance
+                        , ISNULL(OTS.OneToSevenBalance,0) OneToSevenBalance
+                        , ISNULL(ETT.EightToThirtyBalance,0) EightToThirtyBalance
+                        , ISNULL(TTS.ThirtyToSixtyBalance,0) ThirtyToSixtyBalance
+                        , ISNULL(O60.Onword60,0) Onword60
+
+
+                        , ISNULL(IVD.Amount,0) AS GrossTranAmount
+                        ,0 DebitNoteTranAmount
+                        ,0 BooksDebitNoteTranAmount
+                        ,isnull( IWD.TaxAmount,0)as TranTaxAmount
+
+                        ,isnull( DIWD.DiscountAmount,0)as TranDiscountAmount
+
+                        , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS GrossAmount
+                        ,0 DebitNoteAmount
+                        ,0 BooksDebitNoteAmount
+                        ,isnull( IWD.TaxAmount*CC.CompanyCurrencyRate,0)as TaxAmount
+
+                        ,isnull( DIWD.DiscountAmount*CC.CompanyCurrencyRate,0)as BooksDiscountAmount
+
+                        FROM [TRN].[InvoiceDetail] AS IVD
+                        LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+                        LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+                        LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+						LEFT JOIN MST.AddressMaster AM ON AM.Id=PP.AddressMasterId
+
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
+                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+
+                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount FROM TRN.InvoiceWriteOffDetail wd
+                        LEFT JOIN TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
+                        where w.PaymentSource='Tax'
+                        group by wd.InvoiceDetailId
+                        ) IWD ON IWD.InvoiceDetailId=IVD.Id
+
+
+                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DiscountAmount FROM TRN.InvoiceWriteOffDetail wd
+                        LEFT JOIN TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
+                        where w.PaymentSource='Discount'
+                        group by wd.InvoiceDetailId
+                        ) DIWD ON DIWD.InvoiceDetailId=IVD.Id
+
+                        --********vendor Advance***********
+                        LEFT JOIN (SELECT A.PartyId,sum(A.Amount-A.WrittenOffAmount) AdvanceAmount FROM TRN.Advance A
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        group by A.PartyId
+                        ) Ad ON Ad.PartyId=IV.PartyId
+
+
+                      		LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30 
+							and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            group by Id) OM30 ON OM30.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30
+							and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            group by Id) OM15 ON OM15.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OverDdueBalance FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-15
+							and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            group by Id) OV ON OV.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)=0 and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                               group by Id) TB ON TB.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=7 
+							and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+group by Id) OTS ON OTS.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=30 
+							and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+group by Id) ETT ON ETT.Id=IV.Id
+
+								LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=60
+							and I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+group by Id) TTS ON TTS.Id=IV.Id
+
+
+
+				 LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>60 and 
+							I.SourceType in ('VendorInvoice','SuspensePayable','EmployeePayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+group by Id) O60 ON O60.Id=IV.Id
+                LEFT JOIN (
+                SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+                VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+                FROM [TRN].[VoucherDetailCurrency] AS VDC
+                JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+                ) AS CC ON CC.VoucherDetailId=VD.Id
+                
+                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
+               AND IV.CompanyGroupId='" + companyGroupId + "'    AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                and IV.PostingDate <= '" + toDate + @"'
+		       and IV.PurchaseDocAcceptanceId IS NULL
+
+
+                        UNION ALL
+                        SELECT IV.PartyId NoOfInvoice,IV.PartyId, IV.PartyPlantId,P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
+                        --,c.Code CurrencyCode
+									,PartyCountry= case when am.CountryId=@plantCountryId then 'Local' Else 'Foriegn' end
+
+                        ,ISNULL(Ad.AdvanceAmount,0) Advance
+                        , ISNULL(IVD.Amount,0) AS Gross,
+                        ISNULL(IVD.WrittenOffAmount ,0)-ISNULL(IWD.TaxAmount*IV.CompanyCurrencyRate,0)- isnull( DIWD.DiscountAmount,0), ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
+                        , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGross,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0)-isnull( DIWD.DiscountAmount*CC.CompanyCurrencyRate,0) AS BooksSetOff, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
+                        , ISNULL(OM30.ODueMoreThan30,0) ODueMoreThan30
+                        , ISNULL(OM15.ODueMoreThan15,0) ODueMoreThan15
+                        , ISNULL(OV.OverDdueBalance,0) ODueLessThan15
+                        , ISNULL(TB.TodayBalance,0) TodayBalance
+                        , ISNULL(OTS.OneToSevenBalance,0) OneToSevenBalance
+                        , ISNULL(ETT.EightToThirtyBalance,0) EightToThirtyBalance
+                        , ISNULL(TTS.ThirtyToSixtyBalance,0) ThirtyToSixtyBalance
+                        , ISNULL(O60.Onword60,0) Onword60
+
+                        , ISNULL(IVD.Amount,0) AS GrossTranAmount
+                        ,0 DebitNoteTranAmount
+                        ,0 BooksDebitNoteTranAmount
+                        ,isnull( IWD.TaxAmount,0)as TranTaxAmount
+                        ,isnull( DIWD.DiscountAmount,0)as TranDiscountAmount
+
+                        , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS GrossAmount
+                        ,0 DebitNoteAmount
+                        ,0 BooksDebitNoteAmount
+                        ,isnull( IWD.TaxAmount*CC.CompanyCurrencyRate,0)as TaxAmount
+                        ,isnull( DIWD.DiscountAmount*CC.CompanyCurrencyRate,0)as BooksDiscountAmount
+
+                        FROM [TRN].[InvoiceDetail] AS IVD
+                        LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+                        LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+                        LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+						LEFT JOIN MST.AddressMaster AM ON AM.Id=PP.AddressMasterId
+
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
+                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+
+                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount FROM TRN.InvoiceWriteOffDetail wd
+                        LEFT JOIN TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
+                        where w.PaymentSource='Tax'
+                        group by wd.InvoiceDetailId
+                        ) IWD ON IWD.InvoiceDetailId=IVD.Id
+
+
+                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DiscountAmount FROM TRN.InvoiceWriteOffDetail wd
+                        LEFT JOIN TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
+                        where w.PaymentSource='Discount'
+                        group by wd.InvoiceDetailId
+                        ) DIWD ON DIWD.InvoiceDetailId=IVD.Id
+
+                        --********vendor Advance***********
+                        LEFT JOIN (SELECT A.PartyId,sum(A.Amount) AdvanceAmount FROM TRN.Advance A
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        group by A.PartyId
+                        ) Ad ON Ad.PartyId=IV.PartyId
+
+                   
+                LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IV.InventoryReceiveId
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30 AND I.SourceType in ('InventoryPayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+group by Id) OM30 ON OM30.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30 AND I.SourceType in ('InventoryPayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+group by Id) OM15 ON OM15.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OverDdueBalance FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-15 AND I.SourceType in ('InventoryPayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+group by Id) OV ON OV.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)=0 AND I.SourceType in ('InventoryPayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+group by Id) TB ON TB.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=7 AND I.SourceType in ('InventoryPayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+group by Id) OTS ON OTS.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=30 AND I.SourceType in ('InventoryPayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+group by Id) ETT ON ETT.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=60
+							and I.SourceType in ('InventoryPayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+group by Id) TTS ON TTS.Id=IV.Id
+
+				 LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.Invoice I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>60 AND I.SourceType in ('InventoryPayable') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+group by Id) O60 ON O60.Id=IV.Id
+                LEFT JOIN (
+                SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+                VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+                FROM [TRN].[VoucherDetailCurrency] AS VDC
+                JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+                ) AS CC ON CC.VoucherDetailId=VD.Id
+                
+                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventoryPayable')
+                 AND IV.CompanyGroupId='" + companyGroupId + @"'  
+                AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                    and IV.PostingDate <= '" + toDate + @"'
+                AND IR.PurchaseDocumentAcceptanceId IS NULL
+		       and IV.PurchaseDocAcceptanceId IS NULL
+                        union all
+
+
+                        SELECT IV.PartyId NoOfInvoice,IV.PartyId, IV.PartyPlantId,P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
+                        --,c.Code CurrencyCode
+			        ,PartyCountry= case when am.CountryId=@plantCountryId then 'Local' Else 'Foriegn' end
+                        ,ISNULL(Ad.AdvanceAmount,0) Advance
+                        , ISNULL(IVD.Amount,0) AS Gross
+                        ,ISNULL(IVD.WrittenOffAmount ,0) AS SetOff
+                        , ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
+                        , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGross
+                        ,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksSetOff
+                        , ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
+                        , ISNULL(OM30.ODueMoreThan30,0) ODueMoreThan30
+                        , ISNULL(OM15.ODueMoreThan15,0) ODueMoreThan15
+                        , ISNULL(OV.OverDdueBalance,0) ODueLessThan15
+                        , ISNULL(TB.TodayBalance,0) TodayBalance
+                        , ISNULL(OTS.OneToSevenBalance,0) OneToSevenBalance
+                        , ISNULL(ETT.EightToThirtyBalance,0) EightToThirtyBalance
+                        , ISNULL(TTS.ThirtyToSixtyBalance,0) ThirtyToSixtyBalance
+                        , ISNULL(O60.Onword60,0) Onword60
+
+                        , ISNULL(IVD.Amount,0) AS GrossTranAmount
+                        ,0 DebitNoteTranAmount
+                        ,0 BooksDebitNoteTranAmount
+                        ,0 TranTaxAmount
+                        ,0 TranDiscountAmount
+
+                        , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS GrossAmount
+                        ,0 DebitNoteAmount
+                        ,0 BooksDebitNoteAmount
+
+                        ,0 TaxAmount
+                        ,0 BooksDiscountAmount
+
+                        FROM [TRN].[AdjustmentNoteDetail] AS IVD
+                        LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
+                        LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+                        LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+						LEFT JOIN MST.AddressMaster AM ON AM.Id=PP.AddressMasterId
+
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
+                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+
+                        --********vendor Advance***********
+                        LEFT JOIN (SELECT A.PartyId,sum(A.Amount) AdvanceAmount FROM TRN.Advance A
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        group by A.PartyId
+                        ) Ad ON Ad.PartyId=IV.PartyId
+
+         				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.AdjustmentNote I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-30 
+							and I.SourceType in ('VendorPayment','CreditNote') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            group by Id) OM30 ON OM30.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.AdjustmentNote I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-15 and DATEDIFF(DAY, GETDATE(),I.PostingDate)>=-30
+							and I.SourceType in ('VendorPayment','CreditNote') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            group by Id) OM15 ON OM15.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OverDdueBalance FROM TRN.AdjustmentNote I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),I.PostingDate)>=-15
+							and I.SourceType in ('VendorPayment','CreditNote') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            group by Id) OV ON OV.Id=IV.Id
+
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.AdjustmentNote I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)=0 and I.SourceType in ('VendorPayment','CreditNote') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            group by Id) TB ON TB.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.AdjustmentNote I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=7 
+							and I.SourceType in ('VendorPayment','CreditNote') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            group by Id) OTS ON OTS.Id=IV.Id
+				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.AdjustmentNote I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=30 
+							and I.SourceType in ('VendorPayment','CreditNote') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            group by Id) ETT ON ETT.Id=IV.Id
+
+								LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.AdjustmentNote I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=60
+							and I.SourceType in ('VendorPayment','CreditNote') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            group by Id) TTS ON TTS.Id=IV.Id
+
+
+
+				 LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.AdjustmentNote I 
+							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>60 and 
+							I.SourceType in ('VendorPayment','CreditNote') 
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0
+                            group by Id) O60 ON O60.Id=IV.Id
+                LEFT JOIN (
+                SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+                VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+                FROM [TRN].[VoucherDetailCurrency] AS VDC
+                JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+                ) AS CC ON CC.VoucherDetailId=VD.Id
+                
+                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.SourceType in ('VendorPayment','CreditNote')
+            
+                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                and IV.PostingDate <= '" + toDate + @"'
+
+                        )
+                        X
+                        --where x.PartyCode='2020100'
+                        GROUP BY PartyId,PartyPlantId,PartyName,PartyPlantName,PartyCode,PartyCountry
+                            --,CurrencyCode
+                            ,Advance 
+                            
+                            order by X.PartyName";
+
+
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out DataSet dsData, false, "1");
+
+
+                if (dsData.Tables[0].Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found");
+                }
+
+                ROW++;
+                int StartDataRow = ROW;
+
+                for (int i = 0; i < dsData.Tables[0].Rows.Count; i++)
+                {
+                    //  worksheet[ROW, colSLNO].Number = (i + 1);
+                    worksheet[ROW, colSLNO].Number = i + 1;
+                    worksheet[ROW, colNoOfInvoice].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["NoOfInvoice"].ToString());
+                    worksheet[ROW, colPartyCode].Text = dsData.Tables[0].Rows[i]["PartyCode"].ToString();
+
+                    // worksheet[ROW, colPartyId].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["PartyId"].ToString());
+                    // worksheet[ROW, colPartyPlantId].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["PartyPlantId"].ToString());
+                    worksheet[ROW, colPartyName].Text = dsData.Tables[0].Rows[i]["PartyName"].ToString();
+                    worksheet[ROW, colPartyCountry].Text = dsData.Tables[0].Rows[i]["PartyCountry"].ToString();
+
+                    worksheet[ROW, colPartyPlantName].Text = dsData.Tables[0].Rows[i]["PartyPlantName"].ToString();
+                    //worksheet[ROW, colCurrencyCode].Text = dsData.Tables[0].Rows[i]["CurrencyCode"].ToString();
+                    worksheet[ROW, colBooksGross].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksGross"].ToString());
+                    worksheet[ROW, colBooksGross].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colBooksSetOff].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksSetOff"].ToString());
+                    worksheet[ROW, colBooksSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
+                    worksheet[ROW, colDebitNoteAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["DebitNoteAmount"].ToString());
+                    worksheet[ROW, colDebitNoteAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                    worksheet[ROW, colBooksDiscount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksDiscountAmount"].ToString());
+                    worksheet[ROW, colBooksDiscount].NumberFormat = "#,##0.00;(#,##0.00)";
+                    worksheet[ROW, colTaxAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksTaxAmount"].ToString());
+                    worksheet[ROW, colTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colBooksBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksBalance"].ToString());
+                    worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colAdvance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Advance"].ToString());
+                    worksheet[ROW, colAdvance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    //worksheet[ROW, colActualBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["ActualBalance"].ToString());
+                    //worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    // worksheet[ROW, colGrossTranAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["GrossTranAmount"].ToString());
+                    // worksheet[ROW, colGrossTranAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    //worksheet[ROW, colSetOff].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["SetOff"].ToString());
+                    //worksheet[ROW, colSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    // worksheet[ROW, colDebitNoteTranAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["DebitNoteTranAmount"].ToString());
+                    // worksheet[ROW, colDebitNoteTranAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    // worksheet[ROW, colTranDiscountAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TranDiscountAmount"].ToString());
+                    // worksheet[ROW, colTranDiscountAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                    //  worksheet[ROW, colTranTaxAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TranTaxAmount"].ToString());
+                    // worksheet[ROW, colTranTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    // worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Balance"].ToString());
+                    //  worksheet[ROW, colBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+
+                    //worksheet[ROW, colODueMoreThan30].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueMoreThan30"].ToString());
+                    //worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    //worksheet[ROW, colODueMoreThan15].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueMoreThan15"].ToString());
+                    //worksheet[ROW, colODueMoreThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    //worksheet[ROW, colODueLessThan15].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueLessThan15"].ToString());
+                    //worksheet[ROW, colODueLessThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                    //worksheet[ROW, colTodayBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TodayBalance"].ToString());
+                    //worksheet[ROW, colTodayBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                    //worksheet[ROW, colOneToSevenBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OneToSevenBalance"].ToString());
+                    //worksheet[ROW, colOneToSevenBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    //worksheet[ROW, colEightToThirtyBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["EightToThirtyBalance"].ToString());
+                    //worksheet[ROW, colEightToThirtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    //worksheet[ROW, colThirtyToSixtyBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["ThirtyToSixtyBalance"].ToString());
+                    //worksheet[ROW, colThirtyToSixtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    //worksheet[ROW, colOnword60].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Onword60"].ToString());
+                    //worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    ROW++;
+                }
+
+                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+                //worksheet[StartDataRow, colSalesOrderValue, ROW - 1, colSalesOrderValue].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundCommission, ROW - 1, colContractFundCommission].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundUtilization, ROW - 1, colContractFundUtilization].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundPercentage, ROW - 1, colContractFundPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colBooksGross - 1].Text = "Total";
+                worksheet[ROW, colBooksGross - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colBooksGross].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksGross) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksGross) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colBooksGross].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colBooksSetOff].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksSetOff) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksSetOff) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colBooksSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colBooksBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                //worksheet[ROW, colODueMoreThan30].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colODueMoreThan30].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //worksheet[ROW, colODueMoreThan15].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan15) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan15) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colODueMoreThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colODueMoreThan15].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                //worksheet[ROW, colODueLessThan15].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueLessThan15) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueLessThan15) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colODueLessThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colODueLessThan15].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //worksheet[ROW, colTodayBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTodayBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colTodayBalance) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colTodayBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colTodayBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //worksheet[ROW, colOneToSevenBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOneToSevenBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colOneToSevenBalance) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colOneToSevenBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colOneToSevenBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //worksheet[ROW, colEightToThirtyBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colEightToThirtyBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colEightToThirtyBalance) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colEightToThirtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colEightToThirtyBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //worksheet[ROW, colThirtyToSixtyBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colThirtyToSixtyBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colThirtyToSixtyBalance) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colThirtyToSixtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colThirtyToSixtyBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //worksheet[ROW, colOnword60].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOnword60) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colOnword60) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colOnword60].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                worksheet.Range[ROW, colBooksGross - 1, ROW, COL].CellStyle.Font.Bold = true;
+                // worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                //worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.CompanyPlantHeader(ref worksheet, endCol, "Party Payment Status Summary", identity.CompanyId, identity.PlantName, "");
+                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+                #region Freeze Panes
+
+                worksheet.IsDisplayZeros = false;
+                worksheet.UsedRange["A7"].FreezePanes();
+                worksheet.FirstVisibleColumn = 1;
+                worksheet.FirstVisibleRow = 6;
+
+                #endregion Freeze Panes
+
+
+
+                return workbook;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+
+            }
+
+
+
+
+        }
+        //Aging Detail Report
+        private DataTable GetOthersLiabilityWithAdvanceDetailData(string CompanyGroupId, string CompanyId, string PlantId,string taxyearId,string toDate, bool isWithAdvance) 
+        {
+            string strSql = "";
+            strSql = @"select x.* from (
+
+                        SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
+										, replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate,iv.DocDate  SortDocDate
+										, C.Code CurrencyCode
+										,IV.BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.ActualDueDate, 106), ' ', '-') AS ActualDueDate
+										
+										,Days=DATEDIFF(DAY, GETDATE(),IV.BaseOnDueDate)
+										,AgingInvoice= case 
+													--	when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then 'Overdue'
+
+														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then 'OverDueLessThan15'
+
+
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then 'Today'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '60 Onword'
+															end
+										,AgingSorting= case 
+														--when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then '1.Overdue'
+
+														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then '1.OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then '2.OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then '3.OverDueLessThan15'
+
+
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then '4.Today'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '5.1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '6.8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onward'
+															end
+										, ISNULL(IVD.NetAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteAmount,IWD.TaxAmount TaxAmount,
+                                         SetOff=ISNULL(IVD.WrittenOffAmount, 0) - (ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)), ISNULL(IVD.NetAmount-IVD.WrittenOffAmount,0) AS Balance
+										
+                                        FROM [TRN].[InvoiceDetail] AS IVD
+                                        LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+									    LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
+                                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+
+                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
+								        LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
+								            where w.PaymentSource='Tax'
+								            group by wd.InvoiceDetailId
+								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
+
+                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
+								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
+								                where WD.InvoiceDetailId<>''
+								                group by wd.InvoiceDetailId
+								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
+										LEFT JOIN MST.PaymentTerm PT ON PT.Id=IV.PaymentTermId
+										LEFT JOIN (
+										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + CompanyId + @"'
+									) AS CC ON CC.VoucherDetailId=VD.Id
+									
+                                        WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
+                                        AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' --AND IV.PlantId='20171'
+                                        and IV.PartyId in(" + toDate + @")
+										--GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
+
+								   UNION ALL
+                                    SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
+										,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
+										,C.Code CurrencyCode
+										,IV.BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.ActualDueDate, 106), ' ', '-') AS ActualDueDate
+										,Days=DATEDIFF(DAY, GETDATE(),IV.BaseOnDueDate)
+										
+													,AgingInvoice= case 
+														--when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then 'Overdue'
+
+														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then 'OverDueLessThan15'
+
+
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then 'Today'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '60 Onword'
+															end
+										,AgingSorting= case 
+													--	when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then '1.Overdue'
+														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then '1.OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then '2.OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then '3.OverDueLessThan15'
+
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then '4.Today'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '5.1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '6.8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onword'
+															end
+										, ISNULL(IVD.NetAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteAmount,IWD.TaxAmount TaxAmount,
+                                        SetOff=ISNULL(IVD.WrittenOffAmount, 0) -(ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)), ISNULL(IVD.NetAmount-IVD.WrittenOffAmount,0) AS Balance
+
+                                        FROM [TRN].[InvoiceDetail] AS IVD
+                                        LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+										LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
+                                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+
+                                                LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
+								                LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
+								                where w.PaymentSource='Tax'
+								                group by wd.InvoiceDetailId
+								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
+                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
+								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
+								                where WD.InvoiceDetailId<>''
+								                group by wd.InvoiceDetailId
+								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
+                                        LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IV.InventoryReceiveId
+										LEFT JOIN MST.PaymentTerm PT ON PT.Id=IV.PaymentTermId
+										LEFT JOIN (
+										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + CompanyId + @"'
+									) AS CC ON CC.VoucherDetailId=VD.Id
+									
+                                        WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventoryPayable')
+                                        AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' 
+										AND IR.PurchaseDocumentAcceptanceId IS NULL  and IV.PartyId in(" + toDate + @")
+
+										) x
+										order by x.SortDocDate asc";
+
+            return _sqlRepository.GetDataTable(strSql);
+
+        }
+        private DataTable GetOthersLiabilityDetailData(string CompanyGroupId, string CompanyId, string PlantId, string taxyearId,string toDate) 
+        {
+            string strSql = "";
+            strSql = @"select x.* from (
+
+                        SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
+										, replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate,iv.DocDate  SortDocDate
+										, C.Code CurrencyCode
+										,IV.BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.ActualDueDate, 106), ' ', '-') AS ActualDueDate
+										
+										,Days=DATEDIFF(DAY, GETDATE(),IV.BaseOnDueDate)
+										,AgingInvoice= case 
+													--	when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then 'Overdue'
+
+														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then 'OverDueLessThan15'
+
+
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then 'Today'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '60 Onword'
+															end
+										,AgingSorting= case 
+														--when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then '1.Overdue'
+
+														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then '1.OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then '2.OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then '3.OverDueLessThan15'
+
+
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then '4.Today'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '5.1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '6.8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onward'
+															end
+										, ISNULL(IVD.NetAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteAmount,IWD.TaxAmount TaxAmount,
+                                         SetOff=ISNULL(IVD.WrittenOffAmount, 0) - (ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)), ISNULL(IVD.NetAmount-IVD.WrittenOffAmount,0) AS Balance
+										
+                                        FROM [TRN].[InvoiceDetail] AS IVD
+                                        LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+									    LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
+                                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+
+                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
+								        LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
+								            where w.PaymentSource='Tax'
+								            group by wd.InvoiceDetailId
+								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
+
+                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
+								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
+								                where WD.InvoiceDetailId<>''
+								                group by wd.InvoiceDetailId
+								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
+										LEFT JOIN MST.PaymentTerm PT ON PT.Id=IV.PaymentTermId
+										LEFT JOIN (
+										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + CompanyId + @"'
+									) AS CC ON CC.VoucherDetailId=VD.Id
+									
+                                        WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
+                                        AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' --AND IV.PlantId='20171'
+                                        and IV.PartyId in(" + toDate + @")
+										--GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
+
+								   UNION ALL
+                                    SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
+										,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
+										,C.Code CurrencyCode
+										,IV.BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.ActualDueDate, 106), ' ', '-') AS ActualDueDate
+										,Days=DATEDIFF(DAY, GETDATE(),IV.BaseOnDueDate)
+										
+													,AgingInvoice= case 
+														--when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then 'Overdue'
+
+														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then 'OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then 'OverDueLessThan15'
+
+
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then 'Today'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '60 Onword'
+															end
+										,AgingSorting= case 
+													--	when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 OR IV.ActualDueDate IS NULL then '1.Overdue'
+														when DATEDIFF(DAY, GETDATE(),Iv.ActualDueDate)<-30  OR IV.ActualDueDate IS NULL then '1.OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-30  OR IV.ActualDueDate IS NULL then '2.OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>=-15  OR IV.ActualDueDate IS NULL then '3.OverDueLessThan15'
+
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then '4.Today'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=7 then '5.1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=30 then '6.8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onword'
+															end
+										, ISNULL(IVD.NetAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteAmount,IWD.TaxAmount TaxAmount,
+                                        SetOff=ISNULL(IVD.WrittenOffAmount, 0) -(ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)), ISNULL(IVD.NetAmount-IVD.WrittenOffAmount,0) AS Balance
+
+                                        FROM [TRN].[InvoiceDetail] AS IVD
+                                        LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+										LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
+                                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                                        LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+
+                                                LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
+								                LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
+								                where w.PaymentSource='Tax'
+								                group by wd.InvoiceDetailId
+								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
+                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
+								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
+								                where WD.InvoiceDetailId<>''
+								                group by wd.InvoiceDetailId
+								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
+                                        LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IV.InventoryReceiveId
+										LEFT JOIN MST.PaymentTerm PT ON PT.Id=IV.PaymentTermId
+										LEFT JOIN (
+										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + CompanyId + @"'
+									) AS CC ON CC.VoucherDetailId=VD.Id
+									
+                                        WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventoryPayable')
+                                        AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' 
+										AND IR.PurchaseDocumentAcceptanceId IS NULL  and IV.PartyId in(" + toDate + @")
+
+										) x
+										order by x.SortDocDate asc";
+
+            return _sqlRepository.GetDataTable(strSql);
+
+        }
+
+        public IWorkbook GetOthersLiabilityAgingDetailWithAdvanceReport(ExcelEngine excelEngine, string toDate, bool iswithAdvance, string CompanyGroupId, string CompanyId, string PlantId, string name)
+        {
+            clsReport objRpt = null;
+            clsReport objRptSR = null;
+            try
+            {
+
+                // ExcelEngine excelEngine = null;
+                IApplication application = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                excelEngine.Excel.DefaultVersion = ExcelVersion.Excel2013;
+                var reportUtility = new ReportUtility();
+                var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+                var sheet1 = workbook.Worksheets[0];
+
+                #region Logo
+                string strPath = "";
+                Image companyLogo = null;
+                try
+                {
+                    DataTable dtCompanyImage = _sqlRepository.GetDataTable("SELECT * FROM ORG.COMPANY WHERE ID = '" + CompanyId + @"'");
+
+                    strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dtCompanyImage.Rows[0]["Image"].ToString());
+                    companyLogo = Image.FromFile(strPath);
+                }
+                catch (Exception)
+                {
+                }
+                #endregion
+                objRpt = new clsReport();
+
+                objRptSR = new clsReport(_sqlRepository);
+
+                DataTable dtRCMPayable = null;
+                string taxyearId = GetTaxYearId(CompanyId);
+                dtRCMPayable = GetOthersLiabilityWithAdvanceDetailData(CompanyGroupId, CompanyId, PlantId, taxyearId,toDate,iswithAdvance);
+                if (dtRCMPayable.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found....");
+                }
+
+                DataTable dtCmp = objRptSR.SelectedCompanyDT(PlantId);
+
+                DataTable dtFactory = objRptSR.SelectedPlantDT(PlantId);
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+                string FactoryName = "";
+                string CmpName = "";
+                xlsRow = 6;
+                sheet1.Range[xlsRow - 1, 1].Text = "Report Ref No:";
+                sheet1.Range[xlsRow - 1, 1].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow - 1, 1].RowHeight = 20;
+                sheet1.Range[xlsRow - 1, 1].CellStyle.Font.Bold = true;
+
+
+                //int startCol = COL;
+                sheet1[xlsRow, xlsCol].Text = "SL. No";
+                int colSLNO = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 7;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+
+                int iPartyCode = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Party Code";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                int iPartyName = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Party";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
+                xlsCol++;
+
+                int iPartyPlantName = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Party Plant";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
+                xlsCol++;
+
+                int colVoucherNo = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Voucher No";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //xlsCol++;
+
+                xlsCol++;
+                int iInvoiceNo = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Doc Ref"; //InvoiceNo
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                xlsCol++;
+                int iDocDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Doc Date"; //InvoiceNo
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                xlsCol++;
+                int iPostingDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Posting Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iBaseOnDueDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Base On Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+
+                //xlsCol++;
+                int iActualDueDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Actual Due Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //xlsCol++;
+
+                xlsCol++;
+                sheet1[xlsRow, xlsCol].Text = "Due Days";
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int iBaseNoOfDays = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 13;
+
+                xlsCol++;
+                int iCurrencyCode = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Currency";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10;
+
+                //Gross
+                xlsCol++;
+                int iGross = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Gross";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                xlsCol++;
+                int iDebitNote = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Debit Note";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                xlsCol++;
+                int iTax = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Tax";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                xlsCol++;
+                int iSetOff = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Payment";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                xlsCol++;
+                int iBalance = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Balance";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //xlsCol++;
+                int iGSTIN = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "GSTIN";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+
+                DataTable dtTaxCode = null;
+                dtRCMPayable.DefaultView.Sort = "AgingSorting";
+                dtTaxCode = dtRCMPayable.DefaultView.ToTable(true, "AgingInvoice");
+                dtTaxCode.Columns.Add("ColumnNumber", typeof(String));
+                dtTaxCode.Columns.Add("ColumnFormula", typeof(String));
+
+                if (dtTaxCode.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dtTaxCode.Rows.Count; i++)
+                    {
+                        xlsCol++;
+                        sheet1.Range[xlsRow, xlsCol].Text = dtTaxCode.Rows[i]["AgingInvoice"].ToString();
+                        sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                        sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                        dtTaxCode.Rows[i]["ColumnNumber"] = xlsCol.ToString();
+                    }
+                }
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+
+                string voucherNo = "";
+                /// string Percentage = "";
+                int startRow = 0;
+                int perStartRow = 0;
+                string formula = "";
+                string formula2 = "";
+                // string totalFormula = "";
+
+                //string lineItemPercentageType = "";
+                xlsRow++;
+                startRow = xlsRow;
+                perStartRow = xlsRow;
+                bool isFirst = true;
+
+                for (int i = 0; i < dtRCMPayable.Rows.Count; i++)
+                {
+                    if (voucherNo != dtRCMPayable.Rows[i]["VoucherNo"].ToString())
+                    {
+
+
+                        if (isFirst == false)
+                        {
+
+
+                        }
+
+                        sheet1[xlsRow, colSLNO].Number = (i + 1);
+
+                        sheet1.Range[xlsRow, iPostingDate].Text = dtRCMPayable.Rows[i]["PostingDate"].ToString();
+
+                        //sheet1.Range[xlsRow, iBaseNoOfDays].Text = dtRCMPayable.Rows[i]["Days"].ToString();
+                        sheet1.Range[xlsRow, iBaseNoOfDays].Number = System.Math.Abs(clsStaticInfo.dbl(dtRCMPayable.Rows[i]["Days"].ToString()));
+                        // System.Math.Abs(-30);
+                        sheet1.Range[xlsRow, colVoucherNo].Text = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
+
+                        //sheet1.Range[xlsRow, iGSTIN].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
+                        sheet1.Range[xlsRow, iPartyName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
+                        sheet1.Range[xlsRow, iPartyCode].Text = dtRCMPayable.Rows[i]["PartyCode"].ToString();
+                        sheet1.Range[xlsRow, iPartyPlantName].Text = dtRCMPayable.Rows[i]["PartyPlantName"].ToString();
+                        sheet1.Range[xlsRow, iCurrencyCode].Text = dtRCMPayable.Rows[i]["CurrencyCode"].ToString();
+                        sheet1.Range[xlsRow, iBaseOnDueDate].Text = dtRCMPayable.Rows[i]["BaseOnDueDate"].ToString();
+                        sheet1.Range[xlsRow, iActualDueDate].Text = dtRCMPayable.Rows[i]["ActualDueDate"].ToString();
+                        sheet1.Range[xlsRow, iDocDate].Text = dtRCMPayable.Rows[i]["DocDate"].ToString();
+                        sheet1.Range[xlsRow, iInvoiceNo].Text = dtRCMPayable.Rows[i]["InvoiceNo"].ToString();
+
+
+                        sheet1[xlsRow, iGross].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["Gross"].ToString());
+                        sheet1[xlsRow, iGross].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                        sheet1[xlsRow, iDebitNote].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["DebitNoteAmount"].ToString());
+                        sheet1[xlsRow, iDebitNote].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                        sheet1[xlsRow, iTax].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["TaxAmount"].ToString());
+                        sheet1[xlsRow, iTax].NumberFormat = "#,##0.00;(#,##0.00)";
+                        sheet1[xlsRow, iSetOff].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["SetOff"].ToString());
+                        sheet1[xlsRow, iSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                        sheet1[xlsRow, iBalance].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["Balance"].ToString());
+                        sheet1[xlsRow, iBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                        if (dtTaxCode.Rows.Count > 0)
+                        {
+                            for (int j = 0; j < dtTaxCode.Rows.Count; j++)
+                            {
+                                dtRCMPayable.DefaultView.RowFilter = "AgingInvoice = '" + dtTaxCode.Rows[j]["AgingInvoice"].ToString() + "' and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "'";
+                                if (dtRCMPayable.DefaultView.Count > 0)
+                                {
+                                    sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Number = clsStaticInfo.dbl(dtRCMPayable.DefaultView[0]["Balance"].ToString());
+                                    sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                                }
+                                else
+                                {
+                                    sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Text = "-";
+                                    sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                                }
+                            }
+                        }
+                        xlsRow++;
+                    }
+                }
+                sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iBaseNoOfDays, xlsRow - 1, iBaseNoOfDays].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, colVoucherNo, xlsRow - 1, colVoucherNo].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iPartyName, xlsRow - 1, iPartyName].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iPartyCode, xlsRow - 1, iPartyCode].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iPartyPlantName, xlsRow - 1, iPartyPlantName].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iCurrencyCode, xlsRow - 1, iCurrencyCode].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iActualDueDate, xlsRow - 1, iActualDueDate].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iGross, xlsRow - 1, iGross].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iSetOff, xlsRow - 1, iSetOff].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iBalance, xlsRow - 1, iBalance].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iInvoiceNo, xlsRow - 1, iInvoiceNo].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iDebitNote, xlsRow - 1, iDebitNote].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iTax, xlsRow - 1, iTax].BorderAround(ExcelLineStyle.Hair);
+
+                if (dtTaxCode.Rows.Count > 0)
+                {
+                    for (int j = 0; j < dtTaxCode.Rows.Count; j++)
+                    {
+                        sheet1[perStartRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow - 1, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].BorderAround(ExcelLineStyle.Hair);
+                    }
+                }
+
+                if (dtTaxCode.Rows.Count > 0)
+                {
+                    for (int j = 0; j < dtTaxCode.Rows.Count; j++)
+                    {
+                        sheet1[perStartRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow - 1, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].BorderAround(ExcelLineStyle.Hair);
+                        formula2 = "SUM(" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + perStartRow + ":" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + (xlsRow - 1) + ")";
+                        sheet1[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Formula = formula2;
+                        sheet1[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+
+                        dtTaxCode.Rows[j]["ColumnFormula"] += (clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + xlsRow).ToString() + " + ";
+
+                    }
+                }
+                //sheet1.Range[xlsRow, 1, xlsRow, 1].Text = "Total";
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iGross) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iGross) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iGross, xlsRow, iGross].Formula = formula;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                //totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";
+
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iDebitNote) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iDebitNote) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iDebitNote, xlsRow, iDebitNote].Formula = formula;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iTax) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTax) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iTax, xlsRow, iTax].Formula = formula;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iSetOff) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iSetOff) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iSetOff, xlsRow, iSetOff].Formula = formula;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iBalance) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iBalance) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iBalance, xlsRow, iBalance].Formula = formula;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+
+                xlsRow++;
+                xlsRow++;
+
+
+                #region ******************Report Header******************
+
+                xlsRow = 1;
+                xlsCol = 3;
+                try
+                {
+                    if (companyLogo != null)
+                    {
+
+                        double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(iGSTIN);
+                        int totalWidthPixel = (int)(totalWidth * 7.5);
+                        int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
+
+                        companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                        IPictureShape pic = null;
+
+                        pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
+                        //pic.Height = 80;
+                        //pic.Width = 220;
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+
+                FactoryName = string.Empty;
+
+                string FactoryAddress = string.Empty;
+
+                if (dtCmp.Rows.Count > 0)
+                {
+                    CmpName = dtCmp.Rows[0]["CompanyName"].ToString();
+                }
+                else
+                {
+                    CmpName = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = CmpName;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 17;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dtFactory.Rows.Count > 0)
+                {
+                    //FactoryName = dsFactory.Tables[0].Rows[0]["PlantName"].ToString();
+                    FactoryName = dtFactory.Rows[0]["UserName"].ToString();
+                }
+                else
+                {
+                    FactoryName = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = FactoryName;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 14;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 18;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dtFactory.Rows.Count > 0)
+                {
+                    FactoryAddress = dtFactory.Rows[0]["Address1"].ToString();
+                }
+                else
+                {
+                    FactoryAddress = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = FactoryAddress;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 22;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                //sheet1.Range[xlsRow, 3].Text = "Aging Report From " + fromDate + " To " + toDate;
+                sheet1.Range[xlsRow, 3].Text = "Aging Report";
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+
+                #endregion ******************Report Header******************
+
+                #region Freeze Panes
+
+                sheet1.IsDisplayZeros = false;
+                sheet1.UsedRange["A7"].FreezePanes();
+                sheet1.FirstVisibleColumn = 1;
+                sheet1.FirstVisibleRow = 6;
+
+                #endregion Freeze Panes
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = false;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                sheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                #endregion Page Setup
+
+
+                sheet1.Name = "Aging Report";
+                return workbook;
+            }
+            catch (System.Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        public IWorkbook GetOthersLiabilityAgingDetailReport(ExcelEngine excelEngine, string toDate, string CompanyGroupId, string CompanyId, string PlantId, string name)
+        {
+            clsReport objRpt = null;
+            clsReport objRptSR = null;
+            try
+            {
+
+                // ExcelEngine excelEngine = null;
+                IApplication application = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                excelEngine.Excel.DefaultVersion = ExcelVersion.Excel2013;
+                var reportUtility = new ReportUtility();
+                var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+                var sheet1 = workbook.Worksheets[0];
+
+                #region Logo
+                string strPath = "";
+                Image companyLogo = null;
+                try
+                {
+                    DataTable dtCompanyImage = _sqlRepository.GetDataTable("SELECT * FROM ORG.COMPANY WHERE ID = '" + CompanyId + @"'");
+
+                    strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dtCompanyImage.Rows[0]["Image"].ToString());
+                    companyLogo = Image.FromFile(strPath);
+                }
+                catch (Exception)
+                {
+                }
+                #endregion
+                objRpt = new clsReport();
+
+                objRptSR = new clsReport(_sqlRepository);
+
+                DataTable dtRCMPayable = null;
+                string taxyearId = GetTaxYearId(CompanyId);
+                dtRCMPayable = GetOthersLiabilityDetailData(CompanyGroupId, CompanyId, PlantId, taxyearId,toDate);
+                if (dtRCMPayable.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found....");
+                }
+
+                DataTable dtCmp = objRptSR.SelectedCompanyDT(PlantId);
+
+                DataTable dtFactory = objRptSR.SelectedPlantDT(PlantId);
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+                string FactoryName = "";
+                string CmpName = "";
+                xlsRow = 6;
+                sheet1.Range[xlsRow - 1, 1].Text = "Report Ref No:";
+                sheet1.Range[xlsRow - 1, 1].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow - 1, 1].RowHeight = 20;
+                sheet1.Range[xlsRow - 1, 1].CellStyle.Font.Bold = true;
+
+
+                //int startCol = COL;
+                sheet1[xlsRow, xlsCol].Text = "SL. No";
+                int colSLNO = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 7;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+
+                int iPartyCode = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Party Code";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                int iPartyName = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Party";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
+                xlsCol++;
+
+                int iPartyPlantName = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Party Plant";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
+                xlsCol++;
+
+                int colVoucherNo = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Voucher No";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //xlsCol++;
+
+                xlsCol++;
+                int iInvoiceNo = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Doc Ref"; //InvoiceNo
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                xlsCol++;
+                int iDocDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Doc Date"; //InvoiceNo
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                xlsCol++;
+                int iPostingDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Posting Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iBaseOnDueDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Base On Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+
+                //xlsCol++;
+                int iActualDueDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Actual Due Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //xlsCol++;
+
+                xlsCol++;
+                sheet1[xlsRow, xlsCol].Text = "Due Days";
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int iBaseNoOfDays = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 13;
+
+                xlsCol++;
+                int iCurrencyCode = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Currency";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10;
+
+                //Gross
+                xlsCol++;
+                int iGross = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Gross";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                xlsCol++;
+                int iDebitNote = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Debit Note";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                xlsCol++;
+                int iTax = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Tax";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                xlsCol++;
+                int iSetOff = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Payment";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                xlsCol++;
+                int iBalance = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Balance";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //xlsCol++;
+                int iGSTIN = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "GSTIN";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+
+                DataTable dtTaxCode = null;
+                dtRCMPayable.DefaultView.Sort = "AgingSorting";
+                dtTaxCode = dtRCMPayable.DefaultView.ToTable(true, "AgingInvoice");
+                dtTaxCode.Columns.Add("ColumnNumber", typeof(String));
+                dtTaxCode.Columns.Add("ColumnFormula", typeof(String));
+
+                if (dtTaxCode.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dtTaxCode.Rows.Count; i++)
+                    {
+                        xlsCol++;
+                        sheet1.Range[xlsRow, xlsCol].Text = dtTaxCode.Rows[i]["AgingInvoice"].ToString();
+                        sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                        sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                        dtTaxCode.Rows[i]["ColumnNumber"] = xlsCol.ToString();
+                    }
+                }
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+
+                string voucherNo = "";
+                /// string Percentage = "";
+                int startRow = 0;
+                int perStartRow = 0;
+                string formula = "";
+                string formula2 = "";
+                // string totalFormula = "";
+
+                //string lineItemPercentageType = "";
+                xlsRow++;
+                startRow = xlsRow;
+                perStartRow = xlsRow;
+                bool isFirst = true;
+
+                for (int i = 0; i < dtRCMPayable.Rows.Count; i++)
+                {
+                    if (voucherNo != dtRCMPayable.Rows[i]["VoucherNo"].ToString())
+                    {
+
+
+                        if (isFirst == false)
+                        {
+
+
+                        }
+
+                        sheet1[xlsRow, colSLNO].Number = (i + 1);
+
+                        sheet1.Range[xlsRow, iPostingDate].Text = dtRCMPayable.Rows[i]["PostingDate"].ToString();
+
+                        //sheet1.Range[xlsRow, iBaseNoOfDays].Text = dtRCMPayable.Rows[i]["Days"].ToString();
+                        sheet1.Range[xlsRow, iBaseNoOfDays].Number = System.Math.Abs(clsStaticInfo.dbl(dtRCMPayable.Rows[i]["Days"].ToString()));
+                        // System.Math.Abs(-30);
+                        sheet1.Range[xlsRow, colVoucherNo].Text = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
+
+                        //sheet1.Range[xlsRow, iGSTIN].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
+                        sheet1.Range[xlsRow, iPartyName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
+                        sheet1.Range[xlsRow, iPartyCode].Text = dtRCMPayable.Rows[i]["PartyCode"].ToString();
+                        sheet1.Range[xlsRow, iPartyPlantName].Text = dtRCMPayable.Rows[i]["PartyPlantName"].ToString();
+                        sheet1.Range[xlsRow, iCurrencyCode].Text = dtRCMPayable.Rows[i]["CurrencyCode"].ToString();
+                        sheet1.Range[xlsRow, iBaseOnDueDate].Text = dtRCMPayable.Rows[i]["BaseOnDueDate"].ToString();
+                        sheet1.Range[xlsRow, iActualDueDate].Text = dtRCMPayable.Rows[i]["ActualDueDate"].ToString();
+                        sheet1.Range[xlsRow, iDocDate].Text = dtRCMPayable.Rows[i]["DocDate"].ToString();
+                        sheet1.Range[xlsRow, iInvoiceNo].Text = dtRCMPayable.Rows[i]["InvoiceNo"].ToString();
+
+
+                        sheet1[xlsRow, iGross].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["Gross"].ToString());
+                        sheet1[xlsRow, iGross].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                        sheet1[xlsRow, iDebitNote].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["DebitNoteAmount"].ToString());
+                        sheet1[xlsRow, iDebitNote].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                        sheet1[xlsRow, iTax].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["TaxAmount"].ToString());
+                        sheet1[xlsRow, iTax].NumberFormat = "#,##0.00;(#,##0.00)";
+                        sheet1[xlsRow, iSetOff].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["SetOff"].ToString());
+                        sheet1[xlsRow, iSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                        sheet1[xlsRow, iBalance].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["Balance"].ToString());
+                        sheet1[xlsRow, iBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                        if (dtTaxCode.Rows.Count > 0)
+                        {
+                            for (int j = 0; j < dtTaxCode.Rows.Count; j++)
+                            {
+                                dtRCMPayable.DefaultView.RowFilter = "AgingInvoice = '" + dtTaxCode.Rows[j]["AgingInvoice"].ToString() + "' and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "'";
+                                if (dtRCMPayable.DefaultView.Count > 0)
+                                {
+                                    sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Number = clsStaticInfo.dbl(dtRCMPayable.DefaultView[0]["Balance"].ToString());
+                                    sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                                }
+                                else
+                                {
+                                    sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Text = "-";
+                                    sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                                }
+                            }
+                        }
+                        xlsRow++;
+                    }
+                }
+                sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iBaseNoOfDays, xlsRow - 1, iBaseNoOfDays].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, colVoucherNo, xlsRow - 1, colVoucherNo].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iPartyName, xlsRow - 1, iPartyName].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iPartyCode, xlsRow - 1, iPartyCode].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iPartyPlantName, xlsRow - 1, iPartyPlantName].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iCurrencyCode, xlsRow - 1, iCurrencyCode].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iActualDueDate, xlsRow - 1, iActualDueDate].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iGross, xlsRow - 1, iGross].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iSetOff, xlsRow - 1, iSetOff].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iBalance, xlsRow - 1, iBalance].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iInvoiceNo, xlsRow - 1, iInvoiceNo].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iDebitNote, xlsRow - 1, iDebitNote].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iTax, xlsRow - 1, iTax].BorderAround(ExcelLineStyle.Hair);
+
+                if (dtTaxCode.Rows.Count > 0)
+                {
+                    for (int j = 0; j < dtTaxCode.Rows.Count; j++)
+                    {
+                        sheet1[perStartRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow - 1, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].BorderAround(ExcelLineStyle.Hair);
+                    }
+                }
+
+                if (dtTaxCode.Rows.Count > 0)
+                {
+                    for (int j = 0; j < dtTaxCode.Rows.Count; j++)
+                    {
+                        sheet1[perStartRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow - 1, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].BorderAround(ExcelLineStyle.Hair);
+                        formula2 = "SUM(" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + perStartRow + ":" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + (xlsRow - 1) + ")";
+                        sheet1[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Formula = formula2;
+                        sheet1[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+
+                        dtTaxCode.Rows[j]["ColumnFormula"] += (clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + xlsRow).ToString() + " + ";
+
+                    }
+                }
+                //sheet1.Range[xlsRow, 1, xlsRow, 1].Text = "Total";
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iGross) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iGross) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iGross, xlsRow, iGross].Formula = formula;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                //totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";
+
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iDebitNote) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iDebitNote) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iDebitNote, xlsRow, iDebitNote].Formula = formula;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iTax) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTax) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iTax, xlsRow, iTax].Formula = formula;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iSetOff) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iSetOff) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iSetOff, xlsRow, iSetOff].Formula = formula;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iBalance) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iBalance) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iBalance, xlsRow, iBalance].Formula = formula;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+
+                xlsRow++;
+                xlsRow++;
+
+
+                #region ******************Report Header******************
+
+                xlsRow = 1;
+                xlsCol = 3;
+                try
+                {
+                    if (companyLogo != null)
+                    {
+
+                        double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(iGSTIN);
+                        int totalWidthPixel = (int)(totalWidth * 7.5);
+                        int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
+
+                        companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                        IPictureShape pic = null;
+
+                        pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
+                        //pic.Height = 80;
+                        //pic.Width = 220;
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+
+                FactoryName = string.Empty;
+
+                string FactoryAddress = string.Empty;
+
+                if (dtCmp.Rows.Count > 0)
+                {
+                    CmpName = dtCmp.Rows[0]["CompanyName"].ToString();
+                }
+                else
+                {
+                    CmpName = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = CmpName;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 17;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dtFactory.Rows.Count > 0)
+                {
+                    //FactoryName = dsFactory.Tables[0].Rows[0]["PlantName"].ToString();
+                    FactoryName = dtFactory.Rows[0]["UserName"].ToString();
+                }
+                else
+                {
+                    FactoryName = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = FactoryName;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 14;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 18;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dtFactory.Rows.Count > 0)
+                {
+                    FactoryAddress = dtFactory.Rows[0]["Address1"].ToString();
+                }
+                else
+                {
+                    FactoryAddress = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = FactoryAddress;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 22;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                //sheet1.Range[xlsRow, 3].Text = "Aging Report From " + fromDate + " To " + toDate;
+                sheet1.Range[xlsRow, 3].Text = "Aging Report";
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+
+                #endregion ******************Report Header******************
+
+                #region Freeze Panes
+
+                sheet1.IsDisplayZeros = false;
+                sheet1.UsedRange["A7"].FreezePanes();
+                sheet1.FirstVisibleColumn = 1;
+                sheet1.FirstVisibleRow = 6;
+
+                #endregion Freeze Panes
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = false;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                sheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                #endregion Page Setup
+
+
+                sheet1.Name = "Aging Report";
+                return workbook;
+            }
+            catch (System.Exception ex)
+            {
+
+                throw ex;
+            }
         }
 
         #endregion Others Liability

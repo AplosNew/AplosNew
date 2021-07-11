@@ -519,11 +519,16 @@ namespace Library.Service.OrderManagements
 					                        WHEN MMPS.EntityIdWithinGroup<>'' THEN EWG.UserName
 					                        WHEN MMPS.PartyId<>'' THEN PRT.UserName
 					                        ELSE PRT.UserName END
+                                , MMPS.MaterialMasterId, MM.UserName AS MaterialMasterName
+	                                    , MMPS.ArticleId, ART.StandardName AS ArticleName,MMPS.Qty,MMPS.UOMId
                         FROM [TRN].[ProductionOrderProcessSet] AS MMPS
                         LEFT JOIN HKP.Process AS P ON MMPS.ProcessId=P.Id
                         LEFT JOIN ORG.Entity AS EWC ON MMPS.EntityIdWithinCompany=EWC.Id
                         LEFT JOIN ORG.Entity AS EWG ON MMPS.EntityIdWithinGroup=EWG.Id
                         LEFT JOIN HKP.Party AS PRT ON MMPS.PartyId=PRT.Id
+                        LEFT JOIN MST.MaterialMaster AS MM ON MMPS.MaterialMasterId=MM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON MMPS.ArticleId=ART.Id
+						LEFT OUTER JOIN [SCS].[UnitOfMeasurement] UOM ON uom.Id=MMPS.UOMId
                         WHERE MMPS.ProductionOrderId='" + productionOrderId + "' ORDER BY MMPS.[Sequence]";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }

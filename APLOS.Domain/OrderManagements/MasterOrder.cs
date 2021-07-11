@@ -87,7 +87,8 @@ namespace Library.Model.OrderManagements
         public decimal ExtraOrderPercentage { get; set; } = 0;
         public string TotalQtyUOMId { get; set; }
         public string TaskTemplateMasterId { get; set; }
-
+        public string ExceptionalProcessId { get; set; }
+        public string ExceptionalSubProcessId { get; set; }
         #endregion Navigation Properties
     }
 }

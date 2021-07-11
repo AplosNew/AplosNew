@@ -11,7 +11,9 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         ToDate: $filter("dateFiltering")(Date.now()),
         TransactionType: 'LoanTaken',
         ReportFormat: 'Excel',
-        VoucherId: null
+        VoucherId: null,
+
+        IsWithAdvance: false
     };
 
     $scope.material = {
@@ -2713,6 +2715,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         ////FromDate: $filter('dateFiltering')(Date.now()),
         //FromDate: $filter('dateFiltering')(Date.now()),
         ToDate: $filter('dateFiltering')(Date.now())
+        //IsWithAdvance: false
     };
 
     $scope.upToLevelList = [];
@@ -3435,7 +3438,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             //    $rootScope.report(file_src);
             //}
 
-            var file_src = $scope.path + 'OthersLiabilitySummaryReport?toDate=' + $scope.report.ToDate;
+            var file_src = $scope.path + 'OthersLiabilitySummaryReport?toDate=' + $scope.reportParameters.ToDate + '&isWithAdvance=' + $scope.reportParameters.IsWithAdvance;
             $rootScope.report(file_src);
 
         } catch (e) {
@@ -3444,6 +3447,38 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
 
+    $scope.OthersLiabilityAgingDetailReport = function () {
+
+        try {
+            //if (angular.isUndefinedOrNull($scope.reportParameters.FromDate))
+            //    throw 'Please enter from date';
+
+            //if (angular.isUndefinedOrNull($scope.reportParameters.ToDate))
+            //    throw 'Please enter to date';
+
+            //var NewMasterLCList = [];
+            //for (var i = 0; i < $scope.MasterLCList.length; i++) {
+            //    if ($scope.MasterLCList[i].isSelected == true) {
+
+            //        if (NewMasterLCList, $scope.MasterLCList[i].PartyId) {
+            //            NewMasterLCList.push($scope.MasterLCList[i].PartyId);
+            //        }
+            //    }
+            //}
+            //if (NewMasterLCList.length == 0) {
+            //    ShowResult('Please select at least one Party', 'failure');
+            //}
+            //else {
+            //    var file_src = $scope.path + "PartyPaymentStatusAgingReport?MasterLCList=" + NewMasterLCList;
+            //    $rootScope.report(file_src);
+            //}
+            var file_src = $scope.path + "OthersLiabilityAgingDetailReport?toDate=" + $scope.reportParameters.ToDate + '&isWithAdvance=' + $scope.reportParameters.IsWithAdvance;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
     //---------------#endregion others liability-------------------
 }
 

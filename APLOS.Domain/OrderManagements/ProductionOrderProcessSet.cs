@@ -20,7 +20,7 @@ namespace Library.Model.OrderManagements
         public bool IsCompleted { get; set; }
         public string CompletedBy { get; set; }
         public DateTime? CompletionEntryDate { get; set; }
-
+        public decimal Qty { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties
@@ -72,7 +72,9 @@ namespace Library.Model.OrderManagements
         public string EntityIdWithinCompany { get; set; }
         public string EntityIdWithinGroup { get; set; }
         public string PartyId { get; set; }
-
+        public string MaterialMasterId { get; set; }
+        public string ArticleId { get; set; }
+        public string UOMId { get; set; }
         #endregion Navigation Property
     }
 }
