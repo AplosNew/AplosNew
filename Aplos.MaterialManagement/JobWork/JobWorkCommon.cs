@@ -4106,7 +4106,24 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             }
         }
 
+        public IEnumerable<object> GetJWMaterialStorage(string JWLocId)
+        {
+            try
+            {
+                var sql = "";
+                sql = @"select jl.Id as Value, jl.LocationName as Text, StoreLocationId,ms.UserName as MaterialStorage
+                       from HKP.JobWorkLocation jl left join HKP.MaterialStorage ms on ms.Id=jl.StoreLocationId
+                       where jl.Id='"+ JWLocId + @"' order by LocationName ";
 
+                var Data = _sqlRepository.GetDataCollection(sql);
+
+                return Data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 }
