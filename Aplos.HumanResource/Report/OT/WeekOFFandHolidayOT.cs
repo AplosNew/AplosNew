@@ -327,8 +327,8 @@ namespace Library.HumanResource.Report.OT
                     sheet1.Range[xlsRow, iWeekDayOTHr].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                     totalEntryAmount += NWOT + FOT;
-                    totalNWOTAmount += NWOT ;
-                    totalWOTAmount +=  FOT;
+                    totalNWOTAmount += NWOT;
+                    totalWOTAmount += FOT;
 
 
                     sheet1.Range[xlsRow, iBasic].Number = clsStaticInfo.dbl(entryAmount);
@@ -359,7 +359,7 @@ namespace Library.HumanResource.Report.OT
                 oru.GetOT(OTConsiderOn, totalWOTAmount.ToString(), out Tot);
                 sheet1.Range[xlsRow, iLine + 2].Text = Tot;
 
-                sheet1.Range[xlsRow, iLine + 4].Formula = "=SUM(" + clsStaticInfo.GetxlsCol(iAmount) + firstLoopRow + ":" + clsStaticInfo.GetxlsCol(iAmount) + (xlsRow - 1)+")";
+                sheet1.Range[xlsRow, iLine + 4].Formula = "=SUM(" + clsStaticInfo.GetxlsCol(iAmount) + firstLoopRow + ":" + clsStaticInfo.GetxlsCol(iAmount) + (xlsRow - 1) + ")";
                 sheet1.Range[xlsRow, iLine + 4].NumberFormat = NumberFormatTwoDecimal;
                 sheet1.Range[xlsRow, iLine, xlsRow, iLine + 4].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, iLine, xlsRow, iLine + 4].BorderAround(ExcelLineStyle.Hair);
@@ -1058,7 +1058,7 @@ namespace Library.HumanResource.Report.OT
                     xlsCol++;
                     //npstruct = ColGrs + shtList.Count + 1;
                     npstruct = ds + _count_deducting_head;
-                    sheet1.Range[xlsRow + 1, npstruct].Text = "Net Payable";
+                    //sheet1.Range[xlsRow + 1, npstruct].Text = "Net Payable";
                 }
                 endXlsCol = npstruct + _count_earning_notionalhead - 1;
 
@@ -1223,11 +1223,14 @@ namespace Library.HumanResource.Report.OT
                 double HolidayOT = 0.00;
                 for (int i = 0; i <= dtEmployees.Rows.Count - 1; i++)
                 {
+
+
                     #region EmpInfo
                     try
                     {
                         SrNo += 1;
                         x = dtEmployees.Rows[i]["EmpSystemID"].ToString().Trim();
+                      
                         FOT = 0.00;
                         HolidayOT = 0.00;
 
@@ -1423,10 +1426,15 @@ namespace Library.HumanResource.Report.OT
                             {
                                 for (int CI = 0; CI < drSalaryHeadCollection.Count; CI++)
                                 {
+                                  
                                     if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "NET PAYABLE")
                                     {
-                                        sheet1.Range[xlsRow, npstruct].Number = Convert.ToDouble(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
-                                        continue;
+                                        SalaryHeadSequence xx = shtList[drSalaryHeadCollection[CI]["SalaryHeadId"].ToString()];// shtList.Where(ee => ee.SalaryHeadId == drSalaryHeadCollection[CI]["SalaryHeadId"].ToString()).ToList();
+                                        if (xx != null)
+                                        {
+                                            sheet1.Range[xlsRow, xx.XLColIndex].Number = Convert.ToDouble(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                            continue;
+                                        }
                                     }
 
                                     try
@@ -3207,6 +3215,61 @@ namespace Library.HumanResource.Report.OT
                 }//for
                 int countCTCNOTNETPosition = countDeductionPosition;
 
+                for (int ci = 0; ci < dtSalaryHead.Rows.Count; ci++)
+                {
+                    #region deduction
+                    if (dtSalaryHead.Rows[ci]["HeadType"].ToString().ToUpper() == "E" && dtSalaryHead.Rows[ci]["HeadCategory"].ToString().ToUpper() == "Net Payable".ToUpper())
+                    {
+                        
+                            _total_head_count++;
+                            countDeductionPosition++;
+
+                            sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].Text = dtSalaryHead.Rows[ci]["SalaryHead"].ToString();
+                            sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].CellStyle.Font.Size = 10;
+                            sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].CellStyle.Font.FontName = "Arial Narrow";
+                            //sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition, xlsRow + 1, ColGrs + countDeductionPosition + 1].Merge();
+                            sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].CellStyle.ShrinkToFit = true;
+
+
+                            if (dtSalaryHead.Rows[ci]["Sequence"].ToString() == "99")
+                            {
+                                sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].CellStyle.Font.Color = ExcelKnownColors.Red;
+                            }
+                            xlsCol += 2;
+                            SalaryHeadSequence salaryHeadSequence = new SalaryHeadSequence();
+                            salaryHeadSequence.XLColIndex = ColGrs + countDeductionPosition;
+                            if (deductionFormula.Length == 0)
+                            {
+                                deductionFormula += salaryHeadSequence.XLColIndex.ToString();
+                            }
+                            else
+                            {
+                                deductionFormula += "," + salaryHeadSequence.XLColIndex.ToString();
+                            }
+
+                            //countDeductionPosition++;
+
+                            salaryHeadSequence.IsInt = bplib.clsWebLib.GetBoolData(dtSalaryHead.Rows[ci]["IntegerInDisb"].ToString());
+                            salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
+                            salaryHeadSequence.SalaryHead = dtSalaryHead.Rows[ci]["SalaryHead"].ToString();
+                            salaryHeadSequence.SalaryHeadId = dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString();
+                            salaryHeadSequence.HeadType = dtSalaryHead.Rows[ci]["HeadType"].ToString();
+
+                            salaryHeadSequence.Sequence = ci;
+                            salaryHeadSequence.XLColIndex = ColGrs + countDeductionPosition;
+
+                            salaryHeadSequence.HeadCategory = dtSalaryHead.Rows[ci]["HeadCategory"].ToString();
+
+
+                            list.Add(dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString(), salaryHeadSequence);
+
+                            _count_deducting_head++;
+                        
+                        //}//CTC/Gross
+                    }//SalaryHead 
+                    #endregion
+                }//for
+                countCTCNOTNETPosition = countDeductionPosition;
 
                 for (int ci = 0; ci < dtSalaryHead.Rows.Count; ci++)
                 {
