@@ -915,22 +915,24 @@
                                  e-allowselection="false" e-allowresizing="true" e-filtersettings-filterType="excel" @*e-width="100"*@ e-showsummary="true" e-summaryrows="summaryRowsTrialBalance" @*e-actioncomplete="actionCompleteLoanSelected"*@>
                                 <div e-columns>
                                     @*<div e-column e-field="DocRefNo" e-headertext="Loan No" e-width="100">
-                            <div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li> <button ng-click="$parent.GetAllLoanRegisterReport(this);" tooltip="Loan No" class="btn" style="top: 1px; font-size:12px; width:100%">{{data.DocRefNo}}</button></li>
-                            </ul>
-                            </div>
-                            </div>
-                                <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="100">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li> <button ng-click="$parent.printLoanVoucherReport(this);" tooltip="Voucher No" class="btn" style="top: 1px; font-size:12px; width:100% ">{{data.VoucherNo}}</button></li>
-                                    </ul>
-                                </div>
-                            </div>*@
+                                        <div class="common-btn">
+                                            <ul class="list-inline text-left">
+                                                <li> <button ng-click="$parent.GetAllLoanRegisterReport(this);" tooltip="Loan No" class="btn" style="top: 1px; font-size:12px; width:100%">{{data.DocRefNo}}</button></li>
+                                        </ul>
+                                        </div>
+                                        </div>
+                                            <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="100">
+                                            <div class="common-btn">
+                                                <ul class="list-inline text-left">
+                                                    <li> <button ng-click="$parent.printLoanVoucherReport(this);" tooltip="Voucher No" class="btn" style="top: 1px; font-size:12px; width:100% ">{{data.VoucherNo}}</button></li>
+                                                </ul>
+                                            </div>
+                                        </div>*@
 
 
                                     <div e-column e-field="MainHead" e-headertext="MainHead" e-width="80"></div>
+                                    <div e-column e-field="AccountGroupName" e-headertext="Account Group" e-width="80"></div>
+                                    
                                     <div e-column e-field="GLGeneralInfoCode" e-headertext="GLGeneralInfoCode" e-width="80"></div>
                                     <div e-column e-field="GL" e-headertext="GL" e-width="130"></div>
                                     <div e-column e-field="Budget" e-headertext="Budget" e-width="130"></div>
@@ -1340,7 +1342,7 @@
                         <fieldset class="scheduler-border">
                             @*<div class="clearfix"></div>*@
                             <div class="form-group" id="div_WDToDate">
-                                <label class="col-sm-2 control-label">As On Date<sup>*</sup></label>
+                                <label class="col-sm-2 control-label">As On Date (Posting Date)<sup>*</sup></label>
                                 <div class="col-sm-2 show-message">
                                     <input e-dateformat="dd-MMM-yyyy" ng-model="report.ToDate" ej-datepicker @*class="form-control"*@ tabindex="4">
                                     @*<input e-dateformat="dd-MMM-yyyy" e-change="getDateRangeWisePaymentData" ej-datepicker e-value="reportParameters.ToDate" />*@
@@ -1379,10 +1381,10 @@
                                         @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkMasterLC" e-textalign="center" e-width="30"></div>*@
 
                                         @*<td class="text-right">
-                                  <ul class="list-inline action-list">
-                                      <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
-                                  </ul>
-                                </td>*@
+          <ul class="list-inline action-list">
+              <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
+          </ul>
+        </td>*@
 
                                         <div e-column e-type="string" e-field="AcceptanceNo" e-headertext="AccNo" e-width="80"></div>
                                         <div e-column e-type="date" e-field="AcceptanceDate" e-headertext="Date" e-format="{0:dd-MMM-yyyy}" e-width="50"></div>
@@ -1396,10 +1398,17 @@
                                         <div e-column e-type="date" e-field="ActualDueDate" e-headertext="Actual DueDate" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
                                         <div e-column e-type="string" e-field="NoOfDays" e-headertext="NoOfDays" e-width="80"></div>
                                         <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="AcceptanceAmount" e-headertext="Amount" e-textalign="right" e-width="100"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SetOff" e-headertext="SetOff" e-textalign="right" e-width="100"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Balance" e-headertext="Balance" e-textalign="right" e-width="100"></div>
+
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksAcceptanceAmount" e-headertext="Books Amount" e-textalign="right" e-width="100"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksSetOff" e-headertext="Books SetOff" e-textalign="right" e-width="100"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksBalance" e-headertext="Books Balance" e-textalign="right" e-width="100"></div>
+
                                         <div e-column @*e-template="#LoanAmountTemp"*@ e-field="Amount" textAlign='right' e-headertext="LoanAmount" e-width="100"></div>
+
                                         <div e-column @*e-template="#LoanNoTemp"*@ e-field="LoanNo" textAlign='right' e-headertext="LoanNo" e-width="100"></div>
                                         <div e-column @*e-template="#LoanDateTemp"*@ e-field="LoanDate" textAlign='right' e-headertext="LoanDate" e-width="100"></div>
 
@@ -1462,14 +1471,13 @@
                         <fieldset class="scheduler-border">
                             @*<div class="clearfix"></div>*@
                             <div class="form-group" id="div_WDToDate">
-                                <label class="col-sm-2 control-label">As On Date<sup>*</sup></label>
+                                <label class="col-sm-2 control-label">As On Date (Posting Date)<sup>*</sup></label>
                                 <div class="col-sm-2 show-message">
                                     <input e-dateformat="dd-MMM-yyyy" ng-model="reportParameters.ToDate" ej-datepicker @*class="form-control"*@ tabindex="4">
                                     @*<input e-dateformat="dd-MMM-yyyy" e-change="getDateRangeWisePaymentData" ej-datepicker e-value="reportParameters.ToDate" />*@
 
                                 </div>
                             </div>
-
 
                             <div class="col-xs-12 col-sm-2 col-md-2">
                                 <div class="common-btn">
@@ -1479,36 +1487,71 @@
                                 </div>
                             </div>
 
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="col-sm-3" @*style="font-weight:normal;"*@>With Advance<sup></sup></label>
+
+                                    <div class="col-sm-2" style="margin-left: -96px;">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input tabindex="8" type="checkbox" ng-model="reportParameters.IsWithAdvance">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+
                         </fieldset>
 
                         <div class="table-responsive modal-table aplos-grid-toggle">
                             <div class="content-container-fluid" style="color:black;overflow:scroll">
-                                <div style="color:black;" id="GrideOhtersLiability" ej-grid e-datasource="OthersLiabilityList" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplateOthersLiab"
-                                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
-                                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+                                <div style="color:black;" id="GrideOhtersLiability" 
+                                     ej-grid e-datasource="OthersLiabilityList" 
+                                     e-recorddoubleclick="getdata" 
+                                     @*e-templaterefresh="refreshTemplateOthersLiab"*@
+                                     e-allowfiltering="true" e-allowpaging="true" 
+                                     e-gridlines="vertical" e-allowscrolling="true"
+                                     e-filtersettings-filterType="excel" 
+                                     e-enabletouch="false" 
+                                     e-allowresizing="true" 
+                                     e-allowselection="false" e-allowsorting="true"
+                                     e-summaryrows="TotalOthersLiabilityAmount"
+                                     
+                                     >
                                     <div e-columns>
                                         @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplateOLiab" e-template="#checkOtherLiability" e-textalign="center" e-width="30"></div>*@
 
                                         @*<div e-column e-field="NoOfInvoice" e-template="#hLink" e-headertext="No Of Invoice" e-width="40"></div>*@
 
 
-                                        <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="60"></div>
-                                        <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
-                                        <div e-column e-field="PartyPlantName" e-headertext="Party Plant" e-width="150"></div>
-                                        @*<div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="30"></div>*@
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Advance" e-headertext=" Advance" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="40"></div>
+                                        <div e-column e-field="PartyName" e-headertext="Party" e-width="80"></div>
+                                        <div e-column e-field="PartyPlantName" e-headertext="Party Plant" e-width="80"></div>
+                                        <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="40"></div>
+                                        <div e-column e-field="InvoiceNo" e-headertext="Doc Ref No" e-width="30"></div>
+                                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DocDate" e-headertext="Doc Date" e-width="35"></div>
+                                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PostingDate" e-headertext="Posting Date " e-width="35"></div>
+                                        <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="25"></div>
+
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Gross" e-headertext="Gross" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DebitNoteAmount" e-headertext="DebitNote Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TaxAmount" e-headertext="Tax Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SetOff" e-headertext="SetOff" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Balance" e-headertext="Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                        
+
+                                        @*<div e-column e-type="numeric" e-format="{0:0.00}" e-field="Advance" e-headertext=" Advance" e-width="60" e-textalign="right" style="height: 20px;"></div>*@
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksGross" e-headertext="Books Gross" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DebitNoteBooksAmount" e-headertext="Books DebitNote Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksTaxAmount" e-headertext="Books TaxAmount " e-width="60" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksSetOff" e-headertext="Books SetOff" e-width="60" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksBalance" e-headertext="Books Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
 
-                                        @*<div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueMoreThan30" e-headertext="OverDueMoreThan 30" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueMoreThan15" e-headertext="OverDueMoreThan 15" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueLessThan15" e-headertext="OverDueLessThan 15" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TodayBalance" e-headertext="Today Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OneToSevenBalance" e-headertext="OneToSeven Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="EightToThirtyBalance" e-headertext="EightToThirty Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ThirtyToSixtyBalance" e-headertext="ThirtyToSixty Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Onword60" e-headertext="Onword 60" e-width="60" e-textalign="right" style="height: 20px;"></div>*@
 
                                     </div>
                                 </div>
@@ -1529,27 +1572,10 @@
                         </div>
 
                         
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label class="col-sm-3" @*style="font-weight:normal;"*@>With Advance<sup></sup></label>
-
-                                <div class="col-sm-2" style="margin-left: -96px;">
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input tabindex="8" type="checkbox" ng-model="reportParameters.IsWithAdvance">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-
-     
-                            </div>
-                        </div>
-
                         <div class="common-btn">
                             <ul class="list-inline text-left">
                                 <li><button ng-click="OthersLiabilitySummaryReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Summary</button></li>
-                                <li><button ng-click="InvoiceAgingReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Detail</button></li>
+                                <li><button ng-click="OthersLiabilityAgingDetailReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Detail</button></li>
                             </ul>
                         </div>
 

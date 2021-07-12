@@ -226,6 +226,9 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.getFGCharacteristicsListNew($scope.ModelNew.FGMaterialMasterId, $scope.ModelNew.Id);
         $scope.HeaderName = $scope.ModelNew.HeaderName;
+
+        //$scope.filedata.name = $scope.ModelNew.Attachment;
+
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -266,6 +269,8 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             var fileName = null;
             if (!baseService.isUndefinedOrNull($scope.filedata))
                 fileName = $scope.filedata.name;
+            if (baseService.isUndefinedOrNull(fileName))
+                fileName = $scope.ModelNew.Attachment;
             $scope.ModelNew.Attachment = fileName;
             if (!baseService.isUndefinedOrNull($scope.ModelNew.Attachment)) {
                 if ($scope.ModelNew.Attachment.length > 50) {

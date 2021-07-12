@@ -163,20 +163,29 @@ function employeeInformationController(addressService, fileReader, cboService, c
         IsEntryComplete: false,
         FirstTimeLock: false,
         Ref1CellPhnNo: null,
-        Ref1Name: null
+        Ref1Name: null,
+        ApprovalAuthorityId: null
     };
     $scope.employeeNew = Object.assign({}, $scope.model);
     $scope.employeeInformation = Object.assign({}, $scope.model);
+
     $scope.AddNewEmpPopUp = function () {
         $scope.Clean();
-        angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
+        //angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
+
+        $("#NewEmpEntryPopUp").ejDialog("setTitle", "Add Employee Information");
+        var eDialog = $("#NewEmpEntryPopUp").data("ejDialog");
+        eDialog.open();
     }
 
     $scope.CloseNewEmpPopUp = function () {
         $scope.Clean();
-        angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('hide');
+        //angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('hide');
         $scope.ShowVendor = false;
         $scope.ShowEVendor = false;
+
+        var eDialog = $("#NewEmpEntryPopUp").data("ejDialog");
+        eDialog.close();
     }
 
     $scope.CheckDuplicateEmployeeCode = function () {
@@ -190,7 +199,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         })
     };
 
-    
+
 
     $scope.nomineeInfo = {
         Id: null,
@@ -662,6 +671,14 @@ function employeeInformationController(addressService, fileReader, cboService, c
             });
     };
 
+    $scope.ApprovalAuthorityList = [];
+    $scope.GetApprovalAuthority = function () {
+        $http.get('employees/employeeinformation/GetApprovalAuthority')
+            .then(function (response) {
+                $scope.ApprovalAuthorityList = response.data;
+            });
+    };
+    $scope.GetApprovalAuthority();
 
     cboService.getCboPlantByCompanyGroup(null, function (result) {
         $scope.plantList = result;
@@ -695,15 +712,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.payrollGroupList = result;
     });
 
-    $scope.attendanceGroupList = [];
-    cboService.getAttendanceGroupCbo(function (result) {
-        $scope.attendanceGroupList = result;
-    });
 
-    $scope.accountsGroupList = [];
-    cboService.getAccountsGroupCbo(function (result) {
-        $scope.accountsGroupList = result;
-    });
 
     $scope.showEntity = function () {
         $http.get('employees/employeeprobationalperiod/getentitybyemployee')
@@ -1538,63 +1547,82 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.employeeInformation.NumberOfKnownPerson = 1;
     };
 
-    $scope.SaveNewEmployee = function () {
+    $scope.NewEmpAddValidate = function () {
+        if ($scope.IsEmployeeCodeOpenField == true && baseService.isUndefinedOrNull($scope.employeeNew.EmployeeCode)) {
+            throw "Employee Code is required.";
+        }
+        if ($scope.IsEmployeeCodeOpenField == true && !baseService.isUndefinedOrNull($scope.employeeNew.EmployeeCode)) {
+            $scope.CheckDuplicateEmployeeCode();
+        }
 
+        CheckField($scope.employeeNew.BudgetCode, "Budget Code");
+        CheckField($scope.employeeNew.Salutation, "Salutation");
+        CheckField($scope.employeeNew.FirstName, "First Name");
+        CheckField($scope.employeeNew.EmpType, "Emp Type");
+        CheckField($scope.employeeNew.Citizen, "Citizen");
+        CheckField($scope.employeeNew.GenderID, "Gender");
+        CheckField($scope.employeeNew.NationalID, $scope.Nid);
+        CheckField($scope.employeeNew.PaymentMode, "Payment Mode");
+        CheckField($scope.employeeNew.DOB, "Date Of Birth");
+        CheckField($scope.employeeNew.BirthdayCelebrationDate, "Birthday Celebration Date");
+        CheckField($scope.employeeNew.LegalDesignationId, "Legal Designation");
+        CheckField($scope.employeeNew.GivenDesignation, "Given Designation");
+        CheckField($scope.employeeNew.JobLocationID, "Job Location");
+        CheckField($scope.employeeNew.FixSystemID, "Shift(Fix)");
+        CheckField($scope.employeeNew.DOJ, "Date Of Join");
+        CheckField($scope.employeeNew.EmploymentType, "Employment Type");
+        CheckField($scope.employeeNew.DOC, "Date Of Confirmation");
+
+
+        if (baseService.isUndefinedOrNull($scope.employeeNew.LegalDesignationId)) {
+            throw "Legal Designation is required.";
+        }
+        if (baseService.isUndefinedOrNull($scope.employeeNew.GivenDesignationId)) {
+            throw "Given Designation is required.";
+        }
+        if ($scope.employeeNew.EmploymentType === 'Contractual' && baseService.isUndefinedOrNull($scope.employeeNew.VendorId)) {
+            throw "Vendor is required.";
+        }
+
+        if ($scope.IsReferenceRequired === true && baseService.isUndefinedOrNull($scope.empReferenceInformation.Ref1Name)) {
+            throw "Reference Employee is required.";
+        }
+        if ($scope.IsReferenceRequired === true && baseService.isUndefinedOrNull($scope.empReferenceInformation.Ref1CellPhnNo)) {
+            throw "Reference Employee cell is required.";
+        }
+    }
+
+
+    $scope.SaveNewEmployee = function () {
         try {
 
-            if ($scope.IsEmployeeCodeOpenField == true && baseService.isUndefinedOrNull($scope.employeeNew.EmployeeCode)) {
-                throw "Employee Code is required.";
-            }
-            if ($scope.IsEmployeeCodeOpenField == true && !baseService.isUndefinedOrNull($scope.employeeNew.EmployeeCode)) {
-                $scope.CheckDuplicateEmployeeCode();
-            }
-           
+            $scope.NewEmpAddValidate();
 
-            if (baseService.isUndefinedOrNull($scope.employeeNew.BudgetCode)) {
-                throw "Budget Code is required.";
-            }
-            if (baseService.isUndefinedOrNull($scope.employeeNew.LegalDesignationId)) {
-                throw "Legal Designation is required.";
-            }
-            if (baseService.isUndefinedOrNull($scope.employeeNew.GivenDesignationId)) {
-                throw "Given Designation is required.";
-            }
-            if ($scope.employeeNew.EmploymentType === 'Contractual' && baseService.isUndefinedOrNull($scope.employeeNew.VendorId)) {
-                throw "Vendor is required.";
-            }
-
-            if ($scope.IsReferenceRequired === true && baseService.isUndefinedOrNull($scope.empReferenceInformation.Ref1Name)) {
-                throw "Reference Employee is required.";
-            }
-            if ($scope.IsReferenceRequired === true && baseService.isUndefinedOrNull($scope.empReferenceInformation.Ref1CellPhnNo)) {
-                throw "Reference Employee cell is required.";
-            }
-
-            $scope.$broadcast('show-errors-check-validity');
-            if ($scope.newEmpForm.$valid) {
-                $http({
-                    method: 'POST',
-                    url: $scope.saveNewUrl,
-                    data: { 'entity': $scope.employeeNew, 'EmployeeCodeCheckLevel': $scope.EmployeeCodeCheckLevel, 'empRef':$scope.empReferenceInformation},
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure', 'NewEmpEntryPopUp');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success', 'NewEmpEntryPopUp');
-
-                        $scope.GetPlantWiseHRMSSetting();
-                        $scope.getData();
-                        ClearEmpFields();
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure', 'NewEmpEntryPopUp');
+            //$scope.$broadcast('show-errors-check-validity');
+            //if ($scope.newEmpForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveNewUrl,
+                data: { 'entity': $scope.employeeNew, 'EmployeeCodeCheckLevel': $scope.EmployeeCodeCheckLevel, 'empRef': $scope.empReferenceInformation },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
                 }
+                else {
+                    ShowResult(response.data.Message, 'success');
 
+                    $scope.GetPlantWiseHRMSSetting();
+                    $scope.getData();
+                    ClearEmpFields();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
             }
+
+            //}
         } catch (e) {
-            ShowResult(e, 'failure', 'NewEmpEntryPopUp');
+            ShowResult(e, 'failure');
         }
     };
 
@@ -1728,27 +1756,27 @@ function employeeInformationController(addressService, fileReader, cboService, c
             //}
 
             $scope.savedisable = true;
-           
-                $http({
-                    method: 'POST',
-                    url: $scope.updateUrl = $scope.path + 'createpersonal',
-                    data: $scope.employeeInformation,
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
-                    }
-                    else {
-                        $scope.savedisable = false;
-                        ShowResult(response.data.Message, "success");
-                    }
-                }, function errorCallback(response) {
+
+            $http({
+                method: 'POST',
+                url: $scope.updateUrl = $scope.path + 'createpersonal',
+                data: $scope.employeeInformation,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
                     $scope.savedisable = false;
-                    //ShowResult(response.status.Message, "failure");
-                });
-                return true;
-              
-           
+                    ShowResult(response.data.Message, "success");
+                }
+            }, function errorCallback(response) {
+                $scope.savedisable = false;
+                //ShowResult(response.status.Message, "failure");
+            });
+            return true;
+
+
         } catch (e) {
             $scope.savedisable = false;
             ShowResult(e, "failure");
@@ -3406,7 +3434,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $http({
                 method: 'POST',
                 url: 'Employees/EmployeeInformation/SaveOperation',
-                data: { 'data': $scope.EmployeeOperationList, 'EmpSystemId': $scope.employeeInformation.SystemId},
+                data: { 'data': $scope.EmployeeOperationList, 'EmpSystemId': $scope.employeeInformation.SystemId },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -3762,7 +3790,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     $scope.RelativeemployeeList = [];
     $scope.RelpopUp = function () {
         try {
-            
+
             $scope.RelativeemployeeList = [];
             $http({
                 method: 'GET',
@@ -3780,14 +3808,14 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
 
     $scope.setData = function (obj) {
-      
+
         var data = obj.data;
         $scope.employeeNew.RelativeEmployeeCode = data.EmployeeCode;
         $scope.employeeNew.RelativeSystemId = data.SystemID;
         $scope.employeeNew.RelativeEmployeeName = data.EmployeeName;
-        
+
         angular.element(document.querySelector('#employeePopUp')).modal('hide');
-       
+
     };
 
     $scope.clearEmp = function () {

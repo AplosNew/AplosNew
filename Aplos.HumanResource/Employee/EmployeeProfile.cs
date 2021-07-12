@@ -1141,6 +1141,7 @@ namespace Aplos.HumanResource
                 drLocal["VendorId"] = data.VendorId;
 
                 drLocal["CardNumber"] = data.CardNumber;
+                drLocal["ApprovalAuthorityId"] = data.ApprovalAuthorityId;
 
                 //BudgetCode related column data 
 
@@ -1510,6 +1511,23 @@ namespace Aplos.HumanResource
                 throw ex;
             }
 
+        }
+
+        public IEnumerable<object> GetApprovalAuthority(string plantId)
+        {
+            var sql = "";
+            try
+            {
+                sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='EmployeeApprovalAuthority' And A.PlantId='"+ plantId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
 
