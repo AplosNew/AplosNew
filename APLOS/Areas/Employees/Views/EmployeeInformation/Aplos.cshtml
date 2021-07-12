@@ -166,9 +166,9 @@
                                         <input type="hidden" name="Budget Code" ng-model="employeeInformation.BudgetCode" class="form-control" required>
                                         <input type="text" name="Code" ng-model="employeeInformation.Code" class="form-control" readonly required>
                                         @*<span class="input-group-btn">
-                    <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
-                    <button ng-click="clearCode()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                </span>*@
+                                                <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="clearCode()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </span>*@
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -1512,7 +1512,7 @@
                                         </table>
                                     </div>
                                 </div>
-                                
+
                                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(10), active: isSet2(10) }">
 
                                 </div>
@@ -2035,7 +2035,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        @*<div class="form-group">
                                             <label class="col-sm-4 control-label">Accounts Group</label>
                                             <div class="col-sm-8">
                                                 <div class="select-style">
@@ -2045,7 +2045,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div>*@
                                         <div class="form-group" ng-show="Operation==='Operation Master'">
                                             <label class="col-sm-4 control-label">Operation Master</label>
                                             <div class="col-sm-8">
@@ -2120,7 +2120,7 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    <div style="color:black;" id="GridEmployeeMultioperation" ej-grid e-datasource="EmployeeOperationList" e-gridlines="vertical" 
+                                    <div style="color:black;" id="GridEmployeeMultioperation" ej-grid e-datasource="EmployeeOperationList" e-gridlines="vertical"
                                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
                                         <div e-columns>
                                             <div e-column e-template="#ShowActionButtonsassigned" e-headertext="Remove" e-width="20px"></div>
@@ -2563,23 +2563,33 @@
                         </div>
 
                         @*<div class="form-group">
-            <label class="col-sm-2 control-label">Reference Employee<sup ng-show="IsReferenceRequired===true">*</sup></label>
-            <div class="col-sm-9 input-group" style="padding-left: 89px;padding-right: 14px;">
-                <span class="input-group-addon">{{employeeNew.RelativeEmployeeCode}}</span>
-                <input type="text" ng-model="employeeNew.RelativeEmployeeName" class="form-control" readonly>
-                <span class="input-group-btn">
-                    <button ng-click="RelpopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                    <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                </span>
-            </div>
-        </div>*@
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Ref.1 Name<sup ng-show="IsReferenceRequired===true">*</sup></label>
-                        <div class="col-sm-8">
-                            <input type="text" name="Name" ng-model="empReferenceInformation.Ref1Name" class="form-control" maxlength="150">
+                                <label class="col-sm-2 control-label">Reference Employee<sup ng-show="IsReferenceRequired===true">*</sup></label>
+                                <div class="col-sm-9 input-group" style="padding-left: 89px;padding-right: 14px;">
+                                    <span class="input-group-addon">{{employeeNew.RelativeEmployeeCode}}</span>
+                                    <input type="text" ng-model="employeeNew.RelativeEmployeeName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="RelpopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>*@
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Ref.1 Name<sup ng-show="IsReferenceRequired===true">*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Name" ng-model="empReferenceInformation.Ref1Name" class="form-control" maxlength="150">
+                            </div>
                         </div>
-                    </div>
-
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Approval Authority</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select id="ApprovalAuthority " class="form-control" ng-model="employeeNew.ApprovalAuthorityId" name="ApprovalAuthority">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in ApprovalAuthorityList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="common-btn">
