@@ -650,7 +650,7 @@ namespace Library.MaterialManagement.InventoryManagements
 				//						--,TC.UserName  ,BFG.ThirdCharacteristicsValueId,isnull(v3.UserName,'') ,TUoM.UserName ,TUoM.Id
 				//--                      --,Isnull(C.UserName,'') CountryName,C.Id CountryId
 				//						--,BO.Consumption,BO.WastagePer,POUOM.UserName
-				//				";//test
+				//				";//test cbddfh
 				sql = @"Select Convert(bit, 'False') 'check', MGM.UserName MaterialMasterGroupName--,IRD.InventoryMaterialId
 						,MT.UserName MaterialType
 						,mm.Id MaterialMasterId
