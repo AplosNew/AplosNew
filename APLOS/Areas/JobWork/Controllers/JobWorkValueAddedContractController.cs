@@ -61,7 +61,8 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult getmateriallocation()
         {
             string sql = "";
-            sql = @"select Id as Value, UserName as Text from HKP.MaterialStorage order by UserName";
+            sql = @"select jl.Id as Value, jl.LocationName as Text, StoreLocationId,ms.UserName as MaterialStorage
+                    from HKP.JobWorkLocation jl left join HKP.MaterialStorage ms on ms.Id=jl.StoreLocationId order by LocationName";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
