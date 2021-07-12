@@ -43,7 +43,6 @@ namespace Library.HumanResource.SmsSend
 
 									LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 									LEFT JOIN ORG.Entity En ON PMB.EntityId = En.Id
-									Left join ORG.Unit u on u.Id=EN.UnitId 
 
 									left join [dbo].[AttdnProcessData] L ON L.EmpSystemID=A.EmpSystemID
 									and L.EmpSystemID+convert(varchar(30),L.WorkDate)=(select TOP 1 LX.EmpSystemID+convert(varchar(30),LX.WorkDate) from [dbo].[AttdnProcessData] LX 
@@ -53,7 +52,7 @@ namespace Library.HumanResource.SmsSend
                                     where A.InTime is not null and A.OutTime is null and A.WorkDate > CONVERT(date,DATEADD(DAY, -2, GETDATE())) 
                                     and DATEDIFF(HOUR,A.InTime,GETDATE())>14
                                     and A.EmpSystemID+convert(varchar(30),a.WorkDate) NOT IN (Select  B.EmpSystemID+convert(varchar(30),B.WorkDate) from SMSNotification B where A.EmpSystemID=B.EmpSystemId and A.WorkDate=B.WorkDate)
-									and E.PlantId = '202016' and u.Id = '20205'
+									and E.PlantId = '202016' and En.Id = '55'
 
                                     union
                                     --Format 2 -- In is not there, but OUT is there, notify immediately after getting OUT Time
@@ -64,7 +63,6 @@ namespace Library.HumanResource.SmsSend
 
 									LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 									LEFT JOIN ORG.Entity En ON PMB.EntityId = En.Id
-									Left join ORG.Unit u on u.Id=EN.UnitId 
 
 									left join [dbo].[AttdnProcessData] L ON L.EmpSystemID=A.EmpSystemID
 									and L.EmpSystemID+convert(varchar(30),L.WorkDate)=(select TOP 1 LX.EmpSystemID+convert(varchar(30),LX.WorkDate) from [dbo].[AttdnProcessData] LX 
@@ -73,7 +71,7 @@ namespace Library.HumanResource.SmsSend
 									AND LX.EmpSystemID=A.EmpSystemID and convert(date,LX.WorkDate)<CONVERT(date,A.WorkDate) ORDER BY LX.WorkDate DESC)
                                     where A.InTime is null and A.OutTime is not null and A.WorkDate > CONVERT(date,DATEADD(DAY, -2, GETDATE())) 
                                      and A.EmpSystemID+convert(varchar(30),a.WorkDate) NOT IN (Select  B.EmpSystemID+convert(varchar(30),B.WorkDate) from SMSNotification B where A.EmpSystemID=B.EmpSystemId and A.WorkDate=B.WorkDate)
-									 and E.PlantId = '202016' and u.Id = '20205'
+									 and E.PlantId = '202016' and En.Id = '55'
 
                                     union
                                     --Format 1 -- No IN and OUT, but Absent, notify after 30 hours from the assigned Shift IN Time
@@ -86,7 +84,6 @@ namespace Library.HumanResource.SmsSend
 
 									LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 									LEFT JOIN ORG.Entity En ON PMB.EntityId = En.Id
-									Left join ORG.Unit u on u.Id=EN.UnitId 
 
                                     Left Join ShiftDefination SD on A.ShiftSystemID=SD.SystemID
                                     Left Join ShiftTimeChgMaster STCM on SD.SystemID=STCM.ShiftDefinationID
@@ -100,9 +97,8 @@ namespace Library.HumanResource.SmsSend
                                     and DATEDIFF(HOUR,DATEADD(minute,DATEPART(minute, isnull(STCM.InTime, SD.Intime)), DATEADD(hour,DATEPART(hour, isnull(STCM.InTime, SD.Intime)),A.WorkDate)),GETDATE())>30
                                     and A.DayStatus='A'
                                      and A.EmpSystemID+convert(varchar(30),a.WorkDate) NOT IN (Select  B.EmpSystemID+convert(varchar(30),B.WorkDate) from SMSNotification B where A.EmpSystemID=B.EmpSystemId and A.WorkDate=B.WorkDate)
-									 and E.PlantId = '202016' and u.Id = '20205'
-                                
-                                    ) AS K  ";
+									 and E.PlantId = '202016' and En.Id = '55'                                
+                                    ) AS K";
 
             //0=name,1=card no,2=workdate,3=last workday,
             string MessageBodyFormat1 = @"नाम :- {0} कार्ड नंबर :- {1} आपके द्वारा  दिनांक {2}  को कार्य पर आते / जाते समय पंचिंग नहीं की गई है । आपकी अंतिम  उपस्थिति दिनांक {3} की है ।  अतः इस हेतु आप निर्धारित टाइम ऑफिस में तुरंत संपर्क करें ।";
