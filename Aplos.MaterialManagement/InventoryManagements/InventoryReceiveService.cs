@@ -650,7 +650,7 @@ namespace Library.MaterialManagement.InventoryManagements
 				//						--,TC.UserName  ,BFG.ThirdCharacteristicsValueId,isnull(v3.UserName,'') ,TUoM.UserName ,TUoM.Id
 				//--                      --,Isnull(C.UserName,'') CountryName,C.Id CountryId
 				//						--,BO.Consumption,BO.WastagePer,POUOM.UserName
-				//				";
+				//				";//test
 				sql = @"Select Convert(bit, 'False') 'check', MGM.UserName MaterialMasterGroupName--,IRD.InventoryMaterialId
 						,MT.UserName MaterialType
 						,mm.Id MaterialMasterId
@@ -672,7 +672,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,TUoM.Id AS TransactionUoMId
 						 ,TUoM.UserName AS TransactionUoMName                 
 						,BOQD.RequiredQtyPO RequestedQty1
-						,0 RequestedQty,0 RequestedQtyNew
+						,0 RequestedQty,0 RequestedQtyNew   
 						,0 RejectedQty
 						,ISNULL(GRNALLO.TransactionQty,0) TotalQty
 						,0  ShortageQty
