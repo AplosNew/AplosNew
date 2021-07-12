@@ -110,13 +110,13 @@
         <div class="col-sm-12 col-md-3 col-lg-3">
             <div class="form-group">
                 <label class="control-label">Min Rate</label>
-                <input type="text" name="Min Rate" tabindex="9" class="form-control" n-decimals="2" ng-model="ValueAdded.MinRate" />
+                <input type="text" name="Min Rate" tabindex="9" class="form-control" n-decimals="4" ng-model="ValueAdded.MinRate" />
             </div>
         </div>
         <div class="col-sm-12 col-md-3 col-lg-3">
             <div class="form-group">
                 <label class="control-label">Max Rate</label>
-                <input type="text" name="Max Rate" tabindex="10" class="form-control" n-decimals="2" ng-model="ValueAdded.MaxRate" />
+                <input type="text" name="Max Rate" tabindex="10" class="form-control" n-decimals="4" ng-model="ValueAdded.MaxRate" />
             </div>
         </div>
         <div class="col-sm-12 col-md-3 col-lg-3">
@@ -151,10 +151,12 @@
                 <input type="text" name="Remarks" tabindex="13" class="form-control" ng-model="ValueAdded.Remarks" />
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-12 control-label">Process<sup>*</sup></label>
-            <div class="col-sm-12">
-                <input id="ddlProcess" ej-dropdownlist e-create="create" e-headertemplate='<input class="temp" type="checkbox" id="checkBox" />' e-multiselectmode="visualmode" e-datasource="processList" e-fields-value="Id" e-fields-text="UserName" e-width="100%" e-showcheckbox="true" />
+        <div class="col-sm-12 col-md-3 col-lg-3">
+            <div class="form-group" show-errors>
+                <label class="control-label">Process<sup>*</sup></label>
+                @*<div class="col-sm-12">*@
+                    <input id="ddlProcess" ej-dropdownlist e-create="create" e-headertemplate='<input class="temp" type="checkbox" id="checkBox" />' e-multiselectmode="visualmode" e-datasource="processList" e-fields-value="Id" e-fields-text="UserName" e-width="100%" e-showcheckbox="true" />
+                @*</div>*@
             </div>
         </div>
     </div>
@@ -163,6 +165,7 @@
             <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ValueAdded.Id==''?'Save':'Update'}}</button></li>
             <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             <li> <button ng-click="Cancel();" class="btn"><i class="glyphicon glyphicon-remove-circle"></i> Cancel</button></li>
+            <li> <button ng-click="DeleteSelectedData();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
         </ul>
     </div>
 </div>

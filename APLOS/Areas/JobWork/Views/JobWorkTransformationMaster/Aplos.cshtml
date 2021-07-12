@@ -99,13 +99,13 @@
             <div class="col-sm-12 col-md-3 col-lg-3">
                 <div class="form-group">
                     <label class="control-label">Min Rate</label>
-                    <input type="text" name="Min Rate" tabindex="9" n-decimals="2" class="form-control" ng-model="Transformation.MinRate" />
+                    <input type="text" name="Min Rate" tabindex="9" n-decimals="4" class="form-control" ng-model="Transformation.MinRate" />
                 </div>
             </div>
             <div class="col-sm-12 col-md-3 col-lg-3">
                 <div class="form-group">
                     <label class="control-label">Max Rate</label>
-                    <input type="text" name="Max Rate" tabindex="10" n-decimals="2" class="form-control" ng-model="Transformation.MaxRate" />
+                    <input type="text" name="Max Rate" tabindex="10" n-decimals="4" class="form-control" ng-model="Transformation.MaxRate" />
                 </div>
             </div>
 
@@ -323,6 +323,7 @@
             <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Transformation.Id==''?'Save':'Update'}}</button></li>
             <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             <li> <button ng-click="Cancel();" class="btn"><i class="glyphicon glyphicon-remove-circle"></i> Cancel</button></li>
+            <li> <button ng-click="DeleteSelectedData();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
         </ul>
     </div>
 </div>
@@ -402,7 +403,7 @@
                                         Item UOM<sup>*</sup>
                                     </label>
                                     <div class="show-message">
-                                        <input type="text" name="Item UOM" class="form-control" ng-model="MaterialInput.UOM" tabindex="203" disabled  required/>
+                                        <input type="text" name="Item UOM" class="form-control" ng-model="MaterialInput.UOM" tabindex="203" disabled required />
                                     </div>
                                 </div>
                             </div>
@@ -410,12 +411,23 @@
                         </div>
                         <div class="row">
                             <div class="col-sm-12 col-md-4 col-lg-4">
+                                <div class="form-group">
+                                    <label class="control-label" for="txtInputMaterial">
+                                        Material
+                                    </label>
+                                    @*<div class="show-message">*@
+                                        <input type="text" class="form-control" ng-model="MaterialInput.Material" tabindex="203" disabled />
+                                    @*</div>*@
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-4 col-lg-4">
                                 <div class="form-group" show-errors>
                                     <label class="control-label" for="txtNetConsumption">
                                         Net Consumption / Output Unit<sup>*</sup>
                                     </label>
                                     <div class="show-message">
-                                        <input type="text" n-decimals="2" name="Net Consumption" class="form-control" ng-model="MaterialInput.NetConsumption" tabindex="204" ng-blur="CalculateMaterialInputGrossConsumption()"  required/>
+                                        <input type="text" n-decimals="2" name="Net Consumption" class="form-control" ng-model="MaterialInput.NetConsumption" tabindex="204" ng-blur="CalculateMaterialInputGrossConsumption()" required />
                                     </div>
                                 </div>
                             </div>
@@ -425,29 +437,30 @@
                                         Rejection(%)<sup>*</sup>
                                     </label>
                                     <div class="show-message">
-                                        <input type="text" name="Rejection" class="form-control" n-decimals="2" ng-model="MaterialInput.Rejection" tabindex="205"  required/>
+                                        <input type="text" name="Rejection" class="form-control" n-decimals="2" ng-model="MaterialInput.Rejection" tabindex="205" required />
                                     </div>
                                 </div>
                             </div>
+
+                        </div>
+                        <div class="row">
                             <div class="col-sm-12 col-md-4 col-lg-4">
                                 <div class="form-group" show-errors>
                                     <label class="control-label" for="txtValueLoss">
                                         Value Loss(%)<sup>*</sup>
                                     </label>
                                     <div class="show-message">
-                                        <input type="text" name="Value Loss" n-decimals="2" class="form-control" ng-model="MaterialInput.ValueLoss" tabindex="206" ng-blur="CalculateMaterialInputGrossConsumption()"  required/>
+                                        <input type="text" name="Value Loss" n-decimals="2" class="form-control" ng-model="MaterialInput.ValueLoss" tabindex="206" ng-blur="CalculateMaterialInputGrossConsumption()" required />
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-sm-12 col-md-4 col-lg-4">
                                 <div class="form-group" show-errors>
                                     <label class="control-label" for="txtValueLoss">
                                         Gross Consumption<sup>*</sup>
                                     </label>
                                     <div class="show-message">
-                                        <input type="text" name="Gross Consumption" n-decimals="2" class="form-control" required ng-model="MaterialInput.GrossConsumption" tabindex="207" readonly/>
+                                        <input type="text" name="Gross Consumption" n-decimals="2" class="form-control" required ng-model="MaterialInput.GrossConsumption" tabindex="207" readonly />
                                     </div>
                                 </div>
                             </div>
@@ -468,6 +481,9 @@
                                     </div>
                                 </div>
                             </div>
+
+                        </div>
+                        <div class="row">
                             <div class="col-sm-12 col-md-4 col-lg-4">
                                 <div class="form-group">
                                     <label class="control-label" for="txtMaterialInputRemarks">
@@ -503,7 +519,7 @@
                                     </label>
                                     <div class="show-message">
                                         <div class="select-style">
-                                            <select name="Item Name" class="form-control" ng-model="ByProduct.JobWorkItemId" ng-options="item.Id as item.UserName for item in materialNameList" style="height: 30px;" tabindex="1" submit-required="true" required></select>
+                                            <select name="Item Name" class="form-control" ng-model="ByProduct.JobWorkItemId" ng-options="item.Id as item.UserName for item in materialNameList" ng-change="ChangePopupByProductUOM()" style="height: 30px;" tabindex="1" submit-required="true" required></select>
                                         </div>
                                     </div>
                                 </div>
@@ -520,6 +536,30 @@
                             </div>
                             <div class="col-sm-12 col-md-4 col-lg-4">
                                 <div class="form-group" show-errors>
+                                    <label class="control-label" for="txtInputMaterialUOM">
+                                        Item UOM<sup>*</sup>
+                                    </label>
+                                    <div class="show-message">
+                                        <input type="text" name="Item UOM" class="form-control" ng-model="ByProduct.UOM" tabindex="203" disabled required />
+                                    </div>
+                                </div>
+                            </div>
+           
+                        </div>
+                
+                        <div class="row">
+                            <div class="col-sm-12 col-md-4 col-lg-4">
+                                <div class="form-group">
+                                    <label class="control-label" for="txtInputMaterial">
+                                        Material
+                                    </label>
+                                    @*<div class="show-message">*@
+                                    <input type="text" class="form-control" ng-model="ByProduct.Material" tabindex="203" disabled />
+                                    @*</div>*@
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-4 col-lg-4">
+                                <div class="form-group" show-errors>
                                     <label class="control-label" for="PercentageOfInput">
                                         Percentage Of Input<sup>*</sup>
                                     </label>
@@ -528,9 +568,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                
-                        <div class="row">
                             <div class="col-sm-12 col-md-4 col-lg-4">
                                 <div class="form-group" show-errors>
                                     <label class="control-label" for="Gross Qty">
@@ -545,6 +582,9 @@
                                     </div>
                                 </div>
                             </div>
+   
+                        </div>
+                        <div class="row">
                             <div class="col-sm-12 col-md-4 col-lg-4">
                                 <div class="form-group" show-errors>
                                     <label class="control-label" for="Standard Rate">
@@ -572,10 +612,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                          
-                            <div class="col-sm-12 col-md-8 col-lg-8">
+                            <div class="col-sm-12 col-md-4 col-lg-4">
                                 <div class="form-group">
                                     <label class="control-label" for="Remarks">
                                         Remarks
