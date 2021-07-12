@@ -223,6 +223,8 @@ namespace Aplos.Areas.JobWork.Controllers
         #region Code Child Data
     
 
+
+        // Delete Child
         [HttpGet]
         public JsonResult DelLocationChild(string Id)
         {

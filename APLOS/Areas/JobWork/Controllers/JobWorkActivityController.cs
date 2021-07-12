@@ -69,6 +69,8 @@ namespace Aplos.Areas.JobWork.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+
+        // Delete
         [HttpGet, Authorize]
         public ActionResult DeleteSelectedData(string Id)
         {

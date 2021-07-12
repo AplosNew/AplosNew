@@ -136,6 +136,8 @@ function jobWorkLocationController(addressService, $window, cboService, commonMe
             }
         });
     };
+
+    // Delete
     $scope.DeleteSelectedData = function (Id) {
         var x = "#" + Id;
         var gridObj = $(x).data("ejGrid");

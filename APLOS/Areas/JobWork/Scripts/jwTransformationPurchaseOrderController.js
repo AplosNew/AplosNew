@@ -887,6 +887,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
 
     function getDetailTaxCategoryList(x) {
+        $scope.taxCategoryList = [];
         //if ($scope.productNew.OrderSpecific == 'Yes') {
         $scope.detailModel = x;
         //}
@@ -1748,12 +1749,18 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
     $scope.detailPopUpForEdit = function (args) {
         if ($scope.productNew.OrderSpecific == 'Yes') {
+            $scope.taxCategoryList = [];
             $scope.getalldataListForBOQListUpdate(args);
         }
         else {
             $scope.taxCategoryList = [];
-            $scope.GetJWItems();
             $scope.detailModel = Object.assign({}, args);
+            $scope.GetJWActivityListByPOType();
+            $scope.GetJWItems();        
+            $scope.GetMaterialfromJW();
+            $scope.GetJWitemDataFromTrans();
+            $scope.GetRate();
+            $scope.GetCurrencyyy();
 
             $scope.rmchar1 = {};
             $scope.rmchar2 = {};
