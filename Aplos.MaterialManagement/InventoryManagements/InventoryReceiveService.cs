@@ -677,7 +677,10 @@ namespace Library.MaterialManagement.InventoryManagements
 						,ISNULL(GRNALLO.TransactionQty,0) TotalQty
 						,0  ShortageQty
 						,0 RejectionQty
-						,BOQD.Consumption,BOQD.WastagePer,POUOM.UserName UOM,0 RequisitionQty,BOQD.SalesOrderId
+						,BOQD.Consumption,BOQD.WastagePer
+						--,POUOM.UserName UOM
+						,GRNALLO.UserName UOM
+						,0 RequisitionQty,BOQD.SalesOrderId
 						,BOQD.FirstCharacteristicsValueId BOQDFirstCharacteristicsValueId,BOQD.SecondCharacteristicsValueId BOQDSecondCharacteristicsValueId,BOQD.ThirdCharacteristicsValueId BOQDThirdCharacteristicsValueId
 						,BOQD.BOQId
 						FROM BOQDetail BOQD
@@ -693,10 +696,11 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId	
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON TUoM.Id =mm.StockUOMId 	
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-						left join (select b.BOQDetailId,sum(a.TransactionQty) TransactionQty 
+						left join (select b.BOQDetailId,sum(a.TransactionQty) TransactionQty ,UOM.UserName
 								from trn.GRNPORequisitionAllocation a
 								left join trn.POBOQMap b ON b.Id=a.POBOQMapId
-								group by b.BOQDetailId
+								LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.TransactionUoMId
+								group by b.BOQDetailId,UOM.UserName
 								) GRNALLO ON GRNALLO.BOQDetailId=BOQD.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] POUOM ON POUOM.Id=BOQD.POUoMId
 						--Where " + paramter + @"  AND MM.IsAsset=0 AND BOQD.ProcessId='" + processId + @"' AND BOQD.SalesOrderId in(" + parameters + @")
