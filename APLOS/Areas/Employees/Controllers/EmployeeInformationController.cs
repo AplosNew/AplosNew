@@ -337,7 +337,7 @@ namespace Aplos.Areas.Employees.Controllers
             return RenderReportAsExcel(workbook, fileName);
         }
 
-        
+
         [HttpGet, Authorize]
         public ActionResult EmployeeAppointmentLetterLocal(string empId, string reportType, string tempId)
         {
@@ -703,12 +703,12 @@ namespace Aplos.Areas.Employees.Controllers
                     var BlackListData = GetBlackListData(entity.NationalID);
                     if (BlackListData.Tables[0].Rows.Count > 0)
                     {
-                        if (BlackListData.Tables[0].Rows[0]["CompanyEmployeeOutsider"].ToString()== "CompanyEmp")
+                        if (BlackListData.Tables[0].Rows[0]["CompanyEmployeeOutsider"].ToString() == "CompanyEmp")
                         {
                             var BlackListEmpData = GetBlackListEmpData(entity.NationalID);
                             if (BlackListEmpData.Tables[0].Rows.Count > 0)
                             {
-                                throw new Exception("This National Id: " + entity.NationalID + " is exists for Employee (Code: " + BlackListEmpData.Tables[0].Rows[0]["EmployeeCode"] + ", Name: " + BlackListEmpData.Tables[0].Rows[0]["EmployeeName"] + ", Designation: " + BlackListEmpData.Tables[0].Rows[0]["LegalDesignation"] + ", Department: " + BlackListEmpData.Tables[0].Rows[0]["Department"]+")-"+ BlackListEmpData.Tables[0].Rows[0]["EmployeeStatus"] +"");
+                                throw new Exception("This National Id: " + entity.NationalID + " is exists for Employee (Code: " + BlackListEmpData.Tables[0].Rows[0]["EmployeeCode"] + ", Name: " + BlackListEmpData.Tables[0].Rows[0]["EmployeeName"] + ", Designation: " + BlackListEmpData.Tables[0].Rows[0]["LegalDesignation"] + ", Department: " + BlackListEmpData.Tables[0].Rows[0]["Department"] + ")-" + BlackListEmpData.Tables[0].Rows[0]["EmployeeStatus"] + "");
                             }
                         }
                         else
@@ -716,12 +716,12 @@ namespace Aplos.Areas.Employees.Controllers
                             var BlackListOutData = GetBlackListOutData(entity.NationalID);
                             if (BlackListOutData.Tables[0].Rows.Count > 0)
                             {
-                                throw new Exception("This National Id: " + entity.NationalID + " is exists for Outsider (Name: "+ BlackListOutData.Tables[0].Rows[0]["OutsiderName"] + ", Outsider Father Name: " + BlackListOutData.Tables[0].Rows[0]["OutsiderFatherName"] + ").");
+                                throw new Exception("This National Id: " + entity.NationalID + " is exists for Outsider (Name: " + BlackListOutData.Tables[0].Rows[0]["OutsiderName"] + ", Outsider Father Name: " + BlackListOutData.Tables[0].Rows[0]["OutsiderFatherName"] + ").");
                             }
                         }
                     }
                 }
-                employeeProfile.SaveData(entity, para, EmployeeCodeCheckLevel,empRef);
+                employeeProfile.SaveData(entity, para, EmployeeCodeCheckLevel, empRef);
                 return Json(new { EmployeeInformation = entity, Message = AplosMessage.Insert + "Employee Code: " + entity.EmployeeCode + "" });
             }
             catch (Exception ex)
@@ -755,7 +755,7 @@ namespace Aplos.Areas.Employees.Controllers
             parameters = new GridParameter
             {
                 ExportType = "DATASET",
-                CmdText = @"Select * FROM [dbo].[BlackList] WHERE AadharNumber = '"+ strNID + "'"
+                CmdText = @"Select * FROM [dbo].[BlackList] WHERE AadharNumber = '" + strNID + "'"
             };
 
             return _sqlRepository.GetGridData(parameters).Source;
@@ -1847,7 +1847,12 @@ namespace Aplos.Areas.Employees.Controllers
             return View();
         }
 
-
+        [Authorize, HttpGet]
+        public JsonResult GetApprovalAuthority()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(employeeProfile.GetApprovalAuthority(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
 
 
     }

@@ -214,5 +214,8 @@ namespace Library.Service.Enums
 
         [Description("Sasles Order ApproveBy")]
         SaslesOrderApproveBy,
+
+        [Description("Employee Approval Authority")]
+        EmployeeApprovalAuthority
     }
 }

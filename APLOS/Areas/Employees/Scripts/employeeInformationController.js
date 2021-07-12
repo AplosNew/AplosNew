@@ -163,7 +163,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
         IsEntryComplete: false,
         FirstTimeLock: false,
         Ref1CellPhnNo: null,
-        Ref1Name: null
+        Ref1Name: null,
+        ApprovalAuthorityId: null
     };
     $scope.employeeNew = Object.assign({}, $scope.model);
     $scope.employeeInformation = Object.assign({}, $scope.model);
@@ -662,6 +663,14 @@ function employeeInformationController(addressService, fileReader, cboService, c
             });
     };
 
+    $scope.ApprovalAuthorityList = [];
+    $scope.GetApprovalAuthority = function () {
+        $http.get('employees/employeeinformation/GetApprovalAuthority')
+            .then(function (response) {
+                $scope.ApprovalAuthorityList = response.data;
+            });
+    };
+    $scope.GetApprovalAuthority();
 
     cboService.getCboPlantByCompanyGroup(null, function (result) {
         $scope.plantList = result;
@@ -695,15 +704,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.payrollGroupList = result;
     });
 
-    $scope.attendanceGroupList = [];
-    cboService.getAttendanceGroupCbo(function (result) {
-        $scope.attendanceGroupList = result;
-    });
 
-    $scope.accountsGroupList = [];
-    cboService.getAccountsGroupCbo(function (result) {
-        $scope.accountsGroupList = result;
-    });
 
     $scope.showEntity = function () {
         $http.get('employees/employeeprobationalperiod/getentitybyemployee')

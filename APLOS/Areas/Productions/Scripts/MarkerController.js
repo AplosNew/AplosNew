@@ -104,8 +104,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     };
 
 
-    $scope.getFGCharacteristicsListNew = function (id) {
-        //$scope.clearCharNames();
+    $scope.getFGCharacteristicsListNew = function (id,MasterId) {
         $http({
             method: 'GET',
             url: 'Materials/MaterialMaster/getcharacteristicsbymaterialmasterid/',
@@ -119,9 +118,10 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         });
 
     };
-
+    $scope.TotalRatio = 0;
     $scope.FGCharacteristicsValueList = [];
     $scope.GetFGCharacteristicsValueCboAfterSave = function () {
+        $scope.TotalRatio = 0;
         for (var i = 0; i < $scope.characteristicsList.length; i++) {
             if ($scope.ModelNew.CharacteristicsId == $scope.characteristicsList[i].Value) {
                 var valueAssignmentLevel = $scope.characteristicsList[i].ValueAssignmentLevel;
@@ -130,7 +130,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         $http({
             method: 'POST',
             url: $scope.path + "getCharacteristicsValueByCharacteristicsIdAfterSave",
-            data: { 'materialMasterId': $scope.ModelNew.FGMaterialMasterId, 'characteristicsId': $scope.ModelNew.CharacteristicsId, 'valueAssignmentLevel': valueAssignmentLevel },
+            data: { 'materialMasterId': $scope.ModelNew.FGMaterialMasterId, 'characteristicsId': $scope.ModelNew.CharacteristicsId, 'valueAssignmentLevel': valueAssignmentLevel, 'MarkerMasterId': $scope.ModelNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.FGCharacteristicsValueList = response.data;
@@ -141,6 +141,11 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                 }
                 else {
                     $scope.SKUDisable = false;
+                }
+            }
+            for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
+                if ($scope.FGCharacteristicsValueList[i].Ratio != 0 || !baseService.isUndefinedOrNull($scope.FGCharacteristicsValueList[i].Ratio)) {
+                    $scope.TotalRatio = parseFloat($scope.FGCharacteristicsValueList[i].Ratio) + parseFloat($scope.TotalRatio);
                 }
             }
         });
@@ -205,6 +210,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         CharacteristicsId: null,
         ShadeId: null,
         Length: null,
+        Attachment: null,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -218,8 +224,11 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
-        $scope.getFGCharacteristicsListNew($scope.ModelNew.FGMaterialMasterId);
+        $scope.getFGCharacteristicsListNew($scope.ModelNew.FGMaterialMasterId, $scope.ModelNew.Id);
         $scope.HeaderName = $scope.ModelNew.HeaderName;
+
+        //$scope.filedata.name = $scope.ModelNew.Attachment;
+
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -237,14 +246,57 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         });
     };
 
+    //#region File 
+
+    $("#uploadBtn4").change(function () {
+        $scope.filedata = this.files[0];
+    });
+
+    document.getElementById("uploadBtn4").onchange = function () {
+        var filename = document.getElementById("uploadFile4").value = this.value;
+        var res = filename.replace(/C:\\fakepath\\/i, '');
+        document.getElementById("uploadFile4").value = res;
+    };
+
+
+    //#endregion
+
     $scope.Save = function () {
         try {
+
+            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
+                throw $scope.filedata.name + ' File size must be below 2 mb';
+            var fileName = null;
+            if (!baseService.isUndefinedOrNull($scope.filedata))
+                fileName = $scope.filedata.name;
+            if (baseService.isUndefinedOrNull(fileName))
+                fileName = $scope.ModelNew.Attachment;
+            $scope.ModelNew.Attachment = fileName;
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.Attachment)) {
+                if ($scope.ModelNew.Attachment.length > 50) {
+                    throw "File Name must be less than 50 character.";
+                }
+            }
+            var formData = new FormData();
+
             $scope.$broadcast('show-errors-check-validity');
+
             if ($scope.ModelNewForm.$valid) {
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
-                    data: { 'data': $scope.ModelNew, 'details': $scope.FGCharacteristicsValueList },
+
+                    headers: { 'Content-Type': undefined },
+                    transformRequest: function (data) {
+                        formData.append("data", angular.toJson(data.data));
+                        if (baseService.isUndefinedOrNull($scope.filedata) === false) {
+                            formData.append('file', data.file);
+                        }
+                        formData.append("details", angular.toJson(data.details));
+                        return formData;
+                    },
+
+                    data: { 'data': $scope.ModelNew, 'details': $scope.FGCharacteristicsValueList,'file': $scope.filedata },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -253,7 +305,6 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                     else {
                         ShowResult(response.data.Message, 'success');
                         ClearFields(response.data.Sequence);
-                        //$scope.getFGCharacteristicsListNew($scope.ModelNew.FGMaterialMasterId);
                         $scope.getData();
 
                     }

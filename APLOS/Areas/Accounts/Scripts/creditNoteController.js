@@ -815,7 +815,7 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
 
     $scope.vendorInvoiceTaxes = [];
     $scope.vendorInvoiceTaxPush = function () {
-        // $scope.calculateTax($scope.voucherDetailId, $scope.setTaxVoucherDetailIndex);
+        $scope.calculateTax($scope.setTaxVoucherDetailIndex);
         $scope.closeTaxCodePopUp();
     };
 
@@ -975,4 +975,34 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
     };
 
     //-------------------#endregion debit note-----------------------
+    $scope.calculatebackTax = function (index) {
+        if ($scope.invoiceSalesAvailableList[index].InvoiceTaxViewModel.length > 0) {
+            for (var i = 0; i < $scope.invoiceSalesAvailableList[index].InvoiceTaxViewModel.length; i++) {
+                $scope.invoiceSalesAvailableList[index].InvoiceTaxViewModel[i].TaxAmount = Math.round((($scope.invoiceSalesAvailableList[index].Amount * $scope.invoiceSalesAvailableList[index].InvoiceTaxViewModel[i].ValueOfFixed) / 100) * 100 + Number.EPSILON) / 100
+            }
+        }
+    };
+
+    $scope.calculateTax = function (index) {
+        if ($scope.invoiceSalesAvailableList[index].InvoiceTaxViewModel.length > 0) {
+            if ($scope.voucher.IsExcludingTax) {
+                $scope.invoiceSalesAvailableList[index].TotalTax = Math.round(($filter("sumByKey")($filter("filter")($scope.invoiceSalesAvailableList[index].InvoiceTaxViewModel), "TaxAmount")) * 100 + Number.EPSILON) / 100;
+                $scope.invoiceSalesAvailableList[index].TotalAmount = Math.round(($scope.invoiceSalesAvailableList[index].Amount) * 10000 + Number.EPSILON) / 10000;
+                $scope.voucher.Amount = Math.round(($filter("sumByKey")($filter("filter")($scope.invoiceSalesAvailableList), "Amount")) * 10000 + Number.EPSILON) / 10000;
+
+            }
+            else {
+                $scope.invoiceSalesAvailableList[index].TotalTax = Math.round(($filter("sumByKey")($filter("filter")($scope.invoiceSalesAvailableList[index].InvoiceTaxViewModel), "TaxAmount")) * 10000 + Number.EPSILON) / 10000;
+                $scope.invoiceSalesAvailableList[index].TotalAmount = Math.round(($scope.invoiceSalesAvailableList[index].Amount + $scope.invoiceSalesAvailableList[index].TotalTax) * 10000 + Number.EPSILON) / 10000;
+
+                $scope.voucher.Amount = Math.round(($filter("sumByKey")($filter("filter")($scope.invoiceSalesAvailableList), "Amount") + $filter("sumByKey")($filter("filter")($scope.invoiceSalesAvailableList), "TotalTax")) * 10000 + Number.EPSILON) / 10000;
+            }
+        }
+        else {
+            $scope.invoiceSalesAvailableList[index].TotalAmount = Math.round(($scope.invoiceSalesAvailableList[index].Amount) * 10000 + Number.EPSILON) / 10000;
+            $scope.invoiceSalesAvailableList[index].TotalTax = 0;
+            $scope.voucher.Amount = Math.round(($filter("sumByKey")($filter("filter")($scope.invoiceSalesAvailableList), "Amount")) + ($filter("sumByKey")($filter("filter")($scope.invoiceSalesAvailableList), "TotalTax")) * 10000 + Number.EPSILON) / 10000;
+        }
+    };
+
 }

@@ -19,7 +19,7 @@ namespace Library.MaterialManagement.Material
             _sqlRepository = new SqlRepository();
         }
 
-        public IEnumerable<object> GetCharacteristicsValueCboByCharacteristicsIdAfterSave(string materialMasterId, string characteristicsId, string valueAssignmentLevel)
+        public IEnumerable<object> GetCharacteristicsValueCboByCharacteristicsIdAfterSave(string materialMasterId, string characteristicsId, string valueAssignmentLevel,string MarkerMasterId)
         {
             try
             {
@@ -27,20 +27,20 @@ namespace Library.MaterialManagement.Material
                 if (valueAssignmentLevel == ValueAssignmentEnum.Specific.ToString())
 
                     _sql = @"SELECT CV.Id AS CharacteristicsValueId,CV.Code, CV.UserName AS [Text] 
-                                ,Ratio = case when M.Id is null then '' else M.Ratio end,M.Id
+                                ,Ratio = case when M.Id is null then null else M.Ratio end,M.Id,M.MarkerMasterId
                                 FROM [HKP].[Characteristics] C
                             LEFT JOIN hkp.CharacteristicsValue CV ON CV.CharacteristicsId=C.Id
-							left join MarkerDetails M on M.CharacteristicsValueId=CV.Id
+							left join MarkerDetails M on M.CharacteristicsValueId=CV.Id and M.MarkerMasterId='" + MarkerMasterId + @"'
                             Where CV.MaterialMasterId='" + materialMasterId + "' AND CV.CharacteristicsId='" + characteristicsId + "' AND  C.ValueAssignmentLevel='" + valueAssignmentLevel + "'  Order by CV.Sequence";
 
                 else
 
                     _sql = @"SELECT CV.Id AS CharacteristicsValueId,CV.Code, CV.UserName AS [Text] 
-                                ,Ratio = case when M.Id is null then '' else M.Ratio end,M.Id
+                                ,Ratio = case when M.Id is null then null else M.Ratio end,M.Id,M.MarkerMasterId
                                 FROM [HKP].[Characteristics] C
                             LEFT JOIN hkp.CharacteristicsValue CV ON CV.CharacteristicsId=C.Id
-							left join MarkerDetails M on M.CharacteristicsValueId=CV.Id
-                            Where CV.CharacteristicsId='" + characteristicsId + "' AND  C.ValueAssignmentLevel='" + valueAssignmentLevel + "' AND  CV.SourceType='" + valueAssignmentLevel + "' Order by CV.Sequence";
+							left join MarkerDetails M on M.CharacteristicsValueId=CV.Id and M.MarkerMasterId='" + MarkerMasterId + @"'
+                            Where CV.CharacteristicsId='" + characteristicsId + "' AND  C.ValueAssignmentLevel='" + valueAssignmentLevel + "' AND  CV.SourceType='" + valueAssignmentLevel + "'  Order by CV.Sequence";
                 return _sqlRepository.GetDataCollection(_sql, null);
 
             }

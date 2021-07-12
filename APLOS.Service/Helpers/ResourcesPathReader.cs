@@ -310,7 +310,17 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
-
+		public static string GetMarkerDocPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/MarkerDocuments/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
 		public static string GetPrePurchaseInvoiceDocPath()
 		{
 			try

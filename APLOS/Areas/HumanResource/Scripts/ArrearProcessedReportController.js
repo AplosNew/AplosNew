@@ -1,7 +1,6 @@
 ﻿'use strict';
-salaryProcessedReportExtraOTCTCController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService', '$window'];
-function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $window) {
-
+ArrearProcessedReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService', '$window'];
+function ArrearProcessedReportController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $window) {
     $scope.path = 'humanresource/payrollReports/';
     $scope.exportgriddataUrl = 'GridReports/ExcelExport';
     $scope.downloadgriddataUrl = 'GridReports/Download';
@@ -206,8 +205,11 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
             var parameters = [];
             var gridObj = $("#empInfoGrid").ejGrid("instance");
             var filteredRecords = gridObj.getFilteredRecords();
-            if (filteredRecords.length == 0) {
-                filteredRecords = $scope.EmployeeListTemp;
+            if ($scope.isManualFilter == true) {
+                if (filteredRecords.length == 0) {
+                    filteredRecords = $scope.EmployeeListTemp;
+
+                }
             }
             if (angular.isUndefinedOrNull(filteredRecords) === false) {
                 if (filteredRecords.length > 0) {
@@ -222,7 +224,7 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
 
             $http({
                 method: 'POST',
-                url: 'humanresource/PayrollReports/GetSalarySheetExtraOTCTCReport',
+                url: 'humanresource/PayrollReports/GetEmployeeArrearAndSalaryProcessedReportSalLogWise',
                 data: {
                     'month': $scope.month,
                     'year': $scope.year,
@@ -250,12 +252,12 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
             var parameters = [];
             var gridObj = $("#empInfoGrid").ejGrid("instance");
             var filteredRecords = gridObj.getFilteredRecords();
-            if ($scope.isManualFilter == true) {
-                if (filteredRecords.length == 0) {
-                    filteredRecords = $scope.EmployeeListTemp;
+            /* if ($scope.isManualFilter == true) {*/
+            if (filteredRecords.length == 0) {
+                filteredRecords = $scope.EmployeeListTemp;
 
-                }
             }
+            //}
             if (angular.isUndefinedOrNull(filteredRecords) === false) {
                 if (filteredRecords.length > 0) {
                     parameters = [];
@@ -269,7 +271,7 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
 
             $http({
                 method: 'POST',
-                url: 'humanresource/PayrollReports/GetSalarySheetExtraOTCTCReport',
+                url: 'humanresource/PayrollReports/GetEmployeeArrearAndSalaryProcessedReportSalLogWise',
                 data: {
                     'month': $scope.month,
                     'year': $scope.year,

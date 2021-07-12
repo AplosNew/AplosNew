@@ -52,7 +52,9 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
         StandardRate: null,
         ResponsiblePerson: '',
         ResponsiblePersonId: null,
-        Remarks: ''
+        Remarks: '',
+        //UOM: null,
+        //Material: null,
     };
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -245,13 +247,13 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
         });
     };
 
-    $scope.DeleteSelectedData = function (Id) {
-        var x = "#" + Id;
-        var gridObj = $(x).data("ejGrid");
-        $scope.selecteddata = gridObj.getSelectedRecords()[0];
-        $scope.Transformation.Id = $scope.selecteddata.Id;
+    $scope.DeleteSelectedData = function () {
+        //var x = "#" + Id;
+        //var gridObj = $(x).data("ejGrid");
+        //$scope.selecteddata = gridObj.getSelectedRecords()[0];
+        //$scope.Transformation.Id = $scope.selecteddata.Id;
 
-        $scope.message = 'Are you sure want to Remove?';
+        $scope.message_confirmation = 'Are you sure want to Delete?';
         angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
     };
 
@@ -265,6 +267,7 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
                     ShowResult(response.data.Message, 'success');
 
                     $scope.getAllData();
+                    $scope.Clear();
                     $scope.Action = 'Save';
                 }
                 else {
@@ -405,6 +408,10 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
 
     $scope.activityChildItemsList = [];
     $scope.getActivityChildItems = function () {
+        $scope.activityChildItemsList = [];
+        $scope.Transformation.UOM = null;
+        $scope.Transformation.MaterialCode = null;
+        $scope.Transformation.MaterialName = null;
         $http({
             method: 'GET',
             url: $scope.path + 'GetActivityChildItems?Id=' + $scope.Transformation.JobWorkActivityId
@@ -535,11 +542,38 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
         }).then(function successCallback(response) {
             $scope.GetChangeUOMList = response.data;
             if ($scope.GetChangeUOMList.length > 0) {
-                $scope.MaterialInput.UOM = response.data[0]["UOMId"];
-            }
-            
+                if ($scope.GetChangeUOMList[0].MaterialId != null) {
+                    $scope.MaterialInput.Material = response.data[0]["Material"];
+                    $scope.MaterialInput.UOM = response.data[0]["UOMId"];
+                }
+                else {
+                    $scope.MaterialInput.Material = null;
+                    $scope.MaterialInput.UOM = response.data[0]["UOMId"];
+                }     
+            }          
         });
     };
+
+    $scope.GetChangeByProductUOMList = [];
+    $scope.ChangePopupByProductUOM = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetMaterialMasterUOM?Id=' + $scope.ByProduct.JobWorkItemId
+        }).then(function successCallback(response) {
+            $scope.GetChangeByProductUOMList = response.data;
+            if ($scope.GetChangeByProductUOMList.length > 0) {
+                if ($scope.GetChangeByProductUOMList[0].MaterialId != null) {
+                    $scope.ByProduct.Material = response.data[0]["Material"];
+                    $scope.ByProduct.UOM = response.data[0]["UOMId"];
+                }
+                else {
+                    $scope.ByProduct.Material = null;
+                    $scope.ByProduct.UOM = response.data[0]["UOMId"];
+                }
+            }
+        });
+    };
+
     //$scope.ChangePopupByProductUOM = function () {
     //    $http({
     //        method: 'GET',

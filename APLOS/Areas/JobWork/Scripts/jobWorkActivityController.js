@@ -121,13 +121,15 @@ function jobWorkActivityController(addressService, $window, cboService, commonMe
             }
         });
     };
-    $scope.DeleteSelectedData = function (Id) {
-        var x = "#" + Id;
-        var gridObj = $(x).data("ejGrid");
-        $scope.selecteddata = gridObj.getSelectedRecords()[0];
-        $scope.JobWorkActivity.Id = $scope.selecteddata.Id;
 
-        $scope.message_confirmation = 'Are you sure want to Remove?';
+    $scope.DeleteSelectedData = function () {
+        //var x = "#" + Id;
+        //var gridObj = $(x).data("ejGrid");
+        //$scope.selecteddata = gridObj.getSelectedRecords()[0];
+
+        //$scope.JobWorkActivity.Id = $scope.JobWorkActivity.Id;
+
+        $scope.message_confirmation = 'Are you sure want to Delete?';
         angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
     };
 

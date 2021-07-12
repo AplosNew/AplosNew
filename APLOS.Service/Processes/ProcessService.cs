@@ -165,18 +165,9 @@ namespace Library.Service.Processes
 								, P.IsAppApplicable, IsChecked, P.IsValueAdded
 								, P.MaterialTypeId, MT.[Description] AS MaterialType
 								, P.Remarks
-								, P.Active, P.Archive, '' AS Flag
-								, PD.MaterialMasterId, PD.MaterialMasterName, PD.ArticleId, PD.ArticleName,PD.UOMId,PD.Qty
+								, P.Active, P.Archive, Convert(bit,0) AS Flag
 							FROM [HKP].[Process] AS P
 							LEFT JOIN HKP.MaterialType AS MT ON P.MaterialTypeId=MT.Id
-							LEFT JOIN (
-							Select PSD.ProcessId,PSD.ProcessSetId, MM.Id MaterialMasterId, MM.UserName AS MaterialMasterName, ART.Id ArticleId, ART.StandardName AS ArticleName,PSD.UOMId,PSD.Qty
-		                    from  [HKP].[ProcessSetDetail] PSD 
-							LEFT JOIN [HKP].[ProcessSet] PS ON PS.Id=PSD.ProcessSetId AND PS.CompanyId='" + CompanyId + @"'
-							 JOIN MST.MaterialMaster AS MM ON PSD.MaterialMasterId=MM.Id
-                             JOIN MST.MaterialMasterArticle AS ART ON PSD.ArticleId=ART.Id
-						     JOIN [SCS].[UnitOfMeasurement] UOM ON uom.Id=PSD.UOMId
-							) PD ON PD.ProcessId=P.Id
 							WHERE P.CompanyGroupId='"+ companyGroupId + @"' AND P.IsProductionProcess=1 AND P.Archive=0";
 				return _sqlRepository.GetGridData(parameters);
 			}
