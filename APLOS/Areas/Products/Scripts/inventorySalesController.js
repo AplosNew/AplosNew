@@ -1151,6 +1151,10 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 			ShowResult("Please select to be checked by", 'failure');
 			return false;
 		}
+		else if (baseService.isUndefinedOrNull($scope.productNew.PartyName)) {
+			ShowResult("Please select Customer", 'failure');
+			return false;
+		}
 		var UIStatus = $("#SlipAssetIssueUI").val();
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;
 		$scope.productNew.CustomerId = $scope.productNew.PartyId;

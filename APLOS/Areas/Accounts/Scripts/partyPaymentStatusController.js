@@ -3328,6 +3328,9 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceAmount", dataMember: "AcceptanceAmount", format: "{0:N2}" },
         { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SetOff", dataMember: "SetOff", format: "{0:N2}" },
         { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Balance", dataMember: "Balance", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksAcceptanceAmount", dataMember: "BooksAcceptanceAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksSetOff", dataMember: "BooksSetOff", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksBalance", dataMember: "BooksBalance", format: "{0:N2}" },
         { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" },
         { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "LCAmount", dataMember: "LCAmount", format: "{0:N2}" }
 
@@ -3383,6 +3386,25 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     }
    // $scope.GetOthersLiabilityData();
+
+    $scope.TotalOthersLiabilityAmount = [{
+        title: "Total", summaryColumns:
+        [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Gross", dataMember: "Gross", format: "{0:N2}" },
+                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DebitNoteAmount", dataMember: "DebitNoteAmount", format: "{0:N2}" },
+                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TaxAmount", dataMember: "TaxAmount", format: "{0:N2}" },
+                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SetOff", dataMember: "SetOff", format: "{0:N2}" },
+                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Balance", dataMember: "Balance", format: "{0:N2}" },
+
+                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksGross", dataMember: "BooksGross", format: "{0:N2}" },
+                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DebitNoteBooksAmount", dataMember: "DebitNoteBooksAmount", format: "{0:N2}" },
+                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksTaxAmount", dataMember: "BooksTaxAmount", format: "{0:N2}" },
+                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksSetOff", dataMember: "BooksSetOff", format: "{0:N2}" },
+                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksBalance", dataMember: "BooksBalance", format: "{0:N2}" }
+
+
+        ],
+        showCaptionSummary: true
+    }];
 
 
     //$scope.refreshTemplateOthersLiab = function (args) {
@@ -3472,7 +3494,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             //    var file_src = $scope.path + "PartyPaymentStatusAgingReport?MasterLCList=" + NewMasterLCList;
             //    $rootScope.report(file_src);
             //}
-            var file_src = $scope.path + "OthersLiabilityAgingDetailReport?toDate=" + $scope.reportParameters.ToDate + '&isWithAdvance=' + $scope.reportParameters.IsWithAdvance;
+            var file_src = $scope.path + "OthersLiabilityAgingDetailReport?toDate=" + $scope.reportParameters.ToDate /*+ '&isWithAdvance=' + $scope.reportParameters.IsWithAdvance*/;
             $rootScope.report(file_src);
 
         } catch (e) {
