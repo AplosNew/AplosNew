@@ -236,15 +236,16 @@ namespace Library.Service.EmployeeServices
                     dr["GivenDesignationId"] = GId;
                     dr["LegalDesignationId"] = LId;
                     dr["AddedBy"] = By;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedDate"] = DateTime.Now.ToString();
                     dr["AddedFromIP"] = Ip;
 
-
                     dsRef.Tables[0].Rows.Add(dr);
-
-                    clsStaticInfo info = new clsStaticInfo();
-                    info.SaveDataSets(dsRef);
+                                       
                 }
+
+                clsStaticInfo info = new clsStaticInfo();
+                info.SaveDataSets(dsRef);
+                
                 string MasterId = dsRef.Tables[0].Rows[0]["Id"].ToString();
                 return MasterId;
 
@@ -455,22 +456,33 @@ namespace Library.Service.EmployeeServices
         {
             try
             {
-                var sql = @"update attdnprocessdata set 
-                ShiftSystemID='"+Shift+"' where EmpSystemID='"+EmpId+@"' 
-                and WorkDate='"+WkDate+"'";
+                DataSet dsRef;
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                string strSql = @"select * from EmpDateWiseShiftAssign where WorkDate='" + WkDate + "' and EmpSystemID='" + EmpId + "'";
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
 
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
-                objCone.BeginTransaction();
+                if (dsRef.Tables[0].Rows.Count > 0)
+                {
 
-                objCone.ExecuteNonQueryWrapper(sql, true, "1");
-                objCone.CommitTransaction();
-                return "true";
+                    DataRow dr = dsRef.Tables[0].Rows[0];
+                    dr.BeginEdit();
+
+                    dr["ShiftSystemID"] = Shift;
+                    dr["ManualShiftId"] = Shift;
+                    dr["UpdatedBy"] = "FromApp";
+                    dr["DateUpdated"] = DateTime.Now.ToString();
+
+                    dr.EndEdit();
+                }
+                clsStaticInfo info = new clsStaticInfo();
+                info.SaveDataSets(dsRef);
+
+                string MasterId = dsRef.Tables[0].Rows[0]["UpdatedBy"].ToString();
+                return MasterId;
             }
             catch (Exception ex)
             {
-                throw ex;
+                return ex.ToString();
             }
         }
 
@@ -807,7 +819,8 @@ namespace Library.Service.EmployeeServices
             {
                 throw ex;
             }
-        }
+        }              
+
 
     }
 

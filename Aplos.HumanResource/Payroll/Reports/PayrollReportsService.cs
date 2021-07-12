@@ -7977,7 +7977,7 @@ namespace Library.HumanResource.Payroll
                         // dvStruct.RowFilter = "SystemID='" + x + "'";//SystemId = EmployeeSystemId
                         //dvSheet.RowFilter = "EmpInfoSystemID='" + x + "'";//SystemId = EmployeeSystemId
 
-                        int _maxRow = 0;
+                        int _maxRow = 0; // 0
                         int _startRow = xlsRow;
                         LoadSalaryHead_CurrLess(ref sheet1, dtSalaryHeadSheet, xlsRow, xlsColEarning, out _maxRow, out _Total_Earning, "E", localLanguage, drSalaryHeadCollection);
 
@@ -8001,6 +8001,8 @@ namespace Library.HumanResource.Payroll
                         //    _basic = Convert.ToDouble(dvBasic[0]["DisbusmentAmount"].ToString());
                         //}
 
+                        _maxRow = _Info_Last_Row;
+
                         if (_maxRowDeduct > _maxRow)
                         {
                             _maxRow = _maxRowDeduct;
@@ -8009,11 +8011,11 @@ namespace Library.HumanResource.Payroll
                         {
 
                         }
-
+                        
                         //DataView dvNetPay = new DataView(dtSalaryHead);
                         //dvNetPay.RowFilter = "HeadCategory='Net Payable'";
 
-                        result = drSalaryHeadCollection.Where(row => row["HeadCategory"].Equals("Net Payable")).FirstOrDefault();
+                            result = drSalaryHeadCollection.Where(row => row["HeadCategory"].Equals("Net Payable")).FirstOrDefault();
                         if (result != null)
                         {
                             _netPay = clsStaticInfo.dbl(result["DisbusmentAmount"].ToString());
@@ -8293,7 +8295,7 @@ ELSE CONVERT(BIT,0) END  ---No
                                             LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                             WHERE CalanderYearID = " + calYearId + @"
 											and els.LeaveTypeId in ('LVT-20191' , 'LVT-20192')
-											order by els.EmployeeId
+											order by els.EmployeeId, LeaveName
                                                 ";
 
                 return _sqlRepository.GetDataTable(sql);
