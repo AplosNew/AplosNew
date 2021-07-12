@@ -27,7 +27,7 @@ namespace Library.MaterialManagement.Material
                 if (valueAssignmentLevel == ValueAssignmentEnum.Specific.ToString())
 
                     _sql = @"SELECT CV.Id AS CharacteristicsValueId,CV.Code, CV.UserName AS [Text] 
-                                ,Ratio = case when M.Id is null then '' else M.Ratio end,M.Id
+                                ,Ratio = case when M.Id is null then null else M.Ratio end,M.Id,M.MarkerMasterId
                                 FROM [HKP].[Characteristics] C
                             LEFT JOIN hkp.CharacteristicsValue CV ON CV.CharacteristicsId=C.Id
 							left join MarkerDetails M on M.CharacteristicsValueId=CV.Id and M.MarkerMasterId='" + MarkerMasterId + @"'
@@ -36,7 +36,7 @@ namespace Library.MaterialManagement.Material
                 else
 
                     _sql = @"SELECT CV.Id AS CharacteristicsValueId,CV.Code, CV.UserName AS [Text] 
-                                ,Ratio = case when M.Id is null then '' else M.Ratio end,M.Id
+                                ,Ratio = case when M.Id is null then null else M.Ratio end,M.Id,M.MarkerMasterId
                                 FROM [HKP].[Characteristics] C
                             LEFT JOIN hkp.CharacteristicsValue CV ON CV.CharacteristicsId=C.Id
 							left join MarkerDetails M on M.CharacteristicsValueId=CV.Id and M.MarkerMasterId='" + MarkerMasterId + @"'

@@ -346,5 +346,25 @@ namespace Aplos.Areas.Organizations.Controllers
             }
 
         }//End Function
+
+        [HttpGet, Authorize]
+        public ActionResult GetCostCenterCbo(string CompanyId, string EntityId)
+        {
+            try
+            {
+                string strSQL = string.Empty;
+
+                strSQL = @"Select CC.Id AS [Value],CC.UserName AS [Text] from [ORG].[EntityCostCenter] EC
+                        LEFT JOIN [ORG].[CostCenter] CC ON CC.Id=EC.CostCenterId
+                        WHERE EC.CompanyId='" + CompanyId + "' AND EC.EntityId='" + EntityId + "'";
+
+                return Json(_sqlRepository.GetDataCollection(strSQL), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
     }
 }
