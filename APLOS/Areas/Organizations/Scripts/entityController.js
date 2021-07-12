@@ -238,7 +238,7 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
 
                     $scope.right += '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Old Ref Code</label><div class="col-sm-8">' +
-                        '<input ng-disabled="isUsed" tabindex="9" maxlength="10" type="text" ng-model="companyStructureSetup.OldRefCode" class="form-control"></div></div>' +
+                        '<input tabindex="9" maxlength="10" type="text" ng-model="companyStructureSetup.OldRefCode" class="form-control"></div></div>' +
                         '<div class="form-group" show-errors>' +
                         '<label class="col-sm-4 control-label">User Name<sup>*</sup></label>' +
                         '<div class="col-sm-8 show-message">' +
