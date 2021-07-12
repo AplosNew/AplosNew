@@ -64,12 +64,15 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult GetAllByProduct(string Id)
         {
             string sql = "";
-            sql = @"SELECT M.Id,M.JobWorkTransformationMasterId,M.JobWorkItemId,M.ItemSpecification,M.PercentageOfInput,U.UserName UOM,
-                    M.CurrencyId,M.StandardRate,M.ResponsiblePersonId,E.EmployeeName ResponsiblePerson,M.Remarks 
+            sql = @"SELECT M.Id,M.JobWorkTransformationMasterId,M.JobWorkItemId,M.ItemSpecification,M.PercentageOfInput
+                    ,M.CurrencyId,M.StandardRate,M.ResponsiblePersonId,E.EmployeeName ResponsiblePerson,M.Remarks 
+					,UOM=case when I.MaterialMasterId is not null then mmuom.UserName else U.UserName End
                     FROM [MST].[JobWorkTransformationMasterByProduct] M
                     LEFT JOIN dbo.EmployeeInformation E ON E.SystemId = M.ResponsiblePersonId
-					INNER JOIN [HKP].[JobWorkItem] I ON I.Id = M.JobWorkItemId
-					INNER JOIN SCS.UnitOfMeasurement U ON U.Id = I.UOMId
+					left JOIN [HKP].[JobWorkItem] I ON I.Id = M.JobWorkItemId
+					left JOIN SCS.UnitOfMeasurement U ON U.Id = I.UOMId
+					left join MST.MaterialMaster mm on mm.Id=I.MaterialMasterId
+					left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
                     WHERE JobWorkTransformationMasterId='" + Id + "' ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -447,8 +450,12 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult GetMaterialMasterUOM(string Id)
         {
             string sql = "";
-            sql = @"SELECT U.UserName UOMId FROM [HKP].[JobWorkItem] I
-                    INNER JOIN [SCS].[UnitOfMeasurement] U ON U.Id = I.UOMId
+            sql = @"SELECT mm.Id as MaterialId, mm.UserName as Material 
+                    ,UOMId=case when I.MaterialMasterId is not null then mmuom.UserName else U.UserName End
+					FROM [HKP].[JobWorkItem] I
+                    left JOIN [SCS].[UnitOfMeasurement] U ON U.Id = I.UOMId
+					left join MST.MaterialMaster mm on mm.Id=I.MaterialMasterId
+					left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
                     WHERE I.Id = '" + Id + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -459,11 +466,30 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             try
             {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con2 = new ConnectionManager.DAL.ConManager("1");
+
                 if (string.IsNullOrEmpty(Id.ToString()))
                     throw new Exception("Select entry first");
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                if (!string.IsNullOrEmpty(Id))
+                {
+                    con2.OpenDataSetThroughAdapter("select * from MST.JobWorkTransformationMasterMaterialInput where JobWorkTransformationMasterId='" + Id + "' ", out dsMaster, false, "1");
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("First Delete Material Input Data");
+                    }
+
+                    con2.OpenDataSetThroughAdapter("select * from MST.JobWorkTransformationMasterByProduct where JobWorkTransformationMasterId='" + Id + "' ", out dsMaster, false, "1");
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("First Delete By Product Data");
+                    }
+                }
+
                 con.BeginTransaction();
+                con.executeQuery("DELETE FROM [MST].[JobWorkTransformationMasterProcess] WHERE JobWorkTransformationMasterId='" + Id.ToString() + "'");
                 con.executeQuery("DELETE FROM [MST].[JobWorkTransformationMaster] WHERE Id='" + Id.ToString() + "'");
 
                 con.CommitTransaction();

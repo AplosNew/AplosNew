@@ -428,7 +428,7 @@ IEmployeeProfileService employeeProfileService
         {
             try
             {
-                parameters = null;
+               // parameters = null;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 WeekOFFandHolidayOT clsWeekOFFOTReport = new WeekOFFandHolidayOT();
 

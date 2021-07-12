@@ -15,7 +15,7 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
     $scope.isActive = true;
     $scope.isSeperated = false;
     $scope.isMaternity = false;
-   
+
     $scope.isManualFilter = false;
     $scope.empGrid = false;
     $scope.monthList = [
@@ -86,7 +86,7 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
         var x = new Date();
         x.setDate(10);
         x.setMonth(x.getMonth() - 1);
-      
+
         for (var i = 0; i < $scope.yearList.length; i++) {
             if ($scope.yearList[i].Text === x.getFullYear().toString()) {
                 $scope.year = $scope.yearList[i].Text;
@@ -96,11 +96,11 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
         }
 
         //$scope.year = "2018";
-           var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
-           DropDownListYear.selectItemByText($scope.year);
+        var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
+        DropDownListYear.selectItemByText($scope.year);
 
     };
-    
+
 
     $scope.payGroupList = [];
     $scope.payGroupListSelected = [];
@@ -122,28 +122,27 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
 
     };
 
-   
+
     $scope.getSalaryProcessIdList = function (args) {
         $scope.isCompletedMonth = 1;
-       
+
         var DropDownListMonth = $("#ddlMonthList").data("ejDropDownList");
         var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
 
-       
+
 
         $scope.month = DropDownListMonth.getSelectedValue();
         $scope.year = DropDownListYear.getSelectedValue();
         if (angular.isUndefinedOrNull($scope.year)) {
             ShowResult("Select Year", 'failure');
         }
-        else
-        {
+        else {
             cboService.getSalaryProcessIdCboByYearMonth($scope.month, $scope.year, $scope.isCompletedMonth, function (result) {
                 $scope.cboSalaryProcessIdList = result;
             });
         }
 
-       
+
     };
 
     $scope.selectedPaymentMode = $("#paymentMode option:selected").text();
@@ -155,7 +154,7 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
     $scope.GetEmployeeInformation = function () {
         //var DropDownListObj = $("#ddlPayRollGroupList").data("ejDropDownList");
         //$scope.payGroupListSelected = DropDownListObj.getSelectedValue();
-       
+
         //if (angular.isUndefinedOrNull($scope.year) === false && angular.isUndefinedOrNull($scope.month) === false) {
         //    var DropDownListSalaryProcess = $("#ddlSalaryProcessId").data("ejDropDownList");
         //    $scope.salaryProcessId = DropDownListSalaryProcess.getSelectedValue();
@@ -172,10 +171,12 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
             ShowResult("Select Year", 'failure');
         }
         else {
-           
-            var parameters = { 'effectiveDate': $scope.effectiveDate, 'salaryProcessId': $scope.salaryProcessId , 'payRollGroup': $scope.payGroupListSelected ,'isActive': $scope.isActive,
-                    'isSeperated': $scope.isSeperated,
-                    'isMaternity': $scope.isMaternity };
+
+            var parameters = {
+                'effectiveDate': $scope.effectiveDate, 'salaryProcessId': $scope.salaryProcessId, 'payRollGroup': $scope.payGroupListSelected, 'isActive': $scope.isActive,
+                'isSeperated': $scope.isSeperated,
+                'isMaternity': $scope.isMaternity
+            };
             $http({
                 method: "POST",
                 dataType: 'JSON',
@@ -186,7 +187,7 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
                     $scope.empGrid = true;
                     $scope.EmployeeListDefault = response.data.filter(d => d.isSelect == true);
                     $scope.EmployeeList = $scope.EmployeeListDefault;
-                    $scope.EmployeeListTemp = $scope.EmployeeListDefault;                    
+                    $scope.EmployeeListTemp = $scope.EmployeeListDefault;
                 }
                 else {
                     ShowResult("No Data Found", 'failure');
@@ -205,11 +206,8 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
             var parameters = [];
             var gridObj = $("#empInfoGrid").ejGrid("instance");
             var filteredRecords = gridObj.getFilteredRecords();
-            if ($scope.isManualFilter == true) {
-                if (filteredRecords.length == 0) {
-                    filteredRecords = $scope.EmployeeListTemp;
-
-                }
+            if (filteredRecords.length == 0) {
+                filteredRecords = $scope.EmployeeListTemp;
             }
             if (angular.isUndefinedOrNull(filteredRecords) === false) {
                 if (filteredRecords.length > 0) {
@@ -299,7 +297,7 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
     $scope.GetBsrSalarySummaryReport = function () {
         try {
             var parameteres = [];
-           
+
 
             $http({
                 method: 'POST',
@@ -465,7 +463,7 @@ function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootS
 
 
 
-  
+
 }
 
 

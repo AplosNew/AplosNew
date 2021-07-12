@@ -815,7 +815,7 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
 
     $scope.vendorInvoiceTaxes = [];
     $scope.vendorInvoiceTaxPush = function () {
-        // $scope.calculateTax($scope.voucherDetailId, $scope.setTaxVoucherDetailIndex);
+        $scope.calculateTax($scope.setTaxVoucherDetailIndex);
         $scope.closeTaxCodePopUp();
     };
 
