@@ -760,6 +760,7 @@
     <Compile Include="Areas\PerformanceManagement\Controllers\JobEvaluationReportController.cs" />
     <Compile Include="Areas\PerformanceManagement\PerformanceManagementAreaRegistration.cs" />
     <Compile Include="Areas\Productions\Controllers\MarkerController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductionPlanningReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShadeController.cs" />
     <Compile Include="Areas\Productions\Controllers\FebricWidthController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShrinkageGroupController.cs" />
@@ -2049,6 +2050,7 @@
     <Content Include="Areas\PerformanceManagement\Scripts\JobEvaluationReportController.js" />
     <Content Include="Areas\PerformanceManagement\Scripts\PerformanceManagementConfig.js" />
     <Content Include="Areas\Productions\Scripts\MarkerController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionPlanningReportController.js" />
     <Content Include="Areas\Productions\Scripts\ShadeController.js" />
     <Content Include="Areas\Productions\Scripts\FebricWidthController.js" />
     <Content Include="Areas\Productions\Scripts\ShrinkageGroupController.js" />
@@ -3539,6 +3541,7 @@
     <Content Include="Areas\Productions\Views\Marker\Aplos.cshtml" />
     <Content Include="Areas\Parties\Views\PartyPaymentStatusReport.cshtml" />
     <Content Include="Areas\HumanResource\Views\PayrollReports\ArrearVsPayroll.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionPlanningReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

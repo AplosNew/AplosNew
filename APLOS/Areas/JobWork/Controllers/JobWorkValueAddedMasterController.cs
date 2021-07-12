@@ -272,8 +272,8 @@ namespace Aplos.Areas.JobWork.Controllers
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("DELETE FROM [MST].[JobWorkValueAddedMasterProcess] WHERE JobWorkValueAddedMasterId='" + Id.ToString() + "' DELETE FROM [MST].[JobWorkValueAddedMaster] WHERE Id='" + Id.ToString() + "'");
-
+                con.executeQuery("DELETE FROM [MST].[JobWorkValueAddedMasterProcess] WHERE JobWorkValueAddedMasterId='" + Id.ToString() + "' ");
+                con.executeQuery("DELETE FROM [MST].[JobWorkValueAddedMaster] WHERE Id='" + Id.ToString() + "' ");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);

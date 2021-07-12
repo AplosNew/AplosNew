@@ -165,6 +165,10 @@ function jobWorkValueAddedMasterController(addressService, $window, cboService, 
                     $scope.ValueAdded.MaterialUOMId = $scope.materialUOMList[0].MMUnit;
                 }
                 else {
+                    
+                    $scope.ValueAdded.MaterialCode = null;
+                    $scope.ValueAdded.MaterialName = null;
+                    $scope.ValueAdded.MaterialUOMId = null;
                     $scope.ValueAdded.MaterialUOMId = $scope.materialUOMList[0].JWIUnit;
                 }
             }
@@ -172,13 +176,8 @@ function jobWorkValueAddedMasterController(addressService, $window, cboService, 
         });
     };
 
-    $scope.DeleteSelectedData = function (Id) {
-        var x = "#" + Id;
-        var gridObj = $(x).data("ejGrid");
-        $scope.selecteddata = gridObj.getSelectedRecords()[0];
-        $scope.ValueAdded.Id = $scope.selecteddata.Id;
-
-        $scope.message = 'Are you sure want to Remove?';
+    $scope.DeleteSelectedData = function () {
+        $scope.message_confirmation = 'Are you sure want to Delete?';
         angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
     };
 
@@ -192,6 +191,7 @@ function jobWorkValueAddedMasterController(addressService, $window, cboService, 
                     ShowResult(response.data.Message, 'success');
 
                     $scope.getAllData();
+                    $scope.Clear();
                     $scope.Action = 'Save';
                 }
                 else {
@@ -252,6 +252,9 @@ function jobWorkValueAddedMasterController(addressService, $window, cboService, 
 
     $scope.activityChildItemsList = [];
     $scope.getActivityChildItems = function () {
+        $scope.ValueAdded.MaterialCode = null;
+        $scope.ValueAdded.MaterialName = null;
+        $scope.ValueAdded.MaterialUOMId = null;
         $http({
             method: 'GET',
             url: $scope.path + 'GetActivityChildItems?Id=' + $scope.ValueAdded.JobWorkActivityId
