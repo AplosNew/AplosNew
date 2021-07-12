@@ -42,7 +42,7 @@
             <div class="col-sm-8 show-message">
                 <div class="select-style">
                     <select ng-model="salaryHeadNew.HeadType" class="form-control" name="Salary Head Type" tabindex="3" ng-change="HeadTypeChange()" required>
-                        <option value=""></option>
+                        <option value="">--Select--</option>
                         <option value="Earning">Earning</option>
                         <option value="Deduction">Deduction</option>
                     </select>
@@ -54,16 +54,16 @@
             <div class="col-sm-8">
                 <div class="select-style">
                     <select id="HeadCategory" ng-model="salaryHeadNew.HeadCategory" class="form-control" name="Salary Head Category" ng-options="item.Value as item.Text for item in headCategoryList" ng-change="getDisable();" tabindex="5">
-                        <option value=""></option>
+                        <option value="">--Select--</option>
                     </select>
                 </div>
             </div>
         </div>
-       
+
 
         <div class="form-group">
             <label class="col-sm-4 control-label">Is Gross Component</label>
-            <div class="col-sm-8">
+            <div class="col-sm-2">
                 <div class="checkbox-site">
                     <label>
                         <input type="checkbox" ng-model="salaryHeadNew.IsGrossComponent" ng-disabled="disabledIsGrossComponent" ng-change="IsGrossComponentChange()">
@@ -71,18 +71,37 @@
                     </label>
                 </div>
             </div>
-        </div>
-        <div class="form-group">
             <label class="col-sm-4 control-label">External Data Upload Applicable</label>
-            <div class="col-sm-8">
+            <div class="col-sm-2">
                 <div class="checkbox-site">
                     <label>
                         <input type="checkbox" ng-model="salaryHeadNew.ExtDataUpload" ng-disabled="disabledExternalDataUpload">
+                        <span class="cr" style="margin-top: 5px;"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Part Of Net Pay</label>
+            <div class="col-sm-2">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="salaryHeadNew.PartOfNetPay" ng-disabled="disabledNetpay" ng-click="CheckUnCheckIsRetained();">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+            <label class="col-sm-4 control-label">Is Retained</label>
+            <div class="col-sm-2">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="salaryHeadNew.IsRetained" ng-disabled="salaryHeadNew.PartOfNetPay===true">
                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                     </label>
                 </div>
             </div>
         </div>
+        
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
@@ -92,33 +111,26 @@
             </div>
         </div>
         <div class="form-group">
+            <label class="col-sm-4 control-label">Transaction Type</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select class="form-control" ng-model="salaryHeadNew.TransactionType" name="Transaction Type">
+                        <option value="">--Select--</option>
+                        <option value="Dr.">Dr.</option>
+                        <option value="Cr.">Cr.</option>
+                        <option value="Both">Both</option>
+                        <option value="NotApplicable">Not Applicable</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
             <label class="col-sm-4 control-label">Description</label>
             <div class="col-sm-8">
                 <textarea class="form-control" rows="3" ng-model="salaryHeadNew.Description" tabindex="4" maxlength="150"></textarea>
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Part Of Net Pay</label>
-            <div class="col-sm-8">
-                <div class="checkbox-site">
-                    <label>
-                        <input type="checkbox" ng-model="salaryHeadNew.PartOfNetPay" ng-disabled="disabledNetpay" ng-click="CheckUnCheckIsRetained();">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                    </label>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Is Retained</label>
-            <div class="col-sm-8">
-                <div class="checkbox-site">
-                    <label>
-                        <input type="checkbox" ng-model="salaryHeadNew.IsRetained" ng-disabled="salaryHeadNew.PartOfNetPay===true">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                    </label>
-                </div>
-            </div>
-        </div>
+        
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">

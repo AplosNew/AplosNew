@@ -70,6 +70,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                  ,PartOfNetPay
                                 ,IsGrossComponent
                                 ,IsRetained
+                                ,TransactionType
                              FROM [dbo].[SalaryHead] WHERE GroupID = '" + identity .CompanyGroupId+ @"'  ORDER BY [Sequence]";
             return Json(_sqlRepository.GetModelCollection<SalaryHeadModel>(sql), JsonRequestBehavior.AllowGet);
         }
@@ -150,6 +151,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     dr["PartOfNetPay"] = data.PartOfNetPay;
                     dr["IsGrossComponent"] = data.IsGrossComponent;
                     dr["IsRetained"] = data.IsRetained;
+                    dr["TransactionType"] = data.TransactionType;
 
                     dsMaster.Tables[0].Rows.Add(dr);
                 }
@@ -170,6 +172,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     dr["PartOfNetPay"] = data.PartOfNetPay;
                     dr["IsGrossComponent"] = data.IsGrossComponent;
                     dr["IsRetained"] = data.IsRetained;
+                    dr["TransactionType"] = data.TransactionType;
                     dr["UpdatedBy"] = identity.Name;
                     dr["DateUpdated"] = System.DateTime.Now.ToString();
 
@@ -246,5 +249,6 @@ namespace Aplos.Areas.Payrolls.Controllers
         public bool IsRetained { get; set; }
         public decimal Sequence { get; set; }
         public bool PartOfNetPay { get; set; }
+        public string TransactionType { get; set; }
     }
 }
