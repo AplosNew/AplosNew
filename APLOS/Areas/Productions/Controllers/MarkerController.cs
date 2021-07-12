@@ -148,7 +148,7 @@ namespace Aplos.Areas.Productions.Controllers
                 var directory = ResourcesPathReader.GetMarkerDocPath();
                 if (!Directory.Exists(directory))
                     Directory.CreateDirectory(directory);
-                string path = Path.Combine(directory);                
+                string path = Path.Combine(directory);
 
                 DataSet dsMaster;
                 DataSet dsChild;
@@ -173,7 +173,7 @@ namespace Aplos.Areas.Productions.Controllers
                 #region Master data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                   
+
                     AddNewRow(dsMaster.Tables[0], data);
                     MasterId = data.Id;
                 }
@@ -195,9 +195,10 @@ namespace Aplos.Areas.Productions.Controllers
                 foreach (var item in details)
                 {
                     dsChild.Tables[0].DefaultView.RowFilter = "Id = '" + item.Id + "' ";
-                    if (clsStaticInfo.dbl(item.Ratio.ToString()) != 0)
+
+                    if (dsChild.Tables[0].DefaultView.Count == 0)
                     {
-                        if (dsChild.Tables[0].DefaultView.Count == 0)
+                        if (item.Id == null && item.Ratio != 0)
                         {
                             count++;
                             DetailsId = "MD" + sID + "_" + count;
@@ -211,7 +212,10 @@ namespace Aplos.Areas.Productions.Controllers
                             dr["AddedFromIP"] = identity.IPAddress;
                             dsChild.Tables[0].Rows.Add(dr);
                         }
-                        else
+                    }
+                    else
+                    {
+                        if (item.Id != null && item.Ratio == 0)
                         {
                             dr = dsChild.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
@@ -321,7 +325,7 @@ namespace Aplos.Areas.Productions.Controllers
                 con.executeQuery("delete from " + TableName + " where id='" + id + "'");
                 con.CommitTransaction();
 
-                
+
 
                 return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
