@@ -18,7 +18,7 @@ namespace Library.Service.Processes
 		IEnumerable<ComboModel> GetProductionProcessCbo(string companyGroupId);
 
 		GridModel Query(GridParameter parameters, string companyGroupId, string[] processIds);
-		GridModel GetProductionProcessList(GridParameter parameters, string companyGroupId);
+		GridModel GetProductionProcessList(GridParameter parameters, string companyGroupId, string CompanyId);
 
 		GridModel GetLoadProcessWithSubProcess(GridParameter parameters, string companyGroupId);
 	}

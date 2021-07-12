@@ -51,13 +51,18 @@ namespace Library.Service.Processes
 													WHEN PSD.EntityIdWithinGroup<>'' THEN EWG.UserName
 													WHEN PSD.PartyId<>'' THEN PRT.UserName
 													ELSE PRT.UserName END
-										, PSD.Archive
+										, PSD.Archive, PSD.MaterialMasterId, MM.UserName AS MaterialMasterName
+	                                    , PSD.ArticleId, ART.StandardName AS ArticleName,PSD.Qty,PSD.UOMId
+
 								FROM HKP.ProcessSetDetail AS PSD
 								LEFT OUTER JOIN HKP.ProcessSet AS PS ON PSD.ProcessSetId=PS.Id
 								LEFT OUTER JOIN HKP.Process AS P ON PSD.ProcessId=P.Id
 								LEFT OUTER JOIN ORG.Entity AS EWC ON PSD.EntityIdWithinCompany=EWC.Id
 								LEFT OUTER JOIN ORG.Entity AS EWG ON PSD.EntityIdWithinGroup=EWG.Id
 								LEFT OUTER JOIN HKP.Party AS PRT ON PSD.PartyId=PRT.Id
+								LEFT JOIN MST.MaterialMaster AS MM ON PSD.MaterialMasterId=MM.Id
+                                LEFT JOIN MST.MaterialMasterArticle AS ART ON PSD.ArticleId=ART.Id
+								LEFT OUTER JOIN [SCS].[UnitOfMeasurement] UOM ON uom.Id=PSD.UOMId
                                 WHERE PSD.ProcessSetId='" + processSetId + "' ORDER BY PSD.[Sequence]";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
@@ -87,13 +92,17 @@ namespace Library.Service.Processes
 													WHEN PSD.EntityIdWithinGroup<>'' THEN EWG.UserName
 													WHEN PSD.PartyId<>'' THEN PRT.UserName
 													ELSE PRT.UserName END
-										, PSD.Archive
+										, PSD.Archive, PSD.MaterialMasterId, MM.UserName AS MaterialMasterName
+	                                    , PSD.ArticleId, ART.StandardName AS ArticleName,PSD.Qty,PSD.UOMId
 								FROM HKP.ProcessSetDetail AS PSD
 								LEFT JOIN HKP.ProcessSet AS PS ON PSD.ProcessSetId=PS.Id
 								LEFT JOIN HKP.Process AS P ON PSD.ProcessId=P.Id
 								LEFT JOIN ORG.Entity AS EWC ON PSD.EntityIdWithinCompany=EWC.Id
 								LEFT JOIN ORG.Entity AS EWG ON PSD.EntityIdWithinGroup=EWG.Id
 								LEFT JOIN HKP.Party AS PRT ON PSD.PartyId=PRT.Id
+                                LEFT JOIN MST.MaterialMaster AS MM ON PSD.MaterialMasterId=MM.Id
+                                LEFT JOIN MST.MaterialMasterArticle AS ART ON PSD.ArticleId=ART.Id
+								LEFT OUTER JOIN [SCS].[UnitOfMeasurement] UOM ON uom.Id=PSD.UOMId
                                 WHERE PSD.ProcessSetId='" + processSetId + "' ORDER BY PSD.[Sequence]";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }

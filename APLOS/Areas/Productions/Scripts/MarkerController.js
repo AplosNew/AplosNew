@@ -61,7 +61,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                         $scope.FGmsg = "has no";
                     }
                     $scope.getFGCharacteristicsList($scope.ModelNew.FGMaterialMasterId);
-                    $scope.HSNCodeId = ob.HSNCodeId;                   
+                    $scope.HSNCodeId = ob.HSNCodeId;
                     $scope.closeMaterialMasterbyTypePopUp();
                 }
             })
@@ -70,7 +70,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         }
     };
 
-    
+
 
     $scope.selectarticle = function (ob) {
         try {
@@ -89,7 +89,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         $scope.ModelNew.FGArticle = null;
     };
     $scope.getFGCharacteristicsList = function (id) {
-        $scope.clearCharNames();
+        //$scope.clearCharNames();
         $http({
             method: 'GET',
             url: 'Materials/MaterialMaster/getcharacteristicsbymaterialmasterid/',
@@ -98,10 +98,64 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             }
         }).then(function (response) {
             $scope.characteristicsList = [];
-            $scope.characteristicsList = response.data.charData;            
+            $scope.characteristicsList = response.data.charData;
         });
 
     };
+
+
+    $scope.getFGCharacteristicsListNew = function (id,MasterId) {
+        $http({
+            method: 'GET',
+            url: 'Materials/MaterialMaster/getcharacteristicsbymaterialmasterid/',
+            params: {
+                materialMasterId: id
+            }
+        }).then(function (response) {
+            $scope.characteristicsList = [];
+            $scope.characteristicsList = response.data.charData;
+            $scope.GetFGCharacteristicsValueCboAfterSave();
+        });
+
+    };
+    $scope.TotalRatio = 0;
+    $scope.FGCharacteristicsValueList = [];
+    $scope.GetFGCharacteristicsValueCboAfterSave = function () {
+        $scope.TotalRatio = 0;
+        for (var i = 0; i < $scope.characteristicsList.length; i++) {
+            if ($scope.ModelNew.CharacteristicsId == $scope.characteristicsList[i].Value) {
+                var valueAssignmentLevel = $scope.characteristicsList[i].ValueAssignmentLevel;
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.path + "getCharacteristicsValueByCharacteristicsIdAfterSave",
+            data: { 'materialMasterId': $scope.ModelNew.FGMaterialMasterId, 'characteristicsId': $scope.ModelNew.CharacteristicsId, 'valueAssignmentLevel': valueAssignmentLevel, 'MarkerMasterId': $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.FGCharacteristicsValueList = response.data;
+            for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
+                if ($scope.FGCharacteristicsValueList[i].Ratio != 0 || !baseService.isUndefinedOrNull($scope.FGCharacteristicsValueList[i].Ratio)) {
+                    $scope.SKUDisable = true;
+                    break;
+                }
+                else {
+                    $scope.SKUDisable = false;
+                }
+            }
+            for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
+                if ($scope.FGCharacteristicsValueList[i].Ratio != 0 || !baseService.isUndefinedOrNull($scope.FGCharacteristicsValueList[i].Ratio)) {
+                    $scope.TotalRatio = parseFloat($scope.FGCharacteristicsValueList[i].Ratio) + parseFloat($scope.TotalRatio);
+                }
+            }
+        });
+        if (baseService.isUndefinedOrNull($scope.ModelNew.HeaderName)) {
+            $scope.HeaderName = $("#SKU option:selected").text();
+        }
+        else {
+            $scope.HeaderName = $scope.ModelNew.HeaderName;
+        }
+    }
 
     $scope.FGCharacteristicsValueList = [];
     $scope.GetFGCharacteristicsValueCbo = function () {
@@ -110,21 +164,26 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                 var valueAssignmentLevel = $scope.characteristicsList[i].ValueAssignmentLevel;
             }
         }
-        cboService.getCharacteristicsValueCboByCharacteristicsId($scope.ModelNew.FGMaterialMasterId, $scope.ModelNew.CharacteristicsId, valueAssignmentLevel, function (response) {
-            $scope.FGCharacteristicsValueList = response;
+        $http({
+            method: 'POST',
+            url: $scope.path + "getCharacteristicsValueByCharacteristicsId",
+            data: { 'materialMasterId': $scope.ModelNew.FGMaterialMasterId, 'characteristicsId': $scope.ModelNew.CharacteristicsId, 'valueAssignmentLevel': valueAssignmentLevel },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.FGCharacteristicsValueList = response.data;
         });
         $scope.HeaderName = $("#SKU option:selected").text();
     }
-    
+
     //#endregion
 
-
+    $scope.SKUDisable = false;
 
     $scope.getData = function () {
         $http({
             method: 'POST',
             url: $scope.path + "GetList",
-            data: { },
+            data: {},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
@@ -151,6 +210,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         CharacteristicsId: null,
         ShadeId: null,
         Length: null,
+        Attachment: null,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -163,36 +223,92 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     $scope.GetSequence();
 
     $scope.Get = function (args) {
-
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.getFGCharacteristicsListNew($scope.ModelNew.FGMaterialMasterId, $scope.ModelNew.Id);
+        $scope.HeaderName = $scope.ModelNew.HeaderName;
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
 
-    $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
+    $scope.getDetails = function (MasterId) {
         $http({
             method: 'POST',
-            url: $scope.saveUrl,
-            data: { 'data': $scope.ModelNew, 'details': $scope.FGCharacteristicsValueList },
+            url: $scope.path + "GetDetailsList",
+            data: { 'masterid': MasterId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                ClearFields(response.data.Sequence);
-                $scope.getData();
+            $scope.FGCharacteristicsValueList = response.data;
+        });
+    };
 
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
+    //#region File 
 
+    $("#uploadBtn4").change(function () {
+        $scope.filedata = this.files[0];
+    });
+
+    document.getElementById("uploadBtn4").onchange = function () {
+        var filename = document.getElementById("uploadFile4").value = this.value;
+        var res = filename.replace(/C:\\fakepath\\/i, '');
+        document.getElementById("uploadFile4").value = res;
+    };
+
+
+    //#endregion
+
+    $scope.Save = function () {
+        try {
+
+            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
+                throw $scope.filedata.name + ' File size must be below 2 mb';
+            var fileName = null;
+            if (!baseService.isUndefinedOrNull($scope.filedata))
+                fileName = $scope.filedata.name;
+            $scope.ModelNew.Attachment = fileName;
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.Attachment)) {
+                if ($scope.ModelNew.Attachment.length > 50) {
+                    throw "File Name must be less than 50 character.";
+                }
+            }
+            var formData = new FormData();
+
+            $scope.$broadcast('show-errors-check-validity');
+
+            if ($scope.ModelNewForm.$valid) {
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+
+                    headers: { 'Content-Type': undefined },
+                    transformRequest: function (data) {
+                        formData.append("data", angular.toJson(data.data));
+                        if (baseService.isUndefinedOrNull($scope.filedata) === false) {
+                            formData.append('file', data.file);
+                        }
+                        formData.append("details", angular.toJson(data.details));
+                        return formData;
+                    },
+
+                    data: { 'data': $scope.ModelNew, 'details': $scope.FGCharacteristicsValueList,'file': $scope.filedata },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        ClearFields(response.data.Sequence);
+                        $scope.getData();
+
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
 
@@ -234,10 +350,21 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             UserName: null,
             Description: null,
             Remarks: null,
-            Active: true
+            Active: true,
+            FGMaterialMasterId: null,
+            FGMaterialMaster: null,
+            FGArticleId: null,
+            FGArticle: null,
+            FabricWidthId: null,
+            ShrinkageGroupId: null,
+            CharacteristicsId: null,
+            ShadeId: null,
+            Length: null,
         };
-        //$scope.ModelNew.CompanyId;
         $scope.ModelNew.Sequence = seq;
+        $scope.FGCharacteristicsValueList = [];
+        $scope.characteristicsList = [];
+        $scope.SKUDisable = false;
     }
 
     $scope.FabricWidthList = [];

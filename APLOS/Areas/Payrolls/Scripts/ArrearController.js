@@ -47,7 +47,14 @@ function ArrearController(cboService, commonMessage, $scope, $rootScope, baseSer
         return list;
     }
     $scope.ProcessAll = function () {
-        var data_dtActive = GetShortColumns($scope.EmployeeListTemp);
+
+        //tarek
+        var filtered = $("#empInfoGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            filtered = $scope.EmployeeListTemp;
+        }
+
+        var data_dtActive = GetShortColumns(filtered);
         $scope.AllDataset.dtActive = data_dtActive;
 
 

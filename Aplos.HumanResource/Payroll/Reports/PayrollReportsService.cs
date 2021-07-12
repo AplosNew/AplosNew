@@ -3563,7 +3563,7 @@ namespace Library.HumanResource.Payroll
 
 
                 xlsCol++;
-                sheet1.Range[xlsRow - 1, 1].Text = "Report Ref No.";
+                sheet1.Range[xlsRow - 1, 1].Text = "Actual Salary Detail";
                 sheet1.Range[xlsRow - 1, 1].ColumnWidth = 14;
                 sheet1.Range[xlsRow - 1, 1, xlsRow - 1, 3].Merge();
                 sheet1.Range[xlsRow, 1, xlsRow + 1, npstruct].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
@@ -3926,11 +3926,7 @@ namespace Library.HumanResource.Payroll
                 sheet1.Range[RowIndex, 1, xlsRow - 1, xlsCol].WrapText = true;
                 #endregion
 
-                #region Freeze Panes
-                var freezePan = RowIndex - 1;
-                sheet1.UsedRange["A" + freezePan].FreezePanes();
-               
-                #endregion
+             
 
                 #region UsedRange Alignment
                 sheet1.UsedRange.WrapText = true;
@@ -4526,7 +4522,7 @@ namespace Library.HumanResource.Payroll
 
 
                 xlsCol++;
-                sheet1.Range[xlsRow - 1, 1].Text = "Report Ref No.";
+                sheet1.Range[xlsRow - 1, 1].Text = "Arrear Process Detail";
                 sheet1.Range[xlsRow - 1, 1].ColumnWidth = 14;
                 sheet1.Range[xlsRow - 1, 1, xlsRow - 1, 3].Merge();
                 sheet1.Range[xlsRow, 1, xlsRow + 1, npstruct].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
@@ -4889,12 +4885,7 @@ namespace Library.HumanResource.Payroll
                 sheet1.Range[RowIndex, 1, xlsRow - 1, xlsCol].WrapText = true;
                 #endregion
 
-                #region Freeze Panes
-                var freezePan = RowIndex - 1;
-                sheet1.UsedRange["A" + freezePan].FreezePanes();
-                sheet1.FirstVisibleColumn = 1;
-                sheet1.FirstVisibleRow = 10;
-                #endregion
+               
 
                 #region UsedRange Alignment
                 sheet1.UsedRange.WrapText = true;
@@ -7986,7 +7977,7 @@ namespace Library.HumanResource.Payroll
                         // dvStruct.RowFilter = "SystemID='" + x + "'";//SystemId = EmployeeSystemId
                         //dvSheet.RowFilter = "EmpInfoSystemID='" + x + "'";//SystemId = EmployeeSystemId
 
-                        int _maxRow = 0;
+                        int _maxRow = 0; // 0
                         int _startRow = xlsRow;
                         LoadSalaryHead_CurrLess(ref sheet1, dtSalaryHeadSheet, xlsRow, xlsColEarning, out _maxRow, out _Total_Earning, "E", localLanguage, drSalaryHeadCollection);
 
@@ -8010,6 +8001,8 @@ namespace Library.HumanResource.Payroll
                         //    _basic = Convert.ToDouble(dvBasic[0]["DisbusmentAmount"].ToString());
                         //}
 
+                        _maxRow = _Info_Last_Row;
+
                         if (_maxRowDeduct > _maxRow)
                         {
                             _maxRow = _maxRowDeduct;
@@ -8018,11 +8011,11 @@ namespace Library.HumanResource.Payroll
                         {
 
                         }
-
+                        
                         //DataView dvNetPay = new DataView(dtSalaryHead);
                         //dvNetPay.RowFilter = "HeadCategory='Net Payable'";
 
-                        result = drSalaryHeadCollection.Where(row => row["HeadCategory"].Equals("Net Payable")).FirstOrDefault();
+                            result = drSalaryHeadCollection.Where(row => row["HeadCategory"].Equals("Net Payable")).FirstOrDefault();
                         if (result != null)
                         {
                             _netPay = clsStaticInfo.dbl(result["DisbusmentAmount"].ToString());
@@ -8302,7 +8295,7 @@ ELSE CONVERT(BIT,0) END  ---No
                                             LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                             WHERE CalanderYearID = " + calYearId + @"
 											and els.LeaveTypeId in ('LVT-20191' , 'LVT-20192')
-											order by els.EmployeeId
+											order by els.EmployeeId, LeaveName
                                                 ";
 
                 return _sqlRepository.GetDataTable(sql);
@@ -10984,37 +10977,37 @@ INNER JOIN
                 objCon = null;
             }
         }//End Function
-        public void GetEmployeeInfoDetailSalaryAndArrearLogWise(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, out DataSet dsRef)
+        public void GetEmployeeInfoDetailSalaryAndArrearLogWise(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string ArrearProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
-            string salaryProcessId = "";
+            string ArrearProcessId = "";
             var _wc = string.Empty;
-            var wcSalaryProcessSystemIdStr = "";
+            var wcArrearProcessSystemIdStr = "";
 
 
-            if (!string.IsNullOrEmpty(salaryProcessSystemId) && salaryProcessSystemId != "undefined" && salaryProcessSystemId != "null")
+            if (!string.IsNullOrEmpty(ArrearProcessSystemId) && ArrearProcessSystemId != "undefined" && ArrearProcessSystemId != "null")
             {
-                wcSalaryProcessSystemIdStr = "SystemID IN ('" + salaryProcessSystemId + @"')";
+                wcArrearProcessSystemIdStr = "SystemID IN ('" + ArrearProcessSystemId + @"')";
             }
             else
             {
-                wcSalaryProcessSystemIdStr = @"SystemID IN( SELECT SystemID FROM SalaryProcMaster
-                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+                wcArrearProcessSystemIdStr = @"SystemID IN( SELECT SystemID FROM ArrearProcMaster
+                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM ArrearProcChild
                                                         WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
                                         AND MonthNo = Month('" + fromDate + "') AND YearNo = Year('" + fromDate + "')  )";
 
 
-                string strSql = @"SELECT SystemID FROM SalaryProcMaster
-                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+                string strSql = @"SELECT SystemID FROM ArrearProcMaster
+                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM ArrearProcChild
                                                         WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
                                         AND MonthNo =  MONTH('" + fromDate + @"') AND YearNo =  YEAR('" + fromDate + @"')";
 
                 DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
-                salaryProcessId = "''";
+                ArrearProcessId = "''";
                 for (int si = 0; si < dtSalPrcId.Rows.Count; si++)
                 {
-                    salaryProcessId += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
+                    ArrearProcessId += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
                 }
             }
             string wcEmpStatus = " AND (1=0 ";
@@ -11057,43 +11050,46 @@ INNER JOIN
 											,ISNULL(LDS.UserName,'') LegalDesignation,ISNULL(E.NationalID,'') NationalID
 											,ISNULL(Line.UserName,'') LineName
 											,ISNULL(E.GenderID,'') Gender
-                                            ,ISNULL(LSalGr.Code,'') GradeCode
+                                            ,'' GradeCode
 											,ISNULL(PG.UserName,'') PayRollGroup
-                                    , CASE WHEN ISNULL(SPM.SalaryProcFlag,'') = '' THEN 'Regular' ELSE SalaryProcFlag END EmployeeStatus
+                                    , CASE WHEN ISNULL(SPM.ArrearProcFlag,'') = '' THEN 'Regular' ELSE ArrearProcFlag END EmployeeStatus
                                     ,ISNULL(jl.JobLocation, '') JobLocation
-									,ISNULL(SPLD.PaymentMode,'') PaymentMode
+									,E.PaymentMode
 									,ISNULL(bb.UserName,'') BankName
-                                    ,ISNULL(spld.BankAccNo,'') BankAccNo
-                                    ,ISNULL(spld.IFSCCode,'') IFSCCode
+                                    ,E.BankAccNo
+                                    ,'' IFSCCode
                                     ,CASE WHEN ISNULL(PO.IsDirect,0) = 0 THEN 'No' ELSE 'Yes' END IsDirect
                                     ,CASE WHEN ISNULL(PO.DirectManpowerCost,0) = 0 THEN 'No' ELSE 'Yes' END DirectManpowerCost
 
                                      FROM EmployeeInformation E
                                           Left JOIN (
-                                    SELECT DISTINCT EmpInfoSystemID,SlrProcMstSystemID,PlantID ,m.Description,m.SalaryProcFlag
-                                    FROM SalaryProcChild c
-                                    JOIN SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
-                                    WHERE SlrProcMstSystemID IN(" + salaryProcessId + @") 
+                                    SELECT DISTINCT EmpInfoSystemID,SlrProcMstSystemID,PlantID ,m.Description,m.ArrearProcFlag
+                                    FROM ArrearProcChild c
+                                    JOIN ArrearProcMaster m on m.SystemID=c.SlrProcMstSystemID
+                                    WHERE SlrProcMstSystemID IN(" + ArrearProcessId + @") 
                                     ) SPM ON spm.EmpInfoSystemID=e.SystemId
-									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
+									-- JOIN ArrearProcessLogDetail SPLD ON SPLD.ArrearProcessId  IN(" + ArrearProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.ArrearProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
                          
-									 			LEFT JOIN ORG.Plant F ON SPLD.PlantID = F.Id
+									 		
+									 			LEFT JOIN ORG.Plant F ON E.PlantID = F.Id
 												LEFT JOIN hkp.DesignationGroup DG ON E.DesignationGroupId = DG.ID
-												LEFT JOIN hkp.Designation DE ON E.GivenDesignationId = DE.Id
-												LEFT JOIN hkp.LegalDesignation LDS ON SPLD.LegalDesignationId = LDS.Id
-								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = SPLD.BudgetCode
+												LEFT JOIN hkp.LegalDesignation LDS ON E.LegalDesignationId = LDS.Id
+												LEFT JOIN [MST].[DesignationMasterLegalDesignation] DTAG ON dtag.LegalDesignationId=e.LegalDesignationId
+												LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dtag.DesignationMasterId
+												LEFT JOIN hkp.Designation DE ON dm.DesignationId = DE.Id
+								LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
 								LEFT OUTER JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
                                 LEFT OUTER JOIN [ORG].[Entity] AS ENT ON ENT.Id = MB.EntityId
 
 												LEFT JOIN [ORG].[Line] ON Line.Id = MB.LineId
 												  LEFT JOIN [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
 												  LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
-									LEFT JOIN [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
+									LEFT JOIN [HKP].[Bank] bb on bb.Id = E.BankSystemID
                                     LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
 
 									LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
                                                 LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LDS.Id and E.PlantId = LSGD.PlantId
-                                                LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = SPLD.LegalSalaryGradeId  --and SPLD.PlantId = LSalGr.PlantId
+                                                --LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = SPLD.LegalSalaryGradeId  --and SPLD.PlantId = LSalGr.PlantId
 												
 												LEFT JOIN org.Unit FU ON ENT.UnitID = FU.Id
 												LEFT JOIN org.Division DV ON PO.DivisionID = DV.Id
@@ -11107,7 +11103,7 @@ INNER JOIN
             --                                    SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
 												--LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
 												--)EC ON EC.DesignationId=E.GivenDesignationId
-												[HKP].[EmployeeCategory] EC ON EC.Id = SPLD.EmployeeCategoryId
+												[HKP].[EmployeeCategory] EC ON EC.Id = dm.EmployeeCategoryId
 											
 
                                
@@ -11500,28 +11496,28 @@ INNER JOIN
                 //objCon = null;
             }
         }//End Function
-        public Dictionary<string, List<DataRow>> GetEmployeeArrearInfoDetail(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, out DataTable distinctSalaryHead)
+        public Dictionary<string, List<DataRow>> GetEmployeeArrearInfoDetail(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string ArrearProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, out DataTable distinctSalaryHead)
         {
             string strSQL;
             DataSet dsRef = null;
             Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
             distinctSalaryHead = new DataTable("Tmp");
-            string strSql = @"SELECT SystemID FROM SalaryProcMaster
-                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+            string strSql = @"SELECT SystemID FROM ArrearProcMaster
+                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM ArrearProcChild
                                                         WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
                                         AND MonthNo = Month('" + fromDate + @"') AND YearNo = Year('" + fromDate + @"')";
             DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
 
-            string salaryProcessID = "''";
+            string ArrearProcessID = "''";
             for (int si = 0; si < dtSalPrcId.Rows.Count; si++)
             {
-                salaryProcessID += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
+                ArrearProcessID += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
             }
 
 
             try
             {
-                strSQL = @"SELECT EmpSlr.*,PSH.Sequence,ISNULL(crc.IsDecimalInDisb,0) IsDecimalInDisb,ISNULL(CRC.IntegerInDisb,1) IntegerInDisb,ISNULL(CRC.DecimalNo,0) DecimalNo FROM(SELECT SPC.SystemID AS SlrProcChdSysID, SPC.SlrProcMstSystemID, SPM.SalaryProcID, SPM.FromDate, SPM.ToDate,
+                strSQL = @"SELECT EmpSlr.*,PSH.Sequence,ISNULL(crc.IsDecimalInDisb,0) IsDecimalInDisb,ISNULL(CRC.IntegerInDisb,1) IntegerInDisb,ISNULL(CRC.DecimalNo,0) DecimalNo FROM(SELECT SPC.SystemID AS SlrProcChdSysID, SPC.SlrProcMstSystemID, SPM.ArrearProcID, SPM.FromDate, SPM.ToDate,
                                                     SPC.EmpInfoSystemID EmpSystemID, SPC.PlantID, SPM.UserGroupSystemID, SPM.MonthNo, SPM.YearNo, SPC.PayAbleShSystemID,
                                                     SPC.SalaryHeadID, SPC.EntryCurrencyID, SPC.EntryAmount, SPC.DefineCurrencyID, SPC.DefineAmount,
                                                     SPC.DisbusmentCurrencyID, SPC.DisbusmentAmount, SPC.AcltExcDisbSlrHDID, SPC.AcltExcDisbSlrHDAmt,
@@ -11529,9 +11525,9 @@ INNER JOIN
                                                     CR.Name AS AmtDefinitionCurrency, SPM.AmtDefinitionCurrencyRate, SPC.IsNetPayEffect, ISNULL(SH.IsCTCComponent,0) IsCTCComponent, ISNULL(SH.IsGrossComponent,0) IsGrossComponent
                                                     , sh.SalaryHead, sh.HeadCategory, sh.HeadType, ISNULL(SH.PartOfNetPay,0) PartOfNetPay
 
-                                     FROM SalaryProcChild SPC
+                                     FROM ArrearProcChild SPC
 
-                                        left JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
+                                        left JOIN ArrearProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
 
 
 
@@ -11543,17 +11539,17 @@ INNER JOIN
                                                         LEFT JOIN (
                                                                    SELECT* FROM ExchangerateDateWiseForHR
 
-                                                                   WHERE FromDate IN (SELECT MAX(FromDate) FromDate FROM SalaryProcMaster
+                                                                   WHERE FromDate IN (SELECT MAX(FromDate) FromDate FROM ArrearProcMaster
 
 
-                                                                                                            WHERE SystemID IN(" + salaryProcessID + @")
+                                                                                                            WHERE SystemID IN(" + ArrearProcessID + @")
 																  )) EXR ON SPM.AmtDefinitionCurrencyID = EXR.FromCurrencyCode
 
                                                                                             AND SPC.PlantID = Exr.PlantID
 
                                                         LEFT JOIN SCS.Currency CRE ON EXR.FromCurrencyCode = CRE.Id
 
-                                                        where isnull(SPC.SlrProcMstSystemID,'')  IN(" + salaryProcessID + @")) EmpSlr--ON EmpBasic.SystemID = EmpSlr.EmpInfoSystemID AND EmpBasic.PlantID = EmpSlr.PlantID
+                                                        where isnull(SPC.SlrProcMstSystemID,'')  IN(" + ArrearProcessID + @")) EmpSlr--ON EmpBasic.SystemID = EmpSlr.EmpInfoSystemID AND EmpBasic.PlantID = EmpSlr.PlantID
 
                                             Inner join EmployeeInformation EEI ON EEI.SystemId = EmpSlr.EmpSystemID
 

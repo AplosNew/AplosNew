@@ -95,6 +95,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , PaymentTermId: null
         , OwnReferenceNo: null
         , IsPaymentTermChangeable: null
+        , ExceptionalProcessId: null
+        , ExceptionalSubProcessId: null
     };
     $scope.fileNew = Object.assign({}, $scope.file);
     $scope.isBuyerApplicable = false;
@@ -184,6 +186,20 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.uOMList = response;
     });
 
+    $scope.ProcessList = [];
+    $scope.SubProcessList = [];
+    $scope.GetProcessByCompany= function () {
+     cboService.getCompanyProductionProcessCbo($scope.fileNew.CompanyId, function (response) {
+        $scope.ProcessList = response;
+    });
+    }
+
+   $scope.GetSubProcessByProcess= function () {
+       cboService.loadSubprocessCbo($scope.fileNew.ExceptionalProcessId,function (response) {
+           $scope.SubProcessList = response;
+       });
+    }
+   
     $scope.departmentList = [];
     $scope.buyerChange = function () {
         $http.get("Parties/BuyerBrand/GetCbo?buyerId=" + $scope.fileNew.BuyerId)
