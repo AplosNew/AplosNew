@@ -805,7 +805,7 @@ function servicePayableController(cboService, commonMessage, $scope, $rootScope,
         });
     }
     $scope.getPaymentVoucherType();
-    $scope.additionalTaxUrl = $scope.path + 'InsertAdditionalTaxPayable';
+    $scope.additionalTaxUrl = 'Accounts/InvoicePost/InsertAdditionalTaxPayable';
     $scope.additionalTaxDetailList = [];
     $scope.onClickadditionalTaxPop = function (x) {        $scope.additionalTaxData = {};        var data = x;        data.VoucherTypeId = null;        data.VoucherTypeId = $scope.additionalTaxVoucherTypeId;        data.VoucherDate = new Date();        $scope.additionalTaxData = data;        $http({
             method: 'POST',

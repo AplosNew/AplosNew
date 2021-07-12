@@ -642,6 +642,7 @@ var upanelApp = angular
     .controller('salaryPaymentStatementsController', salaryPaymentStatementsController)
     .controller('salaryProcessedReportComplianceController', salaryProcessedReportComplianceController)
     .controller('salaryProcessedReportController', salaryProcessedReportController)
+    .controller('ArrearProcessedReportController', ArrearProcessedReportController)
     .controller('salaryProcessedReportSummaryController', salaryProcessedReportSummaryController)
     .controller('SalaryProcessOtherStatusController', SalaryProcessOtherStatusController)
     .controller('salaryRuleController', salaryRuleController)
@@ -881,6 +882,9 @@ var upanelApp = angular
     .controller("salaryProcessedReportExtraOTCTCCompanyController", salaryProcessedReportExtraOTCTCCompanyController)
 
     .controller("EmployeeAdditionDeductionProcessController", EmployeeAdditionDeductionProcessController)
+    .controller("MarkerController", MarkerController)
+    .controller("partyPaymentStatusReportController", partyPaymentStatusReportController)
+
 
     .config(AccessControllerConfig)
     .config(accountConfig)

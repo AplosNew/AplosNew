@@ -1103,5 +1103,119 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         #endregion Acceptance Liability Maturity
+
+        #region Others liability
+        [HttpPost, Authorize]
+        public ActionResult GetOthersLiabilityDataList(string ToDate)
+        {
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(new { DATA = accountsStatusDashboardService.GetOthersLiabilityDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,ToDate), Error = false }, JsonRequestBehavior.AllowGet);
+        }
+
+        //Others Liability Summary Report
+        [HttpGet, Authorize]
+        public ActionResult OthersLiabilitySummaryReport(string toDate, bool isWithAdvance)
+        {
+
+            try
+            {
+                //if (string.IsNullOrEmpty(MasterLCList))
+                //    throw new Exception("Please select at least one Invoice");
+
+                //string othersLiabList = "";
+
+                //foreach (var item in othersLiabilityList)
+                //{
+                //    if (string.IsNullOrEmpty(othersLiabList))
+                //    {
+                //        othersLiabList += "''," + item;
+                //    }
+                //    else
+                //    {
+                //        othersLiabList += "," + item;
+                //    }
+
+                //}
+
+                //if (string.IsNullOrEmpty(masterLCList))
+                //   throw new Exception("Please select at least one Invoice");
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+                ExcelEngine excelEngine = new ExcelEngine();
+         
+                if (isWithAdvance)
+                {
+                    //var workbook = "";
+                    IWorkbook workbook = accountsStatusDashboardService.GetOthersLiabilityWithAdvanceSummaryReport(excelEngine, toDate, isWithAdvance, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                    string strFileName = "OthersLiabilityWithAdvanceSummary.xlsx";
+                    workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                    workbook.Close();
+                }
+                else
+                {
+                    IWorkbook workbok = accountsStatusDashboardService.GetOthersLiabilitySummaryReport(excelEngine, toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+
+                    string strFileName = "OthersLiabilitySummary.xlsx";
+                    workbok.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                    workbok.Close();
+                }
+       
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+            return null;
+        }
+
+        [Authorize]
+        public ActionResult OthersLiabilityAgingDetailReport(string toDate, bool isWithAdvance)
+        {
+
+            try
+            {
+                //if (string.IsNullOrEmpty(MasterLCList))
+                //throw new Exception("Please select at least one Invoice");
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+
+                ExcelEngine excelEngine = new ExcelEngine();
+                if (isWithAdvance)
+                {
+                    IWorkbook workbook = accountsStatusDashboardService.GetOthersLiabilityAgingDetailWithAdvanceReport(excelEngine, toDate, isWithAdvance, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.Name);
+                    // return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+                    string strFileName = "OthersLiabilityWithAdvanceAgingDetail.xlsx";
+                    workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                    workbook.Close();
+                }
+                else
+                {
+                    IWorkbook workbook = accountsStatusDashboardService.GetOthersLiabilityAgingDetailReport(excelEngine, toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.Name);
+                    // return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+                    string strFileName = "OthersLiabilityAgingDetail.xlsx";
+                    workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                    workbook.Close();
+
+
+                }
+     
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+            return null;
+        }
+
+        #endregion Others Liability
     }
 }

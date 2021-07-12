@@ -1,6 +1,6 @@
 ﻿'use strict';
-ProcessSetController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$window'];
-function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $window) {
+ProcessSetController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$window', '$controller'];
+function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $window, $controller) {
     $rootScope.title = "Process Set";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -13,6 +13,7 @@ function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $r
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl, null, null, null, "Entity", "Entity");
+    $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 
     $scope.processSet = {
         Id: null,
@@ -93,7 +94,7 @@ function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $r
         });
     };
 
-   
+
 
     $http({
         method: 'GET',
@@ -117,6 +118,8 @@ function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $r
         $scope.jobWorkTypeList = result;
     });
 
+
+
     // #endregion
 
     // #region
@@ -136,6 +139,90 @@ function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $r
             }
         });
     };
+    $scope.businessProcesses = "BOM";
+    //$scope.materialType = 'ProductDefinition';
+    $scope.materialType = null;
+
+    $scope.getMaterial = function (index) {
+        $scope.itemIndex = index;
+        //$scope.getMaterialMasterbyTypePopUp();
+        $scope.getMaterialMasterSearchData();
+    };
+
+    //$scope.selectMaterialByType = function (ob) {
+    $scope.setMaterialMasterData = function (ob) {
+        $scope.processSetDetails[$scope.itemIndex].MaterialMasterId = ob.Id;
+        $scope.processSetDetails[$scope.itemIndex].MaterialMasterName = ob.UserName;
+        $scope.processSetDetails[$scope.itemIndex].ArticleId = null;
+        $scope.processSetDetails[$scope.itemIndex].ArticleName = null;
+        $scope.processSetDetails[$scope.itemIndex].HasAttribute = ob.HasAttribute;
+        $scope.mmChangeFlag = true;
+        if ($scope.processSetDetails[$scope.itemIndex].HasAttribute) {
+            $scope.getArticleSearchList(ob.Id);
+        } else {
+            $scope.closeMaterialMasterSearchPopUp();
+            return ShowResult('This material has no attribute', 'failure');
+        }
+        // getTaxCategoryList(ob.HSNCodeId);
+        $scope.HSNCodeId = ob.HSNCodeId;
+        UomCboByFGMaterialMaster(ob.Id);
+        $scope.closeMaterialMasterSearchPopUp();
+    };
+
+    $scope.getArticle = function (index) {
+        $scope.itemIndex = index;
+        if (!baseService.isUndefinedOrNull($scope.processSetDetails[$scope.itemIndex].MaterialMasterId) && !$scope.processSetDetails[$scope.itemIndex].HasAttribute)
+            return ShowResult('This material has no attribute', 'failure');
+        $scope.getArticleSearchList($scope.processSetDetails[$scope.itemIndex].MaterialMasterId);
+    };
+
+    $scope.selectarticle = function (ob) {
+        try {
+            $scope.processSetDetails[$scope.itemIndex].MaterialMasterId = ob.MaterialMasterId;
+            $scope.processSetDetails[$scope.itemIndex].MaterialMasterName = ob.MaterialMasterName;
+            $scope.processSetDetails[$scope.itemIndex].ArticleId = ob.Id;
+            $scope.processSetDetails[$scope.itemIndex].ArticleName = ob.StandardName;
+            angular.element(document.querySelector('#articleSearchPop')).modal('hide');
+            $scope.itemIndex = -1;
+            $scope.mmChangeFlag = true;
+        } catch (e) {
+            ShowResult(e, '', 'articleSearchPop');
+        }
+    };
+
+    $scope.clearArticle = function (index) {
+        $scope.processSetDetails[index].ArticleId = null;
+        $scope.processSetDetails[index].ArticleName = null;
+    };
+
+
+    //$scope.uOMList = [];
+    //cboService.getUoMCbo(function (response) {
+    //    $scope.uOMList = response;
+    //});
+
+    $scope.uOMList = [];
+    function UomCboByFGMaterialMaster(materilaMasterId) {
+        var mmId = []; mmId.push(materilaMasterId);
+        cboService.getUomCboByMaterialMaster(JSON.stringify(mmId), function (response) {
+            if (baseService.arrayLength(response) > 0) {
+                angular.forEach(response, function (item, i) {
+                    if (checkExistList($scope.uOMList, item.Value) === false) {
+                        $scope.uOMList.push(item);
+                    }
+                    $scope.processSetDetails[$scope.itemIndex].UOMId = item.Value;
+                });
+            }
+        });
+    }
+    function checkExistList(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].Value == Id) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     // #endregion
 
@@ -145,7 +232,7 @@ function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $r
         $rootScope.plantId = $scope.processSetNew.PlantId;
         $scope.processSetNew = $scope.processSets[$scope.index];
         $scope.processSetNew = Object.assign({}, $scope.processSetNew);
-        $scope.processSetNew.PlantId = $rootScope.plantId ;
+        $scope.processSetNew.PlantId = $rootScope.plantId;
         $scope.getDetails();
         $scope.Action = "Update";
         if (!$rootScope.isCollapsed) {
@@ -373,6 +460,10 @@ function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $r
             , Archive: false
             , setDisable: true
             , class: 'new'
+            , MaterialMasterId: null
+            , ArticleId: null
+            , Qty: null
+            , UOMId: null
         });
         if (!$scope.processSetDetailTblShow)
             $scope.processSetDetailTblShow = true;
@@ -510,8 +601,12 @@ function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $r
             url: 'Processes/processset/getprocesssetdetaillist?processSetId=' + $scope.processSetNew.Id
         }).then(function successCallback(response) {
             $scope.processSetDetails = response.data;
-            if ($scope.processSetDetails.length > 0)
+            if ($scope.processSetDetails.length > 0) {
+                for (var i = 0; i < $scope.processSetDetails.length; i++) {
+                    UomCboByFGMaterialMaster($scope.processSetDetails[i].MaterialMasterId);
+                }
                 $scope.processSetDetailTblShow = true;
+            }
             else
                 $scope.processSetDetailTblShow = false;
         });

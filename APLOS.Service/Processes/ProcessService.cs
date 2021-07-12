@@ -155,20 +155,20 @@ namespace Library.Service.Processes
 			}
 		}
 
-		public GridModel GetProductionProcessList(GridParameter parameters, string companyGroupId)
+		public GridModel GetProductionProcessList(GridParameter parameters, string companyGroupId, string CompanyId)
 		{
 			try
 			{
-				parameters.CmdText = @"SELECT P.Id, P.CompanyGroupId, P.Code
+				parameters.CmdText = @"SELECT  P.Id, P.CompanyGroupId, P.Code
 								, P.[Sequence], P.ShortName, P.StandardName, P.UserName
 								, P.IsProductionProcess, P.IsProcessRouting, P.IsLocked
 								, P.IsAppApplicable, IsChecked, P.IsValueAdded
 								, P.MaterialTypeId, MT.[Description] AS MaterialType
 								, P.Remarks
-								, P.Active, P.Archive, '' AS Flag
+								, P.Active, P.Archive, Convert(bit,0) AS Flag
 							FROM [HKP].[Process] AS P
 							LEFT JOIN HKP.MaterialType AS MT ON P.MaterialTypeId=MT.Id
-							WHERE P.CompanyGroupId='" + companyGroupId + "' AND P.IsProductionProcess=1 AND P.Archive=0";
+							WHERE P.CompanyGroupId='"+ companyGroupId + @"' AND P.IsProductionProcess=1 AND P.Archive=0";
 				return _sqlRepository.GetGridData(parameters);
 			}
 			catch (Exception ex)

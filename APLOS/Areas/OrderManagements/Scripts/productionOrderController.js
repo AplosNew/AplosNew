@@ -1,6 +1,6 @@
 ﻿'use strict';
-ProductionOrderController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http"];
-function ProductionOrderController(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http) {
+ProductionOrderController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http", "$controller"];
+function ProductionOrderController(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http, $controller) {
     $rootScope.title = "Production Order";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -27,6 +27,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     $scope.saveSeqUrl = $scope.path + 'updatesequence';
     $scope.saveOperationMasterUrl = $scope.path + 'UpdateOperationMaster';
 
+    $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 
     $scope.GetProductionHistory = function (Id) {
 
@@ -513,6 +514,10 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             url: $scope.path + 'GetProductionOrderProcessSetList?productionOrderId=' + $scope.model.Id
         }).then(function successCallback(response) {
             $scope.prdProcessSetList = response.data;
+            for (var i = 0; i < $scope.prdProcessSetList.length; i++) {
+                UomCboByFGMaterialMaster($scope.prdProcessSetList[i].MaterialMasterId);
+            }
+
             getProductionOrderEntityList();
 
         });
@@ -665,7 +670,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                         ShowResult(response.data.Message, 'success');
                         $scope.model.Id = response.data.DATA;
                         $scope.getData();
-
+                        getProductionProcessSetList();
 
                         //var uploadObj = $("#UploadDefault").data("ejUploadbox");
                         //uploadObj.element.find('.e-uploadinput').click();
@@ -1027,6 +1032,9 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     response.data[i].Days = response.data[i].Days * -1;
             }
             $scope.prdProcessSetList = response.data;
+            for (var i = 0; i < $scope.prdProcessSetList.length; i++) {
+                UomCboByFGMaterialMaster($scope.prdProcessSetList[i].MaterialMasterId);
+            }
         });
     }
 
@@ -1124,8 +1132,14 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             , Archive: false
             , class: 'new'
             , setDisable: true
-
+            , MaterialMasterId: null
+            , ArticleId: null
+            , MaterialMasterName: null
+            , ArticleName: null
+            , Qty: null
+            , UOMId: null
         });
+        UomCboByFGMaterialMaster(data.MaterialMasterId);
     };
     $scope.setPlusOrMinus = function (event, index) {
         for (var i = 0; i <= $scope.prdProcessSetList.length - 1; i++) {
@@ -1232,6 +1246,93 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $scope.prdProcessSetList.splice($scope.index, 1);
         $scope.index = -1;
     };
+
+    $scope.businessProcesses = "BOM";
+    //$scope.materialType = 'ProductDefinition';
+    $scope.materialType = null;
+
+    $scope.getMaterial = function (index) {
+        $scope.itemIndex = index;
+        //$scope.getMaterialMasterbyTypePopUp();
+        $scope.getMaterialMasterSearchData();
+    };
+
+    //$scope.selectMaterialByType = function (ob) {
+    $scope.setMaterialMasterData = function (ob) {
+        $scope.prdProcessSetList[$scope.itemIndex].MaterialMasterId = ob.Id;
+        $scope.prdProcessSetList[$scope.itemIndex].MaterialMasterName = ob.UserName;
+        $scope.prdProcessSetList[$scope.itemIndex].ArticleId = null;
+        $scope.prdProcessSetList[$scope.itemIndex].ArticleName = null;
+        $scope.prdProcessSetList[$scope.itemIndex].HasAttribute = ob.HasAttribute;
+        $scope.mmChangeFlag = true;
+        if ($scope.prdProcessSetList[$scope.itemIndex].HasAttribute) {
+            $scope.getArticleSearchList(ob.Id);
+        } else {
+            $scope.closeMaterialMasterSearchPopUp();
+            return ShowResult('This material has no attribute', 'failure');
+        }
+        // getTaxCategoryList(ob.HSNCodeId);
+        $scope.HSNCodeId = ob.HSNCodeId;
+        UomCboByFGMaterialMaster(ob.Id);
+        $scope.closeMaterialMasterSearchPopUp();
+    };
+
+    $scope.getArticle = function (index) {
+        $scope.itemIndex = index;
+        if (!baseService.isUndefinedOrNull($scope.prdProcessSetList[$scope.itemIndex].MaterialMasterId) && !$scope.prdProcessSetList[$scope.itemIndex].HasAttribute)
+            return ShowResult('This material has no attribute', 'failure');
+        $scope.getArticleSearchList($scope.prdProcessSetList[$scope.itemIndex].MaterialMasterId);
+    };
+
+    $scope.selectarticle = function (ob) {
+        try {
+            $scope.prdProcessSetList[$scope.itemIndex].MaterialMasterId = ob.MaterialMasterId;
+            $scope.prdProcessSetList[$scope.itemIndex].MaterialMasterName = ob.MaterialMasterName;
+            $scope.prdProcessSetList[$scope.itemIndex].ArticleId = ob.Id;
+            $scope.prdProcessSetList[$scope.itemIndex].ArticleName = ob.StandardName;
+            angular.element(document.querySelector('#articleSearchPop')).modal('hide');
+            $scope.itemIndex = -1;
+            $scope.mmChangeFlag = true;
+        } catch (e) {
+            ShowResult(e, '', 'articleSearchPop');
+        }
+    };
+
+    $scope.clearArticle = function (index) {
+        $scope.prdProcessSetList[index].ArticleId = null;
+        $scope.prdProcessSetList[index].ArticleName = null;
+    };
+
+
+    //$scope.uOMList = [];
+    //cboService.getUoMCbo(function (response) {
+    //    $scope.uOMList = response;
+    //});
+
+    $scope.uOMList = [];
+    function UomCboByFGMaterialMaster(materilaMasterId) {
+        var mmId = []; mmId.push(materilaMasterId);
+        cboService.getUomCboByMaterialMaster(JSON.stringify(mmId), function (response) {
+            if (baseService.arrayLength(response) > 0) {
+                angular.forEach(response, function (item, i) {
+                    if (checkExistList($scope.uOMList, item.Value) === false) {
+                        $scope.uOMList.push(item);
+                    }
+                    if (!baseService.isUndefinedOrNull($scope.itemIndex)) {
+                        $scope.prdProcessSetList[$scope.itemIndex].UOMId = item.Value;
+                    }
+                });
+            }
+        });
+    }
+    function checkExistList(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].Value == Id) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     // #endregion
 
@@ -1476,7 +1577,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         angular.element(document.querySelector('#confirmRecipeMaterialPopUp')).modal('hide');
     };
     //#region Operatoin Thread Consumption
-    $scope.businessProcesses = "ThreadConsumption";
+    $scope.businessThreadProcesses = "ThreadConsumption";
     $scope.materialType = null;
 
     // #region Needle Material Article Search By Business Process
@@ -1554,7 +1655,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         CloseModalShowResult();
         $scope.searchList = [];
         $scope.materialmasterSearchData = [];
-        $scope.popUpUrl = 'Materials/MaterialMaster/MaterialSearchByBusinessProcess?type=' + $scope.businessProcesses;
+        $scope.popUpUrl = 'Materials/MaterialMaster/MaterialSearchByBusinessProcess?type=' + $scope.businessThreadProcesses;
         baseService.setCurrentPage('materialmasterSearchData');
         $scope.loadMMData = function (pageno) {
             baseService.paginationBase($scope.popUpUrl, pageno, $scope.mmPopUpParameters)
@@ -1702,7 +1803,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         CloseModalShowResult();
         $scope.searchList = [];
         $scope.materialmasterSearchData = [];
-        $scope.popUpUrl = 'Materials/MaterialMaster/MaterialSearchByBusinessProcess?type=' + $scope.businessProcesses;
+        $scope.popUpUrl = 'Materials/MaterialMaster/MaterialSearchByBusinessProcess?type=' + $scope.businessThreadProcesses;
         baseService.setCurrentPage('materialmasterSearchData');
         $scope.loadMMData = function (pageno) {
             baseService.paginationBase($scope.popUpUrl, pageno, $scope.mmPopUpParameters)
@@ -1850,7 +1951,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         CloseModalShowResult();
         $scope.searchList = [];
         $scope.materialmasterSearchData = [];
-        $scope.popUpUrl = 'Materials/MaterialMaster/MaterialSearchByBusinessProcess?type=' + $scope.businessProcesses;
+        $scope.popUpUrl = 'Materials/MaterialMaster/MaterialSearchByBusinessProcess?type=' + $scope.businessThreadProcesses;
         baseService.setCurrentPage('materialmasterSearchData');
         $scope.loadMMData = function (pageno) {
             baseService.paginationBase($scope.popUpUrl, pageno, $scope.mmPopUpParameters)

@@ -6198,26 +6198,27 @@ namespace Library.Service.Invoices
             {
                
                 string voucherNo = "";
-                var receiveData = _inventoryReceiveRepository.Find(voucherVM.InventoryReceiveId);
-
+               
                 var parallerCurrency = _companyParallelCurrencyService.Query(r => r.CompanyId == voucherVM.CompanyId).Select();
                 if (null == parallerCurrency)
                     throw new CustomException("Company Parallel Currency not found!");
                 var companyCurrency = parallerCurrency.FirstOrDefault(r => r.ParallelCurrencyType == ParallelCurrencyType.CompanyCurrency.ToString());
                 var companyCurrencyId = companyCurrency != null ? companyCurrency.CurrencyId : throw new CustomException("Company Parallel Currency Id not found!");
-                AccountCommonExtensionService accountCommonExtensionService = new AccountCommonExtensionService();
+                //AccountCommonExtensionService accountCommonExtensionService = new AccountCommonExtensionService();
                 //var receiveData = _sqlRepository.GetDataTable(@"Select * from TRN.InventoryReceive where Id = '" + receiveId + @"'").Rows[0];
-                voucherVM.PostingDate = receiveData.GRNDate;
+                //voucherVM.PostingDate = receiveData.GRNDate;
                 _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
                 var taxYear = CheckingFiscalYearPeriod(voucherVM.CompanyGroupId, voucherVM.PostingDate);
                 voucherVM.TaxYearId = taxYear["TaxYearId"].ToString();
                 voucherVM.TaxYearPeriodId = taxYear["TaxYearPeriodId"].ToString();
 
-                var companyParty = _companyPartyRepository.Query(r => r.PartyId == receiveData.PartyId).Select().FirstOrDefault();
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 string TempvoucherNo = "";
+                string wipVoucherId = "";
+                string changeInVoucherId = "";
+                string giriVoucherId = "";
 
                 if (inventoryJobWorkWIPList != null)
                 {
@@ -6239,7 +6240,7 @@ namespace Library.Service.Invoices
                         DocRefNo = voucherVM.DocRefNo,
                         IsPark = voucherVM.IsPark,
                         Narration = voucherVM.Narration,
-                        PostingDate = receiveData.GRNDate,
+                        PostingDate = voucherVM.PostingDate,
                         SourceType = "InventoryJWReceipt",
                         VoucherTypeId = voucherVM.VoucherTypeId,
                     };
@@ -6307,6 +6308,7 @@ namespace Library.Service.Invoices
                         }
                     }
                     TempvoucherNo += "'', " + voucherWiP.VoucherNo + "";
+                    wipVoucherId = voucherWiP.Id;
                 }
 
                 if (changeInInventoryList != null)
@@ -6329,7 +6331,7 @@ namespace Library.Service.Invoices
                         DocRefNo = voucherVM.DocRefNo,
                         IsPark = voucherVM.IsPark,
                         Narration = voucherVM.Narration,
-                        PostingDate = receiveData.GRNDate,
+                        PostingDate = voucherVM.PostingDate,
                         SourceType = "InventoryJWReceipt",
                         VoucherTypeId = voucherVM.VoucherTypeId,
                     };
@@ -6398,6 +6400,7 @@ namespace Library.Service.Invoices
                         }
                     }
                     TempvoucherNo += ", " + voucherCIInv.VoucherNo + "";
+                    changeInVoucherId = voucherCIInv.Id;
                 }
 
                 if (inventoryJobWorkGIRIList != null)
@@ -6420,7 +6423,7 @@ namespace Library.Service.Invoices
                         DocRefNo = voucherVM.DocRefNo,
                         IsPark = voucherVM.IsPark,
                         Narration = voucherVM.Narration,
-                        PostingDate = receiveData.GRNDate,
+                        PostingDate = voucherVM.PostingDate,
                         SourceType = "InventoryJWReceipt",
                         VoucherTypeId = voucherVM.VoucherTypeId,
                     };
@@ -6490,9 +6493,13 @@ namespace Library.Service.Invoices
                         }
                     }
                     TempvoucherNo += ", " + voucherGIRI.VoucherNo + "";
-
+                    giriVoucherId = voucherGIRI.Id;
                 }
-
+                var receiveData = _inventoryReceiveRepository.Find(voucherVM.InventoryReceiveId);
+                receiveData.JWWIPVoucherId = wipVoucherId;
+                receiveData.JWChangeInInvVoucherId = changeInVoucherId;
+                receiveData.JWGRIRVoucherId = giriVoucherId;
+                _inventoryReceiveRepository.Update(receiveData);
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();

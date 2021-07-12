@@ -557,8 +557,8 @@
             <div e-stackedheaderrows>
                 <div e-stackedheaderrow>
                     <div e-stackedheadercolumns>
-                        <div e-stackedheadercolumn e-headertext="Current Process" e-column="Id,Material,article,CurrentProcess,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,StartDate,MasterOrderId,Remarks"></div>
-                        <div e-stackedheadercolumn e-headertext="Previous Process" e-column="PreviousProcess,PreviousProcessQty,ClosedBy,PreviousProcessStartDate,ClosedDate"></div>
+                        <div e-stackedheadercolumn e-headertext="Current Process" e-column="Id,Material,article,CurrentProcess,StyleNo,OwnStyleNo,LSD,OrderQty,PlannedQty,ActualQTY,ProducedQty,Variance,CurrentProcessWIP,StartDate,MasterOrderId,Remarks"></div>
+                        <div e-stackedheadercolumn e-headertext="Previous Process" e-column="PreviousProcess,PreviousProcessQty,PreviousProcessWIP,ClosedBy,PreviousProcessStartDate,ClosedDate"></div>
                     </div>
                 </div>
             </div>
@@ -580,6 +580,7 @@
                 <div e-column e-type="string" e-field="ActualQTY" e-headertext="Actual Qty" e-width="80"></div>
                 <div e-column e-type="string" e-field="ProducedQty" e-headertext="Produced Qty" e-width="80"></div>
                 <div e-column e-type="string" e-field="Variance" e-headertext="Variance" e-width="80"></div>
+                <div e-column e-type="string" e-field="CurrentProcessWIP" e-headertext="WIP" e-width="80"></div>
                 <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="StartDate" e-headertext="Start Date" e-width="80"></div>
                 @*<div e-column e-type="string" e-field="IsCompleted" e-headertext="Is Completed" e-width="80"></div>*@
 
@@ -588,6 +589,7 @@
 
                 <div e-column e-type="string" e-field="PreviousProcess" e-headertext="Process" e-width="100"></div>
                 <div e-column e-type="string" e-field="PreviousProcessQty" e-headertext="Qty" e-width="100"></div>
+                <div e-column e-type="string" e-field="PreviousProcessWIP" e-headertext="WIP" e-width="100"></div>
                 <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PreviousProcessStartDate" e-headertext="Start Date" e-width="100"></div>
                 <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ClosedDate" e-headertext="Completion Date" e-width="100"></div>
                 <div e-column e-type="string" e-field="ClosedBy" e-headertext="Completed By" e-width="100"></div>
@@ -601,15 +603,13 @@
             <span style="background-color:#FFB42A;color:#FFB42A">.....</span>Pre. started, current not started
         </div>`
     </div>
-    <div>
-            <ul>
+    <div class="common-btn">
+        <ul class="list-inline small">
             <li>
-                <button class="btn" ng-click="ProductionRelayReport(this);" style="background-color:cornflowerblue;"><i class="glyphicon glyphicon-file"></i>Download Report</button>
-                @*<button ng-click="$parent.getProductionRelay(data);" class="btn small" style="height: 28px; width: 36px; padding: 0px; margin: 0px;font-weight:bolder;">
-                    RL
-                </button>*@
+                <button ng-click="ProductionRelayReport(this);" class="btn small" style="height: 27px; width: 120px; padding: 0px; margin: 0px;font-weight:bolder;">
+                    Download Report
+                </button>
             </li>
-
         </ul>
     </div>
 </ej-dialog>

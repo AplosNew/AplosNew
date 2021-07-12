@@ -263,6 +263,14 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsInventoryPayableService.GetInventoryJobWorkWIP(identity.CompanyId, identity.PlantId, inveReveiveId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public JsonResult GetJobWorkInventoryReceivePostedList(string column, string value)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(_accountsInventoryPayableService.GetJWPostedList(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+        
         #endregion
 
         #region Service Payable

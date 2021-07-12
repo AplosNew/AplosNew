@@ -395,6 +395,8 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
                 }
                 else {
                     $scope.Transformation.UOM = $scope.materialUOMList[0].JWIUnit;
+                    $scope.Transformation.MaterialCode = null;
+                    $scope.Transformation.MaterialName = null;
                 }
             }
             

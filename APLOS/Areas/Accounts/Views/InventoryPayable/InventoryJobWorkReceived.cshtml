@@ -236,7 +236,7 @@
             </div>
         </div>
     </fieldset>
-    <fieldset class="scheduler-border" ng-hide="IsPaymentTermHide">
+    @*<fieldset class="scheduler-border" ng-hide="IsPaymentTermHide">
         <legend class="scheduler-border">Payment Term</legend>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group" show-errors>
@@ -262,7 +262,7 @@
                 </div>
             </div>
         </div>
-    </fieldset>
+    </fieldset>*@
     <fieldset class="scheduler-border" ng-hide="modelNew.EmployeeId==null">
         <legend class="scheduler-border">Due Date</legend>
         <div class="col-xs-12 col-sm-12 col-md-12">
@@ -303,12 +303,12 @@
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
-                    <div class="form-group">
+                    @*<div class="form-group">
                         <label class="col-sm-4 control-label"> Discount</label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="DiscountAmount" class="form-control text-right" n-decimals="2" ng-model="DiscountAmount" ng-keyup="podiscountAmountCal(DiscountAmount)" autocomplete="off">
                         </div>
-                    </div>
+                    </div>*@
                 </div>
                 <div class="clearfix"></div>
 
@@ -523,28 +523,17 @@
              e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
              e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
             <div e-columns>
-                <div e-column e-field="GRNType" e-headertext="Type" e-width="60" e-filter="false"></div>
                 <div e-column e-field="Particular" e-headertext="Particular" e-width="180"></div>
                 <div e-column e-field="Id" e-headertext="GRN No" e-width="80" textAlign='Center'></div>
                 <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                 <div e-column e-field="GateEntryNo" e-headertext="Gate EntryNo" e-width="80"></div>
                 <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
                 <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                <div e-column e-field="POId" e-headertext="PO Id" e-width="60"></div>
                 <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
                 <div e-column e-field="DocDate" e-headertext="Doc Ref Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                <div e-column e-field="MaterialStorageName" e-headertext="Storage Location" e-width="130"></div>
-                <div e-column e-field="TransactionQty" e-headertext="Tran.Qty" e-width="100" textAlign='Right'></div>
                 <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="60" textAlign='Right'></div>
-                <div e-column e-field="TransactionAmount" e-headertext="Tran Amount" e-width="100" textAlign='Right'></div>
-                <div e-column e-field="TDSTax" e-headertext=" TDS " e-width="100" textAlign='Right'></div>
-                <div e-column e-field="TDSVoucherNo" e-headertext="TDS VoucherNo" e-width="100" textAlign='Right'></div>
-                <div e-column e-field="IsTDSTaxPost" e-headertext="Tax Status" e-width="100" textAlign='Right'></div>
-                @*<div e-column e-headertext="AdditionalTax" e-commands="additionalTaxPop" e-isunbound=true e-textalign="center" e-width="100"></div>*@
-
-                <div e-column e-headertext="AdditionalTax" e-template="#AdditionalTaxTemplate" e-width="100"></div>
-
-
+                <div e-column e-field="Amount" e-headertext="Tran Amount" e-width="100" textAlign='Right'></div>
+                <div e-column e-field="Type" e-headertext="Type" e-width="60" e-filter="false"></div>
                 <div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
                 <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>
                 <div e-column e-headertext="GRN" e-commands="commandGRN" e-isunbound=true e-textalign="left" e-width="60"></div>
@@ -553,13 +542,6 @@
 
 
         </div>
-
-        <script id="AdditionalTaxTemplate" type="text/template">
-            <ul class="common-btn list-inline text-right">
-                <li> <button type="button" class="btn" ng-disabled="data.AdditionalTaxId==null" ng-click="$parent.onClickadditionalTaxPop(data);">TDS Post</button></li>
-            </ul>
-
-        </script>
     </div>
     <i>**Showing top 100 Posted GRN  order by PostingDate</i>
 </div>

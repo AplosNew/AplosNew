@@ -498,7 +498,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         [HttpPost]
         public JsonResult InsertVendorPayment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList)
+            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -526,7 +526,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 if (voucherVM.CurrencyId != advanceDetailVM.CurrencyId)
                     throw new CustomException("Transaction currency and Payable currency should be same.!!!");
             }
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertVendorPayment(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertVendorPayment(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList, glVMList)) });
         }
 
         [HttpPost]

@@ -180,7 +180,9 @@
                     <th>Budget</th>
                     <th>Activity</th>
                     <th class="text-right" ng-show="voucher.SettlementType=='@Library.Model.Payments.SettlementType.Invoice.ToString()'">Invoice Amount</th>
-                    <th class="text-right">Amount</th>
+                    <th class="text-right">Taxable Amount</th>
+                    <th class="text-right">Tax Amount</th>
+                    <th class="text-right">Total Amount</th>
                     <th class="text-right">Action</th>
                 </tr>
             </thead>
@@ -190,7 +192,17 @@
                     <td>{{x.BudgetName}}</td>
                     <td>{{x.ActivityName}}</td>
                     <td class="text-right" ng-show="voucher.SettlementType=='@Library.Model.Payments.SettlementType.Invoice.ToString()'">{{x.InvoiceAmount| number:2}}</td>
-                    <td><input type="text" class="form-control text-right" id="vdCrAmount" ng-model="x.Amount" n-decimals="2" autocomplete="off" ng-keyup="validationInvoiceRow(x)"></td>
+                    <td><input type="text" class="form-control text-right" id="vdCrAmount" ng-model="x.Amount" n-decimals="2" autocomplete="off" ng-keyup="calculatebackTax($index);calculateTax($index)"></td>
+                    <td>
+                        <div class="show-message">
+                            <input type="text" n-decimals="4" class="form-control text-right" ng-model="x.TotalTax" readonly>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="show-message">
+                            <input type="text" n-decimals="4" class="form-control text-right" ng-model="x.TotalAmount" readonly>
+                        </div>
+                    </td>
                     <td class="text-right">
                         <button ng-click="getTaxCode($index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax">
                             <i>Tax</i>

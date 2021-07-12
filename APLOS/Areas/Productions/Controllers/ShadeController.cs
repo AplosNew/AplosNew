@@ -100,7 +100,7 @@ namespace Aplos.Areas.Productions.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "SG" + _Id;
+                    data["Id"] = "S" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
