@@ -670,7 +670,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                         ShowResult(response.data.Message, 'success');
                         $scope.model.Id = response.data.DATA;
                         $scope.getData();
-
+                        getProductionProcessSetList();
 
                         //var uploadObj = $("#UploadDefault").data("ejUploadbox");
                         //uploadObj.element.find('.e-uploadinput').click();
@@ -1032,6 +1032,9 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     response.data[i].Days = response.data[i].Days * -1;
             }
             $scope.prdProcessSetList = response.data;
+            for (var i = 0; i < $scope.prdProcessSetList.length; i++) {
+                UomCboByFGMaterialMaster($scope.prdProcessSetList[i].MaterialMasterId);
+            }
         });
     }
 
@@ -1129,12 +1132,12 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             , Archive: false
             , class: 'new'
             , setDisable: true
-            , MaterialMasterId: data.MaterialMasterId
-            , ArticleId: data.ArticleId
-            , MaterialMasterName: data.MaterialMasterName
-            , ArticleName: data.ArticleName
-            , Qty: data.Qty
-            , UOMId: data.UOMId
+            , MaterialMasterId: null
+            , ArticleId: null
+            , MaterialMasterName: null
+            , ArticleName: null
+            , Qty: null
+            , UOMId: null
         });
         UomCboByFGMaterialMaster(data.MaterialMasterId);
     };

@@ -128,7 +128,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
 
         }
-        [HttpPost]
+        [HttpPost, Authorize]
         public async Task<JsonResult> ProcessAll(string FromDate, string ToDate, string pDescription, AllDataset palldataset)
         {
 
@@ -257,8 +257,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 #endregion
 
 
-                                SendNotification("Validating Bank Accounts");
-                                ValidationBank(_all_emps, identity.PlantId);
+                                //SendNotification("Validating Bank Accounts");
+                                //ValidationBank(_all_emps, identity.PlantId);
 
                                 SendNotification("Validating Attendance Lock");
                                 ValidationAttendance(_all_emps, identity.PlantId, FromDate, ToDate);
@@ -325,7 +325,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     }
                     catch (Exception ex)
                     {
-                        
+
                         requestCancelled = true;
                         _lock.UnlockProcess();
                         return Json(new { Error = true, Message = ex.Message });
