@@ -131,7 +131,25 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         url: $scope.pathJWCBO + 'getmateriallocation/',
     }).then(function successCallback(response) {
         $scope.MaterialLocList = response.data;
-    });
+        });
+
+    $scope.MStorageList = [];
+    $scope.GetJWMaterialStorage = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetJWMaterialStorage?JWLocId=' + $scope.detailModel.MaterialLocationId,
+        }).then(function successCallback(response) {
+            $scope.MStorageList = response.data;
+            if ($scope.MStorageList.length > 0) {
+                if ($scope.MStorageList[0].StoreLocationId != null) {
+                    $scope.detailModel.JWMaterialStorage = $scope.MStorageList[0].MaterialStorage;
+                }
+                else {
+                    $scope.detailModel.JWMaterialStorage = null;
+                }
+            }
+        });
+    }
 
     $http({
         method: 'GET',
