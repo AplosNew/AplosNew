@@ -74,7 +74,7 @@
     }
 </style>
 <label style="color:{{Color}};float:right">{{approved}}</label>
-<div class="form-horizontal" ng-form name="employeeInformationForm" ng-scroll="auto">
+<div class="form-horizontal" ng-form name="employeeInformationForm" ng-scroll="auto" id="addEmployee">
     <input type="hidden" ng-model="employeeInformation.SystemId">
     <div class="form-elements">
         <div class="tab-design" id="tab_show">
@@ -166,9 +166,9 @@
                                         <input type="hidden" name="Budget Code" ng-model="employeeInformation.BudgetCode" class="form-control" required>
                                         <input type="text" name="Code" ng-model="employeeInformation.Code" class="form-control" readonly required>
                                         @*<span class="input-group-btn">
-                    <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
-                    <button ng-click="clearCode()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                </span>*@
+                                                <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="clearCode()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </span>*@
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -1512,7 +1512,7 @@
                                         </table>
                                     </div>
                                 </div>
-                                
+
                                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(10), active: isSet2(10) }">
 
                                 </div>
@@ -2035,7 +2035,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        @*<div class="form-group">
                                             <label class="col-sm-4 control-label">Accounts Group</label>
                                             <div class="col-sm-8">
                                                 <div class="select-style">
@@ -2045,7 +2045,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div>*@
                                         <div class="form-group" ng-show="Operation==='Operation Master'">
                                             <label class="col-sm-4 control-label">Operation Master</label>
                                             <div class="col-sm-8">
@@ -2120,7 +2120,7 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    <div style="color:black;" id="GridEmployeeMultioperation" ej-grid e-datasource="EmployeeOperationList" e-gridlines="vertical" 
+                                    <div style="color:black;" id="GridEmployeeMultioperation" ej-grid e-datasource="EmployeeOperationList" e-gridlines="vertical"
                                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
                                         <div e-columns>
                                             <div e-column e-template="#ShowActionButtonsassigned" e-headertext="Remove" e-width="20px"></div>
@@ -2277,321 +2277,326 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="NewEmpEntryPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" ng-form name="newEmpForm">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">
-                    <i class="glyphicon glyphicon-info-sign"></i> Add Employee Information
-                </h4>
 
-            </div>
-            <div class="modal-body">
-                <div class="form-element-ctrl form-horizontal">
-                    <div class="col-xs-12 col-sm-6 col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Employee Code<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <input type="text" name="Employee Code" ng-model="employeeNew.EmployeeCode" ng-disabled="!IsEmployeeCodeOpenField" ng-keyup="CheckDuplicateEmployeeCode();" class="form-control" maxlength="30" tabindex="1">
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Salutation<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select id="Salutation" class="form-control" name="Salutation" ng-model="employeeNew.Salutation" tabindex="3" required>
-                                        <option value="">--Select--</option>
-                                        <option ng-repeat="option in salutaionList" value="{{option.Value}}">{{option.Text}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Middle Name</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="Middle Name" ng-model="employeeNew.MiddleName" class="form-control" maxlength="100" tabindex="5">
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Employee Name<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <label class="control-label">{{employeeNew.EmployeeName=(employeeNew.FirstName?employeeNew.FirstName:'')+' '+(employeeNew.MiddleName?employeeNew.MiddleName:'')+' '+(employeeNew.LastName?employeeNew.LastName:'')}}</label>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Citizen<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select id="CitizenID" class="form-control" name="Citizen" ng-model="employeeNew.CitizenID" tabindex="7" required>
-                                        <option value="">--Select--</option>
-                                        <option ng-repeat="option in citizenList" value="{{option.Value}}">{{option.Nationality}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">{{Nid}}<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="NationalID" ng-model="employeeNew.NationalID" class="form-control" maxlength="30" tabindex="9" required>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Date Of Birth<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="Date Of Birth" ng-model="employeeNew.DOB" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="11" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Legal Designation<sup>*</sup></label>
-                            <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
-                                <input type="hidden" name="Legal Designation" ng-model="employeeNew.LegalDesignationId" class="form-control">
-                                <input type="text" name="Legal Designation" ng-model="employeeNew.LegalDesignation" class="form-control" readonly>
-                                <span class="input-group-btn">
-                                    <button ng-click="popUpLD('new');" class="btn single-small-btn" tabindex="13"><i class="glyphicon glyphicon-search"></i></button>
-                                    <button ng-click="clearCode('new')" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="form-group" ng-show="legalDesignationMessage!==null">
-                            <label class="col-sm-12 control-label" style="color:red">*This<span style="text-transform:lowercase;">{{legalDesignationMessage}}</span></label>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Job Location<sup>*</sup> </label>
-                            <div class="col-sm-5 show-message">
-                                <div class="select-style">
-                                    <select id="Religion" class="form-control" name="Job Location" ng-model="employeeNew.JobLocationID" tabindex="15" required ng-change="GetShiftCbo();">
-                                        <option value="">--Select--</option>
-                                        <option ng-repeat="option in JobLocationList" value="{{option.SystemID}}">{{option.JobLocation}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-sm-2" ng-show="Flag=='Load All'" style="margin-left:-5px;padding-left:0px;">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li><button ng-click="LoadAllJobLocation();" class="btn"><i class="glyphicon glyphicon-refresh"></i>Load All</button></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-sm-2" ng-show="Flag=='Load Less'" style="margin-left:-17px;padding-left:0px;">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li><button ng-click="LoadPlantJobLocation();" class="btn"><i class="glyphicon glyphicon-refresh"></i>Load Less</button></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Date Of Join<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" ng-model="employeeNew.DOJ" ng-disabled="false" name="Date Of Join" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="17" required ng-change="SetDoc();">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label" style="color:blue;font-size: 11px;margin-bottom: -12px;font-style: italic;">DOC will be confirm</label>
-                        </div>
-                        <div class="form-group" style="margin-top: -20px;">
-                            <div class="col-sm-5 radio">
-                                <div class="checkbox-site">
-                                    <label>
-                                        <input type="checkbox" ng-model="employeeNew.DOCIsDay" ng-change="ShowDOCIsDayInPut();SetDoc();">
-                                        <span class="cr"><i class="cr-icon"></i></span>
-                                    </label>
-                                    <label class="control-label">Day</label>
 
-                                    <label>
-                                        <input type="checkbox" ng-model="employeeNew.DOCIsMonth" ng-change="ShowMonthIsDayInPut();SetDoc();">
-                                        <span class="cr"><i class="cr-icon"></i></span>
-                                    </label>
-                                    <label class="control-label">Month</label>
-                                </div>
-                            </div>
-                            <div class="col-sm-7">
-                                <input type="text" only-numbers ng-model="employeeNew.DOCDay" class="form-control" ng-show="showDayInput" tabindex="19" ng-change="SetDoc();">
-                                <input type="text" only-numbers ng-model="employeeNew.DOCMonth" class="form-control" ng-show="showMonthInput" tabindex="19" ng-change="SetDoc();">
-                            </div>
+<ej-dialog id="NewEmpEntryPopUp" title="Add Employee Information" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#addEmployee"
+           e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn">
+    <div ng-form name="newEmpForm">
+        <div class="row">
+            <div class="form-element-ctrl form-horizontal">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Employee Code<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <input type="text" name="Employee Code" ng-model="employeeNew.EmployeeCode" ng-disabled="!IsEmployeeCodeOpenField" ng-keyup="CheckDuplicateEmployeeCode();" class="form-control" maxlength="30" tabindex="1">
                         </div>
-                        <div class="form-group" ng-show="Operation==='Operation Master'">
-                            <label class="col-sm-4 control-label">Operation Master</label>
-                            <div class="col-sm-8">
-                                <div class="input-group">
-                                    <input type="text" name="Operation Master" ng-model="employeeNew.OperationMasterCode" class="form-control" readonly>
-                                    <span class="input-group-btn">
-                                        <button ng-click="showOperationPopUp('SOM');" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" ng-show="Operation==='Operation Variation'">
-                            <label class="col-sm-4 control-label">Operation Variation</label>
-                            <div class="col-sm-8">
-                                <div class="input-group">
-                                    <input type="text" name="Operation Variation" ng-model="employeeNew.OperationVariationCode" class="form-control" readonly>
-                                    <span class="input-group-btn">
-                                        <button ng-click="showOperationPopUp('SOV');" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Cell Phone No<sup ng-show="IsReferenceRequired===true">*</sup></label>
-                            <div class="col-sm-8">
-                                <input type="text" name="Cell Phone No" ng-model="empReferenceInformation.Ref1CellPhnNo" class="form-control" maxlength="30">
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Salutation<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select id="Salutation" class="form-control" name="Salutation" ng-model="employeeNew.Salutation" tabindex="3" required>
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in salutaionList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-6 col-md-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Budget Code<sup>*</sup></label>
-                            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                                <input type="hidden" name="Budget Code" ng-model="employeeNew.BudgetCode" class="form-control">
-                                <input type="text" name="Code" ng-model="employeeNew.Code" class="form-control" readonly>
-                                <span class="input-group-btn">
-                                    <button ng-click="popUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
-                                    <button ng-click="clearCode()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                </span>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Middle Name</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="Middle Name" ng-model="employeeNew.MiddleName" class="form-control" maxlength="100" tabindex="5">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Employee Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <label class="control-label">{{employeeNew.EmployeeName=(employeeNew.FirstName?employeeNew.FirstName:'')+' '+(employeeNew.MiddleName?employeeNew.MiddleName:'')+' '+(employeeNew.LastName?employeeNew.LastName:'')}}</label>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Citizen<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select id="CitizenID" class="form-control" name="Citizen" ng-model="employeeNew.CitizenID" tabindex="7" required>
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in citizenList" value="{{option.Value}}">{{option.Nationality}}</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">First Name<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="First Name" ng-model="employeeNew.FirstName" class="form-control" maxlength="100" tabindex="4" required>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">{{Nid}}<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="NationalID" ng-model="employeeNew.NationalID" class="form-control" maxlength="30" tabindex="9" required>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Date Of Birth<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Date Of Birth" ng-model="employeeNew.DOB" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="11" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Legal Designation<sup>*</sup></label>
+                        <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                            <input type="hidden" name="Legal Designation" ng-model="employeeNew.LegalDesignationId" class="form-control">
+                            <input type="text" name="Legal Designation" ng-model="employeeNew.LegalDesignation" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="popUpLD('new');" class="btn single-small-btn" tabindex="13"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="clearCode('new')" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-show="legalDesignationMessage!==null">
+                        <label class="col-sm-12 control-label" style="color:red">*This<span style="text-transform:lowercase;">{{legalDesignationMessage}}</span></label>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Job Location<sup>*</sup> </label>
+                        <div class="col-sm-5 show-message">
+                            <div class="select-style">
+                                <select id="Religion" class="form-control" name="Job Location" ng-model="employeeNew.JobLocationID" tabindex="15" required ng-change="GetShiftCbo();">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in JobLocationList" value="{{option.SystemID}}">{{option.JobLocation}}</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Last Name</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="Last Name" ng-model="employeeNew.LastName" class="form-control" maxlength="100" tabindex="6">
+                        <div class="col-sm-2" ng-show="Flag=='Load All'" style="margin-left:-5px;padding-left:0px;">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="LoadAllJobLocation();" class="btn"><i class="glyphicon glyphicon-refresh"></i>Load All</button></li>
+                                </ul>
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Emp Type (Is Expatriate)<sup>*</sup> </label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select class="form-control" name="Emp Type" ng-model="employeeNew.EmpType" required tabindex="8">
-                                        <option value="">--Select--</option>
-                                        <option value="Local">Local</option>
-                                        <option value="Expatriate">Expatriate</option>
-                                    </select>
-                                </div>
+                        <div class="col-sm-2" ng-show="Flag=='Load Less'" style="margin-left:-17px;padding-left:0px;">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="LoadPlantJobLocation();" class="btn"><i class="glyphicon glyphicon-refresh"></i>Load Less</button></li>
+                                </ul>
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Gender<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="employeeNew.GenderID" name="Gender" required tabindex="10">
-                                        <option value="">--Select--</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                    </select>
-                                </div>
-                            </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Date Of Join<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" ng-model="employeeNew.DOJ" ng-disabled="false" name="Date Of Join" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="17" required ng-change="SetDoc();">
                         </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Payment Mode<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="employeeNew.PaymentMode" name="Payment Mode" required tabindex="12">
-                                        <option value="">--Select--</option>
-                                        <option value="Bank">Bank</option>
-                                        <option value="Check">Check</option>
-                                        <option value="Cash">Cash</option>
-                                        <option value="Transfer">Transfer</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Birthday Celebration Date<sup>*</sup></label>
-                            <div class="col-sm-4 show-message">
-                                <input type="text" name="Birthday Celebration Date" ng-model="employeeNew.BirthdayCelebrationDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="14" required>
-                            </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" style="color:blue;font-size: 11px;margin-bottom: -12px;font-style: italic;">DOC will be confirm</label>
+                    </div>
+                    <div class="form-group" style="margin-top: -20px;">
+                        <div class="col-sm-5 radio">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" ng-model="SameDOB" ng-change="SetSameCDOB();">
-                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    Same <span style="text-transform: lowercase;">as date of birth</span>
+                                    <input type="checkbox" ng-model="employeeNew.DOCIsDay" ng-change="ShowDOCIsDayInPut();SetDoc();">
+                                    <span class="cr"><i class="cr-icon"></i></span>
                                 </label>
+                                <label class="control-label">Day</label>
+
+                                <label>
+                                    <input type="checkbox" ng-model="employeeNew.DOCIsMonth" ng-change="ShowMonthIsDayInPut();SetDoc();">
+                                    <span class="cr"><i class="cr-icon"></i></span>
+                                </label>
+                                <label class="control-label">Month</label>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Given Designation<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <input type="text" name="Last Name" ng-model="employeeNew.GivenDesignation" disabled class="form-control" maxlength="100" tabindex="4">
-                            </div>
+                        <div class="col-sm-7">
+                            <input type="text" only-numbers ng-model="employeeNew.DOCDay" class="form-control" ng-show="showDayInput" tabindex="19" ng-change="SetDoc();">
+                            <input type="text" only-numbers ng-model="employeeNew.DOCMonth" class="form-control" ng-show="showMonthInput" tabindex="19" ng-change="SetDoc();">
                         </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Shift(Fix)<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select id="Shit " class="form-control" ng-model="employeeNew.FixSystemID" name="FixedShit" tabindex="16" required>
-                                        <option value="">--Select--</option>
-                                        <option ng-repeat="option in fixedShitList" value="{{option.Value}}">{{option.Text}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Employment Type<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="employeeNew.EmploymentType" name="Employment Type" required ng-change="ShowVendorCtrl();" tabindex="18">
-                                        <option value="">--Select--</option>
-                                        <option value="Permanent">Permanent</option>
-                                        <option value="Contractual">Contractual</option>
-                                        <option value="Temporary">Temporary</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" ng-show="ShowVendor">
-                            <label class="col-sm-4 control-label" title="Vendor">Vendor<sup>*</sup> </label>
-                            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                                <input type="text" ng-model="employeeNew.PartyName" class="form-control" readonly>
+                    </div>
+                    <div class="form-group" ng-show="Operation==='Operation Master'">
+                        <label class="col-sm-4 control-label">Operation Master</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="text" name="Operation Master" ng-model="employeeNew.OperationMasterCode" class="form-control" readonly>
                                 <span class="input-group-btn">
-                                    <button ng-click="showPartyPopUp()" tabindex="20" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                    <button ng-click="clearVendor()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    <button ng-click="showOperationPopUp('SOM');" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Date Of Confirmation<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="Date Of Confirmation" ng-model="employeeNew.DOC" ng-disabled="true" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="21" required>
+                    </div>
+                    <div class="form-group" ng-show="Operation==='Operation Variation'">
+                        <label class="col-sm-4 control-label">Operation Variation</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="text" name="Operation Variation" ng-model="employeeNew.OperationVariationCode" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="showOperationPopUp('SOV');" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
                             </div>
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Cell Phone No<sup ng-show="IsReferenceRequired===true">*</sup></label>
+                        <div class="col-sm-8">
+                            <input type="text" name="Cell Phone No" ng-model="empReferenceInformation.Ref1CellPhnNo" class="form-control" maxlength="30">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Budget Code<sup>*</sup></label>
+                        <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                            <input type="hidden" name="Budget Code" ng-model="employeeNew.BudgetCode" class="form-control">
+                            <input type="text" name="Code" ng-model="employeeNew.Code" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="popUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="clearCode()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">First Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="First Name" ng-model="employeeNew.FirstName" class="form-control" maxlength="100" tabindex="4" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Last Name</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="Last Name" ng-model="employeeNew.LastName" class="form-control" maxlength="100" tabindex="6">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Emp Type (Is Expatriate)<sup>*</sup> </label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" name="Emp Type" ng-model="employeeNew.EmpType" required tabindex="8">
+                                    <option value="">--Select--</option>
+                                    <option value="Local">Local</option>
+                                    <option value="Expatriate">Expatriate</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Gender<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="employeeNew.GenderID" name="Gender" required tabindex="10">
+                                    <option value="">--Select--</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Payment Mode<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="employeeNew.PaymentMode" name="Payment Mode" required tabindex="12">
+                                    <option value="">--Select--</option>
+                                    <option value="Bank">Bank</option>
+                                    <option value="Check">Check</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Transfer">Transfer</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Birthday Celebration Date<sup>*</sup></label>
+                        <div class="col-sm-4 show-message">
+                            <input type="text" name="Birthday Celebration Date" ng-model="employeeNew.BirthdayCelebrationDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="14" required>
+                        </div>
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="SameDOB" ng-change="SetSameCDOB();">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                Same <span style="text-transform: lowercase;">as date of birth</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Given Designation<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <input type="text" name="Last Name" ng-model="employeeNew.GivenDesignation" disabled class="form-control" maxlength="100" tabindex="4">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Shift(Fix)<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select id="Shit " class="form-control" ng-model="employeeNew.FixSystemID" name="FixedShit" tabindex="16" required>
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in fixedShitList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Employment Type<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="employeeNew.EmploymentType" name="Employment Type" required ng-change="ShowVendorCtrl();" tabindex="18">
+                                    <option value="">--Select--</option>
+                                    <option value="Permanent">Permanent</option>
+                                    <option value="Contractual">Contractual</option>
+                                    <option value="Temporary">Temporary</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-show="ShowVendor">
+                        <label class="col-sm-4 control-label" title="Vendor">Vendor<sup>*</sup> </label>
+                        <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                            <input type="text" ng-model="employeeNew.PartyName" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="showPartyPopUp()" tabindex="20" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="clearVendor()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Date Of Confirmation<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Date Of Confirmation" ng-model="employeeNew.DOC" ng-disabled="true" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="21" required>
+                        </div>
+                    </div>
 
-                        @*<div class="form-group">
-            <label class="col-sm-2 control-label">Reference Employee<sup ng-show="IsReferenceRequired===true">*</sup></label>
-            <div class="col-sm-9 input-group" style="padding-left: 89px;padding-right: 14px;">
-                <span class="input-group-addon">{{employeeNew.RelativeEmployeeCode}}</span>
-                <input type="text" ng-model="employeeNew.RelativeEmployeeName" class="form-control" readonly>
-                <span class="input-group-btn">
-                    <button ng-click="RelpopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                    <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                </span>
-            </div>
-        </div>*@
+                    @*<div class="form-group">
+                        <label class="col-sm-2 control-label">Reference Employee<sup ng-show="IsReferenceRequired===true">*</sup></label>
+                        <div class="col-sm-9 input-group" style="padding-left: 89px;padding-right: 14px;">
+                            <span class="input-group-addon">{{employeeNew.RelativeEmployeeCode}}</span>
+                            <input type="text" ng-model="employeeNew.RelativeEmployeeName" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="RelpopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                            </span>
+                        </div>
+                    </div>*@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Ref.1 Name<sup ng-show="IsReferenceRequired===true">*</sup></label>
                         <div class="col-sm-8">
                             <input type="text" name="Name" ng-model="empReferenceInformation.Ref1Name" class="form-control" maxlength="150">
                         </div>
                     </div>
-
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Approval Authority</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select id="ApprovalAuthority " class="form-control" ng-model="employeeNew.ApprovalAuthorityId" name="ApprovalAuthority">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in ApprovalAuthorityList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveNewEmployee();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                        <li> <button ng-click="CloseNewEmpPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
-                    </ul>
-                </div>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="SaveNewEmployee();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    <li> <button ng-click="CloseNewEmpPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                </ul>
             </div>
         </div>
     </div>
-</div>
+</ej-dialog>
+
 
 <confirm-archive-generic data-modalid="confirmQualificationDelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteQualification()"></confirm-archive-generic>
 <confirm-archive-generic data-modalid="confirmTrainingDelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteTraining()"></confirm-archive-generic>

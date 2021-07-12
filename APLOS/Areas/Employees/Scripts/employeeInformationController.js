@@ -163,20 +163,29 @@ function employeeInformationController(addressService, fileReader, cboService, c
         IsEntryComplete: false,
         FirstTimeLock: false,
         Ref1CellPhnNo: null,
-        Ref1Name: null
+        Ref1Name: null,
+        ApprovalAuthorityId: null
     };
     $scope.employeeNew = Object.assign({}, $scope.model);
     $scope.employeeInformation = Object.assign({}, $scope.model);
+
     $scope.AddNewEmpPopUp = function () {
         $scope.Clean();
-        angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
+        //angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
+
+        $("#NewEmpEntryPopUp").ejDialog("setTitle", "Add Employee Information");
+        var eDialog = $("#NewEmpEntryPopUp").data("ejDialog");
+        eDialog.open();
     }
 
     $scope.CloseNewEmpPopUp = function () {
         $scope.Clean();
-        angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('hide');
+        //angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('hide');
         $scope.ShowVendor = false;
         $scope.ShowEVendor = false;
+
+        var eDialog = $("#NewEmpEntryPopUp").data("ejDialog");
+        eDialog.close();
     }
 
     $scope.CheckDuplicateEmployeeCode = function () {
@@ -662,6 +671,14 @@ function employeeInformationController(addressService, fileReader, cboService, c
             });
     };
 
+    $scope.ApprovalAuthorityList = [];
+    $scope.GetApprovalAuthority = function () {
+        $http.get('employees/employeeinformation/GetApprovalAuthority')
+            .then(function (response) {
+                $scope.ApprovalAuthorityList = response.data;
+            });
+    };
+    $scope.GetApprovalAuthority();
 
     cboService.getCboPlantByCompanyGroup(null, function (result) {
         $scope.plantList = result;
@@ -695,15 +712,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.payrollGroupList = result;
     });
 
-    $scope.attendanceGroupList = [];
-    cboService.getAttendanceGroupCbo(function (result) {
-        $scope.attendanceGroupList = result;
-    });
 
-    $scope.accountsGroupList = [];
-    cboService.getAccountsGroupCbo(function (result) {
-        $scope.accountsGroupList = result;
-    });
 
     $scope.showEntity = function () {
         $http.get('employees/employeeprobationalperiod/getentitybyemployee')
@@ -1569,9 +1578,9 @@ function employeeInformationController(addressService, fileReader, cboService, c
             if ($scope.IsReferenceRequired === true && baseService.isUndefinedOrNull($scope.empReferenceInformation.Ref1CellPhnNo)) {
                 throw "Reference Employee cell is required.";
             }
-
-            $scope.$broadcast('show-errors-check-validity');
-            if ($scope.newEmpForm.$valid) {
+           
+            //$scope.$broadcast('show-errors-check-validity');
+            //if ($scope.newEmpForm.$valid) {
                 $http({
                     method: 'POST',
                     url: $scope.saveNewUrl,
@@ -1579,22 +1588,22 @@ function employeeInformationController(addressService, fileReader, cboService, c
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure', 'NewEmpEntryPopUp');
+                        ShowResult(response.data.Message, 'failure');
                     }
                     else {
-                        ShowResult(response.data.Message, 'success', 'NewEmpEntryPopUp');
+                        ShowResult(response.data.Message, 'success');
 
                         $scope.GetPlantWiseHRMSSetting();
                         $scope.getData();
                         ClearEmpFields();
                     }
                 }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure', 'NewEmpEntryPopUp');
+                    ShowResult(response.data.Message, 'failure');
                 }
 
-            }
+            //}
         } catch (e) {
-            ShowResult(e, 'failure', 'NewEmpEntryPopUp');
+            ShowResult(e, 'failure');
         }
     };
 

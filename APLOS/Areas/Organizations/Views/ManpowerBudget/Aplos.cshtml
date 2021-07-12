@@ -190,6 +190,12 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="manPowerbudgetmasterNew.Remarks" maxlength="250" tabindex="14"></textarea>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group">
@@ -241,11 +247,28 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Remarks</label>
+                                <label class="col-sm-4 control-label">Accounts Group</label>
                                 <div class="col-sm-8">
-                                    <textarea class="form-control" rows="2" ng-model="manPowerbudgetmasterNew.Remarks" maxlength="250" tabindex="14"></textarea>
+                                    <div class="select-style">
+                                        <select name="AccountsGroup" ng-model="manPowerbudgetmasterNew.AccountsGroupId" class="col-sm-3 form-control"
+                                                ng-options="item.Value as item.Text for item in accountsGroupList">
+                                            <option></option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Cost Center</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="CostCenter" ng-model="manPowerbudgetmasterNew.CostCenterId" class="col-sm-3 form-control"
+                                                ng-options="item.Value as item.Text for item in CostCenterList">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
 
                         </div>
                     </div>

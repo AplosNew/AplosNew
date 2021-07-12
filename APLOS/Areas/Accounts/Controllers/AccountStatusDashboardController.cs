@@ -1073,7 +1073,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #endregion Acceptance Liability Maturity
 
-        #region Acceptance Liability Maturity
+        #region Acceptance Liability 
 
         [HttpPost, Authorize]
         public ActionResult GetAcceptanceLiabilityList(string toDate)
@@ -1102,7 +1102,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
-        #endregion Acceptance Liability Maturity
+        #endregion Acceptance Liability 
 
         #region Others liability
         [HttpPost, Authorize]
@@ -1174,7 +1174,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize]
-        public ActionResult OthersLiabilityAgingDetailReport(string toDate, bool isWithAdvance)
+        public ActionResult OthersLiabilityAgingDetailReport(string toDate)
         {
 
             try
@@ -1186,25 +1186,28 @@ namespace Aplos.Areas.Accounts.Controllers
                 AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
                 ExcelEngine excelEngine = new ExcelEngine();
-                if (isWithAdvance)
-                {
-                    IWorkbook workbook = accountsStatusDashboardService.GetOthersLiabilityAgingDetailWithAdvanceReport(excelEngine, toDate, isWithAdvance, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.Name);
-                    // return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-                    string strFileName = "OthersLiabilityWithAdvanceAgingDetail.xlsx";
-                    workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                    workbook.Close();
-                }
-                else
-                {
-                    IWorkbook workbook = accountsStatusDashboardService.GetOthersLiabilityAgingDetailReport(excelEngine, toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.Name);
-                    // return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-                    string strFileName = "OthersLiabilityAgingDetail.xlsx";
-                    workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                    workbook.Close();
+                //if (isWithAdvance)
+                //{
+                //    IWorkbook workbook = accountsStatusDashboardService.GetOthersLiabilityAgingDetailWithAdvanceReport(excelEngine, toDate, isWithAdvance, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.Name);
+                //    // return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+                //    string strFileName = "OthersLiabilityWithAdvanceAgingDetail.xlsx";
+                //    workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                //    workbook.Close();
+                //}
+                //else
+                //{
+                //    IWorkbook workbook = accountsStatusDashboardService.GetOthersLiabilityAgingDetailReport(excelEngine, toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.Name);
+                //    string strFileName = "OthersLiabilityAgingDetail.xlsx";
+                //    workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                //    workbook.Close();
 
 
-                }
-     
+                //}
+
+                IWorkbook workbook = accountsStatusDashboardService.GetOthersLiabilityAgingDetailReport(excelEngine, toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.Name);
+                string strFileName = "OthersLiabilityDetail.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
             }
             catch (Exception ex)
             {
