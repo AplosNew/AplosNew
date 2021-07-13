@@ -44,11 +44,8 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult GetProductionPlanningReport(string fromDate, string toDate)
         {
             try
-            {
-              
-
+            {   
                 ProductionPlanningReport(fromDate, toDate);
-
                 return null;
             }
             catch (Exception ex)
@@ -74,7 +71,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                 sheet.Name = "Production PLanning Report";
 
-                DataTable dtPurchaseLc = _sqlRepository.GetDataTable(sql);
+                DataTable dtProductionPlanningReport = _sqlRepository.GetDataTable(sql);
 
                 int ROW = 6;
                 int COL = 1;
@@ -95,7 +92,7 @@ namespace Aplos.Areas.Productions.Controllers
                 ROW++;
 
                 int StartRow = ROW; //row 20
-                for (int i = 0; i < dtPurchaseLc.Rows.Count; i++)
+                for (int i = 0; i < dtProductionPlanningReport.Rows.Count; i++)
                 {
                     sheet[ROW, colSlNo].Number = (i + 1);
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -143,23 +140,22 @@ namespace Aplos.Areas.Productions.Controllers
         private string GetProductionPlanningReportSQL(string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                return @"select WCM.UserName Line,DPT.TotalHour WorkHour,WCM.SPT,DPT.Manpower,DPT.Quantity PlannedTarget,
- ProducedQty.ProductionQty Achivement,Balance=DPT.Quantity-ProducedQty.ProductionQty
- from SCS.WorkCenterMaster WCM
- left outer join TRN.DailyProductionTarget DPT on DPT.WorkCenterMasterID=WCM.Id
- left outer join TRN.ProductionOrder PO on PO.Id=DPT.ProductionOrderId
- left outer join (SELECT s.ProductionOrderId,SUM(s.Quantity) AS ProductionQty												
-											FROM  trn.ProductionSummary S		
-											where S.ProductionDate BETWEEN '"+fromDate+@"' and '"+ toDate + @"'
-											GROUP BY  s.ProductionOrderId) ProducedQty on ProducedQty.ProductionOrderId=PO.Id
+                return @"SELECT w.UserName AS Line, TG.*,prd.ProducedQty
+  FROM (SELECT T.WorkCenterMasterID,'BuyerItemNo' AS BuyerItemNo,t.TargetDate,SUM(t.Quantity) TargetQty,SUM(T.Manpower) Manpower,SUM(t.SMV) AS SPT 
+  FROM trn.DailyProductionTarget AS T
+WHERE t.TargetDate BETWEEN '"+fromDate+@"' AND '"+toDate+ @"'
+GROUP BY t.TargetDate,T.WorkCenterMasterID
+) TG
+LEFT JOIN (
 
-								left join trn.ProductionOrderDetail POD ON POD.ProductionOrderId=po.Id and pod.Id=(select TOP 1 Id from TRN.ProductionOrderDetail D where D.ProductionOrderId=PO.Id)
-                                left join trn.SalesOrder SO ON SO.Id=POD.SalesOrderId
-                                left join trn.MasterOrderItem MOI ON MOI.Id=so.MasterOrderItemId
+SELECT ps.WorkCenterMasterId,ps.ProductionDate,SUM(ps.Quantity) AS ProducedQty
+  FROM trn.ProductionSummary AS ps 
+WHERE ps.ProductionDate BETWEENs '" + fromDate + @"' AND '" + toDate + @"'
+GROUP BY  ps.WorkCenterMasterId,ps.ProductionDate) PRD ON prd.WorkCenterMasterId=tg.WorkCenterMasterID AND tg.TargetDate=prd.ProductionDate
 
-                                left join mst.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
-                                left join mst.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId               
-											where DPT.TargetDate  BETWEEN '" + fromDate + @"' and '" + toDate + @"'";
+JOIN scs.WorkCenterMaster AS w ON w.Id=tg.WorkCenterMasterID
+
+ORDER BY w.Sequence,tg.TargetDate";
 
         }
         #endregion
