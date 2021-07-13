@@ -38,10 +38,7 @@ namespace Library.Accounting.Accounts
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
+            
             if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
@@ -53,6 +50,10 @@ namespace Library.Accounting.Accounts
             if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
             else
             {
@@ -146,10 +147,7 @@ namespace Library.Accounting.Accounts
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
+            
             if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
@@ -161,6 +159,10 @@ namespace Library.Accounting.Accounts
             if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
             else
             {
@@ -191,7 +193,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"' 
-                        AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 
+                        AND ISNULL(sh.HeadCategory,'')  in ('CTC') and spc.DisbusmentAmount!=0 
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=0 " + wcEmpStatus + @"
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						ORDER BY sh.[Sequence],sh.SalaryHead";
@@ -202,10 +204,7 @@ namespace Library.Accounting.Accounts
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
+            
             if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
@@ -217,6 +216,10 @@ namespace Library.Accounting.Accounts
             if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
             else
             {
@@ -309,10 +312,7 @@ namespace Library.Accounting.Accounts
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
+            
             if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
@@ -324,6 +324,10 @@ namespace Library.Accounting.Accounts
             if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
             else
             {
@@ -417,10 +421,7 @@ namespace Library.Accounting.Accounts
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
+           
             if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
@@ -432,6 +433,10 @@ namespace Library.Accounting.Accounts
             if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
             else
             {
@@ -462,7 +467,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
-                        AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 
+                        AND ISNULL(sh.HeadCategory,'')  in ('CTC') and spc.DisbusmentAmount!=0 
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=0 " + wcEmpStatus + @"
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						ORDER BY sh.[Sequence],sh.SalaryHead";
@@ -474,10 +479,7 @@ namespace Library.Accounting.Accounts
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
+            
             if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
@@ -489,6 +491,10 @@ namespace Library.Accounting.Accounts
             if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
             else
             {
@@ -580,10 +586,7 @@ namespace Library.Accounting.Accounts
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
+            
             if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
@@ -595,6 +598,10 @@ namespace Library.Accounting.Accounts
             if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
             else
             {

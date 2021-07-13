@@ -257,8 +257,8 @@
                                 </td>
                                 <td>
                                     <div class="select-style">
-                                        <select name="UOM" style="width: 60px; padding-top:8px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>
-                                        @*<select class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList| filter:{ UOMId: x.UOMId }:true"></select>*@
+                                        @*<select name="UOM" style="width: 60px; padding-top:8px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>*@
+                                        <select style="width: 60px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList| filter:{ MaterialMasterId: x.MaterialMasterId }:true"></select>
                                     </div>
                                 </td>
                                 <td class="text-center">
