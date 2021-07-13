@@ -1083,6 +1083,45 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { DATA = accountsStatusDashboardService.GetAcceptanceLiabilityList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, toDate), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
+
+        [HttpGet, Authorize]
+        public ActionResult getAcceptanceLiabilitySummaryReport(string toDate, bool isWithAdvance)
+        {
+
+            try
+            {
+               
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                if (isWithAdvance)
+                {
+                    //var workbook = "";
+                    IWorkbook workbook = accountsStatusDashboardService.getAcceptanceLiabilityWithAdvanceSummaryReport(excelEngine, toDate, isWithAdvance, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                    string strFileName = "OthersLiabilityWithAdvanceSummary.xlsx";
+                    workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                    workbook.Close();
+                }
+                else
+                {
+                    IWorkbook workbok = accountsStatusDashboardService.getAcceptanceLiabilitySummaryReport(excelEngine, toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                    string strFileName = "OthersLiabilitySummary.xlsx";
+                    workbok.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                    workbok.Close();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+            return null;
+        }
+
         [HttpGet, Authorize]
         public ActionResult getAcceptanceLiabilityReport(string toDate)
         {

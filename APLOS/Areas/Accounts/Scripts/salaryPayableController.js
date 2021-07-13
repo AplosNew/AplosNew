@@ -281,7 +281,7 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
     $scope.salaryLockPayableList = [];
     $scope.salaryLockDirectTakeAwayNetPayAmount = null;
     $scope.getSalaryLockPayable = function () {
-
+        $scope.salaryLockPayableData = [];
         //$scope.IsDownloard = true;
         $http({
             method: "GET",
@@ -310,6 +310,7 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.salaryLockDirectCTCPayableData = [];
     $scope.getSalaryLockDirectCTCPayable = function () {
+        $scope.salaryLockDirectCTCPayableData = [];
         $http({
             method: "GET",
             dataType: 'JSON',
@@ -326,6 +327,7 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
     $scope.salaryLockInDirectTakeAwayPayableList = [];
     $scope.salaryLockInDirectTakeAwayNetPayAmount = null;
     $scope.getSalaryLockInDirectTakeAwayPayable = function () {
+        $scope.salaryLockInDirectTakeAwayPayableData = [];
         $http({
             method: "GET",
             dataType: 'JSON',
