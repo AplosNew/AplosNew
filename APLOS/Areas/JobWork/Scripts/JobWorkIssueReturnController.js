@@ -411,6 +411,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
             $scope.JobWorkLocList = response.data;
             if ($scope.JobWorkLocList.length > 0) {
                 $scope.IssueTransformation.MaterialStorageId = $scope.JobWorkLocList[0].Value;
+                $scope.IssueTransformation.StorageLocation = $scope.JobWorkLocList[0].StorageLocation;
             }
         });
     }

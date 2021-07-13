@@ -207,9 +207,9 @@ function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $r
         cboService.getUomCboByMaterialMaster(JSON.stringify(mmId), function (response) {
             if (baseService.arrayLength(response) > 0) {
                 angular.forEach(response, function (item, i) {
-                    if (checkExistList($scope.uOMList, item.Value) === false) {
+                    //if (checkExistList($scope.uOMList, item.Value) === false) {
                         $scope.uOMList.push(item);
-                    }
+                   // }
                     $scope.processSetDetails[$scope.itemIndex].UOMId = item.Value;
                 });
             }
@@ -223,6 +223,7 @@ function ProcessSetController(commonMessage, $scope, $rootScope, baseService, $r
         }
         return false;
     }
+
 
     // #endregion
 
