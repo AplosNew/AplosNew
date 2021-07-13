@@ -5,6 +5,14 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	$scope.Action = 'Save';
 	$scope.index = -1;
 	$scope.products = [];
+	$scope.CustomerList = [];
+	$scope.PostingStockBeyondIssueDateList = [];
+	$scope.PostingStockList = [];
+	$scope.UnApprovedStockDetailBeyondIssueDateList = [];
+	$scope.ApprovedStockBeyondIssueDateList = [];
+	$scope.UnApprovedStockList = [];
+	$scope.ApprovedStockList = [];
+	
 	$scope.partyType = "Customer";
 	$scope.path1 = 'Products/PurchaseOrder/';
 	$scope.path = 'Products/InventoryIssue/';

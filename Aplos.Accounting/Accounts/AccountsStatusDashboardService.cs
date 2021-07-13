@@ -9446,8 +9446,9 @@ group by Id) O60 ON O60.Id=IV.Id
 		                         ,sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
                                 , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,
                                             ACT.BalanceType,
-                                            ACT.Id AS [MainHead],
-		                                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                                            ACT.Id AS [MainHead]
+				                            ,AG.UserName AccountGroupName
+		                                    ,VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
                                             VD.BudgetMasterId
 											,BUD.Id BudgetId
 		                                    ,BUD.UserName AS Budget,
@@ -9473,10 +9474,11 @@ group by Id) O60 ON O60.Id=IV.Id
                                             WHERE v.PostingDate <= '" + toDate + "' and v.CompanyId ='" + companyId + "' AND V.PlantId='" + plantId + @"'
 								          -- and GL.Id='' and BUD.Id=''  and A.Id=''
                                             AND  v.IsPark=0
-                                              GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
+                                              GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName,AG.UserName
 											GL.AccountCode, ACT.BalanceType, ACT.Id, BUD.Id, BUD.UserName, VD.BudgetMasterId, A.Id,A.UserName,VD.BankMasterId,VD.CashMasterId
 											 ) ttd 
-                                            WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00";
+                                            WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00
+                                            ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL,ttd.Budget, ttd.Activity";
                 dictrialalance = _sqlRepository.GetDataCollection(sql);
 
                 foreach (var item in dictrialalance)
@@ -9503,8 +9505,9 @@ group by Id) O60 ON O60.Id=IV.Id
 		                                   sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
                                            , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,
                                          ACT.BalanceType,
-                                         ACT.Id AS [MainHead],
-		                                  VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                                         ACT.Id AS [MainHead]
+                                            ,AG.UserName AccountGroupName
+		                                  ,VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
                                            VD.BudgetMasterId,
 		                                   BUD.UserName AS Budget
 	                                     FROM TRN.VoucherDetailCurrency AS VDC
@@ -9518,8 +9521,10 @@ group by Id) O60 ON O60.Id=IV.Id
                                      LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
                                        where v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                                        and  v.IsPark=0
-                                      GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,VD.GLGeneralInfoId,GL.UserName, GL.AccountCode, ACT.BalanceType,ACT.Id,VD.BudgetMasterId,BUD.UserName,v.PostingDate) ttd 
-                                      WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00";
+                                      GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,VD.GLGeneralInfoId,GL.UserName, AG.UserName
+                                    , GL.AccountCode, ACT.BalanceType,ACT.Id,VD.BudgetMasterId,BUD.UserName,v.PostingDate) ttd 
+                                      WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00
+                                      ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL,ttd.Budget, ttd.Activity";
                 dictrialalance = _sqlRepository.GetDataCollection(sql);
 
                 foreach (var item in dictrialalance)
@@ -9546,7 +9551,8 @@ group by Id) O60 ON O60.Id=IV.Id
                     , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,
                     ACT.BalanceType,
                     ACT.Id AS [MainHead],
-                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                    AG.UserName AccountGroupName
+                    ,VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
                     VD.BudgetMasterId,
                     BUD.Id BudgetId
                     ,BUD.UserName AS Budget
@@ -9582,13 +9588,13 @@ group by Id) O60 ON O60.Id=IV.Id
                     LEFT JOIN HKP.FixedAssetMasterBudgetTag BMA ON BMA.BudgetMasterId=MM.BudgetMasterId
                     LEFT JOIN MST.FixedAssetMaster FM ON FM.Id=BMA.FixedAssetMasterId
                     -- WHERE v.PostingDate <= '13-Apr-2021' and v.CompanyId ='C20171' AND V.PlantId='20171'
-                    WHERE v.PostingDate <= '"+toDate+"' and v.CompanyId ='"+companyId+"' AND V.PlantId='"+plantId+@"'
+                    WHERE v.PostingDate <= '" + toDate+"' and v.CompanyId ='"+companyId+"' AND V.PlantId='"+plantId+ @"'
                     AND v.IsPark=0
-                    GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName,
+                    GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName,AG.UserName,
                     GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.Id, A.UserName, BUD.Id, BUD.UserName, v.PostingDate, BA.AccountTitle, CM.UserName
                     ,VD.BankMasterId, VD.CashMasterId, P.UserName, PP.UserName, VD.PartyId, VD.PartyPlantId,FM.UserName,BMA.FixedAssetMasterId ) ttd
                     WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00
-                    ORDER BY ttd.MainHead";
+                     ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL,ttd.Budget, ttd.Activity";
 
                 dictrialalance = _sqlRepository.GetDataCollection(sql);
 
@@ -9616,8 +9622,9 @@ group by Id) O60 ON O60.Id=IV.Id
 		                   sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
                          , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,
                             ACT.BalanceType,
-                            ACT.Id AS [MainHead],
-		                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode
+                            ACT.Id AS [MainHead]
+                            ,AG.UserName AccountGroupName
+		                    ,VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode
 	                        FROM TRN.VoucherDetailCurrency AS VDC
 		                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -9627,8 +9634,10 @@ group by Id) O60 ON O60.Id=IV.Id
                             LEFT JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
                             where v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                             and  v.IsPark=0
-                            group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,VD.GLGeneralInfoId,GL.UserName, GL.AccountCode, ACT.BalanceType,ACT.Id,v.PostingDate) ttd 
-                            WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00";
+                            group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,VD.GLGeneralInfoId,GL.UserName, GL.AccountCode, AG.UserName
+                            , ACT.BalanceType,ACT.Id,v.PostingDate) ttd 
+                            WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00
+                            ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL,ttd.Budget, ttd.Activity";
                 dictrialalance = _sqlRepository.GetDataCollection(sql);
 
                 foreach (var item in dictrialalance)

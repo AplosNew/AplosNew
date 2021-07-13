@@ -915,22 +915,24 @@
                                  e-allowselection="false" e-allowresizing="true" e-filtersettings-filterType="excel" @*e-width="100"*@ e-showsummary="true" e-summaryrows="summaryRowsTrialBalance" @*e-actioncomplete="actionCompleteLoanSelected"*@>
                                 <div e-columns>
                                     @*<div e-column e-field="DocRefNo" e-headertext="Loan No" e-width="100">
-                            <div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li> <button ng-click="$parent.GetAllLoanRegisterReport(this);" tooltip="Loan No" class="btn" style="top: 1px; font-size:12px; width:100%">{{data.DocRefNo}}</button></li>
-                            </ul>
-                            </div>
-                            </div>
-                                <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="100">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li> <button ng-click="$parent.printLoanVoucherReport(this);" tooltip="Voucher No" class="btn" style="top: 1px; font-size:12px; width:100% ">{{data.VoucherNo}}</button></li>
-                                    </ul>
-                                </div>
-                            </div>*@
+                                        <div class="common-btn">
+                                            <ul class="list-inline text-left">
+                                                <li> <button ng-click="$parent.GetAllLoanRegisterReport(this);" tooltip="Loan No" class="btn" style="top: 1px; font-size:12px; width:100%">{{data.DocRefNo}}</button></li>
+                                        </ul>
+                                        </div>
+                                        </div>
+                                            <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="100">
+                                            <div class="common-btn">
+                                                <ul class="list-inline text-left">
+                                                    <li> <button ng-click="$parent.printLoanVoucherReport(this);" tooltip="Voucher No" class="btn" style="top: 1px; font-size:12px; width:100% ">{{data.VoucherNo}}</button></li>
+                                                </ul>
+                                            </div>
+                                        </div>*@
 
 
                                     <div e-column e-field="MainHead" e-headertext="MainHead" e-width="80"></div>
+                                    <div e-column e-field="AccountGroupName" e-headertext="Account Group" e-width="80"></div>
+                                    
                                     <div e-column e-field="GLGeneralInfoCode" e-headertext="GLGeneralInfoCode" e-width="80"></div>
                                     <div e-column e-field="GL" e-headertext="GL" e-width="130"></div>
                                     <div e-column e-field="Budget" e-headertext="Budget" e-width="130"></div>

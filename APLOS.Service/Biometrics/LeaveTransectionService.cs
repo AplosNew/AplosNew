@@ -233,7 +233,7 @@ namespace Library.Service.Biometrics
 										 ,DaysCanBeSanctioned=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
 																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
 																   else Isnull(els.DaysCanBeSanctioned,0) end
- ,CurrentAllocationDCBS=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+                                                                    ,CurrentAllocationDCBS=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
 																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
 																   else Isnull(els.DaysCanBeSanctioned,0) end
 
@@ -262,30 +262,30 @@ namespace Library.Service.Biometrics
 										  --Availed +Availed ob
                                          ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Availed,
 										 ISNULL(acApl.ldays,0) ldays,lt.LeaveType
-
------------------------------------Is Brought Forward Add to balance -----------------------------------------------------------                                       
----,IsBroughtForwardAdd=CASE WHEN LT.LeaveType='Earn' THEN  
-,IsBroughtForwardAdd=CASE WHEN 1=1 THEN  
-	CASE WHEN
-	-----------------------------------DOJorDOC start -----------------------------------------------------------
-								CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
-                            										 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  emp.DOJ )
-																	      WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  emp.DOJ )
-																	      WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  emp.DOJ ) END
-										   WHEN  ltd.LvAvailedOnDOC=1 THEN 										   
-										   							 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	emp.DOC  )
-																		  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	emp.DOC  )
-																	      WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	emp.DOC  )
-										   						END
-                                       END
----------------------------------------DOJorDOC start  end-------------------------------------------------------
-	
-	> GETDATE() then 
-		    CONVERT(BIT,0)------No
-        ELSE  CONVERT(BIT,1) END---Yes
-ELSE CONVERT(BIT,0) END  ---No
-
-----------------------------------------------------------------------------------------------------------------------
+                                            
+                                            -----------------------------------Is Brought Forward Add to balance -----------------------------------------------------------                                       
+                                            ---,IsBroughtForwardAdd=CASE WHEN LT.LeaveType='Earn' THEN  
+                                            ,IsBroughtForwardAdd=CASE WHEN 1=1 THEN  
+                                            	CASE WHEN
+                                            	-----------------------------------DOJorDOC start -----------------------------------------------------------
+                                            								CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
+                                                                        										 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  emp.DOJ )
+                                            																	      WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  emp.DOJ )
+                                            																	      WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  emp.DOJ ) END
+                                            										   WHEN  ltd.LvAvailedOnDOC=1 THEN 										   
+                                            										   							 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	emp.DOC  )
+                                            																		  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	emp.DOC  )
+                                            																	      WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	emp.DOC  )
+                                            										   						END
+                                                                                   END
+                                            ---------------------------------------DOJorDOC start  end-------------------------------------------------------
+                                            	
+                                            	> GETDATE() then 
+                                            		    CONVERT(BIT,0)------No
+                                                    ELSE  CONVERT(BIT,1) END---Yes
+                                            ELSE CONVERT(BIT,0) END  ---No
+                                            
+                                            ----------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -293,22 +293,17 @@ ELSE CONVERT(BIT,0) END  ---No
 										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
                                         LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 										 left outer join (
-															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m 
-                                           where  (FromDate between '" + _FromDate + @"' and '" + _ToDate + @"') and (ToDate between '" + _FromDate + @"' and '" + _ToDate + @"')
-                                           group by EmpSystemID,LTSystemID
-														)ltrn on ltrn.EmpSystemID = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
-										 left outer join (
-																select sum(c) av,EmpSystemID,LTSystemID from
-																(
-																	select m.EmpSystemID,m.LTSystemID,c from dbo.LeaveTransaction m
-																	left outer join
-																		(
-																			select SUM(d.LeaveDuration) c,d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where
-																			IsAvailed = 1  and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
-                                                                            group by LvTrnsSystemID
-																		) ltrnDt on ltrnDt.LvTrnsSystemID = m.SystemID
-																)x group by EmpSystemID,LTSystemID
-														)tav on tav.EmpSystemID = els.EmployeeId and tav.LTSystemId = els.LeaveTypeId
+															Select Sum(LTD.LeaveDuration) ldays,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
+															Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
+															Where WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
+															group by LT.EmpSystemID,LT.LTSystemID
+														 )ltrn on ltrn.EmpSystemID = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
+										 left outer join (														
+															Select Sum(LTD.LeaveDuration) av,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
+															Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
+															Where WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"' and LTD.IsAvailed=1
+															group by LT.EmpSystemID,LT.LTSystemID
+														  )tav on tav.EmpSystemID = els.EmployeeId and tav.LTSystemId = els.LeaveTypeId
 										 left outer join (
 															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
 																where m.SystemID not in(select d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where	IsAvailed = 1 or WorkDate<=CONVERT(date, getdate()))
@@ -330,33 +325,35 @@ ELSE CONVERT(BIT,0) END  ---No
 																									 where SystemId='" + EmpSystemID + @"')
 																	)--w
                                                  ) ltd on ltd.LTSystemID = lt.Id
-                                                WHERE els.EmployeeID = '" + EmpSystemID + @"'                                             
+                                                WHERE els.EmployeeID = '" + EmpSystemID + @"'
                                               AND CalanderYearID = '" + calYearId + @"'
                                              AND els.LeaveTypeId IN ( --IN
 
 
                                             SELECT LT.ID FROM dbo.ESICPolicyLeaveType AS EPLT
-                  LEFT JOIN dbo.LeaveType AS LT ON LT.Id = EPLT.LeaveTypeID
-                  WHERE
-                  EPLT.LeaveTypeID IN
-                   (
-                     SELECT LTSystemID FROM dbo.LeavePolicyDetail AS LPD
-                  LEFT JOIN  (SELECT DC.LeavePolicyMasterId,DM.DesignationId FROM MST.DesignationMaster DM
-LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId WHERE DC.PlantId='" + sPlantID + @"') AS DM ON DM.LeavePolicyMasterId=LPD.LPMSystemID
-                  LEFT JOIN dbo.EmployeeInformation AS EI ON EI.GivenDesignationId=DM.DesignationId
-                  WHERE EI.SystemID='" + EmpSystemID + @"' AND EI.GroupID='"+ sGroupID + @"' AND EI.PlantID='" + sPlantID + @"'
-                   )
-                AND
-                EPLT.ESICPolicyMasterID IN (
-                 SELECT DM.ESICPolicyMasterID FROM (SELECT DC.ESICPolicyMasterID,DM.DesignationId FROM MST.DesignationMaster DM
-LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
-WHERE DC.PlantId='" + sPlantID + @"') DM
-                 WHERE DM.DesignationId IN (
-                  SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + EmpSystemID + @"'
-                  )
-                )
+                                                      LEFT JOIN dbo.LeaveType AS LT ON LT.Id = EPLT.LeaveTypeID
+                                                      WHERE
+                                                      EPLT.LeaveTypeID IN
+                                                       (
+                                                         SELECT LTSystemID FROM dbo.LeavePolicyDetail AS LPD
+                                                      LEFT JOIN  (SELECT DC.LeavePolicyMasterId,DM.DesignationId FROM MST.DesignationMaster DM
+                                    LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId WHERE DC.PlantId='" + sPlantID + @"') AS DM ON DM.LeavePolicyMasterId=LPD.LPMSystemID
+                                                      LEFT JOIN dbo.EmployeeInformation AS EI ON EI.GivenDesignationId=DM.DesignationId
+                                                      WHERE EI.SystemID='" + EmpSystemID + @"' AND EI.GroupID='" + sGroupID + @"' AND EI.PlantID='" + sPlantID + @"'
+                                                       )
+                                                    AND
+                                                    EPLT.ESICPolicyMasterID IN (
+                                                     SELECT DM.ESICPolicyMasterID FROM (SELECT DC.ESICPolicyMasterID,DM.DesignationId FROM MST.DesignationMaster DM
+                                    LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
+                                    WHERE DC.PlantId='" + sPlantID + @"') DM
+                                                     WHERE DM.DesignationId IN (
+                                                      SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + EmpSystemID + @"'
+                                                      )
+                                                    )
 
-                                            				)--IN"
+                                            				                                    )--IN
+
+"
                     };
                     return _sqlRepository.GetGridData(parameters).Source;
                 }
