@@ -3288,7 +3288,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $http({
                 method: 'POST',
                 url: $scope.path + "GetAcceptanceLiabilityList",
-                data: { /*FromDate: $scope.reportParameters.FromDate,*/ ToDate: $scope.report.ToDate },
+                data: { /*FromDate: $scope.reportParameters.FromDate,*/ ToDate: $scope.reportParameters.ToDate },
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
@@ -3338,10 +3338,21 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         showCaptionSummary: true
     }];
 
+    $scope.getAcceptanceLiabilitySummaryReport = function () {
+
+        try {
+            var file_src = $scope.path + 'getAcceptanceLiabilitySummaryReport?toDate=' + $scope.reportParameters.ToDate + '&isWithAdvance=' + $scope.reportParameters.IsWithAdvance;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
     $scope.getAcceptanceLiabilityReport = function () {
         try {
             //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + $scope.materialMasterReportNew.MaterialTypeId + '&Article=' + $scope.materialMasterReportNew.WithArticle;;
-            var file_src = $scope.path + 'getAcceptanceLiabilityReport?toDate=' + $scope.report.ToDate;
+            var file_src = $scope.path + 'getAcceptanceLiabilityReport?toDate=' + $scope.reportParameters.ToDate;
             $rootScope.report(file_src);
 
         } catch (e) {
