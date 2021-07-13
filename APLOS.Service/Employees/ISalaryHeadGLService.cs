@@ -37,6 +37,7 @@ namespace Library.Service.Employees
 
         IEnumerable<object> CoaInfo(string companyId);
         GridModel GetSearchWithCombine(GridParameter parameters, string coaId);
+        GridModel GetSearchWithCombineSalaryHead(GridParameter parameters, string coaId);
         GridModel GetSearchWithCombineWithAssing(GridParameter parameters, string coaId);
         GridModel GetSearchWithCombineWithNotAssing(GridParameter parameters, string coaId);
         List<Dictionary<string, object>> GetSalaryHeadGLCombine(string coaId);

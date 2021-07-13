@@ -530,6 +530,23 @@ namespace Library.Service.Employees
             }
         }
 
+        public GridModel GetSearchWithCombineSalaryHead(GridParameter parameters, string coaId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT distinct SH.SalaryHeadID,SH.SalaryHead,SH.HeadType,SH.HeadCategory
+                                        FROM dbo.SalaryHead SH
+                                        Where ISNULL(SH.HeadCategory,'') not in ('CTC','Gross','Total Gross')";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.FixedAsset.ToString()));
+            }
+        }
+
         public List<Dictionary<string, object>> GetSalaryHeadGLCombine(string coaId)
         {
             try
