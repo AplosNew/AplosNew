@@ -2291,11 +2291,11 @@
                             <input type="text" name="Employee Code" ng-model="employeeNew.EmployeeCode" ng-disabled="!IsEmployeeCodeOpenField" ng-keyup="CheckDuplicateEmployeeCode();" class="form-control" maxlength="30" tabindex="1">
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Salutation<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
+                        <div class="col-sm-8">
                             <div class="select-style">
-                                <select id="Salutation" class="form-control" name="Salutation" ng-model="employeeNew.Salutation" tabindex="3" required>
+                                <select id="Salutation" class="form-control" name="Salutation" ng-model="employeeNew.Salutation" tabindex="3">
                                     <option value="">--Select--</option>
                                     <option ng-repeat="option in salutaionList" value="{{option.Value}}">{{option.Text}}</option>
                                 </select>
@@ -2308,33 +2308,33 @@
                             <input type="text" name="Middle Name" ng-model="employeeNew.MiddleName" class="form-control" maxlength="100" tabindex="5">
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Employee Name<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
+                        <div class="col-sm-8">
                             <label class="control-label">{{employeeNew.EmployeeName=(employeeNew.FirstName?employeeNew.FirstName:'')+' '+(employeeNew.MiddleName?employeeNew.MiddleName:'')+' '+(employeeNew.LastName?employeeNew.LastName:'')}}</label>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Citizen<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
+                        <div class="col-sm-8">
                             <div class="select-style">
-                                <select id="CitizenID" class="form-control" name="Citizen" ng-model="employeeNew.CitizenID" tabindex="7" required>
+                                <select id="CitizenID" class="form-control" name="Citizen" ng-model="employeeNew.CitizenID" tabindex="7">
                                     <option value="">--Select--</option>
                                     <option ng-repeat="option in citizenList" value="{{option.Value}}">{{option.Nationality}}</option>
                                 </select>
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">{{Nid}}<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="NationalID" ng-model="employeeNew.NationalID" class="form-control" maxlength="30" tabindex="9" required>
+                        <div class="col-sm-8">
+                            <input type="text" name="NationalID" ng-model="employeeNew.NationalID" class="form-control" maxlength="30" tabindex="9">
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Date Of Birth<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="Date Of Birth" ng-model="employeeNew.DOB" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="11" required>
+                        <div class="col-sm-8">
+                            <input type="text" name="Date Of Birth" ng-model="employeeNew.DOB" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="11">
                         </div>
                     </div>
                     <div class="form-group">
@@ -2351,11 +2351,11 @@
                     <div class="form-group" ng-show="legalDesignationMessage!==null">
                         <label class="col-sm-12 control-label" style="color:red">*This<span style="text-transform:lowercase;">{{legalDesignationMessage}}</span></label>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Job Location<sup>*</sup> </label>
-                        <div class="col-sm-5 show-message">
+                        <div class="col-sm-5">
                             <div class="select-style">
-                                <select id="Religion" class="form-control" name="Job Location" ng-model="employeeNew.JobLocationID" tabindex="15" required ng-change="GetShiftCbo();">
+                                <select id="Religion" class="form-control" name="Job Location" ng-model="employeeNew.JobLocationID" tabindex="15" ng-change="GetShiftCbo();">
                                     <option value="">--Select--</option>
                                     <option ng-repeat="option in JobLocationList" value="{{option.SystemID}}">{{option.JobLocation}}</option>
                                 </select>
@@ -2376,10 +2376,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Date Of Join<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" ng-model="employeeNew.DOJ" ng-disabled="false" name="Date Of Join" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="17" required ng-change="SetDoc();">
+                        <div class="col-sm-8">
+                            <input type="text" ng-model="employeeNew.DOJ" ng-disabled="false" name="Date Of Join" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="17" ng-change="SetDoc();">
                         </div>
                     </div>
                     <div class="form-group">
@@ -2447,10 +2447,10 @@
                             </span>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">First Name<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="First Name" ng-model="employeeNew.FirstName" class="form-control" maxlength="100" tabindex="4" required>
+                        <div class="col-sm-8">
+                            <input type="text" name="First Name" ng-model="employeeNew.FirstName" class="form-control" maxlength="100" tabindex="4">
                         </div>
                     </div>
                     <div class="form-group">
@@ -2459,11 +2459,11 @@
                             <input type="text" name="Last Name" ng-model="employeeNew.LastName" class="form-control" maxlength="100" tabindex="6">
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Emp Type (Is Expatriate)<sup>*</sup> </label>
-                        <div class="col-sm-8 show-message">
+                        <div class="col-sm-8">
                             <div class="select-style">
-                                <select class="form-control" name="Emp Type" ng-model="employeeNew.EmpType" required tabindex="8">
+                                <select class="form-control" name="Emp Type" ng-model="employeeNew.EmpType" tabindex="8">
                                     <option value="">--Select--</option>
                                     <option value="Local">Local</option>
                                     <option value="Expatriate">Expatriate</option>
@@ -2471,11 +2471,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Gender<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
+                        <div class="col-sm-8">
                             <div class="select-style">
-                                <select class="form-control" ng-model="employeeNew.GenderID" name="Gender" required tabindex="10">
+                                <select class="form-control" ng-model="employeeNew.GenderID" name="Gender" tabindex="10">
                                     <option value="">--Select--</option>
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
@@ -2483,11 +2483,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Payment Mode<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
+                        <div class="col-sm-8">
                             <div class="select-style">
-                                <select class="form-control" ng-model="employeeNew.PaymentMode" name="Payment Mode" required tabindex="12">
+                                <select class="form-control" ng-model="employeeNew.PaymentMode" name="Payment Mode" tabindex="12">
                                     <option value="">--Select--</option>
                                     <option value="Bank">Bank</option>
                                     <option value="Check">Check</option>
@@ -2497,10 +2497,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Birthday Celebration Date<sup>*</sup></label>
-                        <div class="col-sm-4 show-message">
-                            <input type="text" name="Birthday Celebration Date" ng-model="employeeNew.BirthdayCelebrationDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="14" required>
+                        <div class="col-sm-4">
+                            <input type="text" name="Birthday Celebration Date" ng-model="employeeNew.BirthdayCelebrationDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="14">
                         </div>
                         <div class="checkbox-site">
                             <label>
@@ -2516,22 +2516,22 @@
                             <input type="text" name="Last Name" ng-model="employeeNew.GivenDesignation" disabled class="form-control" maxlength="100" tabindex="4">
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Shift(Fix)<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
+                        <div class="col-sm-8">
                             <div class="select-style">
-                                <select id="Shit " class="form-control" ng-model="employeeNew.FixSystemID" name="FixedShit" tabindex="16" required>
+                                <select id="Shit " class="form-control" ng-model="employeeNew.FixSystemID" name="FixedShit" tabindex="16">
                                     <option value="">--Select--</option>
                                     <option ng-repeat="option in fixedShitList" value="{{option.Value}}">{{option.Text}}</option>
                                 </select>
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Employment Type<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
+                        <div class="col-sm-8">
                             <div class="select-style">
-                                <select class="form-control" ng-model="employeeNew.EmploymentType" name="Employment Type" required ng-change="ShowVendorCtrl();" tabindex="18">
+                                <select class="form-control" ng-model="employeeNew.EmploymentType" name="Employment Type" ng-change="ShowVendorCtrl();" tabindex="18">
                                     <option value="">--Select--</option>
                                     <option value="Permanent">Permanent</option>
                                     <option value="Contractual">Contractual</option>
@@ -2550,10 +2550,10 @@
                             </span>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Date Of Confirmation<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="Date Of Confirmation" ng-model="employeeNew.DOC" ng-disabled="true" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="21" required>
+                        <div class="col-sm-8">
+                            <input type="text" name="Date Of Confirmation" ng-model="employeeNew.DOC" ng-disabled="true" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="21">
                         </div>
                     </div>
 
