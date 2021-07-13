@@ -3348,8 +3348,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             //                     LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax  where  JWTransformationPurchaseOrderId = 'JWP17' GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
             //ON jwtax.JWTransformationPurchaseOrderId  = JWTPD.JWTransformationPurchaseOrderId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
             //                   WHERE " + strkey + "  and JWTPD.JWTransformationPurchaseOrderId = '" + jwpoId + @"'";
-            string sql = @"SELECT JWA.Id JobWorkActivityId, JWA.UserName JobWorkActivity,JWTPD.*,ISNULL(JWI.UserName,'') JWItemName,ISNULL(JWItemUOM.Code,'') JWItemUOM ,MM.Id MaterialMasterId ,ISNULL(MM.UserName,'') MaterialMasterName
-                            ,MMA.Id ArticleId,ISNULL(MMA.ShortName,'') ArticleName, MMA.Code as ArticleCode
+            string sql = @"SELECT JWA.Id JobWorkActivityId, JWA.UserName JobWorkActivity,JWTPD.*,ISNULL(JWI.UserName,'') JWItemName,ISNULL(JWItemUOM.Code,'') JWItemUOM,MM.Code as MaterialCode
+                          -- ,MM.Id MaterialMasterId 
+						   ,ISNULL(MM.UserName,'') MaterialMasterName
+                            --,MMA.Id ArticleId
+							,ISNULL(MMA.ShortName,'') ArticleName, MMA.Code as ArticleCode
                             ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
                                 ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
                                 ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
@@ -3391,7 +3394,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
     
                             LEFT JOIN (select Sum(TaxAmount) TaxAmount,JWTransformationPurchaseOrderDetailId,JWTransformationPurchaseOrderId from JWTransformationPurchaseOrderTax  where  JWTransformationPurchaseOrderId = '" + jwpoId + @"' GROUP BY JWTransformationPurchaseOrderId, JWTransformationPurchaseOrderDetailId ) jwtax 
                             ON jwtax.JWTransformationPurchaseOrderId  = JWTPD.JobWorkTransformationContractMasterId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
-                            left join hkp.MaterialStorage MS ON MS.Id=JWTPD.MaterialLocationId
+                            left join HKP.JobWorkLocation JL on JL.Id=JWTPD.MaterialLocationId
+							left join hkp.MaterialStorage MS ON MS.Id=JL.StoreLocationId
                             WHERE " + strkey + "  and JWTPD.JobWorkTransformationContractMasterId = '" + jwpoId + @"'";
             return sql;
 		}

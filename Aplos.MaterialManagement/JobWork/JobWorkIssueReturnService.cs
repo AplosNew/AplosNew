@@ -215,9 +215,11 @@ namespace Library.MaterialManagement.JobWork
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select MS.Id as Value, MS.UserName as Text from HKP.MaterialStorage MS 
-                               left join dbo.JobWorkTransformationContractChild mp on mp.MaterialLocationId=MS.Id 
-                               where mp.JobWorkTransformationContractMasterId='"+ TId + @"' order by UserName ";
+                string sql = @"select MS.Id as Value, JL.LocationName as Text, MS.UserName as StorageLocation 
+                               from HKP.JobWorkLocation JL
+                               left join dbo.JobWorkTransformationContractChild mp on mp.MaterialLocationId=JL.Id
+							   left join HKP.MaterialStorage MS on MS.Id=JL.StoreLocationId
+                               where mp.JobWorkTransformationContractMasterId='" + TId + @"' order by JL.LocationName ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
