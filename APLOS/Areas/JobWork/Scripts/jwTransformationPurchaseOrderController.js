@@ -110,6 +110,18 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         });
     }
 
+    $scope.GetJWItemsToEdit = function () {
+        $http({
+            method: 'GET',
+            url: $scope.pathJWCBO + 'getTransformationjobworkitemlist?ActivityId=' + $scope.detailModel.JobActivityId + '&ContractType=' + $scope.productNew.POType,
+        }).then(function successCallback(response) {
+            $scope.JobWorkItemMstList = response.data;
+            //$scope.detailModel.OutputMaterialUOMId = null;
+            //$scope.detailModel.ByProductApplicable = null;
+            //$scope.MaterialMstClear();
+        });
+    }
+
     $scope.GetTransmstList = [];
     $scope.GetJWitemDataFromTrans = function () {
         if ($scope.productNew.POType == "OSTransformationPO") {
@@ -1723,8 +1735,10 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         , Tolerance: null
         , ServiceId: null
         , EmployeeCode: null
-       
         , ResponsiblePerson: null
+        , MaterialCode: null
+        , MaterialName: null
+        , MaterialMasterId: null
     };
     $scope.detailModel = Object.assign({}, $scope.detailTempModel);
 
@@ -1773,9 +1787,9 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         else {
             $scope.taxCategoryList = [];
             $scope.detailModel = Object.assign({}, args);
+            $scope.detailModel.JWMaterialStorage = $scope.detailModel.MaterialStorage;
             $scope.GetJWActivityListByPOType();
-            $scope.GetJWItems();        
-            $scope.GetMaterialfromJW();
+            $scope.GetJWItemsToEdit();         
             $scope.GetJWitemDataFromTrans();
             $scope.GetRate();
             $scope.GetCurrencyyy();
