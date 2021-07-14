@@ -527,5 +527,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/EmployeeAdditionDeductionProcess/Aplos',
             controller: 'EmployeeAdditionDeductionProcessController'
         })
+        .when('/day-status-master', {
+            templateUrl: 'humanresource/DayStatusMaster/Aplos',
+            controller: 'DayStatusMasterController'
+        })
         ;
 }
