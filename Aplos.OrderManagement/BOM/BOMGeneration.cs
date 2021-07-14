@@ -719,17 +719,20 @@ PARENT.IsDestinationSpecific,PARENT.IsPOSpecific, PARENT.SalesOrderSpecificMater
                 //create a dictionary for both data source and db to optimize the search
                 Dictionary<string, DataRow> dicSourceBOQ = new Dictionary<string, DataRow>();
                 for (int i = 0; i < dtSourceBOQ.Rows.Count; i++)
+                    if(dicSourceBOQ.ContainsKey(BOMComparingString(dtSourceBOQ.Rows[i]))==false)
                     dicSourceBOQ.Add(BOMComparingString(dtSourceBOQ.Rows[i]), dtSourceBOQ.Rows[i]);
 
 
                 Dictionary<string, DataRow> dicBOQ = new Dictionary<string, DataRow>();
                 for (int i = 0; i < dsBOQ.Tables[0].Rows.Count; i++)
-                    dicBOQ.Add(BOMComparingString(dsBOQ.Tables[0].Rows[i]), dsBOQ.Tables[0].Rows[i]);
+                    if (dicBOQ.ContainsKey(BOMComparingString(dsBOQ.Tables[0].Rows[i])) == false)
+                        dicBOQ.Add(BOMComparingString(dsBOQ.Tables[0].Rows[i]), dsBOQ.Tables[0].Rows[i]);
 
 
                 Dictionary<string, DataRow> dicBOQDetail = new Dictionary<string, DataRow>();
                 for (int i = 0; i < dsBOQDetail.Tables[0].Rows.Count; i++)
-                    dicBOQDetail.Add(BOMComparingString(dsBOQDetail.Tables[0].Rows[i], true), dsBOQDetail.Tables[0].Rows[i]);
+                    if (dicBOQDetail.ContainsKey(BOMComparingString(dsBOQDetail.Tables[0].Rows[i])) == false)
+                        dicBOQDetail.Add(BOMComparingString(dsBOQDetail.Tables[0].Rows[i], true), dsBOQDetail.Tables[0].Rows[i]);
 
                 //later, we will add the PO related to this BOM whether to delete or not
                 StringCollection BOMReferenceData = GetAllBOMReferenceData(MasterOrderItemId);
