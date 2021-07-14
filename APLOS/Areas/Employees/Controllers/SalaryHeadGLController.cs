@@ -118,6 +118,17 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetListWithSalaryHead(GridParameter parameters, string coaId)
+        {
+            return Json(_salaryHeadGLService.GetSearchWithCombineSalaryHead(parameters, coaId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetSalaryHeadGlbySalaryHead(GridParameter parameters, string SalaryHeadId)
+        {
+            return Json(GetSalaryHeadGls(parameters, SalaryHeadId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetListWithCombineAssing(GridParameter parameters, string coaId)
         {
             return Json(_salaryHeadGLService.GetSearchWithCombineWithAssing(parameters, coaId), JsonRequestBehavior.AllowGet);
@@ -157,6 +168,24 @@ namespace Aplos.Areas.Employees.Controllers
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+
+        private GridModel GetSalaryHeadGls(GridParameter parameters, string SalaryHeadId)
+        {
+            try
+            {
+                parameters.CmdText = @"select a.UserName AccountsGroup,a.Id AccountsGroupId
+                                        ,s.DrDirectGLId,s.DrDirectBudgetMasterId,s.DrDirectActivityId,s.DrDirectOtherGL,s.DrDirectOtherGLCode,s.CrDirectGLId,s.CrDirectBudgetMasterId,s.CrDirectActivityId,s.CrDirectOtherGL,s.CrDirectOtherGLCode
+                                        , s.DrInDirectGLId,s.DrInDirectBudgetMasterId,s.DrInDirectActivityId,s.DrInDirectOtherGL,s.DrInDirectOtherGLCode,s.CrInDirectGLId,s.CrInDirectBudgetMasterId,s.CrInDirectActivityId,s.CrInDirectOtherGL,s.CrInDirectOtherGLCode
+                                        From AccountsGroup a
+                                        left join MST.SalaryHeadGL s on s.AccountsGroupId = a.Id and s.SalaryHeadId='" + SalaryHeadId + "'";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
 
         #region Salary Head Gl Report

@@ -3383,7 +3383,7 @@ namespace Library.HumanResource.Payroll
             var FactoryName = string.Empty;
             var CmpName = string.Empty;
 
-            xlsRow = 1; 
+            xlsRow = 1;
             int xlsCol = 1, endXlsCol = 1;
             int endGenericColumn = 0;
             #endregion Variable
@@ -3926,7 +3926,7 @@ namespace Library.HumanResource.Payroll
                 sheet1.Range[RowIndex, 1, xlsRow - 1, xlsCol].WrapText = true;
                 #endregion
 
-             
+
 
                 #region UsedRange Alignment
                 sheet1.UsedRange.WrapText = true;
@@ -4885,7 +4885,7 @@ namespace Library.HumanResource.Payroll
                 sheet1.Range[RowIndex, 1, xlsRow - 1, xlsCol].WrapText = true;
                 #endregion
 
-               
+
 
                 #region UsedRange Alignment
                 sheet1.UsedRange.WrapText = true;
@@ -7909,18 +7909,20 @@ namespace Library.HumanResource.Payroll
                             _x++;
                             //decimal totalOT = Convert.ToDecimal(dtEmpInfo.Rows[i]["TotalOTHr"].ToString()) / 60;
 
-                            sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.OTHours.ToString(), "Total OTHr");//"OTHr";
-                            if (dtEmpInfo.Rows[i]["TotalOTHr"].ToString() == "0.00")
+
+                            if (clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalOTHr"].ToString()) > 0)
                             {
-                                sheet1.Range[xlsRow + _x, xlsCol + 1].Number = 0.00;
-                                //sheet1[xlsRow + _x, xlsCol + 1].NumberFormat = clsStaticInfo.NumberFormat(2);
-                            }
-                            else
-                            {
+                                //    sheet1.Range[xlsRow + _x, xlsCol + 1].Number = 0.00;
+                                //    //sheet1[xlsRow + _x, xlsCol + 1].NumberFormat = clsStaticInfo.NumberFormat(2);
+                                //}
+                                //else
+                                //{
+                                sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.OTHours.ToString(), "Total OTHr");//"OTHr";
                                 sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalOTHr"].ToString()) / 60;
                                 sheet1[xlsRow + _x, xlsCol + 1].NumberFormat = clsStaticInfo.NumberFormat(2);
+                                _x++;
                             }
-                            _x++;
+
                             #endregion
 
                             xlsCol = 6;
@@ -8011,11 +8013,11 @@ namespace Library.HumanResource.Payroll
                         {
 
                         }
-                        
+
                         //DataView dvNetPay = new DataView(dtSalaryHead);
                         //dvNetPay.RowFilter = "HeadCategory='Net Payable'";
 
-                            result = drSalaryHeadCollection.Where(row => row["HeadCategory"].Equals("Net Payable")).FirstOrDefault();
+                        result = drSalaryHeadCollection.Where(row => row["HeadCategory"].Equals("Net Payable")).FirstOrDefault();
                         if (result != null)
                         {
                             _netPay = clsStaticInfo.dbl(result["DisbusmentAmount"].ToString());

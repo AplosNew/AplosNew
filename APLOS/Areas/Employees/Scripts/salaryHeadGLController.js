@@ -196,25 +196,25 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         var keepGoing = true;
         angular.forEach($scope.salaryHeadGLListForSave, function (item) {
             if (keepGoing) {
-            //    switch (item) {
-            //        case (item.HeadType == 'D' && !baseService.isUndefinedOrNull(item.DrDirectActivityId) && !baseService.isUndefinedOrNull(item.DrDirectBudgetMasterId)):
-            //            {
-            //                ShowResult("Salary Head " + item.SalaryHead + " is deduction Type. Please input only Credit GL!", "failure");
-            //                keepGoing = false;
-            //            }
-            //        case (item.HeadCategory == 'Net Payable'
-            //            && baseService.isUndefinedOrNull(item.CrDirectBudgetMasterId) && baseService.isUndefinedOrNull(item.CrDirectActivityId)):
-            //            {
-            //                ShowResult("Salary Head " + item.SalaryHead + " is E Type. Please input  Credit GL only!", "failure");
-            //                keepGoing = false;
-            //            }
-            //        case (item.HeadCategory == 'Net Payable'
-            //            && !baseService.isUndefinedOrNull(item.DrDirectActivityId) && !baseService.isUndefinedOrNull(item.DrDirectBudgetMasterId)):
-            //            {
-            //                ShowResult("Salary Head " + item.SalaryHead + " is E Type. Please input  Credit GL only!", "failure");
-            //                keepGoing = false;
-            //            }
-            //}
+                //    switch (item) {
+                //        case (item.HeadType == 'D' && !baseService.isUndefinedOrNull(item.DrDirectActivityId) && !baseService.isUndefinedOrNull(item.DrDirectBudgetMasterId)):
+                //            {
+                //                ShowResult("Salary Head " + item.SalaryHead + " is deduction Type. Please input only Credit GL!", "failure");
+                //                keepGoing = false;
+                //            }
+                //        case (item.HeadCategory == 'Net Payable'
+                //            && baseService.isUndefinedOrNull(item.CrDirectBudgetMasterId) && baseService.isUndefinedOrNull(item.CrDirectActivityId)):
+                //            {
+                //                ShowResult("Salary Head " + item.SalaryHead + " is E Type. Please input  Credit GL only!", "failure");
+                //                keepGoing = false;
+                //            }
+                //        case (item.HeadCategory == 'Net Payable'
+                //            && !baseService.isUndefinedOrNull(item.DrDirectActivityId) && !baseService.isUndefinedOrNull(item.DrDirectBudgetMasterId)):
+                //            {
+                //                ShowResult("Salary Head " + item.SalaryHead + " is E Type. Please input  Credit GL only!", "failure");
+                //                keepGoing = false;
+                //            }
+                //}
 
                 if (item.HeadType == 'D' && !baseService.isUndefinedOrNull(item.DrDirectActivityId) && !baseService.isUndefinedOrNull(item.DrDirectBudgetMasterId)) {
                     ShowResult("Salary Head " + item.SalaryHead + " is deduction Type. Please input only Credit GL!", "failure");
@@ -248,7 +248,7 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
                     return true;
                 }
             }
-            
+
         });
         if (keepGoing == false) {
             return true;
@@ -676,5 +676,49 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         //  $scope.path = 'employees/salaryHeadGL/';
         $rootScope.report(file_src);
     }
+
+    //#region PopUp for salary Head
+    $scope.SalaryHeadName = null;
+    $scope.SalaryHeadGlList = [];
+    $scope.SalaryHeadGlListByAccountGroup = [];
+    $scope.getsalaryHead = function () {
+        if ($scope.salaryHeadGL.COAId === null) {
+            return ShowResult("Select COA first", 'failure');
+        }
+        $http.get('employees/SalaryHeadGL/GetListWithSalaryHead?coaId=' + $scope.salaryHeadGL.COAId)
+            .then(function (response) {
+                $scope.SalaryHeadGlList = response.data.Rows;
+            });
+        angular.element(document.querySelector('#SalaryHeadNewPopUp')).modal('show');
+    }
+    $scope.closeEmployeePopUp = function () {
+        angular.element(document.querySelector('#SalaryHeadNewPopUp')).modal('hide');
+    };
+    $scope.setData = function (obj) {
+        $scope.Clear();
+        //var data = obj.data;
+        $scope.SalaryHeadName = obj.data.SalaryHead;
+        //$scope.SalaryHeadId = obj.data.SalaryHeadId;
+
+        angular.element(document.querySelector('#SalaryHeadNewPopUp')).modal('hide');
+        $scope.GetSalaryHeadGl(obj.data.SalaryHeadID);
+    };
+
+    $scope.GetSalaryHeadGl = function (SalaryHeadId) {
+        $http.get('employees/SalaryHeadGL/GetSalaryHeadGlbySalaryHead?SalaryHeadId=' + SalaryHeadId)
+            .then(function (response) {
+                $scope.SalaryHeadGlListByAccountGroup = response.data.Rows;
+            });
+    };
+
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+    function ClearFields() {
+
+    }
+    //#endregion
+
 
 }

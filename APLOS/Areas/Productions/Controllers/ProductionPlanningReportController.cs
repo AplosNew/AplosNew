@@ -41,7 +41,7 @@ namespace Aplos.Areas.Productions.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
-        public ActionResult GetProductionPlanningReport(string fromDate, string toDate)
+        public ActionResult GetProductionPlanningReport(DateTime fromDate, DateTime toDate)
         {
             try
             {   
@@ -55,7 +55,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
 
-        public void ProductionPlanningReport(string fromDate, string toDate)
+        public void ProductionPlanningReport(DateTime fromDate, DateTime toDate)
         {
             try
             {
@@ -75,49 +75,104 @@ namespace Aplos.Areas.Productions.Controllers
 
                 int ROW = 6;
                 int COL = 1;
-
-
-                sheet[ROW, COL].Text = "Sl No.";
-                sheet[ROW, COL].ColumnWidth = 5;
-                int colSlNo = COL;
+                int endCol = 0;
+                int StartRow = 0;
+                int EndRow = 0;
+                int colDate = 0;
                 COL++;
+                Dictionary<DateTime, int> DateColumns = new Dictionary<DateTime, int>();
+                sheet[6, 1].Text = "Date:";
+                sheet[6, 1].CellStyle.Font.Bold = true;
 
-
-
-                int endCol = COL;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
-                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                ROW++;
-
-                int StartRow = ROW; //row 20
-                for (int i = 0; i < dtProductionPlanningReport.Rows.Count; i++)
+                while (fromDate <= toDate)
                 {
-                    sheet[ROW, colSlNo].Number = (i + 1);
-                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet[ROW, COL].Text = fromDate.ToString("dd");
+                    sheet[ROW, COL].ColumnWidth = 8;
+                     colDate = COL;
 
-                    ROW++;
-
+                    DateColumns.Add(fromDate, COL);
+                    fromDate = fromDate.AddDays(1);
+                    COL++;
                 }
 
-                //sheet.Range[StartRow, colOrderQty, ROW, colOrderQty].NumberFormat = clsStaticInfo.NumberFormat(2);
-                //sheet.Range[StartRow, colPlanOrderQty, ROW, colPlanOrderQty].NumberFormat = clsStaticInfo.NumberFormat(2);
-                //sheet.Range[StartRow, colActualQty, ROW, colActualQty].NumberFormat = clsStaticInfo.NumberFormat(2);
-                //sheet.Range[StartRow, colProducedQty, ROW, colProducedQty].NumberFormat = clsStaticInfo.NumberFormat(2);
-                //sheet.Range[StartRow, colVariance, ROW, colVariance].NumberFormat = clsStaticInfo.NumberFormat(2);
-                //sheet.Range[StartRow, colQty, ROW, colQty].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet.IsGridLinesVisible = false;
+               
+                string PreviousLine = "";
+                ROW = 0;
 
-                sheet.UsedRange.WrapText = true;
-                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                COL = 1;
+                for (int i = 0; i < dtProductionPlanningReport.Rows.Count; i++)
+                {
 
+                    if (PreviousLine != dtProductionPlanningReport.Rows[i]["Line"].ToString())
+                    {
+                        ROW += 8;
+                        
+                    }
+
+                    DateTime dtCurrentDate = Convert.ToDateTime(dtProductionPlanningReport.Rows[i]["TargetDate"].ToString());
+
+                    int CCOL = DateColumns[dtCurrentDate];
+                    if (DateColumns.ContainsKey(dtCurrentDate) == false)
+                        continue;
+
+
+                    int RowLineNo = ROW;
+                    int RowWorkingHour = ROW + 1;
+                    int RowManPower = ROW + 2;
+                    int RowPlannedTarget = ROW + 3;
+                    int RowSPT = ROW + 4;
+                    int RowAchievement = ROW + 5;
+                    int RowBalance = ROW + 6;
+                    int RowEfficiency = ROW + 7;
+
+                    sheet[RowLineNo,1].Text = dtProductionPlanningReport.Rows[i]["Line"].ToString();
+                    sheet[RowLineNo, 1].ColumnWidth = 15;
+
+                    sheet.Range[RowLineNo, 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.LightGreen;
+                    sheet.Range[6, 1,6, colDate].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+
+                    sheet[RowWorkingHour, 1].Text = "Working Hour";
+                    sheet[RowManPower, 1].Text = "Manpower";
+                    sheet[RowPlannedTarget, 1].Text = "Planned Target";
+                    sheet[RowSPT, 1].Text = "SPT";
+                    sheet[RowAchievement, 1].Text = "Achivement";
+                    sheet[RowBalance, 1].Text = "Balance";
+                    sheet[RowEfficiency, 1].Text = "Efficiency";
+
+
+                    sheet[RowLineNo, CCOL+1].Text = dtProductionPlanningReport.Rows[i]["BuyerItemNo"].ToString();
+                    sheet.Range[RowLineNo, CCOL + 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Sea_green;
+
+                    sheet[RowWorkingHour, CCOL].Text = dtProductionPlanningReport.Rows[i]["WorkingHour"].ToString();
+                    sheet[RowManPower, CCOL].Number =clsStaticInfo.dbl( dtProductionPlanningReport.Rows[i]["Manpower"].ToString());
+                    sheet[RowPlannedTarget, CCOL].Number = clsStaticInfo.dbl(dtProductionPlanningReport.Rows[i]["TargetQty"].ToString());
+                    sheet[RowSPT, CCOL].Number = clsStaticInfo.dbl(dtProductionPlanningReport.Rows[i]["SPT"].ToString());
+                    sheet[RowAchievement, CCOL].Number = clsStaticInfo.dbl(dtProductionPlanningReport.Rows[i]["ProducedQty"].ToString());
+                    sheet[RowBalance, CCOL].Formula = clsStaticInfo.GetxlsCol(CCOL) + RowPlannedTarget.ToString() + "-" + clsStaticInfo.GetxlsCol(CCOL) + RowAchievement.ToString();
+
+                    sheet[RowEfficiency, CCOL].Formula = clsStaticInfo.GetxlsCol(CCOL) +RowPlannedTarget.ToString()+ "*" + clsStaticInfo.GetxlsCol(CCOL) + RowSPT.ToString() + "/" + clsStaticInfo.GetxlsCol(CCOL) + RowManPower.ToString()+"*" + clsStaticInfo.GetxlsCol(CCOL) + RowWorkingHour.ToString() +"*60";
+
+                    endCol = colDate;
+                    StartRow = RowLineNo;
+                    EndRow = RowEfficiency;
+                    if (PreviousLine != dtProductionPlanningReport.Rows[i]["Line"].ToString())
+                    {                        
+                        sheet.Range[StartRow, 2, StartRow, endCol].Merge();
+                        sheet.Range[StartRow, 1, EndRow, 1].CellStyle.Font.Bold = true;
+                        sheet.Range[StartRow, 1, EndRow, 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                        sheet.Range[StartRow, 1, EndRow, endCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[StartRow, 1, EndRow, endCol].BorderInside(ExcelLineStyle.Hair);
+                        sheet.IsGridLinesVisible = false;
+                        sheet.UsedRange.WrapText = true;
+                        sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                        sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    }
+                    PreviousLine = dtProductionPlanningReport.Rows[i]["Line"].ToString();
+
+
+                }
+                StartRow = 7;
                 sheet["A" + StartRow.ToString()].FreezePanes();
-
-                sheet.Range[StartRow, colSlNo, ROW, colSlNo].NumberFormat = clsStaticInfo.NumberFormat();
-                sheet.Range[StartRow, colSlNo, ROW, colSlNo].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
@@ -125,7 +180,6 @@ namespace Aplos.Areas.Productions.Controllers
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
                 string strFileName = "Production PLanning Report.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
@@ -137,20 +191,20 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        private string GetProductionPlanningReportSQL(string fromDate, string toDate)
+        private string GetProductionPlanningReportSQL(DateTime fromDate, DateTime toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 return @"SELECT w.UserName AS Line, TG.*,prd.ProducedQty
-  FROM (SELECT T.WorkCenterMasterID,'BuyerItemNo' AS BuyerItemNo,t.TargetDate,SUM(t.Quantity) TargetQty,SUM(T.Manpower) Manpower,SUM(t.SMV) AS SPT 
+  FROM (SELECT T.WorkCenterMasterID,'BuyerItemNo' AS BuyerItemNo,t.TargetDate,SUM(t.Quantity) TargetQty,SUM(T.Manpower) Manpower,SUM(t.SMV) AS SPT ,T.TotalHour WorkingHour
   FROM trn.DailyProductionTarget AS T
-WHERE t.TargetDate BETWEEN '"+fromDate+@"' AND '"+toDate+ @"'
-GROUP BY t.TargetDate,T.WorkCenterMasterID
+WHERE t.TargetDate BETWEEN '" + fromDate+@"' AND '"+toDate+ @"'
+GROUP BY t.TargetDate,T.WorkCenterMasterID,T.TotalHour
 ) TG
 LEFT JOIN (
 
 SELECT ps.WorkCenterMasterId,ps.ProductionDate,SUM(ps.Quantity) AS ProducedQty
   FROM trn.ProductionSummary AS ps 
-WHERE ps.ProductionDate BETWEENs '" + fromDate + @"' AND '" + toDate + @"'
+WHERE ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'
 GROUP BY  ps.WorkCenterMasterId,ps.ProductionDate) PRD ON prd.WorkCenterMasterId=tg.WorkCenterMasterID AND tg.TargetDate=prd.ProductionDate
 
 JOIN scs.WorkCenterMaster AS w ON w.Id=tg.WorkCenterMasterID
