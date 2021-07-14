@@ -301,9 +301,17 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         //if (baseService.isUndefinedOrNull($scope.AssetGLId) && baseService.isUndefinedOrNull($scope.AccumulatedDirectGLGLId) && baseService.isUndefinedOrNull($scope.DirectGLGLId) && baseService.isUndefinedOrNull($scope.AssetUnderConstructionGLId) && baseService.isUndefinedOrNull($scope.DownPaymentGLId) && baseService.isUndefinedOrNull($scope.ClearingAccountGLId) && baseService.isUndefinedOrNull($scope.GainOnSaleAssetGLId) && baseService.isUndefinedOrNull($scope.LossOnSaleAssetGLId) && baseService.isUndefinedOrNull($scope.LossOnDisposalAssetGLId) && checkVendorReconGLIsAssinged($scope.accountGroupList)) {
         //    return ShowResult("Please Select at least one GL!!", 'failure');
         //}
-        if ($scope.salaryHeadGLListForSave.length < 1) {
+        if ($scope.SalaryHeadGlListByAccountGroup.length < 1) {
             return ShowResult("No list found!!", 'failure');
         }
+
+        for (var i = 0; i < $scope.SalaryHeadGlListByAccountGroup.length; i++) {
+            $scope.SalaryHeadGlListByAccountGroup[i].CompanyId = $scope.salaryHeadGL.CompanyId;
+            $scope.SalaryHeadGlListByAccountGroup[i].COAId = $scope.salaryHeadGL.COAId;
+            $scope.SalaryHeadGlListByAccountGroup[i].PlantId = $scope.salaryHeadGL.PlantId;
+            $scope.SalaryHeadGlListByAccountGroup[i].SalaryHeadId = $scope.SalaryHeadId;
+        }
+
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.salaryHeadGLNewForm.$valid && !$scope.validation()) {
             if ($scope.Action === "Save") {
@@ -311,7 +319,7 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
                     method: 'POST',
                     url: $scope.saveUrl,
                     data: {
-                        'salaryHeadGL': $scope.salaryHeadGLListForSave,
+                        'salaryHeadGL': $scope.SalaryHeadGlListByAccountGroup,
                     },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -700,6 +708,7 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
 
     //#region PopUp for salary Head
     $scope.SalaryHeadName = null;
+    $scope.SalaryHeadId = null;
     $scope.SalaryHeadGlList = [];
     $scope.SalaryHeadGlListByAccountGroup = [];
     $scope.getsalaryHead = function () {
@@ -719,7 +728,7 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         $scope.Clear();
         //var data = obj.data;
         $scope.SalaryHeadName = obj.data.SalaryHead;
-        //$scope.SalaryHeadId = obj.data.SalaryHeadId;
+        $scope.SalaryHeadId = obj.data.SalaryHeadID;
 
         angular.element(document.querySelector('#SalaryHeadNewPopUp')).modal('hide');
         $scope.GetSalaryHeadGl(obj.data.SalaryHeadID);

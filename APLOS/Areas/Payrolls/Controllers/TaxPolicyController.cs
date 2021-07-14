@@ -314,7 +314,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 {
                     throw new Exception("At least one Gender should be ticked..");
                 }
-                
+
                 master.GroupID = identity.CompanyGroupId;
                 master.AddedBy = identity.Name;
                 IncomeTaxPolicy p = new IncomeTaxPolicy();
@@ -340,7 +340,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 {
                     if (BP[i].IsSelectPolicy == false)
                     {
-                        if (BP[i].IsDefaultPolicy==true)
+                        if (BP[i].IsDefaultPolicy == true)
                         {
                             throw new Exception("Please Select [" + BP[i].TaxPolicyName + "] to save as Default Policy..");
                         }
@@ -428,6 +428,12 @@ namespace Aplos.Areas.Payrolls.Controllers
                 con.OpenDataSetThroughAdapter("select * from TaxPolicyGeneralFormula where TaxPolicyGeneralId='" + GeneralFormula.TaxPolicyGeneralId + "' AND  Id<>'" + GeneralFormula.Id + "' AND  Description='" + GeneralFormula.Description + "'", out dsGeneralFormula, false, "1");
                 if (dsGeneralFormula.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Description already exists!!!");
+                if (GeneralFormula.IsOptionBaseDefault)
+                {
+                    con.OpenDataSetThroughAdapter("select * from TaxPolicyGeneralFormula where TaxPolicyGeneralId='" + GeneralFormula.TaxPolicyGeneralId + "' AND  OptionBasedValue='" + GeneralFormula.OptionBasedValue + "' and IsOptionBaseDefault=1 ", out dsGeneralFormula, false, "1");
+                    if (dsGeneralFormula.Tables[0].Rows.Count > 0)
+                        throw new Exception("Defaul already set for this group");
+                }
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IncomeTaxPolicy p = new IncomeTaxPolicy();
                 p.SaveGeneralFormula(GeneralFormula, details);
