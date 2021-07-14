@@ -534,5 +534,21 @@ namespace Aplos.Areas.JobWork.Controllers
 
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetJWMaterialStorage(string JWLocId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                return Json(JobWorkCommon.GetJWMaterialStorage(JWLocId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
     }
 }

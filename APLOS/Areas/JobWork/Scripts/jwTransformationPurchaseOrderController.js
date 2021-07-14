@@ -110,6 +110,18 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         });
     }
 
+    $scope.GetJWItemsToEdit = function () {
+        $http({
+            method: 'GET',
+            url: $scope.pathJWCBO + 'getTransformationjobworkitemlist?ActivityId=' + $scope.detailModel.JobActivityId + '&ContractType=' + $scope.productNew.POType,
+        }).then(function successCallback(response) {
+            $scope.JobWorkItemMstList = response.data;
+            //$scope.detailModel.OutputMaterialUOMId = null;
+            //$scope.detailModel.ByProductApplicable = null;
+            //$scope.MaterialMstClear();
+        });
+    }
+
     $scope.GetTransmstList = [];
     $scope.GetJWitemDataFromTrans = function () {
         if ($scope.productNew.POType == "OSTransformationPO") {
@@ -131,7 +143,25 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         url: $scope.pathJWCBO + 'getmateriallocation/',
     }).then(function successCallback(response) {
         $scope.MaterialLocList = response.data;
-    });
+        });
+
+    $scope.MStorageList = [];
+    $scope.GetJWMaterialStorage = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetJWMaterialStorage?JWLocId=' + $scope.detailModel.MaterialLocationId,
+        }).then(function successCallback(response) {
+            $scope.MStorageList = response.data;
+            if ($scope.MStorageList.length > 0) {
+                if ($scope.MStorageList[0].StoreLocationId != null) {
+                    $scope.detailModel.JWMaterialStorage = $scope.MStorageList[0].MaterialStorage;
+                }
+                else {
+                    $scope.detailModel.JWMaterialStorage = null;
+                }
+            }
+        });
+    }
 
     $http({
         method: 'GET',
@@ -1705,8 +1735,10 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         , Tolerance: null
         , ServiceId: null
         , EmployeeCode: null
-       
         , ResponsiblePerson: null
+        , MaterialCode: null
+        , MaterialName: null
+        , MaterialMasterId: null
     };
     $scope.detailModel = Object.assign({}, $scope.detailTempModel);
 
@@ -1755,9 +1787,9 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         else {
             $scope.taxCategoryList = [];
             $scope.detailModel = Object.assign({}, args);
+            $scope.detailModel.JWMaterialStorage = $scope.detailModel.MaterialStorage;
             $scope.GetJWActivityListByPOType();
-            $scope.GetJWItems();        
-            $scope.GetMaterialfromJW();
+            $scope.GetJWItemsToEdit();         
             $scope.GetJWitemDataFromTrans();
             $scope.GetRate();
             $scope.GetCurrencyyy();

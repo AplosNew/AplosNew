@@ -5,6 +5,14 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	$scope.Action = 'Save';
 	$scope.index = -1;
 	$scope.products = [];
+	$scope.CustomerList = [];
+	$scope.PostingStockBeyondIssueDateList = [];
+	$scope.PostingStockList = [];
+	$scope.UnApprovedStockDetailBeyondIssueDateList = [];
+	$scope.ApprovedStockBeyondIssueDateList = [];
+	$scope.UnApprovedStockList = [];
+	$scope.ApprovedStockList = [];
+	
 	$scope.partyType = "Customer";
 	$scope.path1 = 'Products/PurchaseOrder/';
 	$scope.path = 'Products/InventoryIssue/';
@@ -1149,6 +1157,10 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		}
 		else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
 			ShowResult("Please select to be checked by", 'failure');
+			return false;
+		}
+		else if (baseService.isUndefinedOrNull($scope.productNew.PartyName)) {
+			ShowResult("Please select Customer", 'failure');
 			return false;
 		}
 		var UIStatus = $("#SlipAssetIssueUI").val();

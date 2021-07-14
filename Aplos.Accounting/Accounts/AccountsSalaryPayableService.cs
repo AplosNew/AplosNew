@@ -34,14 +34,12 @@ namespace Library.Accounting.Accounts
             _sqlRepository = sqlRepository;
         }
 
-        public List<Dictionary<string, object>> GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        public List<Dictionary<string, object>> GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity,string plantId)
         {
+
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
+            
             if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
@@ -53,6 +51,10 @@ namespace Library.Accounting.Accounts
             if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
             else
             {
@@ -79,12 +81,13 @@ namespace Library.Accounting.Accounts
                         FROM [dbo].[SalaryLock] sl 
                         LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
-                        AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 
+                        AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 AND SPL.PlantId='"+ plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=1 AND sh.PartOfNetPay=1 " + wcEmpStatus + @"
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
                         UNION
@@ -95,12 +98,13 @@ namespace Library.Accounting.Accounts
                         FROM [dbo].[SalaryLock] sl 
                         LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
-                        AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 
+                        AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=1 " + wcEmpStatus + @"
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
                         UNION
@@ -111,12 +115,13 @@ namespace Library.Accounting.Accounts
                         FROM [dbo].[SalaryLock] sl 
                         LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"' 
-                        AND ISNULL(sh.SalaryHead,'')  in ('Net Pay') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @"
+                        AND ISNULL(sh.SalaryHead,'')  in ('Net Pay') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' 
 
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
@@ -128,13 +133,14 @@ namespace Library.Accounting.Accounts
                         FROM [dbo].[SalaryLock] sl 
                         LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"'
                         --and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable')  
-                        and spc.DisbusmentAmount!=0 and  PO.DirectManpowerCost=1 AND sh.HeadType='D' " + wcEmpStatus + @"
+                        and spc.DisbusmentAmount!=0 and  PO.DirectManpowerCost=1 AND sh.HeadType='D' " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
                         ) x
 						ORDER BY x.HeadType desc,x.[Sequence] asc";
@@ -142,14 +148,11 @@ namespace Library.Accounting.Accounts
 
         }
 
-        public List<Dictionary<string, object>> GetSalaryLockCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        public List<Dictionary<string, object>> GetSalaryLockCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity,string plantId)
         {
-            string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
+            string wcEmpStatus = " AND spm.SalaryProcFlag=''";
+            
             if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
@@ -161,6 +164,10 @@ namespace Library.Accounting.Accounts
             if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
             else
             {
@@ -186,26 +193,24 @@ namespace Library.Accounting.Accounts
                         FROM [dbo].[SalaryLock] sl 
                         LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL --and sl.EmpSystemId='" + employeeId + @"' 
-                        AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 
+                        AND ISNULL(sh.HeadCategory,'')  in ('CTC') and spc.DisbusmentAmount!=0 AND SPL.PlantId='"+ plantId+ @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=0 " + wcEmpStatus + @"
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						ORDER BY sh.[Sequence],sh.SalaryHead";
             return _sqlRepository.GetDataCollection(sql);
         }
         
-        public List<Dictionary<string, object>> GetSalaryLockDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        public List<Dictionary<string, object>> GetSalaryLockDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
+            
             if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
@@ -217,6 +222,10 @@ namespace Library.Accounting.Accounts
             if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
             else
             {
@@ -253,6 +262,7 @@ namespace Library.Accounting.Accounts
                         from [dbo].[SalaryLock] sl 
                         left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -262,7 +272,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN MST.BudgetMaster DBM ON DBM.Id=SGL.DrDirectBudgetMasterId
                             LEFT JOIN HKP.Budget DB ON DB.Id=DBM.BudgetId
                             LEFT JOIN HKP.Activity DA ON DA.Id=SGL.DrDirectActivityId
-                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=1 and sgl.DrDirectActivityId<>''
                         group by sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence],SGL.DrDirectGLId,SGL.DrDirectBudgetMasterId,SGL.DrDirectActivityId
 						,DGL.AccountCode,DGL.UserName ,DB.UserName ,DA.UserName
@@ -281,6 +291,7 @@ namespace Library.Accounting.Accounts
                         from [dbo].[SalaryLock] sl 
                         left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -291,7 +302,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=SGL.CrDirectBudgetMasterId
                             LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
                             LEFT JOIN HKP.Activity CDA ON CDA.Id=SGL.CrDirectActivityId
-                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=1 and sgl.CrDirectActivityId<>''
                         group by sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						,SGL.CrDirectGLId,SGL.CrDirectBudgetMasterId,SGL.CrDirectActivityId
@@ -305,14 +316,11 @@ namespace Library.Accounting.Accounts
 
         }
 
-        public List<Dictionary<string, object>> GetSalaryLockInDirectTakeAwayDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        public List<Dictionary<string, object>> GetSalaryLockInDirectTakeAwayDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
+            
             if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
@@ -324,6 +332,10 @@ namespace Library.Accounting.Accounts
             if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
             else
             {
@@ -350,13 +362,14 @@ namespace Library.Accounting.Accounts
                         FROM [dbo].[SalaryLock] sl 
                         LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 
-                        AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=1 AND sh.PartOfNetPay=1
+                        AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=1 AND sh.PartOfNetPay=1 AND SPL.PlantId='" + plantId + @"'
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
                         UNION
                         SELECT sh.SalaryHead,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
@@ -372,7 +385,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"'  
                         AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 
-                        AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=1
+                        AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=1 AND SPL.PlantId='" + plantId + @"'
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
                         UNION
                         SELECT sh.SalaryHead,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
@@ -382,12 +395,13 @@ namespace Library.Accounting.Accounts
                         FROM [dbo].[SalaryLock] sl 
                         LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
-                        AND ISNULL(sh.SalaryHead,'')  in ('Net Pay') and spc.DisbusmentAmount!=0 
+                        AND ISNULL(sh.SalaryHead,'')  in ('Net Pay') and spc.DisbusmentAmount!=0 AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' 
 
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
@@ -399,11 +413,12 @@ namespace Library.Accounting.Accounts
                         FROM [dbo].[SalaryLock] sl 
                         LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
-                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         --and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') 
                         and spc.DisbusmentAmount!=0  and  PO.DirectManpowerCost=0 AND sh.HeadType='D'
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
@@ -413,14 +428,11 @@ namespace Library.Accounting.Accounts
         }
 
       
-        public List<Dictionary<string, object>> GetSalaryLockInDirectCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        public List<Dictionary<string, object>> GetSalaryLockInDirectCTCDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
+           
             if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
@@ -432,6 +444,10 @@ namespace Library.Accounting.Accounts
             if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
             else
             {
@@ -457,27 +473,25 @@ namespace Library.Accounting.Accounts
                         FROM [dbo].[SalaryLock] sl 
                         LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						LEFT JOIN ORG.Position PO on PO.Id=MPB.PositionId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL--and sl.EmpSystemId='" + employeeId + @"' 
-                        AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross','Net Payable') and spc.DisbusmentAmount!=0 
-                        AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=0 " + wcEmpStatus + @"
+                        AND ISNULL(sh.HeadCategory,'')  in ('CTC') and spc.DisbusmentAmount!=0 
+                        AND  PO.DirectManpowerCost=0 AND sh.HeadType='E' AND sh.IsGrossComponent=0 AND sh.PartOfNetPay=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         GROUP BY sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						ORDER BY sh.[Sequence],sh.SalaryHead";
             return _sqlRepository.GetDataCollection(sql);
         }
 
         
-        public List<Dictionary<string, object>> GetSalaryLockInDirectDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
+        public List<Dictionary<string, object>> GetSalaryLockInDirectDataGLList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
+            
             if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
@@ -489,6 +503,10 @@ namespace Library.Accounting.Accounts
             if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
             else
             {
@@ -525,6 +543,7 @@ namespace Library.Accounting.Accounts
                         from [dbo].[SalaryLock] sl 
                         left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -535,7 +554,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN HKP.Budget IB ON IB.Id=IBM.BudgetId
                             LEFT JOIN HKP.Activity IA ON IA.Id=SGL.DrInDirectActivityId
 							
-                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 and sgl.DrInDirectActivityId<>''
                         group by sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence],SGL.DrInDirectGLId,SGL.DrInDirectBudgetMasterId,SGL.DrInDirectActivityId
 						,IGL.AccountCode,IGL.UserName ,IB.UserName ,IA.UserName
@@ -553,6 +572,7 @@ namespace Library.Accounting.Accounts
                         from [dbo].[SalaryLock] sl 
                         left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -563,7 +583,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN MST.BudgetMaster CIBM ON CIBM.Id=SGL.CrInDirectBudgetMasterId
                             LEFT JOIN HKP.Budget CIB ON CIB.Id=CIBM.BudgetId
                             LEFT JOIN HKP.Activity CIA ON CIA.Id=SGL.CrInDirectActivityId
-                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @"--and sl.EmpSystemId='" + employeeId + @"' 
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 and sgl.CrInDirectActivityId<>''
                         group by sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						,SGL.CrInDirectGLId,SGL.CrInDirectBudgetMasterId,SGL.CrInDirectActivityId
@@ -576,14 +596,11 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public List<Dictionary<string, object>> GetDirectSalaryLockSalarySheetData(string yearNo, string monthNo, bool isActive, bool isSeperated, bool isMaternity)
+        public List<Dictionary<string, object>> GetDirectSalaryLockSalarySheetData(string yearNo, string monthNo, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            if (isActive == true && isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
-            }
+            
             if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
@@ -595,6 +612,10 @@ namespace Library.Accounting.Accounts
             if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            if (isActive == true && isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
             else
             {
@@ -621,6 +642,7 @@ namespace Library.Accounting.Accounts
                         FROM [dbo].[SalaryLock] sl 
                         LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -631,14 +653,14 @@ namespace Library.Accounting.Accounts
 						JOIN TRN.AdvanceDetail AD ON AD.AdvanceId=A.Id
 						WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"'  ) ESA ON ESA.EmployeeId=SL.EmpSystemId
                         WHERE sl.MonthNo='"+ monthNo + "' and sl.YearNo='"+yearNo+@"' AND sl.PayableVoucherId IS NULL 
-                        AND ISNULL(sh.SalaryHead,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @"
+                        AND ISNULL(sh.SalaryHead,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=1 AND sh.HeadType='D' 
                         ) x
 						ORDER BY x.HeadType desc,x.[Sequence] asc";
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public List<Dictionary<string, object>> GetInDirectSalaryLockSalarySheetData(string yearNo, string monthNo, bool isActive, bool isSeperated, bool isMaternity)
+        public List<Dictionary<string, object>> GetInDirectSalaryLockSalarySheetData(string yearNo, string monthNo, bool isActive, bool isSeperated, bool isMaternity, string plantId)
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
@@ -683,6 +705,7 @@ namespace Library.Accounting.Accounts
                         FROM [dbo].[SalaryLock] sl 
                         LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
@@ -693,7 +716,7 @@ namespace Library.Accounting.Accounts
 						JOIN TRN.AdvanceDetail AD ON AD.AdvanceId=A.Id
 						WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"'  ) ESA ON ESA.EmployeeId=SL.EmpSystemId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL 
-                        AND ISNULL(sh.SalaryHead,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @"
+                        AND ISNULL(sh.SalaryHead,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
                         AND  PO.DirectManpowerCost=0 AND sh.HeadType='D' 
                         ) x
 						ORDER BY x.HeadType desc,x.[Sequence] asc";

@@ -61,7 +61,8 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult getmateriallocation()
         {
             string sql = "";
-            sql = @"select Id as Value, UserName as Text from HKP.MaterialStorage order by UserName";
+            sql = @"select jl.Id as Value, jl.LocationName as Text, StoreLocationId,ms.UserName as MaterialStorage
+                    from HKP.JobWorkLocation jl left join HKP.MaterialStorage ms on ms.Id=jl.StoreLocationId order by LocationName";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -1646,17 +1647,19 @@ namespace Aplos.Areas.JobWork.Controllers
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 var JWIId = "' '";
+                var ArtId = "' '";
 
                 foreach (var empitem in SelectedMatInputData)
                 {
                     JWIId += ",'" + empitem.JobWorkItemId + "' ";
+                    ArtId += ",'" + empitem.ArticleId + "' ";
 
                 }
-                con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild3 where JobWorkItemId IN ( " + JWIId + " ) and JobWorkTransformationContractChildMasterId='" + ChildMasterId + "'  ", out ExistOrNot, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild3 where JobWorkItemId IN ( " + JWIId + " ) and ArticleId IN ("+ ArtId + ") and JobWorkTransformationContractChildMasterId='" + ChildMasterId + "'  ", out ExistOrNot, false, "1");
 
                 foreach (var item in SelectedMatInputData)
                 {
-                    ExistOrNot.Tables[0].DefaultView.RowFilter = "JobWorkItemId ='" + item.JobWorkItemId + "' and JobWorkTransformationContractChildMasterId='" + ChildMasterId + "' ";
+                    ExistOrNot.Tables[0].DefaultView.RowFilter = "JobWorkItemId ='" + item.JobWorkItemId + "' and ArticleId='"+ item.ArticleId +"' and JobWorkTransformationContractChildMasterId='" + ChildMasterId + "' ";
 
                     if (ExistOrNot.Tables[0].DefaultView.Count == 0)
                     {
@@ -1839,17 +1842,19 @@ namespace Aplos.Areas.JobWork.Controllers
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 var JWId = "' '";
-              
+                var ArtId = "' '";
+
                 foreach (var empitem in ByProductMstData)
                 {
                     JWId += ",'" + empitem.JobWorkItemId + "' ";
-                    
+                    ArtId += ",'" + empitem.BPArticleId + "' ";
+
                 }
-                con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild4 where JobWorkItemId IN ( " + JWId + " ) and JobWorkTransformationContractChild3MasterId='" + ChildMasterId + "'  ", out ExistOrNot, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild4 where JobWorkItemId IN ( " + JWId + " ) and ArticleId IN (" + ArtId + ") and JobWorkTransformationContractChild3MasterId='" + ChildMasterId + "'  ", out ExistOrNot, false, "1");
 
                 foreach (var item in ByProductMstData)
                 {
-                    ExistOrNot.Tables[0].DefaultView.RowFilter = "JobWorkItemId ='" + item.JobWorkItemId + "' and JobWorkTransformationContractChild3MasterId='" + ChildMasterId + "' ";
+                    ExistOrNot.Tables[0].DefaultView.RowFilter = "JobWorkItemId ='" + item.JobWorkItemId + "' and ArticleId='" + item.BPArticleId + "' and JobWorkTransformationContractChild3MasterId='" + ChildMasterId + "' ";
 
                     if (ExistOrNot.Tables[0].DefaultView.Count == 0)
                     {

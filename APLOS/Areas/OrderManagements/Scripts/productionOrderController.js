@@ -1315,9 +1315,9 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         cboService.getUomCboByMaterialMaster(JSON.stringify(mmId), function (response) {
             if (baseService.arrayLength(response) > 0) {
                 angular.forEach(response, function (item, i) {
-                    if (checkExistList($scope.uOMList, item.Value) === false) {
+                   // if (checkExistList($scope.uOMList, item.Value) === false) {
                         $scope.uOMList.push(item);
-                    }
+                   // }
                     if (!baseService.isUndefinedOrNull($scope.itemIndex)) {
                         $scope.prdProcessSetList[$scope.itemIndex].UOMId = item.Value;
                     }
