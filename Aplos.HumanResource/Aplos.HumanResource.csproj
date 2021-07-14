@@ -245,6 +245,9 @@
     <Compile Include="SalaryProcessActive\clsSalaryProcessAplosListR.cs" />
     <Compile Include="ShiftChange\clsShiftChangeSectionWise.cs" />
     <Compile Include="Shift\DayStatusService.cs" />
+    <Compile Include="Shift\OutPunchConfigurationService.cs" />
+    <Compile Include="Shift\RosterPatternService.cs" />
+    <Compile Include="Shift\WeeklyOffService.cs" />
     <Compile Include="SmsSend\clsSMSSendNotification.cs" />
   </ItemGroup>
   <ItemGroup>

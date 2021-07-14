@@ -531,5 +531,17 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/DayStatusMaster/Aplos',
             controller: 'DayStatusMasterController'
         })
+        .when('/weekly-off', {
+            templateUrl: 'humanresource/WeeklyOff/Aplos',
+            controller: 'WeeklyOffController'
+        })
+        .when('/out-punch-configuration', {
+            templateUrl: 'humanresource/OutPunchConfiguration/Aplos',
+            controller: 'OutPunchConfigurationController'
+        })
+        .when('/roster-pattern', {
+            templateUrl: 'humanresource/RosterPattern/Aplos',
+            controller: 'RosterPatternController'
+        })
         ;
 }
