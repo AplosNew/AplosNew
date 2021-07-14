@@ -180,7 +180,26 @@ namespace Aplos.Areas.Productions.Controllers
                 else
                 {
                     MasterId = data.Id;
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                    //EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
+                    dr = dsMaster.Tables[0].DefaultView[0].Row;
+                    dr.BeginEdit();
+                    dr["Sequence"] = data.Sequence;
+                    dr["Code"] = data.Code;
+                    dr["ShortName"] = data.ShortName;
+                    dr["StandardName"] = data.StandardName;
+                    dr["UserName"] = data.UserName;
+                    dr["Description"] = data.Description;
+                    dr["Remarks"] = data.Remarks;
+                    dr["Active"] = data.Active;
+                    dr["FGMaterialMasterId"] = data.FGMaterialMasterId;
+                    dr["FabricWidthId"] = data.FabricWidthId;
+                    dr["FGArticleId"] = data.FGArticleId;
+                    dr["ShrinkageGroupId"] = data.ShrinkageGroupId;
+                    dr["CharacteristicsId"] = data.CharacteristicsId;
+                    dr["ShadeId"] = data.ShadeId;
+                    dr["Length"] = data.Length;
+                    dr["Attachment"] = data.Attachment;
+                    dr.EndEdit();
                 }
                 #endregion data update
 
@@ -215,8 +234,8 @@ namespace Aplos.Areas.Productions.Controllers
                     }
                     else
                     {
-                        if (item.Id != null && item.Ratio == 0)
-                        {
+                        //if (item.Id != null && item.Ratio != 0)
+                        //{
                             dr = dsChild.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
                             dr["Ratio"] = item.Ratio;
@@ -225,7 +244,7 @@ namespace Aplos.Areas.Productions.Controllers
                             dr["UpdatedDate"] = DateTime.Now;
                             dr["UpdatedFromIP"] = identity.IPAddress;
                             dr.EndEdit();
-                        }
+                        //}
                     }
                 }
                 for (int i = 0; i < dsChild.Tables[0].Rows.Count; i++)
@@ -354,6 +373,7 @@ namespace Aplos.Areas.Productions.Controllers
             dr["Remarks"] = data.Remarks;
             dr["Active"] = data.Active;
             dr["FGMaterialMasterId"] = data.FGMaterialMasterId;
+            dr["FabricWidthId"] = data.FabricWidthId;
             dr["FGArticleId"] = data.FGArticleId;
             dr["ShrinkageGroupId"] = data.ShrinkageGroupId;
             dr["CharacteristicsId"] = data.CharacteristicsId;
@@ -413,6 +433,7 @@ namespace Aplos.Areas.Productions.Controllers
         public string Remarks { get; set; }
         public bool Active { get; set; }
         public string FGMaterialMasterId { get; set; }
+        public string FabricWidthId { get; set; }
         public string FGArticleId { get; set; }
         public string ShrinkageGroupId { get; set; }
         public string CharacteristicsId { get; set; }

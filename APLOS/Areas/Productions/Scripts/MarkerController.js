@@ -104,7 +104,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
     };
 
 
-    $scope.getFGCharacteristicsListNew = function (id,MasterId) {
+    $scope.getFGCharacteristicsListNew = function (id, MasterId) {
         $http({
             method: 'GET',
             url: 'Materials/MaterialMaster/getcharacteristicsbymaterialmasterid/',
@@ -119,6 +119,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
 
     };
     $scope.TotalRatio = 0;
+    $scope.SelectFGCharacteristicsValueList = [];
     $scope.FGCharacteristicsValueList = [];
     $scope.GetFGCharacteristicsValueCboAfterSave = function () {
         $scope.TotalRatio = 0;
@@ -133,9 +134,10 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             data: { 'materialMasterId': $scope.ModelNew.FGMaterialMasterId, 'characteristicsId': $scope.ModelNew.CharacteristicsId, 'valueAssignmentLevel': valueAssignmentLevel, 'MarkerMasterId': $scope.ModelNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.FGCharacteristicsValueList = response.data;
-            for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
-                if ($scope.FGCharacteristicsValueList[i].Ratio != 0 || !baseService.isUndefinedOrNull($scope.FGCharacteristicsValueList[i].Ratio)) {
+            $scope.FGCharacteristicsValueList = [];
+            $scope.SelectFGCharacteristicsValueList = response.data;
+            for (var i = 0; i < $scope.SelectFGCharacteristicsValueList.length; i++) {
+                if ($scope.SelectFGCharacteristicsValueList[i].Ratio != null) {
                     $scope.SKUDisable = true;
                     break;
                 }
@@ -143,9 +145,14 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                     $scope.SKUDisable = false;
                 }
             }
-            for (var i = 0; i < $scope.FGCharacteristicsValueList.length; i++) {
-                if ($scope.FGCharacteristicsValueList[i].Ratio != 0 || !baseService.isUndefinedOrNull($scope.FGCharacteristicsValueList[i].Ratio)) {
-                    $scope.TotalRatio = parseFloat($scope.FGCharacteristicsValueList[i].Ratio) + parseFloat($scope.TotalRatio);
+            for (var i = 0; i < $scope.SelectFGCharacteristicsValueList.length; i++) {
+                if ($scope.SelectFGCharacteristicsValueList[i].IsSelect) {
+                    $scope.FGCharacteristicsValueList.push($scope.SelectFGCharacteristicsValueList[i]);
+                }
+            }
+            for (var i = 0; i < $scope.SelectFGCharacteristicsValueList.length; i++) {
+                if ($scope.SelectFGCharacteristicsValueList[i].Ratio != null) {
+                    $scope.TotalRatio = parseFloat($scope.SelectFGCharacteristicsValueList[i].Ratio) + parseFloat($scope.TotalRatio);
                 }
             }
         });
@@ -157,7 +164,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         }
     }
 
-    $scope.FGCharacteristicsValueList = [];
+    //$scope.FGCharacteristicsValueList = [];
     $scope.GetFGCharacteristicsValueCbo = function () {
         for (var i = 0; i < $scope.characteristicsList.length; i++) {
             if ($scope.ModelNew.CharacteristicsId == $scope.characteristicsList[i].Value) {
@@ -170,9 +177,13 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             data: { 'materialMasterId': $scope.ModelNew.FGMaterialMasterId, 'characteristicsId': $scope.ModelNew.CharacteristicsId, 'valueAssignmentLevel': valueAssignmentLevel },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.FGCharacteristicsValueList = response.data;
+            $scope.SelectFGCharacteristicsValueList = response.data;
         });
         $scope.HeaderName = $("#SKU option:selected").text();
+    }
+
+    $scope.ClearList = function () {
+        $scope.FGCharacteristicsValueList = [];
     }
 
     //#endregion
@@ -221,12 +232,16 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         });
     };
     $scope.GetSequence();
-
+    $scope.CustomeFileName = null;
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.getFGCharacteristicsListNew($scope.ModelNew.FGMaterialMasterId, $scope.ModelNew.Id);
         $scope.HeaderName = $scope.ModelNew.HeaderName;
-
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Attachment)) {
+            var str = $scope.ModelNew.Attachment;
+            var extention = str.substr(str.indexOf('.'));
+            $scope.CustomeFileName = $scope.ModelNew.Id + extention;
+        }
         //$scope.filedata.name = $scope.ModelNew.Attachment;
 
         $scope.Action = 'Update';
@@ -234,6 +249,8 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             $rootScope.toggle();
         }
     };
+
+
 
     $scope.getDetails = function (MasterId) {
         $http({
@@ -296,7 +313,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
                         return formData;
                     },
 
-                    data: { 'data': $scope.ModelNew, 'details': $scope.FGCharacteristicsValueList,'file': $scope.filedata },
+                    data: { 'data': $scope.ModelNew, 'details': $scope.FGCharacteristicsValueList, 'file': $scope.filedata },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -369,6 +386,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         $scope.ModelNew.Sequence = seq;
         $scope.FGCharacteristicsValueList = [];
         $scope.characteristicsList = [];
+        $scope.SelectFGCharacteristicsValueList = [];
         $scope.SKUDisable = false;
     }
 
@@ -404,5 +422,47 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         });
     }
     $scope.getShade();
+    $scope.ShowDiv = false;
+    $scope.AddLineItem = function () {
+        try {
+            $scope.ShowDiv = true;
+            //var gridObj = $("#BPolicyId").data("ejGrid");
+            //var data = gridObj.getSelectedRecords()[0];
+            /*  $scope.TaxPolicyGeneralFormula.TaxPolicyGeneralId = data.SystemID;*/
+            var eDialog = $("#General").data("ejDialog");
+            //if (data.IsExemption == true) {
+            //$scope.getGeneralTaxFormula($scope.TaxPolicyGeneralFormula.TaxPolicyGeneralId);
+            $("#General").ejDialog("setTitle", $scope.HeaderName);
+            eDialog.open();
+            //}
+            //else {
+            //    throw "Exemption Applicable is not checked for this Taxable Income";
+            //}
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
 
+    };
+    $scope.SelectList = function () {
+        //$scope.FGCharacteristicsValueList = [];
+        for (var i = 0; i < $scope.SelectFGCharacteristicsValueList.length; i++) {
+            if ($scope.SelectFGCharacteristicsValueList[i].IsSelect) {
+                if (checkExistList($scope.FGCharacteristicsValueList, $scope.SelectFGCharacteristicsValueList[i].CharacteristicsValueId) === false) {
+                    $scope.FGCharacteristicsValueList.push($scope.SelectFGCharacteristicsValueList[i]);
+                }
+                //$scope..push($scope.SelectFGCharacteristicsValueList[i]);
+            }
+
+        }
+        var eDialog = $("#General").data("ejDialog");
+        eDialog.close();
+    }
+    function checkExistList(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].CharacteristicsValueId == Id) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
