@@ -22,12 +22,44 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
 
     //////// Drop Down
 
-    $http({
-        method: 'GET',
-        url: 'JobWork/JobWorkIssueReturn/gejobworklocation/',
-    }).then(function successCallback(response) {
-        $scope.JobWorkLocationList = response.data;
+    //$http({
+    //    method: 'GET',
+    //    url: 'JobWork/JobWorkIssueReturn/gejobworklocation/',
+    //}).then(function successCallback(response) {
+    //    $scope.JobWorkLocationList = response.data;
+    //    });
+
+    $scope.ValAddedJobWorkLocList = [];
+    $scope.SelectedValAddedMaterialStorage = function () {
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkIssueReturn/gejobworklocation?TId=' + $scope.ModelNew.Id,
+        }).then(function successCallback(response) {
+            $scope.ValAddedJobWorkLocList = response.data;
+            if ($scope.ValAddedJobWorkLocList.length > 0) {
+                $scope.Issue.MaterialStorageId = $scope.ValAddedJobWorkLocList[0].Value;
+                $scope.Issue.StorageLocation = $scope.ValAddedJobWorkLocList[0].StorageLocation;
+            }
         });
+    }
+
+    $scope.ValEntityList = [];
+    $scope.SelectedValAddedEntity = function () {
+        $http({
+            method: 'GET',
+            url: 'JobWork/JobWorkIssueReturn/getentitylist/',
+        }).then(function successCallback(response) {
+            $scope.ValEntityList = response.data;
+            if ($scope.IssueTypeList.length > 0) {
+                for (var q = 0; q < $scope.ValEntityList.length; q++) {
+                    if ($scope.ValEntityList[q].Value == $scope.IssueTypeList[0].EntityId) {
+                        $scope.Issue.EntityId = $scope.ValEntityList[q].Value;
+                    }
+                }
+            }
+        });
+    }
+
 
     var d = new Date();
     var hh = d.getHours();
@@ -48,14 +80,18 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
     $scope.IssueModelTemp = {
         Id: null,
         Date: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
-        ByWhomId: null,
-        IssueReturn: null,
-        JobWorkLocationId: null,
+        EmployeeId: null,
+        Types: 'InventoryJWIssue',
+        MaterialStorageId: null,
         Remarks: null,
         EmployeeStatus: null,
         EmployeeCode: null,
         ResponsiblePerson: null,
         IsConfirmed: false,
+        EntityId: null,
+        IssueType: 'Revenue',
+        JWContractId: null,
+        ContractType: null
     };
     $scope.Issue = Object.assign({}, $scope.IssueModelTemp);
 
@@ -119,8 +155,10 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
             $scope.ModelNew = Object.assign({}, args.data);
             var PId = $scope.ModelNew.Id;
             var TabType = $scope.ModelNew.TabType;
-            $scope.IssueTransformation.ContractType = 'Value Added';
-            $scope.TabTypeNew = $scope.Transformation.TabType;
+            $scope.Issue.JWContractId = $scope.ModelNew.Id;
+            $scope.Issue.ContractType = 'ValueAdded';
+            $scope.TabTypeNew = $scope.ModelNew.TabType;
+     //       $scope.ModelNew.Type = TabType;
             $http({
                 method: 'POST',
                 url: $scope.path + "GetDataById",
@@ -131,6 +169,8 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
 
                 if ($scope.IssueTypeList.length > 0) {
                     $scope.GetValueAddedChildData();
+                    $scope.SelectedValAddedEntity();
+                    $scope.SelectedValAddedMaterialStorage();
                 }
 
                 });
@@ -205,7 +245,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.Issue },
+                data: { 'data': $scope.Issue, 'ContractId': $scope.Issue.JWContractId, 'ContractType': $scope.Issue.ContractType },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -252,7 +292,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
     }
 
     $scope.ResponsiblePersonClear = function () {
-        $scope.Issue.ByWhomId = null;
+        $scope.Issue.EmployeeId = null;
         $scope.Issue.ResponsiblePerson = null;
         $scope.Issue.EmployeeCode = null;
         $scope.Issue.EmployeeStatus = null;
@@ -266,7 +306,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
 
         var data = obj.data;
         $scope.Issue.EmployeeCode = data.Code;
-        $scope.Issue.ByWhomId = data.Id;
+        $scope.Issue.EmployeeId = data.Id;
         $scope.Issue.ResponsiblePerson = data.EmployeeName;
         angular.element(document.querySelector('#EmployeePopUpResPerson')).modal('hide');
     };

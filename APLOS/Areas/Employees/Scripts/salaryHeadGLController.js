@@ -301,9 +301,17 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         //if (baseService.isUndefinedOrNull($scope.AssetGLId) && baseService.isUndefinedOrNull($scope.AccumulatedDirectGLGLId) && baseService.isUndefinedOrNull($scope.DirectGLGLId) && baseService.isUndefinedOrNull($scope.AssetUnderConstructionGLId) && baseService.isUndefinedOrNull($scope.DownPaymentGLId) && baseService.isUndefinedOrNull($scope.ClearingAccountGLId) && baseService.isUndefinedOrNull($scope.GainOnSaleAssetGLId) && baseService.isUndefinedOrNull($scope.LossOnSaleAssetGLId) && baseService.isUndefinedOrNull($scope.LossOnDisposalAssetGLId) && checkVendorReconGLIsAssinged($scope.accountGroupList)) {
         //    return ShowResult("Please Select at least one GL!!", 'failure');
         //}
-        if ($scope.salaryHeadGLListForSave.length < 1) {
+        if ($scope.SalaryHeadGlListByAccountGroup.length < 1) {
             return ShowResult("No list found!!", 'failure');
         }
+
+        for (var i = 0; i < $scope.SalaryHeadGlListByAccountGroup.length; i++) {
+            $scope.SalaryHeadGlListByAccountGroup[i].CompanyId = $scope.salaryHeadGL.CompanyId;
+            $scope.SalaryHeadGlListByAccountGroup[i].COAId = $scope.salaryHeadGL.COAId;
+            $scope.SalaryHeadGlListByAccountGroup[i].PlantId = $scope.salaryHeadGL.PlantId;
+            $scope.SalaryHeadGlListByAccountGroup[i].SalaryHeadId = $scope.SalaryHeadId;
+        }
+
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.salaryHeadGLNewForm.$valid && !$scope.validation()) {
             if ($scope.Action === "Save") {
@@ -311,7 +319,7 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
                     method: 'POST',
                     url: $scope.saveUrl,
                     data: {
-                        'salaryHeadGL': $scope.salaryHeadGLListForSave,
+                        'salaryHeadGL': $scope.SalaryHeadGlListByAccountGroup,
                     },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -360,7 +368,8 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         serverPagination: true
     };
     $scope.DirectGLList = [];
-    $scope.GetDirectGLList = function () {
+    $scope.GetDirectGLList = function (index) {
+        $scope.GlDrDirectIndex = index;
         if ($scope.salaryHeadGL.COAId === null) {
             return ShowResult("Select COA first", 'failure');
         }
@@ -386,10 +395,15 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         }
     };
     $scope.setDirectGLSelected = function (x) {
-        $scope.rowSelected = x.GLGeneralInfoCode;
-        $scope.DirectGLInfo = x.GLGeneralInfoCode + ' - ' + x.GLGeneralInfoName;
-        $scope.salaryHeadGL.DrDirectGLId = x.GLGeneralInfoId;
-        getDirectGLBudget();
+
+        $scope.SalaryHeadGlListByAccountGroup[$scope.GlDrDirectIndex].DirectGLInfo = x.GLGeneralInfoCode + ' - ' + x.GLGeneralInfoName;
+        $scope.SalaryHeadGlListByAccountGroup[$scope.GlDrDirectIndex].DrDirectGLId = x.GLGeneralInfoId;
+
+        //$scope.rowSelected = x.GLGeneralInfoCode;
+        //$scope.DirectGLInfo = x.GLGeneralInfoCode + ' - ' + x.GLGeneralInfoName;
+        //$scope.salaryHeadGL.DrDirectGLId = x.GLGeneralInfoId;
+
+        getDirectGLBudget($scope.salaryHeadGL.COAId,x.GLGeneralInfoId);
     };
     $scope.refreshDirectGL = function () {
         $scope.DirectGLInfo = null;
@@ -399,15 +413,15 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DirectBudgetList = [];
-    function getDirectGLBudget() {
-        cboService.getBudgetMasterCboByCOAAndGLId($scope.salaryHeadGL.COAId, $scope.salaryHeadGL.DrDirectGLId, function (result) {
+    function getDirectGLBudget(COAId, GLGeneralInfoId) {
+        cboService.getBudgetMasterCboByCOAAndGLId(COAId, GLGeneralInfoId, function (result) {
             $scope.DirectBudgetList = result;
         });
     }
 
     $scope.DirectActivityList = [];
-    $scope.getDirectActivity = function () {
-        cboService.getBudgetMasterActivityCbo($scope.salaryHeadGL.DrDirectBudgetMasterId, function (result) {
+    $scope.getDirectActivity = function (DrDirectBudgetMasterId) {       
+        cboService.getBudgetMasterActivityCbo(DrDirectBudgetMasterId, function (result) {
             $scope.DirectActivityList = result;
         });
     };
@@ -436,7 +450,8 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         serverPagination: true
     };
     $scope.CrDirectGLList = [];
-    $scope.GetCrDirectGLList = function () {
+    $scope.GetCrDirectGLList = function (index) {
+        $scope.GlCrDirectIndex = index;
         if ($scope.salaryHeadGL.COAId === null) {
             return ShowResult("Select COA first", 'failure');
         }
@@ -462,10 +477,14 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         }
     };
     $scope.setCrDirectGLSelected = function (x) {
-        $scope.CRDrowSelected = x.GLGeneralInfoCode;
-        $scope.CrDirectGLInfo = x.GLGeneralInfoCode + ' - ' + x.GLGeneralInfoName;
-        $scope.salaryHeadGL.CrDirectGLId = x.GLGeneralInfoId;
-        getCrDirectGLBudget();
+
+        $scope.SalaryHeadGlListByAccountGroup[$scope.GlCrDirectIndex].CrDirectGLInfo = x.GLGeneralInfoCode + ' - ' + x.GLGeneralInfoName;
+        $scope.SalaryHeadGlListByAccountGroup[$scope.GlCrDirectIndex].CrDirectGLId = x.GLGeneralInfoId;
+
+        //$scope.CRDrowSelected = x.GLGeneralInfoCode;
+        //$scope.CrDirectGLInfo = x.GLGeneralInfoCode + ' - ' + x.GLGeneralInfoName;
+        //$scope.salaryHeadGL.CrDirectGLId = x.GLGeneralInfoId;
+        getCrDirectGLBudget(x.GLGeneralInfoId);
     };
     $scope.refreshCrDirectGL = function () {
         $scope.CrDirectGLInfo = null;
@@ -475,15 +494,15 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.CrDirectBudgetList = [];
-    function getCrDirectGLBudget() {
-        cboService.getBudgetMasterCboByCOAAndGLId($scope.salaryHeadGL.COAId, $scope.salaryHeadGL.CrDirectGLId, function (result) {
+    function getCrDirectGLBudget(GLGeneralInfoId) {
+        cboService.getBudgetMasterCboByCOAAndGLId($scope.salaryHeadGL.COAId, GLGeneralInfoId, function (result) {
             $scope.CrDirectBudgetList = result;
         });
     }
 
     $scope.CrDirectActivityList = [];
-    $scope.getCrDirectActivity = function () {
-        cboService.getBudgetMasterActivityCbo($scope.salaryHeadGL.CrDirectBudgetMasterId, function (result) {
+    $scope.getCrDirectActivity = function (CrDirectBudgetMasterId) {
+        cboService.getBudgetMasterActivityCbo(CrDirectBudgetMasterId, function (result) {
             $scope.CrDirectActivityList = result;
         });
     };
@@ -511,7 +530,8 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         search: null,
         serverPagination: true
     };
-    $scope.GetInDirectList = function () {
+    $scope.GetInDirectList = function (index) {
+        $scope.GlDrInDirectIndex = index;
         if ($scope.salaryHeadGL.COAId === null) {
             return ShowResult("Select COA first", 'failure');
         }
@@ -536,10 +556,14 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         }
     };
     $scope.setInDirectGLSelected = function (x) {
-        $scope.IrowSelected = x.GLGeneralInfoCode;
-        $scope.InDirectGLInfo = x.GLGeneralInfoCode + ' - ' + x.GLGeneralInfoName;
-        $scope.salaryHeadGL.DrInDirectGLId = x.GLGeneralInfoId;
-        getInDirectGLBudget();
+
+        $scope.SalaryHeadGlListByAccountGroup[$scope.GlDrInDirectIndex].InDirectGLInfo = x.GLGeneralInfoCode + ' - ' + x.GLGeneralInfoName;
+        $scope.SalaryHeadGlListByAccountGroup[$scope.GlDrInDirectIndex].DrInDirectGLId = x.GLGeneralInfoId;
+
+        //$scope.IrowSelected = x.GLGeneralInfoCode;
+        //$scope.InDirectGLInfo = x.GLGeneralInfoCode + ' - ' + x.GLGeneralInfoName;
+        //$scope.salaryHeadGL.DrInDirectGLId = x.GLGeneralInfoId;
+        getInDirectGLBudget(x.GLGeneralInfoId);
     };
     $scope.refreshInDirectGL = function () {
         $scope.InDirectGLInfo = null;
@@ -549,15 +573,15 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.InDirectBudgetList = [];
-    function getInDirectGLBudget() {
-        cboService.getBudgetMasterCboByCOAAndGLId($scope.salaryHeadGL.COAId, $scope.salaryHeadGL.DrInDirectGLId, function (result) {
+    function getInDirectGLBudget(GLGeneralInfoId) {
+        cboService.getBudgetMasterCboByCOAAndGLId($scope.salaryHeadGL.COAId, GLGeneralInfoId, function (result) {
             $scope.InDirectBudgetList = result;
         });
     }
 
     $scope.InDirectActivityList = [];
-    $scope.getInDirectActivity = function () {
-        cboService.getBudgetMasterActivityCbo($scope.salaryHeadGL.DrInDirectBudgetMasterId, function (result) {
+    $scope.getInDirectActivity = function (DrInDirectBudgetMasterId) {
+        cboService.getBudgetMasterActivityCbo(DrInDirectBudgetMasterId, function (result) {
             $scope.InDirectActivityList = result;
         });
     };
@@ -585,7 +609,8 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         search: null,
         serverPagination: true
     };
-    $scope.GetCrInDirectList = function () {
+    $scope.GetCrInDirectList = function (index) {
+        $scope.GlCrInDirectIndex = index;
         if ($scope.salaryHeadGL.COAId === null) {
             return ShowResult("Select COA first", 'failure');
         }
@@ -610,10 +635,14 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         }
     };
     $scope.setCrInDirectGLSelected = function (x) {
-        $scope.CRIrowSelected = x.GLGeneralInfoCode;
-        $scope.CrInDirectGLInfo = x.GLGeneralInfoCode + ' - ' + x.GLGeneralInfoName;
-        $scope.salaryHeadGL.CrInDirectGLId = x.GLGeneralInfoId;
-        getCrInDirectGLBudget();
+
+        $scope.SalaryHeadGlListByAccountGroup[$scope.GlCrInDirectIndex].CrInDirectGLInfo = x.GLGeneralInfoCode + ' - ' + x.GLGeneralInfoName;
+        $scope.SalaryHeadGlListByAccountGroup[$scope.GlCrInDirectIndex].CrInDirectGLId = x.GLGeneralInfoId;
+
+        //$scope.CRIrowSelected = x.GLGeneralInfoCode;
+        //$scope.CrInDirectGLInfo = x.GLGeneralInfoCode + ' - ' + x.GLGeneralInfoName;
+        //$scope.salaryHeadGL.CrInDirectGLId = x.GLGeneralInfoId;
+        getCrInDirectGLBudget(x.GLGeneralInfoId);
     };
     $scope.refreshCrInDirectGL = function () {
         $scope.CrInDirectGLInfo = null;
@@ -623,15 +652,15 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.CrInDirectBudgetList = [];
-    function getCrInDirectGLBudget() {
-        cboService.getBudgetMasterCboByCOAAndGLId($scope.salaryHeadGL.COAId, $scope.salaryHeadGL.CrInDirectGLId, function (result) {
+    function getCrInDirectGLBudget(GLGeneralInfoId) {
+        cboService.getBudgetMasterCboByCOAAndGLId($scope.salaryHeadGL.COAId, GLGeneralInfoId, function (result) {
             $scope.CrInDirectBudgetList = result;
         });
     }
 
     $scope.CrInDirectActivityList = [];
-    $scope.getCrInDirectActivity = function () {
-        cboService.getBudgetMasterActivityCbo($scope.salaryHeadGL.CrInDirectBudgetMasterId, function (result) {
+    $scope.getCrInDirectActivity = function (CrInDirectBudgetMasterId) {
+        cboService.getBudgetMasterActivityCbo(CrInDirectBudgetMasterId, function (result) {
             $scope.CrInDirectActivityList = result;
         });
     };
@@ -679,6 +708,7 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
 
     //#region PopUp for salary Head
     $scope.SalaryHeadName = null;
+    $scope.SalaryHeadId = null;
     $scope.SalaryHeadGlList = [];
     $scope.SalaryHeadGlListByAccountGroup = [];
     $scope.getsalaryHead = function () {
@@ -698,7 +728,7 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         $scope.Clear();
         //var data = obj.data;
         $scope.SalaryHeadName = obj.data.SalaryHead;
-        //$scope.SalaryHeadId = obj.data.SalaryHeadId;
+        $scope.SalaryHeadId = obj.data.SalaryHeadID;
 
         angular.element(document.querySelector('#SalaryHeadNewPopUp')).modal('hide');
         $scope.GetSalaryHeadGl(obj.data.SalaryHeadID);
