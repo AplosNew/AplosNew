@@ -204,12 +204,12 @@ namespace Aplos.Areas.Accounts.Controllers
         //Payable Tab Master Gride Data
 
         [HttpPost, Authorize]
-        public ActionResult getDateRangeWisePayableData()
+        public ActionResult GetDateRangeWisePayableData()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
             //return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-            return Json(new { DATA = accountsStatusDashboardService.getDateRangeWisePayableData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(new { DATA = accountsStatusDashboardService.GetDateRangeWisePayableData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
 
         }
 
@@ -242,7 +242,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         //Payment Tab for Master Gride Data 
         [HttpPost, Authorize]
-        public ActionResult getDateRangeWisePaymentData(string fromDate, string toDate)
+        public ActionResult GetDateRangeWisePaymentData(string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
@@ -250,7 +250,7 @@ namespace Aplos.Areas.Accounts.Controllers
             // AccountsInvoiceReportService accountsInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
 
             //return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-            return Json(new { DATA = accountsStatusDashboardService.getDateRangeWisePaymentData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(new { DATA = accountsStatusDashboardService.GetDateRangeWisePaymentData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
 
         }
         //Payment report master gride date range wise
@@ -279,7 +279,7 @@ namespace Aplos.Areas.Accounts.Controllers
         //Payment PopUp Data
 
         [HttpPost, Authorize]
-        public ActionResult getDateRangeWisePaymentPopUpData(string id, string type, string fromDate, string toDate)
+        public ActionResult GetDateRangeWisePaymentPopUpData(string id, string type, string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
@@ -315,12 +315,12 @@ namespace Aplos.Areas.Accounts.Controllers
 
         //Payment Steake bar Chart and Grape sheet
         [HttpPost, Authorize]
-        public ActionResult getDateRangeWisePaymentDataBarChart(string fromDate, string toDate)
+        public ActionResult GetDateRangeWisePaymentDataBarChart(string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
             //return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-            return Json(accountsStatusDashboardService.getDateRangeWisePaymentDataBarChart(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate), JsonRequestBehavior.AllowGet);
+            return Json(accountsStatusDashboardService.GetDateRangeWisePaymentDataBarChart(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate), JsonRequestBehavior.AllowGet);
 
         }
 
@@ -396,14 +396,14 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult getFixedAssetRegisterReport(/*string MaterialTypeId, bool Article*/)
+        public ActionResult GetFixedAssetRegisterReport(/*string MaterialTypeId, bool Article*/)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
             try
             {
-                accountsStatusDashboardService.getFixedAssetRegisterReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                accountsStatusDashboardService.GetFixedAssetRegisterReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
 
                 return null;
             }
@@ -419,12 +419,12 @@ namespace Aplos.Areas.Accounts.Controllers
         #region Cash Tab
         //getMasterCashListData
         [HttpPost, Authorize]
-        public ActionResult getMasterCashListData(/*string fromDate,*/ string toDate)
+        public ActionResult GetMasterCashListData(/*string fromDate,*/ string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
             //return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-            return Json( accountsStatusDashboardService.getMasterCashListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,/* fromDate,*/ toDate), JsonRequestBehavior.AllowGet);
+            return Json( accountsStatusDashboardService.GetMasterCashListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,/* fromDate,*/ toDate), JsonRequestBehavior.AllowGet);
 
         }
         #endregion
@@ -432,12 +432,12 @@ namespace Aplos.Areas.Accounts.Controllers
         #region Bank Tab
         //getMasterCashListData
         [HttpPost, Authorize]
-        public ActionResult getBankMasterListData(/*string fromDate,*/ string toDate)
+        public ActionResult GetBankMasterListData(/*string fromDate,*/ string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
             //return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-            return Json(accountsStatusDashboardService.getBankMasterListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,/* fromDate,*/ toDate), JsonRequestBehavior.AllowGet);
+            return Json(accountsStatusDashboardService.GetBankMasterListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,/* fromDate,*/ toDate), JsonRequestBehavior.AllowGet);
 
         }
         #endregion
@@ -445,19 +445,19 @@ namespace Aplos.Areas.Accounts.Controllers
         #region Loan Taken
 
         [HttpPost, Authorize]
-        public ActionResult getLoanListData(string transactionType)
+        public ActionResult GetLoanListData(string transactionType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
             //return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-            return Json( accountsStatusDashboardService.getLoanListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,transactionType), JsonRequestBehavior.AllowGet);
+            return Json( accountsStatusDashboardService.GetLoanListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,transactionType), JsonRequestBehavior.AllowGet);
 
         }
 
     
         [HttpGet, Authorize]
-        public ActionResult getLoanTakenSetOffPopUpData( string financingId)
+        public ActionResult GetLoanTakenSetOffPopUpData( string financingId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
@@ -469,7 +469,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult getLoanTakenInterestPopUpData(string financingId )
+        public ActionResult GetLoanTakenInterestPopUpData(string financingId )
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
@@ -480,7 +480,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult getLoanTakenChargesPayablePopUpData(string financingId)
+        public ActionResult GetLoanTakenChargesPayablePopUpData(string financingId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
@@ -491,7 +491,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult getLoanTakenAdditionalLoanPayablePopUpData(string financingId)
+        public ActionResult GetLoanTakenAdditionalLoanPayablePopUpData(string financingId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
@@ -625,7 +625,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult getCustomerReceivableInvoiceDetailData(string partyId)
+        public ActionResult GetCustomerReceivableInvoiceDetailData(string partyId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -872,24 +872,24 @@ namespace Aplos.Areas.Accounts.Controllers
 
         [HttpPost, Authorize]
         //public ActionResult TrialBalanceReport(ReportFormat reportFormat, string date, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel)
-        public ActionResult getTrialBalanceData(string toDate, bool isBudgetLevel, bool isActivityLevel, bool IsDetailLevel)
+        public ActionResult GetTrialBalanceData(string toDate, bool isBudgetLevel, bool isActivityLevel, bool IsDetailLevel)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
             //return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-           return Json(accountsStatusDashboardService.getTrialBalanceData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, toDate, isBudgetLevel, isActivityLevel, IsDetailLevel), JsonRequestBehavior.AllowGet);
+           return Json(accountsStatusDashboardService.GetTrialBalanceData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, toDate, isBudgetLevel, isActivityLevel, IsDetailLevel), JsonRequestBehavior.AllowGet);
 
         }
 
         [HttpGet, Authorize]
-        public ActionResult getLedgerActivityPoPUpListData(string gLInfoId, string budgetMasterId,  string activityId, string partyId, string partyPlantId, string bankMasterId, string cashMasterId, string toDate)
+        public ActionResult GetLedgerActivityPoPUpListData(string gLInfoId, string budgetMasterId,  string activityId, string partyId, string partyPlantId, string bankMasterId, string cashMasterId, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
             //return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-            return Json(accountsStatusDashboardService.getLedgerActivityPoPUpListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, gLInfoId, budgetMasterId, activityId, partyId, partyPlantId, bankMasterId,cashMasterId,toDate), JsonRequestBehavior.AllowGet);
+            return Json(accountsStatusDashboardService.GetLedgerActivityPoPUpListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, gLInfoId, budgetMasterId, activityId, partyId, partyPlantId, bankMasterId,cashMasterId,toDate), JsonRequestBehavior.AllowGet);
 
         }
 
@@ -935,22 +935,17 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
 
-        //public Dictionary<string, object> GetBankMasterLedgerHeading(string bankMasterId)
-        //{
-        //    var sql = @"SELECT BM.Id, BM.AccountTitle, BM.AccountNumber, BM.CurrencyId, C.Code AS CurrencyCode, B.UserName AS BankName, BB.UserName AS BankBranchName, GLGI.AccountCode AS GLGeneralInfoCode
-        //        , GLGI.UserName AS GLGeneralInfoName, BGM.RefNo, BG.UserName AS BudgetName, A.UserName AS ActivityName
-        //        FROM [MST].[BankMaster] AS BM
-        //        LEFT JOIN [SCS].[Currency] AS C ON C.Id=BM.CurrencyId
-        //        LEFT JOIN [HKP].[Bank] AS B ON B.Id=BM.BankId
-        //        LEFT JOIN [HKP].[BankBranch] AS BB ON BB.Id=BM.BankBranchId
-        //        LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=BM.GLGeneralInfoId
-        //        LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=BM.BudgetMasterId
-        //        LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
-        //        LEFT JOIN [HKP].[Activity] AS A ON A.Id=BM.ActivityId
-        //        WHERE BM.Id='" + bankMasterId + "'";
-        //        return _sqlRepository.GetData(sql);
-        //}
 
+        [HttpGet, Authorize]
+        public ActionResult GetAccountGroupPoPUpListData(string accountGroupId, string accountGroupName, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+
+            //return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(accountsStatusDashboardService.GetAccountGroupPoPUpListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, accountGroupId, accountGroupName,toDate), JsonRequestBehavior.AllowGet);
+
+        }
         #endregion Trial Balance
 
         #region Cash In Flow
@@ -1053,14 +1048,14 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult getAcceptanceLiabilityMaturityReport(string toDate)
+        public ActionResult GetAcceptanceLiabilityMaturityReport(string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
             try
             {
-                accountsStatusDashboardService.getAcceptanceLiabilityMaturityReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,toDate);
+                accountsStatusDashboardService.GetAcceptanceLiabilityMaturityReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,toDate);
 
                 return null;
             }
@@ -1085,7 +1080,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult getAcceptanceLiabilitySummaryReport(string toDate, bool isWithAdvance)
+        public ActionResult GetAcceptanceLiabilitySummaryReport(string toDate /*, bool isWithAdvance*/)
         {
 
             try
@@ -1095,22 +1090,26 @@ namespace Aplos.Areas.Accounts.Controllers
                 AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
                 ExcelEngine excelEngine = new ExcelEngine();
 
-                if (isWithAdvance)
-                {
-                    //var workbook = "";
-                    IWorkbook workbook = accountsStatusDashboardService.getAcceptanceLiabilityWithAdvanceSummaryReport(excelEngine, toDate, isWithAdvance, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
-                    string strFileName = "OthersLiabilityWithAdvanceSummary.xlsx";
-                    workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                    workbook.Close();
-                }
-                else
-                {
-                    IWorkbook workbok = accountsStatusDashboardService.getAcceptanceLiabilitySummaryReport(excelEngine, toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
-                    string strFileName = "OthersLiabilitySummary.xlsx";
-                    workbok.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                    workbok.Close();
-                }
+                //if (isWithAdvance)
+                //{
+                //    //var workbook = "";
+                //    IWorkbook workbook = accountsStatusDashboardService.GetAcceptanceLiabilityWithAdvanceSummaryReport(excelEngine, toDate, /*isWithAdvance,*/ identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                //    string strFileName = "OthersLiabilityWithAdvanceSummary.xlsx";
+                //    workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                //    workbook.Close();
+                //}
+                //else
+                //{
+                //    IWorkbook workbok = accountsStatusDashboardService.getAcceptanceLiabilitySummaryReport(excelEngine, toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                //    string strFileName = "OthersLiabilitySummary.xlsx";
+                //    workbok.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                //    workbok.Close();
+                //}
 
+                IWorkbook workbok = accountsStatusDashboardService.GetAcceptanceLiabilitySummaryReport(excelEngine, toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                string strFileName = "AcceptanceLiabilitySummaryReport.xlsx";
+                workbok.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbok.Close();
             }
             catch (Exception ex)
             {
@@ -1123,14 +1122,14 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult getAcceptanceLiabilityReport(string toDate)
+        public ActionResult GetAcceptanceLiabilityReport(string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
             try
             {
-                accountsStatusDashboardService.getAcceptanceLiabilityReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, toDate);
+                accountsStatusDashboardService.GetAcceptanceLiabilityReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, toDate);
 
                 return null;
             }
