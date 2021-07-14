@@ -735,6 +735,7 @@ namespace Library.HumanResource.Payroll.Tax
                     drLocal["Description"] = ui_master.Description;
                     drLocal["OptionBasedValue"] = ui_master.OptionBasedValue;
                     drLocal["IsOptionBased"] = ui_master.IsOptionBased;
+                    drLocal["IsOptionBaseDefault"] = ui_master.IsOptionBaseDefault;
                     drLocal["UpdatedBy"] = identity.Name;
                     drLocal["UpdatedFromIP"] = identity.IPAddress;
                     drLocal["UpdatedDate"] = bplib.clsWebLib.DateData_AppToDB(DateTime.Now.ToShortDateString().ToString(), bplib.clsWebLib.DB_DATE_FORMAT);
