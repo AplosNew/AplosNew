@@ -65,7 +65,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult glVSfaReport(string MasterLCList)
+        public ActionResult GLVSfaReport(string MasterLCList)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
                 //IWorkbook workbook = _fixedAssetReportService.GetMasterLCReport(excelEngine, MasterLCList);
                 //return Json(_fixedAssetReportService.GetMasterLCReport(excelEngine, MasterLCList), JsonRequestBehavior.AllowGet);
-                IWorkbook workbook = _fixedAssetReportService.glVSfaReport(excelEngine, identity.CompanyId, identity.PlantId);
+                IWorkbook workbook = _fixedAssetReportService.GLVSfaReport(excelEngine, identity.CompanyId, identity.PlantId);
 
                 string strFileName = "GLVSFA.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);

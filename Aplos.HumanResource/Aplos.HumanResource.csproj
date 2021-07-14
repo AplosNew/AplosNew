@@ -165,6 +165,7 @@
     <Compile Include="Attendance\DailyAttandanceSummeryReport.cs" />
     <Compile Include="Attendance\DailyAttendanceReport.cs" />
     <Compile Include="Attendance\DownloadApi.cs" />
+    <Compile Include="Attendance\ManualAttndFromAppService.cs" />
     <Compile Include="Attendance\ExceptionOTProcess.cs" />
     <Compile Include="Attendance\Manual\clsManualAttendanceFileUpload.cs" />
     <Compile Include="Attendance\Manual\clsManualAttendanceUploadUtility.cs" />
