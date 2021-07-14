@@ -244,13 +244,13 @@
     <Compile Include="Report\Payroll\PayrollReports.cs" />
     <Compile Include="SalaryProcessActive\clsSalaryProcessAplosListR.cs" />
     <Compile Include="ShiftChange\clsShiftChangeSectionWise.cs" />
+    <Compile Include="Shift\DayStatusService.cs" />
     <Compile Include="SmsSend\clsSMSSendNotification.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="OT\" />
     <Folder Include="Report\Leave\" />
     <Folder Include="Report\Shift\" />
-    <Folder Include="Shift\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
