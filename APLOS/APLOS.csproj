@@ -522,6 +522,7 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\DayStatusMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeAdditionDeductionProcessController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManualShiftController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ConsecutiveAttendaceAndOTController.cs" />
@@ -1729,6 +1730,7 @@
     <Content Include="Areas\FixedAssets\Scripts\entityFixedAssetsRegisterController.js" />
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
+    <Content Include="Areas\HumanResource\Scripts\DayStatusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAdditionDeductionProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ManualShiftControllerController.js" />
     <Content Include="Areas\HumanResource\Scripts\bonusProvisionReportController.js" />
@@ -3542,6 +3544,7 @@
     <Content Include="Areas\Parties\Views\PartyPaymentStatusReport.cshtml" />
     <Content Include="Areas\HumanResource\Views\PayrollReports\ArrearVsPayroll.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionPlanningReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\DayStatusMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
