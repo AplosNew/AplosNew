@@ -153,7 +153,7 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
             for (var i = 0; i < $scope.SelectFGCharacteristicsValueList.length; i++) {
                 if ($scope.SelectFGCharacteristicsValueList[i].Ratio != null) {
                     $scope.TotalRatio = parseFloat($scope.SelectFGCharacteristicsValueList[i].Ratio) + parseFloat($scope.TotalRatio);
-                }                
+                }
             }
         });
         if (baseService.isUndefinedOrNull($scope.ModelNew.HeaderName)) {
@@ -232,17 +232,16 @@ function MarkerController(commonMessage, $scope, $rootScope, baseService, $route
         });
     };
     $scope.GetSequence();
-    $scope.FileName = null;
+    $scope.CustomeFileName = null;
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.getFGCharacteristicsListNew($scope.ModelNew.FGMaterialMasterId, $scope.ModelNew.Id);
         $scope.HeaderName = $scope.ModelNew.HeaderName;
-
-        var str = $scope.ModelNew.Attachment;
-        var extention = str.substr(str.indexOf('.'));
-
-        $scope.FileName = $scope.ModelNew.Id + extention;
-
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Attachment)) {
+            var str = $scope.ModelNew.Attachment;
+            var extention = str.substr(str.indexOf('.'));
+            $scope.CustomeFileName = $scope.ModelNew.Id + extention;
+        }
         //$scope.filedata.name = $scope.ModelNew.Attachment;
 
         $scope.Action = 'Update';
