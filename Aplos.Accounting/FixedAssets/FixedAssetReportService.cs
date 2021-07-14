@@ -36,7 +36,7 @@ namespace Library.Accounting.FixedAssets
         }
 
         #region GL vs FA
-        public IWorkbook glVSfaReport(ExcelEngine excelEngine, string companyId, string plantId) 
+        public IWorkbook GLVSfaReport(ExcelEngine excelEngine, string companyId, string plantId) 
         {
             excelEngine = new ExcelEngine();
             //Instantiate the Excel application object
