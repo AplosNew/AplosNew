@@ -1420,7 +1420,7 @@ namespace Library.Accounting.FixedAssets
         #region Entity Fixed Assets Register
         public List<Dictionary<string, object>> GetEntityFixedAssetRegisterDataList(string companyGroupId, string companyId, string plantId)
         {
-            var sql = @"SELECT convert(bit,0) AS isSelected, E.UserName Entity, D.UserName Department, FR.Id,FR.Id AS FixedAssetRegisterId,V.VoucherNo, FR.MaterialMasterArticleId, FR.MaterialMasterId
+            var sql = @"SELECT top 2500  convert(bit,0) AS isSelected, E.UserName Entity, D.UserName Department, FR.Id,FR.Id AS FixedAssetRegisterId,V.VoucherNo, FR.MaterialMasterArticleId, FR.MaterialMasterId
                                     , FR.SerialNo, FR.Id AssetNo, FR.InvoiceNo, MM.UserName MaterialMasterName
                                     , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                                     , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
@@ -1479,7 +1479,9 @@ namespace Library.Accounting.FixedAssets
 
 		                            left join ORG.Entity E on E.Id= FR.EntityId
 									left join ORG.Department D on D.Id = FR.DepartmentId
-                                    WHERE FR.CompanyId='" + companyId+@"' and FR.IsOpeningBalance=0 and FR.Archive=0 and FR.IsAUC=0
+                                    WHERE FR.CompanyId='" + companyId+@"' 
+                                    --and FR.IsOpeningBalance=0 
+                                    and FR.Archive=0 and FR.IsAUC=0
                                     AND FR.Id NOT IN(' ')";
             return _sqlRepository.GetDataCollection(sql);
 
