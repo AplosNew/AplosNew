@@ -235,6 +235,7 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
         $scope.changeSearchByParty();
 
         $scope.transactionTypeList();
+        $scope.getTaxCodeByTaxYear($filter("dateFiltering")($scope.voucher.PostingDate));
     };
     $scope.changeSearchByParty = function () {
         $scope.searchByParty = 'UserName'; $scope.searchParty = "";
@@ -451,6 +452,8 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
             $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
             $scope.voucherDetail.CrAmount = null;
             $scope.voucherDetail.DrAmount = null;
+            $scope.voucherDetail.InvoiceTaxViewModel = [];
+
             $scope.invoiceSalesAvailableList.push($scope.voucherDetail);
             $scope.voucherDetail = {};
             $scope.closeCOAICodeListPopUp();
@@ -693,6 +696,7 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
         $scope.voucher.NoteType = "CustomerCreditNote";
         $scope.voucher.SettlementType = "Invoice";
         $scope.invoiceSalesAvailableList = [];
+        $scope.voucherDetail.InvoiceTaxViewModel = [];
         $scope.invoiceTaxDetailList = [];
         $scope.salesDetailList = [];
         $scope.SelectedCurrency = null;
@@ -850,9 +854,13 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
 
     $scope.taxcodelistMessage = "";
     $scope.getTaxCodeByTaxYear = function (date) {
+        if ($scope.partyType == 'Vendor')
+            $scope.taxCodeUrl = "accounts/TaxCode/GetTaxCodeInputVATGST?postingDate=" + $filter("dateFiltering")(date);
+        else
+            $scope.taxCodeUrl = "accounts/TaxCode/GetTaxCodeOutputVATGST?postingDate=" + $filter("dateFiltering")(date);
         $http({
             method: "get",
-            url: "accounts/TaxCode/GetTaxCodeInputVATGST?postingDate=" + $filter("dateFiltering")(date)
+            url: $scope.taxCodeUrl
         }).then(
             function successCallback(response) {
                 if (response.data.Error === true) {
