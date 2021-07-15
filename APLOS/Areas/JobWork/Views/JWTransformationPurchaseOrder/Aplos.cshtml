@@ -1062,11 +1062,11 @@
                 </div>
 
                 <div class="clearfix"></div>
-                @*<div class="common-btn">
+                <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li><button ng-click="detailSave('PODETAILLIST',false);" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-save right"></i> Update</button></li>
+                        <li><button ng-click="detailSave('PODETAILLIST',false);" ng-disabled="productNew.OrderSpecific!='Yes'" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-save right"></i> Update</button></li>
                     </ul>
-                </div>*@
+                </div>
             </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
