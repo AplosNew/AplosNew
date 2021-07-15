@@ -153,10 +153,10 @@ namespace Library.OrderManagement.Packing
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[FinishGoodsBooking] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FinishGoodsBookingDetail WHERE FinishGoodsBookingId ='" + data["Id"] + "'", out dsFinishGoodsBookingDetail, false, "1");
-				//con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.ItemScanChild WHERE MasterId IN (Select Id from dbo.ItemScan ISN WHERE ISN.WorkDate between '" + data["FromDate"] + "' AND '" + data["ToDate"] + "') AND POId IN ("+ pOId + @") AND ProductCode IN ("+ productCode + @")", out dsItemScanChild, false, "1");
-				con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.ItemScanChild WHERE MasterId IN (Select Id from dbo.ItemScan ISN WHERE ISN.WorkDate between '" + data["FromDate"] + "' AND '" + DateTime.Now.ToString("dd-MMM-yyyy") + "') AND POId IN (" + pOId + @") AND ProductCode IN (" + productCode + @")", out dsItemScanChild, false, "1");
+                con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.ItemScanChild WHERE MasterId IN (Select Id from dbo.ItemScan ISN WHERE ISN.WorkDate between '" + data["FromDate"] + "' AND '" + data["ToDate"] + "') AND POId IN (" + pOId + @") AND ProductCode IN (" + productCode + @")", out dsItemScanChild, false, "1");
+                //con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.ItemScanChild WHERE MasterId IN (Select Id from dbo.ItemScan ISN WHERE ISN.WorkDate between '" + data["FromDate"] + "' AND '" + DateTime.Now.ToString("dd-MMM-yyyy") + "') AND POId IN (" + pOId + @") AND ProductCode IN (" + productCode + @")", out dsItemScanChild, false, "1");
 
-				string _Id = "";
+                string _Id = "";
                 string masterId = "";
                 string detailId = "";
 
@@ -198,8 +198,9 @@ namespace Library.OrderManagement.Packing
                     {
                         DataRow drmo = dv[0].Row;
                         EditRow(drmo, item);
-                    }
-					detailId = dsFinishGoodsBookingDetail.Tables[0].Rows[0]["Id"].ToString();
+						detailId = dsFinishGoodsBookingDetail.Tables[0].Rows[0]["Id"].ToString();
+					}
+					
 					if (dsItemScanChild.Tables[0].Rows.Count > 0)
 					{
 						for (int i = 0; i < dsItemScanChild.Tables[0].Rows.Count; i++)
@@ -683,7 +684,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 			try
 			{
 				string sql = @"SELECT SC.POId ProductionOrderId,sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate,MM.UserName MaterialMaster,MMA.StandardName Article
-							 ,Qty=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END),B.Rate, Amount=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END)*B.Rate
+							 ,Qty=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END),ISNULL(B.Rate,0)Rate, Amount=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END) * ISNULL(B.Rate,0)
 							FROM dbo.ItemScanChild SC 
 							LEFT JOIN dbo.ProductLibrary PL ON PL.Code=SC.ProductCode
 							LEFT JOIN dbo.ItemScan ISN ON ISN.Id=SC.MasterId
@@ -712,7 +713,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							) B ON B.CostingMasterTemplateId=CT.Id
 							LEFT JOIN MST.MaterialMaster MM ON MM.Id=PL.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
-							WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' --AND ISNULL(SC.FinishGoodsBookingId,'')=''
+							WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.FinishGoodsBookingId,'')=''
 							GROUP BY SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName";
 				return _sqlRepository.GetDataCollection(sql, null);
 			}
@@ -727,7 +728,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 			try
 			{
 				string sql = @"SELECT FGD.Id,SC.POId ProductionOrderId,sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate,MM.UserName MaterialMaster,MMA.StandardName Article
-							 ,Qty=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END),B.Rate, Amount=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END)*B.Rate
+							 ,Qty=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END),ISNULL(B.Rate,0)Rate, Amount=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END) * ISNULL(B.Rate,0),Active=Convert(bit,1)
 							FROM dbo.ItemScanChild SC 
 							LEFT JOIN dbo.ProductLibrary PL ON PL.Code=SC.ProductCode
 							LEFT JOIN dbo.ItemScan ISN ON ISN.Id=SC.MasterId
@@ -757,8 +758,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							LEFT JOIN MST.MaterialMaster MM ON MM.Id=PL.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
 							LEFT JOIN FinishGoodsBooking FG ON FG.Id=SC.FinishGoodsBookingId
-							LEFT JOIN FinishGoodsBookingDetail FGD ON FGD.FinishGoodsBookingId=FG.Id
-	                        WHERE ISNULL(SC.FinishGoodsBookingId,'')='"+ masterId + @"'
+							LEFT JOIN FinishGoodsBookingDetail FGD ON FGD.FinishGoodsBookingId=FG.Id AND SC.FinishGoodsBookingDetailId=FGD.Id
+	                        WHERE FG.Id='" + masterId + @"'
 							GROUP BY FGD.Id,SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName";
 
 				return _sqlRepository.GetDataCollection(sql, null);
@@ -774,7 +775,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 			string sql = "";
             try
             {
-				sql = @"Select FORMAT(MIN(A.WorkDate),'dd-MMM-yyyy') FromDate 
+				sql = @"Select FORMAT(MIN(A.WorkDate),'dd-MMM-yyyy') FromDate,FORMAT(MAX(A.WorkDate),'dd-MMM-yyyy') ToDate
 						from dbo.ItemScan A
 						JOIN dbo.ItemScanChild B oN A.Id=B.MasterId
 						Where B.IsDespatch=0";
