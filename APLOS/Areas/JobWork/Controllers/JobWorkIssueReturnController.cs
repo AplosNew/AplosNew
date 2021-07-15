@@ -116,11 +116,12 @@ namespace Aplos.Areas.JobWork.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if(Type== "ValueAdded")
             {
-                sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.VendorPartyId,vac.Remarks,FORMAT(vac.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-                                           FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-                                           e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                                           from dbo.JobWorkValueAddedContract vac left join ORG.Entity e on e.Id=vac.EntityId
-                left join HKP.Party p on p.Id=vac.VendorPartyId
+                sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.PartyId,vac.Remarks,FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5)
+                                           ,vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate
+                                           ,FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate
+                                           ,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
+                                           from dbo.JWTransformationPurchaseOrder vac left join ORG.Entity e on e.Id=vac.EntityId
+                                           left join HKP.Party p on p.Id=vac.PartyId
                                            WHERE " + strkey + " order by ValueAddedDate desc ";
 
             }
@@ -146,12 +147,13 @@ namespace Aplos.Areas.JobWork.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if (TabType == "Value Added")
             {
-                sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.VendorPartyId,vac.Remarks,FORMAT(vac.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-                                    FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-                                    e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                                    from dbo.JobWorkValueAddedContract vac left join ORG.Entity e on e.Id=vac.EntityId
-									left join HKP.Party p on p.Id=vac.VendorPartyId
-                                    WHERE vac.Id='"+ Id + "' order by ValueAddedDate desc ";
+                sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.PartyId,vac.Remarks,FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5)
+                                    ,vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+                                    FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate
+                                    ,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
+                                    from dbo.JWTransformationPurchaseOrder vac left join ORG.Entity e on e.Id=vac.EntityId
+									left join HKP.Party p on p.Id=vac.PartyId
+                                    WHERE vac.Id='" + Id + "' order by ValueAddedDate desc ";
             }
             if (TabType == "Transformation")
             {
@@ -292,8 +294,8 @@ namespace Aplos.Areas.JobWork.Controllers
                                LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                                LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
 
-                           WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.EmployeeStatus='Active' and EMP.EmpType='Local'
-                      AND isnull(Emp.SystemID,'') not in (select isnull(ByWhomId,'') from dbo.JobWorkIssueReturn where Id='" + Id + @"')
+                           WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.CompanyId='" + identity.CompanyId + @"' and emp.EmployeeStatus='Active' and EMP.EmpType='Local'
+                      --AND isnull(Emp.SystemID,'') not in (select isnull(ByWhomId,'') from dbo.JobWorkIssueReturn where Id='" + Id + @"')
                      order by EMP.EmployeeCode";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -316,48 +318,62 @@ namespace Aplos.Areas.JobWork.Controllers
             return sID;
         }
 
+        //[HttpPost]
+        //public JsonResult Create(Dictionary<string, object> data)
+        //{
+        //    try
+        //    {
+        //        DataSet dsMaster;
+        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+        //        con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+        //        string _Id = "";
+
+        //        #region data update
+        //        if (dsMaster.Tables[0].Rows.Count == 0)
+        //        {
+        //            bplib.clsGenID genid = new bplib.clsGenID();
+        //            genid.GenID(TableName, out _Id);
+
+        //            data["Id"] = "I" + GetPK();
+        //            AddNewRow(dsMaster.Tables[0], data);
+        //        }
+        //        else
+        //        {
+        //            _Id = data["Id"].ToString();
+        //            EditRow(dsMaster.Tables[0].Rows[0], data);
+        //        }
+        //        #endregion data update
+
+        //        clsStaticInfo _info = new clsStaticInfo();
+        //        _info.SaveDataSets(dsMaster);
+
+        //        return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        return Json(new { Error = true, Message = ex.Message });
+
+        //    }
+        //}
+
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data)
+        public JsonResult Create(Dictionary<string, object> data, string ContractId, string ContractType)
         {
             try
             {
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
-
-                    data["Id"] = "I" + GetPK();
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
+                JWTIR.Create(data, ContractId, ContractType);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message });
-
             }
         }
-
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {

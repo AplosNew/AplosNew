@@ -753,12 +753,12 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.DateRangeWisePayableList = [];
-    $scope.getDateRangeWisePayableData = function () {
+    $scope.GetDateRangeWisePayableData = function () {
         try {
 
             $http({
                 method: 'POST',
-                url: 'Accounts/AccountStatusDashboard/getDateRangeWisePayableData',
+                url: 'Accounts/AccountStatusDashboard/GetDateRangeWisePayableData',
                 data: {
                     FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate
                 },
@@ -775,7 +775,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.getDateRangeWisePayableData();
+    $scope.GetDateRangeWisePayableData();
 
     $scope.DateRangeWiseReport = function () {
 
@@ -798,11 +798,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.DateRangeWisePaymentList = [];
-    $scope.getDateRangeWisePaymentData = function () {
+    $scope.GetDateRangeWisePaymentData = function () {
         try {
             $http({
                 method: 'POST',
-                url: 'Accounts/AccountStatusDashboard/getDateRangeWisePaymentData',
+                url: 'Accounts/AccountStatusDashboard/GetDateRangeWisePaymentData',
                 data: { 'fromDate': $scope.reportParameters.FromDate, 'toDate': $scope.reportParameters.ToDate },
                 dataType: 'JSON'
 
@@ -820,7 +820,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.getDateRangeWisePaymentData();
+    $scope.GetDateRangeWisePaymentData();
 
 
     $scope.DateRangeWisePaymentReport = function () {
@@ -863,7 +863,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
         $http({
             method: 'POST',
-            url: 'Accounts/AccountStatusDashboard/getDateRangeWisePaymentPopUpData',
+            url: 'Accounts/AccountStatusDashboard/GetDateRangeWisePaymentPopUpData',
             data: { 'id': $scope.tempid, 'type': data.Type, 'fromDate': $scope.reportParameters.FromDate, 'toDate': $scope.reportParameters.ToDate },
             dataType: 'JSON'
 
@@ -954,7 +954,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         $http({
             method: 'POST',
-            url: 'Accounts/AccountStatusDashboard/getDateRangeWisePaymentDataBarChart',
+            url: 'Accounts/AccountStatusDashboard/GetDateRangeWisePaymentDataBarChart',
             data: {
                 'fromDate': $scope.reportParameters.FromDate, 'toDate': $scope.reportParameters.ToDate,
             },
@@ -1600,7 +1600,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         try {
             $http({
                 method: 'POST',
-                url: 'Accounts/AccountStatusDashboard/getMasterCashListData',
+                url: 'Accounts/AccountStatusDashboard/GetMasterCashListData',
                 data: { /*'fromDate': $scope.reportParameters.FromDate,*/ 'toDate': $scope.reportParameters.ToDate },
                 dataType: 'JSON'
 
@@ -1622,11 +1622,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     //Bank Tab
     $scope.BankMasterList = [];
-    $scope.getBankMasterListData = function () {
+    $scope.GetBankMasterListData = function () {
         try {
             $http({
                 method: 'POST',
-                url: 'Accounts/AccountStatusDashboard/getBankMasterListData',
+                url: 'Accounts/AccountStatusDashboard/GetBankMasterListData',
                 data: { /*'fromDate': $scope.reportParameters.FromDate,*/ 'toDate': $scope.reportParameters.ToDate },
                 dataType: 'JSON'
 
@@ -1644,7 +1644,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.getBankMasterListData();
+    $scope.GetBankMasterListData();
 
     //............#regon Cash Bar Chart................
     var CashbarChart;
@@ -1837,11 +1837,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     //...........#regon Loan.......
     $scope.LoanList = [];
-    $scope.getLoanListData = function () {
+    $scope.GetLoanListData = function () {
         try {
             $http({
                 method: 'POST',
-                url: 'Accounts/AccountStatusDashboard/getLoanListData',
+                url: 'Accounts/AccountStatusDashboard/GetLoanListData',
                 data: { /*'fromDate': $scope.reportParameters.FromDate, 'toDate': $scope.reportParameters.ToDate*/
                     'transactionType': $scope.reportParameters.TransactionType
                 },
@@ -1860,7 +1860,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.getLoanListData();
+    $scope.GetLoanListData();
 
     $scope.summaryRows = [{
         title: "Total Balance", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Balance", dataMember: "Balance", format: "{0:N2}" }],
@@ -1880,11 +1880,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.LoanTakenSetOffPoPUpList = [];
-    $scope.getLoanTakenSetOffPopUpData = function ( FId) {
+    $scope.GetLoanTakenSetOffPopUpData = function ( FId) {
 
         $http({
             method: "GET",
-            url: "Accounts/AccountStatusDashboard/getLoanTakenSetOffPopUpData?financingId=" + FId  
+            url: "Accounts/AccountStatusDashboard/GetLoanTakenSetOffPopUpData?financingId=" + FId  
         }).then(function successCallback(response) {
             $scope.LoanTakenSetOffPoPUpList = response.data;
             $scope.loanNo = $scope.LoanTakenSetOffPoPUpList[0].LoanNo
@@ -1896,7 +1896,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     };
 
     $scope.showLoanTakenSetOffPopUp = function (args) {
-        $scope.getLoanTakenSetOffPopUpData( args.FinancingId)
+        $scope.GetLoanTakenSetOffPopUpData( args.FinancingId)
     };
 
     $scope.closeloanTakenSetOffPopUp = function () {
@@ -1910,11 +1910,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.LoanTakenInterestPoPUpList = [];
-    $scope.getLoanTakenInterestPopUpData = function (FId) {
+    $scope.GetLoanTakenInterestPopUpData = function (FId) {
 
         $http({
             method: "GET",
-            url: "Accounts/AccountStatusDashboard/getLoanTakenInterestPopUpData?financingId=" + FId 
+            url: "Accounts/AccountStatusDashboard/GetLoanTakenInterestPopUpData?financingId=" + FId 
         }).then(function successCallback(response) {
             $scope.LoanTakenInterestPoPUpList = response.data;
             $scope.loanNo = $scope.LoanTakenInterestPoPUpList[0].LoanNo
@@ -1929,7 +1929,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         //var gridObj = $("#GridSelectedLoan").data("ejGrid");
         //var data = gridObj.getSelectedRecords()[0];
         $scope.tempFinancingId = args.FinancingId;
-        $scope.getLoanTakenInterestPopUpData($scope.tempFinancingId)
+        $scope.GetLoanTakenInterestPopUpData($scope.tempFinancingId)
     };
 
     $scope.closeloanTakenInterestPopUp = function () {
@@ -1953,7 +1953,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         $http({
             method: "GET",
-            url: "Accounts/AccountStatusDashboard/getLoanTakenChargesPayablePopUpData?financingId=" + FId
+            url: "Accounts/AccountStatusDashboard/GetLoanTakenChargesPayablePopUpData?financingId=" + FId
         }).then(function successCallback(response) {
             $scope.LoanTakenChargesPayablePoPUpList = response.data;
             $scope.loanNo = $scope.LoanTakenChargesPayablePoPUpList[0].LoanNo
@@ -1989,7 +1989,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     $scope.getLoanTakenAdditionalLoanPayblePopUpData = function (FId) {
         $http({
             method: "GET",
-            url: "Accounts/AccountStatusDashboard/getLoanTakenAdditionalLoanPayablePopUpData?financingId=" + FId
+            url: "Accounts/AccountStatusDashboard/GetLoanTakenAdditionalLoanPayablePopUpData?financingId=" + FId
         }).then(function successCallback(response) {
             $scope.LoanTakenAdditionalLoanPayablePoPUpList = response.data;
             $scope.partyName = $scope.LoanTakenAdditionalLoanPayablePoPUpList[0].Party
@@ -2777,14 +2777,14 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     };
 
     $scope.TrialBalanceList = [];
-    $scope.getTrialBalanceData = function () {
+    $scope.GetTrialBalanceData = function () {
 
         $scope.LevelAssaign($scope.report.IsUpToLevel);
 
         try {
             $http({
                 method: 'POST',
-                url: 'Accounts/AccountStatusDashboard/getTrialBalanceData',
+                url: 'Accounts/AccountStatusDashboard/GetTrialBalanceData',
                 //var url = 'Accounts/Voucher/TrialBalanceReport?reportFormat=' + $scope.report.ReportFormat + '&date=' + $scope.report.FromDate + '&isBudgetLevel=' + $scope.report.IsBudgetLevel + '&isActivityLevel=' + $scope.report.IsActivityLevel + '&isDetailLevel=' + $scope.report.IsDetailLevel;
                 data: { /*'fromDate': $scope.reportParameters.FromDate, 'toDate': $scope.reportParameters.ToDate
                     'transactionType': $scope.reportParameters.TransactionType*/
@@ -2809,7 +2809,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    //$scope.getTrialBalanceData();
+    //$scope.GetTrialBalanceData();
 
     $scope.summaryRowsTrialBalance = [{
         title: "Total DR. & CR.", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DRcumulative", dataMember: "DRcumulative", format: "{0:N2}" },
@@ -2825,7 +2825,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         $http({
             method: "GET",
-            url: "Accounts/AccountStatusDashboard/getLedgerActivityPoPUpListData?gLInfoId=" + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&partyId=' + pId + '&partyPlantId=' + ppId + '&bankMasterId=' + bkmId + '&cashMasterId=' + cmId + '&toDate=' + toDate
+            url: "Accounts/AccountStatusDashboard/GetLedgerActivityPoPUpListData?gLInfoId=" + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&partyId=' + pId + '&partyPlantId=' + ppId + '&bankMasterId=' + bkmId + '&cashMasterId=' + cmId + '&toDate=' + toDate
         }).then(function successCallback(response) {
             $scope.BankLedgerDetailLevelPoPUpList = response.data;
             //$scope.partyName = $scope.LedgerActivityPoPUpList[0].Party
@@ -3023,6 +3023,68 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         //}
     };
 
+
+    //$scope.getTrialBLAccountGroupHeaderPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
+
+    //    $http({
+    //        method: "GET",
+    //        url: "Accounts/AccountStatusDashboard/GetBankMasterLedgerHeading?gLInfoId=" + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&partyId=' + pId + '&partyPlantId=' + ppId + '&bankMasterId=' + bkmId + '&cashMasterId=' + cmId + '&toDate=' + toDate
+    //    }).then(function successCallback(response) {
+    //        $scope.BankLedgerHeadingPoPUpList = response.data;
+    //        $scope.bankName = $scope.BankLedgerHeadingPoPUpList[0].BankName
+    //        $scope.accountNumber = $scope.BankLedgerHeadingPoPUpList[0].AccountNumber
+    //        $scope.currencyCode = $scope.BankLedgerHeadingPoPUpList[0].CurrencyCode
+
+    //        $scope.BankBranchName = $scope.BankLedgerHeadingPoPUpList[0].BankName
+    //        $scope.AccountTitle = $scope.BankLedgerHeadingPoPUpList[0].AccountNumber
+    //        $scope.gLGeneralInfoCode = $scope.BankLedgerHeadingPoPUpList[0].GLGeneralInfoCode
+    //        $scope.gLGeneralInfoName = $scope.BankLedgerHeadingPoPUpList[0].GLGeneralInfoName
+    //    });
+    //    // $rootScope.openPopupAngular('TrialBLBankMasterLedgerPopUp');
+    //};
+
+    $scope.getTrialBLAccountGroupPopUpData = function (accountGroupId, accountGroupName, toDate) {
+
+        $http({
+            method: "GET",
+            url: "Accounts/AccountStatusDashboard/GetAccountGroupPoPUpListData?accountGroupId=" + accountGroupId + '&accountGroupName=' + accountGroupName + '&toDate=' + toDate
+        }).then(function successCallback(response) {
+            $scope.BankLedgerDetailLevelPoPUpList = response.data;
+            //$scope.partyName = $scope.LedgerActivityPoPUpList[0].Party
+        });
+        $rootScope.openPopupAngular('TrialBLAccountGroupIdPopUp');
+    };
+    $scope.closeTrialBLAccountGroupPopUp = function () {
+        angular.element(document.querySelector("#TrialBLAccountGroupIdPopUp")).modal("hide");
+    };
+
+    $scope.showTrialBalanceAccountGroupPopUp = function (args) {
+        $scope.toDate = $scope.reportParameters.ToDate
+
+        if (args.AccoutnGroupId != null) {
+            $scope.getTrialBLAccountGroupPopUpData(args.AccoutnGroupId, args.AccountGroupName, $scope.toDate)
+           // $scope.getTrialBLAccountGroupHeaderPopUpData(args.AccoutnGroupId, args.AccountGroupName, $scope.toDate)
+        }
+
+        //else if (args.CashMasterId != null) {
+        //    $scope.getTrialBLDetailLevelCashMasterLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+        //    $scope.getTrialBLHeadingCashMasterLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+
+        //}
+        //else if (args.PartyId != null) {
+        //    $scope.getTrialBLDetailLevelPartyLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+        //    $scope.getTrialBLHeadingPartyLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+        //}
+        //else {
+        //    $scope.getTrialBLDetailLevelGeneralLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+        //    $scope.getTrialBLHeadingGeneralLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+
+        //}
+
+    };
+
+    //-------------------#endregion  Trial Balance ----------------------------------------
+
     //...............#region CashInFlow Tab ..........................
     $scope.CashInFlowReceivableMasterList = [];
     $scope.GetCashInFlowReceivableMasterList = function () {
@@ -3215,7 +3277,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //...............#region Acceptance Liability Maturity...........................................
 
     $scope.AcceptanceLiabilityMaturityList = [];
-    $scope.getAcceptanceLiabilityMaturityData = function () {
+    $scope.GetAcceptanceLiabilityMaturityData = function () {
         try {
             $http({
                 method: 'POST',
@@ -3254,7 +3316,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    //$scope.getAcceptanceLiabilityMaturityData();
+    //$scope.GetAcceptanceLiabilityMaturityData();
 
     $scope.TotalAcceptanceLiabilityMaturity = [{
         title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceAmount", dataMember: "AcceptanceAmount", format: "{0:N2}" },
@@ -3267,10 +3329,10 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         showCaptionSummary: true
     }];
 
-    $scope.getAcceptanceLiabilityMaturityReport = function () {
+    $scope.GetAcceptanceLiabilityMaturityReport = function () {
         try {
             //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + $scope.materialMasterReportNew.MaterialTypeId + '&Article=' + $scope.materialMasterReportNew.WithArticle;;
-            var file_src = $scope.path + 'getAcceptanceLiabilityMaturityReport?toDate=' + $scope.report.ToDate;
+            var file_src = $scope.path + 'GetAcceptanceLiabilityMaturityReport?toDate=' + $scope.report.ToDate;
             $rootScope.report(file_src);
 
         } catch (e) {
@@ -3283,7 +3345,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //---------------#region Acceptance Liability-------------------------------
    
     $scope.AcceptanceLiabilityList = [];
-    $scope.getAcceptanceLiabilityData = function () {
+    $scope.GetAcceptanceLiabilityData = function () {
         try {
             $http({
                 method: 'POST',
@@ -3322,7 +3384,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    //$scope.getAcceptanceLiabilityData();
+    //$scope.GetAcceptanceLiabilityData();
 
     $scope.TotalAcceptanceLiability = [{
         title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceAmount", dataMember: "AcceptanceAmount", format: "{0:N2}" },
@@ -3338,10 +3400,10 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         showCaptionSummary: true
     }];
 
-    $scope.getAcceptanceLiabilitySummaryReport = function () {
+    $scope.GetAcceptanceLiabilitySummaryReport = function () {
 
         try {
-            var file_src = $scope.path + 'getAcceptanceLiabilitySummaryReport?toDate=' + $scope.reportParameters.ToDate + '&isWithAdvance=' + $scope.reportParameters.IsWithAdvance;
+            var file_src = $scope.path + 'GetAcceptanceLiabilitySummaryReport?toDate=' + $scope.reportParameters.ToDate /*+ '&isWithAdvance=' + $scope.reportParameters.IsWithAdvance*/;
             $rootScope.report(file_src);
 
         } catch (e) {
@@ -3349,10 +3411,10 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
-    $scope.getAcceptanceLiabilityReport = function () {
+    $scope.GetAcceptanceLiabilityReport = function () {
         try {
             //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + $scope.materialMasterReportNew.MaterialTypeId + '&Article=' + $scope.materialMasterReportNew.WithArticle;;
-            var file_src = $scope.path + 'getAcceptanceLiabilityReport?toDate=' + $scope.reportParameters.ToDate;
+            var file_src = $scope.path + 'GetAcceptanceLiabilityReport?toDate=' + $scope.reportParameters.ToDate;
             $rootScope.report(file_src);
 
         } catch (e) {

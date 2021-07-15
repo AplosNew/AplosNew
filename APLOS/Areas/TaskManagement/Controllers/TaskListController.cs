@@ -53,6 +53,9 @@ namespace Aplos.Areas.TaskManagement.Controllers
             //Library.Planning.OrderManagement.MasterOrder schedule = new Library.Planning.OrderManagement.MasterOrder();
             //schedule.RunTNASchedule();
 
+            //Library.Service.Productions.ProductionBooking.ProductionServices scheduler = new Library.Service.Productions.ProductionBooking.ProductionServices(_sqlRepository);
+            //scheduler.UpdateDailyTarget(DateTime.Now.ToString("dd-MMM-yyyy"), dtPlant.Rows[i]["Id"].ToString());
+
 
             return View();
         }

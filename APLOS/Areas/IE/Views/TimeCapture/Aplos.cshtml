@@ -250,7 +250,15 @@
             </figure>
         </div>
     </div>
-
+    <style type="text/css">
+        .tarektext {
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 6ch;
+        }
+    </style>
     <div class="col-xs-12 col-sm-8 col-md-8" id="divResultArea">
         **Double click on element header to delete that element (e.g. E1, E2...)
         <div class="site-tab">
@@ -261,7 +269,7 @@
         </div>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane" ng-repeat="TAB in TotalTabs" ng-class="{ 'in':isSet($index+1), active: isSet($index+1) }">
-                <table id="tblE{{TAB+1}}0" class="table table-bordered table-condensed">
+                <table id="tblE{{TAB+1}}0" style="text-align:left;" class="table table-bordered table-condensed">
                     <thead>
                         <tr>
                             <th>
@@ -278,7 +286,7 @@
                                 Element Code&nbsp;<i class="fa fa-angle-right fa-lg"></i>
                             </th>
                             <th ng-repeat="ELE in TotalElements">
-                                <input type="button" id="GSD_{{(TAB*10)+ELE}}" value="" class="btn btn-default btnGSD" ng-click="SetGSDValue($event)" />
+                                <input type="button" id="GSD_{{(TAB*10)+ELE}}" value="" class="btn btn-default btnGSD tarektext" ng-click="SetGSDValue($event)" />
                                 <input type="hidden" id="hdGSD_{{(TAB*10)+ELE}}" class="GSD_TMU" value="0">
                             </th>
 
@@ -686,6 +694,10 @@
         margin-bottom: 0px;
     }
 
+    .btn {
+        text-align: left !important;
+    }
+
     .ddlET {
         width: 45px;
         word-wrap: break-word;
@@ -804,7 +816,7 @@
         border-bottom: 2px solid #6678b1;
         color: #039;
         font-size: 9px;
-        text-align: center;
+        text-align: left;
         font-family: verdana;
     }
 

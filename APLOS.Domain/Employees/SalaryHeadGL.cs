@@ -80,6 +80,7 @@ namespace Library.Model.Employees
         public string CrInDirectGLId { get; set; }
         public string CrInDirectBudgetMasterId { get; set; }
         public string CrInDirectActivityId { get; set; }
+        public string AccountsGroupId { get; set; }
 
         #endregion Navigation Properties
     }

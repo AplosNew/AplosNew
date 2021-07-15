@@ -52,7 +52,7 @@ function generalLedgerVSfixedAssetsController(cboService, commonMessage, $scope,
     //}
 
 
-    $scope.glVSfaReport = function () {
+    $scope.GLVSfaReport = function () {
 
         try {
 
@@ -73,7 +73,7 @@ function generalLedgerVSfixedAssetsController(cboService, commonMessage, $scope,
             //}
 
            // var file_src = $scope.path + "MasterLCReport?MasterLCList=" + MasterLCList; 
-            var file_src = $scope.path + "glVSfaReport"; 
+            var file_src = $scope.path + "GLVSfaReport"; 
             $rootScope.report(file_src);
 
         } catch (e) {

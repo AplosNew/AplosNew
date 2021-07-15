@@ -1,0 +1,84 @@
+﻿<style>
+    .modellgModify1 {
+        width: 1300px;
+    }
+</style>
+
+<div class="modal fade site-modal in" id="TrialBLAccountGroupIdPopUp" role="dialog" data-backdrop="static">
+    
+    <div class="modal-dialog modellgModify1">
+        @*modal-lg*@
+        <div class="modal-content">
+            @*<div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closePartyPopUpNew();">&times;</button></div>*@
+            <div class="modal-header">Bank Ledger<button type="button" class="close" ng-click="closeTrialBLAccountGroupPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+
+                <div class="col-lg-12">
+                    <label class="col-sm-3 control-label">Bank: {{bankName}}</label>
+                    <label class="col-sm-2 control-label">Account No: {{accountNumber}}</label>
+                    <label class="col-sm-1 control-label">Bank Currency: {{currencyCode}}</label>
+
+                    <label class="col-sm-2 control-label">Branch: {{BankBranchName}}</label>
+                    <label class="col-sm-2 control-label">AccountTitle: {{AccountTitle}}</label>
+                    <label class="col-sm-1 control-label">GL: {{gLGeneralInfoCode}} - {{gLGeneralInfoName}}</label>
+                    <label class="chart-title"></label>
+                </div>
+
+                <div class="clearfix"></div>
+
+                <div class="col-md-12">
+
+                    @*style="color:black;overflow:scroll"*@
+                    <div style="color:black;" id="GridTrialBalanceBankLedger" ej-grid e-datasource="BankLedgerDetailLevelPoPUpList" e-recorddoubleclick="showLedgerActivity"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowresizing="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-summaryrows="summaryRowsBankMasterLedger">
+                        <div e-columns>
+
+                            @*<div e-column e-type="string" e-field="LoanNo" e-headertext="Loan No" e-width="70"></div>
+                          <div e-column e-type="string" e-field="Party" e-headertext="Party" e-width="70"></div>*@
+
+                            <div e-column e-type="string" e-field="BalanceType" e-headertext="BalanceType" e-width="50"></div>
+
+                            <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="60">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li> <button ng-click="$parent.getvouchardetailjs(this);" tooltip="Voucher No" class="btn" style="top: 1px;">{{data.VoucherNo}}</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="PostingDate" e-headertext="Posting Date " e-width="35"></div>
+                       
+
+                            <div e-column e-type="string" e-field="Narration" e-headertext="Narration" e-width="40"></div>
+                            @*<div e-column e-type="string" e-field="Party" e-headertext="Party" e-width="55"></div>*@
+
+
+                            @*<div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="15"></div>*@
+
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="DrAmount" e-headertext="Tran. Dr." e-width="40" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="CrAmount" e-headertext="Tran. Cr." e-width="40" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="CompanyCurrencyDrAmount" e-headertext="Books Dr." e-width="40" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="CompanyCurrencyCrAmount" e-headertext="Books Cr." e-width="40" e-textalign="right" style="height: 20px;"></div>
+
+                        </div>
+
+                    </div>
+                </div>
+                @*</div>*@
+
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeTrialBLAccountGroupPopUp();" class="btn">Close</button></li>
+                </ul>
+
+                @*<script type="text/template" id="hLink">
+                    <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
+                </script>*@
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

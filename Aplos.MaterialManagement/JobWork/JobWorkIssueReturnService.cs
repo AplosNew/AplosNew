@@ -393,7 +393,106 @@ namespace Library.MaterialManagement.JobWork
             }
         }
 
-      
+        // VALUE ADDED NEW CODE
+
+        private string GetPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "InventoryIssue", out sID);
+            return sID;
+        }
+
+        public void Create(Dictionary<string, object> data, string ContractId, string ContractType)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                //con.OpenDataSetThroughAdapter("select * from " + TableName + " where PositionCodeId='" + data["PositionCodeId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //    throw new Exception("Same Position Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from trn.InventoryIssue where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    dr["Id"] = "I" + GetPK();
+
+                    dr["IssueDate"] = data["Date"];
+                    dr["EmployeeId"] = data["EmployeeId"];
+                    dr["Types"] = data["Types"];
+                    dr["IssueType"] = data["IssueType"];
+                    dr["MaterialStorageId"] = data["MaterialStorageId"];
+                    dr["IsConfirmed"] = data["IsConfirmed"];
+                    dr["Remarks"] = data["Remarks"];
+                    dr["EntityId"] = data["EntityId"];
+                    dr["JWContractId"] = ContractId;
+                    dr["ContractType"] = ContractType;
+
+                    dr["CompanyGroupId"] = identity.CompanyGroupId;
+                    dr["CompanyId"] = identity.CompanyId;
+                    dr["PlantId"] = identity.PlantId;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    //edit
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                    dr.BeginEdit();
+
+                    dr["IssueDate"] = data["Date"];
+                    dr["EmployeeId"] = data["EmployeeId"];
+                    dr["Types"] = data["Types"];
+                    dr["IssueType"] = data["IssueType"];
+                    dr["MaterialStorageId"] = data["MaterialStorageId"];
+                    dr["IsConfirmed"] = data["IsConfirmed"];
+                    dr["Remarks"] = data["Remarks"];
+                    dr["EntityId"] = data["EntityId"];
+                    dr["JWContractId"] = ContractId;
+                    dr["ContractType"] = ContractType;
+
+                    dr["CompanyGroupId"] = identity.CompanyGroupId;
+                    dr["CompanyId"] = identity.CompanyId;
+                    dr["PlantId"] = identity.PlantId;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                    dr.EndEdit();
+                }
+                data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 }
