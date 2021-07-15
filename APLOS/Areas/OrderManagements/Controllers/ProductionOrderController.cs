@@ -24,6 +24,7 @@ using System.Reflection;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
+using System.IO;
 
 namespace Aplos.Areas.OrderManagements.Controllers
 {
@@ -608,7 +609,7 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
         [HttpGet, Authorize]
         public ActionResult GetBulletinDataByProductMaster()
         {
-            string sql = @"Select BT.Id, BT.CompanyGroupId, BT.BulletinName, BT.AlternativeName, BT.ByWhom, BT.ProductMasterId, BT.SizeGroupId
+            string sql = @"Select BT.Id, BT.CompanyGroupId, BT.BulletinName, BT.AlternativeName, BT.ByWhom, BT.ProductMasterId, BT.SizeGroupId,BT.PicFileName
                          ,PM.UserName ProductMaster, SG.UserName SizeGroup
 						  ,Buyer=REPLACE(REPLACE(
 										 STUFF((select distinct ', '+B.UserName FROM 
@@ -950,6 +951,8 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(BulletinTemplate, BulletinTemplateMaster, BulletinTemplateDetail);
+
+                MoveImage(entity.Id, entity.PicFileName, NewId);
             }
             catch (Exception ex)
             {
@@ -958,6 +961,22 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
             }
 
 
+        }
+
+        public static void MoveImage(string fromName, string toName, string NewBulletinId)
+        {
+            var Fromdirectory = ResourcesPathReader.GetBulletinImagePath();
+            var Todirectory = ResourcesPathReader.GetProductionBulletinImagePath();
+            if (!string.IsNullOrEmpty(fromName))
+            {
+                string path = Path.Combine(Fromdirectory, fromName + Path.GetExtension(toName));
+                //var path = Path.Combine(Fromdirectory, fromName);
+                if (System.IO.File.Exists(path))
+                {
+                    //File.Copy(Path.Combine(Fromdirectory, fromName), Path.Combine(Todirectory, NewBulletinId), true);
+                    System.IO.File.Copy(Path.Combine(Fromdirectory, fromName + Path.GetExtension(toName)), Path.Combine(Todirectory, NewBulletinId + Path.GetExtension(toName)), true);
+                }
+            }
         }
 
         [HttpPost, Authorize]
@@ -1679,6 +1698,22 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
             return sID;
 
         }
+        public static void MoveProductionBulletinImage(string fromName, string toName, string NewBulletinId)
+        {
+            var Fromdirectory = ResourcesPathReader.GetProductionBulletinImagePath();
+            var Todirectory = ResourcesPathReader.GetProductionBulletinImagePath();
+            if (!string.IsNullOrEmpty(fromName))
+            {
+                string path = Path.Combine(Fromdirectory, fromName + Path.GetExtension(toName));
+                //var path = Path.Combine(Fromdirectory, fromName);
+                if (System.IO.File.Exists(path))
+                {
+                    //File.Copy(Path.Combine(Fromdirectory, fromName), Path.Combine(Todirectory, NewBulletinId), true);
+                    System.IO.File.Copy(Path.Combine(Fromdirectory, fromName + Path.GetExtension(toName)), Path.Combine(Todirectory, NewBulletinId + Path.GetExtension(toName)), true);
+                }
+            }
+        }
+
         public void CopyProductionBulletinTemplate(string MasterId, string ProductionOrderId)
         {
             DataSet ProductionBulletinTemplate;
@@ -1742,6 +1777,8 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(ProductionBulletinTemplate, ProductionBulletinTemplateMaster, ProductionBulletinTemplateDetail);
+
+                MoveProductionBulletinImage(MasterId, Master.Rows[0]["PicFileName"].ToString(), NewId);
             }
             catch (Exception ex)
             {
