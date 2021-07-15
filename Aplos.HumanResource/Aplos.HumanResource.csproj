@@ -200,6 +200,10 @@
     <Compile Include="Leave\LeaveUploadXL\clsTemplateReadLeave.cs" />
     <Compile Include="Leave\LeaveUploadXL\clsTemplateSaveLeave.cs" />
     <Compile Include="Leave\LeaveUploadXL\LeaveUploadTemplate.cs" />
+    <Compile Include="NewAttendanceProcess\DayStatusService.cs" />
+    <Compile Include="NewAttendanceProcess\OutPunchConfigurationService.cs" />
+    <Compile Include="NewAttendanceProcess\RosterPatternService.cs" />
+    <Compile Include="NewAttendanceProcess\WeeklyOffService.cs" />
     <Compile Include="Payroll\Allowance\clsDiscreteAllowanceReport.cs" />
     <Compile Include="Payroll\Allowance\SalaryHeadWiseAmountTransaction.cs" />
     <Compile Include="Payroll\Allowance\SalaryHeadWiseDailyService.cs" />
@@ -244,10 +248,6 @@
     <Compile Include="Report\Payroll\PayrollReports.cs" />
     <Compile Include="SalaryProcessActive\clsSalaryProcessAplosListR.cs" />
     <Compile Include="ShiftChange\clsShiftChangeSectionWise.cs" />
-    <Compile Include="Shift\DayStatusService.cs" />
-    <Compile Include="Shift\OutPunchConfigurationService.cs" />
-    <Compile Include="Shift\RosterPatternService.cs" />
-    <Compile Include="Shift\WeeklyOffService.cs" />
     <Compile Include="SmsSend\clsSMSSendNotification.cs" />
   </ItemGroup>
   <ItemGroup>
