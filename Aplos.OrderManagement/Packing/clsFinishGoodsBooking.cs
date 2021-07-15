@@ -153,10 +153,12 @@ namespace Library.OrderManagement.Packing
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[FinishGoodsBooking] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FinishGoodsBookingDetail WHERE FinishGoodsBookingId ='" + data["Id"] + "'", out dsFinishGoodsBookingDetail, false, "1");
-				con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.ItemScanChild WHERE MasterId IN (Select Id from dbo.ItemScan ISN WHERE ISN.WorkDate between '" + data["FromDate"] + "' AND '" + data["ToDate"] + "') AND POId IN ("+ pOId + @") AND ProductCode IN ("+ productCode + @")", out dsItemScanChild, false, "1");
+				//con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.ItemScanChild WHERE MasterId IN (Select Id from dbo.ItemScan ISN WHERE ISN.WorkDate between '" + data["FromDate"] + "' AND '" + data["ToDate"] + "') AND POId IN ("+ pOId + @") AND ProductCode IN ("+ productCode + @")", out dsItemScanChild, false, "1");
+				con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.ItemScanChild WHERE MasterId IN (Select Id from dbo.ItemScan ISN WHERE ISN.WorkDate between '" + data["FromDate"] + "' AND '" + DateTime.Now.ToString("dd-MMM-yyyy") + "') AND POId IN (" + pOId + @") AND ProductCode IN (" + productCode + @")", out dsItemScanChild, false, "1");
 
 				string _Id = "";
                 string masterId = "";
+                string detailId = "";
 
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
@@ -185,7 +187,9 @@ namespace Library.OrderManagement.Packing
 
                     if (dv.Count == 0)
                     {
-                        item["Id"] = GetFinishGoodsBookingDetailPK();
+						detailId = GetFinishGoodsBookingDetailPK();
+
+						item["Id"] = detailId;
                         item["FinishGoodsBookingId"] = masterId;
 
                         AddNewRow(dsFinishGoodsBookingDetail.Tables[0], item);
@@ -195,7 +199,7 @@ namespace Library.OrderManagement.Packing
                         DataRow drmo = dv[0].Row;
                         EditRow(drmo, item);
                     }
-
+					detailId = dsFinishGoodsBookingDetail.Tables[0].Rows[0]["Id"].ToString();
 					if (dsItemScanChild.Tables[0].Rows.Count > 0)
 					{
 						for (int i = 0; i < dsItemScanChild.Tables[0].Rows.Count; i++)
@@ -208,6 +212,7 @@ namespace Library.OrderManagement.Packing
 								DataRow dr = dsItemScanChild.Tables[0].DefaultView[0].Row;
 								dr.BeginEdit();
 								dr["FinishGoodsBookingId"] = masterId;
+								dr["FinishGoodsBookingDetailId"] = detailId;
 
 								dr["UpdatedBy"] = identity.Name;
 								dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -551,34 +556,31 @@ namespace Library.OrderManagement.Packing
 				throw ex;
 			}
 		}
-		public IEnumerable<object> GetCostingItemDetailData(string productionOrderId, string costingId)
+		public IEnumerable<object> GetCostingItemDetailData(string costingId)
         {
             try
             {
-				string sql = @"select A.OrderCostingMasterTemplateId, SUM(A.Rate) Rate,CI.UserName CostingItem, CC.UserName CostingComponent
-								from TRN.MasterOrderItem MOI
-								left JOIN [dbo].[OrderCostingMasterTemplate] OCMT ON OCMT.Id=MOI.OrderCostingMasterTemplateId
+				string sql = @"select CT.Id, SUM(A.Rate) Rate,CI.UserName CostingItem, CC.UserName CostingComponent
+								from dbo.CostingMasterTemplate CT
 								left JOIN
 									( 
-									Select DM.CostingItemId,DM.OrderCostingMasterTemplateId,DM.GrossAmount Rate from [dbo].[OrderProcurementCostingDirectMaterial] DM
+									Select DM.CostingItemId,DM.CostingMasterTemplateId,DM.GrossAmount Rate from [dbo].PreCostingDirectMaterial DM
 									UNION
-									Select DP.CostingItemId,DP.OrderCostingMasterTemplateId,DP.Amount Rate from [dbo].[OrderProcurementCostingDirectProcess] DP
+									Select DP.CostingItemId,DP.CostingMasterTemplateId,DP.Amount Rate from [dbo].PreCostingDirectProcess DP
 									UNION
-									Select OP.CostingItemId,OP.OrderCostingMasterTemplateId,OP.[Value] Rate from [dbo].[OrderProcurementCostingOperation] OP
+									Select OP.CostingItemId,OP.CostingMasterTemplateId,OP.[Value] Rate from [dbo].PreCostingOperation OP
 									UNION
-									Select P.CostingItemId,P.OrderCostingMasterTemplateId,P.[Value] Rate from [dbo].[OrderProcurementCostingProfit] P
+									Select P.CostingItemId,P.CostingMasterTemplateId,P.[Value] Rate from [dbo].PreCostingProfit P
 									UNION
-									Select SE.CostingItemId,SE.OrderCostingMasterTemplateId,SE.[Value] Rate from [dbo].[OrderProcurementCostingSalesExpense] SE
+									Select SE.CostingItemId,SE.CostingMasterTemplateId,SE.[Value] Rate from [dbo].PreCostingSalesExpense SE
 									UNION
-									Select VL.CostingItemId,VL.OrderCostingMasterTemplateId,VL.[Value] Rate from [dbo].[OrderProcurementCostingValueLoss] VL
+									Select VL.CostingItemId,VL.CostingMasterTemplateId,VL.[Value] Rate from [dbo].PreCostingValueLoss VL
 									) 
-									A ON A.OrderCostingMasterTemplateId=moi.OrderCostingMasterTemplateId
-									left JOIN [HKP].[CostingItem] CI ON CI.Id=A.CostingItemId 
-									left JOIN [HKP].[CostingComponent] CC ON CC.Id=CI.CostingComponentId
-									join (select POD.ProductionOrderId,SO.MasterOrderItemId from TRN.ProductionOrderDetail POD
-	                                join trn.salesOrder SO ON SO.id=pod.SalesOrderId group by POD.ProductionOrderId,SO.MasterOrderItemId) AS PO on PO.MasterOrderItemId=MOI.Id
-	                                WHERE ISNULL(CC.ConsiderForFGValuation,0)=1 AND PO.ProductionOrderId='" + productionOrderId+ @"'  AND moi.OrderCostingMasterTemplateId='"+ costingId + @"'
-									GROUP BY MOI.Id,A.OrderCostingMasterTemplateId,CI.UserName, CC.UserName";
+								A ON A.CostingMasterTemplateId=CT.Id
+								left JOIN [HKP].[CostingItem] CI ON CI.Id=A.CostingItemId 
+								left JOIN [HKP].[CostingComponent] CC ON CC.Id=CI.CostingComponentId
+								WHERE CT.Id='"+ costingId + @"'
+								GROUP BY CT.Id,CI.UserName, CC.UserName";
 				return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -615,78 +617,6 @@ from trn.MasterOrderItem moi
 	WHERE ISNULL(ConsiderForFGValuation,0)=1 AND PO.ProductionOrderId='"+ productionOrderId + @"'
 AND moi.OrderCostingMasterTemplateId<>''
 group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserName) AS COST";
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-
-		public IEnumerable<object> GetItemDetailData(string masterId)
-		{
-			try
-			{
-				string sql = @"SELECT CONVERT (bit,1) Active,NULL AS COSTList,FGD.Id,FGD.Qty,sc.ProductCode, PL.Id ProductLibraryId , PO.Id ProductionOrderId,FGQty=SUM(CASE WHEN SC.IsDespatch=0 THEN sc.NetWeight ELSE 0 END)
-								,SONo=STUFF((select distinct ','+XSO.Id from 
-                                                                 trn.SalesOrder XSO 
-                                                                 JOIN TRN.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								,MasterOrderItemNo=STUFF((select distinct ','+MOI.Id from 
-								                                 TRN.MasterOrderItem MOI
-                                                                 JOIN trn.SalesOrder XSO ON XSO.MasterOrderItemId=MOI.Id
-                                                                 JOIN TRN.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                ,MaterialMaster=STUFF((select distinct ','+MM.UserName from 
-									                            MST.MaterialMaster MM
-								                                JOIN TRN.MasterOrderItem MI ON MI.MaterialMasterId=MM.Id                                                                 
-                                                                 JOIN trn.SalesOrder XSO ON XSO.MasterOrderItemId=MI.Id
-                                                                 JOIN TRN.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')                        
-							    ,Article=STUFF((select distinct ','+MMA.StandardName from 
-									                            MST.MaterialMasterArticle MMA
-								                                JOIN TRN.MasterOrderItem MI ON MI.ArticleId=MMA.Id                                                                 
-                                                                 JOIN trn.SalesOrder XSO ON XSO.MasterOrderItemId=MI.Id
-                                                                 JOIN TRN.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')     
-	                        ,ISNULL(B.Rate,0) Rate,B.OrderCostingMasterTemplateId
-							FROM dbo.ItemScanChild sc
-	                        LEFT JOIN dbo.ProductLibrary PL ON PL.Code=SC.ProductCode
-							LEFT JOIN dbo.ItemScan ISN ON ISN.Id=SC.MasterId
-	    
-							LEFT JOIN TRN.ProductionOrder PO ON PO.Id=SC.POId
-							LEFT JOIN TRN.ProductionOrderDetail POD ON POD.ProductionOrderId=PO.Id													
-							
-							LEFT JOIN 
-							(
-								SELECT DISTINCT COST.ProductionOrderId, COST.OrderCostingMasterTemplateId,COST.Rate FROM (select po.ProductionOrderId, moi.Id,a.OrderCostingMasterTemplateId,sum(a.rate) AS Rate from trn.MasterOrderItem moi 
-								 JOIN
-									( 
-									Select DM.CostingItemId,DM.OrderCostingMasterTemplateId,DM.GrossAmount Rate from [dbo].[OrderProcurementCostingDirectMaterial] DM
-									UNION
-									Select DP.CostingItemId,DP.OrderCostingMasterTemplateId,DP.Amount Rate from [dbo].[OrderProcurementCostingDirectProcess] DP
-									UNION
-									Select OP.CostingItemId,OP.OrderCostingMasterTemplateId,OP.[Value] Rate from [dbo].[OrderProcurementCostingOperation] OP
-									UNION
-									Select P.CostingItemId,P.OrderCostingMasterTemplateId,P.[Value] Rate from [dbo].[OrderProcurementCostingProfit] P
-									UNION
-									Select SE.CostingItemId,SE.OrderCostingMasterTemplateId,SE.[Value] Rate from [dbo].[OrderProcurementCostingSalesExpense] SE
-									UNION
-									Select VL.CostingItemId,VL.OrderCostingMasterTemplateId,VL.[Value] Rate from [dbo].[OrderProcurementCostingValueLoss] VL
-									)  AS 	A ON A.OrderCostingMasterTemplateId=moi.OrderCostingMasterTemplateId
-
-									left JOIN [HKP].[CostingItem] CI ON CI.Id=A.CostingItemId 
-									left JOIN [HKP].[CostingComponent] CC ON CC.Id=CI.CostingComponentId
-									join (select POD.ProductionOrderId,SO.MasterOrderItemId from TRN.ProductionOrderDetail POD
-									join trn.salesOrder SO ON SO.id=pod.SalesOrderId group by POD.ProductionOrderId,SO.MasterOrderItemId) AS PO on PO.MasterOrderItemId=MOI.Id
-									WHERE ISNULL(ConsiderForFGValuation,0)=1 AND moi.OrderCostingMasterTemplateId<>''
-								group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId) AS COST
-							) B ON B.ProductionOrderId=PO.Id
-							LEFT JOIN FinishGoodsBooking FG ON FG.Id=SC.FinishGoodsBookingId
-							LEFT JOIN FinishGoodsBookingDetail FGD ON FGD.FinishGoodsBookingId=FG.Id
-	                        WHERE ISNULL(SC.FinishGoodsBookingId,'')='" + masterId + @"'
-							GROUP BY FGD.Id,FGD.Qty,SC.ProductCode, PO.Id, PL.Id,B.Rate,B.OrderCostingMasterTemplateId";
-
 				return _sqlRepository.GetDataCollection(sql, null);
 			}
 			catch (Exception ex)
@@ -747,6 +677,114 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
                 throw ex;
             }
         }
-    }
+
+		public IEnumerable<object> GetItemScanChildData(string fromDate, string toDate)
+		{
+			try
+			{
+				string sql = @"SELECT SC.POId ProductionOrderId,sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate,MM.UserName MaterialMaster,MMA.StandardName Article
+							 ,Qty=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END),B.Rate, Amount=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END)*B.Rate
+							FROM dbo.ItemScanChild SC 
+							LEFT JOIN dbo.ProductLibrary PL ON PL.Code=SC.ProductCode
+							LEFT JOIN dbo.ItemScan ISN ON ISN.Id=SC.MasterId
+							LEFT JOIN dbo.CostingMasterTemplate AS CT ON CT.Id=PL.CostingMasterTemplateId
+							LEFT JOIN 
+							(
+							SELECT DISTINCT COST.CostingMasterTemplateId,COST.Rate 
+							FROM (select A.CostingMasterTemplateId,sum(A.rate) AS Rate from CostingMasterTemplate CMT 
+								JOIN
+								( 
+								SELECT DM.CostingItemId,DM.CostingMasterTemplateId,DM.GrossAmount Rate from [dbo].PreCostingDirectMaterial DM
+								UNION
+								SELECT DP.CostingItemId,DP.CostingMasterTemplateId,DP.Amount Rate from [dbo].PreCostingDirectProcess DP
+								UNION
+								SELECT OP.CostingItemId,OP.CostingMasterTemplateId,OP.[Value] Rate from [dbo].PreCostingOperation OP
+								UNION
+								SELECT P.CostingItemId,P.CostingMasterTemplateId,P.[Value] Rate from [dbo].PreCostingProfit P
+								UNION
+								SELECT SE.CostingItemId,SE.CostingMasterTemplateId,SE.[Value] Rate from [dbo].PreCostingSalesExpense SE
+								UNION
+								SELECT VL.CostingItemId,VL.CostingMasterTemplateId,VL.[Value] Rate from [dbo].PreCostingValueLoss VL
+								)  AS 	A ON A.CostingMasterTemplateId=CMT.Id
+								LEFT JOIN [HKP].[CostingItem] CI ON CI.Id=A.CostingItemId 
+								LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id=CI.CostingComponentId
+							GROUP BY a.CostingMasterTemplateId) AS COST
+							) B ON B.CostingMasterTemplateId=CT.Id
+							LEFT JOIN MST.MaterialMaster MM ON MM.Id=PL.MaterialMasterId
+							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
+							WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' --AND ISNULL(SC.FinishGoodsBookingId,'')=''
+							GROUP BY SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetItemDetailData(string masterId)
+		{
+			try
+			{
+				string sql = @"SELECT FGD.Id,SC.POId ProductionOrderId,sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate,MM.UserName MaterialMaster,MMA.StandardName Article
+							 ,Qty=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END),B.Rate, Amount=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END)*B.Rate
+							FROM dbo.ItemScanChild SC 
+							LEFT JOIN dbo.ProductLibrary PL ON PL.Code=SC.ProductCode
+							LEFT JOIN dbo.ItemScan ISN ON ISN.Id=SC.MasterId
+							LEFT JOIN dbo.CostingMasterTemplate AS CT ON CT.Id=PL.CostingMasterTemplateId
+							LEFT JOIN 
+							(
+							SELECT DISTINCT COST.CostingMasterTemplateId,COST.Rate 
+							FROM (select A.CostingMasterTemplateId,sum(A.rate) AS Rate from CostingMasterTemplate CMT 
+								JOIN
+								( 
+								SELECT DM.CostingItemId,DM.CostingMasterTemplateId,DM.GrossAmount Rate from [dbo].PreCostingDirectMaterial DM
+								UNION
+								SELECT DP.CostingItemId,DP.CostingMasterTemplateId,DP.Amount Rate from [dbo].PreCostingDirectProcess DP
+								UNION
+								SELECT OP.CostingItemId,OP.CostingMasterTemplateId,OP.[Value] Rate from [dbo].PreCostingOperation OP
+								UNION
+								SELECT P.CostingItemId,P.CostingMasterTemplateId,P.[Value] Rate from [dbo].PreCostingProfit P
+								UNION
+								SELECT SE.CostingItemId,SE.CostingMasterTemplateId,SE.[Value] Rate from [dbo].PreCostingSalesExpense SE
+								UNION
+								SELECT VL.CostingItemId,VL.CostingMasterTemplateId,VL.[Value] Rate from [dbo].PreCostingValueLoss VL
+								)  AS 	A ON A.CostingMasterTemplateId=CMT.Id
+								LEFT JOIN [HKP].[CostingItem] CI ON CI.Id=A.CostingItemId 
+								LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id=CI.CostingComponentId
+							GROUP BY a.CostingMasterTemplateId) AS COST
+							) B ON B.CostingMasterTemplateId=CT.Id
+							LEFT JOIN MST.MaterialMaster MM ON MM.Id=PL.MaterialMasterId
+							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
+							LEFT JOIN FinishGoodsBooking FG ON FG.Id=SC.FinishGoodsBookingId
+							LEFT JOIN FinishGoodsBookingDetail FGD ON FGD.FinishGoodsBookingId=FG.Id
+	                        WHERE ISNULL(SC.FinishGoodsBookingId,'')='"+ masterId + @"'
+							GROUP BY FGD.Id,SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName";
+
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public object GetFromDate()
+        {
+			string sql = "";
+            try
+            {
+				sql = @"Select FORMAT(MIN(A.WorkDate),'dd-MMM-yyyy') FromDate 
+						from dbo.ItemScan A
+						JOIN dbo.ItemScanChild B oN A.Id=B.MasterId
+						Where B.IsDespatch=0";
+				return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+	}
 
 }

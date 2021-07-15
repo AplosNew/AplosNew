@@ -4,7 +4,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
-using Library.HumanResource.Shift;
+using Library.HumanResource.NewAttendanceProcess;
 using Library.Model.HumanResources;
 using Library.Service.Enums;
 using Library.Service.HumanResources;

@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Web.Mvc;
-using Library.HumanResource.Shift;
+using Library.HumanResource.NewAttendanceProcess;
 #endregion Using
 
 namespace Aplos.Areas.HumanResource.Controllers
