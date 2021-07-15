@@ -9552,6 +9552,7 @@ group by Id) O60 ON O60.Id=IV.Id
                     , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,
                     ACT.BalanceType,
                     ACT.Id AS [MainHead],
+	                ag.Id AccoutnGroupId,
                     AG.UserName AccountGroupName
                     ,VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
                     VD.BudgetMasterId,
@@ -9591,7 +9592,7 @@ group by Id) O60 ON O60.Id=IV.Id
                     -- WHERE v.PostingDate <= '13-Apr-2021' and v.CompanyId ='C20171' AND V.PlantId='20171'
                     WHERE v.PostingDate <= '" + toDate+"' and v.CompanyId ='"+companyId+"' AND V.PlantId='"+plantId+ @"'
                     AND v.IsPark=0
-                    GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName,AG.UserName,
+                    GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName  , ag.Id ,AG.UserName,
                     GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.Id, A.UserName, BUD.Id, BUD.UserName, v.PostingDate, BA.AccountTitle, CM.UserName
                     ,VD.BankMasterId, VD.CashMasterId, P.UserName, PP.UserName, VD.PartyId, VD.PartyPlantId,FM.UserName,BMA.FixedAssetMasterId ) ttd
                     WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00

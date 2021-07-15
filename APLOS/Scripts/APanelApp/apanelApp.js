@@ -471,6 +471,10 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("FabricWidthController", FabricWidthController)
     .controller("ShadeController", ShadeController)
     .controller("baseMaterialAndArticleController", baseMaterialAndArticleController)
+    .controller("DayStatusMasterController", DayStatusMasterController)
+    .controller("WeeklyOffController", WeeklyOffController)
+    .controller("OutPunchConfigurationController", OutPunchConfigurationController)
+    .controller("RosterPatternController", RosterPatternController)
 
 
 

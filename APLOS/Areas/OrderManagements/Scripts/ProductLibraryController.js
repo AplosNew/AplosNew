@@ -61,6 +61,8 @@ function ProductLibraryController(fileReader, commonMessage, $scope, $rootScope,
         , RecipeOrProductionGroup: 'Recipe'
         , RecipeId: null
         , MaterialMasterId: null
+        , CostingMasterTemplateId:null
+        , CostingMasterTemplate:null
         , ArticleId: null
         , ProductMasterName: null
         , ProductionGroup: null
@@ -217,6 +219,43 @@ function ProductLibraryController(fileReader, commonMessage, $scope, $rootScope,
             ShowResult(ex, 'error');
         }
     };
+
+    $scope.CostingMasterTemplateList = [];
+    $scope.GetCostingMasterTemplatePopUp = function () {
+        $http.get("OrderManagements/ProductLibrary/GetCostingMasterTemplate")
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.CostingMasterTemplateList = response.data;
+                    }
+                    angular.element(document.querySelector("#CostingMasterTemplatePopUp")).modal("show");
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+
+    $scope.SelectedCostingMasterTemplate = function ($event) {
+        try {
+            var obj = $event.data;
+            $scope.ModelNew.CostingMasterTemplateId = obj.Id;
+            $scope.ModelNew.CostingMasterTemplate = obj.UserName;
+            angular.element(document.querySelector("#CostingMasterTemplatePopUp")).modal("hide");
+        } catch (ex) {
+            ShowResult(ex, 'error');
+        }
+    };
+
+    $scope.CostingMasterTemplateClear = function () {
+        $scope.ModelNew.CostingMasterTemplateId = null;
+        $scope.ModelNew.CostingMasterTemplate = null;
+    };
+
+
+    $scope.CloseCostingMasterTemplatePopUp = function () {
+        angular.element(document.querySelector("#CostingMasterTemplatePopUp")).modal("hide");
+    };
+
 
     $scope.Get = function (obj) {
         $scope.setTab(1);

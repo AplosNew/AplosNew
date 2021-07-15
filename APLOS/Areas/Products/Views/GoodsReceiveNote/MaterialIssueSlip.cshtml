@@ -410,7 +410,7 @@
 
 
 	<fieldset class="scheduler-border">
-		<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Select Raw Materials(</span></legend>
+		<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Select Raw Materials</span></legend>
 		@*<div class="col-lg-12">
 				<div class="content-container-fluid" style="color:black;">
 					<div style="color:black;" id="Groidmm"  ej-grid e-datasource="FilterList123"
@@ -528,14 +528,16 @@
 						<th>Consumption</th>
 						<th>WastagePer</th>
 						@*<th>POUoM</th>*@
-						<th>UOM</th>
+
 
 						<th>StockQty</th>
+						<th>StockBaseUoM</th>
 						<th>IssuedQty Qty</th>
 						<th>Requested Qty</th>
-
+						<th>ConsumptionUOM</th>
 						<th style="width:500px;">Required(Valid)Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 						@*<th></th>*@
+						<th>TranUOM</th>
 						<th class="col-sm-1">Action</th>
 					</tr>
 				</thead>
@@ -574,26 +576,28 @@
 						<td>{{x.CountryName}}</td>
 						<td class="text-right">{{x.SalesOrderId}}</td>
 
-						<td>{{x.Consumption}}</td>
+
 						<td>{{x.WastagePer}}</td>
 						@*<td>{{x.POUoMName}}</td>*@
-						<td>{{x.UOM}}</td>
+						<td>{{x.Consumption}}</td>
+
 
 						<td class="text-right">{{x.TotalQty}}</td>
+						<td>{{x.StockUOM}}</td>
 						<td class="text-right">{{x.IssuedQty}}</td>
 						<td class="text-right">{{x.RequisitionQty}}</td>
-
+						<td>{{x.consumptionUoM}}</td>
 						<td class="text-right">
 							<input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.RequestedQty" ng-disabled="false">
 						</td>
-
+						<td>{{x.TransactionUoMName}}</td>
 						@*<td class="text-right">
 			<ul class="list-inline action-list"></ul>
 		</td>*@
 
 						<td class="text-right table-td">
 							<ul class="list-inline">
-
+								<li><button ng-click="showMaterialWiseStockModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Requisition Qty"><i class="glyphicon glyphicon-info-sign"></i></button></li>
 								<li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
 							</ul>
 						</td>

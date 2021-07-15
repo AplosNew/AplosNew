@@ -1,9 +1,17 @@
 ﻿'use strict';
-entityFixedAssetsRegisterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
-function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+entityFixedAssetsRegisterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$controller', '$filter', '$window'];
+function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $controller, $filter, $window) {
     $rootScope.title = 'Entity Fixed Assets Register';
     $scope.Action = 'Save';
     $scope.path = 'FixedAssets/EntityFixedAssetsRegister/';
+
+    //$scope.path = 'FixedAssets/FixedAssetRegister/';
+    $scope.partyType = 'Vendor';
+    $controller('partyBaseController', { $scope: $scope, $http: $http });
+    $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
+    $scope.materialMasterList1 = [];
+
+
     $scope.saveUrl = $scope.path + 'create';
     var dt = new Date();
 
@@ -17,7 +25,23 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
     //   FromDate: $filter('dateFiltering')(Date.now()),
     //};
 
-    $scope.fixedAsset = {
+    $scope.report = {
+
+        //FromDate: $filter("dateFiltering")(Date.now()),
+        //ToDate: $filter("dateFiltering")(Date.now()),
+
+        PartyType: 'All', 
+        PartyId: null,
+        FixedAssetMasterId: null,
+        MaterialMasterId: null,
+        CapitalizationDate: null,
+
+        partyType: 'All',
+        PartyName: null,
+        MaterialMasterName: null,
+        FixedAssetMasterName: null,
+        EntityId: null,
+
         EntityId: null,
         DepartmentId: null
     };
@@ -43,16 +67,12 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
                 //else {
                 //    ShowResult(response.data.Message, 'failure');
                 //}
-
-
                 $scope.EntityFixedAssetRegisterList = response.data.DATA;
-
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
         }
-
         catch (e) {
 
         }
@@ -103,11 +123,11 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
 
     $scope.NewEntityFixedAssetRegisterList = [];
     $scope.validation = function () {
-        if (baseService.isUndefinedOrNull($scope.fixedAsset.EntityId)) {
+        if (baseService.isUndefinedOrNull($scope.report.EntityId)) {
             ShowResult('Please select Entity', 'failure');
             return true;
         }
-        if (baseService.isUndefinedOrNull($scope.fixedAsset.DepartmentId)) {
+        if (baseService.isUndefinedOrNull($scope.report.DepartmentId)) {
             ShowResult('Please select Department', 'failure');
             return true;
         }
@@ -136,7 +156,7 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'entityId': $scope.fixedAsset.EntityId, 'departmentId': $scope.fixedAsset.DepartmentId, 'entityFixedAssetList': $scope.NewEntityFixedAssetRegisterList },
+                data: { 'entityId': $scope.report.EntityId, 'departmentId': $scope.report.DepartmentId, 'entityFixedAssetList': $scope.NewEntityFixedAssetRegisterList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -154,35 +174,88 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
        // $scope.GetEntityFixedAssetRegisterData();
     }
 
+    $scope.partyTypeChange = function (partyType) {
+        //Database table  
+        $scope.report.PartyType = partyType;
+        $scope.report.PartyId = '';
+        $scope.report.MaterialMasterId = '';
+        $scope.report.FixedAssetMasterId = ''; 
+        //input type ng-model
+        $scope.report.partyType = partyType;
+        $scope.report.PartyName = '';
+        $scope.report.MaterialMasterName = '';
+        $scope.report.FixedAssetMasterName = '';
+    }
 
-    //$scope.InvoiceSummaryReport = function () {
+    $scope.clearVendor = function () {
+        $scope.report.FixedAssetMasterName = null;
+        $scope.report.MaterialMasterName = null;
+        $scope.report.PartyName = null;
+    }
 
-    //    try {
-    //        var NewMasterLCList = [];
-    //        for (var i = 0; i < $scope.MasterLCList.length; i++) {
-    //            if ($scope.MasterLCList[i].isSelected == true) {
+    $scope.searchByMaterialMasterModalList = [
+        {
+            "name": "Asset Category",
+            "value": "FixedAssetCategory"
+        }
+        ,
+        {
+            "name": "Asset Sub Category",
+            "value": "FixedAssetSubCategory"
+        },
+        {
+            "name": "Asset Master",
+            "value": "FixedAssetMasterName"
+        }
+    ];
 
-    //                if (NewMasterLCList, $scope.MasterLCList[i].PartyId) {
-    //                    NewMasterLCList.push($scope.MasterLCList[i].PartyId);
-    //                }
-    //            }
-    //        }
-    //        if (NewMasterLCList.length == 0) {
-    //            //(angular.isUndefinedOrNull(NewMasterLCList)) 
-    //            ShowResult('Please select at least one Party', 'failure');
-    //            //throw 'Please enter to date';
+    $scope.searchMaterialMasterParameters = {
+        limit: 10,
+        offset: 0,
+        order: "asc",
+        sort: "FixedAssetMasterName",
+        searchBy: "FixedAssetMasterName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
 
-    //        } else {
-    //            var file_src = $scope.path + "PartyPaymentStatusReport?MasterLCList=" + NewMasterLCList;
-    //            $rootScope.report(file_src);
-    //        }
+    $scope.getFixedAssetData = function () {
+        var url1 = "FixedAssets/FixedAssetMaster/GetFixedAssetMasterData";
+        baseService.setCurrentPage("materialMasterList1");
+        //for search loard
+        $scope.loadMaterialMasterModalList = function (pageno) {
+            baseService.paginationBase(url1, pageno, $scope.searchMaterialMasterParameters)
+                .then(function (result) {
+                    $scope.materialMasterList1 = result.Rows;
+                    $scope.searchMaterialMasterParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure");
+                }).finally(function () {
+                });
+            angular.element(document.querySelector("#assetmastermodal")).modal("show");
+        };
+        $scope.loadMaterialMasterModalList();
+    };
 
+    // for close (crose*)
+    $scope.closeFixedAssetPopUp = function () {
+        angular.element(document.querySelector("#assetmastermodal")).modal("hide");
+    }
+    // select data double click
+    $scope.selectFixedAssetMaster = function (data) {
+        $scope.report.FixedAssetMasterName = data.FixedAssetMasterName;
+        $scope.report.FixedAssetMasterId = data.FixedAssetMasterId;
+        angular.element(document.querySelector("#assetmastermodal")).modal("hide");
 
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //}
+    };
 
+    $scope.setMaterialMasterData = function (ob) {
+        $scope.report.MaterialMasterId = ob.Id;
+        $scope.report.MaterialMasterName = ob.UserName;
+        angular.element(document.querySelector('#materialmastersearchpopup')).modal('hide');
+    };
 
 };
 
