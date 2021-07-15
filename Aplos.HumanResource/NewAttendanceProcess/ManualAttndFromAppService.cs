@@ -5,7 +5,7 @@ using System.Data;
 using Library.Data.Sql;
 using OTSBD;
 
-namespace Library.HumanResource.Attendance
+namespace Library.HumanResource.NewAttendanceProcess
 {
     public class ManualAttndFromAppService
     {

@@ -6505,12 +6505,10 @@ namespace Library.SchedulingServices.Setups
         {
             try
             {
-                DataTable dtPlant = _sqlRepository.GetDataTable("Select * from ORG.Plant");
+
                 Library.Service.Productions.ProductionBooking.ProductionServices scheduler = new Library.Service.Productions.ProductionBooking.ProductionServices(_sqlRepository);
-                for (int i = 0; i < dtPlant.Rows.Count; i++)
-                {
-                    scheduler.UpdateDailyTarget(DateTime.Now.ToString("dd-MMM-yyyy"), dtPlant.Rows[i]["Id"].ToString());
-                }
+                scheduler.UpdateDailyTarget(DateTime.Now.ToString("dd-MMM-yyyy"), "");
+
             }
             catch (Exception ex)
             {
@@ -9761,7 +9759,7 @@ namespace Library.SchedulingServices.Setups
 
                 for (int dsi = 0; dsi < dayStatus.Count; dsi++)
                 {
-                    var daylyAttdnEmpInfo = HRMS.GetDAttendanceEmployee(companyGroupId, companyId, plantId, dayStatus[dsi], workDate, shift, Entity, Dept, Ydate, Sec, SSec, empCategoryList, designationList, lineList, Dstatus,"");
+                    var daylyAttdnEmpInfo = HRMS.GetDAttendanceEmployee(companyGroupId, companyId, plantId, dayStatus[dsi], workDate, shift, Entity, Dept, Ydate, Sec, SSec, empCategoryList, designationList, lineList, Dstatus, "");
 
 
 

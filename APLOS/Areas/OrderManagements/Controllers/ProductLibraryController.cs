@@ -60,6 +60,34 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #region Operation
 
         [HttpGet, Authorize]
+        public ActionResult GetCostingMasterTemplate()
+        {
+            try
+            {
+                string strSQL = string.Empty;
+
+                strSQL = @"select qcm.*, p.UserName as Customer, pm.UserName as ProductMaster 
+							,pc.UserName as ProductCategory,CUR.Code AS Currency,ct.UserName AS CostingTypeName
+							,psc.UserName as ProductSubCategory
+                             ,pm.CostingType
+							from CostingMasterTemplate qcm 
+							left join [HKP].[Party] p ON p.Id = qcm.CustomerId
+                            left join scs.Currency CUR on CUR.Id=qcm.CurrencyId
+                            left join [MST].[ProductMaster] pm ON pm.Id = qcm.ProductMasterId
+							left join [HKP].[ProductCategory] as pc on pc.Id = pm.ProductCategoryId
+							left join [HKP].[ProductSubCategory] as psc on psc.Id = pm.ProductSubCategoryId
+							LEFT JOIN CostingTypes AS ct ON ct.CostingType=pm.CostingType";
+
+                return Json(_sqlRepository.GetDataCollection(strSQL), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetRecipeGlobalMasterList()
         {
             try
@@ -108,18 +136,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = "";
 
-            sql = @"select top 100 * from (SELECT PL.*,MM.UserName MaterialMaster, RGM.UserName Recipe, MMA.StandardName Article, PM.UserName AS ProductMasterName FROM[dbo].[ProductLibrary] PL
-                         LEFT JOIN MST.[MaterialMaster] MM ON MM.Id = PL.MaterialMasterId
-                        LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId
+            sql = @"select top 100 * from (SELECT PL.*,MM.UserName MaterialMaster, RGM.UserName Recipe, MMA.StandardName Article, PM.UserName AS ProductMasterName, CT.UserName AS CostingMasterTemplate 
+                        FROM [dbo].[ProductLibrary] PL
+                        LEFT JOIN MST.[MaterialMaster] MM ON MM.Id = PL.MaterialMasterId
+                        LEFT JOIN [TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId
                         LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id = PL.ArticleId
-
-                        LEFT JOIN[TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
-
-                        LEFT JOIN[MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
-                             WHERE PL.CompanyGroupId='" + identity.CompanyGroupId + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
-
-
-
+                        LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
+                        LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+                        LEFT JOIN dbo.CostingMasterTemplate AS CT ON CT.Id=PL.CostingMasterTemplateId
+                        WHERE PL.CompanyGroupId='" + identity.CompanyGroupId + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate DESC";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

@@ -18,6 +18,10 @@ namespace Library.Service.Productions.ProductionBooking
             _sqlRepository = sqlRepository;
         }
 
+        private string MakeKey(string TargetDate, string WorkCenterMasterID, string ProductionOrderId)
+        {
+            return Convert.ToDateTime(TargetDate).ToString("dd-MMM-yyyy") + "-" + WorkCenterMasterID + "-" + ProductionOrderId;
+        }
         public void UpdateDailyTarget(string date, string plantId)
         {
             bool ConsiderBulletinParameters = false;
@@ -26,7 +30,7 @@ namespace Library.Service.Productions.ProductionBooking
                 DataTable dtPlanData = new DataTable();
 
                 dtPlanData = _sqlRepository.GetDataTable(@"--without bulletin
-                                        SELECT e.PlantId, ppt.ProductionOrderID, ppt.MaterialMasterId,art.ArticleId,ppt.isBuildUp,ppt.WorkCenterMasterId,
+                                        SELECT e.PlantId,FORMAT(ppt.ProductionDate,'dd-MMM-yyyy') AS ProductionDate, ppt.ProductionOrderID, ppt.MaterialMasterId,art.ArticleId,ppt.isBuildUp,ppt.WorkCenterMasterId,
                                             ppt.Quantity,t.SPT,T.NoOfWorkStation AS Manpower,ppt.ProductionHours
                                           FROM ProductionPlanningType1 AS ppt
                                           LEFT JOIN org.Entity AS e ON e.Id=ppt.EntityID
@@ -36,22 +40,27 @@ namespace Library.Service.Productions.ProductionBooking
 					                                          INNER JOIN trn.SalesOrder AS so ON so.id=pod.SalesOrderId
 					                                          INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
                                           ) AS ART ON art.ProductionOrderId=ppt.ProductionOrderID
-                                        WHERE ppt.ProductionDate='" + date + "'");
+                                        WHERE ppt.ProductionDate>='" + date + "'");
 
 
 
 
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.getDataSet("SELECT * FROM trn.DailyProductionTarget AS dpt WHERE dpt.TargetDate='" + date + "'", out DataSet dsLocal);
+                con.getDataSet("SELECT * FROM trn.DailyProductionTarget AS dpt WHERE dpt.TargetDate>='" + date + "'", out DataSet dsLocal);
+                Dictionary<string, DataRow> dicTargetData = new Dictionary<string, DataRow>();
+                foreach (DataRow item in dsLocal.Tables[0].Rows)
+                    dicTargetData.Add(MakeKey(item["TargetDate"].ToString(), item["WorkCenterMasterID"].ToString(), item["ProductionOrderId"].ToString()), item);
+
+
 
                 string id = "";
                 for (int i = 0; i < dtPlanData.Rows.Count; i++)
                 {
 
 
-                    dsLocal.Tables[0].DefaultView.RowFilter = "WorkCenterMasterID='" + dtPlanData.Rows[i]["WorkCenterMasterId"].ToString() + "' AND ProductionOrderId='" + dtPlanData.Rows[i]["ProductionOrderId"].ToString() + "'";
-                    if (dsLocal.Tables[0].DefaultView.Count == 0)
+                    string Key = MakeKey(dtPlanData.Rows[i]["ProductionDate"].ToString(), dtPlanData.Rows[i]["WorkCenterMasterId"].ToString(), dtPlanData.Rows[i]["ProductionOrderId"].ToString());
+                    if (dicTargetData.ContainsKey(Key) == false)
                     {
                         if (id == "")
                         {
@@ -62,7 +71,6 @@ namespace Library.Service.Productions.ProductionBooking
 
                         dr["ID"] = id + "-" + (i + 1).ToString();
 
-                        // ProductionOrderID MaterialMasterId    ArticleId isBuildUp   WorkCenterMasterId Quantity    SPT Manpower    ProductionHours
                         dr["PlantID"] = dtPlanData.Rows[i]["PlantId"].ToString();
                         dr["ProductionOrderId"] = dtPlanData.Rows[i]["ProductionOrderId"].ToString();
                         dr["ProductionOrderIdPlanning"] = dtPlanData.Rows[i]["ProductionOrderId"].ToString();
@@ -74,7 +82,7 @@ namespace Library.Service.Productions.ProductionBooking
                         dr["isBuildUpPlanning"] = dtPlanData.Rows[i]["isBuildUp"];
                         dr["WorkCenterMasterID"] = dtPlanData.Rows[i]["WorkCenterMasterId"].ToString();
                         dr["WorkCenterMasterIDPlanning"] = dtPlanData.Rows[i]["WorkCenterMasterId"].ToString();
-                        dr["TargetDate"] = date;
+                        dr["TargetDate"] = dtPlanData.Rows[i]["ProductionDate"].ToString();
                         dr["Quantity"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString());
                         dr["QuantityPlanning"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString());
                         dr["SMV"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["SPT"].ToString());
@@ -93,13 +101,14 @@ namespace Library.Service.Productions.ProductionBooking
                         dr["UpdatedBy"] = "System";
 
                         dsLocal.Tables[0].Rows.Add(dr);
+
+                        dicTargetData.Add(MakeKey(dr["TargetDate"].ToString(), dr["WorkCenterMasterID"].ToString(), dr["ProductionOrderId"].ToString()), dsLocal.Tables[0].Rows[dsLocal.Tables[0].Rows.Count - 1]);
+
                     }
                     else
                     {
 
-
-
-                        DataRow dr = dsLocal.Tables[0].DefaultView[0].Row;
+                        DataRow dr = dicTargetData[Key];
                         if (bplib.clsWebLib.GetBoolData(dr["isManual"]))
                             continue;
 
@@ -123,7 +132,7 @@ namespace Library.Service.Productions.ProductionBooking
                         dr["WorkCenterMasterIDPlanning"] = dtPlanData.Rows[i]["WorkCenterMasterId"].ToString();
 
 
-                        dr["TargetDate"] = date;
+                        dr["TargetDate"] = dtPlanData.Rows[i]["ProductionDate"].ToString();
 
                         if (dr["Quantity"].ToString() == dr["QuantityPlanning"].ToString())
                             dr["Quantity"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString());
@@ -158,7 +167,7 @@ namespace Library.Service.Productions.ProductionBooking
 
 
                 dtPlanData = _sqlRepository.GetDataTable(@"--with bulletin
-                                          SELECT e.PlantId, ppt.ProductionOrderID, ppt.MaterialMasterId,art.ArticleId,ppt.isBuildUp,ppt.WorkCenterMasterId,bul.RequiredStdTarget AS Quantity,
+                                         SELECT e.PlantId, ppt.ProductionOrderID,FORMAT(ppt.ProductionDate,'dd-MMM-yyyy') AS ProductionDate, ppt.MaterialMasterId,art.ArticleId,ppt.isBuildUp,ppt.WorkCenterMasterId,bul.RequiredStdTarget AS Quantity,
                                            bul.TotalSPT AS SPT,bul.AllotedManpower AS Manpower,bul.PlannedHoursPerDay AS ProductionHours,bul.WithMachine,bul.WithoutMachine
                                               FROM ProductionPlanningType1 AS ppt
                                               LEFT JOIN org.Entity AS e ON e.Id=ppt.EntityID
@@ -183,16 +192,14 @@ namespace Library.Service.Productions.ProductionBooking
 					                                              INNER JOIN trn.SalesOrder AS so ON so.id=pod.SalesOrderId
 					                                              INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
                                               ) AS ART ON art.ProductionOrderId=ppt.ProductionOrderID
-                                        WHERE ppt.ProductionDate='" + date + "'");
+                                        WHERE ppt.ProductionDate>='" + date + "'");
 
 
                 id = "";
                 for (int i = 0; i < dtPlanData.Rows.Count; i++)
                 {
-
-
-                    dsLocal.Tables[0].DefaultView.RowFilter = "WorkCenterMasterID='" + dtPlanData.Rows[i]["WorkCenterMasterId"].ToString() + "' AND ProductionOrderId='" + dtPlanData.Rows[i]["ProductionOrderId"].ToString() + "'";
-                    if (dsLocal.Tables[0].DefaultView.Count == 0)
+                    string Key = MakeKey(dtPlanData.Rows[i]["ProductionDate"].ToString(), dtPlanData.Rows[i]["WorkCenterMasterId"].ToString(), dtPlanData.Rows[i]["ProductionOrderId"].ToString());
+                    if (dicTargetData.ContainsKey(Key) == false)
                     {
                         if (id == "")
                         {
@@ -215,7 +222,7 @@ namespace Library.Service.Productions.ProductionBooking
                         dr["isBuildUpPlanning"] = dtPlanData.Rows[i]["isBuildUp"];
                         dr["WorkCenterMasterID"] = dtPlanData.Rows[i]["WorkCenterMasterId"].ToString();
                         dr["WorkCenterMasterIDPlanning"] = dtPlanData.Rows[i]["WorkCenterMasterId"].ToString();
-                        dr["TargetDate"] = date;
+                        dr["TargetDate"] = dtPlanData.Rows[i]["ProductionDate"].ToString();
 
                         dr["QuantityBulletin"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString());
                         dr["SMVBulletin"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["SPT"].ToString());
@@ -239,10 +246,13 @@ namespace Library.Service.Productions.ProductionBooking
                         dr["UpdatedBy"] = "System";
 
                         dsLocal.Tables[0].Rows.Add(dr);
+
+                        dicTargetData.Add(MakeKey(dr["TargetDate"].ToString(), dr["WorkCenterMasterID"].ToString(), dr["ProductionOrderId"].ToString()), dsLocal.Tables[0].Rows[dsLocal.Tables[0].Rows.Count - 1]);
+
                     }
                     else
                     {
-                        DataRow dr = dsLocal.Tables[0].DefaultView[0].Row;
+                        DataRow dr = dicTargetData[Key];
                         if (bplib.clsWebLib.GetBoolData(dr["isManual"]))
                             continue;
 
@@ -265,7 +275,7 @@ namespace Library.Service.Productions.ProductionBooking
                         dr["WorkCenterMasterIDPlanning"] = dtPlanData.Rows[i]["WorkCenterMasterId"].ToString();
 
 
-                        dr["TargetDate"] = date;
+                        dr["TargetDate"] = dtPlanData.Rows[i]["ProductionDate"].ToString();
 
                         //if (dr["Quantity"].ToString() == dr["QuantityPlanning"].ToString())
                         //    dr["Quantity"] = clsStaticInfo.dbl(dtPlanData.Rows[i]["Quantity"].ToString());
