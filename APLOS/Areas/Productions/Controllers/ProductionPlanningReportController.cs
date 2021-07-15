@@ -57,6 +57,10 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
+                if (fromDate> toDate)
+                {
+                    throw new Exception("To date should not be less than from date.");
+                }
                 string sql = GetProductionPlanningReportSQL(fromDate, toDate);
                 ExcelEngine excelEngine = new ExcelEngine();
                 //Instantiate the Excel application object
@@ -217,8 +221,26 @@ namespace Aplos.Areas.Productions.Controllers
                     PreviousBuyerItem= dtProductionPlanningReport.Rows[i]["BuyerItemNo"].ToString();                    
 
                 }
-                sheet[RowLineNo, BuyerEndCol].Text = dtProductionPlanningReport.Rows[i-1]["BuyerItemNo"].ToString() + ",Quantity:" + dtProductionPlanningReport.Rows[i-1]["SalesOrderQty"].ToString();               
-                sheet.Range[RowLineNo, BuyerStartCol, RowLineNo, BuyerEndCol].Merge();
+                if (BuyerStartCol == -1)
+                {
+                    if (dtProductionPlanningReport.Rows.Count > 0)
+                    {
+                        DateTime dtCurrentDate = Convert.ToDateTime(dtProductionPlanningReport.Rows[0]["TargetDate"].ToString());
+                        int CCOL = DateColumns[dtCurrentDate];
+                        BuyerStartCol = CCOL;
+
+
+                        sheet[RowLineNo, BuyerEndCol].Text = dtProductionPlanningReport.Rows[i - 1]["BuyerItemNo"].ToString() + ",Quantity:" + dtProductionPlanningReport.Rows[i - 1]["SalesOrderQty"].ToString();
+                        sheet.Range[RowLineNo, BuyerStartCol, RowLineNo, BuyerEndCol].Merge();
+                    }
+                }
+                else
+                {
+                    sheet[RowLineNo, BuyerEndCol].Text = dtProductionPlanningReport.Rows[i - 1]["BuyerItemNo"].ToString() + ",Quantity:" + dtProductionPlanningReport.Rows[i - 1]["SalesOrderQty"].ToString();
+                    sheet.Range[RowLineNo, BuyerStartCol, RowLineNo, BuyerEndCol].Merge();
+                }
+                    
+
                 StartRow = 8;
                
                 sheet["A" + StartRow.ToString()].FreezePanes();

@@ -22,11 +22,7 @@ function ProductionPlanningReportController(cboService, commonMessage, $scope, $
                 throw 'Plase select from date.';
 
             if (angular.isUndefinedOrNull($scope.toDate))
-                throw 'Plase select to date.';
-
-            if (angular.isUndefinedOrNull($scope.fromDate) < angular.isUndefinedOrNull($scope.toDate))
-                throw 'From date should be greater than to date.';
-            
+                throw 'Plase select to date.';            
 
             var file_src = $scope.path + 'GetProductionPlanningReport?fromDate=' + $scope.fromDate + '&toDate=' + $scope.toDate;
             $rootScope.report(file_src);
