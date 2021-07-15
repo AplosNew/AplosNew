@@ -519,6 +519,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/ManualShift/Aplos',
             controller: 'ManualShiftController'
         })
+        .when('/manual-shift-new', {
+            templateUrl: 'humanresource/ManualShiftNew/Aplos',
+            controller: 'ManualShiftNewController'
+        })
         .when('/salary-proc-extctc-company', {
             templateUrl: 'humanresource/PayrollReports/SalaryProcessedReportExtraOTCTCCompany',
             controller: 'salaryProcessedReportExtraOTCTCCompanyController'

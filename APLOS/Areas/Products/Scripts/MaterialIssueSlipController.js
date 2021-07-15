@@ -280,7 +280,39 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 			
 		}
 	}
+	$scope.ShowStock = [];
+	$scope.GetSOWiseMaterialStock = function (x,$index) {
+		$scope.GetDetailGridIndex = $index;
+		$http({
+			method: 'GET',
+			url: $scope.path + 'GetSOWiseMaterialStock?Material=' + x.MaterialMasterId + '&Article=' + x.ArticleId + '&Skuvalue1=' + x.BOQDFirstCharacteristicsValueId + '&Skuvalue2=' + x.BOQDSecondCharacteristicsValueId + '&Skuvalue3=' + x.BOQDThirdCharacteristicsValueId + '&ProcessId=' + $scope.productNew.ProcessId + '&SalesOrderId=' + x.SalesOrderId
+		}).then(function successCallback(response) {
+			$scope.ShowStock = response.data;
 
+		});
+
+	}
+	
+	$scope.SetTheData = function (x, $index) {
+		
+		var gridObj = $("#ShowStock1").data("ejGrid");
+		//getting corresponding record 
+		$scope.data = gridObj.getSelectedRecords()[0];
+		if (baseService.isUndefinedOrNull($scope.data.RequestedQty) || $scope.data.RequestedQty === 0) {
+			return ShowResult('Enter the Slip Qty', 'failure', 'POPopUp');
+		}
+		else {
+			$scope.FilterList123[$scope.GetDetailGridIndex].RequestedQty = $scope.data.RequestedQty;
+			$scope.FilterList123[$scope.GetDetailGridIndex].TransactionUoMName = $scope.data.TransactionUoMName;
+			$scope.FilterList123[$scope.GetDetailGridIndex].TransactionUoMId = $scope.data.TransactionUoMId;
+			//$scope.FilterList123[$scope.GetDetailGridIndex].RequisitionQty = $scope.data.BaseUOMFactor;
+
+			angular.element(document.querySelector('#POPopUp')).modal('hide');
+		}
+		
+		
+		
+	}
 
 
 
@@ -1216,6 +1248,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 		
 		$scope.FilterList123New = [];
+		$scope.FilterList1234 = [];
 		//debugger;
 
 		try {
@@ -1283,24 +1316,28 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 				return false;
 			}
 			for (var i2 = 0; i2 < $scope.FilterList123.length; i2++) {
-				//if ($scope.FilterList123[i].check === true) {
-				$scope.FilterList123[i2].RequestedQtyNew = $scope.FilterList123[i2].RequestedQty;
+				if ($scope.FilterList123[i2].check === true) {
+					$scope.FilterList123[i2].RequestedQtyNew = Math.round($scope.FilterList123[i2].RequestedQty * 100 + Number.EPSILON) / 100;
 				var getRow1 = $filter("filter")($scope.FilterList1234, { "MaterialMasterId": $scope.FilterList123[i2].MaterialMasterId, "ArticleId": $scope.FilterList123[i2].ArticleId, "BOQDFirstCharacteristicsValueId": $scope.FilterList123[i2].BOQDFirstCharacteristicsValueId, "BOQDSecondCharacteristicsValueId": $scope.FilterList123[i2].BOQDSecondCharacteristicsValueId, "BOQDThirdCharacteristicsValueId": $scope.FilterList123[i2].BOQDThirdCharacteristicsValueId, "check": true });
 
 
 					if (getRow1.length === 0) {
 						
 						$scope.FilterList1234.push($scope.FilterList123[i2])
-						$scope.FilterList1234.RequestedQtyNew = $scope.FilterList123[i2];
+						$scope.FilterList1234.RequestedQtyNew = Math.round($scope.FilterList123[i2].RequestedQtyNew * 100 + Number.EPSILON) / 100;
 					}
 					else {
 						for (var i1 = 0; i1 < $scope.FilterList1234.length; i1++) {
+
 							if ($scope.FilterList1234[i1].MaterialMasterId === $scope.FilterList123[i2].MaterialMasterId
 								&& $scope.FilterList1234[i1].ArticleId === $scope.FilterList123[i2].ArticleId
 								&& $scope.FilterList1234[i1].BOQDFirstCharacteristicsValueId === $scope.FilterList123[i2].BOQDFirstCharacteristicsValueId
 								&& $scope.FilterList1234[i1].BOQDSecondCharacteristicsValueId === $scope.FilterList123[i2].BOQDSecondCharacteristicsValueId
-								&& $scope.FilterList1234[i1].BOQDsThirdCharacteristicsValueId === $scope.FilterList123[i2].BOQDsThirdCharacteristicsValueId) {
-								$scope.FilterList1234[i1].RequestedQtyNew += $scope.FilterList123[i2].RequestedQtyNew;
+								&& $scope.FilterList1234[i1].BOQDsThirdCharacteristicsValueId === $scope.FilterList123[i2].BOQDsThirdCharacteristicsValueId
+								&& $scope.FilterList1234[i1].TransactionUoMId === $scope.FilterList123[i2].TransactionUoMId) {
+								$scope.FilterList1234[i1].RequestedQtyNew += Math.round($scope.FilterList123[i2].RequestedQtyNew * 100 + Number.EPSILON) / 100;;
+								
+								
 							}
 
 						}
@@ -1308,7 +1345,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 					}
 
 
-				//}
+				}
 			}
 
 			// $scope.FilterList1.IssueSlipType = $scope.IssueSlipType;
@@ -2519,6 +2556,32 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		$scope.SOListSelected = [];
 		$scope.FilterList123 = [];
 	}
+
+	$scope.showMaterialWiseStockModal = function (x,index) {
+		//$scope.getalldata();
+		//debugger
+		//$scope.status = 'PO';
+		//if ($scope.status === 'PO') {
+		//	$scope.status = 'PO';
+		//	//alert('1');
+		//	$scope.productNew.PO = 'PO';
+		//	$scope.getalldata();
+		//}
+		//else if ($scope.status === 'Acceptance') {
+		//	$scope.status = 'Acceptance';
+		//	$scope.productNew.PO = 'Acceptance';
+		//	$scope.getalldata();
+		//}
+		$scope.GetSOWiseMaterialStock(x,index);
+		angular.element(document.querySelector('#POPopUp')).modal('show');
+
+	};
+
+	$scope.showMaterialWiseStockModalClose = function () {
+		//debugger;
+		angular.element(document.querySelector('#POPopUp')).modal('hide');
+
+	};
 	
 }
 	
