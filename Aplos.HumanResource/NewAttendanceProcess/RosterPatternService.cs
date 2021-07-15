@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Library.HumanResource.Shift
+namespace Library.HumanResource.NewAttendanceProcess
 {
     public class RosterPatternService
     {
