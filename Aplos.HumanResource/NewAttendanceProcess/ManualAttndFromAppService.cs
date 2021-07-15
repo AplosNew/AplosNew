@@ -9,6 +9,7 @@ using Library.Crosscutting.Security;
 using System.Threading;
 using Library.Service.Attendances;
 using SetINOUT;
+using Library.Core;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
@@ -30,19 +31,22 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var sql = @"SELECT sd.SystemID,sd.UserName AS ShiftName,
                             format(kk.ShiftInTime,'dd-MMM-yyyy hh:mm tt') AS ShiftInTime,
                             format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt') ShiftOutTime,
-							kk.ShiftShortDuration,kk.ShiftHalfDayDuration,kk.ShiftHoursWithoutOt,kk.ShiftFullDayDuration
+							kk.ShiftShortDuration,kk.ShiftHalfDayDuration,kk.ShiftHoursWithoutOt,kk.ShiftFullDayDuration,
+                            kk.ShiftDuration
 						
                             FROM (
                             SELECT 
                             sd.SystemID,
                             DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),'"+Date+@"'))  AS ShiftInTime,
-                            DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),'"+Date+@"'))  AS ShiftOutTime
+                            DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),'"+Date+ @"'))  AS ShiftOutTime
 							,isnull(stcm.ShortDuration,sd.ShortDuration) as ShiftShortDuration
 		                    ,isnull(stcm.HalfDayDuration,sd.HalfDayDuration) as ShiftHalfDayDuration
 							,isnull(stcm.HoursWithoutOT,sd.HoursWithoutOT) as ShiftHoursWithoutOt,
-							isnull(stcm.FullDayDuration,sd.FullDayDuration) as ShiftFullDayDuration
+							isnull(stcm.FullDayDuration,sd.FullDayDuration) as ShiftFullDayDuration,
+                            isnull(stcm.ShiftDuration,sd.ShiftDuration) as ShiftDuration
+                            
                             FROM ShiftDefination sd
-                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '"+Date+@"' 
+                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '" + Date+@"' 
 							BETWEEN stcm.FromDate AND stcm.ToDate AND 
 							sd.SystemID=stcm.ShiftDefinationID
                             ) AS KK
@@ -60,18 +64,17 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public RT Save(List<AttendanceProcessData> data)
+        public RTx Save(List<AttendanceProcessNewProcess> data)
         {
             try
             {
-                List<AttendanceProcessData> DataToBeSaved = new List<AttendanceProcessData>();
+                List<AttendanceProcessNewProcess> DataToBeSaved = new List<AttendanceProcessNewProcess>();
 
                 if (data == null)
                     throw new Exception("No new data has been updated");
 
                 for (int i = 0; i < data.Count; i++)
-                {
-                    
+                {                    
                     DataToBeSaved.Add(data[i]);
                 }
 
@@ -80,7 +83,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
                     string inDates = "";
                     string inEmployeeIds = "";
-                    foreach (AttendanceProcessData item in DataToBeSaved)
+                    foreach (AttendanceProcessNewProcess item in DataToBeSaved)
                     {
                         if (inDates == "")
                             inDates = "'" + item.WorkDate + "'";
@@ -114,7 +117,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         if (DataToBeSaved.Where(ee => ee.IsError == true).ToList().Count > 0)
                         {
-                            return new RT { data = DataToBeSaved, IsError = true, msg = "Error occured" };
+                            return new RTx { data = DataToBeSaved, IsError = true, msg = "Error occured" };
                         }
                     }
                 }
@@ -123,68 +126,43 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 }
 
-
                 DataTable NewShiftStandardTime = getDateWiseShift(DataToBeSaved);
                 //validations
-                foreach (AttendanceProcessData item in DataToBeSaved)
+                foreach (AttendanceProcessNewProcess item in DataToBeSaved)
                 {
-
-                    if (string.IsNullOrEmpty(item.InDate) == false)
-                        if (bplib.clsWebLib.IsDateOK(item.InDate) == false)
-                            item.ErrorMessage = "Invalid in date";
-
-
-                    if (string.IsNullOrEmpty(item.OutDate) == false)
-                        if (bplib.clsWebLib.IsDateOK(item.OutDate) == false)
-                            item.ErrorMessage = "Invalid out date";
 
                     NewShiftStandardTime.DefaultView.RowFilter = "SystemID='" + item.ShiftSystemID + "' AND WorkDate=#" + item.WorkDate + "#";
                     if (NewShiftStandardTime.DefaultView.Count > 0)
                     {
-
-                        if (item.InTime != null && item.OutTime != null)
-                        {
-                            if (item.InDate + item.InTime != item.InDateOriginal + item.InTimeOriginal
-                                || item.OutDate + item.OutTime != item.OutDateOriginal + item.OutTimeOriginal)
-                            {
-                                if (Convert.ToDateTime(item.InDate + " " + item.InTime) > Convert.ToDateTime(item.OutDate + " " + item.OutTime))
-                                {
-                                    item.IsError = true;
-                                    item.ErrorMessage = "Out time is earlier than In time";
-                                }
-
-                                TimeSpan ts = Convert.ToDateTime(item.OutDate + " " + item.OutTime).Subtract(Convert.ToDateTime(item.InDate + " " + item.InTime));
-                                if (Math.Abs(ts.TotalHours) > 24)
-                                {
-                                    item.IsError = true;
-                                    item.ErrorMessage = "Time span cannot be greater than 24 hours between in and out time";
-                                }
-                            }
-                        }
-                        
+                        item.ShiftHoursWithoutOT= NewShiftStandardTime.DefaultView[0][@"ShiftHoursWithoutOT"].ToString();
+                        item.ShiftDuration = NewShiftStandardTime.DefaultView[0][@"ShiftDuration"].ToString();
+                        item.ShiftShortDuration = NewShiftStandardTime.DefaultView[0][@"ShiftShortDuration"].ToString();
+                        item.ShiftFullDayDuration = NewShiftStandardTime.DefaultView[0][@"ShiftFullDayDuration"].ToString();
+                        item.ShiftHalfDayDuration = NewShiftStandardTime.DefaultView[0][@"ShiftHalfDayDuration"].ToString();
+                        item.ShiftInTime = NewShiftStandardTime.DefaultView[0][@"ShiftInTime"].ToString();
+                        item.ShiftOutTime = NewShiftStandardTime.DefaultView[0][@"ShiftOutTime"].ToString();
                     }
 
                 }
 
                 if (DataToBeSaved.Where(ee => ee.IsError == true).ToList().Count > 0)
                 {
-                    return new RT { data = DataToBeSaved, IsError = true, msg = "Error occured" };
+                    return new RTx { data = DataToBeSaved, IsError = true, msg = "Error occured" };
                 }
-                //operations
+                
                 saveData(DataToBeSaved);
 
-
-                return new RT { data = data, IsError = false, msg = "Time updated successfully" };
+                return new RTx { data = data, IsError = false, msg = "Manual Shift Updated Successfully" };
                
             }
             catch (Exception ex)
             {
-                return new RT { data = data, IsError = true, msg = ex.Message };
+                return new RTx { data = data, IsError = true, msg = ex.Message };
             }
 
         }
 
-        private void saveData(List<AttendanceProcessData> data)
+        private void saveData(List<AttendanceProcessNewProcess> data)
         {
             ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
             try
@@ -192,7 +170,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var identity = _identity;
                 bplib.clsGenID objId = new bplib.clsGenID();
 
-                DataSet dsDailyShiftAssignment = null;
+                DataSet shiftchange = null;
                 for (int i = 0; i < data.Count; i++)
                 {
                     if (data[i].ShiftSystemID != data[i].ShiftSystemIDOriginal)
@@ -201,133 +179,30 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         con = new ConnectionManager.clsConnection();
                         con.BeginTransaction();
-                        con.getDataSet(@"SELECT * FROM EmpDateWiseShiftAssign AS SA WHERE SA.EmpSystemID = '" + data[i].Id + "' AND sa.WorkDate = '" + data[i].WorkDate + "' ", out dsDailyShiftAssignment);
+                        con.getDataSet(@"SELECT * FROM AttdnProcessData  WHERE EmpSystemID = '" + data[i].Id + "' AND WorkDate = '" + data[i].WorkDate + "' ", out shiftchange);
                         con.CommitTransaction();
-                        if (dsDailyShiftAssignment.Tables[0].Rows.Count > 0)
+                        if (shiftchange.Tables[0].Rows.Count > 0)
                         {
-                            dsDailyShiftAssignment.Tables[0].Rows[0].BeginEdit();
-
-                            //dsDailyShiftAssignment.Tables[0].Rows[0]["EmpSftAssiSystemID"] = TodaySystemID;
-                            dsDailyShiftAssignment.Tables[0].Rows[0]["ShiftSystemID"] = data[i].ShiftSystemID;
-                            dsDailyShiftAssignment.Tables[0].Rows[0]["ManualShiftId"] = data[i].ShiftSystemID;
-                            dsDailyShiftAssignment.Tables[0].Rows[0]["UpdatedBy"] = identity.Name;
-                            dsDailyShiftAssignment.Tables[0].Rows[0]["DateUpdated"] = DateTime.Now;
-                            dsDailyShiftAssignment.Tables[0].Rows[0].EndEdit();
+                            shiftchange.Tables[0].Rows[0].BeginEdit();
+                            shiftchange.Tables[0].Rows[0]["ShiftSystemID"] = data[i].ShiftSystemID;
+                            shiftchange.Tables[0].Rows[0]["ManualShiftId"] = data[i].ShiftSystemID;
+                            shiftchange.Tables[0].Rows[0]["ShiftDuration"] = data[i].ShiftDuration;
+                            shiftchange.Tables[0].Rows[0]["ShiftShortDuration"] = data[i].ShiftShortDuration;
+                            shiftchange.Tables[0].Rows[0]["ShiftHoursWithoutOT"] = data[i].ShiftHoursWithoutOT;
+                            shiftchange.Tables[0].Rows[0]["ShiftFullDayDuration"] = data[i].ShiftFullDayDuration; 
+                            shiftchange.Tables[0].Rows[0]["ShiftHalfDayDuration"] = data[i].ShiftHalfDayDuration;
+                            shiftchange.Tables[0].Rows[0]["ShiftOutTime"] = data[i].ShiftOutTime;
+                            shiftchange.Tables[0].Rows[0]["ShiftInTime"] = data[i].ShiftInTime;
+                            shiftchange.Tables[0].Rows[0]["ManualByWhom"] = identity.Name;
+                            shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
+                            shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
+                            shiftchange.Tables[0].Rows[0].EndEdit();
                         }
                         #endregion change shift
 
                     }
-
-                    #region manual Attendance
-
-                    DataSet dsManualAttendance = null;
-
-                    if (data[i].InDate + data[i].InTime != data[i].InDateOriginal + data[i].InTimeOriginal
-                        || data[i].OutDate + data[i].OutTime != data[i].OutDateOriginal + data[i].OutTimeOriginal)
-                    {
-                        con = new ConnectionManager.clsConnection();
-                        con.BeginTransaction();
-                        con.getDataSet(@"SELECT * FROM AttdnManualData AS SA WHERE SA.EmpSystemID = '" + data[i].Id + "' AND sa.WorkDate = '" + data[i].WorkDate + "'", out dsManualAttendance);
-                        con.CommitTransaction();
-
-                        if (data[i].InTime == null && data[i].OutTime == null)
-                        {
-
-                            if (dsManualAttendance.Tables[0].Rows.Count > 0)
-                            {
-                                if (string.IsNullOrEmpty(dsManualAttendance.Tables[0].Rows[0]["DayStatus"].ToString()) == true)
-                                {
-                                    dsManualAttendance.Tables[0].Rows[0].Delete();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (dsManualAttendance.Tables[0].Rows.Count > 0)
-                            {
-
-                                DataRow dr = dsManualAttendance.Tables[0].Rows[0];
-
-                                dr.BeginEdit();
-
-
-
-
-
-                                if (data[i].InDate + data[i].InTime != data[i].InDateOriginal + data[i].InTimeOriginal)
-                                {
-                                    dr["InTime"] = DBNull.Value;
-                                    if (string.IsNullOrEmpty(data[i].InTime) == false)
-                                        dr["InTime"] = data[i].InDate + " " + data[i].InTime;
-                                }
-
-                                if (data[i].OutDate + data[i].OutTime != data[i].OutDateOriginal + data[i].OutTimeOriginal)
-                                {
-                                    dr["OutTime"] = DBNull.Value;
-                                    if (string.IsNullOrEmpty(data[i].OutTime) == false)
-                                        dr["OutTime"] = data[i].OutDate + " " + data[i].OutTime;
-                                }
-
-                                dr["UpdatedBy"] = identity.Name;
-                                dr["DateUpdated"] = System.DateTime.Now;
-
-
-                                dr.EndEdit();
-                            }
-                            else
-                            {
-
-                                DataRow dr = dsManualAttendance.Tables[0].NewRow();
-
-                                dr["EmpSystemID"] = data[i].Id;
-                                dr["WorkDate"] = data[i].WorkDate;
-                                dr["GroupID"] = identity.CompanyGroupId;
-                                //dr["PlantID"] = identity.PlantId;
-
-                                if (data[i].InDate + data[i].InTime != data[i].InDateOriginal + data[i].InTimeOriginal)
-                                {
-                                    dr["InTime"] = DBNull.Value;
-                                    if (string.IsNullOrEmpty(data[i].InTime) == false)
-                                        dr["InTime"] = data[i].InDate + " " + data[i].InTime;
-                                }
-
-                                if (data[i].OutDate + data[i].OutTime != data[i].OutDateOriginal + data[i].OutTimeOriginal)
-                                {
-                                    dr["OutTime"] = DBNull.Value;
-                                    if (string.IsNullOrEmpty(data[i].OutTime) == false)
-                                        dr["OutTime"] = data[i].OutDate + " " + data[i].OutTime;
-                                }
-
-
-                                dr["UpdatedBy"] = identity.Name;
-                                dr["DateUpdated"] = System.DateTime.Now;
-                                dr["AddedBy"] = identity.Name;
-                                dr["DateAdded"] = System.DateTime.Now;
-
-                                dsManualAttendance.Tables[0].Rows.Add(dr);
-
-
-
-                            }
-                        }
-                    }
-                    #endregion manual Attendance
-
-                    if (dsManualAttendance != null)
-                    {
-                        if (dsManualAttendance.Tables[0].DefaultView.Count > 0)
-                        {
-                            if (string.IsNullOrEmpty(dsManualAttendance.Tables[0].DefaultView[0]["DayStatus"].ToString()) == true
-                                && string.IsNullOrEmpty(dsManualAttendance.Tables[0].DefaultView[0]["InTime"].ToString()) == true
-                                 && string.IsNullOrEmpty(dsManualAttendance.Tables[0].DefaultView[0]["OutTime"].ToString()) == true)
-                            {
-                                dsManualAttendance.Tables[0].DefaultView[0].Delete();
-                            }
-                        }
-                    }
-
-                    SaveDataSets(dsDailyShiftAssignment, dsManualAttendance);
-                                     
+                  
+                    SaveDataSets(shiftchange);                              
 
 
                 }
@@ -383,7 +258,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }//End Function
 
-        private DataTable getDateWiseShift(List<AttendanceProcessData> data)
+        private DataTable getDateWiseShift(List<AttendanceProcessNewProcess> data)
         {
 
             string dateString = "";
@@ -401,20 +276,27 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             string sql = @" SELECT dt.WorkDate,
  
-                           sd.SystemID,
-                            sd.InTimeStartMargin, sd.IsActive, sd.DefaultShift, sd.SequenceNo, 
+                           sd.SystemID,                            
                             sd.UserName AS ShiftName,
                             format(kk.ShiftInTime,'dd-MMM-yyyy hh:mm:ss tt') AS ShiftInTime,
                             format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt') ShiftOutTime
-
+                            ,kk.ShiftShortDuration,kk.ShiftHalfDayDuration,kk.ShiftHoursWithoutOt,kk.ShiftFullDayDuration,
+                            kk.ShiftDuration
+						
                          FROM
                          (" + dateString + @") AS DT
 					    LEFT OUTER JOIN
 						(
                             SELECT 
                             sd.SystemID,dt.WorkDate,
-		                           	DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),dt.WorkDate))  AS ShiftInTime,
-		                            DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),dt.WorkDate))  AS ShiftOutTime
+		                    DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),dt.WorkDate))  AS ShiftInTime,
+		                    DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),dt.WorkDate))  AS ShiftOutTime,
+                            isnull(stcm.ShortDuration,sd.ShortDuration) as ShiftShortDuration
+		                    ,isnull(stcm.HalfDayDuration,sd.HalfDayDuration) as ShiftHalfDayDuration
+							,isnull(stcm.HoursWithoutOT,sd.HoursWithoutOT) as ShiftHoursWithoutOt,
+							isnull(stcm.FullDayDuration,sd.FullDayDuration) as ShiftFullDayDuration,
+                            isnull(stcm.ShiftDuration,sd.ShiftDuration) as ShiftDuration
+                            
                              FROM 
                              
                               (" + dateString + @") AS DT
@@ -429,5 +311,61 @@ namespace Library.HumanResource.NewAttendanceProcess
             return _sqlRepository.GetDataTable(sql);
         }
 
+    }
+
+    public class AttendanceProcessNewProcess : BaseModel
+    {
+        public string Id { get; set; } = "";
+        public string EmployeeCode { get; set; } = "";
+        public string EmployeeName { get; set; } = "";
+        public string Section { get; set; } = "";
+        public string SubSection { get; set; } = "";
+        public string Department { get; set; } = "";
+        public string Designation { get; set; } = "";
+        public string Entity { get; set; } = "";
+        public string LTSystemID { get; set; } = "";
+        public string LTSystemIDOriginal { get; set; } = "";
+        public bool IsOD { get; set; } = false;
+        public string AttendanceRestDetailId { get; set; } = "";
+        public string DayName { get; set; } = "";
+        public string DayStatusCode { get; set; } = "";
+        public string WorkDate { get; set; } = "";
+        public string ShiftSystemID { get; set; } = "";
+        public string ShiftSystemIDOriginal { get; set; } = "";
+        public string ShiftName { get; set; } = "";
+        public string ShiftInTime { get; set; } = "";
+        public string ShiftOutTime { get; set; } = "";
+        public string ShiftDuration { get; set; }
+        public string ShiftHalfDayDuration { get; set; }
+        public string ShiftFullDayDuration { get; set; }
+        public string ShiftHoursWithoutOT { get; set; }
+        public string ShiftShortDuration { get; set; }
+        public string InDate { get; set; } = "";
+        public string InTime { get; set; } = "";
+        public string InDateOriginal { get; set; } = "";
+        public string InTimeOriginal { get; set; } = "";
+        public bool IsManualInTime { get; set; } = false;
+        public string OutDate { get; set; } = "";
+        public string OutTime { get; set; } = "";
+        public string OutDateOriginal { get; set; } = "";
+        public string OutTimeOriginal { get; set; } = "";
+        public bool IsManualOutTime { get; set; } = false;
+        public string PunchInTime { get; set; } = "";
+        public string PunchOutTime { get; set; } = "";
+        public string DayStatus { get; set; } = "";
+        public string DayStatusNew { get; set; } = "";
+        public bool IsManualDayStatus { get; set; } = false;
+        public string OTHr { get; set; } = "";
+        public bool IsOTComfirm { get; set; } = false;
+        public bool IsOTEntitled { get; set; } = false;
+        public bool IsError { get; set; } = false;
+        public string ErrorMessage { get; set; } = "";
+    }
+
+    public class RTx
+    {
+        public bool IsError = false;
+        public List<AttendanceProcessNewProcess> data = null;
+        public string msg = string.Empty;
     }
 }

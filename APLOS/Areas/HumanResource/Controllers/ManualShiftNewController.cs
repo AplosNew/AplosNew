@@ -100,7 +100,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             string shiftSQL = @" SELECT * FROM ShiftDefination AS sd WHERE sd.PlantID='" + identity.PlantId + @"'";
 
-            var jsondata = Json(new { data = _sqlRepository.GetModelCollection<AttendanceProcessData>(sql), shift = _sqlRepository.GetDataCollection(shiftSQL) }, JsonRequestBehavior.AllowGet);
+            var jsondata = Json(new { data = _sqlRepository.GetModelCollection<AttendanceProcessNewProcess>(sql), shift = _sqlRepository.GetDataCollection(shiftSQL) }, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -109,34 +109,24 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpPost, Authorize]
         public ActionResult getShift(string systemid, string WorkDate)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
 
-            string sql = @"SELECT 
-                            sd.SystemID,
-                            sd.InTimeStartMargin, sd.IsActive, sd.DefaultShift, sd.SequenceNo, 
-                            sd.UserName AS ShiftName,
-                            format(kk.ShiftInTime,'dd-MMM-yyyy hh:mm tt') AS ShiftInTime,
-                            format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt') ShiftOutTime
+             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;           
+             ManualAttndFromAppService mau = new ManualAttndFromAppService(identity, _sqlRepository);
 
-						
-                            FROM (
-                            SELECT 
-                            sd.SystemID,
-                            DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),'" + WorkDate + @"'))  AS ShiftInTime,
-                            DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),'" + WorkDate + @"'))  AS ShiftOutTime
+             return Json(mau.GetShiftData(systemid,WorkDate), JsonRequestBehavior.AllowGet);
 
-		
-                            FROM ShiftDefination sd
-                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '" + WorkDate + @"' BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
-                            ) AS KK
-                            INNER JOIN   ShiftDefination sd ON sd.SystemID=kk.SystemID
-                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '" + WorkDate + @"' BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
-                            WHERE sd.systemid='" + systemid + @"'
-                            ORDER BY sd.SequenceNo ASC";
+          
+            }
+            catch (Exception ex)
+            {
 
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
 
         }
+       
         [HttpPost, Authorize]
         public ActionResult getAttendance(string empsystemid, string WorkDate)
         {
@@ -153,11 +143,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult SaveSingleEmployee(List<AttendanceProcessData> data)
+        public ActionResult SaveSingleEmployee(List<AttendanceProcessNewProcess> data)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ManualAttndFromAppService mau = new ManualAttndFromAppService(identity, _sqlRepository);
-            RT _rt = mau.Save(data);
+            RTx _rt = mau.Save(data);
 
             if (_rt.IsError)
             {
@@ -224,7 +214,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             format(KK.OutTime,'hh:mm tt') AS  OutTime, format(KK.OutTime,'hh:mm tt') AS  OutTimeOriginal, 
 
 
-                            KK.IsManualOutTime,
+                            KK.IsManualOutTime,KK.DayStatusCode,
 
                             format(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt') AS PunchInTime,
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
@@ -241,7 +231,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 		                            O.OutTime, O.IsManualOutTime, O.IsManualDayStatus,
        
 		                            O.PunchInTime,O.PunchOutTime,
-		                            O.DayStatus, O.OTHr, O.IsOTComfirm,
+		                            O.DayStatus, O.OTHr, O.IsOTComfirm,O.DayStatusCode,
 		                            O.IsOTEntitled
 
 		                            FROM EmployeeInformation EMP

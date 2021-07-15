@@ -68,7 +68,6 @@ function ManualShiftNewController(fileReader, cboService, commonMessage, $scope,
     function headCheckChangeemployee(e) {
         if (e.model.checkState == "check") {
 
-            // var gridObj = $("#Gridemployee").data("ejGrid");
             var filtered = $("#Gridemployee").data("ejGrid").getFilteredRecords();
             if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
                 for (var i = 0; i < $scope.employeeAttendanceBySingleDateSelection.length; i++) {
