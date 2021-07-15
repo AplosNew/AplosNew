@@ -48,9 +48,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetCostingItemDetailData(string productionOrderId, string costingId)
+        public JsonResult GetCostingItemDetailData(string costingId)
         {
-            return Json(clsFinishGoodsBooking.GetCostingItemDetailData(productionOrderId, costingId), JsonRequestBehavior.AllowGet);
+            return Json(clsFinishGoodsBooking.GetCostingItemDetailData(costingId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public JsonResult GetCostingItemData(string productionOrderId)
@@ -106,6 +106,22 @@ namespace Aplos.Areas.Productions.Controllers
         public JsonResult GetItemDetailData(string masterId)
         {
             return Json(clsFinishGoodsBooking.GetItemDetailData(masterId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetFromDate()
+        {
+            return Json(clsFinishGoodsBooking.GetFromDate(), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet, Authorize]
+        public JsonResult GetItemScanChildData(string fromDate, string toDate)
+        {
+
+            var jsondata = Json(clsFinishGoodsBooking.GetItemScanChildData(fromDate, toDate), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
     }

@@ -10,8 +10,18 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         ProcessId: null,
         ProductionOrderId: null,
         FromDate: null,
-        ToDate: null
+        ToDate: new Date()
     }
+
+    $scope.GetFromDate = function () {
+        $http({
+            method: 'Get',
+            url: 'Productions/FinishGoodsBooking/GetFromDate'
+        }).then(function (response) {
+            $scope.modelNew.FromDate = response.data[0].FromDate;
+        });
+    };
+    $scope.GetFromDate();
 
     $scope.entityList = [];
     $scope.getAllEntities = function () {
@@ -138,11 +148,68 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
     };
     $scope.getSavedData();
 
+    $scope.ProductionOrderList = [];
+    $scope.ProdOrderList = [];
+    $scope.getProductionOrderPopUp = function () {
+        $scope.ProductionOrderList = [];
+        $http.get("Productions/FinishGoodsBooking/GetProductionOrderDataList?entityId=" + $scope.modelNew.ProductionEntityId + '&processId=' + $scope.modelNew.ProcessId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.ProductionOrderList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#POItemPopup')).modal('show');
+    };
+
+    $scope.SalesOrderListForProductionOrderId = [];
+    $scope.getSalesOrderOfProdOrderList = function (prodOrdId) {
+        $scope.openPopup('dialogSOItemsForProductionOrder');
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/ProductionOrder/GetProductionRecipeMaterialList?productionOrderId=' + prodOrdId
+        }).then(function successCallback(response) {
+            $scope.SalesOrderListForProductionOrderId = response.data;
+
+        });
+    }
+    $scope.summaryOfRows = [{
+        title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Qty", dataMember: "Qty", format: "{0:N0}" }],
+        showCaptionSummary: true
+    }];
+    $scope.closePopup = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+        try {
+            $("#" + popupName).data("ejDialog").close();
+        } catch (e) {
+
+        }
+    }
+    $scope.openPopup = function (popupName) {
+
+        try {
+            $("#" + popupName).data("ejDialog").open();
+        } catch (e) {
+
+        }
+    }
+
+    $scope.SelectPOItem = function ($event) {
+        $scope.modelNew.ProductionOrderId = $event.data.POId;
+        $scope.LoadData();
+        angular.element(document.querySelector('#POItemPopup')).modal('hide');
+    }
+
+
     $scope.LineItemsList = [];
     $scope.LoadData = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.modelForm.$valid) {
-            $http.get("Productions/FinishGoodsBooking/GetScanPackingData?fromDate=" + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
+            $http.get("Productions/FinishGoodsBooking/GetItemScanChildData?fromDate=" + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
+            //$http.get("Productions/FinishGoodsBooking/GetItemScanChildData?productionOrderId=" + $scope.modelNew.ProductionOrderId)
                 .then(
                     function successCallback(response) {
                         if (baseService.arrayLength(response.data) > 0) {
@@ -255,7 +322,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
     $scope.costingItemDetailDataList = [];
     $scope.GetCostingItemDetailData = function (obj) {
         $scope.costingItemDetailDataList = [];
-        $http.get("Productions/FinishGoodsBooking/GetCostingItemDetailData?productionOrderId=" + obj.data.ProductionOrderId + '&costingId=' + obj.data.OrderCostingMasterTemplateId)
+        $http.get("Productions/FinishGoodsBooking/GetCostingItemDetailData?costingId=" + obj.data.CostingMasterTemplateId)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {

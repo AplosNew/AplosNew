@@ -1114,7 +1114,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             //else if ($scope.dbval === $scope.UIval) {
             //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
             //}
-            if ($scope.productNew.OrderSpecific === 'Yes') {
+            if ($scope.productNew.OrderSpecific === 'Yes' && baseService.isUndefinedOrNull($scope.productNew.ContractNo)) {
+
                 ShowResult('Please Select Contract');
                 return false;
             }
@@ -1870,123 +1871,127 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.detailSave = function (type, onlyTax) {
         activityListsel = null;
         $scope.detailModelList = [];
-
-        if (baseService.isUndefinedOrNull($scope.detailModel.JobActivityId)) {
-            ShowResult('Please select Job Work Acticity', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.JobWorkItemMasterId)) {
-            ShowResult('Please select Job Work Out Put Item', 'failure', 'detailPopUp');
-            return false;
-        }
-        //if (baseService.isUndefinedOrNull($scope.detailModel.MaterialName)) {
-        //    ShowResult('Please select Material', 'failure', 'detailPopUp');
-        //    return false;
-        //}
-        if (!baseService.isUndefinedOrNull($scope.detailModel.MaterialName)) {
-            if (baseService.isUndefinedOrNull($scope.detailModel.ArticleName)) {
-                ShowResult('Please select Article', 'failure', 'detailPopUp');
-                return false;
-            }
-        }
-        
-        if (baseService.isUndefinedOrNull($scope.detailModel.MaterialLocationId)) {
-            ShowResult('Please select Material Storage Location', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.MaterialType)) {
-            ShowResult('Please select Input Material Category', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.FinalOutputCategory)) {
-            ShowResult('Please select OutPut Material Category', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.MaterialSpecification)) {
-            ShowResult('Please select Material Specification', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.OutputMaterialUOMId)) {
-            ShowResult('Please select UOM', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) || $scope.detailModel.TransactionQty==='0') {
-            ShowResult('Please select Material Specification', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.OrderSpecific)) {
-            ShowResult('Please select Order Specific', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.RequiredCapacity)) {
-            ShowResult('Please select Required Capacity', 'failure', 'detailPopUp');
-            return false;
-        }
-
-        if ($scope.productNew.POType == "OSTransformationPO") {
-            if (baseService.isUndefinedOrNull($scope.detailModel.ByProductApplicable)) {
-                ShowResult('Please select ByProduct Applicable', 'failure', 'detailPopUp');
-                return false;
-            }
-        }
- 
-        if (baseService.isUndefinedOrNull($scope.detailModel.RateApplyId)) {
-            ShowResult('Please select Rate Apply', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.CurrencyId)) {
-            ShowResult('Please select Currency', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.RatePerUnit) || $scope.detailModel.RatePerUnit ==='0') {
-            ShowResult('Please select Currency', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.Rejection)) {
-            ShowResult('Please select Rejection', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.ValueLoss)) {
-            ShowResult('Please select ValueLoss', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.Tolerance)) {
-            ShowResult('enter the Tolerance', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.ServiceId)) {
-            ShowResult('Please select Service', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.ResponsiblePersonId)) {
-            ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
-            return false;
-        }
-
-        if (baseService.isUndefinedOrNull($scope.detailModel.EmployeeCode)) {
-            ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.detailModel.ResponsiblePersonId)) {
-            ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
-            return false;
-        }
-        
-
-        $scope.detailModel.JWTransformationPurchaseOrderId = $scope.productNew.Id;
-        if (!baseService.isUndefinedOrNull($scope.rmchar1.CharacteristicsId)) {
-            $scope.detailModel.FirstCharacteristicsId = $scope.rmchar1.CharacteristicsId;
-            $scope.detailModel.FirstCharacteristicsValueId = $scope.rmchar1.CharacteristicsValueId;
-        }
-        if (!baseService.isUndefinedOrNull($scope.rmchar2.CharacteristicsId)) {
-            $scope.detailModel.SecondCharacteristicsId = $scope.rmchar2.CharacteristicsId;
-            $scope.detailModel.SecondCharacteristicsValueId = $scope.rmchar2.CharacteristicsValueId;
-        }
-        if (!baseService.isUndefinedOrNull($scope.rmchar3)) {
-            $scope.detailModel.ThirdCharacteristicsId = $scope.rmchar3.CharacteristicsId;
-            $scope.detailModel.ThirdCharacteristicsValueId = $scope.rmchar3.CharacteristicsValueId;
-        }
         try {
+
+         if (type !== "BOQ") {
+            if (baseService.isUndefinedOrNull($scope.detailModel.JobActivityId)) {
+                ShowResult('Please select Job Work Acticity', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.JobWorkItemMasterId)) {
+                ShowResult('Please select Job Work Out Put Item', 'failure', 'detailPopUp');
+                return false;
+            }
+            //if (baseService.isUndefinedOrNull($scope.detailModel.MaterialName)) {
+            //    ShowResult('Please select Material', 'failure', 'detailPopUp');
+            //    return false;
+            //}
+            if (!baseService.isUndefinedOrNull($scope.detailModel.MaterialName)) {
+                if (baseService.isUndefinedOrNull($scope.detailModel.ArticleName)) {
+                    ShowResult('Please select Article', 'failure', 'detailPopUp');
+                    return false;
+                }
+            }
+
+            if (baseService.isUndefinedOrNull($scope.detailModel.MaterialLocationId)) {
+                ShowResult('Please select Material Storage Location', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.MaterialType)) {
+                ShowResult('Please select Input Material Category', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.FinalOutputCategory)) {
+                ShowResult('Please select OutPut Material Category', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.MaterialSpecification)) {
+                ShowResult('Please select Material Specification', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.OutputMaterialUOMId)) {
+                ShowResult('Please select UOM', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) || $scope.detailModel.TransactionQty === '0') {
+                ShowResult('Please select Material Specification', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.OrderSpecific)) {
+                ShowResult('Please select Order Specific', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.RequiredCapacity)) {
+                ShowResult('Please select Required Capacity', 'failure', 'detailPopUp');
+                return false;
+            }
+
+            if ($scope.productNew.POType == "OSTransformationPO") {
+                if (baseService.isUndefinedOrNull($scope.detailModel.ByProductApplicable)) {
+                    ShowResult('Please select ByProduct Applicable', 'failure', 'detailPopUp');
+                    return false;
+                }
+            }
+
+            if (baseService.isUndefinedOrNull($scope.detailModel.RateApplyId)) {
+                ShowResult('Please select Rate Apply', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.CurrencyId)) {
+                ShowResult('Please select Currency', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.RatePerUnit) || $scope.detailModel.RatePerUnit === '0') {
+                ShowResult('Please select Currency', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.Rejection)) {
+                ShowResult('Please select Rejection', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.ValueLoss)) {
+                ShowResult('Please select ValueLoss', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.Tolerance)) {
+                ShowResult('enter the Tolerance', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.ServiceId)) {
+                ShowResult('Please select Service', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.ResponsiblePersonId)) {
+                ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
+                return false;
+            }
+
+            if (baseService.isUndefinedOrNull($scope.detailModel.EmployeeCode)) {
+                ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.detailModel.ResponsiblePersonId)) {
+                ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
+                return false;
+            }
+
+
+            $scope.detailModel.JWTransformationPurchaseOrderId = $scope.productNew.Id;
+            if (!baseService.isUndefinedOrNull($scope.rmchar1.CharacteristicsId)) {
+                $scope.detailModel.FirstCharacteristicsId = $scope.rmchar1.CharacteristicsId;
+                $scope.detailModel.FirstCharacteristicsValueId = $scope.rmchar1.CharacteristicsValueId;
+            }
+            if (!baseService.isUndefinedOrNull($scope.rmchar2.CharacteristicsId)) {
+                $scope.detailModel.SecondCharacteristicsId = $scope.rmchar2.CharacteristicsId;
+                $scope.detailModel.SecondCharacteristicsValueId = $scope.rmchar2.CharacteristicsValueId;
+            }
+            if (!baseService.isUndefinedOrNull($scope.rmchar3)) {
+                $scope.detailModel.ThirdCharacteristicsId = $scope.rmchar3.CharacteristicsId;
+                $scope.detailModel.ThirdCharacteristicsValueId = $scope.rmchar3.CharacteristicsValueId;
+            }
+        }
+       
+        //try {
 
             if (type === "BOQ") {
                 var DropDownActivityListObj = $("#ddlActivityList").data("ejDropDownList");
@@ -4119,4 +4124,6 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         }
         if (isNaN($scope.serviceModel.TotalTaxAmount)) $scope.serviceModel.TotalTaxAmount = 0;
     };
+
+    $scope.ActionPOBOQ = 'Save';
 }
