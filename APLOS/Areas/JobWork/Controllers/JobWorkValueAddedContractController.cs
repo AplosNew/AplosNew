@@ -1623,7 +1623,8 @@ namespace Aplos.Areas.JobWork.Controllers
 										left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
 										left join scs.UnitOfMeasurement juom on juom.Id=jwi.UOMId
                            where tm.JobWorkActivityId='" + ActivityId + @"' and tm.JobWorkActivityChildId='" + JobWorkItemId + @"'
-                           AND isnull(tmi.JobWorkItemId,'') not in (select isnull(JobWorkItemId,'') from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + Id + @"') ";
+                           --AND isnull(tmi.JobWorkItemId,'') not in (select isnull(JobWorkItemId,'') from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + Id + @"') 
+                            ";
 
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -1962,7 +1963,8 @@ namespace Aplos.Areas.JobWork.Controllers
 						   left join scs.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 						   left join scs.UnitOfMeasurement uom on uom.Id=jwi.UOMId
                            where tm.JobWorkActivityId='" + ActivityId + @"' and tm.JobWorkActivityChildId='"+ JobWorkItemId + @"'
-                           AND isnull(bp.JobWorkItemId,'') not in (select isnull(JobWorkItemId,'') from dbo.JobWorkTransformationContractChild4 where JobWorkTransformationContractChild3MasterId='" + Id + @"') ";
+                           --AND isnull(bp.JobWorkItemId,'') not in (select isnull(JobWorkItemId,'') from dbo.JobWorkTransformationContractChild4 where JobWorkTransformationContractChild3MasterId='" + Id + @"') 
+                           ";
 
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

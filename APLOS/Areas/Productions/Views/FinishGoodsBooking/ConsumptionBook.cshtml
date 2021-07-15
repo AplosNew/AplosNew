@@ -12,7 +12,17 @@
                 </div>
             </div>
         </div>
-
+        @*<div class="form-group">
+            <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <input type="text" name="ProductionOrder" ng-model="modelNew.ProductionOrderId" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>*@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label" id="fDate">From Date<sup>*</sup></label>
             <div class="col-sm-8  show-message">
@@ -38,30 +48,43 @@
             </div>
         </div>
     </div>
+    <div class="col-lg-12">
+        <div class="form-group">
+            <label class="col-sm-2 control-label" title="Description">Description</label>
+            <div class="col-sm-10">
+                <textarea rows="2" type="text" ng-maxlength="250" name="Description" tabindex="8" class="form-control" ng-model="modelNew.Description"></textarea>
+            </div>
+        </div>
+    </div>
     <div class="clearfix"></div>
     <div class="common-btn">
         <ul class="list-inline text-left">
             <li><button style="margin-left: 15px;" ng-click="LoadData();" class="btn"><i class="glyphicon glyphicon-record" style="top:1px"></i> Load</button></li>
         </ul>
+        @*<ul class="list-inline text-right">
+            <li><button style="margin-left: 5px;" ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-save" style="top:1px"></i> Save</button></li>
+            <li><button style="margin-left: 5px;" ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" style="top:1px"></i> Clear</button></li>
+        </ul>*@
     </div>
     <div class="clearfix"></div>
     <div class="col-xs-12" ng-show="LineItemsList.length>0">
         <div style="color:black;" id="GridLineItems" ej-grid e-datasource="LineItemsList" e-allowscrolling="true" e-allowResizing="true"
              e-rowdatabound="rowDataBound" e-allowpaging="true" e-templaterefresh="refreshPackTemplate" e-allowselection="true"
-             @*e-allowfiltering="true" e-allowsorting="true"*@ e-enabletouch="false" e-responsive="true" e-filtersettings-filterType="excel">
+             e-allowfiltering="true" @*e-allowsorting="true"*@ e-enabletouch="false" e-responsive="true" e-filtersettings-filterType="excel">
             <div e-columns>
                 <div e-column e-headertext="" e-headertemplateid="#PkheaderTemplate" e-template="#PkcheckboxTemplate" e-textalign="center" e-width="30"></div>
                 <div e-column e-field="ProductionOrderId" e-headertext="PrO" e-width="50"></div>
                 <div e-column e-field="ProductCode" e-headertext="ProductCode" e-width="80"></div>
-                <div e-column e-field="FGQty" e-headertext="Produced Qty" e-width="70" e-textalign="right"></div>
-                <div e-column e-template="#Qty" e-headertext="Qty" e-width="100" style="height: 20px;"></div>
-                <div e-column e-field="SONo" e-headertext="SONo" e-width="120"></div>
-                <div e-column e-field="MasterOrderItemNo" e-headertext="M.Order No" e-width="120"></div>
+                <div e-column e-field="Qty" e-headertext="Qty" e-width="70" e-textalign="right"></div>
+                @*<div e-column e-template="#Qty" e-headertext="Qty" e-width="100" style="height: 20px;"></div>*@
+                @*<div e-column e-field="SONo" e-headertext="SONo" e-width="120"></div>
+                <div e-column e-field="MasterOrderItemNo" e-headertext="M.Order No" e-width="120"></div>*@
                 <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="150"></div>
                 <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
-                <div e-column e-field="OrderCostingMasterTemplateId" e-headertext="CostingId" e-width="80"></div>
+                <div e-column e-field="CostingMasterTemplateId" e-headertext="CostingId" e-width="80"></div>
                 @*<div e-column e-headertext="Costing" e-template="#COSTButtons" e-textalign="center" e-width="50"></div>*@
                 <div e-column e-field="Rate" e-headertext="Rate" e-width="50" e-textalign="right"></div>
+                <div e-column e-field="Amount" e-headertext="Amount" e-width="50" e-textalign="right"></div>
                 <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-textalign="center" e-width="50"></div>
             </div>
         </div>
@@ -72,10 +95,10 @@
             <input type="checkbox" id="Pkheadchk" />
         </script>
 
-        <script type="text/template" id="Qty">
+        @*<script type="text/template" id="Qty">
             <input type="text" class="input ejinputtext form-control" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.Qty" width="80" ng-change="$parent.SetReceiveQty(this)" />
 
-        </script>
+        </script>*@
 
         <script type="text/template" id="ShowActionButtons">
             <div class="common-btn">
@@ -167,6 +190,98 @@
         </div>
     </div>
 </div>
+<div class="modal site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">
+    <div class="row">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body text-center">
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="ProductionOrderList" e-allowscrolling="true" e-allowResizing="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="SelectPOItem"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-template="#showSOList" e-headertext="" e-width="30"></div>
+                            <div e-column e-field="POId" e-headertext="ProductionOrderNo" e-width="80"></div>
+                            <div e-column e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
+                            <div e-column e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
+                            <div e-column e-field="SONo" e-headertext="SONo" e-width="80"></div>
+                            <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
+                            <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                            <div e-column e-field="LSD" e-headertext="LSD" e-width="80"></div>
+                            <div e-column e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
+                            <div e-column e-field="ProductionStatus" e-headertext="Production Status" e-width="80"></div>
+                            <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
+                            <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
+                            <div e-column e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
+                            <div e-column e-field="Product" e-headertext="Product" e-width="80"></div>
+                            <div e-column e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                            <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                            <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
+                            <div e-column e-field="Article" e-headertext="Article" e-width="80"></div>
+                            <div e-column e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
+                            <div e-column e-field="RequiredTimeUnit" e-headertext="Required Time Unit" e-width="80"></div>
 
+                        </div>
+                    </div>
+                    <script type="text/template" id="showSOList">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right small">
 
+                                <li>
+                                    <button ng-click="$parent.getSalesOrderOfProdOrderList(data.POId);" class="btn small" style="height: 20px;width: 20px;padding: 0px;margin: 0px;">
+                                        <i class="glyphicon glyphicon-th-list"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ej-dialog id="dialogSOItemsForProductionOrder" title=" Sales Order Detail" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-target="#POItemPopup" e-minheight="200" e-width="900" e-open="enableBtn">
+    <div class="row" style="width:890px!important;">
+        <div id="GridSOItemsForProductionOrder" ng-init="chkinit()" ej-grid e-datasource="SalesOrderListForProductionOrderId"
+             e-allowscrolling="true" e-summaryrows="summaryOfRows"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-showsummary="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="MasterOrderNo" e-headertext="M. Order No" e-width="120"></div>
+                <div e-column e-field="SalesOrderId" e-headertext="SO. ID" e-width="120"></div>
+
+                <div e-column e-field="Customer" e-headertext="Customer" e-width="180"></div>
+                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
+                <div e-column e-field="BuyerOrderNo" e-headertext="Buyer Order#" e-width="100"></div>
+                <div e-column e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
+
+                <div e-column e-field="BuyerReferenceNo" e-headertext="Buyer Item#" e-width="100"></div>
+                <div e-column e-field="OwnReferenceNo" e-headertext="Own Item#" e-width="100"></div>
+
+                <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
+                <div e-column e-field="ProductionGrouping" e-headertext="Product Grouping" e-width="120" e></div>
+
+                <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180" e></div>
+                <div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
+                <div e-column e-field="DeliveryDate" e-headertext="Del. Date" e-width="80"></div>
+                <div e-column e-field="CommitmentDate" e-headertext="Commi.Date" e-width="80"></div>
+                <div e-column e-field="DestinationName" e-headertext="Dest." e-width="80"></div>
+                <div e-column e-field="ShipmentModeName" e-headertext="Ship.Mode" e-width="80"></div>
+                <div e-column e-field="PONumber" e-headertext="PO No" e-width="80"></div>
+
+                <div e-column e-field="OrderStatusName" e-headertext="Ord. Status" e-width="80"></div>
+                <div e-column e-field="OrderCategoryName" e-headertext="Ord. Cat." e-width="80"></div>
+                <div e-column e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
+                <div e-column e-field="Rate" e-headertext="Rate" e-width="80" e-textalign="right"></div>
+                <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
+            </div>
+        </div>
+        @*</div>*@
+        <ul class="common-btn list-inline text-right">
+            <li><button ng-click="closePopup('dialogSOItemsForProductionOrder')" class="btn"><i> Close</i></button></li>
+        </ul>
+    </div>
+</ej-dialog>
 
