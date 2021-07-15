@@ -130,7 +130,6 @@ namespace Aplos.Areas.Productions.Controllers
                     if (PreviousLine != dtProductionPlanningReport.Rows[i]["Line"].ToString())
                     {
                         ROW += 8;
-
                     }
 
                     DateTime dtCurrentDate = Convert.ToDateTime(dtProductionPlanningReport.Rows[i]["TargetDate"].ToString());
@@ -206,7 +205,7 @@ namespace Aplos.Areas.Productions.Controllers
                         sheet.Range[StartRow, 1, EndRow, 1].CellStyle.Font.Bold = true;
                         sheet.Range[StartRow, 1, EndRow, 1].NumberFormat = clsStaticInfo.NumberFormat(2);
                         sheet.Range[StartRow, 1, EndRow, 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-                        sheet.Range[RowLineNo, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Orange;
+                        //sheet.Range[RowLineNo, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Orange;
                         sheet.Range[StartRow, 1, EndRow, endCol].BorderAround(ExcelLineStyle.Hair);
                         sheet.Range[StartRow, 1, EndRow, endCol].BorderInside(ExcelLineStyle.Hair);
                         sheet.IsGridLinesVisible = false;
