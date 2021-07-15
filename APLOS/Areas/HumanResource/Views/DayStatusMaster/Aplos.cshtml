@@ -1,0 +1,948 @@
+﻿<togglable name="Day Status Master"></togglable>
+<div class="form-elements form-horizontal" ng-form id="dayStatus" name="DayStatusMasterForm">
+    <div class="row">
+        <div ng-form name="HeaderForm">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Sequence</label>
+                    <div class="col-sm-8">
+                        <input type="text" onkeypress="return isNumber(event)" ng-model="Header.Sequence" class="form-control" maxlength="100" tabindex="2" readonly>
+                    </div>
+                </div>
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Standard Name</label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" ng-model="Header.StandardName" name="Standard Name" class="form-control" maxlength="30" tabindex="2" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Remarks</label>
+                    <div class="col-sm-8">
+                        <input type="text" ng-model="Header.Remarks" class="form-control" maxlength="100" tabindex="2">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-md-6">
+
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">User Name</label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" ng-model="Header.UserName" name="User Name" class="form-control" maxlength="100" tabindex="2" required>
+                    </div>
+                </div>
+
+                <div class="form-group"  show-errors>
+                    <label class="col-sm-4 control-label">Short Name</label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" ng-model="Header.ShortName" class="form-control" name="Short Name" maxlength="100" tabindex="2" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Active</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site" style="margin-top:7px;">
+                            <label>
+                                <input type="checkbox" ng-model="Header.Active" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-xs-12">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="saveHeader();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        @*<li> <button data-toggle="modal" data-target="#confirmPopUpMaster" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                        <li> <button ng-click="clearHeader();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="DayTypeWithValues" role="tab" data-toggle="tab">Day Type With Values</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="DayStatus" role="tab" data-toggle="tab">Day Status</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="PlantChild" role="tab" data-toggle="tab">Plant Entry</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row">
+                        <div ng-form name="DayTypeChild">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Header Id</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.HeaderId" class="form-control" maxlength="100" tabindex="2" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Standard Name</label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" ng-model="DayChild.StandardName" name="Standard Name" class="form-control" maxlength="30" tabindex="2" required>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Code</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="DayChild.Code" class="form-control" maxlength="100" tabindex="2">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Category</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="DayChild.Category" class="form-control" maxlength="100" tabindex="2">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Day Type</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="DayChild.DayType" ng-click="selectCurrDayStatus()" class="form-control" maxlength="100" tabindex="2">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Remarks</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="DayChild.Remarks" class="form-control" maxlength="100" tabindex="2">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">User Name</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="DayChild.UserName" class="form-control" maxlength="100" tabindex="2">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Short Name</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="DayChild.ShortName" class="form-control" maxlength="100" tabindex="2">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Report Code</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="DayChild.ReportCode" class="form-control" maxlength="100" tabindex="2">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Sub Category</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="DayChild.SubCategory" class="form-control" maxlength="100" tabindex="2">
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+
+                                        <input type="text" name="Responsible Person" ng-model="RespPerson" ng-click="selectRespPerson()" class="form-control" maxlength="200" tabindex="15" required>
+
+                                    </div>
+                                </div>
+                               
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Active</label>
+                                    <div class="col-sm-8">
+                                        <div class="checkbox-site" style="margin-top:7px;">
+                                            <label>
+                                                <input type="checkbox" ng-model="DayChild.Active" tabindex="8">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <fieldset class="scheduler-border">
+                                    <legend class="scheduler-border">Working Day Value</legend>
+                                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Total Working Day</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.TotalWorkingDay" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Actual Woking Day</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.ActualWorkingDay" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                            <div class="col-xs-12">
+                                <fieldset class="scheduler-border">
+                                    <legend class="scheduler-border">Pay Day Value</legend>
+
+                                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Pay Day</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.PayDay" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Non Pay Day</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.NonPayDay" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </fieldset>
+                            </div>
+
+                            <div class="col-xs-12">
+                                <fieldset class="scheduler-border">
+                                    <legend class="scheduler-border">Day Status Value</legend>
+
+                                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Present Value (PD)</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.PresentValuePD" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Leave Value (LWP)</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.LeaveValueLWP" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Weekly Off (WO)</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.WeeklyOffWO" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Other</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.Other" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Leave Value (LP)</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.LeaveValueLP" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Absent value (AB)</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.AbsentValueAB" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Holiday (H)</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.HolidayH" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </fieldset>
+                            </div>
+
+                            <div class="col-xs-12">
+                                <fieldset class="scheduler-border">
+                                    <legend class="scheduler-border">Other</legend>
+                                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Attendance Bonus</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" onkeypress="return isNumber(event)" ng-model="DayChild.AttendanceBonus" class="form-control" maxlength="100" tabindex="2">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Compensatory Applicable</label>
+                                            <div class="col-sm-8">
+                                                <div class="checkbox-site" style="margin-top:7px;">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="DayChild.CompensatoryApplicable" tabindex="8">
+                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">To Audit</label>
+                                            <div class="col-sm-8">
+                                                <div class="checkbox-site" style="margin-top:7px;">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="DayChild.ToAudit" tabindex="8">
+                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Attendance Re Process Applicable</label>
+                                            <div class="col-sm-8">
+                                                <div class="checkbox-site" style="margin-top:7px;">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="DayChild.AttendanceReProcessApplicable" tabindex="8">
+                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">OT Limit Lock Applicable</label>
+                                            <div class="col-sm-8">
+                                                <div class="checkbox-site" style="margin-top:7px;">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="DayChild.OTLimitLockApplicable" tabindex="8">
+                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Overstay Limit </label>
+                                            <div class="col-sm-8 ">
+                                                <div class="select-style">
+                                                    <select id="ToCheck" class="form-control" ng-model="DayChild.OverStayLimit" name="Over Stay Limit" tabindex="1">
+                                                        <option value="">-Select-</option>
+                                                        <option value="0">0</option>
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-6 col-md-6 ">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">OT Applicable </label>
+                                            <div class="col-sm-8 ">
+                                                <div class="select-style">
+                                                    <select id="OTWApp" class="form-control" ng-model="DayChild.OTApplicable" name="Working Day OT Applicable" tabindex="1">
+                                                        <option value="">-Select-</option>
+                                                        <option Value="0">0</option>
+                                                        <option Value="1">1</option>
+                                                        <option Value="2">2</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Good Work Applicable </label>
+                                            <div class="col-sm-8 ">
+                                                <div class="select-style">
+                                                    <select id="OTNWApp" class="form-control" ng-model="DayChild.GoodWorkApplicable" name="Non Working Day OT Applicable" tabindex="1">
+                                                        <option value="">-Select-</option>
+                                                        <option Value="0">0</option>
+                                                        <option Value="1">1</option>
+                                                        <option Value="2">2</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Sandwich Status Flag </label>
+                                            <div class="col-sm-8 ">
+                                                <div class="select-style">
+                                                    <select id="ToCheck" class="form-control" ng-model="DayChild.SandwichStatusFlag" name="To Check" tabindex="1">
+                                                        <option value="">-Select-</option>
+                                                        <option Value="0">0</option>
+                                                        <option Value="1">1</option>
+                                                        <option Value="2">2</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">OT Multiplier </label>
+                                            <div class="col-sm-8 ">
+                                                <div class="select-style">
+                                                    <select id="ToCheck" class="form-control" ng-model="DayChild.OTMultiplier" name="To Check" tabindex="1">
+                                                        <option value="">-Select-</option>
+                                                        <option Value="0">0</option>
+                                                        <option Value="1">1</option>
+                                                        <option Value="2">2</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">OT Hour Limit </label>
+                                            <div class="col-sm-8 ">
+                                                <div class="select-style">
+                                                    <select id="ToCheck" class="form-control" ng-model="DayChild.OTHourLimit" name="To Check" tabindex="1">
+                                                        <option value="">-Select-</option>
+                                                        <option Value="0">0</option>
+                                                        <option Value="1">1</option>
+                                                        <option Value="2">2</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">OT Calculation </label>
+                                            <div class="col-sm-8 ">
+                                                <div class="select-style">
+                                                    <select id="ToCheck" class="form-control" ng-model="DayChild.OTCalculation" name="To Check" tabindex="1">
+                                                        <option value="">-Select-</option>
+                                                        <option Value="0">0</option>
+                                                        <option Value="1">1</option>
+                                                        <option Value="2">2</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </fieldset>
+                            </div>
+
+
+
+
+                            <div class="col-xs-12">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="saveDayTypeChild();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                        <li> <button ng-click="ClearDayTypeChild();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-sm-12">
+                                    <div style="color:black;" id="DayTypeChildGrid" ej-grid e-datasource="DayTypeChildList"
+                                         e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
+                                         e-allowselection="true" e-recorddoubleclick="getDayTypeChildDetails" e-filtersettings-filterType="excel"
+                                         e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                                        <div e-columns>
+
+                                            <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
+                                            <div e-column e-field="HeaderId" e-headertext="header Id" e-width="50"></div>
+                                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
+                                            <div e-column e-field="UserName" e-headertext="User Name" e-width="120"></div>
+                                            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="120"></div>
+                                            <div e-column e-field="Code" e-headertext="Code" e-width="120"></div>
+                                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+                                            <div e-column e-field="Active" e-headertext="Active" e-width="50"></div>
+                                            @*<div e-column e-template="#DeleteFileDT" e-headertext="" e-width="30"></div>*@
+
+                                        </div>
+                                    </div>
+                                    <script type="text/template" id="DeleteFileDT">
+                                        <div class="common-btn">
+                                            <ul class="list-inline text-left">
+                                                <li><button data-toggle="modal" data-target="#confirmPopUpDT" class="btn"><i class="glyphicon glyphicon-trash"></i></button></li>
+                                            </ul>
+                                        </div>
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="row" ng-form name="DayStatusForm">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Header Id</label>
+                                <div class="col-sm-8">
+                                    <input type="text" onkeypress="return isNumber(event)" ng-model="DayS.HeaderId" class="form-control" maxlength="100" tabindex="2" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Sequence</label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" ng-model="DayS.Sequence" name="Standard Name" class="form-control" maxlength="30" tabindex="2" readonly>
+                                </div>
+                            </div>
+
+
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Standard Name</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-model="DayS.StandardName" class="form-control" maxlength="100" tabindex="2">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Category</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-model="DayS.Category" class="form-control" maxlength="100" tabindex="2">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Day Type</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-model="DayStatusType" ng-click="selectStatusDayType()" class="form-control" maxlength="100" tabindex="2">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-model="DayS.Remarks" class="form-control" maxlength="100" tabindex="2">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">1<sup style="color:black;">st</sup> Source</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site" style="margin-top:7px;">
+                                        <label>
+                                            <input type="checkbox" ng-model="DayS.FirstSource" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Duration Applicable</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site" style="margin-top:7px;">
+                                        <label>
+                                            <input type="checkbox" ng-model="DayS.DurationApplicable" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">User Name</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-model="DayS.UserName" class="form-control" maxlength="100" tabindex="2">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Short Name</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-model="DayS.ShortName" class="form-control" maxlength="100" tabindex="2">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Code</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-model="DayS.Code" class="form-control" maxlength="100" tabindex="2">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Sub Category</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-model="DayS.SubCategory" class="form-control" maxlength="100" tabindex="2">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Manual/Auto </label>
+                                <div class="col-sm-8 ">
+                                    <div class="select-style">
+                                        <select id="ToCheck" class="form-control" ng-model="DayS.ManualAuto" name="To Check" tabindex="1">
+                                            <option value="">-Select-</option>
+                                            <option Value="Manual">Manual</option>
+                                            <option Value="Auto">Auto</option>
+                                            <option Value="Manual/Auto">Manual/Auto</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">In Status Applicable</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site" style="margin-top:7px;">
+                                        <label>
+                                            <input type="checkbox" ng-model="DayS.InStatusApplicable" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Out Status Applicable</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site" style="margin-top:7px;">
+                                        <label>
+                                            <input type="checkbox" ng-model="DayS.OutStatusApplicable" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Active</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site" style="margin-top:7px;">
+                                        <label>
+                                            <input type="checkbox" ng-model="DayS.Active" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="saveDayStatus();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                        <li> <button ng-click="ClearDayStatus();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-sm-12">
+                                <div style="color:black;" id="DayStatusList" ej-grid e-datasource="DayStatusList"
+                                     e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
+                                     e-allowselection="true" e-recorddoubleclick="doubleDayStatusChild" e-filtersettings-filterType="excel"
+                                     e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                                    <div e-columns>
+
+                                        <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
+                                        <div e-column e-field="HeaderId" e-headertext="header Id" e-width="50"></div>
+                                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
+                                        <div e-column e-field="UserName" e-headertext="User Name" e-width="120"></div>
+                                        <div e-column e-field="ShortName" e-headertext="Short Name" e-width="120"></div>
+                                        <div e-column e-field="Code" e-headertext="Code" e-width="120"></div>
+                                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+                                        <div e-column e-field="Active" e-headertext="Active" e-width="50"></div>
+                                        @*<div e-column e-template="#DeleteFileDS" e-headertext="" e-width="30"></div>*@
+
+                                    </div>
+                                </div>
+
+                                <script type="text/template" id="DeleteFileDS">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button data-toggle="modal" data-target="#confirmPopUpDS" class="btn"><i class="glyphicon glyphicon-trash"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                   
+
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                    <div class="row" ng-form name="ChildForm" id="Allowed">
+                        <div class="row" style="padding:10px;">
+                            <div class="col-xs-6 col-lg-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Header Id</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="Child.HeaderId" class="form-control" maxlength="100" tabindex="2" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="Child.PlantId" name="Plant"
+                                                    ng-options="item.Value as item.Text for item in PlantList" required tabindex="2">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-xs-6">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Employee Type<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="Child.EmpTypeId" name="EmpType"
+                                                    ng-options="item.Value as item.Text for item in EmpTypeList" required tabindex="2">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li> <button ng-click="saveChild();" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Add </button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-sm-12">
+                                <div style="color:black;" id="ChildGrid" ej-grid e-datasource="childDataList"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-pagesettings-pagesize="20"
+                                     e-allowselection="true" e-filtersettings-filterType="excel"
+                                     e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+                                    <div e-columns>
+
+                                        <div e-column e-field="HeaderId" e-headertext="Header Id" e-width="70"></div>
+                                        <div e-column e-field="PlantId" e-headertext="Plant Id" e-width="120"></div>
+                                        <div e-column e-field="EmpTypeId" e-headertext="Emp Type Id" e-width="120"></div>
+                                        <div e-column e-template="#DeleteFile" e-headertext="" e-width="30"></div>
+
+                                    </div>
+                                </div>
+                                <script type="text/template" id="DeleteFile">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.confirmModal(data)" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                   
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row text-right aplos-grid-toggle">
+
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div style="color:black;" id="HeaderGrid" ej-grid e-datasource="HeaderList"
+             e-allowfiltering="true" e-allowpaging="true" e-pagesettings-pagesize="20"
+             e-allowselection="true" e-recorddoubleclick="getHeaderDetails" e-filtersettings-filterType="excel"
+             e-templaterefresh="refreshTemplate" e-enabletouch="true" e-responsive="true" e-allowtextwrap="true" e-allowscrolling="true">
+            <div e-columns>
+
+                <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
+                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="50"></div>
+                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
+                <div e-column e-field="UserName" e-headertext="User Name" e-width="120"></div>
+                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="120"></div>
+                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+                <div e-column e-field="Active" e-headertext="Active" e-width="50"></div>
+                
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPopUpDT" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="DeleteDT();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPopUpDS" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="DeleteDS();"></confirm-archive-generic>
+
+<div class="loader" data-loader>
+    Please wait
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>
+
+<script>
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+            return false;
+        }
+        return true;
+    }
+
+    //onkeypress = "return isNumber(event)"
+</script>
+<div class="modal fade site-modal in" id="confirmPOPUPD" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">x</button>
+                <h4 class="modal-title">
+                    <i class="glyphicon glyphicon-warning-sign"></i> "Delete"
+                </h4>
+            </div>
+            <div class="modal-body">
+                <p class="text-warning">Are you sure to delete ?</p>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="btnConfirmed" ng-click="DeleteChild();">Yes</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="CurrDayStatusModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Day Types</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row" style="margin: 20px; font-style:italic"> </div>
+                <p style="margin:10px;">
+                    Select the Day Type by Double Clicking.
+                <p>
+
+                    <div id="getRespPerson" ej-grid e-datasource="DayTypesList" e-templaterefresh="refreshTemplate"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
+                         e-recorddoubleclick="doubleCurrDayStatus">
+                        <div e-columns>
+                            <div e-column e-field="DayType" e-headertext="Day Type" e-width="80"></div>
+                            <div e-column e-field="Description" e-headertext="Description" e-width="120"></div>
+                            <div e-column e-field="Category" e-headertext="Category" e-width="120"></div>
+                            <div e-column e-field="OriginalDayType" e-headertext="Original Day Type" e-width="120"></div>
+
+                        </div>
+                    </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="RespPersonModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Responsible Person</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row" style="margin: 20px; font-style:italic"> </div>
+                <p style="margin:10px;">
+                    Select the Responsible Person by Double Clicking.
+                <p>
+
+                    <div id="getRespPerson" ej-grid e-datasource="EmployeesList" e-templaterefresh="refreshTemplate"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
+                         e-recorddoubleclick="doubleRespPerson">
+                        <div e-columns>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+
+                        </div>
+                    </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="DayStatusDayType" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Day Type With Values</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row" style="margin: 20px; font-style:italic"> </div>
+                <p style="margin:10px;">
+                    Select the Day Type With Values by Double Clicking.
+                <p>
+
+                    <div id="DayTypeModal" ej-grid e-datasource="DayTypeChildList" e-templaterefresh="refreshTemplate"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
+                         e-recorddoubleclick="doubleDayStatusType">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Day Type With Values Id" e-width="80"></div>
+                            <div e-column e-field="DayType" e-headertext="Day Type" e-width="120"></div>
+                            <div e-column e-field="Category" e-headertext="Category" e-width="120"></div>
+                            <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="120"></div>
+                            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
+                            <div e-column e-field="UserName" e-headertext="User Name" e-width="120"></div>
+
+                        </div>
+                    </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
