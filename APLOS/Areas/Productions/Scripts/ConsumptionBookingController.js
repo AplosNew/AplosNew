@@ -10,7 +10,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         ProcessId: null,
         ProductionOrderId: null,
         FromDate: null,
-        ToDate: new Date()
+        ToDate: null
     }
 
     $scope.GetFromDate = function () {
@@ -19,6 +19,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
             url: 'Productions/FinishGoodsBooking/GetFromDate'
         }).then(function (response) {
             $scope.modelNew.FromDate = response.data[0].FromDate;
+            $scope.modelNew.ToDate = response.data[0].ToDate;
         });
     };
     $scope.GetFromDate();
@@ -88,7 +89,6 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
                 
             }
 
-
             $scope.$broadcast("show-errors-check-validity");
             if ($scope.modelForm.$valid) {
                 if ($scope.Action === "Save" || $scope.Action === "Update") {
@@ -106,9 +106,10 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
                         }
                         else {
                             ShowResult(response.data.Message, "success");
-                            $scope.modelNew.Id = response.data.Id;
+                            $scope.modelNew = response.data.Data;
                             $scope.GetItemDetailData();
                             $scope.getSavedData();
+                            $scope.LoadData();
                         }
                     }, function errorCallback(response) {
                         ShowResult(response.status.Message, "failure");
@@ -130,6 +131,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         $scope.SalesOrderLineItems = [];
         $scope.BookedAndBalancedDataList = [];
         $scope.LineItemsList = [];
+        $scope.GetFromDate();
     }
 
     $scope.masterDataList = [];

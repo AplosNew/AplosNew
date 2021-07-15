@@ -263,6 +263,20 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
         [HttpGet, Authorize]
+        public ActionResult GetTaxRebateMaster(string Master)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IncomeTaxPolicy ep = new IncomeTaxPolicy();
+                return Json(ep.GetTaxRebateMaster(Master), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [HttpGet, Authorize]
         public ActionResult GetTaxSurcharge(string Master)
         {
             try
@@ -517,47 +531,18 @@ namespace Aplos.Areas.Payrolls.Controllers
         [HttpPost, Authorize]
         public JsonResult SaveTaxRebate(List<Dictionary<string, object>> TaxRebateList, string Master, TaxRebate Slab)
         {
-            IncomeTaxPolicy p = new IncomeTaxPolicy();
-            p.SaveTaxRebate(Slab, Master);
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster;
             try
             {
-                string DetailsId = string.Empty;
-                string sql = "SELECT * FROM [dbo].[TaxRebate] WHERE TaxPolicyMasterId='" + Master + "' ";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
-                while (dsMaster.Tables[0].DefaultView.Count > 0)
-                {
-                    dsMaster.Tables[0].DefaultView[0].Delete();
-                }
-
                 for (int i = 0; i < TaxRebateList.Count; i++)
                 {
-                    DataRow dr = dsMaster.Tables[0].NewRow();
-                    string sID = string.Empty;
-                    bplib.clsGenID objGenID = new bplib.clsGenID();
-                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[TaxRebate]", out sID);
-                    DetailsId = "TR" + sID;
-                    dr["Id"] = DetailsId;
-                    dr["TaxPolicyMasterId"] = Master;
-                    dr["Minimum"] = clsStaticInfo.dbl(TaxRebateList[i]["Minimum"]);
-                    dr["Maximum"] = clsStaticInfo.dbl(TaxRebateList[i]["Maximum"]);
-                    dr["TaxRate"] = clsStaticInfo.dbl(TaxRebateList[i]["TaxRate"]);
-                    //dr["SlabType"] = (IncomeSlab[i]["SlabType"]);
-
-
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = DateTime.Now;
-                    dr["AddedFromIP"] = identity.IPAddress;
-
-                    dsMaster.Tables[0].Rows.Add(dr);
-
+                    if (TaxRebateList[i]["Maximum"] == null && TaxRebateList[i]["Minimum"] == null)
+                    {
+                        throw new Exception("Inset Details..");
+                    }
                 }
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster);
+                IncomeTaxPolicy p = new IncomeTaxPolicy();
+                p.SaveTaxRebate(Slab, Master, TaxRebateList);
+               
                 return Json(new { Error = false, Data = TaxRebateList, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
@@ -740,6 +725,21 @@ namespace Aplos.Areas.Payrolls.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IncomeTaxPolicy p = new IncomeTaxPolicy();
                 p.DeleteTaxRebateSlab(ID);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpPost, Authorize]
+        public JsonResult DeleteTaxRebateDetails(string ID)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IncomeTaxPolicy p = new IncomeTaxPolicy();
+                p.DeleteTaxRebateDetail(ID);
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

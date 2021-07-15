@@ -2544,7 +2544,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     $scope.SetProdBulletin = function (obj) {
         $scope.ProductionBulletinTemplateId = obj.data.ProductionBulletinTemplateId;
 
-        if (!baseService.isUndefinedOrNull($scope.ProductionOrderId))
+        if (!baseService.isUndefinedOrNull($scope.ProductionBulletinTemplateId))
             $scope.message_BulletinSave = 'This data will be copied and you can change it, Are you sure to save it?';
 
         var eDialog = $("#confirmProdBulletinSavePopUp").data("ejDialog");
