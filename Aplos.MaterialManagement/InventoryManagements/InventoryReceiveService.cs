@@ -702,7 +702,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						FROM BOQDetail BOQD
 						LEFT JOIN BOQFGMapping BOQFGM on BOQD.Id=BOQFGM.BOQDetailId
 						Left JOIN MST.MaterialMaster AS MM ON BOQD.MaterialMasterId = MM.Id
-						Left JOIN [MST].[MaterialMasterAlternativeUOM] AS MMAU ON MMAU.MaterialMasterId = MM.Id
+						
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON BOQD.ArticleId = ART.Id
 						LEFT OUTER JOIN[HKP].[CharacteristicsValue] V1 ON v1.Id = BOQD.FirstCharacteristicsValueId
@@ -711,6 +711,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId	
+						Left JOIN [MST].[MaterialMasterAlternativeUOM] AS MMAU ON MMAU.MaterialMasterId = MM.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON TUoM.Id =mm.StockUOMId 	
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 						left join (select b.BOQDetailId,sum(a.TransactionQty) TransactionQty ,UOM.UserName,UOM.Id StockTransactionUoMId
@@ -17086,6 +17087,141 @@ namespace Library.MaterialManagement.InventoryManagements
                 throw;
             }
         }
+
+
+		public IEnumerable<object> GetSOWiseMaterialStock(string Material, string Article, string Skuvalue1, string Skuvalue2, string Skuvalue3, string processId, string parameters, string SOMATART,string SalesOrderId) 
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity; 
+			string paramter = "";
+			//if (Material != "")
+			//{
+			//	if (paramter == "")
+			//		paramter += "ISNULL(mm.Id,'') in(" + Material + ")";
+			//	else
+			//		paramter += " AND ISNULL(mm.Id,'') in(" + Material + ")";
+			//}
+			//if (Article != "")
+			//{
+			//	if (paramter == "")
+			//		paramter += "ISNULL(MRD.ArticleId,'') in(" + Article + ")";
+			//	else
+			//		paramter += " AND ISNULL(MRD.ArticleId,'') in(" + Article + ")";
+			//}
+			//if (Skuvalue1 != "")
+			//{
+			//	if (paramter == "")
+			//		paramter += "ISNULL(BOQD.FirstCharacteristicsValueId,'') in(" + Skuvalue1 + ")";
+			//	else
+			//		paramter += " AND ISNULL(BOQD.FirstCharacteristicsValueId,'') in(" + Skuvalue1 + ")";
+			//}
+			//if (Skuvalue2 != "")
+			//{
+			//	if (paramter == "")
+			//		paramter += "ISNULL(BOQD.SecondCharacteristicsValueId,'') in(" + Skuvalue2 + ")";
+			//	else
+			//		paramter += " AND ISNULL(BOQD.SecondCharacteristicsValueId,'') in(" + Skuvalue2 + ")";
+			//}
+			//if (Skuvalue3 != "")
+			//{
+			//	if (paramter == "")
+			//		paramter += "ISNULL(BOQD.ThirdCharacteristicsValueId,'') in(" + Skuvalue3 + ")";
+			//	else
+			//		paramter += " AND ISNULL(BOQD.ThirdCharacteristicsValueId,'') in(" + Skuvalue3 + ")";
+			//}
+
+			if(string.IsNullOrEmpty(Skuvalue1))
+			{
+				Skuvalue1 = "";
+			}
+			if (string.IsNullOrEmpty(Skuvalue2) || Skuvalue2=="null")
+			{
+				Skuvalue2 = "";
+			}
+			if (string.IsNullOrEmpty(Skuvalue3) || Skuvalue3 == "null")
+			{
+				Skuvalue3 = "";
+			}
+			try
+			{
+				var sql = "";				
+				sql = @"SELECT mm.Id MaterialMasterId
+						,mm.UserName MaterialMasterName
+						,MMM.Id ArticleId			
+						,MMM.StandardName ArticleName									
+						,FC.Id FirstCharacteristicsId
+						,FC.UserName AS FirstCharacteristics
+						,IM.FirstCharacteristicsValueId
+						,isnull(v1.UserName,'') AS FirstCharacteristicsValue
+						,SC.Id SecondCharacteristicsId
+						,SC.UserName AS SecondCharacteristics
+						,IM.SecondCharacteristicsValueId
+						,isnull(v2.UserName,'') AS SecondCharacteristicsValue
+						,TC.Id ThirdCharacteristicsId
+						,TC.UserName AS ThirdCharacteristics
+						,IM.ThirdCharacteristicsValueId
+						,isnull(v3.UserName,'') AS ThirdCharacteristicsValue		
+						 ,Sum(GRNAllocation.TransactionQty) TransactionQty
+						,GRNAllocation.TransactionUoMId
+						,UOM.UserName TransactionUoMName
+						,GRNAllocation.SalesOrderId,null RequestedQty--,MMAU.BaseUOMFactor
+						FROM TRN.GRNPORequisitionAllocation GRNAllocation
+						Left join TRN.InventoryReceiveDetail IRD ON IRD.Id=GRNAllocation.InventoryReceiveDetailId
+						LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=GRNAllocation.TransactionUoMId
+						LEFT JOIN trn.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+						left JOIN Mst.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+						left JOIN Mst.MaterialMasterArticle MMM ON MMM.Id=IM.ArticleId
+
+
+						LEFT OUTER JOIN[HKP].[CharacteristicsValue] V1 ON v1.Id = IM.FirstCharacteristicsValueId
+						LEFT OUTER JOIN[HKP].[CharacteristicsValue] V2 ON v2.Id = IM.SecondCharacteristicsValueId
+						LEFT OUTER JOIN[HKP].[CharacteristicsValue] V3 ON v3.Id = IM.ThirdCharacteristicsValueId
+						LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
+						LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
+						LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId	
+						--Left JOIN [MST].[MaterialMasterAlternativeUOM] AS MMAU ON MMAU.MaterialMasterId = MM.Id
+						Where IM.MaterialMasterId='" + Material+@"' AND IM.ArticleId='"+Article+@"'
+						AND IM.FirstCharacteristicsValueId='"+Skuvalue1+@"'
+						AND ISNULL(IM.SecondCharacteristicsValueId,'')='"+Skuvalue2+@"'
+						AND ISNULL(IM.ThirdCharacteristicsValueId,'')='"+Skuvalue3+@"'
+						AND GRNAllocation.SalesOrderId ='"+ SalesOrderId + @"'
+						Group By GRNAllocation.TransactionUoMId,UOM.UserName,GRNAllocation.SalesOrderId,mm.Id ,mm.UserName ,MMM.Id,MMM.StandardName,FC.Id,FC.UserName,IM.FirstCharacteristicsValueId,isnull(v1.UserName,''),SC.Id,SC.UserName,IM.SecondCharacteristicsValueId,isnull(v2.UserName,''),TC.Id,TC.UserName,IM.ThirdCharacteristicsValueId,isnull(v3.UserName,'')";// ,MMAU.BaseUOMFactor
+				return _sqlRepository.GetDataCollection(sql);
+
+				//var Data = _sqlRepository.GetDataCollection(sql);
+				//StringCollection strCol = new StringCollection();
+				//string MaterialMasterList = "''";
+				//for (int i = 0; i < Data.Count; i++)
+				//{
+				//	if (strCol.Contains(Data[i]["MaterialMasterId"].ToString()) == true)
+				//		continue;
+				//	strCol.Add(Data[i]["MaterialMasterId"].ToString());
+				//	MaterialMasterList += ",'" + Data[i]["MaterialMasterId"].ToString() + "'";
+
+				//}
+
+				//var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
+				//													union
+				//													select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
+				//													) AS M
+				//													 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
+				//													 where m.Id in (" + MaterialMasterList + @")");
+
+				//for (int i = 0; i < Data.Count; i++)
+				//{
+				//	var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
+				//	Data[i]["uoMList"] = temp;
+				//}
+
+				//return Data;
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+			}
+		}
+
 
 	}
 }
