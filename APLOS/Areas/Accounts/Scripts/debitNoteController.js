@@ -241,6 +241,8 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
             $scope.partyType = "Customer"; 
         $scope.changeSearchByParty();
         $scope.transactionTypeList();
+
+        $scope.getTaxCodeByTaxYear($filter("dateFiltering")($scope.voucher.PostingDate));
     };
     $scope.changeSearchByParty = function () {
         $scope.searchByParty = 'UserName'; $scope.searchParty = "";
@@ -731,6 +733,7 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
         $scope.voucher.NoteType = "CustomerDebitNote";
         $scope.voucher.SettlementType = "Invoice";
         $scope.invoiceSalesAvailableList = [];
+        $scope.voucherDetail.InvoiceTaxViewModel = [];
         $scope.invoiceTaxDetailList = [];
         $scope.salesDetailList = [];
         $scope.SelectedCurrency = null;
@@ -903,9 +906,13 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
 
     $scope.taxcodelistMessage = "";
     $scope.getTaxCodeByTaxYear = function (date) {
+        if ($scope.partyType == 'Vendor')
+            $scope.taxCodeUrl = "accounts/TaxCode/GetTaxCodeInputVATGST?postingDate=" + $filter("dateFiltering")(date);
+        else 
+            $scope.taxCodeUrl = "accounts/TaxCode/GetTaxCodeOutputVATGST?postingDate=" + $filter("dateFiltering")(date);
         $http({
             method: "get",
-            url: "accounts/TaxCode/GetTaxCodeInputVATGST?postingDate=" + $filter("dateFiltering")(date)
+            url: $scope.taxCodeUrl
         }).then(
             function successCallback(response) {
                 if (response.data.Error === true) {

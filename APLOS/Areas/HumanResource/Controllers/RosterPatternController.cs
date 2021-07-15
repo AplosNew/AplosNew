@@ -153,7 +153,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(rs.getCurrentList(plantId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult SaveFileList(List<Dictionary<string,object>>data , string plantId)
         {
             try

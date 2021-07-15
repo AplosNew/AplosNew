@@ -82,35 +82,35 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(ds.getDefaultDayStatus(), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
-        public ActionResult saveMaster(Dictionary<string, object> Master)
-        {
-            try
-            {
-                var id = ds.saveMaster(Master);
-                return Json(new { Error = false, Data = id,  Message = AplosMessage.Success });
+        //[HttpPost]
+        //public ActionResult saveMaster(Dictionary<string, object> Master)
+        //{
+        //    try
+        //    {
+        //        var id = ds.saveMaster(Master);
+        //        return Json(new { Error = false, Data = id,  Message = AplosMessage.Success });
 
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { Error = true, Message = ex.Message });
+        //    }
             
-        }
+        //}
 
-        [HttpPost]
-        public ActionResult deleteMaster(string id)
-        {
-            string jj = ds.deleteMaster(id);
-            if (jj == "Success")
-            {
-                return Json(new { Error = false, Data = id, Message = AplosMessage.Updated });
-            }
-            else
-            {
-                return Json(new { Error = true, Data = id, Message = jj });
-            }
-        }
+        //[HttpPost]
+        //public ActionResult deleteMaster(string id)
+        //{
+        //    string jj = ds.deleteMaster(id);
+        //    if (jj == "Success")
+        //    {
+        //        return Json(new { Error = false, Data = id, Message = AplosMessage.Updated });
+        //    }
+        //    else
+        //    {
+        //        return Json(new { Error = true, Data = id, Message = jj });
+        //    }
+        //}
 
         [HttpPost]
         public ActionResult DeleteChild(string id)
