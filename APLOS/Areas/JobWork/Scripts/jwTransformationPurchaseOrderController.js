@@ -1873,7 +1873,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.detailModelList = [];
         try {
 
-         if (type !== "BOQ") {
+            if (type !== "BOQ" && type !=="PODETAILLIST") {
             if (baseService.isUndefinedOrNull($scope.detailModel.JobActivityId)) {
                 ShowResult('Please select Job Work Acticity', 'failure', 'detailPopUp');
                 return false;

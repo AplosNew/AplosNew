@@ -2853,7 +2853,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             {
                 JWPurchaseOrderId = data[0]["JWTransformationPurchaseOrderId"].ToString();
             }
-            if (type != "BOQ")
+            if (type != "BOQ" && type != "PODETAILLIST")
             {
                 con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild where JobActivityId='" + data[0]["JobActivityId"] + "' and JobWorkItemMasterId='" + data[0]["JobWorkItemMasterId"] + "' and ArticleCodeId='" + data[0]["ArticleId"] + "' and MaterialMasterId='" + data[0]["MaterialMasterId"] + "' and JobWorkTransformationContractMasterId='" + data[0]["JWTransformationPurchaseOrderId"] + "' AND  Id<>'" + data[0]["Id"] + "' ", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
@@ -2924,6 +2924,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             data[i]["Id"] = "JWPD" + _Id;
                             JWPODId = data[i]["Id"].ToString();
                             data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
+                            data[i]["Quantity"] = data[i]["TransactionQty"];
                             if (OrderSpecific == "Yes")
                             {
                                 data[i]["ReferenceNo"] = data[i]["ReferenceNoM"];
@@ -2937,6 +2938,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         {
 
                             data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
+                            data[i]["Quantity"] = data[i]["TransactionQty"];
+                            data[i]["RatePerUnit"] = data[i]["TransactionRate"];
+                            data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
+                            data[i]["TaxAmount"] = data[i]["TaxAmount"];
 
                             EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
                         }
@@ -3375,6 +3380,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             , JWTPD.ReferenceNo,((JWTPD.Quantity*JWTPD.RatePerUnit)*po.ToCurrencyRate) BaseAmount
                             , jwtax.TaxAmount,JWTPD.TransactionUoMId,TransactionUoM.Code TransactionUoM,JWTPD.BaseUOMId,BaseUOM.Code BaseUOM
                             ,MS.Id MaterialStorageId,MS.UserName MaterialStorage,EEI.EmployeeName ResponsiblePerson ,ISNULL(MM.UserName,'') MaterialName
+                            --,FORMAT(JWTPD.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate
                             FROM JobWorkTransformationContractChild JWTPD      
                             left JOIN [dbo].[JWTransformationPurchaseOrder] PO On PO.Id=JWTPD.JobWorkTransformationContractMasterId
                             LEFT JOIN HKP.JobWorkItem JWI ON JWI.Id = JWTPD.JobWorkItemMasterId
