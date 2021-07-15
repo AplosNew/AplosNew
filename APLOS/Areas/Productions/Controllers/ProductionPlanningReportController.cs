@@ -117,14 +117,16 @@ namespace Aplos.Areas.Productions.Controllers
 
 
                 string PreviousLine = "";
-                int BuyerStartCol = 2;
+                int BuyerStartCol = -1;
                 int BuyerEndCol = 0;
                 string PreviousBuyerItem = null;
 
                 ROW = 0;
 
                 COL = 1;
-                for (int i = 0; i < dtProductionPlanningReport.Rows.Count; i++)
+                int RowLineNo = 0;
+                int i = 0;
+                for ( i = 0; i < dtProductionPlanningReport.Rows.Count; i++)
                 {
 
                     if (PreviousLine != dtProductionPlanningReport.Rows[i]["Line"].ToString())
@@ -139,7 +141,10 @@ namespace Aplos.Areas.Productions.Controllers
                         continue;
 
 
-                    int RowLineNo = ROW;
+                    if (BuyerStartCol == -1)
+                        BuyerStartCol = CCOL;
+
+                    RowLineNo = ROW;
                     int RowWorkingHour = ROW + 1;
                     int RowManPower = ROW + 2;
                     int RowPlannedTarget = ROW + 3;
@@ -152,8 +157,8 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[RowLineNo, 1].ColumnWidth = 15;
 
                     sheet.Range[RowLineNo, 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                    sheet.Range[RowLineNo, 1].CellStyle.Font.Color = ExcelKnownColors.White;
                     sheet.Range[7, 1,7, colDate].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-                    //sheet.Range[RowLineNo, colDate].CellStyle.Interior.ColorIndex = ExcelKnownColors.Orange;
 
 
                     sheet[RowWorkingHour, 1].Text = "Working Hour";
@@ -168,16 +173,18 @@ namespace Aplos.Areas.Productions.Controllers
 
                     if (PreviousBuyerItem != dtProductionPlanningReport.Rows[i]["BuyerItemNo"].ToString())
                     {
-
-                        sheet[RowLineNo, CCOL].Text = dtProductionPlanningReport.Rows[i]["BuyerItemNo"].ToString();
+                        sheet[RowLineNo, CCOL].RowHeight = 10;
+                        sheet[RowLineNo, CCOL].Text = dtProductionPlanningReport.Rows[i]["BuyerItemNo"].ToString() +",Quantity:"+ dtProductionPlanningReport.Rows[i]["SalesOrderQty"].ToString();
                         sheet.Range[RowLineNo, CCOL].CellStyle.Font.Bold = true;
                         sheet.Range[RowLineNo, CCOL].CellStyle.Font.Size = 8;
+                        sheet.Range[RowLineNo, CCOL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
                         if (BuyerEndCol != 0)
                         {
+                            
                             sheet.Range[RowLineNo, BuyerStartCol, RowLineNo, BuyerEndCol].Merge();
+                            sheet.Range[RowLineNo, BuyerStartCol, RowLineNo, BuyerEndCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             BuyerStartCol = CCOL;
-
                         }
                     }
                     sheet[RowWorkingHour, CCOL].Number =clsStaticInfo.dbl( dtProductionPlanningReport.Rows[i]["WorkingHour"].ToString());
@@ -198,44 +205,40 @@ namespace Aplos.Areas.Productions.Controllers
                     endCol = colDate;
                     StartRow = RowLineNo;
                     EndRow = RowEfficiency;
-                    //sheet.Range[StartRow, endCol+1].Formula = "=SUM(" + clsStaticInfo.GetxlsCol(2) + RowWorkingHour.ToString() + ":" + clsStaticInfo.GetxlsCol(endCol) + RowWorkingHour.ToString() + ")";
                     if (PreviousLine != dtProductionPlanningReport.Rows[i]["Line"].ToString())
                     {                        
-                        //sheet.Range[StartRow, 2, StartRow, endCol].Merge();
                         sheet.Range[StartRow, 1, EndRow, 1].CellStyle.Font.Bold = true;
-                        sheet.Range[StartRow, 1, EndRow, 1].NumberFormat = clsStaticInfo.NumberFormat(2);
                         sheet.Range[StartRow, 1, EndRow, 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-                        //sheet.Range[RowLineNo, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Orange;
                         sheet.Range[StartRow, 1, EndRow, endCol].BorderAround(ExcelLineStyle.Hair);
                         sheet.Range[StartRow, 1, EndRow, endCol].BorderInside(ExcelLineStyle.Hair);
-                        sheet.IsGridLinesVisible = false;
-                        sheet.UsedRange.WrapText = true;
-                        sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                        sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                        sheet.Range[StartRow, 1, EndRow, endCol].CellStyle.Font.Size = 8f;
                     }
                     PreviousLine = dtProductionPlanningReport.Rows[i]["Line"].ToString();
-                    PreviousBuyerItem= dtProductionPlanningReport.Rows[i]["BuyerItemNo"].ToString();
-                    
+                    PreviousBuyerItem= dtProductionPlanningReport.Rows[i]["BuyerItemNo"].ToString();                    
 
                 }
+                sheet[RowLineNo, BuyerEndCol].Text = dtProductionPlanningReport.Rows[i-1]["BuyerItemNo"].ToString() + ",Quantity:" + dtProductionPlanningReport.Rows[i-1]["SalesOrderQty"].ToString();               
+                sheet.Range[RowLineNo, BuyerStartCol, RowLineNo, BuyerEndCol].Merge();
                 StartRow = 8;
-               int StartCol = 2;
+               
                 sheet["A" + StartRow.ToString()].FreezePanes();
-               // sheet["A" + StartCol.ToString()].FreezePanes();
+                // sheet["A" + StartCol.ToString()].FreezePanes();
+                sheet.UsedRange.WrapText = true;
+                sheet.IsGridLinesVisible = false;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Production PLanning Report", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, colDate, "Production PLanning Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 5, colDate].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 string strFileName = "Production PLanning Report.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
