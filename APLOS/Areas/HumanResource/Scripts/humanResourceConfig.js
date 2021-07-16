@@ -256,9 +256,17 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/AttendanceProcessData/',
             controller: 'attendanceProcessDataController'
         })
+        .when('/attendance-process-data-new', {
+            templateUrl: 'humanresource/AttendanceProcessDataNew/',
+            controller: 'attendanceProcessDataNewController'
+        })
         .when('/attendance-process-data-entity', {
             templateUrl: 'humanresource/AttendanceProcessDataEntityWise/',
             controller: 'attendanceProcessDataEntityWiseController'
+        })
+        .when('/attendance-process-data-entity-new', {
+            templateUrl: 'humanresource/AttendanceProcessDataEntityWiseNew/',
+            controller: 'attendanceProcessDataEntityWiseNewController'
         })
         .when('/weekoff-change', {
             templateUrl: 'humanresource/WeekOffChange/Aplos',

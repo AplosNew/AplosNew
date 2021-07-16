@@ -201,11 +201,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                         #endregion change shift
 
                     }
-                  
-                    SaveDataSets(shiftchange);                              
-
+                    SaveDataSets(shiftchange);
 
                 }
+
             }
             catch (Exception ex)
             {
@@ -310,6 +309,251 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             return _sqlRepository.GetDataTable(sql);
         }
+
+        // For In/Out Entry Screen
+        public RTx Savex(List<AttendanceProcessNewProcess> data)
+        {
+            try
+            {
+                List<AttendanceProcessNewProcess> DataToBeSaved = new List<AttendanceProcessNewProcess>();
+
+                if (data == null)
+                    throw new Exception("No new data has been updated");
+
+                for (int i = 0; i < data.Count; i++)
+                {
+              
+                    DataToBeSaved.Add(data[i]);
+                }
+
+                var identity = _identity;
+                try
+                {
+                    string inDates = "";
+                    string inEmployeeIds = "";
+                    foreach (AttendanceProcessNewProcess item in DataToBeSaved)
+                    {
+                        if (inDates == "")
+                            inDates = "'" + item.WorkDate + "'";
+                        else
+                            inDates += ",'" + item.WorkDate + "'";
+
+
+                        if (inEmployeeIds == "")
+                            inEmployeeIds = "'" + item.Id + "'";
+                        else
+                            inEmployeeIds += ",'" + item.Id + "'";
+                    }
+
+                    if (inDates != "")
+                    {
+                        DataTable dtLock = _sqlRepository.GetDataTable("SELECT * FROM PlantWiseAttendanceLock AS pwal WHERE isActive=1 AND pwal.LockedDate IN (" + inDates + ") AND pwal.PlantId='" + identity.PlantId + "'");
+                        DataTable dtLockEmployee = _sqlRepository.GetDataTable("SELECT * FROM ExceptionEmployeeAttendanceUnlock WHERE EmpSystemId IN (" + inEmployeeIds + @")");
+                        for (int i = 0; i < dtLock.Rows.Count; i++)
+                        {
+                            var k = DataToBeSaved.Where(ee => ee.WorkDate.ToUpper() == Convert.ToDateTime(dtLock.Rows[i]["LockedDate"].ToString()).ToString("dd-MMM-yyyy").ToUpper());
+                            foreach (var item in k)
+                            {
+                                dtLockEmployee.DefaultView.RowFilter = "EmpSystemId='" + item.Id + "' AND WorkDate=#" + item.WorkDate + "#";
+                                if (dtLockEmployee.DefaultView.Count == 0)
+                                {
+                                    item.IsError = true;
+                                    item.ErrorMessage = "Day locked";
+                                }
+                            }
+                        }
+
+                        if (DataToBeSaved.Where(ee => ee.IsError == true).ToList().Count > 0)
+                        {
+                            return new RTx { data = DataToBeSaved, IsError = true, msg = "Error occured" };
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+
+
+
+                DataTable NewShiftStandardTime = getDateWiseShift(DataToBeSaved);
+                //validations
+                foreach (AttendanceProcessNewProcess item in DataToBeSaved)
+                {
+
+
+                    if (string.IsNullOrEmpty(item.InDate) == false)
+                        if (bplib.clsWebLib.IsDateOK(item.InDate) == false)
+                            item.ErrorMessage = "Invalid in date";
+
+
+                    if (string.IsNullOrEmpty(item.OutDate) == false)
+                        if (bplib.clsWebLib.IsDateOK(item.OutDate) == false)
+                            item.ErrorMessage = "Invalid out date";
+
+                    NewShiftStandardTime.DefaultView.RowFilter = "SystemID='" + item.ShiftSystemID + "' AND WorkDate=#" + item.WorkDate + "#";
+                    if (NewShiftStandardTime.DefaultView.Count > 0)
+                    {
+
+                        if (item.InTime != null && item.OutTime != null)
+                        {
+                            if (item.InDate + item.InTime != item.InDateOriginal + item.InTimeOriginal
+                                || item.OutDate + item.OutTime != item.OutDateOriginal + item.OutTimeOriginal)
+                            {
+                                if (Convert.ToDateTime(item.InDate + " " + item.InTime) > Convert.ToDateTime(item.OutDate + " " + item.OutTime))
+                                {
+                                    item.IsError = true;
+                                    item.ErrorMessage = "Out time is earlier than In time";
+                                }
+
+                                TimeSpan ts = Convert.ToDateTime(item.OutDate + " " + item.OutTime).Subtract(Convert.ToDateTime(item.InDate + " " + item.InTime));
+                                if (Math.Abs(ts.TotalHours) > 24)
+                                {
+                                    item.IsError = true;
+                                    item.ErrorMessage = "Time span cannot be greater than 24 hours between in and out time";
+                                }
+                            }
+                        }
+                        item.ShiftHoursWithoutOT = NewShiftStandardTime.DefaultView[0][@"ShiftHoursWithoutOT"].ToString();
+                        item.ShiftDuration = NewShiftStandardTime.DefaultView[0][@"ShiftDuration"].ToString();
+                        item.ShiftShortDuration = NewShiftStandardTime.DefaultView[0][@"ShiftShortDuration"].ToString();
+                        item.ShiftFullDayDuration = NewShiftStandardTime.DefaultView[0][@"ShiftFullDayDuration"].ToString();
+                        item.ShiftHalfDayDuration = NewShiftStandardTime.DefaultView[0][@"ShiftHalfDayDuration"].ToString();
+                        item.ShiftInTime = NewShiftStandardTime.DefaultView[0][@"ShiftInTime"].ToString();
+                        item.ShiftOutTime = NewShiftStandardTime.DefaultView[0][@"ShiftOutTime"].ToString();
+
+                    }
+
+                }
+
+                if (DataToBeSaved.Where(ee => ee.IsError == true).ToList().Count > 0)
+                {
+                    return new RTx { data = DataToBeSaved, IsError = true, msg = "Error occured" };
+                }
+               
+                saveDatax(DataToBeSaved);
+
+
+                return new RTx { data = data, IsError = false, msg = "Manual Entry Done Successfully" };
+             
+            }
+            catch (Exception ex)
+            {
+                return new RTx { data = data, IsError = true, msg = ex.Message };
+                
+            }
+
+        }
+        private void saveDatax(List<AttendanceProcessNewProcess> data)
+        {
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            try
+            {
+                var identity = _identity;
+                bplib.clsGenID objId = new bplib.clsGenID();
+
+               
+                DataSet shiftchange = null ;
+                
+                for (int i = 0; i < data.Count; i++)
+                {
+                    con = new ConnectionManager.clsConnection();
+                    con.BeginTransaction();
+                    con.getDataSet(@"SELECT * FROM AttdnProcessData  WHERE EmpSystemID = '" + data[i].Id + "' AND WorkDate = '" + data[i].WorkDate + "' ", out shiftchange);
+                    con.CommitTransaction();
+
+                    if (data[i].ShiftSystemID != data[i].ShiftSystemIDOriginal)
+                    {
+                        #region change shift
+                       
+                        if (shiftchange.Tables[0].Rows.Count > 0)
+                        {
+                            shiftchange.Tables[0].Rows[0].BeginEdit();
+                            shiftchange.Tables[0].Rows[0]["ShiftSystemID"] = data[i].ShiftSystemID;
+                            shiftchange.Tables[0].Rows[0]["ManualShiftId"] = data[i].ShiftSystemID;
+                            shiftchange.Tables[0].Rows[0]["ShiftDuration"] = data[i].ShiftDuration;
+                            shiftchange.Tables[0].Rows[0]["ShiftShortDuration"] = data[i].ShiftShortDuration;
+                            shiftchange.Tables[0].Rows[0]["ShiftHoursWithoutOT"] = data[i].ShiftHoursWithoutOT;
+                            shiftchange.Tables[0].Rows[0]["ShiftFullDayDuration"] = data[i].ShiftFullDayDuration;
+                            shiftchange.Tables[0].Rows[0]["ShiftHalfDayDuration"] = data[i].ShiftHalfDayDuration;
+                            shiftchange.Tables[0].Rows[0]["ShiftOutTime"] = data[i].ShiftOutTime;
+                            shiftchange.Tables[0].Rows[0]["ShiftInTime"] = data[i].ShiftInTime;
+                            shiftchange.Tables[0].Rows[0]["ManualByWhom"] = identity.Name;
+                            shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
+                            shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
+                            shiftchange.Tables[0].Rows[0].EndEdit();
+                        }
+                        #endregion change shift
+                    }
+
+                    #region In/Out 
+
+                   
+                    if (data[i].InDate + data[i].InTime != data[i].InDateOriginal + data[i].InTimeOriginal
+                        || data[i].OutDate + data[i].OutTime != data[i].OutDateOriginal + data[i].OutTimeOriginal)
+                    {
+                        
+                        if (data[i].InTime == null && data[i].OutTime == null)
+                        {
+                           
+                        }
+                        else
+                        {
+                            if (shiftchange.Tables[0].Rows.Count > 0)
+                            {
+
+                                DataRow dr = shiftchange.Tables[0].Rows[0];
+
+                                dr.BeginEdit();
+
+                                if (data[i].InDate + data[i].InTime != data[i].InDateOriginal + data[i].InTimeOriginal)
+                                {
+                                    dr["InTime"] = DBNull.Value;
+                                    dr["ManualInTime"] = DBNull.Value;
+                                    if (string.IsNullOrEmpty(data[i].InTime) == false)
+                                    {
+                                        dr["InTime"] = data[i].InDate + " " + data[i].InTime;
+                                        dr["ManualInTime"]= data[i].InDate + " " + data[i].InTime;
+                                        dr["IsManualInTime"] = true;
+                                    }
+                                }
+
+                                if (data[i].OutDate + data[i].OutTime != data[i].OutDateOriginal + data[i].OutTimeOriginal)
+                                {
+                                    dr["OutTime"] = DBNull.Value;
+                                    dr["ManualOutTime"] = DBNull.Value;
+                                    if (string.IsNullOrEmpty(data[i].OutTime) == false)
+                                    {
+                                        dr["OutTime"] = data[i].OutDate + " " + data[i].OutTime;
+                                        dr["ManualOutTime"] = data[i].OutDate + " " + data[i].OutTime;
+                                        dr["IsManualOutTime"] = true;
+                                    }
+                                }
+
+                                dr["ManualByWhom"] = identity.Name;
+                                dr["ManualEntryTime"] = DateTime.Now;
+                                dr["ManualFlag"] = true;
+                                
+                                dr.EndEdit();
+                            }
+                            
+                        }
+                    }
+                    #endregion                   
+                    SaveDataSets(shiftchange);
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+
+        }
+
 
     }
 
