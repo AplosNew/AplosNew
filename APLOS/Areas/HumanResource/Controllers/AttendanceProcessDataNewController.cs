@@ -161,7 +161,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        public void GetHRsettinng(string plantid, out System.Data.DataSet dsRef)
+        public void GetHRsettinng(string plantid, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;

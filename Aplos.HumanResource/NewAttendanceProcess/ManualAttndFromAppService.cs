@@ -465,7 +465,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                     if (data[i].ShiftSystemID != data[i].ShiftSystemIDOriginal)
                     {
                         #region change shift
-
                        
                         if (shiftchange.Tables[0].Rows.Count > 0)
                         {
@@ -540,7 +539,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             
                         }
                     }
-                    #endregion manual Attendance                   
+                    #endregion                   
                     SaveDataSets(shiftchange);
 
                 }

@@ -126,7 +126,6 @@ namespace Aplos.Areas.HumanResource.Controllers
             return jsondata;
         }
 
-
         [HttpPost]
         public ActionResult getAttendanceData(string employeeid, string fromdate, string todate, string entityids)
         {
@@ -142,38 +141,27 @@ namespace Aplos.Areas.HumanResource.Controllers
             return jsondata;
         }
 
-
         [HttpPost, Authorize]
         public ActionResult getShift(string systemid, string WorkDate)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
 
-            string sql = @"SELECT 
-                            sd.SystemID,
-                            sd.InTimeStartMargin, sd.IsActive, sd.DefaultShift, sd.SequenceNo, 
-                            sd.UserName AS ShiftName,
-                            format(kk.ShiftInTime,'dd-MMM-yyyy hh:mm tt') AS ShiftInTime,
-                            format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt') ShiftOutTime
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ManualAttndFromAppService mau = new ManualAttndFromAppService(identity, _sqlRepository);
 
-						
-                            FROM (
-                            SELECT 
-                            sd.SystemID,
-                            DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),'" + WorkDate + @"'))  AS ShiftInTime,
-                            DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),'" + WorkDate + @"'))  AS ShiftOutTime
+                return Json(mau.GetShiftData(systemid, WorkDate), JsonRequestBehavior.AllowGet);
 
-		
-                            FROM ShiftDefination sd
-                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '" + WorkDate + @"' BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
-                            ) AS KK
-                            INNER JOIN   ShiftDefination sd ON sd.SystemID=kk.SystemID
-                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '" + WorkDate + @"' BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
-                            WHERE sd.systemid='" + systemid + @"'
-                            ORDER BY sd.SequenceNo ASC";
 
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
 
         }
+        
         [HttpPost, Authorize]
         public ActionResult getAttendance(string empsystemid, string WorkDate)
         {
@@ -257,9 +245,6 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 }
 
-
-
-
                 DataTable NewShiftStandardTime = getDateWiseShift(DataToBeSaved);
                 //validations
                 foreach (AttendanceProcessNewProcess item in DataToBeSaved)
@@ -297,8 +282,15 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 }
                             }
                         }
-                       
-                       
+
+                        item.ShiftHoursWithoutOT = NewShiftStandardTime.DefaultView[0][@"ShiftHoursWithoutOT"].ToString();
+                        item.ShiftDuration = NewShiftStandardTime.DefaultView[0][@"ShiftDuration"].ToString();
+                        item.ShiftShortDuration = NewShiftStandardTime.DefaultView[0][@"ShiftShortDuration"].ToString();
+                        item.ShiftFullDayDuration = NewShiftStandardTime.DefaultView[0][@"ShiftFullDayDuration"].ToString();
+                        item.ShiftHalfDayDuration = NewShiftStandardTime.DefaultView[0][@"ShiftHalfDayDuration"].ToString();
+                        item.ShiftInTime = NewShiftStandardTime.DefaultView[0][@"ShiftInTime"].ToString();
+                        item.ShiftOutTime = NewShiftStandardTime.DefaultView[0][@"ShiftOutTime"].ToString();
+
                     }
 
                 }
@@ -313,7 +305,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
 
-                return Json(new { Error = false, Message = "Time updated successfully", Data = data }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Message = "Manual Entry Done Successfully", Data = data }, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)
@@ -341,325 +333,96 @@ namespace Aplos.Areas.HumanResource.Controllers
                 clsStaticInfo objStatic = new clsStaticInfo();
                                
 
-                DataSet dsDailyShiftAssignment = null;
+                DataSet shiftchange = null;
                 for (int i = 0; i < data.Count; i++)
                 {
+                    con = new ConnectionManager.clsConnection();
+                    con.BeginTransaction();
+                    con.getDataSet(@"SELECT * FROM AttdnProcessData  WHERE EmpSystemID = '" + data[i].Id + "' AND WorkDate = '" + data[i].WorkDate + "' ", out shiftchange);
+                    con.CommitTransaction();
+
                     if (data[i].ShiftSystemID != data[i].ShiftSystemIDOriginal)
                     {
-                        #region change shift
-                        //// objId.GenID("SHIFT ASSIGNMENT MANUAL", out FutureSystemID);
-                        //con = new ConnectionManager.clsConnection();
-                        //con.BeginTransaction();
-                        //con.getDataSet(@"SELECT TOP 1 * FROM EmployeeShiftAssign AS SA WHERE SA.EmpSystemID = '" + data[i].Id + "' AND sa.EffectiveDate <= '" + data[i].WorkDate + "'  ORDER BY SA.EffectiveDate DESC", out dsPrevious);
-                        //con.CommitTransaction();
-
-                        //dsfuture = dsPrevious.Clone();//without data
-                        //DataRow drpre = dsfuture.Tables[0].NewRow();
-
-                        //for (int COL = 0; COL < dsPrevious.Tables[0].Columns.Count; COL++)
-                        //    drpre[COL] = dsPrevious.Tables[0].Rows[0][COL];
-
-                        //dsfuture.Tables[0].Rows.Add(drpre);
-                        ////dsfuture.Tables[0].ImportRow(dsPrevious.Tables[0].Rows[0]);//future data saved//need to change PK+DATE
-
-                        ////for today
-                        //string PreviousSystemID = dsPrevious.Tables[0].Rows[0]["SystemID"].ToString();
-                        //string TodaySystemID = "";
-                        //dsPrevious.Tables[0].DefaultView.RowFilter = "EffectiveDate=#" + data[i].WorkDate + "#";
-                        //if (dsPrevious.Tables[0].DefaultView.Count > 0)
-                        //{
-
-
-
-                        //    DataRow dr = dsPrevious.Tables[0].DefaultView[0].Row;
-                        //    TodaySystemID = dr["SystemID"].ToString();
-
-                        //    dr.BeginEdit();
-                        //    dr["FixSystemID"] = data[i].ShiftSystemID;
-
-                        //    dr["RosterSystemID"] = DBNull.Value;
-                        //    dr["IsFix"] = true;
-                        //    dr["IsRoster"] = false;
-                        //    dr["EffectiveDate"] = data[i].WorkDate;
-                        //    dr["RosterStartShiftID"] = DBNull.Value;
-                        //    dr["StartFromDay"] = DBNull.Value;
-
-
-
-                        //    dr["UpdatedBy"] = identity.Name;
-                        //    dr["DateUpdated"] = System.DateTime.Now;
-
-                        //    dr.EndEdit();
-                        //}
-                        //else
-                        //{
-                        //    DataRow dr = dsPrevious.Tables[0].NewRow();
-                        //    objId.GenID("SHIFT ASSIGNMENT MANUAL", out TodaySystemID);
-
-
-                        //    dr["SystemID"] = "SFTX" + TodaySystemID;
-                        //    dr["EmpSystemID"] = data[i].Id;
-                        //    dr["FixSystemID"] = data[i].ShiftSystemID;
-                        //    dr["RosterSystemID"] = DBNull.Value;
-                        //    dr["IsFix"] = true;
-                        //    dr["IsRoster"] = false;
-                        //    dr["EffectiveDate"] = data[i].WorkDate;
-                        //    dr["RosterStartShiftID"] = DBNull.Value;
-                        //    dr["StartFromDay"] = DBNull.Value;
-
-
-                        //    dr["UpdatedBy"] = identity.Name;
-                        //    dr["DateUpdated"] = System.DateTime.Now;
-                        //    dr["AddedBy"] = identity.Name;
-                        //    dr["DateAdded"] = System.DateTime.Now;
-
-                        //    dsPrevious.Tables[0].Rows.Add(dr);
-
-                        //    TodaySystemID = dr["SystemID"].ToString();
-
-                        //}
-
-
-
-                        //con = new ConnectionManager.clsConnection();
-                        //con.BeginTransaction();
-                        //con.getDataSet(@"SELECT * FROM EmpDateWiseShiftAssign AS SA WHERE SA.EmpSystemID = '" + data[i].Id + "' AND sa.WorkDate = '" + data[i].WorkDate + "' ", out dsDailyShiftAssignment);
-                        //con.CommitTransaction();
-                        //if (dsDailyShiftAssignment.Tables[0].Rows.Count > 0)
-                        //{
-                        //    dsDailyShiftAssignment.Tables[0].Rows[0].BeginEdit();
-
-                        //    dsDailyShiftAssignment.Tables[0].Rows[0]["EmpSftAssiSystemID"] = TodaySystemID;
-                        //    dsDailyShiftAssignment.Tables[0].Rows[0]["ShiftSystemID"] = data[i].ShiftSystemID;
-
-                        //    dsDailyShiftAssignment.Tables[0].Rows[0].EndEdit();
-                        //}
-                        //else
-                        //{
-                        //    //DataRow dr = dsDailyShiftAssignment.Tables[0].NewRow();
-
-
-
-                        //    //dr["SystemID"] = "SFTX" + TodaySystemID;
-                        //    //dr["EmpSystemID"] = data[i].Id;
-                        //    //dr["FixSystemID"] = data[i].ShiftSystemID;
-                        //    //dr["RosterSystemID"] = DBNull.Value;
-                        //    //dr["IsFix"] = DBNull.Value;
-                        //    //dr["IsRoster"] = DBNull.Value;
-                        //    //dr["EffectiveDate"] = data[i].WorkDate;
-                        //    //dr["RosterStartShiftID"] = DBNull.Value;
-                        //    //dr["StartFromDay"] = DBNull.Value;
-
-
-                        //    //dr["UpdatedBy"] = identity.Name;
-                        //    //dr["DateUpdated"] = System.DateTime.Now;
-                        //    //dr["AddedBy"] = identity.Name;
-                        //    //dr["DateAdded"] = System.DateTime.Now;
-
-                        //    //dsDailyShiftAssignment.Tables[0].Rows.Add(dr);
-                        //}
-
-
-
-                        //string FutureSystemID = "";
-                        //DataSet dsFutureTemp;
-                        //con = new ConnectionManager.clsConnection();
-                        //con.BeginTransaction();
-                        //con.getDataSet(@"SELECT TOP 1 * FROM EmployeeShiftAssign AS SA WHERE SA.EmpSystemID = '" + data[i].Id + "' AND sa.EffectiveDate > '" + data[i].WorkDate + "'  ORDER BY SA.EffectiveDate ASC", out dsFutureTemp);
-                        //con.CommitTransaction();
-                        //dsFutureTemp.Tables[0].DefaultView.RowFilter = "EffectiveDate=#" + Convert.ToDateTime(data[i].WorkDate).AddDays(1).ToString("dd-MMM-yyyy") + "#";
-
-
-                        //if (dsFutureTemp.Tables[0].DefaultView.Count == 0 && Convert.ToDateTime(data[i].WorkDate).AddDays(1) < System.DateTime.Now)
-                        //{
-                        //    string fsystemid = "";
-                        //    objId.GenID("SHIFT ASSIGN NEW", out fsystemid);
-
-                        //    dsfuture.Tables[0].Rows[0].BeginEdit();
-
-                        //    dsfuture.Tables[0].Rows[0]["SystemID"] = "SAS" + fsystemid;
-                        //    dsfuture.Tables[0].Rows[0]["EffectiveDate"] = Convert.ToDateTime(data[i].WorkDate).AddDays(1).ToString("dd-MMM-yyyy");
-
-                        //    dsfuture.Tables[0].Rows[0]["UpdatedBy"] = identity.Name;
-                        //    dsfuture.Tables[0].Rows[0]["DateUpdated"] = System.DateTime.Now;
-                        //    dsfuture.Tables[0].Rows[0]["AddedBy"] = identity.Name;
-                        //    dsfuture.Tables[0].Rows[0]["DateAdded"] = System.DateTime.Now;
-
-                        //    dsfuture.Tables[0].Rows[0].EndEdit();
-
-                        //    FutureSystemID = dsfuture.Tables[0].Rows[0]["SystemID"].ToString();
-
-
-                        //    con = new ConnectionManager.clsConnection();
-                        //    con.BeginTransaction();
-                        //    con.getDataSet(@"SELECT * FROM EmpDateWiseShiftAssign AS SA WHERE SA.EmpSftAssiSystemID = '" + PreviousSystemID + "' AND sa.WorkDate > '" + data[i].WorkDate + "' ", out dsFutureShiftAssignment);
-                        //    con.CommitTransaction();
-
-                        //    foreach (DataRow item in dsFutureShiftAssignment.Tables[0].Rows)
-                        //    {
-                        //        item.BeginEdit();
-
-                        //        item["EmpSftAssiSystemID"] = FutureSystemID;
-
-                        //        item["UpdatedBy"] = identity.Name;
-                        //        item["DateUpdated"] = System.DateTime.Now;
-
-                        //        item.EndEdit();
-                        //    }
-                        //}
-                        //else
-                        //{
-                        //    dsfuture = null;
-                        //}
-
-
-
-                        #endregion change shift
 
                         #region change shift
 
-
-
-
-                        con = new ConnectionManager.clsConnection();
-                        con.BeginTransaction();
-                        con.getDataSet(@"SELECT * FROM EmpDateWiseShiftAssign AS SA WHERE SA.EmpSystemID = '" + data[i].Id + "' AND sa.WorkDate = '" + data[i].WorkDate + "' ", out dsDailyShiftAssignment);
-                        con.CommitTransaction();
-                        if (dsDailyShiftAssignment.Tables[0].Rows.Count > 0)
+                        if (shiftchange.Tables[0].Rows.Count > 0)
                         {
-                            dsDailyShiftAssignment.Tables[0].Rows[0].BeginEdit();
-
-                            //dsDailyShiftAssignment.Tables[0].Rows[0]["EmpSftAssiSystemID"] = TodaySystemID;
-                            dsDailyShiftAssignment.Tables[0].Rows[0]["ShiftSystemID"] = data[i].ShiftSystemID;
-                            dsDailyShiftAssignment.Tables[0].Rows[0]["ManualShiftId"] = data[i].ShiftSystemID;
-                            dsDailyShiftAssignment.Tables[0].Rows[0]["UpdatedBy"] = identity.Name;
-                            dsDailyShiftAssignment.Tables[0].Rows[0]["DateUpdated"] = DateTime.Now;
-                            dsDailyShiftAssignment.Tables[0].Rows[0].EndEdit();
+                            shiftchange.Tables[0].Rows[0].BeginEdit();
+                            shiftchange.Tables[0].Rows[0]["ShiftSystemID"] = data[i].ShiftSystemID;
+                            shiftchange.Tables[0].Rows[0]["ManualShiftId"] = data[i].ShiftSystemID;
+                            shiftchange.Tables[0].Rows[0]["ShiftDuration"] = data[i].ShiftDuration;
+                            shiftchange.Tables[0].Rows[0]["ShiftShortDuration"] = data[i].ShiftShortDuration;
+                            shiftchange.Tables[0].Rows[0]["ShiftHoursWithoutOT"] = data[i].ShiftHoursWithoutOT;
+                            shiftchange.Tables[0].Rows[0]["ShiftFullDayDuration"] = data[i].ShiftFullDayDuration;
+                            shiftchange.Tables[0].Rows[0]["ShiftHalfDayDuration"] = data[i].ShiftHalfDayDuration;
+                            shiftchange.Tables[0].Rows[0]["ShiftOutTime"] = data[i].ShiftOutTime;
+                            shiftchange.Tables[0].Rows[0]["ShiftInTime"] = data[i].ShiftInTime;
+                            shiftchange.Tables[0].Rows[0]["ManualByWhom"] = identity.Name;
+                            shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
+                            shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
+                            shiftchange.Tables[0].Rows[0].EndEdit();
                         }
-
-
-
-
-
-
-
-
                         #endregion change shift
-
                     }
 
-                    #region manual Attendance
+                    #region In/Out 
 
-                    DataSet dsManualAttendance = null;
 
                     if (data[i].InDate + data[i].InTime != data[i].InDateOriginal + data[i].InTimeOriginal
                         || data[i].OutDate + data[i].OutTime != data[i].OutDateOriginal + data[i].OutTimeOriginal)
                     {
-                        con = new ConnectionManager.clsConnection();
-                        con.BeginTransaction();
-                        con.getDataSet(@"SELECT * FROM AttdnManualData AS SA WHERE SA.EmpSystemID = '" + data[i].Id + "' AND sa.WorkDate = '" + data[i].WorkDate + "'", out dsManualAttendance);
-                        con.CommitTransaction();
+                        
 
                         if (data[i].InTime == null && data[i].OutTime == null)
                         {
 
-                            if (dsManualAttendance.Tables[0].Rows.Count > 0)
-                            {
-                                if (string.IsNullOrEmpty(dsManualAttendance.Tables[0].Rows[0]["DayStatus"].ToString()) == true)
-                                {
-                                    dsManualAttendance.Tables[0].Rows[0].Delete();
-                                }
-                            }
+                          
                         }
                         else
                         {
-                            if (dsManualAttendance.Tables[0].Rows.Count > 0)
+                            if (shiftchange.Tables[0].Rows.Count > 0)
                             {
 
-                                DataRow dr = dsManualAttendance.Tables[0].Rows[0];
+                                DataRow dr = shiftchange.Tables[0].Rows[0];
 
                                 dr.BeginEdit();
 
-
-
-
-
                                 if (data[i].InDate + data[i].InTime != data[i].InDateOriginal + data[i].InTimeOriginal)
                                 {
                                     dr["InTime"] = DBNull.Value;
+                                    dr["ManualInTime"] = DBNull.Value;
                                     if (string.IsNullOrEmpty(data[i].InTime) == false)
+                                    {
                                         dr["InTime"] = data[i].InDate + " " + data[i].InTime;
+                                        dr["ManualInTime"] = data[i].InDate + " " + data[i].InTime;
+                                        dr["IsManualInTime"] = true;
+                                    }
                                 }
 
                                 if (data[i].OutDate + data[i].OutTime != data[i].OutDateOriginal + data[i].OutTimeOriginal)
                                 {
                                     dr["OutTime"] = DBNull.Value;
+                                    dr["ManualOutTime"] = DBNull.Value;
                                     if (string.IsNullOrEmpty(data[i].OutTime) == false)
+                                    {
                                         dr["OutTime"] = data[i].OutDate + " " + data[i].OutTime;
+                                        dr["ManualOutTime"] = data[i].OutDate + " " + data[i].OutTime;
+                                        dr["IsManualOutTime"] = true;
+                                    }
                                 }
 
-                                dr["UpdatedBy"] = identity.Name;
-                                dr["DateUpdated"] = System.DateTime.Now;
-
-
+                                dr["ManualByWhom"] = identity.Name;
+                                dr["ManualEntryTime"] = DateTime.Now;
+                                dr["ManualFlag"] = true;
                                 dr.EndEdit();
                             }
-                            else
-                            {
-
-                                DataRow dr = dsManualAttendance.Tables[0].NewRow();
-
-                                dr["EmpSystemID"] = data[i].Id;
-                                dr["WorkDate"] = data[i].WorkDate;
-                                dr["GroupID"] = identity.CompanyGroupId;
-                                dr["PlantID"] = identity.PlantId;
-
-                                if (data[i].InDate + data[i].InTime != data[i].InDateOriginal + data[i].InTimeOriginal)
-                                {
-                                    dr["InTime"] = DBNull.Value;
-                                    if (string.IsNullOrEmpty(data[i].InTime) == false)
-                                        dr["InTime"] = data[i].InDate + " " + data[i].InTime;
-                                }
-
-                                if (data[i].OutDate + data[i].OutTime != data[i].OutDateOriginal + data[i].OutTimeOriginal)
-                                {
-                                    dr["OutTime"] = DBNull.Value;
-                                    if (string.IsNullOrEmpty(data[i].OutTime) == false)
-                                        dr["OutTime"] = data[i].OutDate + " " + data[i].OutTime;
-                                }
-
-
-                                dr["UpdatedBy"] = identity.Name;
-                                dr["DateUpdated"] = System.DateTime.Now;
-                                dr["AddedBy"] = identity.Name;
-                                dr["DateAdded"] = System.DateTime.Now;
-
-                                dsManualAttendance.Tables[0].Rows.Add(dr);
-
-
-
-                            }
+                           
                         }
                     }
-                    #endregion manual Attendance
-
-                    if (dsManualAttendance != null)
-                    {
-                        if (dsManualAttendance.Tables[0].DefaultView.Count > 0)
-                        {
-                            if (string.IsNullOrEmpty(dsManualAttendance.Tables[0].DefaultView[0]["DayStatus"].ToString()) == true
-                                && string.IsNullOrEmpty(dsManualAttendance.Tables[0].DefaultView[0]["InTime"].ToString()) == true
-                                 && string.IsNullOrEmpty(dsManualAttendance.Tables[0].DefaultView[0]["OutTime"].ToString()) == true)
-                            {
-                                dsManualAttendance.Tables[0].DefaultView[0].Delete();
-                            }
-                        }
-                    }
-
-                   objStatic.SaveDataSets(dsDailyShiftAssignment, dsManualAttendance);
-
-
-                  
+                    #endregion 
+                   
+                   objStatic.SaveDataSets(shiftchange);                  
 
 
                 }
@@ -671,8 +434,6 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
-
-
 
         private DataTable getDateWiseShift(List<AttendanceProcessNewProcess> data)
         {
@@ -692,20 +453,27 @@ namespace Aplos.Areas.HumanResource.Controllers
            
             string sql = @" SELECT dt.WorkDate,
  
-                           sd.SystemID,
-                            sd.InTimeStartMargin, sd.IsActive, sd.DefaultShift, sd.SequenceNo, 
+                           sd.SystemID,                            
                             sd.UserName AS ShiftName,
                             format(kk.ShiftInTime,'dd-MMM-yyyy hh:mm:ss tt') AS ShiftInTime,
                             format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt') ShiftOutTime
-
-                         FROM
+                            ,kk.ShiftShortDuration,kk.ShiftHalfDayDuration,kk.ShiftHoursWithoutOt,kk.ShiftFullDayDuration,
+                            kk.ShiftDuration
+                       
+                        FROM
                          (" + dateString + @") AS DT
 					    LEFT OUTER JOIN
 						(
                             SELECT 
                             sd.SystemID,dt.WorkDate,
 		                           	DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),dt.WorkDate))  AS ShiftInTime,
-		                            DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),dt.WorkDate))  AS ShiftOutTime
+		                            DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),dt.WorkDate))  AS ShiftOutTime,
+                                    isnull(stcm.ShortDuration,sd.ShortDuration) as ShiftShortDuration,
+		                            isnull(stcm.HalfDayDuration,sd.HalfDayDuration) as ShiftHalfDayDuration,
+						            isnull(stcm.HoursWithoutOT,sd.HoursWithoutOT) as ShiftHoursWithoutOt,
+						            isnull(stcm.FullDayDuration,sd.FullDayDuration) as ShiftFullDayDuration,
+                                    isnull(stcm.ShiftDuration,sd.ShiftDuration) as ShiftDuration
+                            
                              FROM 
                              
                               (" + dateString + @") AS DT
@@ -719,6 +487,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             return _sqlRepository.GetDataTable(sql);
         }
+        
         private string stringAttendanceData(string employeeid, string fromdate, string todate, string entityids)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -757,7 +526,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             format(KK.OutTime,'hh:mm tt') AS  OutTime, format(KK.OutTime,'hh:mm tt') AS  OutTimeOriginal, 
 
 
-                            KK.IsManualOutTime,
+                            KK.IsManualOutTime,KK.DayStatusCode,
 
                             format(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt') AS PunchInTime,
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
@@ -774,7 +543,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 		                            O.OutTime, O.IsManualOutTime,
        
 		                            O.PunchInTime,O.PunchOutTime,
-		                            O.DayStatus, O.OTHr, O.IsOTComfirm,
+		                            O.DayStatus, O.OTHr, O.IsOTComfirm,O.DayStatusCode,
 		                            O.IsOTEntitled,O.IsManualDayStatus
 
 		                            FROM EmployeeInformation EMP
