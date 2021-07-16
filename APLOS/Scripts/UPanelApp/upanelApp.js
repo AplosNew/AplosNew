@@ -25,6 +25,7 @@ var upanelApp = angular
     .controller("attendanceProcessDataController", attendanceProcessDataController)
     .controller("attendanceProcessDataNewController", attendanceProcessDataNewController)
     .controller("attendanceProcessDataEntityWiseController", attendanceProcessDataEntityWiseController)
+    .controller("attendanceProcessDataEntityWiseNewController", attendanceProcessDataEntityWiseNewController)
     .controller("attendanceReportController", attendanceReportController)
     .controller("attendanceSlipController", attendanceSlipController)
     .controller("balanceSheetDetailsReportController", BalanceSheetDetailsReportController)
