@@ -84,14 +84,13 @@ namespace Aplos.Areas.HumanResource.Controllers
     
                         WHERE emp.PlantId='" + identity.PlantId + @"' AND o.WorkDate BETWEEN '" + fromdate + @"' AND '" + todate + @"'
     order by EmployeeCodePreFix,EmployeeCodeNumeric
-      
+
                     ";
 
             var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
-
         [HttpPost]
         public ActionResult getAttendanceData(string employeeid, string fromdate, string todate)
         {
@@ -150,7 +149,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ManualAttndFromAppService mau = new ManualAttndFromAppService(identity, _sqlRepository);
-            RTx _rt = mau.Save(data);
+            RTx _rt = mau.Savex(data);
 
             if (_rt.IsError)
             {
