@@ -26,14 +26,15 @@ using Library.HumanResource.NewAttendanceProcess;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
-    public class ManualShiftNewController : BaseController
+    public class AttendanceProcessDataNewController : BaseController
     {
+        
         #region Constructor
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
 
 
-        public ManualShiftNewController(IUnitOfWork U, ISqlRepository R)
+        public AttendanceProcessDataNewController(IUnitOfWork U, ISqlRepository R)
         {
 
             _unitOfWork = U;
@@ -43,6 +44,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         #endregion Constructor
         #region -- Pages
 
+        [Authorize]
         public ActionResult Aplos()
         {
             return View();
@@ -90,8 +92,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             return jsondata;
         }
 
-
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult getAttendanceData(string employeeid, string fromdate, string todate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -105,19 +106,18 @@ namespace Aplos.Areas.HumanResource.Controllers
             return jsondata;
         }
 
-
         [HttpPost, Authorize]
         public ActionResult getShift(string systemid, string WorkDate)
         {
             try
             {
 
-             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;           
-             ManualAttndFromAppService mau = new ManualAttndFromAppService(identity, _sqlRepository);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ManualAttndFromAppService mau = new ManualAttndFromAppService(identity, _sqlRepository);
 
-             return Json(mau.GetShiftData(systemid,WorkDate), JsonRequestBehavior.AllowGet);
+                return Json(mau.GetShiftData(systemid, WorkDate), JsonRequestBehavior.AllowGet);
 
-          
+
             }
             catch (Exception ex)
             {
@@ -126,10 +126,13 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
-       
+      
         [HttpPost, Authorize]
         public ActionResult getAttendance(string empsystemid, string WorkDate)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
             string sql = @"SELECT 
                             FORMAT(pdate,'dd-MMM-yyyy') AS PDate,FORMAT(ptime,'hh:mm:ss tt') AS PTime,PType
 
@@ -179,7 +182,6 @@ namespace Aplos.Areas.HumanResource.Controllers
                 objCon = null;
             }
         }//End Function
-
 
         private string stringAttendanceData(string employeeid, string fromdate, string todate)
         {
