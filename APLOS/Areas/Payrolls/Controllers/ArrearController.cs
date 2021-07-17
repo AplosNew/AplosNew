@@ -131,12 +131,12 @@ namespace Aplos.Areas.Payrolls.Controllers
         [HttpPost, Authorize]
         public async Task<JsonResult> ProcessAll(string FromDate, string ToDate, string pDescription, AllDataset palldataset)
         {
-
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Library.General.Setups.ProcessLock _lock = new Library.General.Setups.ProcessLock(identity.Name, Library.General.Setups.ProcessLockId.ArrearProcess, "", 60);
+            _lock.LockProcess();
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.General.Setups.ProcessLock _lock = new Library.General.Setups.ProcessLock(identity.Name, Library.General.Setups.ProcessLockId.ArrearProcess, "", 60);
-                _lock.LockProcess();
+               
 
                 List<Tuple<string, string>> MonthList = new List<Tuple<string, string>>();
                 //construct fromtodates for each month
@@ -144,6 +144,19 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                 string ArrearFromDate = FromDate;
                 string ArrearToDate = ToDate;
+
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery(@"DELETE FROM ArrearProcChild WHERE SlrProcMstSystemID IN (SELECT SystemID FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
+                con.executeQuery(@"DELETE FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate) OR  (FromDate BETWEEN '"+ ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "')");
+                con.CommitTransaction();
+
+
+                con = new ConnectionManager.clsConnection();
+                con.getDataSet("select * from ArrearProcMaster M where M.Description='" + pDescription.Trim() + @"'", out DataSet dsLocal);
+                if (dsLocal.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same description has been used in another arrear process. Please change your description");
 
                 do
                 {
@@ -163,7 +176,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     //there will be a loop for months and years
                     try
                     {
-
+                        string BatchNo = System.DateTime.Now.Ticks.ToString();
 
                         for (int i = 0; i < MonthList.Count; i++)
                         {
@@ -279,7 +292,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 //get ds
                                 #endregion
 
-                                ProcessMain(para, ArrearFromDate, ArrearToDate, _currencyId, alldataset);//pass ds
+                                ProcessMain(para, BatchNo, ArrearFromDate, ArrearToDate, _currencyId, alldataset);//pass ds
 
 
                                 #region MLVR
@@ -301,7 +314,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     para2.dsGrid = dsGrid;
 
                                     SendNotification("Processing MLV");
-                                    ProcessMLV(para2, ArrearFromDate, ArrearToDate, _mlvr_emps, _currencyId, alldataset);
+                                    ProcessMLV(para2, BatchNo, ArrearFromDate, ArrearToDate, _mlvr_emps, _currencyId, alldataset);
                                 }
                                 #endregion
 
@@ -337,6 +350,8 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
             catch (Exception ex)
             {
+                requestCancelled = true;
+                _lock.UnlockProcess();
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
@@ -675,7 +690,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 throw ex;
             }
         }
-        void ProcessMain(FunctionPara para, string ArrearFromDate, string ArrearToDate, string _currencyId, AllDataset allds)
+        void ProcessMain(FunctionPara para, string BatchNo, string ArrearFromDate, string ArrearToDate, string _currencyId, AllDataset allds)
         {
             try
             {
@@ -695,7 +710,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 para.ParaSalaryHeadWiseDailyService = (ISalaryHeadWiseDailyService)new SalaryHeadWiseDailyService();
 
                 clsSalaryProcessAplosArrear obj = new clsSalaryProcessAplosArrear();
-                FunctionPara m = obj.SalaryProcess(para, ArrearFromDate, ArrearToDate);
+                FunctionPara m = obj.SalaryProcess(para, BatchNo, ArrearFromDate, ArrearToDate);
 
 
             }
@@ -761,7 +776,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 throw ex;
             }
         }
-        void ProcessMLV(FunctionPara para, string ArrearFromDate, string ArrearToDate, string _mlvr_emps, string _currencyId, AllDataset allds)
+        void ProcessMLV(FunctionPara para, string BatchNo, string ArrearFromDate, string ArrearToDate, string _mlvr_emps, string _currencyId, AllDataset allds)
         {
             try
             {
@@ -781,7 +796,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 para.IsMaternityReturn = true;
                 //para. = lblEmpCount.Text;
                 clsSalaryProcessAplosArrear obj = new clsSalaryProcessAplosArrear();
-                FunctionPara m = obj.SalaryProcess(para, ArrearFromDate, ArrearToDate);
+                FunctionPara m = obj.SalaryProcess(para, BatchNo, ArrearFromDate, ArrearToDate);
                 #endregion
 
                 #region Save Log TBD
