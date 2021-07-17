@@ -707,6 +707,8 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
 
     //#region PopUp for salary Head
     $scope.SalaryHeadName = null;
+    $scope.SalaryHeadType = null;
+    $scope.SalaryHeadTransactionType = null;
     $scope.SalaryHeadId = null;
     $scope.SalaryHeadGlList = [];
     $scope.SalaryHeadGlListByAccountGroup = [];
@@ -723,14 +725,43 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
     $scope.closeEmployeePopUp = function () {
         angular.element(document.querySelector('#SalaryHeadNewPopUp')).modal('hide');
     };
+    $scope.DrDisable = false;
+    $scope.CrDisable = false;
     $scope.setData = function (obj) {
-        $scope.Clear();
-        //var data = obj.data;
-        $scope.SalaryHeadName = obj.data.SalaryHead;
-        $scope.SalaryHeadId = obj.data.SalaryHeadID;
+        try {
 
-        angular.element(document.querySelector('#SalaryHeadNewPopUp')).modal('hide');
-        $scope.GetSalaryHeadGl(obj.data.SalaryHeadID);
+            if (obj.data.TransactionType == "Both" || obj.data.TransactionType == "Dr." || obj.data.TransactionType == "Cr.") {
+                $scope.Clear();
+                $scope.SalaryHeadName = obj.data.SalaryHead;
+                $scope.SalaryHeadType = obj.data.HeadType;
+                $scope.SalaryHeadTransactionType = obj.data.TransactionType;
+                $scope.SalaryHeadId = obj.data.SalaryHeadID;
+
+                if ($scope.SalaryHeadTransactionType == "Both") {
+                    $scope.DrDisable = false;
+                    $scope.CrDisable = false;
+                }
+                if ($scope.SalaryHeadTransactionType == "Dr.") {
+                    $scope.DrDisable = false;
+                    $scope.CrDisable = true;
+                }
+                if ($scope.SalaryHeadTransactionType == "Cr.") {
+                    $scope.DrDisable = true;
+                    $scope.CrDisable = false;
+                }
+
+                angular.element(document.querySelector('#SalaryHeadNewPopUp')).modal('hide');
+                $scope.GetSalaryHeadGl(obj.data.SalaryHeadID);
+            }
+            else {
+                throw "Cannot Select this SalaryHead [TransactionType: " + obj.data.TransactionType + "] ";
+            }
+
+            //var data = obj.data;
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
     };
 
     $scope.GetSalaryHeadGl = function (SalaryHeadId) {
@@ -745,7 +776,10 @@ function salaryHeadGLController(cboService, commonMessage, $scope, $rootScope, b
         return true;
     };
     function ClearFields() {
-
+        $scope.SalaryHeadName = null;
+        $scope.SalaryHeadType = null;
+        $scope.SalaryHeadTransactionType = null;
+        $scope.SalaryHeadId = null;
     }
     //#endregion
 
