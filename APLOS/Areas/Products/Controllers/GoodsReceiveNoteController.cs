@@ -3995,7 +3995,21 @@ UNION ALL
 
 
 
+		[Authorize, HttpGet]
+		public JsonResult GetSOWiseMaterialStock(string Material, string Article, string Skuvalue1, string Skuvalue2, string Skuvalue3, string processId, string parameters, string SOMATART,string SalesOrderId)
+		{
+			try 
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+				return Json(obj.GetSOWiseMaterialStock(Material, Article, Skuvalue1, Skuvalue2, Skuvalue3, processId, parameters, SOMATART, SalesOrderId), JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
 
+		}
 
 
 

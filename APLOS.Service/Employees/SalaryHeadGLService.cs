@@ -248,7 +248,7 @@ namespace Library.Service.Employees
                 var pk = GetMaxNumber(nameof(SalaryHeadGL), PKGeneratorEnum.Auto, null, DateTime.Now);
                 foreach (var item in entities)
                 {
-                    var data = Query(r => r.SalaryHeadId == item.SalaryHeadId).Select().FirstOrDefault();
+                    var data = Query(r => r.SalaryHeadId == item.SalaryHeadId && r.AccountsGroupId==item.AccountsGroupId).Select().FirstOrDefault();
                     if (data==null)
                     {
                         pk.MaxNumber++;
@@ -484,11 +484,12 @@ namespace Library.Service.Employees
             }
         }
 
-        public GridModel GetSearchWithCombine(GridParameter parameters, string coaId)
+        public GridModel GetSearchWithCombine(GridParameter parameters, string salaryHeadId)
         {
             try
             {
-                parameters.CmdText = @"SELECT distinct SH.SalaryHeadID,SH.SalaryHead,SH.HeadType,SH.HeadCategory,SGL.DrDirectGLId,SGL.DrDirectBudgetMasterId,SGL.DrDirectActivityId
+                parameters.CmdText = @"SELECT distinct AG.UserName AccountsGroup,AG.Id AccountsGroupId, SH.SalaryHeadId,SH.SalaryHead,SH.HeadType,SH.HeadCategory
+                            ,SGL.DrDirectGLId,SGL.DrDirectBudgetMasterId,SGL.DrDirectActivityId
                             ,SGL.DrInDirectGLId,SGL.DrInDirectBudgetMasterId,SGL.DrInDirectActivityId
                             ,DGL.AccountCode+' - '+DGL.UserName DirectGLName,DB.UserName DirectBudgetName,DA.UserName DirectActivityName 
                             ,IGL.AccountCode+' - '+IGL.UserName InDirectGLName,IB.UserName InDirectBudgetName,IA.UserName InDirectActivityName 
@@ -500,8 +501,9 @@ namespace Library.Service.Employees
 	                        ,SGL.DrDirectOtherGLCode,SGL.DrDirectOtherGL ,SGL.CrDirectOtherGLCode,SGL.CrDirectOtherGL
 							,SGL.DrInDirectOtherGLCode,SGL.DrInDirectOtherGL ,SGL.CrInDirectOtherGLCode,SGL.CrInDirectOtherGL
 
-                            FROM dbo.SalaryHead SH
-                            LEFT JOIN MST.SalaryHeadGL SGL  ON SH.SalaryHeadID=SGL.SalaryHeadId
+                            From AccountsGroup AG 
+                            LEFT JOIN(SELECT * FROM  MST.SalaryHeadGL WHERE SalaryHeadId='" + salaryHeadId + @"')SGL ON SGL.AccountsGroupId=AG.Id 
+                            LEFT JOIN dbo.SalaryHead SH ON SH.SalaryHeadID=SGL.SalaryHeadId
                             LEFT JOIN HKP.GLGeneralInfo DGL ON DGL.Id=SGL.DrDirectGLId
                             LEFT JOIN MST.BudgetMaster DBM ON DBM.Id=SGL.DrDirectBudgetMasterId
                             LEFT JOIN HKP.Budget DB ON DB.Id=DBM.BudgetId
@@ -519,7 +521,7 @@ namespace Library.Service.Employees
                             LEFT JOIN HKP.Budget CIB ON CIB.Id=CIBM.BudgetId
                             LEFT JOIN HKP.Activity CDA ON CDA.Id=SGL.CrDirectActivityId
                             LEFT JOIN HKP.Activity CIA ON CIA.Id=SGL.CrInDirectActivityId
-                            Where ISNULL(SH.HeadCategory,'') not in ('CTC','Gross','Total Gross')";
+                            Where ISNULL(SH.HeadCategory,'') not in ('CTC','Gross','Total Gross') ";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
@@ -534,7 +536,7 @@ namespace Library.Service.Employees
         {
             try
             {
-                parameters.CmdText = @"SELECT distinct SH.SalaryHeadID,SH.SalaryHead,SH.HeadType,SH.HeadCategory
+                parameters.CmdText = @"SELECT distinct SH.SalaryHeadID,SH.SalaryHead,SH.HeadType,SH.HeadCategory,SH.TransactionType
                                         FROM dbo.SalaryHead SH
                                         Where ISNULL(SH.HeadCategory,'') not in ('CTC','Gross','Total Gross')";
                 return _sqlRepository.GetGridData(parameters);
@@ -551,7 +553,7 @@ namespace Library.Service.Employees
         {
             try
             {
-                var sql = @"SELECT distinct SH.SalaryHeadID,SH.SalaryHead,SH.HeadType,SH.HeadCategory,SGL.DrDirectGLId,SGL.DrDirectBudgetMasterId,SGL.DrDirectActivityId
+                var sql = @"SELECT distinct SH.SalaryHeadId,SH.SalaryHead,SH.HeadType,SH.HeadCategory,SGL.DrDirectGLId,SGL.DrDirectBudgetMasterId,SGL.DrDirectActivityId
                             ,SGL.DrInDirectGLId,SGL.DrInDirectBudgetMasterId,SGL.DrInDirectActivityId
                             ,DGL.AccountCode+' - '+DGL.UserName DirectGLName,DB.UserName DirectBudgetName,DA.UserName DirectActivityName 
                             ,IGL.AccountCode+' - '+IGL.UserName InDirectGLName,IB.UserName InDirectBudgetName,IA.UserName InDirectActivityName 

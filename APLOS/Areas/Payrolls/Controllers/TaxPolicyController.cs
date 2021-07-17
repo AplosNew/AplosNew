@@ -277,6 +277,20 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }
         [HttpGet, Authorize]
+        public ActionResult GetTaxSurchargeMaster(string Master)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IncomeTaxPolicy ep = new IncomeTaxPolicy();
+                return Json(ep.GetTaxSurchargeMaster(Master), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [HttpGet, Authorize]
         public ActionResult GetTaxSurcharge(string Master)
         {
             try
@@ -539,10 +553,14 @@ namespace Aplos.Areas.Payrolls.Controllers
                     {
                         throw new Exception("Inset Details..");
                     }
+                    if (clsStaticInfo.dbl(TaxRebateList[i]["Maximum"]) < clsStaticInfo.dbl(TaxRebateList[i]["Minimum"]))
+                    {
+                        throw new Exception("Maximum Cannot be smaller than Minimum");
+                    }
                 }
                 IncomeTaxPolicy p = new IncomeTaxPolicy();
                 p.SaveTaxRebate(Slab, Master, TaxRebateList);
-               
+
                 return Json(new { Error = false, Data = TaxRebateList, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
@@ -555,47 +573,23 @@ namespace Aplos.Areas.Payrolls.Controllers
         [HttpPost, Authorize]
         public JsonResult SaveTaxSurcharge(List<Dictionary<string, object>> TaxSurchargeList, string Master, TaxRebate Slab)
         {
-            IncomeTaxPolicy p = new IncomeTaxPolicy();
-            p.SaveTaxSurcharge(Slab, Master);
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster;
             try
             {
-                string DetailsId = string.Empty;
-                string sql = "SELECT * FROM [dbo].[TaxSurcharge] WHERE TaxPolicyMasterId='" + Master + "' ";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
-                while (dsMaster.Tables[0].DefaultView.Count > 0)
-                {
-                    dsMaster.Tables[0].DefaultView[0].Delete();
-                }
-
                 for (int i = 0; i < TaxSurchargeList.Count; i++)
                 {
-                    DataRow dr = dsMaster.Tables[0].NewRow();
-                    string sID = string.Empty;
-                    bplib.clsGenID objGenID = new bplib.clsGenID();
-                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[dbo].[TaxRebate]", out sID);
-                    DetailsId = "TR" + sID;
-                    dr["Id"] = DetailsId;
-                    dr["TaxPolicyMasterId"] = Master;
-                    dr["Minimum"] = clsStaticInfo.dbl(TaxSurchargeList[i]["Minimum"]);
-                    dr["Maximum"] = clsStaticInfo.dbl(TaxSurchargeList[i]["Maximum"]);
-                    dr["TaxRate"] = clsStaticInfo.dbl(TaxSurchargeList[i]["TaxRate"]);
-                    //dr["SlabType"] = (IncomeSlab[i]["SlabType"]);
-
-
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = DateTime.Now;
-                    dr["AddedFromIP"] = identity.IPAddress;
-
-                    dsMaster.Tables[0].Rows.Add(dr);
-
+                    if (TaxSurchargeList[i]["Maximum"] == null && TaxSurchargeList[i]["Minimum"] == null)
+                    {
+                        throw new Exception("Inset Details..");
+                    }
+                    if (clsStaticInfo.dbl(TaxSurchargeList[i]["Maximum"]) < clsStaticInfo.dbl(TaxSurchargeList[i]["Minimum"]))
+                    {
+                        throw new Exception("Maximum Cannot be smaller than Minimum");
+                    }
                 }
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster);
+
+                IncomeTaxPolicy p = new IncomeTaxPolicy();
+                p.SaveTaxSurcharge(Slab, Master, TaxSurchargeList);
+
                 return Json(new { Error = false, Data = TaxSurchargeList, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
@@ -740,6 +734,21 @@ namespace Aplos.Areas.Payrolls.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IncomeTaxPolicy p = new IncomeTaxPolicy();
                 p.DeleteTaxRebateDetail(ID);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpPost, Authorize]
+        public JsonResult DeleteTaxSurchargeDetails(string ID)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IncomeTaxPolicy p = new IncomeTaxPolicy();
+                p.DeleteTaxSurchargeDetail(ID);
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

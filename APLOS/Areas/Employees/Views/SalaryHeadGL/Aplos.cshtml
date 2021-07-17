@@ -2,7 +2,7 @@
     <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Salary Head GL
 </h3>
 <div class="form-elements form-horizontal" ng-form name="salaryHeadGLNewForm">
-    <input type="hidden" ng-model="salaryHeadGL.Id">
+    
     <div class="row">
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group" show-errors>
@@ -45,15 +45,15 @@
             <div class="common-btn">
                 <ul class="list-inline text-left">
                     @*<li><button ng-click="getsalaryHeadGLWithCoa('assing');" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-search"></i> All Assign</button></li>
-                        <li>
-                            <button ng-click="getsalaryHeadGLWithCoa('notassing');" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-search"></i> Not Assign</button>
-                        </li>*@
+                    <li>
+                        <button ng-click="getsalaryHeadGLWithCoa('notassing');" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-search"></i> Not Assign</button>
+                    </li>*@
                     <li>
                         <button ng-click="getsalaryHead();" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-search"></i> Salary Head</button>
                     </li>
                     @*<li>
-                            <button ng-click="getsalaryHeadGLWithCoa('all');" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-search"></i> All</button>
-                        </li>*@
+                        <button ng-click="getsalaryHeadGLWithCoa('all');" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-search"></i> All</button>
+                    </li>*@
 
                     <li>
                         <button ng-click="getSalaryHeadGlReport();" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button>
@@ -62,7 +62,16 @@
                 </ul>
             </div>
         </div>
-
+        <div class="col-sm-12">
+            <div class="col-sm-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Salary Head<sup>*</sup></label>
+                    <label class="col-sm-8 control-label">{{SalaryHeadName}}</label>
+                </div>
+            </div>
+            <div class="col-sm-6">
+            </div>
+        </div>
 
 
         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -76,67 +85,122 @@
         </div>
     </div>
     <div class="row">
-        <!--<div>
+        <div>
         <div class="col-sm-12">
-            <div class="table-responsive modal-table" ng-show="selectsalaryHeadGLWithCombineList.length">
+            <div class="table-responsive modal-table" ng-show="SalaryHeadGlListByAccountGroup.length">
                 <br />
 
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th rowspan="2">Apply</th>
+                            <th rowspan="2">Accounts Group</th>
                             <th style="vertical-align: middle; text-align:center" rowspan="2">Salary Head</th>
                             <th style="vertical-align: middle; text-align:center" rowspan="2">HeadCategory</th>
                             <th style="vertical-align: middle; text-align:center" rowspan="2">HeadType</th>
                             <th style="vertical-align: middle; text-align:center" rowspan="2">Payable Group</th>
-                            <th style="text-align:center" colspan="3">Dr Direct GL</th>
-                            <th style="text-align:center" colspan="3">Cr Direct GL</th>
-                            <th style="text-align:center" colspan="3">Dr InDirect GL</th>
-                            <th style="text-align:center" colspan="3">Cr InDirect GL</th>
+                            <th style="text-align:center" colspan="4">Dr Direct GL</th>
+                            <th style="text-align:center" colspan="4">Cr Direct GL</th>
+                            <th style="text-align:center" colspan="4">Dr InDirect GL</th>
+                            <th style="text-align:center" colspan="4">Cr InDirect GL</th>
                             <th style="vertical-align: middle; text-align:center" rowspan="2"> Untag</th>
                         </tr>
                         <tr>
                             <th>GL</th>
                             <th>Budget</th>
                             <th>Activity</th>
+                            <th></th>
                             <th>GL</th>
                             <th>Budget</th>
                             <th>Activity</th>
+                            <th></th>
                             <th>GL</th>
                             <th>Budget</th>
                             <th>Activity</th>
+                            <th></th>
                             <th>GL</th>
                             <th>Budget</th>
                             <th>Activity</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr dir-paginate="x in selectsalaryHeadGLWithCombineList|itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'selectsalaryHeadGLWithCombineList'" total-items="$root.total_count">
+                        <tr dir-paginate="x in SalaryHeadGlListByAccountGroup|itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'selectsalaryHeadGLWithCombineList'" total-items="$root.total_count">
 
-                            <td>
-                                <div class="checkbox-site">
-                                    <label class="control-label">
-                                        <input type="checkbox" id="{{x.SalaryHeadID}}" ng-model="x.Flag" ng-checked="x.Flag" ng-click="selectChValueId($event,x.SalaryHeadID,x)">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
-                                </div>
-                            </td>
+                            <td>{{x.AccountsGroup}}</td>
                             <td>{{x.SalaryHead}}</td>
                             <td>{{x.HeadCategory}}</td>
                             <td>{{x.HeadType}}</td>
                             <td>{{x.SalaryPayableGroup}}</td>
-                            <td>{{x.DirectGLName}}</td>
+                            <td>
+                                {{x.DirectGLName}}
+                            </td>
+
                             <td>{{x.DirectBudgetName}}</td>
                             <td>{{x.DirectActivityName}}</td>
-                            <td>{{x.CrDirectGLName}}</td>
+                            <td>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li>
+                                            <button name="submit" class="single-btn" ng-click="GetDirectGLList($index);"><i class="fa fa-search"></i></button>
+                                        </li>
+                                        <li>
+                                            <button ng-click="refreshDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <td>
+                                {{x.CrDirectGLName}}
+                            </td>
                             <td>{{x.CrDirectBudgetName}}</td>
                             <td>{{x.CrDirectActivityName}}</td>
-                            <td>{{x.InDirectGLName}}</td>
+                            <td>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li>
+                                            <button name="submit" class="single-btn" ng-click="GetCrDirectGLList($index);"><i class="fa fa-search"></i></button>
+                                        </li>
+                                        <li>
+                                            <button ng-click="refreshCrDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <td>
+                                {{x.InDirectGLName}}
+                            </td>
                             <td>{{x.InDirectBudgetName}}</td>
                             <td>{{x.InDirectActivityName}}</td>
-                            <td>{{x.CrInDirectGLName}}</td>
+                            <td>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li>
+                                            <button name="submit" class="single-btn" ng-click="GetInDirectList($index);"><i class="fa fa-search"></i></button>
+                                        </li>
+                                        <li>
+                                            <button ng-click="refreshInDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <td>
+                                {{x.CrInDirectGLName}}
+                                
+                            </td>
                             <td>{{x.CrInDirectBudgetName}}</td>
                             <td>{{x.CrInDirectActivityName}}</td>
+                            <td>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li>
+                                            <button name="submit" class="single-btn" ng-click="GetCrInDirectList($index);"><i class="fa fa-search"></i></button>
+                                        </li>
+                                        <li>
+                                            <button ng-click="refreshCrInDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
                             <td class="text-center">
                                 <ul class="list-inline action-list">
                                     <li><button ng-disabled="x.Id ===null" ng-click="editSalaryGL(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button></li>
@@ -154,437 +218,11 @@
                 </dir-pagination-controls>
             </div>
         </div>
-        <div class="col-xs-12">
-            <br /><br />
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                <fieldset class="scheduler-border">
-                    <legend class="scheduler-border">Dr Direct</legend>
-
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">GL</label>
-                        <div class="col-sm-6 pdr3">
-                            <input type="text" class="form-control col-sm-6" ng-model="DirectGLInfo" readonly>
-                        </div>
-                        <button name="submit" class="single-btn" ng-click="GetDirectGLList();"><i class="fa fa-search"></i></button>
-                        <button ng-click="refreshDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">Budget</label>
-                        <div class="col-sm-8">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="salaryHeadGL.DrDirectBudgetMasterId"
-                                        ng-options="item.BudgetMasterId as item.BudgetName for item in DirectBudgetList" id="BudgetId"
-                                        name="Budget" tabindex="1" ng-change="getDirectActivity()">
-                                    <option></option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">Activity</label>
-                        <div class="col-sm-8">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="salaryHeadGL.DrDirectActivityId"
-                                        ng-options="item.ActivityId as item.ActivityName for item in DirectActivityList" id="ActivityId"
-                                        name="Activity" tabindex="1">
-                                    <option></option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-3 control-label">Other GL Code<sup></sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="User Name" ng-model="salaryHeadGL.DrDirectOtherGLCode" class="form-control"-->
-        @*required tabindex="5"*@
-        <!--maxlength="20">
-            </div>
+        
+                   
+       
+      
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Other GL<sup></sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="User Name" ng-model="salaryHeadGL.DrDirectOtherGL" class="form-control"-->
-        @* required tabindex="5"*@
-        <!--maxlength="50">
-                    </div>
-                </div>
-
-            </fieldset>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Dr In Direct </legend>
-
-
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">GL</label>
-                    <div class="col-sm-6 pdr3">
-                        <input type="text" class="form-control col-sm-6" ng-model="InDirectGLInfo" readonly>
-                    </div>
-                    <button name="submit" class="single-btn" ng-click="GetInDirectList();"><i class="fa fa-search"></i></button>
-                    <button ng-click="refreshInDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">Budget</label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="salaryHeadGL.DrInDirectBudgetMasterId"
-                                    ng-options="item.BudgetMasterId as item.BudgetName for item in InDirectBudgetList" id="BudgetId"
-                                    name="Budget" tabindex="1" ng-change="getInDirectActivity()">
-                                <option></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">Activity</label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="salaryHeadGL.DrInDirectActivityId"
-                                    ng-options="item.ActivityId as item.ActivityName for item in InDirectActivityList" id="ActivityId"
-                                    name="Activity" tabindex="1">
-                                <option></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="form-group" show-errors>
-                    <label class="col-sm-3 control-label">Other GL Code<sup></sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="User Name" ng-model="salaryHeadGL.DrInDirectOtherGLCode" class="form-control"-->
-        @* required tabindex="5"*@
-        <!--maxlength="20">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Other GL<sup></sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="User Name" ng-model="salaryHeadGL.DrInDirectOtherGL" class="form-control"-->
-        @* required tabindex="5"*@
-        <!--maxlength="50">
-                    </div>
-                </div>
-            </fieldset>
-
-
-        </div>
-        <div class="clearfix"></div>
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Cr Direct</legend>
-
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">GL</label>
-                    <div class="col-sm-6 pdr3">
-                        <input type="text" class="form-control col-sm-6" ng-model="CrDirectGLInfo" readonly>
-                    </div>
-                    <button name="submit" class="single-btn" ng-click="GetCrDirectGLList();"><i class="fa fa-search"></i></button>
-                    <button ng-click="refreshCrDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">Budget</label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="salaryHeadGL.CrDirectBudgetMasterId"
-                                    ng-options="item.BudgetMasterId as item.BudgetName for item in CrDirectBudgetList" id="BudgetId"
-                                    name="Budget" tabindex="1" ng-change="getCrDirectActivity()">
-                                <option></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">Activity</label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="salaryHeadGL.CrDirectActivityId"
-                                    ng-options="item.ActivityId as item.ActivityName for item in CrDirectActivityList" id="ActivityId"
-                                    name="Activity" tabindex="1">
-                                <option></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="form-group" show-errors>
-                    <label class="col-sm-3 control-label">Other GL Code<sup></sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="User Name" ng-model="salaryHeadGL.CrDirectOtherGLCode" class="form-control"-->
-        @* required tabindex="5"*@
-        <!--maxlength="20">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Other GL<sup></sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="User Name" ng-model="salaryHeadGL.CrDirectOtherGL" class="form-control"-->
-        @* required tabindex="5"*@
-        <!--maxlength="50">
-                    </div>
-                </div>
-            </fieldset>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Cr In Direct </legend>
-
-
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">GL</label>
-                    <div class="col-sm-6 pdr3">
-                        <input type="text" class="form-control col-sm-6" ng-model="CrInDirectGLInfo" readonly>
-                    </div>
-                    <button name="submit" class="single-btn" ng-click="GetCrInDirectList();"><i class="fa fa-search"></i></button>
-                    <button ng-click="refreshCrInDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">Budget</label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="salaryHeadGL.CrInDirectBudgetMasterId"
-                                    ng-options="item.BudgetMasterId as item.BudgetName for item in CrInDirectBudgetList" id="BudgetId"
-                                    name="Budget" tabindex="1" ng-change="getCrInDirectActivity()">
-                                <option></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">Activity</label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="salaryHeadGL.CrInDirectActivityId"
-                                    ng-options="item.ActivityId as item.ActivityName for item in CrInDirectActivityList" id="ActivityId"
-                                    name="Activity" tabindex="1">
-                                <option></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="form-group" show-errors>
-                    <label class="col-sm-3 control-label">Other GL Code<sup></sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="User Name" ng-model="salaryHeadGL.CrInDirectOtherGLCode" class="form-control"-->
-        @* required tabindex="5"*@
-        <!--maxlength="20">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Other GL<sup></sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="User Name" ng-model="salaryHeadGL.CrInDirectOtherGL" class="form-control"-->
-        @* required tabindex="5"*@
-        <!--maxlength="50">
-                            </div>
-                        </div>
-                    </fieldset>
-
-
-                </div>
-            </div>
-        </div>-->
-        <div class="col-sm-12">
-            <div class="col-sm-6">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Salary Head<sup>*</sup></label>
-                    <label class="col-sm-8 control-label">{{SalaryHeadName}}</label>
-                </div>
-            </div>
-            <div class="col-sm-6">
-            </div>
-        </div>
-        @*<div class="col-sm-12">*@
-        <div class="table-responsive modal-table col-xs-12" ng-show="SalaryHeadGlListByAccountGroup.length">
-            <br />
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th rowspan="2">Accounts Group</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Dr Direct </th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Dr Direct Budget</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Dr Direct Activity</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Dr Direct Other</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Dr Direct Other Code</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Cr Direct</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Cr Direct Budget</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Cr Direct Activity</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Cr Direct Other</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Cr Direct Other Code</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Dr InDirect </th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Dr InDirect Budget</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Dr InDirect Activity</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Dr InDirect Other</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Dr InDirect Other Code</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Cr InDirect</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Cr InDirect Budget</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Cr InDirect Activity</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Cr InDirect Other</th>
-                        <th style="vertical-align: middle; text-align:center" rowspan="2">Cr InDirect Other Code</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @*<tr ng-repeat="x in SalaryHeadGlListByAccountGroup">*@
-                    <tr dir-paginate="x in SalaryHeadGlListByAccountGroup|itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'SalaryHeadGlListByAccountGroup'" total-items="$root.total_count">
-                        <td>{{x.AccountsGroup}}</td>
-                        <td>
-                            <input type="text" class="form-control col-sm-6" ng-model="x.DirectGLInfo" readonly>
-                            <div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li>
-                                        <button name="submit" class="single-btn" ng-click="GetDirectGLList($index);"><i class="fa fa-search"></i></button>
-                                    </li>
-                                    <li>
-                                        <button ng-click="refreshDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="select-style">
-                                <select class="form-control" ng-change="getDirectActivity(x.DrDirectBudgetMasterId)" ng-model="x.DrDirectBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in DirectBudgetList| filter:{ GLGeneralInfoId: x.DrDirectGLId }:true"></select>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="select-style">
-                                <select class="form-control" ng-model="x.DrDirectActivityId"
-                                        ng-options="item.ActivityId as item.ActivityName for item in DirectActivityList | filter:{ BudgetMasterId: x.DrDirectBudgetMasterId }:true" id="ActivityId"
-                                        name="Activity" tabindex="1">
-                                    <option></option>
-                                </select>
-                            </div>
-                        </td>
-                        <td><input type="text" name="User Name" ng-model="x.DrDirectOther" class="form-control"></td>
-                        <td><input type="text" name="User Name" ng-model="x.DrDirectOtherGLCode" class="form-control"></td>
-                        <td>
-                            <input type="text" class="form-control col-sm-6" ng-model="x.CrDirectGLInfo" readonly>
-                            <div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li>
-                                        <button name="submit" class="single-btn" ng-click="GetCrDirectGLList($index);"><i class="fa fa-search"></i></button>
-                                    </li>
-                                    <li>
-                                        <button ng-click="refreshCrDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="select-style">
-                                <select class="form-control" ng-model="x.CrDirectBudgetMasterId"
-                                        ng-options="item.BudgetMasterId as item.BudgetName for item in CrDirectBudgetList| filter:{ GLGeneralInfoId: x.CrDirectGLId }:true" id="BudgetId"
-                                        name="Budget" tabindex="1" ng-change="getCrDirectActivity(x.CrDirectBudgetMasterId)">
-                                    <option></option>
-                                </select>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="select-style">
-                                <select class="form-control" ng-model="x.CrDirectActivityId"
-                                        ng-options="item.ActivityId as item.ActivityName for item in CrDirectActivityList| filter:{ BudgetMasterId: x.CrDirectBudgetMasterId }:true" id="ActivityId"
-                                        name="Activity" tabindex="1">
-                                    <option></option>
-                                </select>
-                            </div>
-
-                        </td>
-                        <td>
-                            <input type="text" name="User Name" ng-model="x.CrDirectOther" class="form-control">
-                        </td>
-                        <td>
-                            <input type="text" name="User Name" ng-model="x.CrDirectOtherGLCode" class="form-control" -->
-                        </td>
-                        <td>
-                            <input type="text" class="form-control col-sm-6" ng-model="x.InDirectGLInfo" readonly>
-                            <div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li>
-                                        <button name="submit" class="single-btn" ng-click="GetInDirectList($index);"><i class="fa fa-search"></i></button>
-                                    </li>
-                                    <li>
-                                        <button ng-click="refreshInDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="select-style">
-                                <select class="form-control" ng-model="x.DrInDirectBudgetMasterId"
-                                        ng-options="item.BudgetMasterId as item.BudgetName for item in InDirectBudgetList| filter:{ GLGeneralInfoId: x.DrInDirectGLId }:true" id="BudgetId"
-                                        name="Budget" tabindex="1" ng-change="getInDirectActivity(x.DrInDirectBudgetMasterId)">
-                                    <option></option>
-                                </select>
-                            </div>
-
-                        </td>
-                        <td>
-                            <div class="select-style">
-                                <select class="form-control" ng-model="x.DrInDirectActivityId"
-                                        ng-options="item.ActivityId as item.ActivityName for item in InDirectActivityList| filter:{ BudgetMasterId: x.DrInDirectBudgetMasterId }:true" id="ActivityId"
-                                        name="Activity" tabindex="1">
-                                    <option></option>
-                                </select>
-                            </div>
-                        </td>
-                        <td>
-                            <input type="text" name="User Name" ng-model="x.DrInDirectOther" class="form-control">
-                        </td>
-                        <td>
-                            <input type="text" name="User Name" ng-model="x.DrInDirectOtherGL" class="form-control">
-                        </td>
-                        <td>
-                            <input type="text" class="form-control col-sm-6" ng-model="x.CrInDirectGLInfo" readonly>
-                            <div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li>
-                                        <button name="submit" class="single-btn" ng-click="GetCrInDirectList($index);"><i class="fa fa-search"></i></button>
-                                    </li>
-                                    <li>
-                                        <button ng-click="refreshCrInDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="select-style">
-                                <select class="form-control" ng-model="x.CrInDirectBudgetMasterId"
-                                        ng-options="item.BudgetMasterId as item.BudgetName for item in CrInDirectBudgetList| filter:{ GLGeneralInfoId: x.CrInDirectGLId }:true" id="BudgetId"
-                                        name="Budget" tabindex="1" ng-change="getCrInDirectActivity(x.CrInDirectBudgetMasterId)">
-                                    <option></option>
-                                </select>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="select-style">
-                                <select class="form-control" ng-model="x.CrInDirectActivityId"
-                                        ng-options="item.ActivityId as item.ActivityName for item in CrInDirectActivityList| filter:{ BudgetMasterId: x.CrInDirectBudgetMasterId }:true" id="ActivityId"
-                                        name="Activity" tabindex="1">
-                                    <option></option>
-                                </select>
-                            </div>
-
-                        </td>
-                        <td>
-                            <input type="text" name="User Name" ng-model="x.CrInDirectOther" class="form-control" />
-                        </td>
-                        <td>
-                            <input type="text" name="User Name" ng-model="x.CrInDirectOtherGLCode" class="form-control" />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <dir-pagination-controls max-size="10"
-                                     pagination-id="metaData.name + 'SalaryHeadGlListByAccountGroup'"
-                                     direction-links="true"
-                                     boundary-links="true">
-            </dir-pagination-controls>
-        </div>
-        @*</div>*@
 
 
         <div class="col-xs-12">
@@ -636,6 +274,9 @@
                             <tr>
                                 <th>Account Group </th>
                                 <th>GL </th>
+                                <th>Budget </th>
+                                <th>Activity </th>
+                                <th>RefNo </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -644,6 +285,9 @@
                                 ng-click="setDirectGLSelected(x)" ng-dblclick="closeDirectGLListPopUpSelected()" ng-class="{selected : x.GLGeneralInfoCode === rowSelected}">
                                 <td>{{x.AccountGroupName}}</td>
                                 <td>{{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td>{{x.RefNo}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -703,6 +347,9 @@
                             <tr>
                                 <th>Account Group </th>
                                 <th>GL </th>
+                                <th>Budget </th>
+                                <th>Activity </th>
+                                <th>RefNo </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -711,6 +358,9 @@
                                 ng-click="setCrDirectGLSelected(x)" ng-dblclick="closeCrDirectGLListPopUpSelected()" ng-class="{selected : x.GLGeneralInfoCode === CRDrowSelected}">
                                 <td>{{x.AccountGroupName}}</td>
                                 <td>{{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td>{{x.RefNo}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -769,6 +419,9 @@
                             <tr>
                                 <th>Account Group </th>
                                 <th>GL </th>
+                                <th>Budget </th>
+                                <th>Activity </th>
+                                <th>RefNo </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -777,6 +430,9 @@
                                 ng-click="setInDirectGLSelected(x)" ng-dblclick="closeInDirectGLListPopUpSelected()" ng-class="{selected : x.GLGeneralInfoCode === rowSelected}">
                                 <td>{{x.AccountGroupName}}</td>
                                 <td>{{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td>{{x.RefNo}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -835,6 +491,9 @@
                             <tr>
                                 <th>Account Group </th>
                                 <th>GL </th>
+                                <th>Budget </th>
+                                <th>Activity </th>
+                                <th>RefNo </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -843,6 +502,9 @@
                                 ng-click="setCrInDirectGLSelected(x)" ng-dblclick="closeCrInDirectGLListPopUpSelected()" ng-class="{selected : x.GLGeneralInfoCode === CRIrowSelected}">
                                 <td>{{x.AccountGroupName}}</td>
                                 <td>{{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td>{{x.RefNo}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -928,14 +590,11 @@
                     <div style="color:black;" id="employeeNewPopUp" ej-grid e-datasource="SalaryHeadGlList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-recorddoubleclick="setData" e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
-                            @*<div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>*@
                             <div e-column e-field="SalaryHeadID" e-headertext="SalaryHeadID" e-width="80"></div>
                             <div e-column e-field="SalaryHead" e-headertext="Salary Head" e-width="80"></div>
                             <div e-column e-field="HeadType" e-headertext="HeadType" e-width="80"></div>
                             <div e-column e-field="HeadCategory" e-headertext="Head Category" e-width="80"></div>
-                            @*<div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
-                                <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>*@
+                            <div e-column e-field="TransactionType" e-headertext="Trn Type" e-width="80"></div>
                         </div>
                     </div>
                 </div>
