@@ -6823,15 +6823,16 @@ namespace Library.HumanResource.Payroll
                             sheet1.Range[xlsRow, xlsCol + 2].Text = ":   " + dtEmpInfo.Rows[i]["EmployeeName"].ToString();//
                             sheet1.Range[xlsRow, xlsCol + 2, xlsRow, xlsCol + 9].Merge();
 
-                            sheet1.Range[xlsRow, xlsCol + 10].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Grade.ToString(), "Grade");
-                            sheet1.Range[xlsRow, xlsCol + 10, xlsRow, xlsCol + 11].Merge();
-                            string _grade = string.Empty;
-                            if (dsGrade.Tables[0].Rows.Count > 0)
-                            {
-                                _grade = dsGrade.Tables[0].Rows[0]["Grade"].ToString();
-                            }
-                            sheet1.Range[xlsRow, xlsCol + 12].Text = ":   " + _grade;
-                            sheet1.Range[xlsRow, xlsCol + 12, xlsRow, xlsCol + 14].Merge();
+                            // To Remove Grade - Sayanto
+                            //sheet1.Range[xlsRow, xlsCol + 10].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Grade.ToString(), "Grade");
+                            //sheet1.Range[xlsRow, xlsCol + 10, xlsRow, xlsCol + 11].Merge();
+                            //string _grade = string.Empty;
+                            //if (dsGrade.Tables[0].Rows.Count > 0)
+                            //{
+                            //    _grade = dsGrade.Tables[0].Rows[0]["Grade"].ToString();
+                            //}
+                            //sheet1.Range[xlsRow, xlsCol + 12].Text = ":   " + _grade;
+                            //sheet1.Range[xlsRow, xlsCol + 12, xlsRow, xlsCol + 14].Merge();
 
                             xlsRow += 1;
                             sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.DOJ.ToString(), "DOJ");
