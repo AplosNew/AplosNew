@@ -4126,4 +4126,17 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     };
 
     $scope.ActionPOBOQ = 'Save';
+
+    $scope.ValidateProcessEndDate = function () {
+        try {
+
+            if (new Date($scope.productNew.ProcessEndDate) < new Date($scope.productNew.ProcessStartDate)) {
+                $scope.productNew.ProcessEndDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+                throw 'Process End Date should not be less than Process Start Date.';
+            }
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
 }
