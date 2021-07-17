@@ -1733,6 +1733,7 @@
     <Content Include="Areas\FixedAssets\Scripts\entityFixedAssetsRegisterController.js" />
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ArrearProcessedTotalReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\DayStatusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAdditionDeductionProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ManualShiftControllerController.js" />
@@ -3555,6 +3556,7 @@
     <Content Include="Areas\HumanResource\Views\OutPunchConfiguration\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\RosterPattern\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\WeeklyOff\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\PayrollReports\ArrearVsPayrollTotal.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
