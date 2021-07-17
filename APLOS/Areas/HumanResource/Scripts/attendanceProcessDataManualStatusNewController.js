@@ -11,13 +11,6 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
     $scope.FromDate = '';
     $scope.ToDate = '';
 
-    $scope.daystatus = ['', 'A', "L", "P", "HDP"];
-    function nullrecorder(val) {
-        if (baseService.isUndefinedOrNull(val))
-            return "";
-
-        return val;
-    }
     $scope.queryCellInfo = function (args) {
         if (args.data.IsManualDayStatus == true) {
             if (args.column.field == "IsManualDayStatus" || args.column.field == "DayStatus") {
@@ -44,11 +37,83 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
         });
     };
 
+   
+    $scope.selectedStatus = [];
+    $scope.getDayStatus = function (data) {
+
+        angular.element(document.querySelector('#StatusModal')).modal('show');
+        for (var i = 0; i < data.length; i++) {
+            if (data.Id == $scope.employeeAttendance[i].Id) {
+
+                $scope.EmpCatId = data.data.EmployeeCategoryId;
+                $scope.A = i;
+            }
+
+        }
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            data: { 'EmpType': $scope.EmpCatId },
+            url: $scope.path + 'GetDayStatus'
+
+        }).then(function successCallback(response) {
+            $scope.selectedStatus = response.data;
+
+        });
+    };
+
+
+    $scope.doubleStatus = function (e) {
+        
+        $scope.changestatus = e.data.DayType;
+        var x = $scope.A;
+        $scope.employeeAttendance[x].DayStatusNew = $scope.changestatus;
+        angular.element(document.querySelector('#StatusModal')).modal('hide');
+        $scope.lastIndex = 0;
+    }
+
+
+    $scope.selectedStatusx = [];
+    $scope.getDayStatusx = function (data) {
+
+        angular.element(document.querySelector('#StatusModalx')).modal('show');
+        for (var i = 0; i < $scope.employeeAttendanceBySingleDate.length; i++) {
+            if (data.data.Id == $scope.employeeAttendanceBySingleDate[i].Id &&
+                data.data.WorkDate == $scope.employeeAttendanceBySingleDate[i].WorkDate) {
+
+                $scope.EmpCatIdx = data.data.EmployeeCategoryId;
+                $scope.Ax = i;
+            }
+
+        }
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            data: { 'EmpType': $scope.EmpCatIdx },
+            url: $scope.path + 'GetDayStatus'
+
+        }).then(function successCallback(response) {
+            $scope.selectedStatusx = response.data;
+
+        });
+    };
+
+
+    $scope.doubleStatusx = function (e) {
+
+        $scope.changestatusx = e.data.DayType;
+        var x = $scope.Ax;
+        $scope.employeeAttendanceBySingleDate[x].DayStatusNew = $scope.changestatusx;
+        angular.element(document.querySelector('#StatusModalx')).modal('hide');
+        $scope.lastIndex = 0;
+    }
+
+
 
     $scope.employeeAttendance = [];
     $scope.employeeAttendanceBySingleDate = [];
     $scope.allShift = [];
-    $scope.selectSignleEmployee = function (args) {
+    $scope.selectSingleEmployee = function (args) {
         var eDialog = $("#dialogEmployeeSelect").data("ejDialog");
         eDialog.close();
         if (baseService.isUndefinedOrNull(args) == false)
@@ -63,14 +128,13 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
         }).then(function successCallback(response) {
             $scope.employeeAttendance = response.data.data;
             $scope.allShift = response.data.shift;
-
             var gridObj = $("#GridChangeAttendance").data("ejGrid");
             gridObj.refreshContent();
         });
     };
     $scope.allShiftSingleDay = [];
 
-    $scope.selectSigleDate = function () {
+    $scope.selectSingleDate = function () {
 
         $http({
             method: "POST",
@@ -209,8 +273,10 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
             $scope.employeeAttendance[i].ErrorMessage = "";
             try {
                 if (
-                    nullrecorder($scope.employeeAttendance[i].DayStatus) != nullrecorder($scope.employeeAttendance[i].DayStatusNew)
-                ) {
+                    nullrecorder($scope.employeeAttendance[i].DayStatus) !=
+                    nullrecorder($scope.employeeAttendance[i].DayStatusNew)
+                )
+                {
                     DataToBeSaved.push($scope.employeeAttendance[i]);
 
                 }
@@ -244,7 +310,7 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
             else {
                 ShowResult(response.data.Message, 'success');
 
-                $scope.selectSignleEmployee();
+                $scope.selectSingleEmployee();
 
             }
 
@@ -260,7 +326,8 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
 
             try {
                 if (
-                    nullrecorder($scope.employeeAttendanceBySingleDate[i].DayStatus) != nullrecorder($scope.employeeAttendanceBySingleDate[i].DayStatusNew)
+                    nullrecorder($scope.employeeAttendanceBySingleDate[i].DayStatus) !=
+                    nullrecorder($scope.employeeAttendanceBySingleDate[i].DayStatusNew)
                 ) {
                     DataToBeSaved.push($scope.employeeAttendanceBySingleDate[i]);
 
@@ -295,7 +362,7 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
             else {
                 ShowResult(response.data.Message, 'success');
 
-                $scope.selectSigleDate();
+                $scope.selectSingleDate();
 
             }
 

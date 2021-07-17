@@ -2,6 +2,7 @@
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.HumanResource.Payroll;
 using Library.HumanResource.Payroll.Report;
 using Library.HumanResource.Report.OT;
@@ -31,7 +32,6 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
 
-
         public PayrollReportsController(
 IEmployeeProfileService employeeProfileService
 
@@ -58,7 +58,11 @@ IEmployeeProfileService employeeProfileService
         {
             return View();
         }
-        
+        public ActionResult ArrearVsPayrollTotal()
+        {
+            return View();
+        }
+
         public ActionResult SalaryStructureReportPlantWise()
         {
             return View();
@@ -320,6 +324,33 @@ IEmployeeProfileService employeeProfileService
 
             }
         }
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeArrearTotalAndSalaryProcessedReportSalLogWise(string ArrearBatchNo, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var fileName = month + "-" + year + "SalarySheet" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+
+
+                //  var workbook =  _payrollReportsService.GetEmployeeSalaryProcessedReportSalaryLogWise(out int xlsRow, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false);
+                var workbook = _payrollReportsService.GetEmployeeArrearTotalSalaryProcessedReportSalaryLogWise(ArrearBatchNo, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false);
+
+
+                workbook.Version = ExcelVersion.Excel97to2003;
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
 
         [HttpPost, Authorize]
         public ActionResult GetEmployeeSalaryProcessedReportSalLogWiseDirectInDirectSalaryPayable(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool IsDirectInDirect)
@@ -428,7 +459,7 @@ IEmployeeProfileService employeeProfileService
         {
             try
             {
-               // parameters = null;
+                // parameters = null;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 WeekOFFandHolidayOT clsWeekOFFOTReport = new WeekOFFandHolidayOT();
 
@@ -479,6 +510,18 @@ IEmployeeProfileService employeeProfileService
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetEmpInfoSalaryFromArrearPorcessed(string ArrearProcessBatchId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(_payrollReportsService.GetEmpInfoArrearPorcessedAll(ArrearProcessBatchId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+
 
         [HttpPost, Authorize]
         public ActionResult GetSeparatedEmpInfo(string effectiveDate, string FromDate, string ToDate, string salaryProcessId)
@@ -549,6 +592,22 @@ IEmployeeProfileService employeeProfileService
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetAllArrearProcessInfo()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT distinct apm.ArrearProcessBatchId,CONCAT( apm.[Description], ' From ',
+                    FORMAT(apm.ArrearProcessFromDate,'dd-MMM-yyyy') , ' To ',
+                    FORMAT(apm.ArrearProcessToDate,'dd-MMM-yyyy') , ' Processed By ',apm.AddedBy)  ArrearDesc
+                    FROM ArrearProcMaster AS apm";
+            SqlRepository sqlRepository = new SqlRepository();
+
+            var jsondata = Json(sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
 
 
         [HttpPost, Authorize]
