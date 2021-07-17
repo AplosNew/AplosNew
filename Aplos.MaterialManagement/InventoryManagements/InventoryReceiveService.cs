@@ -670,9 +670,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						,BOQFGM.ThirdCharacteristicsValueId
 						,isnull(v3.UserName,'') AS ThirdCharacteristicsValue						
 						,TUoM.Id AS TransactionUoMId
-						 ,TUoM.UserName AS TransactionUoMName                 
+						,null TransactionUoMName                 
 						,BOQD.RequiredQtyPO RequestedQty1
-						,0 RequestedQty,0 RequestedQtyNew   
+						,null RequestedQty,0 RequestedQtyNew   
 						,0 RejectedQty
 					
 					

@@ -266,7 +266,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 							var resConPlQrt = $scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty;
 							var Wastage = (resConPlQrt * $scope.FilterList123[i].WastagePer) / 100;
 							$scope.FilterList123[i].RequisitionQty = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
-							$scope.FilterList123[i].RequestedQty = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
+							//$scope.FilterList123[i].RequestedQty = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
 							
 						//}
 					}
@@ -1256,7 +1256,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 			//$scope.GetListForMasterOrdernew = [];
 			for (var i = 0; i < $scope.FilterList123.length; i++) {
 				if ($scope.FilterList123[i].check === true) {
-					if ($scope.FilterList123[i].RequestedQty === 0) {
+					if (baseService.isUndefinedOrNull($scope.FilterList123[i].RequestedQty) || $scope.FilterList123[i].RequestedQty === 0) {
 						ShowResult('Enter the Requested Qty', 'failure');
 						return false;
 					}
@@ -1318,7 +1318,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 			for (var i2 = 0; i2 < $scope.FilterList123.length; i2++) {
 				if ($scope.FilterList123[i2].check === true) {
 					$scope.FilterList123[i2].RequestedQtyNew = Math.round($scope.FilterList123[i2].RequestedQty * 100 + Number.EPSILON) / 100;
-				var getRow1 = $filter("filter")($scope.FilterList1234, { "MaterialMasterId": $scope.FilterList123[i2].MaterialMasterId, "ArticleId": $scope.FilterList123[i2].ArticleId, "BOQDFirstCharacteristicsValueId": $scope.FilterList123[i2].BOQDFirstCharacteristicsValueId, "BOQDSecondCharacteristicsValueId": $scope.FilterList123[i2].BOQDSecondCharacteristicsValueId, "BOQDThirdCharacteristicsValueId": $scope.FilterList123[i2].BOQDThirdCharacteristicsValueId, "check": true });
+					var getRow1 = $filter("filter")($scope.FilterList1234, { "MaterialMasterId": $scope.FilterList123[i2].MaterialMasterId, "ArticleId": $scope.FilterList123[i2].ArticleId, "BOQDFirstCharacteristicsValueId": $scope.FilterList123[i2].BOQDFirstCharacteristicsValueId, "BOQDSecondCharacteristicsValueId": $scope.FilterList123[i2].BOQDSecondCharacteristicsValueId, "BOQDThirdCharacteristicsValueId": $scope.FilterList123[i2].BOQDThirdCharacteristicsValueId,"TransactionUoMId": $scope.FilterList123[i2].TransactionUoMId, "check": true });
 
 
 					if (getRow1.length === 0) {
