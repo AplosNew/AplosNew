@@ -64,6 +64,24 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public IEnumerable<object> GetDayStatus(string EmpType)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var sql = @"select distinct DayType,dt.Id from DayTypeWithValues dt 
+                left join DayStatusHeader dh on dh.Id=dt.HeaderId
+                left join DayStatusPlantChild dc on dc.HeaderId=dh.Id
+                where dt.ManualStatusAllowed=1 and dc.EmpTypeId='"+EmpType+"' and dc.PlantId='"+identity.PlantId+"'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public RTx Save(List<AttendanceProcessNewProcess> data)
         {
             try
