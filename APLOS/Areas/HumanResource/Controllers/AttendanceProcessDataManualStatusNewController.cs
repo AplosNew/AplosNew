@@ -111,17 +111,14 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ManualAttndFromAppService mau = new ManualAttndFromAppService(identity, _sqlRepository);
 
                 return Json(mau.GetDayStatus(EmpType), JsonRequestBehavior.AllowGet);
 
-
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
 
