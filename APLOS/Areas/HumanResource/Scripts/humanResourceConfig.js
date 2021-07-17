@@ -292,6 +292,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/attendanceProcessDataManualStatus',
             controller: 'attendanceProcessDataManualStatusController'
         })
+        .when('/manual-day-status-new', {
+            templateUrl: 'humanresource/attendanceProcessDataManualStatusNew',
+            controller: 'attendanceProcessDataManualStatusNewController'
+        })
         .when('/salary-structure-report',
             {
                 templateUrl: 'humanresource/payrollReports/Aplos',

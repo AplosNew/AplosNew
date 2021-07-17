@@ -377,6 +377,7 @@
     <Compile Include="Areas\Attendances\Controllers\AttendanceFromAppReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AuditReportSummeryController.cs" />
     <Compile Include="Areas\Attendances\Controllers\ExceptionOTProcessController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\OTManualNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\WeekOffHolidayOTReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\DailyAttendanceReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\ManualOTReportController.cs" />
@@ -526,7 +527,6 @@
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\DayStatusMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeAdditionDeductionProcessController.cs" />
-    <Compile Include="Areas\HumanResource\Controllers\ManualShiftNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManualShiftController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ConsecutiveAttendaceAndOTController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\BlackListController.cs" />
@@ -1551,6 +1551,7 @@
     <Content Include="Areas\Attendances\Scripts\AuditReportSummeryController.js" />
     <Content Include="Areas\Attendances\Scripts\ExceptionOTProcessController.js" />
     <Content Include="Areas\Attendances\Scripts\holidayOTReportController.js" />
+    <Content Include="Areas\Attendances\Scripts\OTManualNewController.js" />
     <Content Include="Areas\Attendances\Scripts\weekOffOTReportController.js" />
     <Content Include="Areas\Attendances\Scripts\AdditionalPayDayController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceFromAppReportController.js" />
@@ -1740,7 +1741,6 @@
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\DayStatusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAdditionDeductionProcessController.js" />
-    <Content Include="Areas\HumanResource\Scripts\ManualShiftNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\ManualShiftControllerController.js" />
     <Content Include="Areas\HumanResource\Scripts\bonusProvisionReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\bonusReportCController.js" />
