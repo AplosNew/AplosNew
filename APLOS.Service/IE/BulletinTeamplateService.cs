@@ -4,7 +4,6 @@ using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.IE;
-using Library.Model.Machines;
 using Library.Service.Core;
 using Library.Service.Enums;
 using Library.Service.Helpers;

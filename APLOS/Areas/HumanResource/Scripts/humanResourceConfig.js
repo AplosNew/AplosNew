@@ -256,9 +256,17 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/AttendanceProcessData/',
             controller: 'attendanceProcessDataController'
         })
+        .when('/attendance-process-data-new', {
+            templateUrl: 'humanresource/AttendanceProcessDataNew/',
+            controller: 'attendanceProcessDataNewController'
+        })
         .when('/attendance-process-data-entity', {
             templateUrl: 'humanresource/AttendanceProcessDataEntityWise/',
             controller: 'attendanceProcessDataEntityWiseController'
+        })
+        .when('/attendance-process-data-entity-new', {
+            templateUrl: 'humanresource/AttendanceProcessDataEntityWiseNew/',
+            controller: 'attendanceProcessDataEntityWiseNewController'
         })
         .when('/weekoff-change', {
             templateUrl: 'humanresource/WeekOffChange/Aplos',
@@ -283,6 +291,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/manual-day-status', {
             templateUrl: 'humanresource/attendanceProcessDataManualStatus',
             controller: 'attendanceProcessDataManualStatusController'
+        })
+        .when('/manual-day-status-new', {
+            templateUrl: 'humanresource/attendanceProcessDataManualStatusNew',
+            controller: 'attendanceProcessDataManualStatusNewController'
         })
         .when('/salary-structure-report',
             {
@@ -523,6 +535,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/manual-shift', {
             templateUrl: 'humanresource/ManualShift/Aplos',
             controller: 'ManualShiftController'
+        })
+        .when('/manual-shift-new', {
+            templateUrl: 'humanresource/ManualShiftNew/Aplos',
+            controller: 'ManualShiftNewController'
         })
         .when('/salary-proc-extctc-company', {
             templateUrl: 'humanresource/PayrollReports/SalaryProcessedReportExtraOTCTCCompany',

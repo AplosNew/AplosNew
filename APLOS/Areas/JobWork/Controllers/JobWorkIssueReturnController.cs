@@ -114,7 +114,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            if(Type== "ValueAdded")
+            if(Type== "Value Added")
             {
                 sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.PartyId,vac.Remarks,FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5)
                                            ,vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate
@@ -122,7 +122,7 @@ namespace Aplos.Areas.JobWork.Controllers
                                            ,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
                                            from dbo.JWTransformationPurchaseOrder vac left join ORG.Entity e on e.Id=vac.EntityId
                                            left join HKP.Party p on p.Id=vac.PartyId
-                                           WHERE " + strkey + " order by ValueAddedDate desc ";
+                                           WHERE " + strkey + " and POType='OSValueAddedPO' order by ValueAddedDate desc ";
 
             }
             if(Type == "Transformation")
@@ -133,7 +133,7 @@ namespace Aplos.Areas.JobWork.Controllers
                                     e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
                                     from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
 									left join HKP.Party p on p.Id=tc.PartyId
-                                    WHERE " + strkey + " order by tc.PODate desc";
+                                    WHERE " + strkey + " and POType='OSTransformationPO' order by tc.PODate desc";
             }
            
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -173,31 +173,35 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             string sql = "";
  
-                sql = @"select distinct vcc.*,vcc.Quantity as VCCQuantity, jwi.UserName as JobWorkItem,jwa.UserName as JobWorkActivity, uom.UserName as OutputUnit, mma.StandardName as ArticleCode, vam.RateApplicable as RateApply, c.Code as Currency, emp.EmployeeName as ResponsiblePerson
-                               ,owr.Id as OWRId, owr.JobWorkValueAddedContractChildMasterId, owr.OrderType,owr.Quantity as OWRQuantity,owr.PlanQuantity
+                sql = @"select distinct vcc.*,vcc.Quantity as VCCQuantity, jwi.UserName as JobWorkItem,jwa.UserName as JobWorkActivity, uom.UserName as OutputUnit,OMM.UserName as OutputMaterial
+                                , mma.StandardName as OutputArticle
+                               --, vam.RateApplicable as RateApply
+							   , c.Code as Currency, emp.EmployeeName as ResponsiblePerson
+                               ,owr.Id as OWRId, owr.JobWorkTransformationContractChildMasterId, owr.OrderType,owr.Quantity as OWRQuantity,owr.PlanQuantity
 							   ,P.UserName as Customer,mo.MasterOrderNo,mm.UserName as MaterialOrderItem, owruom.UserName as OWRUOM
-							   ,IssueQuantity=case WHEN vcc.OrderSpecific = 'Yes' THEN (kk.TotalQuantity) ELSE (TQ.TQuantity) END
-							   ,BalToIssue=case WHEN vcc.OrderSpecific = 'Yes' THEN (owr.Quantity-kk.TotalQuantity) WHEN vcc.OrderSpecific = 'NO' THEN (vcc.Quantity-TQ.TQuantity) ELSE '0' END
+							  -- ,IssueQuantity=case WHEN vcc.OrderSpecific = 'Yes' THEN (kk.TotalQuantity) ELSE (TQ.TQuantity) END
+							 --  ,BalToIssue=case WHEN vcc.OrderSpecific = 'Yes' THEN (owr.Quantity-kk.TotalQuantity) WHEN vcc.OrderSpecific = 'NO' THEN (vcc.Quantity-TQ.TQuantity) ELSE '0' END
                                ,IssueActive='Active'
-                               from dbo.JobWorkValueAddedContractChild vcc left join HKP.JobWorkItem jwi on jwi.Id=vcc.JobWorkItemMasterId
+                               from dbo.JobWorkTransformationContractChild vcc left join HKP.JobWorkItem jwi on jwi.Id=vcc.JobWorkItemMasterId
 							   left join hkp.JobWorkActivity jwa on jwa.Id=vcc.JobActivityId
         					   left join SCS.UnitOfMeasurement uom on uom.Id=vcc.OutputMaterialUOMId
-        					   left join MST.MaterialMasterArticle mma on mma.Id=vcc.ArticleCodeId
-        					   left join MST.JobWorkValueAddedMaster vam on vam.Id=vcc.RateApplyId
-        					   left join scs.Currency c on c.Id=vcc.CurrencyId and vcc.CurrencyId=vam.CurrencyId
+        					   left join MST.MaterialMasterArticle mma on mma.Id=vcc.ArticleId
+							   left join MST.MaterialMaster OMM on OMM.Id=mma.MaterialMasterId
+        					--   left join MST.JobWorkValueAddedMaster vam on vam.Id=vcc.RateApplyId
+        					   left join scs.Currency c on c.Id=vcc.CurrencyId
         					   left join dbo.EmployeeInformation emp on emp.SystemId=vcc.ResponsiblePersonId
-							   left join dbo.JobWorkValueAddedContract vc on vc.Id=vcc.JobWorkValueAddedContractMasterId
-							   left join dbo.JobWorkValueAddedContractChild2 owr on owr.JobWorkValueAddedContractChildMasterId=vcc.Id
+							   left join dbo.JWTransformationPurchaseOrder vc on vc.Id=vcc.JobWorkTransformationContractMasterId
+							   left join dbo.JobWorkTransformationContractChild2 owr on owr.JobWorkTransformationContractChildMasterId=vcc.Id
 							   left join HKP.Party P on P.Id=owr.CustomerId
 							   left join TRN.MasterOrder mo on mo.Id=owr.MasterOrderNoId												
         					   left join TRN.MasterOrderItem moi on moi.Id=owr.MasterOrderItemId
         			    		left join MST.MaterialMaster mm on mm.Id=moi.MaterialMasterId
         				    	left join SCS.UnitOfMeasurement owruom on owruom.Id=owr.OutputMaterialUOMId
-								left join (	select SUM(quantity) as TotalQuantity,ContractLineItemId,OrderChildId FROM dbo.JobWorkIssueReturnChild group by ContractLineItemId,OrderChildId
-										) kk on kk.ContractLineItemId=vcc.Id and kk.OrderChildId=owr.Id
-								left join (	select SUM(quantity) as TQuantity,ContractLineItemId FROM dbo.JobWorkIssueReturnChild group by ContractLineItemId
-										) TQ on TQ.ContractLineItemId=vcc.Id
-        					   where vc.Id='" + PKId + "' ";
+								--left join (	select SUM(quantity) as TotalQuantity,ContractLineItemId,OrderChildId FROM dbo.JobWorkIssueReturnChild group by ContractLineItemId,OrderChildId
+								--		) kk on kk.ContractLineItemId=vcc.Id and kk.OrderChildId=owr.Id
+								--left join (	select SUM(quantity) as TQuantity,ContractLineItemId FROM dbo.JobWorkIssueReturnChild group by ContractLineItemId
+								--		) TQ on TQ.ContractLineItemId=vcc.Id
+        					   where vc.POType='OSValueAddedPO' and vc.Id='" + PKId + @"' ";
             
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);

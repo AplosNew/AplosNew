@@ -64,7 +64,7 @@
                 <div class="show-message">
                     <div class="select-style">
                         <div class="select-style">
-                            <select id="ddlType" name="Type" tabindex="6" class="form-control" submit-required="true" ng-model="JobWorkActivity.Type" ng-options="item.name as item.name for item in jobWorkActivityTypeList" required></select>
+                            <select id="ddlType" name="Type" tabindex="6" class="form-control" submit-required="true" ng-disabled="SelectedEmpCategoryTabList.length" ng-model="JobWorkActivity.Type" ng-options="item.name as item.name for item in jobWorkActivityTypeList" required></select>
                         </div>
                     </div>
                 </div>

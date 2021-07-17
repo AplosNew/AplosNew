@@ -51,9 +51,10 @@
     #addoperation .glyphicon {
         top: -6px;
     }
-</style><togglable name="Production Order"></togglable>
+</style>
+<togglable name="Production Order"></togglable>
 <div class="form-horizontal form-elements" ng-form="modelNewForm" id="mainPOContainer">
-    <div class="col-xs-6 col-sm-6 col-md-6">
+    <div class="col-xs-6 col-sm-6 col-md-6" id="ProductionEntity">
         @*<div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
@@ -312,7 +313,7 @@
         <!--Bulletin-->
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
             <div class="form-horizontal form-elements">
-                <div class="row" ng-form="tabFrom4" id="ProdBulletin">
+                <div class="row" ng-form="tabFrom4" >
                     <div class="common-btn" ng-show="bulletintab===false">
                         <ul class="list-inline text-left">
                             <li><button ng-click="getBulletinData('BT');" class="btn"><i class="glyphicon glyphicon-plus"></i> Bulletin Template</button></li>
@@ -1251,7 +1252,7 @@
 <div class="row">
     <div class="form-group">
         <ej-dialog id="BullPoUp" title="Bulletin" e-enablemodal="true" e-position-y="0" e-showoninit="false"
-                   e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn" e-target="#ProdBulletin">
+                   e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn" e-target="#ProductionEntity">
             <div class="row">
                 <div id="GridBull" ej-grid e-datasource="bulletinList" e-gridlines="vertical" e-templaterefresh="refreshTemplateOperation"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -1276,7 +1277,7 @@
 <div class="row">
     <div class="form-group">
         <ej-dialog id="ProdBullPoUp" title="ProductionBulletin" e-enablemodal="true" e-position-y="0" e-showoninit="false"
-                   e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn" e-target="#ProdBulletin">
+                   e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn" e-target="#ProductionEntity">
             <div class="row">
                 <div id="GridProdBull" ej-grid e-datasource="bulletinList" e-gridlines="vertical" e-templaterefresh="refreshTemplateOperation"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowscrolling="true"
@@ -2256,7 +2257,7 @@
     </div>
 </div>
 
-<ej-dialog id="confirmBulletinSavePopUp" title="Confirmation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#mainPOContainer" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
+<ej-dialog id="confirmBulletinSavePopUp" title="Confirmation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#ProductionEntity" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
     <p>
         {{message_BulletinSave}}
     </p>
@@ -2268,7 +2269,7 @@
     </p>
 </ej-dialog>
 
-<ej-dialog id="confirmProdBulletinSavePopUp" title="Confirmation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#mainPOContainer" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
+<ej-dialog id="confirmProdBulletinSavePopUp" title="Confirmation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#ProductionEntity" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
     <p>
         {{message_BulletinSave}}
     </p>

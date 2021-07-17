@@ -652,7 +652,12 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return Json(_glGeneralInfoService.GetRevenueExpensesBudgetCOAWise(parameters, coaId), JsonRequestBehavior.AllowGet);
         }
-
+        [Authorize, HttpGet]
+        public JsonResult GetExpenseGLBudgetActivityCOAWise(GridParameter parameters, string coaId)
+        {
+            AccountsGLService accountsGLService = new AccountsGLService(_sqlRepository);
+            return Json(accountsGLService.GetExpensesGLBudgetActivityCOAWise(parameters, coaId), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpGet]
         public JsonResult GetBalanceSheetGLCOAWise(GridParameter parameters, string coaId)
         {

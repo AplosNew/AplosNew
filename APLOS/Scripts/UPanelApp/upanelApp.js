@@ -23,7 +23,9 @@ var upanelApp = angular
     .controller("BOMReportsController", BOMReportsController)
     .controller("attendanceManagementController", attendanceManagementController)
     .controller("attendanceProcessDataController", attendanceProcessDataController)
+    .controller("attendanceProcessDataNewController", attendanceProcessDataNewController)
     .controller("attendanceProcessDataEntityWiseController", attendanceProcessDataEntityWiseController)
+    .controller("attendanceProcessDataEntityWiseNewController", attendanceProcessDataEntityWiseNewController)
     .controller("attendanceReportController", attendanceReportController)
     .controller("attendanceSlipController", attendanceSlipController)
     .controller("balanceSheetDetailsReportController", BalanceSheetDetailsReportController)
@@ -439,6 +441,7 @@ var upanelApp = angular
     .controller('attendanceEntryController', attendanceEntryController)
     .controller('attendanceOnDayStatusController', attendanceOnDayStatusController)
     .controller('attendanceProcessDataManualStatusController', attendanceProcessDataManualStatusController)
+    .controller('attendanceProcessDataManualStatusNewController', attendanceProcessDataManualStatusNewController)
     .controller('attendanceProcessUIController', attendanceProcessUIController)
     .controller('attendanceRawController', attendanceRawController)
     .controller('AttendanceRawDataDeleteController', AttendanceRawDataDeleteController)
@@ -877,6 +880,7 @@ var upanelApp = angular
     .controller("ProductionRelayController", ProductionRelayController)
     .controller("inventoryJobWorkReceivedController", inventoryJobWorkReceivedController)
     .controller("ManualShiftController", ManualShiftController)
+    .controller("ManualShiftNewController", ManualShiftNewController)
     .controller("JobWorkReceiveBillingController", JobWorkReceiveBillingController)
     .controller("entityFixedAssetsRegisterController", entityFixedAssetsRegisterController)
     .controller("voucherParkController", voucherParkController)
@@ -885,6 +889,7 @@ var upanelApp = angular
     .controller("EmployeeAdditionDeductionProcessController", EmployeeAdditionDeductionProcessController)
     .controller("MarkerController", MarkerController)
     .controller("partyPaymentStatusReportController", partyPaymentStatusReportController)
+    .controller("OTManualNewController", OTManualNewController)
 
 
     .config(AccessControllerConfig)
