@@ -377,6 +377,7 @@
     <Compile Include="Areas\Attendances\Controllers\AttendanceFromAppReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AuditReportSummeryController.cs" />
     <Compile Include="Areas\Attendances\Controllers\ExceptionOTProcessController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\OTManualNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\WeekOffHolidayOTReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\DailyAttendanceReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\ManualOTReportController.cs" />
@@ -1548,6 +1549,7 @@
     <Content Include="Areas\Attendances\Scripts\AuditReportSummeryController.js" />
     <Content Include="Areas\Attendances\Scripts\ExceptionOTProcessController.js" />
     <Content Include="Areas\Attendances\Scripts\holidayOTReportController.js" />
+    <Content Include="Areas\Attendances\Scripts\OTManualNewController.js" />
     <Content Include="Areas\Attendances\Scripts\weekOffOTReportController.js" />
     <Content Include="Areas\Attendances\Scripts\AdditionalPayDayController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceFromAppReportController.js" />
@@ -3555,6 +3557,7 @@
     <Content Include="Areas\HumanResource\Views\OutPunchConfiguration\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\RosterPattern\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\WeeklyOff\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\OTManualNew\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

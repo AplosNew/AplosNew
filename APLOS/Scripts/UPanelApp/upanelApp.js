@@ -884,6 +884,7 @@ var upanelApp = angular
     .controller("EmployeeAdditionDeductionProcessController", EmployeeAdditionDeductionProcessController)
     .controller("MarkerController", MarkerController)
     .controller("partyPaymentStatusReportController", partyPaymentStatusReportController)
+    .controller("OTManualNewController", OTManualNewController)
 
 
     .config(AccessControllerConfig)
