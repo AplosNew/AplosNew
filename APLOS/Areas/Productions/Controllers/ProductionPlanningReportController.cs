@@ -27,6 +27,7 @@ namespace Aplos.Areas.Productions.Controllers
         public ProductionPlanningReportController(ISqlRepository R)
         {
             _sqlRepository = R;
+
         }
         #endregion
 

@@ -17129,7 +17129,7 @@ namespace Library.MaterialManagement.InventoryManagements
 			//		paramter += " AND ISNULL(BOQD.ThirdCharacteristicsValueId,'') in(" + Skuvalue3 + ")";
 			//}
 
-			if(string.IsNullOrEmpty(Skuvalue1))
+			if(string.IsNullOrEmpty(Skuvalue1) || Skuvalue1 == "null")
 			{
 				Skuvalue1 = "";
 			}
@@ -17179,8 +17179,8 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId	
 						--Left JOIN [MST].[MaterialMasterAlternativeUOM] AS MMAU ON MMAU.MaterialMasterId = MM.Id
-						Where IM.MaterialMasterId='" + Material+@"' AND IM.ArticleId='"+Article+@"'
-						AND IM.FirstCharacteristicsValueId='"+Skuvalue1+@"'
+						Where IM.MaterialMasterId='" + Material+@"' AND IM.ArticleId='"+Article+ @"'
+						AND ISNULL(IM.FirstCharacteristicsValueId,'')='" + Skuvalue1+@"'
 						AND ISNULL(IM.SecondCharacteristicsValueId,'')='"+Skuvalue2+@"'
 						AND ISNULL(IM.ThirdCharacteristicsValueId,'')='"+Skuvalue3+@"'
 						AND GRNAllocation.SalesOrderId ='"+ SalesOrderId + @"'
