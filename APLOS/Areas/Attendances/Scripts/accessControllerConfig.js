@@ -314,5 +314,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/AuditReportSummery/Aplos',
             controller: 'AuditReportSummeryController'
         })
+
+        .when('/ot-manual-new', {
+            templateUrl: 'Attendances/OTManualNew/Aplos',
+            controller: 'OTManualNewController'
+        })
         ;
 } 
