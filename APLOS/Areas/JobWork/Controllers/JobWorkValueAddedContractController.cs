@@ -237,7 +237,8 @@ namespace Aplos.Areas.JobWork.Controllers
 
             if (ContractType == "OSValueAddedPO")
             {
-                sql = @"Select distinct c.Id as Value, c.Code as Text from scs.Currency c left join MST.JobWorkValueAddedMaster vam on vam.CurrencyId=c.Id 
+                sql = @"Select distinct c.Id as Value, c.Code as Text, vam.StdRejection, vam.StdValueLoss 
+                        from scs.Currency c left join MST.JobWorkValueAddedMaster vam on vam.CurrencyId=c.Id 
                         where vam.JobWorkActivityId='" + ActivityId + @"' and vam.JobWorkActivityChildId='" + JobWorkItemId + "' order by c.Code";
             }
 
