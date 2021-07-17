@@ -180,12 +180,13 @@ namespace Aplos.Areas.JobWork.Controllers
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			if (Type == "ValueAdded")
 			{
-				sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.VendorPartyId,vac.Remarks,FORMAT(vac.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+				sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.PartyId,vac.Remarks,FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime]
+                                           ,FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                            FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                            e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                                           from dbo.JobWorkValueAddedContract vac left join ORG.Entity e on e.Id=vac.EntityId
-                left join HKP.Party p on p.Id=vac.VendorPartyId
-                                           WHERE " + strkey + " order by ValueAddedDate desc ";
+                                           from dbo.JWTransformationPurchaseOrder vac left join ORG.Entity e on e.Id=vac.EntityId
+                                           left join HKP.Party p on p.Id=vac.PartyId
+                                           WHERE " + strkey + " and vac.POType='OSValueAddedPO' order by ValueAddedDate desc ";
 
 			}
 			if (Type == "Transformation")
@@ -196,7 +197,7 @@ namespace Aplos.Areas.JobWork.Controllers
                                     e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
                                     from dbo.JWTransformationPurchaseOrder tc left join ORG.Entity e on e.Id=tc.EntityId
 									left join HKP.Party p on p.Id=tc.PartyId
-                                    WHERE " + strkey + " order by tc.PODate desc";
+                                    WHERE " + strkey + " and tc.POType='OSTransformationPO' order by tc.PODate desc";
 			}
 
 			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -210,11 +211,12 @@ namespace Aplos.Areas.JobWork.Controllers
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			if (TabType == "Value Added")
 			{
-				sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.VendorPartyId,vac.Remarks,FORMAT(vac.Date,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+				sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.PartyId,vac.Remarks,FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),vac.[Time],108)[VACTime]
+                                    ,FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
                                     FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
                                     e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                                    from dbo.JobWorkValueAddedContract vac left join ORG.Entity e on e.Id=vac.EntityId
-									left join HKP.Party p on p.Id=vac.VendorPartyId
+                                    from dbo.JWTransformationPurchaseOrder vac left join ORG.Entity e on e.Id=vac.EntityId
+									left join HKP.Party p on p.Id=vac.PartyId
                                     WHERE vac.Id='" + Id + "' order by ValueAddedDate desc ";
 			}
 			if (TabType == "Transformation")

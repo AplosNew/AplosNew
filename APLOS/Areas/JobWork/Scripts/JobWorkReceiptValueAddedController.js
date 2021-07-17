@@ -143,7 +143,9 @@ function JobWorkReceiptValueAddedController($window, cboService, commonMessage, 
 				$scope.IssueTypeList = response.data;
 
 				if ($scope.IssueTypeList.length > 0) {
-					$scope.GetReceiptVAChildData();
+                    $scope.GetReceiptVAChildData();
+                    $scope.ShowHomeList = false;
+                    $scope.ShowReport = false;
 				}
 
 			});

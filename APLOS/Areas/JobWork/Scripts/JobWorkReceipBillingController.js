@@ -141,11 +141,11 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
        
     });
 
-    $scope.GetCurrencyExchangeRateList = function () {
-        if (!baseService.isUndefinedOrNull($scope.CurrencyId)) {
+    $scope.GetCurrencyExchangeRateList = function (CurrencyId) {
+        if (!baseService.isUndefinedOrNull(CurrencyId)) {
             $http({
                 method: "GET",
-                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter("dateFiltering")(Date.now()) + "&currencyId=" + $scope.CurrencyId
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter("dateFiltering")(Date.now()) + "&currencyId=" + CurrencyId
             }).then(function successCallback(response) {
                 $scope.currencyExchangeRate = response.data;
                 $scope.ModelNew.BillingRate = $scope.currencyExchangeRate.ToCurrencyRate;
@@ -271,7 +271,7 @@ function JobWorkReceiveBillingController($window, cboService, commonMessage, $sc
         else {
             $scope.GetReceiptVAChildData();
         }
-        $scope.GetCurrencyExchangeRateList();
+        $scope.GetCurrencyExchangeRateList($scope.ModelNew.CurrencyId);
         angular.element(document.querySelector("#ContractPopUp")).modal("hide");
     };
 

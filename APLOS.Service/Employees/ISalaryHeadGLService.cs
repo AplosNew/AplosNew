@@ -36,7 +36,7 @@ namespace Library.Service.Employees
         GridModel GetActivityListWithBudget(GridParameter parameters, string id);
 
         IEnumerable<object> CoaInfo(string companyId);
-        GridModel GetSearchWithCombine(GridParameter parameters, string coaId);
+        GridModel GetSearchWithCombine(GridParameter parameters, string salaryHeadId);
         GridModel GetSearchWithCombineSalaryHead(GridParameter parameters, string coaId);
         GridModel GetSearchWithCombineWithAssing(GridParameter parameters, string coaId);
         GridModel GetSearchWithCombineWithNotAssing(GridParameter parameters, string coaId);
