@@ -10551,7 +10551,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
         }
 
-        public DataTable GetDAttendanceEmployees(string companyGroupId, string companyId, string plantId, string accountGroupList, string toDate)
+        public DataTable GetTrialBLAccountGroupDetailData(string companyGroupId, string companyId, string plantId, string accountGroupList, string toDate)
         {
             ConnectionManager.DAL.ConManager objCon;
             string strSql = string.Empty;
@@ -10634,7 +10634,184 @@ group by Id) O60 ON O60.Id=IV.Id
             }
         }
 
-        public string GetTrialBLAccountGroupWiseReport(string companyGroupId, string companyId, string plantId, string accountGroupList, string toDate, string SheetName,string reportName)
+        public DataTable GetTrialBLAccountGroupActivityData(string companyGroupId, string companyId, string plantId, string accountGroupList, string toDate)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            string secSQL = string.Empty;
+            string xxy = string.Empty;
+            string XJobLocation = string.Empty;
+            clsStaticInfo obs = null;
+            string ShiftIds_WC = "";
+            try
+            {
+
+
+
+                obs = new clsStaticInfo();
+                strSql = @"SELECT * FROM( SELECT distinct	GL.Id AS AccountCodeId,
+		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode
+			                     , isnull(sum(vd.DrAmount),0)TranDrAmount	
+								 ,isnull(sum(vd.CrAmount),0)TranCrAmount
+		                         ,sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
+                                , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,
+                                            ACT.BalanceType,
+                                            ACT.Id AS [MainHead]
+                                            	,ag.Id AccoutnGroupId
+				                            ,AG.UserName AccountGroupName
+		                                    ,VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                                            VD.BudgetMasterId
+											,BUD.Id BudgetId
+		                                    ,BUD.UserName AS Budget,
+											A.Id AS ActivityId
+											,A.UserName AS Activity
+									,VD.BankMasterId,VD.CashMasterId
+                                      
+											--,format( V.PostingDate, 'dd-MMM-yyyyy')PostingDate
+	                                        FROM TRN.VoucherDetailCurrency AS VDC
+		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+		                                    LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                                            LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                                            LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                                            LEFT JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+											LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                                            LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
+											LEFT JOIN HKP.Activity A ON VD.ActivityId=A.Id
+											LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
+											LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
+											LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
+											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
+                                            WHERE v.PostingDate <= '" + toDate + "' and v.CompanyId ='" + companyId + "' AND V.PlantId='" + plantId + @"'
+								          -- and GL.Id='' and BUD.Id=''  and A.Id=''
+                                            AND  v.IsPark=0 and ag.UserName in 	(" + accountGroupList + @") 
+                                              GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName ,AG.Id,AG.UserName,
+											GL.AccountCode, ACT.BalanceType, ACT.Id, BUD.Id, BUD.UserName, VD.BudgetMasterId, A.Id,A.UserName,VD.BankMasterId,VD.CashMasterId
+											 ) ttd 
+                                            WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00
+                                            ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL,ttd.Budget, ttd.Activity";
+
+
+                return _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public DataTable GetTrialBLAccountGroupBudgetData(string companyGroupId, string companyId, string plantId, string accountGroupList, string toDate)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            string secSQL = string.Empty;
+            string xxy = string.Empty;
+            string XJobLocation = string.Empty;
+            clsStaticInfo obs = null;
+            string ShiftIds_WC = "";
+            try
+            {
+
+
+
+                obs = new clsStaticInfo();
+                strSql = @"SELECT * FROM (SELECT distinct	GL.Id AS AccountCodeId,
+		                                  VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+		                                   sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
+                                           , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,
+                                         ACT.BalanceType,
+                                         ACT.Id AS [MainHead]
+                                        	,ag.Id AccoutnGroupId
+                                            ,AG.UserName AccountGroupName
+		                                  ,VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
+                                           VD.BudgetMasterId,
+		                                   BUD.UserName AS Budget
+	                                     FROM TRN.VoucherDetailCurrency AS VDC
+		                                 INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+		                                 INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+		                                 LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                                       LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                                         LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                                         LEFT JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+											LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                                     LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
+                                       where v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
+                                       and  v.IsPark=0  and ag.UserName in 	(" + accountGroupList + @") 
+                                      GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,VD.GLGeneralInfoId,GL.UserName  ,ag.Id, AG.UserName
+                                    , GL.AccountCode, ACT.BalanceType,ACT.Id,VD.BudgetMasterId,BUD.UserName,v.PostingDate) ttd 
+                                      WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00
+                                      ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL,ttd.Budget";
+
+
+                return _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public DataTable GetTrialBLAccountGroupGLData(string companyGroupId, string companyId, string plantId, string accountGroupList, string toDate)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            string secSQL = string.Empty;
+            string xxy = string.Empty;
+            string XJobLocation = string.Empty;
+            clsStaticInfo obs = null;
+            string ShiftIds_WC = "";
+            try
+            {
+
+
+
+                obs = new clsStaticInfo();
+                strSql = @"SELECT * FROM (SELECT  distinct	GL.Id AS AccountCodeId,
+		                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+		                   sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
+                         , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,
+                            ACT.BalanceType,
+                            ACT.Id AS [MainHead]
+                            ,ag.Id
+                            ,AG.UserName AccountGroupName
+		                    ,VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode
+	                        FROM TRN.VoucherDetailCurrency AS VDC
+		                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+		                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+		                    LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                            LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                            LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                            LEFT JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                            where v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
+                            and  v.IsPark=0  and ag.UserName in (" + accountGroupList + @") 
+                            group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,VD.GLGeneralInfoId,GL.UserName, GL.AccountCode  ,ag.Id, AG.UserName
+                            , ACT.BalanceType,ACT.Id,v.PostingDate) ttd 
+                            WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00
+                            ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL";
+
+
+                return _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+        public string GetTrialBLAccountGroupWiseDetailReport(string companyGroupId, string companyId, string plantId, string accountGroupList, string toDate, string SheetName,string reportName)
         {
             try
             {
@@ -10694,7 +10871,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 //Dictionary<string, List<DataRow>> dicEmpMonthAttdnSummary = HRMS.GetMontlyAttdnSummary(companyGroupId, plantId, workDate);
                 //for (int dsi = 0; dsi < dayStatus.Count; dsi++)
                 //{
-                    var daylyAttdnEmpInfo = GetDAttendanceEmployees(companyGroupId, companyId, plantId, accountGroupList, toDate);
+                    var daylyAttdnEmpInfo = GetTrialBLAccountGroupDetailData(companyGroupId, companyId, plantId, accountGroupList, toDate);
 
 
                 
@@ -10854,11 +11031,20 @@ group by Id) O60 ON O60.Id=IV.Id
 
                             oRU.SetText(ref sheet1, xlsRow, cParticulars, daylyAttdnEmpInfo.Rows[i]["Particulars"].ToString());
                             oRU.SetText(ref sheet1, xlsRow, cFixedAssetMasterId, daylyAttdnEmpInfo.Rows[i]["FixedAssetMasterId"].ToString());
-                            oRU.SetText(ref sheet1, xlsRow, cBooksDebit, daylyAttdnEmpInfo.Rows[i]["DRcumulative"].ToString());
-                            oRU.SetText(ref sheet1, xlsRow, cBooksCredit, daylyAttdnEmpInfo.Rows[i]["CRcumulative"].ToString());
+                           // oRU.SetText(ref sheet1, xlsRow, cBooksDebit, daylyAttdnEmpInfo.Rows[i]["DRcumulative"].ToString());
+                          //oRU.SetText(ref sheet1, xlsRow, cBooksDebit, daylyAttdnEmpInfo.NumberFormat = "#,##0.00;(#,##0.00)");
 
-                            //oRU.SetText[xlsRow, cParticulars].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["DRcumulative"].ToString());
-                            //oRU.SetText[xlsRow, cParticulars].NumberFormat = "#,##0.00;(#,##0.00)";
+                          sheet1[xlsRow, cBooksDebit].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["DRcumulative"].ToString());
+                           sheet1[xlsRow, cBooksDebit].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                            //oRU.SetText(ref sheet1, xlsRow, cBooksCredit, daylyAttdnEmpInfo.Rows[i]["CRcumulative"].ToString());
+                            sheet1[xlsRow, cBooksCredit].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["CRcumulative"].ToString());
+                            sheet1[xlsRow, cBooksCredit].NumberFormat = clsStaticInfo.NumberFormat(2);
+                        // oRU.SetText(ref sheet1, xlsRow, cBooksCredit, daylyAttdnEmpInfo.NumberFormat = "#,##0.00;(#,##0.00)");
+
+                        //oRU.SetText[xlsRow, cParticulars].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["DRcumulative"].ToString());
+                        //oRU.SetText[xlsRow, cParticulars].NumberFormat = "#,##0.00;(#,##0.00)";
+
 
                         //if (!string.IsNullOrEmpty(daylyAttdnEmpInfo.Rows[i]["ActivityId"].ToString()))
                         //{
@@ -10902,6 +11088,506 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 //}
 
+                workbook.Version = ExcelVersion.Excel97to2003;
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string GetTrialBLAccountGroupWiseActivityReport(string companyGroupId, string companyId, string plantId, string accountGroupList, string toDate, string SheetName, string reportName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+                string yot = string.Empty;
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+   
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+    
+
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+
+                
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create();
+
+                
+                var daylyAttdnEmpInfo = GetTrialBLAccountGroupActivityData(companyGroupId, companyId, plantId, accountGroupList, toDate);
+
+
+
+
+                sheet1 = workbook.Worksheets[0];
+
+                // string xx = dayStatus[dsi].Replace("\"", "").Trim();
+                // reportName = "";
+
+
+
+                xlsRow = 5;
+                #region variable
+                var cBalanceType = 0; var cMainHead = 0; var cAccoutnGroupId = 0; var cAccountGroupName = 0; var cGLGeneralInfoId = 0; var cGL = 0;
+                var cGLGeneralInfoCode = 0; var cBudgetMasterId = 0; var cBudgetId = 0;
+                var cBudget = 0; var cActivityId = 0; var cActivity = 0;
+                var cParticulars = 0;
+
+                var cBooksDebit = 0; var cBooksCredit = 0;
+                var cFixedAssetMasterId = 0;
+               
+                var cSl = 0;
+                var endXlsCol = 0;
+                var colNum = 0;
+                
+                #endregion variable
+                //xlsRow++;
+                xlsCol = 1;
+
+                #region Header
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 2); cSl = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Balance Type", 15); cBalanceType = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Main Head", 15); cMainHead = xlsCol; xlsCol++;
+
+                
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account Group Name", 25); cAccountGroupName = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GLGeneralInfoCode", 15); cGLGeneralInfoCode = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GL", 35); cGL = xlsCol; xlsCol++;
+
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetMasterId", 15); cBudgetMasterId = xlsCol; xlsCol++;
+
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetId", 15); cBudgetId = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budget", 45); cBudget = xlsCol; xlsCol++;
+
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ActivityId", 15); cActivityId = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Activity", 50); cActivity = xlsCol; xlsCol++;
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Details", 60); cParticulars = xlsCol++;
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FixedAsset MasterId", 15); cFixedAssetMasterId = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Books Debit", 20); cBooksDebit = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Books Credit", 20); cBooksCredit = xlsCol;
+
+                #endregion Header
+
+
+
+                if (daylyAttdnEmpInfo.Rows.Count > 0)
+                {
+
+                    var fPanRow = xlsRow + 1;
+                    xlsCol--;
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    var slCount = 0;
+
+
+                    for (int i = 0; i < daylyAttdnEmpInfo.Rows.Count; i++)
+                    {
+                        slCount++;
+                        #region Loop
+
+
+
+                        oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cMainHead, daylyAttdnEmpInfo.Rows[i]["MainHead"].ToString());
+
+
+                        oRU.SetText(ref sheet1, xlsRow, cBalanceType, daylyAttdnEmpInfo.Rows[i]["BalanceType"].ToString());
+                        
+
+                        oRU.SetText(ref sheet1, xlsRow, cAccountGroupName, daylyAttdnEmpInfo.Rows[i]["AccountGroupName"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cGLGeneralInfoId, daylyAttdnEmpInfo.Rows[i]["GLGeneralInfoId"].ToString());
+
+                       
+
+                        oRU.SetText(ref sheet1, xlsRow, cGL, daylyAttdnEmpInfo.Rows[i]["GL"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGLGeneralInfoCode, daylyAttdnEmpInfo.Rows[i]["GLGeneralInfoCode"].ToString());
+
+
+                        oRU.SetText(ref sheet1, xlsRow, cBudgetMasterId, daylyAttdnEmpInfo.Rows[i]["BudgetMasterId"].ToString());
+                        // oRU.SetText(ref sheet1, xlsRow, cBudgetId, daylyAttdnEmpInfo.Rows[i]["BudgetId"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cBudget, daylyAttdnEmpInfo.Rows[i]["Budget"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cActivity, daylyAttdnEmpInfo.Rows[i]["Activity"].ToString());
+                        // oRU.SetText(ref sheet1, xlsRow, cActivityId, daylyAttdnEmpInfo.Rows[i]["ActivityId"].ToString());
+
+                        //oRU.SetText(ref sheet1, xlsRow, cParticulars, daylyAttdnEmpInfo.Rows[i]["Particulars"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cFixedAssetMasterId, daylyAttdnEmpInfo.Rows[i]["FixedAssetMasterId"].ToString());
+
+                        sheet1[xlsRow, cBooksDebit].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["DRcumulative"].ToString());
+                        sheet1[xlsRow, cBooksDebit].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                        //oRU.SetText(ref sheet1, xlsRow, cBooksCredit, daylyAttdnEmpInfo.Rows[i]["CRcumulative"].ToString());
+                        sheet1[xlsRow, cBooksCredit].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["CRcumulative"].ToString());
+                        sheet1[xlsRow, cBooksCredit].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                       
+                        #endregion Loop
+                        xlsRow++;
+                    }
+
+                    oRU.SetHeaderText(ref sheet1, 4, 1, reportName + " Report", ExcelHAlign.HAlignCenter);
+                    sheet1.Range[4, 1, 4, endXlsCol].Merge();
+
+                    
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    sheet1.UsedRange["A" + fPanRow].FreezePanes();
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    sheet1.Name = reportName;
+
+                }
+
+
+
+                workbook.Version = ExcelVersion.Excel97to2003;
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string GetTrialBLAccountGroupWiseBudgetReport(string companyGroupId, string companyId, string plantId, string accountGroupList, string toDate, string SheetName, string reportName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+                string yot = string.Empty;
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create();
+
+         
+                var daylyAttdnEmpInfo = GetTrialBLAccountGroupBudgetData(companyGroupId, companyId, plantId, accountGroupList, toDate);
+
+                sheet1 = workbook.Worksheets[0];
+
+                xlsRow = 5;
+                #region variable
+                var cBalanceType = 0; var cMainHead = 0; var cAccoutnGroupId = 0; var cAccountGroupName = 0; var cGLGeneralInfoId = 0; var cGL = 0;
+                var cGLGeneralInfoCode = 0; var cBudgetMasterId = 0; var cBudgetId = 0;
+                var cBudget = 0; var cActivityId = 0; var cActivity = 0;
+                var cParticulars = 0;
+
+                var cBooksDebit = 0; var cBooksCredit = 0;
+                var cFixedAssetMasterId = 0;
+
+                var cSl = 0;
+                var endXlsCol = 0;
+                var colNum = 0;
+         
+                #endregion variable
+                //xlsRow++;
+                xlsCol = 1;
+
+                #region Header
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 2); cSl = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Balance Type", 15); cBalanceType = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Main Head", 15); cMainHead = xlsCol; xlsCol++;
+
+         
+
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account Group Id", 15); cAccoutnGroupId = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account Group Name", 25); cAccountGroupName = xlsCol; xlsCol++;
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GL General Info Id", 15); cGLGeneralInfoId = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GLGeneralInfoCode", 15); cGLGeneralInfoCode = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GL", 35); cGL = xlsCol; xlsCol++;
+
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetMasterId", 15); cBudgetMasterId = xlsCol; xlsCol++;
+
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetId", 15); cBudgetId = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budget", 45); cBudget = xlsCol; xlsCol++;
+
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ActivityId", 15); cActivityId = xlsCol; xlsCol++;
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Activity", 50); cActivity = xlsCol; xlsCol++;
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Details", 60); cParticulars = xlsCol++;
+
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FixedAsset MasterId", 15); cFixedAssetMasterId = xlsCol; xlsCol++;
+
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Books Debit", 20); cBooksDebit = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Books Credit", 20); cBooksCredit = xlsCol;
+
+                #endregion Header
+
+
+
+                if (daylyAttdnEmpInfo.Rows.Count > 0)
+                {
+
+                    var fPanRow = xlsRow + 1;
+                    xlsCol--;
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    var slCount = 0;
+
+
+                    for (int i = 0; i < daylyAttdnEmpInfo.Rows.Count; i++)
+                    {
+                        slCount++;
+                        #region Loop
+
+                        oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cMainHead, daylyAttdnEmpInfo.Rows[i]["MainHead"].ToString());
+
+
+                        oRU.SetText(ref sheet1, xlsRow, cBalanceType, daylyAttdnEmpInfo.Rows[i]["BalanceType"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cAccoutnGroupId, daylyAttdnEmpInfo.Rows[i]["AccoutnGroupId"].ToString());
+
+               
+                        oRU.SetText(ref sheet1, xlsRow, cAccountGroupName, daylyAttdnEmpInfo.Rows[i]["AccountGroupName"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cGLGeneralInfoId, daylyAttdnEmpInfo.Rows[i]["GLGeneralInfoId"].ToString());
+
+                        //oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["EmployeeLocation"].ToString());
+
+
+                        oRU.SetText(ref sheet1, xlsRow, cGL, daylyAttdnEmpInfo.Rows[i]["GL"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGLGeneralInfoCode, daylyAttdnEmpInfo.Rows[i]["GLGeneralInfoCode"].ToString());
+
+
+                        oRU.SetText(ref sheet1, xlsRow, cBudgetMasterId, daylyAttdnEmpInfo.Rows[i]["BudgetMasterId"].ToString());
+                        // oRU.SetText(ref sheet1, xlsRow, cBudgetId, daylyAttdnEmpInfo.Rows[i]["BudgetId"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cBudget, daylyAttdnEmpInfo.Rows[i]["Budget"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cActivity, daylyAttdnEmpInfo.Rows[i]["Activity"].ToString());
+                        // oRU.SetText(ref sheet1, xlsRow, cActivityId, daylyAttdnEmpInfo.Rows[i]["ActivityId"].ToString());
+
+                        //oRU.SetText(ref sheet1, xlsRow, cParticulars, daylyAttdnEmpInfo.Rows[i]["Particulars"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cFixedAssetMasterId, daylyAttdnEmpInfo.Rows[i]["FixedAssetMasterId"].ToString());
+
+                        sheet1[xlsRow, cBooksDebit].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["DRcumulative"].ToString());
+                        sheet1[xlsRow, cBooksDebit].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                        //oRU.SetText(ref sheet1, xlsRow, cBooksCredit, daylyAttdnEmpInfo.Rows[i]["CRcumulative"].ToString());
+                        sheet1[xlsRow, cBooksCredit].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["CRcumulative"].ToString());
+                        sheet1[xlsRow, cBooksCredit].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                        //oRU.SetText[xlsRow, cParticulars].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["DRcumulative"].ToString());
+                        //oRU.SetText[xlsRow, cParticulars].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                        #endregion Loop
+                        xlsRow++;
+                    }
+
+                    oRU.SetHeaderText(ref sheet1, 4, 1, reportName + " Report", ExcelHAlign.HAlignCenter);
+                    //oRU.SetHeaderText(ref sheet1, 4, 1, xx + " Report", ExcelHAlign.HAlignCenter);
+                    sheet1.Range[4, 1, 4, endXlsCol].Merge();
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    sheet1.UsedRange["A" + fPanRow].FreezePanes();
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    sheet1.Name = reportName;
+
+                }
+
+                //}
+                workbook.Version = ExcelVersion.Excel97to2003;
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string GetTrialBLAccountGroupWiseGLReport(string companyGroupId, string companyId, string plantId, string accountGroupList, string toDate, string SheetName, string reportName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+                string yot = string.Empty;
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+              
+                #endregion Variable
+                //objRpt = new clsReport();
+                oRU = new ReportUtility();
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create();
+
+    
+                var daylyAttdnEmpInfo = GetTrialBLAccountGroupGLData(companyGroupId, companyId, plantId, accountGroupList, toDate);
+
+
+                sheet1 = workbook.Worksheets[0];
+
+                xlsRow = 5;
+                #region variable
+                var cBalanceType = 0; var cMainHead = 0; var cAccoutnGroupId = 0; var cAccountGroupName = 0; var cGLGeneralInfoId = 0; var cGL = 0;
+                var cGLGeneralInfoCode = 0; var cBudgetMasterId = 0; var cBudgetId = 0;
+                var cBudget = 0; var cActivityId = 0; var cActivity = 0;
+                var cParticulars = 0;
+
+                var cBooksDebit = 0; var cBooksCredit = 0;
+                var cFixedAssetMasterId = 0;
+          
+                var cSl = 0;
+                var endXlsCol = 0;
+                var colNum = 0;
+     
+                #endregion variable
+          
+                xlsCol = 1;
+
+                #region Header
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 2); cSl = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Balance Type", 15); cBalanceType = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Main Head", 15); cMainHead = xlsCol; xlsCol++;
+
+
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account Group Id", 15); cAccoutnGroupId = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account Group Name", 25); cAccountGroupName = xlsCol; xlsCol++;
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GL General Info Id", 15); cGLGeneralInfoId = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GLGeneralInfoCode", 15); cGLGeneralInfoCode = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GL", 35); cGL = xlsCol; xlsCol++;
+
+               //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetMasterId", 15); cBudgetMasterId = xlsCol; xlsCol++;
+
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetId", 15); cBudgetId = xlsCol; xlsCol++;
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budget", 45); cBudget = xlsCol; xlsCol++;
+
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ActivityId", 15); cActivityId = xlsCol; xlsCol++;
+               //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Activity", 50); cActivity = xlsCol; xlsCol++;
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Details", 60); cParticulars = xlsCol++;
+
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FixedAsset MasterId", 15); cFixedAssetMasterId = xlsCol; xlsCol++;
+
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Books Debit", 20); cBooksDebit = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Books Credit", 20); cBooksCredit = xlsCol;
+
+                #endregion Header
+
+
+
+                if (daylyAttdnEmpInfo.Rows.Count > 0)
+                {
+
+                    var fPanRow = xlsRow + 1;
+                    xlsCol--;
+                    endXlsCol = xlsCol;
+                    xlsRow++;
+                    var slCount = 0;
+
+
+                    for (int i = 0; i < daylyAttdnEmpInfo.Rows.Count; i++)
+                    {
+                        slCount++;
+                        #region Loop
+
+                        oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cMainHead, daylyAttdnEmpInfo.Rows[i]["MainHead"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cBalanceType, daylyAttdnEmpInfo.Rows[i]["BalanceType"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cAccountGroupName, daylyAttdnEmpInfo.Rows[i]["AccountGroupName"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cGLGeneralInfoId, daylyAttdnEmpInfo.Rows[i]["GLGeneralInfoId"].ToString());
+
+                        //oRU.SetText(ref sheet1, xlsRow, cEmpLocation, daylyAttdnEmpInfo.Rows[i]["EmployeeLocation"].ToString());
+
+                        oRU.SetText(ref sheet1, xlsRow, cGL, daylyAttdnEmpInfo.Rows[i]["GL"].ToString());
+                        oRU.SetText(ref sheet1, xlsRow, cGLGeneralInfoCode, daylyAttdnEmpInfo.Rows[i]["GLGeneralInfoCode"].ToString());
+
+
+                        //oRU.SetText(ref sheet1, xlsRow, cBudgetMasterId, daylyAttdnEmpInfo.Rows[i]["BudgetMasterId"].ToString());
+                        // oRU.SetText(ref sheet1, xlsRow, cBudgetId, daylyAttdnEmpInfo.Rows[i]["BudgetId"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cBudget, daylyAttdnEmpInfo.Rows[i]["Budget"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cActivity, daylyAttdnEmpInfo.Rows[i]["Activity"].ToString());
+                        // oRU.SetText(ref sheet1, xlsRow, cActivityId, daylyAttdnEmpInfo.Rows[i]["ActivityId"].ToString());
+
+                        //oRU.SetText(ref sheet1, xlsRow, cParticulars, daylyAttdnEmpInfo.Rows[i]["Particulars"].ToString());
+                        //oRU.SetText(ref sheet1, xlsRow, cFixedAssetMasterId, daylyAttdnEmpInfo.Rows[i]["FixedAssetMasterId"].ToString());
+
+                        sheet1[xlsRow, cBooksDebit].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["DRcumulative"].ToString());
+                        sheet1[xlsRow, cBooksDebit].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                        //oRU.SetText(ref sheet1, xlsRow, cBooksCredit, daylyAttdnEmpInfo.Rows[i]["CRcumulative"].ToString());
+                        sheet1[xlsRow, cBooksCredit].Number = clsStaticInfo.dbl(daylyAttdnEmpInfo.Rows[i]["CRcumulative"].ToString());
+                        sheet1[xlsRow, cBooksCredit].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+
+
+                        #endregion Loop
+                        xlsRow++;
+                    }
+
+                    oRU.SetHeaderText(ref sheet1, 4, 1, reportName + " Report", ExcelHAlign.HAlignCenter);
+                    //oRU.SetHeaderText(ref sheet1, 4, 1, xx + " Report", ExcelHAlign.HAlignCenter);
+                    sheet1.Range[4, 1, 4, endXlsCol].Merge();
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    sheet1.UsedRange["A" + fPanRow].FreezePanes();
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                    sheet1.Name = reportName;
+
+                }
+
+                //}
                 workbook.Version = ExcelVersion.Excel97to2003;
                 filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
                 workbook.SaveAs(filePath);
