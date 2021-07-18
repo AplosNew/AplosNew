@@ -619,108 +619,41 @@
                             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(8), active: isSet(8) }" ng-show="TaxPolicyMaster.TaxType == 'Income Tax'">
                                 <div class="form-elements form-horizontal" ng-form id="OTSlapFormId" name="OTSlapForm">
                                     <fieldset class="scheduler-border">
-                                        <div class="row">
-                                            <div class="col-xs-3 col-sm-3 col-md-3 div1">
-                                                <div class="form-group">
-                                                    <div class="col-xs-6 ">
-                                                        <div class="radio">
-                                                            <label>
-                                                                <input type="radio" name="CumulativeOrBrakeUp" ng-model="TaxRebate.CumulativeOrBrakeUp" value="Cumulative">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Cumulative
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-6 ">
-                                                        <div class="radio">
-                                                            <label>
-                                                                <input type="radio" name="CumulativeOrBrakeUp" ng-model="TaxRebate.CumulativeOrBrakeUp" value="Break Up">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Break Up
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xs-1 col-sm-1 col-md-1 ">
-                                            </div>
-                                            <div class="col-xs-3 col-sm-3 col-md-3 div2">
-                                                <div class="form-group">
-                                                    <div class="col-xs-6 ">
-                                                        <div class="radio">
-                                                            <label>
-                                                                <input type="radio" name="FixedOrPercentage" ng-model="TaxRebate.FixedOrPercentage" value="Fixed">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Fixed
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-6 ">
-                                                        <div class="radio">
-                                                            <label>
-                                                                <input type="radio" name="FixedOrPercentage" ng-model="TaxRebate.FixedOrPercentage" value="Percentage">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Percentage
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xs-1 col-sm-1 col-md-1 ">
-                                            </div>
-                                            <div class="col-xs-3 col-sm-3 col-md-3 div3">
-                                                <div class="form-group">
-                                                    <div class="col-xs-6 ">
-                                                        <div class="radio">
-                                                            <label>
-                                                                <input type="radio" name="TaxableIncomeOrTax" ng-model="TaxRebate.TaxableIncomeOrTax" value="Taxable Income">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Taxable Income
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-6 ">
-                                                        <div class="radio">
-                                                            <label>
-                                                                <input type="radio" name="TaxableIncomeOrTax" ng-model="TaxRebate.TaxableIncomeOrTax" value="Tax">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Tax
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xs-1 col-sm-1 col-md-1 ">
+                                        <div class="row">                                            
+                                            <div class="common-btn" style=" margin-left: 16px; margin-top: 2px;">
+                                                <ul class="list-inline text-left">
+                                                    <li> <button ng-click="AddTaxRebate();" class="btn"><i class="glyphicon glyphicon-plus"></i>Add Tax Rebate</button></li>
+                                                </ul>
                                             </div>
 
-                                            <div class="col-sm-12 table-responsive modal-table">
-                                                <table class="table table-striped">
-                                                    <thead>
-                                                        <tr>
-                                                            <th></th>
-                                                            <th>From (Minimum)</th>
-                                                            <th>To (Maximum)</th>
-                                                            <th>Tax Rate</th>
-                                                            <th>Add</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr ng-repeat="item in TaxRebateList">
-                                                            <th>{{$index>0?'Above':''}}</th>
-                                                            <td><input type="number" min="0" ng-model="item.Minimum" class="form-control" ng-disabled="TaxRebateList.length>1" /></td>
-                                                            <td><input type="number" min="0" ng-model="item.Maximum" class="form-control" ng-disabled="$index<TaxRebateList.length-1" /></td>
-                                                            <td><input type="number" min="0" ng-model="item.TaxRate" class="form-control" /></td>
-                                                            <td class="text-right" ng-hide="$index<TaxRebateList.length-1">
-                                                                <ul class="list-inline">
-                                                                    <li><button ng-click="SubmitTaxRebate(item);" class="btn btn-action "><i class="glyphicon glyphicon-plus"></i></button></li>
-                                                                    <li><button ng-hide="TaxRebateList.length<2" ng-click="RemoveTaxRebate($index);" class="btn btn-action "><i class="glyphicon glyphicon-minus"></i></button></li>
-                                                                </ul>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
+                                            <div class="col-xs-12 col-sm-12 col-sm-12" id="taxrebate">
+                                                <div style="color:black;" ej-grid e-datasource="TaxRebateMasterList"
+                                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                                     e-allowselection="true" e-filtersettings-filterType="excel" e-actioncomplete="actionCompleteSelected">
+                                                    <div e-columns>
+                                                        <div e-column e-field="Description" e-headertext="Description" e-width="6"></div>
+                                                        <div e-column e-headertext="Details" e-template="#DetailsButtons" e-width="2"></div>
+                                                        <div e-column e-headertext="Delete" e-template="#DeleteTaxRebateButtons" e-width="2"></div>
+                                                    </div>
+                                                </div>
+                                                <script type="text/ng-template" id="DetailsButtons">
+                                                    <div class="common-btn">
+                                                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
+                                                            <i class="glyphicon glyphicon-th-list" ng-click="$parent.AddTaxRebate(this);"></i>
+                                                        </button>
+                                                    </div>
+                                                </script>
+                                                <script type="text/ng-template" id="DeleteTaxRebateButtons">
+                                                    <div class="common-btn">
+                                                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
+                                                            <i class="glyphicon glyphicon-trash" ng-click="$parent.DeleteTaxRebateSlabe(this);"></i>
+                                                        </button>
+                                                    </div>
+                                                </script>
                                             </div>
+
                                         </div>
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-right">
-                                                <li> <button ng-click="SaveTaxRebate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
-                                                <li> <button ng-click="DeleteTaxRebateSlabe();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-trash"></i>Delete</button></li>
-                                            </ul>
-                                        </div>
+
                                     </fieldset>
                                 </div>
                             </div>
@@ -728,106 +661,36 @@
                                 <div class="form-elements form-horizontal" ng-form id="OTSlabFormId" name="OTSlabForm">
                                     <fieldset class="scheduler-border">
                                         <div class="row">
-                                            <div class="col-xs-3 col-sm-3 col-md-3 div1">
-                                                <div class="form-group">
-                                                    <div class="col-xs-6 ">
-                                                        <div class="radio">
-                                                            <label>
-                                                                <input type="radio" name="TaxSurchargeCumulativeOrBrakeUp" ng-model="TaxSurcharge.CumulativeOrBrakeUp" value="Cumulative">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Cumulative
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-6 ">
-                                                        <div class="radio">
-                                                            <label>
-                                                                <input type="radio" name="TaxSurchargeCumulativeOrBrakeUp" ng-model="TaxSurcharge.CumulativeOrBrakeUp" value="Break Up">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Break Up
-                                                            </label>
-                                                        </div>
+                                            <div class="common-btn" style=" margin-left: 16px; margin-top: 2px;">
+                                                <ul class="list-inline text-left">
+                                                    <li> <button ng-click="AddTaxSurcharge();" class="btn"><i class="glyphicon glyphicon-plus"></i>Add Tax Surcharge</button></li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-sm-12" id="taxrebate">
+                                                <div style="color:black;" ej-grid e-datasource="TaxSurChargeMasterList"
+                                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                                     e-allowselection="true" e-filtersettings-filterType="excel" e-actioncomplete="actionCompleteSelected">
+                                                    <div e-columns>
+                                                        <div e-column e-field="Description" e-headertext="Description" e-width="6"></div>
+                                                        <div e-column e-headertext="Details" e-template="#TaxSurchargeDetailsButtons" e-width="2"></div>
+                                                        <div e-column e-headertext="Delete" e-template="#DeleteTaxSurchargeButtons" e-width="2"></div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-xs-1 col-sm-1 col-md-1 ">
-                                            </div>
-                                            <div class="col-xs-3 col-sm-3 col-md-3 div2">
-                                                <div class="form-group">
-                                                    <div class="col-xs-6 ">
-                                                        <div class="radio">
-                                                            <label>
-                                                                <input type="radio" name="TaxSurchargeFixedOrPercentage" ng-model="TaxSurcharge.FixedOrPercentage" value="Fixed">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Fixed
-                                                            </label>
-                                                        </div>
+                                                <script type="text/ng-template" id="TaxSurchargeDetailsButtons">
+                                                    <div class="common-btn">
+                                                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
+                                                            <i class="glyphicon glyphicon-th-list" ng-click="$parent.AddTaxSurcharge(this);"></i>
+                                                        </button>
                                                     </div>
-                                                    <div class="col-xs-6 ">
-                                                        <div class="radio">
-                                                            <label>
-                                                                <input type="radio" name="TaxSurchargeFixedOrPercentage" ng-model="TaxSurcharge.FixedOrPercentage" value="Percentage">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Percentage
-                                                            </label>
-                                                        </div>
+                                                </script>
+                                                <script type="text/ng-template" id="DeleteTaxSurchargeButtons">
+                                                    <div class="common-btn">
+                                                        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
+                                                            <i class="glyphicon glyphicon-trash" ng-click="$parent.DeleteTaxSurchargeSlabs(this);"></i>
+                                                        </button>
                                                     </div>
-                                                </div>
+                                                </script>
                                             </div>
-                                            <div class="col-xs-1 col-sm-1 col-md-1 ">
-                                            </div>
-                                            <div class="col-xs-3 col-sm-3 col-md-3 div3">
-                                                <div class="form-group">
-                                                    <div class="col-xs-6 ">
-                                                        <div class="radio">
-                                                            <label>
-                                                                <input type="radio" name="TaxSurchargeTaxableIncomeOrTax" ng-model="TaxSurcharge.TaxableIncomeOrTax" value="Taxable Income">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Taxable Income
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-6 ">
-                                                        <div class="radio">
-                                                            <label>
-                                                                <input type="radio" name="TaxSurchargeTaxableIncomeOrTax" ng-model="TaxSurcharge.TaxableIncomeOrTax" value="Tax">
-                                                                <span class="cr"><i class="cr-icon"></i></span>Tax
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xs-1 col-sm-1 col-md-1 ">
-                                            </div>
-
-                                            <div class="col-sm-12 table-responsive modal-table">
-                                                <table class="table table-striped">
-                                                    <thead>
-                                                        <tr>
-                                                            <th></th>
-                                                            <th>From (Minimum)</th>
-                                                            <th>To (Maximum)</th>
-                                                            <th>Tax Rate</th>
-                                                            <th>Add</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr ng-repeat="item in TaxSurchargeList">
-                                                            <th>{{$index>0?'Above':''}}</th>
-                                                            <td><input type="number" min="0" ng-model="item.Minimum" class="form-control" ng-disabled="TaxSurchargeList.length>1" /></td>
-                                                            <td><input type="number" min="0" ng-model="item.Maximum" class="form-control" ng-disabled="$index<TaxSurchargeList.length-1" /></td>
-                                                            <td><input type="number" min="0" ng-model="item.TaxRate" class="form-control" /></td>
-                                                            <td class="text-right" ng-hide="$index<TaxSurchargeList.length-1">
-                                                                <ul class="list-inline">
-                                                                    <li><button ng-click="SubmitTaxSurcharge(item);" class="btn btn-action "><i class="glyphicon glyphicon-plus"></i></button></li>
-                                                                    <li><button ng-hide="TaxSurchargeList.length<2" ng-click="RemoveTaxSurcharge($index);" class="btn btn-action "><i class="glyphicon glyphicon-minus"></i></button></li>
-                                                                </ul>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-right">
-                                                <li> <button ng-click="SaveTaxSurcharge();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
-                                                <li> <button ng-click="DeleteTaxSurchargeSlabe();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-trash"></i>Delete</button></li>
-                                            </ul>
                                         </div>
                                     </fieldset>
                                 </div>
@@ -1177,6 +1040,248 @@
     </div>
 </ej-dialog>
 
+<ej-dialog id="TaxRebate"
+           title="Examption"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target="#MainDivId"
+           e-close="onDialogClose"
+           e-width="1080"
+           e-minheight="470"
+           e-open="enableBtn">
+
+    <fieldset class="scheduler-border form-group form-elements" style="width:990px;">
+        <div class="col-xs-6 col-sm-6 col-md-3 div1">
+            <div class="form-group">
+                <div class="col-xs-6 ">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="CumulativeOrBrakeUp" ng-model="TaxRebate.CumulativeOrBrakeUp" value="Cumulative">
+                            <span class="cr"><i class="cr-icon"></i></span>Cumulative
+                        </label>
+                    </div>
+                </div>
+                <div class="col-xs-6 ">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="CumulativeOrBrakeUp" ng-model="TaxRebate.CumulativeOrBrakeUp" value="Break Up">
+                            <span class="cr"><i class="cr-icon"></i></span>Break Up
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6 col-sm-6 col-md-6 div2">
+            <div class="form-group">
+                <div class="col-xs-6 ">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="FixedOrPercentage" ng-model="TaxRebate.FixedOrPercentage" value="Fixed">
+                            <span class="cr"><i class="cr-icon"></i></span>Fixed
+                        </label>
+                    </div>
+                </div>
+                <div class="col-xs-6 ">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="FixedOrPercentage" ng-model="TaxRebate.FixedOrPercentage" value="Percentage">
+                            <span class="cr"><i class="cr-icon"></i></span>Percentage
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6 col-sm-6 col-md-6 div3">
+            <div class="form-group">
+                <div class="col-xs-6 ">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="TaxableIncomeOrTax" ng-model="TaxRebate.TaxableIncomeOrTax" value="Taxable Income">
+                            <span class="cr"><i class="cr-icon"></i></span>Taxable Income
+                        </label>
+                    </div>
+                </div>
+                <div class="col-xs-6 ">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="TaxableIncomeOrTax" ng-model="TaxRebate.TaxableIncomeOrTax" value="Tax">
+                            <span class="cr"><i class="cr-icon"></i></span>Tax
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6 col-sm-6 col-md-6 " style="margin-top: 6px;">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <input class="form-control" rows="3" ng-model="TaxRebate.Description" tabindex="7" maxlength="250">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>From (Minimum)</th>
+                        <th>To (Maximum)</th>
+                        <th>Tax Rate</th>
+                        <th>Add</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in TaxRebateList">
+                        <th>{{$index>0?'Above':''}}</th>
+                        <td><input type="number" min="0" ng-model="item.Minimum" class="form-control" ng-disabled="TaxRebateList.length>1" /></td>
+                        <td><input type="number" min="0" ng-model="item.Maximum" class="form-control" ng-disabled="$index<TaxRebateList.length-1" /></td>
+                        <td><input type="number" min="0" ng-model="item.TaxRate" class="form-control" /></td>
+                        <td class="text-right" ng-hide="$index<TaxRebateList.length-1">
+                            <ul class="list-inline">
+                                <li><button ng-click="SubmitTaxRebate(item);" class="btn btn-action "><i class="glyphicon glyphicon-plus"></i></button></li>
+                                <li><button ng-hide="TaxRebateList.length<2" ng-click="RemoveTaxRebate($index);" class="btn btn-action "><i class="glyphicon glyphicon-minus"></i></button></li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="SaveTaxRebate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                <li> <button ng-click="ConfirmDeleteTaxRebateDetails();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-trash"></i>Delete</button></li>
+            </ul>
+        </div>
+    </fieldset>
+
+
+</ej-dialog>
+
+<ej-dialog id="TaxSurcharge"
+           title="Examption"
+           e-enablemodal="true"
+           e-position-y="0"
+           e-showoninit="false"
+           e-target="#MainDivId"
+           e-close="onDialogClose"
+           e-width="1080"
+           e-minheight="470"
+           e-open="enableBtn">
+
+    <fieldset class="scheduler-border form-group form-elements" style="width:990px;">
+        <div class="col-xs-6 col-sm-6 col-md-3 div1">
+            <div class="form-group">
+                <div class="col-xs-6 ">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="TaxSurchargeCumulativeOrBrakeUp" ng-model="TaxSurcharge.CumulativeOrBrakeUp" value="Cumulative">
+                            <span class="cr"><i class="cr-icon"></i></span>Cumulative
+                        </label>
+                    </div>
+                </div>
+                <div class="col-xs-6 ">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="TaxSurchargeCumulativeOrBrakeUp" ng-model="TaxSurcharge.CumulativeOrBrakeUp" value="Break Up">
+                            <span class="cr"><i class="cr-icon"></i></span>Break Up
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6 col-sm-6 col-md-6 div2">
+            <div class="form-group">
+                <div class="col-xs-6 ">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="TaxSurchargeFixedOrPercentage" ng-model="TaxSurcharge.FixedOrPercentage" value="Fixed">
+                            <span class="cr"><i class="cr-icon"></i></span>Fixed
+                        </label>
+                    </div>
+                </div>
+                <div class="col-xs-6 ">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="TaxSurchargeFixedOrPercentage" ng-model="TaxSurcharge.FixedOrPercentage" value="Percentage">
+                            <span class="cr"><i class="cr-icon"></i></span>Percentage
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6 col-sm-6 col-md-6 div3">
+            <div class="form-group">
+                <div class="col-xs-6 ">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="TaxSurchargeTaxableIncomeOrTax" ng-model="TaxSurcharge.TaxableIncomeOrTax" value="Taxable Income">
+                            <span class="cr"><i class="cr-icon"></i></span>Taxable Income
+                        </label>
+                    </div>
+                </div>
+                <div class="col-xs-6 ">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="TaxSurchargeTaxableIncomeOrTax" ng-model="TaxSurcharge.TaxableIncomeOrTax" value="Tax">
+                            <span class="cr"><i class="cr-icon"></i></span>Tax
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6 col-sm-6 col-md-6 " style="margin-top: 6px;">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <input class="form-control" rows="3" ng-model="TaxSurcharge.Description" tabindex="7" maxlength="250">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>From (Minimum)</th>
+                        <th>To (Maximum)</th>
+                        <th>Tax Rate</th>
+                        <th>Add</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in TaxSurchargeList">
+                        <th>{{$index>0?'Above':''}}</th>
+                        <td><input type="number" min="0" ng-model="item.Minimum" class="form-control" ng-disabled="TaxSurchargeList.length>1" /></td>
+                        <td><input type="number" min="0" ng-model="item.Maximum" class="form-control" ng-disabled="$index<TaxSurchargeList.length-1" /></td>
+                        <td><input type="number" min="0" ng-model="item.TaxRate" class="form-control" /></td>
+                        <td class="text-right" ng-hide="$index<TaxSurchargeList.length-1">
+                            <ul class="list-inline">
+                                <li><button ng-click="SubmitTaxSurcharge(item);" class="btn btn-action "><i class="glyphicon glyphicon-plus"></i></button></li>
+                                <li><button ng-hide="TaxSurchargeList.length<2" ng-click="RemoveTaxSurcharge($index);" class="btn btn-action "><i class="glyphicon glyphicon-minus"></i></button></li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="SaveTaxSurcharge();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                <li> <button ng-click="ConfirmDeleteTaxSurchargeDetails();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-trash"></i>Delete</button></li>
+            </ul>
+        </div>
+    </fieldset>
+
+
+</ej-dialog>
+
 <ej-dialog id="X"
            title="Slab (Income Tax)"
            e-enablemodal="true"
@@ -1250,10 +1355,31 @@
     </p>
 </ej-dialog>
 
+<ej-dialog id="TaxRebateDetailsDelete" title="Confirm Delete?" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#TaxRebate" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
+    <p>
+        Are you sure to delete ?
+    </p>
+    <p class="text-right">
+        <ul class="list-inline text-right">
+            <li><button ng-click="DeleteTaxRebateDetails();ConfirmDeleteTaxRebateDetailsClose()" class="btn">Yes</button></li>
+            <li><button ng-click="ConfirmDeleteTaxRebateDetailsClose();" class="btn"> No</button></li>
+        </ul>
+    </p>
+</ej-dialog>
+
+<ej-dialog id="TaxSurchargeDetailsDelete" title="Confirm Delete?" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#TaxSurcharge" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
+    <p>
+        Are you sure to delete ?
+    </p>
+    <p class="text-right">
+        <ul class="list-inline text-right">
+            <li><button ng-click="DeleteTaxSurChargeDetails();ConfirmDeleteTaxSurchargeDetailsClose()" class="btn">Yes</button></li>
+            <li><button ng-click="ConfirmDeleteTaxSurchargeDetailsClose();" class="btn"> No</button></li>
+        </ul>
+    </p>
+</ej-dialog>
 
 <confirm-archive-generic modalid="confirmProcessPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteGeneral();"></confirm-archive-generic>
-
-@*<confirm-archive-generic modalid="confirmProcessPopUpFormula" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteGeneralFormula();"></confirm-archive-generic>*@
 
 <confirm-archive-generic modalid="confirmProcessIncome" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteIncome();"></confirm-archive-generic>
 
@@ -1280,11 +1406,13 @@
         width: 261px;
         height: 40px;
         border: 1px solid blue;
+        margin-left: 16px;
     }
 
     .div3 {
-        width: 300px;
+        width: 320px;
         height: 40px;
         border: 1px solid blue;
+        margin-left: 16px;
     }
 </style>

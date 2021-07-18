@@ -125,7 +125,7 @@ namespace Aplos.Areas.Employees.Controllers
         [HttpGet, Authorize]
         public ActionResult GetSalaryHeadGlbySalaryHead(GridParameter parameters, string SalaryHeadId)
         {
-            return Json(GetSalaryHeadGls(parameters, SalaryHeadId), JsonRequestBehavior.AllowGet);
+            return Json(_salaryHeadGLService.GetSearchWithCombine(parameters, SalaryHeadId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -152,11 +152,23 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 parameters.CmdText = @"SELECT DISTINCT C.Id AS COAId, AG.UserName AS AccountGroupName, C.UserName AS COAName
 		                            , GLGI.UserName AS GLGeneralInfoName, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.Id AS GLGeneralInfoId
+                                    , BU.BudgetId, BU.BudgetName, BU.RefNo
+                                    , A.ActivityId, A.ActivityName, BU.BudgetMasterId
 		                            FROM HKP.GLGeneralInfo AS GLGI
 									JOIN HKP.COA AS C ON C.Id=GLGI.COAId
 		                            LEFT OUTER JOIN HKP.GLAccountType AS GLAT ON GLAT.GLGeneralInfoId = GLGI.Id
 		                            LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id = GLGI.AccountGroupId
 									LEFT JOIN HKP.AccountType AS ACT ON ACT.Id =AG.AccountTypeId
+                                    LEFT OUTER JOIN (
+                                            SELECT B.Id AS BudgetId,B.UserName AS BudgetName,BM.GLGeneralInfoId, BM.RefNo, BM.Id AS BudgetMasterId FROM HKP.Budget AS B
+                                            LEFT OUTER JOIN [MST].[BudgetMaster] AS BM ON B.Id=BM.BudgetId
+                                        )AS BU ON BU.GLGeneralInfoId=GLGI.Id
+                                        LEFT OUTER JOIN (
+                                            SELECT A.Id AS ActivityId, A.UserName AS ActivityName,B.Id AS BudgetId FROM HKP.Activity AS A
+                                            LEFT OUTER JOIN [MST].[BudgetMasterActivity] AS BA ON A.Id=BA.ActivityId
+                                            LEFT OUTER JOIN [MST].[BudgetMaster] AS BM ON BA.BudgetMasterId=BM.Id
+                                            LEFT OUTER JOIN HKP.Budget AS B ON BM.BudgetId=B.Id
+                                        ) AS A ON A.BudgetId=BU.BudgetId
                                     WHERE GLGI.COAId = '" + coaId + @"' AND ACT.Id in ('" + AccountTypeEnum.Expense + "','"+ AccountTypeEnum.Asset + "','"+ AccountTypeEnum.Liability + @"')  
                                     AND AG.UserName not in ('Fixed Asset') ";
                 return _sqlRepository.GetGridData(parameters);

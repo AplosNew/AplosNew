@@ -472,7 +472,8 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
                 StandardRate: $scope.ByProduct.StandardRate,
                 ResponsiblePersonId: $scope.ByProduct.ByProductResponsiblePersonId,
                 ResponsiblePerson: $scope.ByProduct.ByProductResponsiblePerson,
-                Remarks: $scope.ByProduct.Remarks
+                Remarks: $scope.ByProduct.Remarks,
+                UOM: $scope.ByProduct.UOM
             });
 
             $scope.ByProduct.JobWorkItemId = "";
@@ -483,6 +484,7 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
             $scope.ByProduct.ByProductResponsiblePersonId = "";
             $scope.ByProduct.ByProductResponsiblePerson = "";
             $scope.ByProduct.Remarks = "";
+            $scope.ByProduct.UOM = "";
         }
     };
     $scope.getAllMaterialInput = function () {

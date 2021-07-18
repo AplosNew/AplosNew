@@ -97,7 +97,7 @@ function JobWorkIssueReturnController($window,cboService, commonMessage, $scope,
 
     $scope.getData = function () {
         if ($scope.ModelNew.Type == null) {
-            var IssueType = "ValueAdded";
+            var IssueType = "Value Added";
             $scope.ModelNew.Type = IssueType;
         }
         $http({

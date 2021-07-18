@@ -51,7 +51,7 @@ function jobWorkValueAddedMasterController(addressService, $window, cboService, 
     };
 
     $scope.Save = function () {
-
+        $scope.ValidateMaxRate();
         $scope.$broadcast('show-errors-check-validity');
         try {
             if ($scope.jobWorkValueAddedMaster.$valid) {
@@ -333,4 +333,22 @@ function jobWorkValueAddedMasterController(addressService, $window, cboService, 
     $scope.getAllActivityUserName();
     $scope.getAllData();
     $scope.Clear();
+
+    // Validate Max Rate
+
+    $scope.ValidateMaxRate = function () {
+        try {
+            if ($scope.ValueAdded.MinRate != null) {
+                var MRate = parseFloat($scope.ValueAdded.MinRate);
+                var MxRate = parseFloat($scope.ValueAdded.MaxRate);
+                if (MRate > MxRate) {
+                    $scope.ValueAdded.MaxRate = null;
+                    throw 'Minimum Rate should be less tha Maximum Rate';
+                }
+            }
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
 };

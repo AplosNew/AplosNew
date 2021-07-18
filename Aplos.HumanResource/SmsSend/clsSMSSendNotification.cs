@@ -142,7 +142,7 @@ namespace Library.HumanResource.SmsSend
 
 
                         ////string apipath = @"http:// msg.msgclub.net/rest/services/sendSMS/sendGroupSms?AUTH_KEY=b8394a967b42149cd2d9518bb9c4faa5&message=नाम :- Akanksha कार्ड नंबर :-100 आपके द्वारा दिनांक 19-Jun-2021 को कार्य पर आते / जाते समय पंचिंग नहीं की गई है । आपकी अंतिम उपस्थिति दिनांक 18-Jun-2021 की है । अतः इस हेतु आप निर्धारित टाइम ऑफिस में तुरंत संपर्क करें । PRATBH&senderId=PRATBH&routeId=3&mobileNos=9479871783&smsContentType=Unicode&scheduleddate=19/06/2021%2112:00";
-                        string apipath = @"" + dsApiSql.Rows[0]["SMSEndPoint"].ToString() + "?" + dsApiSql.Rows[0]["APIKeyWithValue"].ToString() + "&message=" + FinalMessage + @"। PRATBH&senderId=" + dsApiSql.Rows[0]["SenderId"].ToString() + "&routeId=3&mobileNos=" + MobileNo + "&smsContentType=Unicode&scheduleddate=" + ScheduleDate + "";
+                        string apipath = @"" + dsApiSql.Rows[0]["SMSEndPoint"].ToString() + "?" + dsApiSql.Rows[0]["APIKeyWithValue"].ToString() + "&message=" + FinalMessage + @" PRATBH&senderId=" + dsApiSql.Rows[0]["SenderId"].ToString() + "&routeId=3&mobileNos=" + MobileNo + "&smsContentType=Unicode&scheduleddate=" + ScheduleDate + "";
 
                         //call api
 

@@ -379,6 +379,7 @@ namespace Library.Accounting.Accounts
                         FROM [dbo].[SalaryLock] sl 
                         LEFT JOIN dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         LEFT JOIN dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+                        LEFT JOIN dbo.SalaryProcessLogSummary SPL ON SPL.SalaryProcessId=SPM.SystemID
                         LEFT JOIN dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                         LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						LEFT JOIN MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode

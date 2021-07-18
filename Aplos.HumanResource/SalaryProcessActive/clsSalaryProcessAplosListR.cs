@@ -283,7 +283,7 @@ public class clsSalaryProcessAplosArrear
             throw ex;
         }
     }
-    public FunctionPara SalaryProcess(FunctionPara para, string ArrearFromDate, string ArrearToDate)
+    public FunctionPara SalaryProcess(FunctionPara para, string BatchNo, string ArrearFromDate, string ArrearToDate)
     {
         #region Variable Dataset
 
@@ -1146,6 +1146,9 @@ public class clsSalaryProcessAplosArrear
                                 //objStatic.CheckAccess(lblAccessCreate, lblAccessEdit, lblAccessDelete, clsStaticInfo.EnumAccess.CREATE);
                                 drSPMst = dtSPMst.NewRow();
                                 UpdateSlrProcMstDataRow("ADDNEW", IsCmpMonthSlr, paramSalary, para, ref drSPMst);
+                                drSPMst["ArrearProcessBatchId"] = BatchNo;
+                                drSPMst["ArrearProcessFromDate"] = ArrearFromDate;
+                                drSPMst["ArrearProcessToDate"] = ArrearToDate;
                                 dtSPMst.Rows.Add(drSPMst);
                             }
                             else
@@ -1154,6 +1157,9 @@ public class clsSalaryProcessAplosArrear
                                 drSPMst = dvSPMst[0].Row;
                                 drSPMst.BeginEdit();
                                 UpdateSlrProcMstDataRow("EDIT", IsCmpMonthSlr, paramSalary, para, ref drSPMst);
+                                drSPMst["ArrearProcessBatchId"] = BatchNo;
+                                drSPMst["ArrearProcessFromDate"] = ArrearFromDate;
+                                drSPMst["ArrearProcessToDate"] = ArrearToDate;
                                 drSPMst.EndEdit();
                             }
 

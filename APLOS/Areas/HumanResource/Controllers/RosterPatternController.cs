@@ -14,7 +14,7 @@ using OTSBD;
 using System.Data;
 using System.Collections.Generic;
 using Library.Service.Attendances;
-using Library.HumanResource.Shift;
+using Library.HumanResource.NewAttendanceProcess;
 using Library.Model.Enums;
 using Syncfusion.XlsIO;
 using Library.Service.Helpers;
@@ -153,7 +153,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(rs.getCurrentList(plantId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult SaveFileList(List<Dictionary<string,object>>data , string plantId)
         {
             try

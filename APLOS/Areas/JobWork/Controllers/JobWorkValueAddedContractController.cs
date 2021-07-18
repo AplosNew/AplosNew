@@ -237,7 +237,8 @@ namespace Aplos.Areas.JobWork.Controllers
 
             if (ContractType == "OSValueAddedPO")
             {
-                sql = @"Select distinct c.Id as Value, c.Code as Text from scs.Currency c left join MST.JobWorkValueAddedMaster vam on vam.CurrencyId=c.Id 
+                sql = @"Select distinct c.Id as Value, c.Code as Text, vam.StdRejection, vam.StdValueLoss 
+                        from scs.Currency c left join MST.JobWorkValueAddedMaster vam on vam.CurrencyId=c.Id 
                         where vam.JobWorkActivityId='" + ActivityId + @"' and vam.JobWorkActivityChildId='" + JobWorkItemId + "' order by c.Code";
             }
 
@@ -1623,7 +1624,8 @@ namespace Aplos.Areas.JobWork.Controllers
 										left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
 										left join scs.UnitOfMeasurement juom on juom.Id=jwi.UOMId
                            where tm.JobWorkActivityId='" + ActivityId + @"' and tm.JobWorkActivityChildId='" + JobWorkItemId + @"'
-                           AND isnull(tmi.JobWorkItemId,'') not in (select isnull(JobWorkItemId,'') from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + Id + @"') ";
+                           --AND isnull(tmi.JobWorkItemId,'') not in (select isnull(JobWorkItemId,'') from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + Id + @"') 
+                            ";
 
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -1962,7 +1964,8 @@ namespace Aplos.Areas.JobWork.Controllers
 						   left join scs.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 						   left join scs.UnitOfMeasurement uom on uom.Id=jwi.UOMId
                            where tm.JobWorkActivityId='" + ActivityId + @"' and tm.JobWorkActivityChildId='"+ JobWorkItemId + @"'
-                           AND isnull(bp.JobWorkItemId,'') not in (select isnull(JobWorkItemId,'') from dbo.JobWorkTransformationContractChild4 where JobWorkTransformationContractChild3MasterId='" + Id + @"') ";
+                           --AND isnull(bp.JobWorkItemId,'') not in (select isnull(JobWorkItemId,'') from dbo.JobWorkTransformationContractChild4 where JobWorkTransformationContractChild3MasterId='" + Id + @"') 
+                           ";
 
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

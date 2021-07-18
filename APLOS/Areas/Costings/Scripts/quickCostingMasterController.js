@@ -1116,7 +1116,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
                         $scope.QuickCostingItemList[i].Value = data.Value;
                     }
                     if ($scope.QuickCostingItemList[i].CostingSegment == 'DirectMaterial') {
-                        data.GrossConsumption = (data.Consumption * data.ValueLoss / 100) + data.Consumption;
+                        data.GrossConsumption = data.Consumption / ((100 - data.ValueLoss)/100); //(data.Consumption * data.ValueLoss / 100) + data.Consumption;
                         data.GrossAmount = data.GrossConsumption * data.Rate;
                         $scope.QuickCostingItemList[i].TotalGrossAmount = data.GrossConsumption * data.Rate;
 

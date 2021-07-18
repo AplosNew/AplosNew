@@ -152,7 +152,7 @@ namespace Library.Service.Setups
                                 FROM [HKP].[CompanyServiceMaster] AS CCCE
                                 LEFT JOIN [HKP].[ServiceMaster] AS CC ON CCCE.ServiceMasterId = CC.Id
                                 LEFT JOIN [HKP].[ServiceGroup] AS CCSC ON CC.ServiceGroupId = CCSC.Id
-                                WHERE CCCE.CompanyId ='" + companyId + "'";
+                                WHERE CCCE.CompanyId ='" + companyId + "' Order by CC.Sequence";
                 return _sqlRepository.GetDataCollection(CmdText);
             }
             catch (Exception ex)

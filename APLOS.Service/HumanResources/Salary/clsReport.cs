@@ -6057,7 +6057,7 @@ LEFT JOIN [HKP].[HourlyLeaveReason]  hlr on hlr.Id=ho.HourlyLeaveReasonId
                             from [dbo].[AttdnRawData] ard
                             left join [MST].[AccessControllerList] acl on acl.Id=ard.DevSystemID
                             inner join EmployeeInformation ei on ei.SystemId=ard.LogDownLoadNum
-							left join EmpDateWiseShiftAssign DS on DS.EmpSystemID=EI.SystemId	and DS.WorkDate = '"+WorkDate+ @"'
+							left join EmpDateWiseShiftAssign DS on DS.EmpSystemID=EI.SystemId	and DS.WorkDate = '" + WorkDate + @"'
 							LEFT JOIN dbo.ShiftDefination SD ON DS.ShiftSystemID = SD.SystemID
                             LEFT OUTER JOIN ShiftTimeChgMaster AS cs ON DS.WorkDate BETWEEN cs.FromDate AND cs.ToDate AND sd.SystemID=cs.ShiftDefinationID
 							left join org.Plant p on p.Id=ei.PlantId
@@ -6071,7 +6071,7 @@ LEFT JOIN [HKP].[HourlyLeaveReason]  hlr on hlr.Id=ho.HourlyLeaveReasonId
                             LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
                             LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID
                             LEFT JOIN ORG.Line AS L ON L.Id= EI.LineId
-                           where ard.PDate = '" + WorkDate + @"' and ei.PlantId='"+plantId+@"'
+                           where ard.PDate = '" + WorkDate + @"' and ei.PlantId='" + plantId + @"'
                             order by ei.EmployeeCode,ard.PDate";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
@@ -9507,6 +9507,73 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
                 {
 
                 }
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//end function
+
+        public void GetExtraAbsentForArrear(string plantid, Dictionary<string, string> empParameters, string smonth, string syear, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT WorkingDate,EmpSystemID
+                              FROM [SCS].[WeeklyAbsentismAssignment]
+                              where month(WorkingDate) IN(" + smonth + ") and YEAR(WorkingDate)  IN(" + syear + ") and plantid='" + plantid + @"' 
+                            union
+
+                            SELECT WorkDate WorkingDate,EmpSystemID
+                              FROM [trn].[HolidayAbsentismAssignment]
+                              where month(WorkDate) IN(" + smonth + ") and YEAR(WorkDate) IN(" + syear + ") and plantid='" + plantid + @"'
+                     ";
+                try
+                {
+
+                    if (empParameters.Count > 0)
+                    {
+                        if (empParameters.Keys.ElementAt(0) != "")
+                        {
+                            strSql += @" AND EmpSystemID IN(" + empParameters["EmpSystemId"] + ")";
+                        }
+                    }
+
+                }
+                catch (Exception)
+                {
+
+                }
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//end function
+
+        public void GetArrearInfo(string ArrearProcessBatchId, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT * FROM ArrearProcMaster Where ArrearProcessBatchId='" + ArrearProcessBatchId + "' ";
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
             }
@@ -19275,7 +19342,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
             {
                 obs = new clsStaticInfo();
                 strSql = @"SELECT  A.EmployeeCode,A.EmployeeCode EmployeeCodeS ,DOJ,A.EmpSystemID
-	                       ,CAST(DATEDIFF(mm, A.DOJ, '"+ gratuityCalcDate + @"') AS varchar(4))/12 totalYear
+	                       ,CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4))/12 totalYear
 	                       ,CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4))-(CAST(DATEDIFF(mm, A.DOJ, '" + gratuityCalcDate + @"') AS varchar(4))/12)*12 totalMonthAfterYear,* FROM
                     
                        (
