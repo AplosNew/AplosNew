@@ -104,10 +104,10 @@ function jobWorkActivityController(addressService, $window, cboService, commonMe
                 $scope.JobWorkActivity.ResponsiblePersonName = response.data[0].ResponsiblePersonName;
                 $scope.JobWorkActivity.Remarks = response.data[0].Remarks;
 
-                if (parseInt(response.data[0].Total) > 0)
-                    $("#ddlType").attr("disabled", true);
-                else
-                    $("#ddlType").removeAttr("disabled");
+                //if (parseInt(response.data[0].Total) > 0)
+                //    $("#ddlType").attr("disabled", true);
+                //else
+                //    $("#ddlType").removeAttr("disabled");
 
                 $scope.Action = 'Update';
 
@@ -294,4 +294,15 @@ function jobWorkActivityController(addressService, $window, cboService, commonMe
     $scope.Clear();
     $scope.ItemSequenceNumber();
     $scope.getAllData();
+
+    //$scope.DisableType = false;
+    //$scope.Disable = function () {
+    //    if ($scope.SelectedEmpCategoryTabList.length > 0) {
+    //        $scope.DisableType = true;
+    //    }
+    //    else {
+    //        $scope.DisableType = false;
+    //    }
+    //}
+    //$scope.Disable();
 }

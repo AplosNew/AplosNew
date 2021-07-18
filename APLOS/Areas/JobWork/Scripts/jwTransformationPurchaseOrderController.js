@@ -223,6 +223,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             $scope.CurrencyyyList = response.data;
             if ($scope.CurrencyyyList.length > 0) {
                 $scope.detailModel.CurrencyId = $scope.CurrencyyyList[0].Value;
+                $scope.detailModel.Rejection = $scope.CurrencyyyList[0].StdRejection;
+                $scope.detailModel.ValueLoss = $scope.CurrencyyyList[0].StdValueLoss;
 
             }
         });
@@ -789,7 +791,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.Currency = $("#currency option:selected").text();
         $scope.productNew = x.data;
         $scope.Id = $scope.productNew.Id;
-        $scope.productNew.PODate = x.data.PODate;
+        $scope.productNew.PODate = $filter('dateFiltering')(x.data.PODate, 'dd-M-yyyy');
 
         $scope.productNew.ProcessStartDate = x.data.TConProcessStartDate;
         $scope.productNew.ProcessEndDate = x.data.TConProcessEndDate;
@@ -1307,6 +1309,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
         ClearFields();
         $scope.NotificationSettingStatus();
+   //     $scope.PoChildList = [];
+        $scope.productNew.POType = "OSTransformationPO";
         if (!$rootScope.isCollapsed) $rootScope.toggle();
         return true;
 
@@ -1768,12 +1772,14 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                     $scope.detailModel.MaterialName = $scope.GetMatMstJW[0].Material;
                     $scope.detailModel.MaterialCode = $scope.GetMatMstJW[0].Code;
                     $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].UnitId;
+                    $scope.detailModel.OutputMaterialUOM = $scope.GetMatMstJW[0].UOM;
                 }
                 else {
                     $scope.detailModel.MaterialMasterId = null;
                     $scope.detailModel.MaterialName = null;
                     $scope.detailModel.MaterialCode = null;
                     $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].UnitId;
+                    $scope.detailModel.OutputMaterialUOM = $scope.GetMatMstJW[0].UOM;
                 }
                 
             }
@@ -1914,7 +1920,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                 return false;
             }
             if (baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) || $scope.detailModel.TransactionQty === '0') {
-                ShowResult('Please select Material Specification', 'failure', 'detailPopUp');
+                ShowResult('Please select Quantity', 'failure', 'detailPopUp');
                 return false;
             }
             if (baseService.isUndefinedOrNull($scope.detailModel.OrderSpecific)) {
@@ -1942,7 +1948,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                 return false;
             }
             if (baseService.isUndefinedOrNull($scope.detailModel.RatePerUnit) || $scope.detailModel.RatePerUnit === '0') {
-                ShowResult('Please select Currency', 'failure', 'detailPopUp');
+                ShowResult('Please select Rate Per Unit', 'failure', 'detailPopUp');
                 return false;
             }
             if (baseService.isUndefinedOrNull($scope.detailModel.Rejection)) {
@@ -3396,8 +3402,9 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.TransformOrderWiseReq.Quantity = data.Quantity;
         $scope.PQuantity = data.Quantity;
         $scope.TransformOrderWiseReq.PlanQuantity = $scope.PQuantity;
-      //  $scope.TransformOrderWiseReq.ArtclCode = data.ArticleCode 
-        $scope.TransformOrderWiseReq.ArtclCode = data.ArticleName
+        //  $scope.TransformOrderWiseReq.ArtclCode = data.ArticleCode 
+        $scope.TransformOrderWiseReq.Material = data.MaterialName;
+        $scope.TransformOrderWiseReq.ArtclCode = data.ArticleName;
         $scope.GetTransformOrderWiseUOM();
         $scope.getTransformOrderWiseData();
         angular.element(document.querySelector("#OrderWisePopUp")).modal("show");
@@ -4126,4 +4133,17 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     };
 
     $scope.ActionPOBOQ = 'Save';
+
+    $scope.ValidateProcessEndDate = function () {
+        try {
+
+            if (new Date($scope.productNew.ProcessEndDate) < new Date($scope.productNew.ProcessStartDate)) {
+                $scope.productNew.ProcessEndDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+                throw 'Process End Date should not be less than Process Start Date.';
+            }
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
 }

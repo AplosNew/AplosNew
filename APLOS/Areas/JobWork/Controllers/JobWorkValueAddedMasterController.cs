@@ -80,8 +80,9 @@ namespace Aplos.Areas.JobWork.Controllers
         [HttpGet, Authorize]
         public JsonResult GetAllProcessName()
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = "";
-            sql = @"SELECT Id,UserName FROM [HKP].[Process] ORDER BY UserName";
+            sql = @"SELECT Id,UserName FROM [HKP].[Process] where CompanyGroupId='" + identity.CompanyGroupId + @"' ORDER BY UserName";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

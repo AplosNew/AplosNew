@@ -524,6 +524,7 @@
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataEntityWiseNewController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataManualStatusNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\DayStatusMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeAdditionDeductionProcessController.cs" />
@@ -531,6 +532,7 @@
     <Compile Include="Areas\HumanResource\Controllers\ConsecutiveAttendaceAndOTController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\BlackListController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeAdditionDeductionController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\ManualShiftNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OutPunchConfigurationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ProfessionalTaxReportsController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTPlanningController.cs" />
@@ -1737,7 +1739,9 @@
     <Content Include="Areas\FixedAssets\Scripts\entityFixedAssetsRegisterController.js" />
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ArrearProcessedTotalReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataEntityWiseNewController.js" />
+    <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataManualStatusNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\DayStatusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAdditionDeductionProcessController.js" />
@@ -1748,6 +1752,7 @@
     <Content Include="Areas\HumanResource\Scripts\consecutiveAttendaceController.js" />
     <Content Include="Areas\HumanResource\Scripts\BlackListController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAdditionDeductionController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ManualShiftNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\OutPunchConfigurationController.js" />
     <Content Include="Areas\HumanResource\Scripts\payRegisterBDReportContractorController.js" />
     <Content Include="Areas\HumanResource\Scripts\professionalTaxReportsController.js" />
@@ -3561,9 +3566,11 @@
     <Content Include="Areas\HumanResource\Views\OutPunchConfiguration\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\RosterPattern\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\WeeklyOff\Aplos.cshtml" />
-    <Content Include="Areas\HumanResource\Views\ManualShiftNew\Aplos.cshtml" />
-    <Content Include="Areas\HumanResource\Views\AttendanceProcessDataNew\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\PayrollReports\ArrearVsPayrollTotal.cshtml" />
     <Content Include="Areas\HumanResource\Views\AttendanceProcessDataEntityWiseNew\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\AttendanceProcessDataManualStatusNew\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\AttendanceProcessDataNew\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ManualShiftNew\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

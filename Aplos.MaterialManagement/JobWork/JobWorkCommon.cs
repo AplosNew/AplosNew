@@ -4084,6 +4084,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 var sql = "";
                 sql = @"select mm.Id, mm.Code, mm.UserName as Material,mm.BaseUOMId, mmuom.UserName as BaseUom,jwi.UOMId, uom.UserName as JWIUom
                      ,UnitId=case when jwi.MaterialMasterId is not null then mm.BaseUOMId else jwi.UOMId End
+                     ,UOM=case when jwi.MaterialMasterId is not null then mmuom.UserName else uom.UserName End
                      from HKP.JobWorkItem jwi left join MST.MaterialMaster mm on mm.Id=jwi.MaterialMasterId
                      left join scs.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 					 left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId

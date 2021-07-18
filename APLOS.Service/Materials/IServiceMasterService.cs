@@ -15,5 +15,6 @@ namespace Library.Service.Materials
         void Delete(string id);
 
         GridModel Query(GridParameter parameters, string[] ids);
+        GridModel QueryServiceMaster(GridParameter parameters);
     }
 }

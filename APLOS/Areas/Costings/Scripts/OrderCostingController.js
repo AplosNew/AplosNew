@@ -1629,7 +1629,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                         $scope.OrderCostingItemList[i].Value = data.Value;
                     }
                     if ($scope.OrderCostingItemList[i].CostingSegment == 'DirectMaterial') {
-                        data.GrossConsumption = (data.Consumption * data.ValueLoss / 100) + data.Consumption;
+                        data.GrossConsumption = data.Consumption / ((100 - data.ValueLoss) / 100); // (data.Consumption * data.ValueLoss / 100) + data.Consumption;
                         data.GrossAmount = data.GrossConsumption * data.Rate;
                         $scope.OrderCostingItemList[i].TotalGrossAmount = data.GrossConsumption * data.Rate;
 
@@ -1908,7 +1908,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                         $scope.OrderCostingItemList[i].ProcurementValue = data.Value;
                     }
                     if ($scope.OrderCostingItemList[i].CostingSegment == 'DirectMaterial') {
-                        data.GrossConsumption = (data.Consumption * data.ValueLoss / 100) + data.Consumption;
+                        data.GrossConsumption = data.Consumption / ((100 - data.ValueLoss) / 100); //(data.Consumption * data.ValueLoss / 100) + data.Consumption;
                         data.GrossAmount = data.GrossConsumption * data.Rate;
                         $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = data.GrossConsumption * data.Rate;
 

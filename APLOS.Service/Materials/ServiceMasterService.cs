@@ -123,5 +123,21 @@ namespace Library.Service.Materials
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Setup.ToString()));
             }
         }
+
+        public GridModel QueryServiceMaster(GridParameter parameters)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT A.Id, A.ServiceGroupId, B.UserName AS ServiceGroupName, A.[Sequence], A.Code, A.UserName, A.StandardName, A.[Description], A.Remarks, A.Active,A.HSNCodeId
+                            FROM [HKP].[ServiceMaster] AS A JOIN [HKP].[ServiceGroup] AS B ON A.ServiceGroupId=B.Id WHERE A.Id NOT IN (Select ServiceMasterId from HKP.CompanyServiceMaster)";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Setup.ToString()));
+            }
+        }
     }
 }
