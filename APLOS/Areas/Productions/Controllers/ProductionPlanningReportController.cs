@@ -244,8 +244,9 @@ namespace Aplos.Areas.Productions.Controllers
 
                 StartRow = 8;
                
-                sheet["A" + StartRow.ToString()].FreezePanes();
-                // sheet["A" + StartCol.ToString()].FreezePanes();
+              // sheet["A" + StartRow.ToString()].FreezePanes();
+               sheet["B" + StartRow.ToString()].FreezePanes();
+
                 sheet.UsedRange.WrapText = true;
                 sheet.IsGridLinesVisible = false;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
