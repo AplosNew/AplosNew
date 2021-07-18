@@ -212,7 +212,7 @@ namespace Library.OrderManagement.Packing
 								//edit
 								DataRow dr = dsItemScanChild.Tables[0].DefaultView[0].Row;
 								dr.BeginEdit();
-								dr["FinishGoodsBookingId"] = masterId;
+								//dr["FinishGoodsBookingId"] = masterId;
 								dr["FinishGoodsBookingDetailId"] = detailId;
 
 								dr["UpdatedBy"] = identity.Name;
