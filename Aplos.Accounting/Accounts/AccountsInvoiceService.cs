@@ -1485,7 +1485,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
                                     LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
                                     WHERE CPGL.PartyGLType='ReconciliationGL'
                                     ) AS RGL ON RGL.CompanyPartyId=CP.Id
-						WHERE OI.Id=@otherInvoiceId AND IV.PlantId=@plantId
+						WHERE OI.InvoiceId=@otherInvoiceId AND IV.PlantId=@plantId
 
 						union
 						SELECT  P.UserName Customer, 'Cr' AS TrnType,OI.InvoiceId
@@ -1509,8 +1509,9 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
                                     LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=IVD.BudgetMasterId
                                     LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
                                     LEFT JOIN [HKP].[Activity] AS A ON A.Id=IVD.ActivityId
-						WHERE OI.Id=@otherInvoiceId AND IV.PlantId=@plantId
-					ORDER BY T.TrnType DESC ";
+						WHERE OI.InvoiceId=@otherInvoiceId AND IV.PlantId=@plantId
+					--ORDER BY T.TrnType DESC 
+";
 					return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)

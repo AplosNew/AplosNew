@@ -2,10 +2,12 @@
 
 using Aplos.Controllers;
 using Aplos.Properties;
+using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.OrderManagement.Packing;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Web.Mvc;
 
 #endregion Using
@@ -127,6 +129,14 @@ namespace Aplos.Areas.Productions.Controllers
             var jsondata = Json(clsFinishGoodsBooking.GetItemScanChildData(fromDate, toDate), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
+        }
+
+
+        [Authorize, HttpGet]
+        public JsonResult GetListForFinishGoodsBookingPost()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(clsFinishGoodsBooking.GetListForFinishGoodsBookingPost(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
     }

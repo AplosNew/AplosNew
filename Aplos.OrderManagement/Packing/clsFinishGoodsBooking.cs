@@ -106,7 +106,7 @@ namespace Library.OrderManagement.Packing
 									GROUP BY A.ProductionOrderId,B.SalesOrderId
 									) FB ON FB.ProductionOrderId=PO.Id AND FB.SalesOrderId=SO.Id
 									LEFT JOIN [dbo].[FinishGoodsBookingDetail] FGBD ON FGBD.ProductionOrderId=PO.Id AND FGBD.SalesOrderId=SO.Id 
-									WHERE  POSP.ProcessId = '" + processId+"' AND PO.EntityId='"+entityId+"'  AND PO.Id='"+productionOrderId+"' AND FGBD.FinishGoodsBookingId='"+masterId+"'";
+									WHERE  POSP.ProcessId = '" + processId + "' AND PO.EntityId='" + entityId + "'  AND PO.Id='" + productionOrderId + "' AND FGBD.FinishGoodsBookingId='" + masterId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -121,33 +121,33 @@ namespace Library.OrderManagement.Packing
 
             try
             {
-				string pOId = null;
-				string productCode = null;
+                string pOId = null;
+                string productCode = null;
 
 
-				foreach (var item in FinishGoodsBookingDetailList)
+                foreach (var item in FinishGoodsBookingDetailList)
                 {
-                    if (pOId==null)
+                    if (pOId == null)
                     {
-						pOId = "'" + item["ProductionOrderId"].ToString() + "'";
+                        pOId = "'" + item["ProductionOrderId"].ToString() + "'";
 
-					}
+                    }
                     else
                     {
-						pOId+= ",'"+ item["ProductionOrderId"].ToString() + "'"; 
-					}
+                        pOId += ",'" + item["ProductionOrderId"].ToString() + "'";
+                    }
 
-					if (productCode == null)
-					{
-						productCode = "'" + item["ProductCode"].ToString() + "'";
+                    if (productCode == null)
+                    {
+                        productCode = "'" + item["ProductCode"].ToString() + "'";
 
-					}
-					else
-					{
-						productCode += ",'" + item["ProductCode"].ToString() + "'"; 
-					}
+                    }
+                    else
+                    {
+                        productCode += ",'" + item["ProductCode"].ToString() + "'";
+                    }
 
-				}
+                }
 
                 DataSet dsMaster, dsFinishGoodsBookingDetail, dsItemScanChild;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -167,13 +167,13 @@ namespace Library.OrderManagement.Packing
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "FinishGoodsBooking", out _Id);
 
                     data["Id"] = "FB" + _Id;
-                    
+
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
                     _Id = data["Id"].ToString();
-                    
+
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
 
@@ -187,9 +187,9 @@ namespace Library.OrderManagement.Packing
 
                     if (dv.Count == 0)
                     {
-						detailId = GetFinishGoodsBookingDetailPK();
+                        detailId = GetFinishGoodsBookingDetailPK();
 
-						item["Id"] = detailId;
+                        item["Id"] = detailId;
                         item["FinishGoodsBookingId"] = masterId;
 
                         AddNewRow(dsFinishGoodsBookingDetail.Tables[0], item);
@@ -198,33 +198,33 @@ namespace Library.OrderManagement.Packing
                     {
                         DataRow drmo = dv[0].Row;
                         EditRow(drmo, item);
-						detailId = dsFinishGoodsBookingDetail.Tables[0].Rows[0]["Id"].ToString();
-					}
-					
-					if (dsItemScanChild.Tables[0].Rows.Count > 0)
-					{
-						for (int i = 0; i < dsItemScanChild.Tables[0].Rows.Count; i++)
-						{
-							dsItemScanChild.Tables[0].DefaultView.RowFilter = "Id='" + dsItemScanChild.Tables[0].Rows[i]["Id"].ToString() + "' AND POId = '" + item["ProductionOrderId"] + "' AND ProductCode = '" + item["ProductCode"] + "'";
-							//dv.RowFilter = "Id='" + item["Id"] + "' AND POId = '" + item["ProductionOrderId"] + "' AND ProductCode = '" + item["ProductCode"] + "'";
-							if (dsItemScanChild.Tables[0].DefaultView.Count > 0)
-							{
-								//edit
-								DataRow dr = dsItemScanChild.Tables[0].DefaultView[0].Row;
-								dr.BeginEdit();
-								//dr["FinishGoodsBookingId"] = masterId;
-								dr["FinishGoodsBookingDetailId"] = detailId;
+                        detailId = dsFinishGoodsBookingDetail.Tables[0].Rows[0]["Id"].ToString();
+                    }
 
-								dr["UpdatedBy"] = identity.Name;
-								dr["UpdatedDate"] = System.DateTime.Now.ToString();
-								dr.EndEdit();
-							}
-						}
-					}
+                    if (dsItemScanChild.Tables[0].Rows.Count > 0)
+                    {
+                        for (int i = 0; i < dsItemScanChild.Tables[0].Rows.Count; i++)
+                        {
+                            dsItemScanChild.Tables[0].DefaultView.RowFilter = "Id='" + dsItemScanChild.Tables[0].Rows[i]["Id"].ToString() + "' AND POId = '" + item["ProductionOrderId"] + "' AND ProductCode = '" + item["ProductCode"] + "'";
+                            //dv.RowFilter = "Id='" + item["Id"] + "' AND POId = '" + item["ProductionOrderId"] + "' AND ProductCode = '" + item["ProductCode"] + "'";
+                            if (dsItemScanChild.Tables[0].DefaultView.Count > 0)
+                            {
+                                //edit
+                                DataRow dr = dsItemScanChild.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+                                //dr["FinishGoodsBookingId"] = masterId;
+                                dr["FinishGoodsBookingDetailId"] = detailId;
 
-				}
+                                dr["UpdatedBy"] = identity.Name;
+                                dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                                dr.EndEdit();
+                            }
+                        }
+                    }
 
-				
+                }
+
+
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster, dsFinishGoodsBookingDetail, dsItemScanChild);
@@ -475,7 +475,7 @@ namespace Library.OrderManagement.Packing
 									SELECT SUM(B.Qty) Qty,A.ProductionOrderId,B.SalesOrderId
 									FROM dbo.[FinishGoodsBooking] A 
 									JOIN dbo.[FinishGoodsBookingDetail] B ON A.Id=B.FinishGoodsBookingId
-									WHERE ISNULL(B.ProductLibraryId,'')<>'' AND ISNULL(A.Id,'') <>'"+ masterId + @"'
+									WHERE ISNULL(B.ProductLibraryId,'')<>'' AND ISNULL(A.Id,'') <>'" + masterId + @"'
 									GROUP BY A.ProductionOrderId,B.SalesOrderId
 									) FB ON FB.ProductionOrderId=PO.Id AND FB.SalesOrderId=SO.Id
 									WHERE  POSP.ProcessId = '" + processId + "' AND PO.EntityId='" + entityId + "'  AND PO.Id='" + productionOrderId + "'";
@@ -487,11 +487,11 @@ namespace Library.OrderManagement.Packing
             }
         }
 
-		public IEnumerable<object> GetScanPackingData(string fromDate, string toDate)
-		{
-			try
-			{
-				string sql = @"SELECT CONVERT (bit,0) Active,NULL AS COSTList, '' Qty,sc.ProductCode, PL.Id ProductLibraryId , PO.Id ProductionOrderId,FGQty=SUM(CASE WHEN SC.IsDespatch=0 THEN sc.NetWeight ELSE 0 END)
+        public IEnumerable<object> GetScanPackingData(string fromDate, string toDate)
+        {
+            try
+            {
+                string sql = @"SELECT CONVERT (bit,0) Active,NULL AS COSTList, '' Qty,sc.ProductCode, PL.Id ProductLibraryId , PO.Id ProductionOrderId,FGQty=SUM(CASE WHEN SC.IsDespatch=0 THEN sc.NetWeight ELSE 0 END)
 								,SONo=STUFF((select distinct ','+XSO.Id from 
                                                                  trn.SalesOrder XSO 
                                                                  JOIN TRN.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -547,21 +547,21 @@ namespace Library.OrderManagement.Packing
 								group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId) AS COST
 							) B ON B.ProductionOrderId=PO.Id
 
-	                        WHERE ISN.WorkDate between '" + fromDate+@"' AND '"+toDate+ @"' AND ISNULL(SC.FinishGoodsBookingId,'')=''
+	                        WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.FinishGoodsBookingId,'')=''
 							GROUP BY SC.ProductCode, PO.Id, PL.Id,B.Rate,B.OrderCostingMasterTemplateId";
 
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-		public IEnumerable<object> GetCostingItemDetailData(string costingId)
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetCostingItemDetailData(string costingId)
         {
             try
             {
-				string sql = @"select CT.Id, SUM(A.Rate) Rate,CI.UserName CostingItem, CC.UserName CostingComponent
+                string sql = @"select CT.Id, SUM(A.Rate) Rate,CI.UserName CostingItem, CC.UserName CostingComponent
 								from dbo.CostingMasterTemplate CT
 								left JOIN
 									( 
@@ -580,20 +580,20 @@ namespace Library.OrderManagement.Packing
 								A ON A.CostingMasterTemplateId=CT.Id
 								left JOIN [HKP].[CostingItem] CI ON CI.Id=A.CostingItemId 
 								left JOIN [HKP].[CostingComponent] CC ON CC.Id=CI.CostingComponentId
-								WHERE CT.Id='"+ costingId + @"'
+								WHERE CT.Id='" + costingId + @"'
 								GROUP BY CT.Id,CI.UserName, CC.UserName";
-				return _sqlRepository.GetDataCollection(sql, null);
+                return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-		public IEnumerable<object> GetCostingItemData(string productionOrderId)
-		{
-			try
-			{
-				string sql = @"select distinct COST.ProductionOrderId, COST.OrderCostingMasterTemplateId,COST.Rate,COST.UserName FROM (select po.ProductionOrderId, moi.Id,a.OrderCostingMasterTemplateId,sum(a.rate) AS Rate,OCMT.UserName 
+        public IEnumerable<object> GetCostingItemData(string productionOrderId)
+        {
+            try
+            {
+                string sql = @"select distinct COST.ProductionOrderId, COST.OrderCostingMasterTemplateId,COST.Rate,COST.UserName FROM (select po.ProductionOrderId, moi.Id,a.OrderCostingMasterTemplateId,sum(a.rate) AS Rate,OCMT.UserName 
 from trn.MasterOrderItem moi 
  JOIN
 	( 
@@ -615,18 +615,18 @@ from trn.MasterOrderItem moi
 	left JOIN [dbo].[OrderCostingMasterTemplate] OCMT ON OCMT.Id=A.OrderCostingMasterTemplateId
 	join (select POD.ProductionOrderId,SO.MasterOrderItemId from TRN.ProductionOrderDetail POD
 	join trn.salesOrder SO ON SO.id=pod.SalesOrderId group by POD.ProductionOrderId,SO.MasterOrderItemId) AS PO on PO.MasterOrderItemId=MOI.Id
-	WHERE ISNULL(ConsiderForFGValuation,0)=1 AND PO.ProductionOrderId='"+ productionOrderId + @"'
+	WHERE ISNULL(ConsiderForFGValuation,0)=1 AND PO.ProductionOrderId='" + productionOrderId + @"'
 AND moi.OrderCostingMasterTemplateId<>''
 group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserName) AS COST";
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetBookedAndBalancedData(string productionOrderId)
+        public IEnumerable<object> GetBookedAndBalancedData(string productionOrderId)
         {
             try
             {
@@ -679,11 +679,11 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
             }
         }
 
-		public IEnumerable<object> GetItemScanChildData(string fromDate, string toDate)
-		{
-			try
-			{
-				string sql = @"SELECT SC.POId ProductionOrderId,sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate,MM.UserName MaterialMaster,MMA.StandardName Article
+        public IEnumerable<object> GetItemScanChildData(string fromDate, string toDate)
+        {
+            try
+            {
+                string sql = @"SELECT SC.POId ProductionOrderId,sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate,MM.UserName MaterialMaster,MMA.StandardName Article
 							 ,Qty=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END),ISNULL(B.Rate,0)Rate, Amount=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END) * ISNULL(B.Rate,0)
 							FROM dbo.ItemScanChild SC 
 							LEFT JOIN dbo.ProductLibrary PL ON PL.Code=SC.ProductCode
@@ -715,19 +715,19 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
 							WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.FinishGoodsBookingDetailId,'')=''
 							GROUP BY SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName";
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetItemDetailData(string masterId)
-		{
-			try
-			{
-				string sql = @"SELECT FGD.Id,SC.POId ProductionOrderId,sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate,MM.UserName MaterialMaster,MMA.StandardName Article
+        public IEnumerable<object> GetItemDetailData(string masterId)
+        {
+            try
+            {
+                string sql = @"SELECT FGD.Id,SC.POId ProductionOrderId,sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate,MM.UserName MaterialMaster,MMA.StandardName Article
 							 ,Qty=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END),ISNULL(B.Rate,0)Rate, Amount=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END) * ISNULL(B.Rate,0),Active=Convert(bit,1)
 							FROM dbo.ItemScanChild SC 
 							LEFT JOIN dbo.ProductLibrary PL ON PL.Code=SC.ProductCode
@@ -762,30 +762,42 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 	                        WHERE FG.Id='" + masterId + @"'
 							GROUP BY FGD.Id,SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName";
 
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
-
-		public object GetFromDate()
-        {
-			string sql = "";
-            try
-            {
-				sql = @"Select FORMAT(MIN(A.WorkDate),'dd-MMM-yyyy') FromDate,FORMAT(MAX(A.WorkDate),'dd-MMM-yyyy') ToDate
-						from dbo.ItemScan A
-						JOIN dbo.ItemScanChild B oN A.Id=B.MasterId
-						Where B.IsDespatch=0";
-				return _sqlRepository.GetDataCollection(sql, null);
+                return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-	}
 
+        public object GetFromDate()
+        {
+            string sql = "";
+            try
+            {
+                sql = @"Select FORMAT(MIN(A.WorkDate),'dd-MMM-yyyy') FromDate,FORMAT(MAX(A.WorkDate),'dd-MMM-yyyy') ToDate
+						from dbo.ItemScan A
+						JOIN dbo.ItemScanChild B oN A.Id=B.MasterId
+						Where B.IsDespatch=0";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetListForFinishGoodsBookingPost(string plantId)
+        {
+            var sql = @"SELECT IR.Id,ird.Qty,ird.Amount
+					FROM dbo.[FinishGoodsBooking] AS IR 
+                     LEFT JOIN (SELECT A.DateWiseConsumptionId, SUM(A.Qty) AS Qty, SUM(ROUND(A.Qty*A.Rate,4)) AS Amount
+					 FROM dbo.[FinishGoodsBookingDetail] AS A
+		                        JOIN dbo.[FinishGoodsBooking] AS B ON A.DateWiseConsumptionId=B.Id  GROUP BY A.DateWiseConsumptionId) AS 
+								IRD ON IRD.DateWiseConsumptionId=IR.Id";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+    }
 }
+
