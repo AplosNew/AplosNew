@@ -178,7 +178,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                     if (PreviousBuyerItem != dtProductionPlanningReport.Rows[i]["BuyerItemNo"].ToString())
                     {
-                        sheet[RowLineNo, CCOL].RowHeight = 10;
+                        sheet[RowLineNo, CCOL].RowHeight = 12;
                         sheet[RowLineNo, CCOL].Text = dtProductionPlanningReport.Rows[i]["BuyerItemNo"].ToString() +",Quantity:"+ dtProductionPlanningReport.Rows[i]["SalesOrderQty"].ToString();
                         sheet.Range[RowLineNo, CCOL].CellStyle.Font.Bold = true;
                         sheet.Range[RowLineNo, CCOL].CellStyle.Font.Size = 8;
