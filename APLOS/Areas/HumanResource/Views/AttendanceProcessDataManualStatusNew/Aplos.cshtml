@@ -1,7 +1,7 @@
 ﻿<h3 class="site-heading">
     <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  Manual Attendance-Day Status Update
 </h3>
-<div class="form-horizontal form-elements" id="mainContainer" >
+<div class="form-horizontal form-elements" id="mainContainer">
     <div id="Tab" ej-tab>
         <ul>
             <li><a href="#TabEmployee">Employee Wise</a></li>
@@ -100,9 +100,9 @@
                      e-allowscrolling="true" e-minheight="400" e-gridlines="vertical" @*e-showstackedheader="true"*@
                      e-actioncomplete="actionCompleteSingleEmployee" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
                      e-filtersettings-filterType="excel">
-                   
+
                     <div e-columns>
-                       
+
                         <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>
                         <div e-column e-field="DayName" e-headertext="Day" e-width="50"></div>
                         <div e-column e-field="ShiftName" e-headertext="Shift" e-width="220"></div>
@@ -143,7 +143,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Date<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input e-dateformat="dd-MMM-yyyy" e-change="selectSigleDate" ej-datepicker e-value="FromDateSingleDate" e-width="100%" />
+                                <input e-dateformat="dd-MMM-yyyy" e-change="selectSingleDate" ej-datepicker e-value="FromDateSingleDate" e-width="100%" />
                             </div>
                         </div>
 
@@ -167,7 +167,7 @@
                         <div e-column e-field="IsManualInTime" e-headertext="ManualIn" e-width="50"></div>
                         <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
                         <div e-column e-field="IsManualOutTime" e-headertext="ManualOut" e-width="50"></div>
-                        <div e-column e-template="#daystatus" e-headertext="Day Status" e-width="80"></div>
+                        <div e-column e-template="#daystatusx" e-headertext="Day Status" e-width="80"></div>
                         <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="50"></div>
                         <div e-column e-field="IsManualDayStatus" e-headertext="Manual" e-width="40"></div>
                         <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
@@ -242,8 +242,18 @@
 @**@
 <script type="text/template" id="daystatus">
     <div class="col-sm-10" style="padding:0px;">
-        <input ej-dropdownlist e-enabled="{{(data.IsOD==true || data.AttendanceRestDetailId!=null || data.LTSystemID!=null)?'false':'true'}}" e-datasource="$parent.daystatus" e-value="data.DayStatusNew" e-width="100%" />
+        <input type="text" name="NewStatus" ng-model="changestatus" ng-click="$parent.getDayStatus(this)" class="form-control" maxlength="200" tabindex="5">
+
     </div>
+
+</script>
+
+<script type="text/template" id="daystatusx">
+    <div class="col-sm-10" style="padding:0px;">
+        <input type="text" name="NewStatusx" ng-model="changestatusx" ng-click="$parent.getDayStatusx(this)" class="form-control" maxlength="200" tabindex="5">
+
+    </div>
+
 </script>
 
 <script type="text/x-jsrender" id="indate">
@@ -260,7 +270,7 @@
                    e-target="#mainContainer" e-minwidth="1100" e-height="580" e-open="enableBtn">
             <div class="row">
                 <div id="GridWorkCenterProduct" ng-init="chkinit()" ej-grid e-datasource="selectemployee"
-                     e-recorddoubleclick="selectSignleEmployee"
+                     e-recorddoubleclick="selectSingleEmployee"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowscrolling="true" e-minwidth="1100" e-minheight="500"
                      e-allowselection="true" e-filtersettings-filterType="excel">
@@ -304,6 +314,79 @@
         </ej-dialog>
     </div>
 </div>
+
+<div class="modal fade site-modal in" id="StatusModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">DayStatus</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row" style="margin: 20px; font-style:italic"> </div>
+                <p style="margin:10px;">
+                    Select The DayStatus by Double Clicking the Choice.
+                <p>
+
+                    <div id="getCustomers" ej-grid e-datasource="selectedStatus" e-templaterefresh="refreshTemplate"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
+                         e-recorddoubleclick="doubleStatus">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
+                            <div e-column e-field="DayType" e-headertext="DayStatus" e-width="50"></div>
+
+                        </div>
+                    </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="StatusModalx" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">DayStatus</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row" style="margin: 20px; font-style:italic"> </div>
+                <p style="margin:10px;">
+                    Select The DayStatus by Double Clicking the Choice.
+                <p>
+
+                    <div id="getCustomers" ej-grid e-datasource="selectedStatusx" e-templaterefresh="refreshTemplate"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
+                         e-recorddoubleclick="doubleStatusx">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
+                            <div e-column e-field="DayType" e-headertext="DayStatus" e-width="50"></div>
+
+                        </div>
+                    </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
 
 <div class="row">
     <ej-dialog id="ViewAttendanceInfo" title=" Attendance Info" e-enablemodal="true" e-position-y="0" e-showoninit="false"

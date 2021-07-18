@@ -602,6 +602,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         public string ShiftFullDayDuration { get; set; }
         public string ShiftHoursWithoutOT { get; set; }
         public string ShiftShortDuration { get; set; }
+        public string EmployeeCategoryId { get; set; }
         public string InDate { get; set; } = "";
         public string InTime { get; set; } = "";
         public string InDateOriginal { get; set; } = "";
