@@ -2752,40 +2752,23 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.report.IsActivityLevel = false;
             $scope.report.IsDetailLevel = false;
 
-            //$scope.reportDateWise.IsBudgetLevel = false;
-            //$scope.reportDateWise.IsDetailLevel = false;
-            //$scope.reportDateWise.IsActivityLevel = false;
         }
         if (level == 'Budget') {
             $scope.report.IsBudgetLevel = true;
             $scope.report.IsActivityLevel = false;
-            //$scope.report.IsDetailLevel = false;
-            //$scope.report.isACGroupLevel = false;
-            //$scope.reportDateWise.IsBudgetLevel = true;
-            //$scope.reportDateWise.IsDetailLevel = false;
-            //$scope.reportDateWise.IsActivityLevel = false;
-            //$scope.reportDateWise.isACGroupLevel = false;
+            $scope.report.IsDetailLevel = false;
 
         }
         if (level == 'Detail') {
             $scope.report.IsDetailLevel = true;
             $scope.report.IsBudgetLevel = false;
             $scope.report.IsActivityLevel = false;
-            //$scope.report.isACGroupLevel = false;
-            //$scope.reportDateWise.IsBudgetLevel = false;
-            //$scope.reportDateWise.IsActivityLevel = false;
-            //$scope.reportDateWise.IsDetailLevel = true;
-            //$scope.reportDateWise.isACGroupLevel = false;
-
         }
 
         else if (level == 'Activity') {
             $scope.report.IsBudgetLevel = false;
             $scope.report.IsDetailLevel = false;
             $scope.report.IsActivityLevel = true;
-            //$scope.reportDateWise.IsDetailLevel = false;
-            //$scope.reportDateWise.IsBudgetLevel = false;
-            //$scope.reportDateWise.IsActivityLevel = true;
 
         }
     };
@@ -3090,7 +3073,17 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                      //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
                     , 'toDate': $scope.report.ToDate
                     , 'reportName': $scope.report.AssetsLiability
-              
+                    ,'isDetailLevel': $scope.report.IsDetailLevel
+                   // ,'isUpToLevel': $scope.report.IsUpToLevel
+                    , 'isBudgetLevel': $scope.report.IsBudgetLevel
+                    , 'isActivityLevel': $scope.report.IsActivityLevel
+                   // ,'isDetailLevel': $scope.report.IsDetailLevel
+                    //'isBudgetLevel': $scope.report.IsBudgetLevel,
+                    //'isActivityLevel': $scope.report.IsActivityLevel,
+                    //'IsDetailLevel': $scope.report.IsDetailLevel
+
+
+
                 },
                  dataType: 'JSON'
                 , contentType: "application/json charset=utf-8"

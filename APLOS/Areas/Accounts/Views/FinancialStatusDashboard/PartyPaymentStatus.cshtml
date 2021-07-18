@@ -858,26 +858,26 @@
                         <fieldset class="scheduler-border">
                             @*<div class="form-group" show-errors>
 
-        <div class="col-sm-12 radio">
-                <label>
-                    <input type="radio" name="source2" ng-model="dateRange" value=false ng-change="viewChange()">
-                    <span class="cr" tabindex="1"><i class="cr-icon"></i></span>As On Date
-                </label>
-                <label>
-                    <input type="radio" name="source2" ng-model="dateRange" value=true ng-change="viewChange()">
-                    <span class="cr" tabindex="2"><i class="cr-icon"></i></span>For the Period
-                </label>
-            </div>
-        </div>*@
+                            <div class="col-sm-12 radio">
+                                    <label>
+                                        <input type="radio" name="source2" ng-model="dateRange" value=false ng-change="viewChange()">
+                                        <span class="cr" tabindex="1"><i class="cr-icon"></i></span>As On Date
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="source2" ng-model="dateRange" value=true ng-change="viewChange()">
+                                        <span class="cr" tabindex="2"><i class="cr-icon"></i></span>For the Period
+                                    </label>
+                                </div>
+                            </div>*@
 
 
-                            @*<legend class="scheduler-border">Trial Balance</legend>*@
-                            @*<div class="form-group" show-errors id="div_FromDate">
-            <label class="col-sm-3 control-label">{{fromDateTitle}}<sup>*</sup></label>
-            <div class="col-sm-7 show-message">
-                <input type="text" name="Date" ng-model="report.FromDate" datepicker class="form-control" required tabindex="3">
-            </div>
-        </div>*@
+                                                @*<legend class="scheduler-border">Trial Balance</legend>*@
+                                                @*<div class="form-group" show-errors id="div_FromDate">
+                                <label class="col-sm-3 control-label">{{fromDateTitle}}<sup>*</sup></label>
+                                <div class="col-sm-7 show-message">
+                                    <input type="text" name="Date" ng-model="report.FromDate" datepicker class="form-control" required tabindex="3">
+                                </div>
+                            </div>*@
 
                             <div class="form-group" id="div_WDToDate">
                                 <label class="col-sm-1 control-label">As On Date<sup>*</sup></label>
@@ -906,7 +906,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="col-sm-1 control-label">Assets and Liability<sup></sup></label>
+                                <label class="col-sm-1 control-label">Report Name<sup></sup></label>
                                 <div class="col-sm-2 show-message"> 
                                     <input type="text" name="Assets Liability" ng-model="report.AssetsLiability" class="form-control" @*required*@ tabindex="5" maxlength="50">
                                 </div>
