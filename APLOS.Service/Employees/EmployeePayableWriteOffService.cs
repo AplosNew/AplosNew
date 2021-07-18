@@ -574,6 +574,7 @@ namespace Library.Service.Employees
 
                 var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var empSubsequent = _employeeSubsequentTransactionRepository.Query(r=>r.VoucherId== voucherId).Select().ToList();
                 var invoiceWriteOff = _employeePayableWriteOffRepository.Find(employeePayableWriteOffId);
                 var invoiceWriteOffDetail = _employeePayableWriteOffDetailRepository.Query(r => r.EmployeePayableWriteOffId == employeePayableWriteOffId).Select().ToList();
                 //var invoiceTax = _invoiceTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
@@ -581,7 +582,10 @@ namespace Library.Service.Employees
                 {
                     _voucherDetailCurrencyRepository.Delete(item.Id);
                 }
-
+                foreach (var item in empSubsequent)
+                {
+                    _employeeSubsequentTransactionRepository.Delete(item.Id);
+                }
                 foreach (var item in voucherdetail)
                 {
                     var glTransactionDetail = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().FirstOrDefault();
@@ -589,6 +593,10 @@ namespace Library.Service.Employees
                     {
                         _gLTransactionDetailRepository.Delete(item.Id);
                     }
+                    var rdBuilder = new System.Text.StringBuilder();
+                    var builderSql = @"UPDATE [TRN].VoucherDetail SET EmployeePayableWriteOffDetailId=NULL WHERE Id='" + item.Id + "'";
+                    rdBuilder.Append(builderSql);
+                    _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                     _voucherDetailRepository.Delete(item.Id);
                 }
                 //if (invoiceTax != null)

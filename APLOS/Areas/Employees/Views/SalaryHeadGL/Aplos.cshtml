@@ -2,7 +2,7 @@
     <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Salary Head GL
 </h3>
 <div class="form-elements form-horizontal" ng-form name="salaryHeadGLNewForm">
-    
+
     <div class="row">
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group" show-errors>
@@ -45,191 +45,292 @@
             <div class="common-btn">
                 <ul class="list-inline text-left">
                     @*<li><button ng-click="getsalaryHeadGLWithCoa('assing');" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-search"></i> All Assign</button></li>
-                    <li>
-                        <button ng-click="getsalaryHeadGLWithCoa('notassing');" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-search"></i> Not Assign</button>
-                    </li>*@
+                        <li>
+                            <button ng-click="getsalaryHeadGLWithCoa('notassing');" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-search"></i> Not Assign</button>
+                        </li>*@
                     <li>
                         <button ng-click="getsalaryHead();" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-search"></i> Salary Head</button>
                     </li>
                     @*<li>
-                        <button ng-click="getsalaryHeadGLWithCoa('all');" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-search"></i> All</button>
-                    </li>*@
+                            <button ng-click="getsalaryHeadGLWithCoa('all');" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-search"></i> All</button>
+                        </li>*@
 
-                    <li>
-                        <button ng-click="getSalaryHeadGlReport();" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button>
-                    </li>
+
 
                 </ul>
             </div>
         </div>
         <div class="col-sm-12">
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Salary Head<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Salary Head:  </label>
                     <label class="col-sm-8 control-label">{{SalaryHeadName}}</label>
                 </div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Salary Head Type: </label>
+                    <label class="col-sm-8 control-label">{{SalaryHeadType}}</label>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Transaction Type: </label>
+                    <label class="col-sm-8 control-label">{{SalaryHeadTransactionType}}</label>
+                </div>
             </div>
         </div>
 
 
-        <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="col-xs-12 col-sm-12 col-md-12" ng-show="SalaryHeadGlListByAccountGroup.length">
+            <fieldset class="scheduler-border form-group form-elements">
+                <legend class="scheduler-border" style="color:red">Set All</legend>
+                <div class="col-sm-3">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Dr Direct GL:</label>
+                        <div class="col-sm-8">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li>
+                                        <button ng-disabled="DrDisable"  name="submit" class="single-btn" ng-click="GetDirectGLList();"><i class="fa fa-search"></i></button>
+                                    </li>
+                                    <li>
+                                        <button ng-disabled="DrDisable"  ng-click="refreshDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Cr Direct GL:</label>
+                        <div class="col-sm-8">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li>
+                                        <button ng-disabled="CrDisable"  name="submit" class="single-btn" ng-click="GetCrDirectGLList();"><i class="fa fa-search"></i></button>
+                                    </li>
+                                    <li>
+                                        <button ng-disabled="CrDisable"  ng-click="refreshCrDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Dr InDirect GL:</label>
+                        <div class="col-sm-8">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li>
+                                        <button ng-disabled="DrDisable"  name="submit" class="single-btn" ng-click="GetInDirectList();"><i class="fa fa-search"></i></button>
+                                    </li>
+                                    <li>
+                                        <button ng-disabled="DrDisable"  ng-click="refreshInDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Cr InDirect GL:</label>
+                        <div class="col-sm-8">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li>
+                                        <button ng-disabled="CrDisable"  name="submit" class="single-btn" ng-click="GetCrInDirectList();"><i class="fa fa-search"></i></button>
+                                    </li>
+                                    <li>
+                                        <button ng-disabled="CrDisable"  ng-click="refreshCrInDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+    </div>
+    <div class="row">
+        <div>
+            <div class="col-sm-12">
+                <div class="table-responsive modal-table" ng-show="SalaryHeadGlListByAccountGroup.length">
+                    <br />
+
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">Accounts Group</th>
+                                <th style="text-align:center" colspan="6">Dr Direct GL</th>
+                                <th style="text-align:center" colspan="6">Cr Direct GL</th>
+                                <th style="text-align:center" colspan="6">Dr InDirect GL</th>
+                                <th style="text-align:center" colspan="6">Cr InDirect GL</th>
+                                <th style="vertical-align: middle; text-align:center" rowspan="2"> Untag</th>
+                            </tr>
+                            <tr>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th></th>
+                                <th>External GL Code</th>
+                                <th>External GL</th>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th></th>
+                                <th>External GL Code</th>
+                                <th>External GL</th>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th></th>
+                                <th>External GL Code</th>
+                                <th>External GL</th>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th></th>
+                                <th>External GL Code</th>
+                                <th>External GL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in SalaryHeadGlListByAccountGroup|itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'selectsalaryHeadGLWithCombineList'" total-items="$root.total_count">
+
+                                <td>{{x.AccountsGroup}}</td>
+                                <td>
+                                    {{x.DirectGLName}}
+                                </td>
+                                <td>{{x.DirectBudgetName}}</td>
+                                <td>{{x.DirectActivityName}}</td>
+                                <td>
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li>
+                                                <button ng-disabled="DrDisable" name="submit" class="single-btn" ng-click="GetDirectGLList($index);"><i class="fa fa-search"></i></button>
+                                            </li>
+                                            <li>
+                                                <button ng-disabled="DrDisable" ng-click="refreshDirectGL($index);" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" name="User Name" ng-model="x.DrDirectOther" class="form-control">
+                                </td>
+                                <td>
+                                    <input type="text" name="User Name" ng-model="x.DrDirectOtherGLCode" class="form-control">
+                                </td>
+                                <td>
+                                    {{x.CrDirectGLName}}
+                                </td>
+                                <td>{{x.CrDirectBudgetName}}</td>
+                                <td>{{x.CrDirectActivityName}}</td>
+                                <td>
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li>
+                                                <button ng-disabled="CrDisable" name="submit" class="single-btn" ng-click="GetCrDirectGLList($index);"><i class="fa fa-search"></i></button>
+                                            </li>
+                                            <li>
+                                                <button ng-disabled="CrDisable" ng-click="refreshCrDirectGL($index);" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" name="User Name" ng-model="x.CrDirectOther" class="form-control">
+                                </td>
+                                <td>
+                                    <input type="text" name="User Name" ng-model="x.CrDirectOtherGLCode" class="form-control">
+                                </td>
+                                <td>
+                                    {{x.InDirectGLName}}
+                                </td>
+                                <td>{{x.InDirectBudgetName}}</td>
+                                <td>{{x.InDirectActivityName}}</td>
+                                <td>
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li>
+                                                <button ng-disabled="DrDisable" name="submit" class="single-btn" ng-click="GetInDirectList($index);"><i class="fa fa-search"></i></button>
+                                            </li>
+                                            <li>
+                                                <button ng-disabled="DrDisable" ng-click="refreshInDirectGL($index);" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" name="User Name" ng-model="x.DrInDirectOther" class="form-control">
+                                </td>
+                                <td>
+                                    <input type="text" name="User Name" ng-model="x.DrInDirectOtherGLCode" class="form-control">
+                                </td>
+
+                                <td>
+                                    {{x.CrInDirectGLName}}
+
+                                </td>
+                                <td>{{x.CrInDirectBudgetName}}</td>
+                                <td>{{x.CrInDirectActivityName}}</td>
+                                <td>
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li>
+                                                <button ng-disabled="CrDisable" name="submit" class="single-btn" ng-click="GetCrInDirectList($index);"><i class="fa fa-search"></i></button>
+                                            </li>
+                                            <li>
+                                                <button ng-disabled="CrDisable" ng-click="refreshCrInDirectGL($index);" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" name="User Name" ng-model="x.CrInDirectOther" class="form-control">
+                                </td>
+                                <td>
+                                    <input type="text" name="User Name" ng-model="x.CrInDirectOtherGLCode" class="form-control">
+                                </td>
+                                <td class="text-center">
+                                    <ul class="list-inline action-list">
+                                        <li><button ng-disabled="x.Id ===null" ng-click="editSalaryGL(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button></li>
+                                        <li><button ng-disabled="x.Id ===null" ng-click="valuePassInDelModal(x,$index,$event)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'selectsalaryHeadGLWithCombineList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6 ">
             <div class="common-btn">
                 <ul class="list-inline text-left">
                     <li>
-                        <button ng-click="clearSearchDropDown();" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-refresh"></i></button>
+                        <button ng-click="getSalaryHeadGlReport();" class="btn ng-binding" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button>
                     </li>
                 </ul>
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div>
-        <div class="col-sm-12">
-            <div class="table-responsive modal-table" ng-show="SalaryHeadGlListByAccountGroup.length">
-                <br />
-
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th rowspan="2">Accounts Group</th>
-                            <th style="vertical-align: middle; text-align:center" rowspan="2">Salary Head</th>
-                            <th style="vertical-align: middle; text-align:center" rowspan="2">HeadCategory</th>
-                            <th style="vertical-align: middle; text-align:center" rowspan="2">HeadType</th>
-                            <th style="vertical-align: middle; text-align:center" rowspan="2">Payable Group</th>
-                            <th style="text-align:center" colspan="4">Dr Direct GL</th>
-                            <th style="text-align:center" colspan="4">Cr Direct GL</th>
-                            <th style="text-align:center" colspan="4">Dr InDirect GL</th>
-                            <th style="text-align:center" colspan="4">Cr InDirect GL</th>
-                            <th style="vertical-align: middle; text-align:center" rowspan="2"> Untag</th>
-                        </tr>
-                        <tr>
-                            <th>GL</th>
-                            <th>Budget</th>
-                            <th>Activity</th>
-                            <th></th>
-                            <th>GL</th>
-                            <th>Budget</th>
-                            <th>Activity</th>
-                            <th></th>
-                            <th>GL</th>
-                            <th>Budget</th>
-                            <th>Activity</th>
-                            <th></th>
-                            <th>GL</th>
-                            <th>Budget</th>
-                            <th>Activity</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr dir-paginate="x in SalaryHeadGlListByAccountGroup|itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'selectsalaryHeadGLWithCombineList'" total-items="$root.total_count">
-
-                            <td>{{x.AccountsGroup}}</td>
-                            <td>{{x.SalaryHead}}</td>
-                            <td>{{x.HeadCategory}}</td>
-                            <td>{{x.HeadType}}</td>
-                            <td>{{x.SalaryPayableGroup}}</td>
-                            <td>
-                                {{x.DirectGLName}}
-                            </td>
-
-                            <td>{{x.DirectBudgetName}}</td>
-                            <td>{{x.DirectActivityName}}</td>
-                            <td>
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li>
-                                            <button name="submit" class="single-btn" ng-click="GetDirectGLList($index);"><i class="fa fa-search"></i></button>
-                                        </li>
-                                        <li>
-                                            <button ng-click="refreshDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                            <td>
-                                {{x.CrDirectGLName}}
-                            </td>
-                            <td>{{x.CrDirectBudgetName}}</td>
-                            <td>{{x.CrDirectActivityName}}</td>
-                            <td>
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li>
-                                            <button name="submit" class="single-btn" ng-click="GetCrDirectGLList($index);"><i class="fa fa-search"></i></button>
-                                        </li>
-                                        <li>
-                                            <button ng-click="refreshCrDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                            <td>
-                                {{x.InDirectGLName}}
-                            </td>
-                            <td>{{x.InDirectBudgetName}}</td>
-                            <td>{{x.InDirectActivityName}}</td>
-                            <td>
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li>
-                                            <button name="submit" class="single-btn" ng-click="GetInDirectList($index);"><i class="fa fa-search"></i></button>
-                                        </li>
-                                        <li>
-                                            <button ng-click="refreshInDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                            <td>
-                                {{x.CrInDirectGLName}}
-                                
-                            </td>
-                            <td>{{x.CrInDirectBudgetName}}</td>
-                            <td>{{x.CrInDirectActivityName}}</td>
-                            <td>
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li>
-                                            <button name="submit" class="single-btn" ng-click="GetCrInDirectList($index);"><i class="fa fa-search"></i></button>
-                                        </li>
-                                        <li>
-                                            <button ng-click="refreshCrInDirectGL();" class="single-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                            <td class="text-center">
-                                <ul class="list-inline action-list">
-                                    <li><button ng-disabled="x.Id ===null" ng-click="editSalaryGL(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button></li>
-                                    <li><button ng-disabled="x.Id ===null" ng-click="valuePassInDelModal(x,$index,$event)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
-                                </ul>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <dir-pagination-controls max-size="10"
-                                         pagination-id="metaData.name + 'selectsalaryHeadGLWithCombineList'"
-                                         direction-links="true"
-                                         boundary-links="true"
-                                         on-page-change="getData(newPageNumber)">
-                </dir-pagination-controls>
-            </div>
-        </div>
-        
-                   
-       
-      
-        </div>
-
-
-        <div class="col-xs-12">
+        <div class="col-xs-6">
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    @*<li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
                 </ul>
             </div>
         </div>
@@ -590,7 +691,7 @@
                     <div style="color:black;" id="employeeNewPopUp" ej-grid e-datasource="SalaryHeadGlList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-recorddoubleclick="setData" e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
-                            <div e-column e-field="SalaryHeadID" e-headertext="SalaryHeadID" e-width="80"></div>
+                            @*<div e-column e-field="SalaryHeadID" e-headertext="SalaryHeadID" e-width="80"></div>*@
                             <div e-column e-field="SalaryHead" e-headertext="Salary Head" e-width="80"></div>
                             <div e-column e-field="HeadType" e-headertext="HeadType" e-width="80"></div>
                             <div e-column e-field="HeadCategory" e-headertext="Head Category" e-width="80"></div>

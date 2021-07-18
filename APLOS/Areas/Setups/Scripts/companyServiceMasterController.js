@@ -83,7 +83,8 @@ function companyServiceMasterController(cboService, commonMessage, $scope, $root
 
         baseService.setCurrentPage('serviceMasterList');
         $scope.loadServiceMasterData = function (pageno) {
-            baseService.paginationBase('Setups/serviceMaster/GetList?ids=' + isServiceMasterIdExistGrid($scope.serviceMasterSelectedList), pageno, $scope.serviceMasterListParameters)
+            //baseService.paginationBase('Setups/serviceMaster/GetList?ids=' + isServiceMasterIdExistGrid($scope.serviceMasterSelectedList), pageno, $scope.serviceMasterListParameters)
+            baseService.paginationBase('Setups/serviceMaster/GetServiceMasterList', pageno, $scope.serviceMasterListParameters)
                 .then(function (result) {
                     $scope.serviceMasterList = result.Rows;
                     $scope.serviceMasterListParameters.total_count = result.Total;
@@ -98,6 +99,7 @@ function companyServiceMasterController(cboService, commonMessage, $scope, $root
         $scope.loadServiceMasterData();
         angular.element(document.querySelector('#serviceMasterListPopUp')).modal('show');
     };
+
     $scope.serviceMasterCloseListPopUp = function () {
         ServiceMasterSelectedListfun();
         angular.element(document.querySelector('#serviceMasterListPopUp')).modal('hide');
