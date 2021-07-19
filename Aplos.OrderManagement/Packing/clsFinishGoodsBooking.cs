@@ -1,4 +1,5 @@
-﻿using Library.Crosscutting.Security;
+﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using OTSBD;
 using System;
@@ -954,6 +955,160 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
                 throw ex;
             }
         }
+
+		public IEnumerable<object> GetListForFinishGoodsBookingPost(string plantId)
+		{
+			var sql = @"SELECT IR.Id,ird.Qty,ird.Amount,IR.[Description],IR.FromDate,IR.ToDate
+					FROM dbo.[FinishGoodsBooking] AS IR 
+                     LEFT JOIN (SELECT A.DateWiseConsumptionId, SUM(A.Qty) AS Qty, SUM(ROUND(A.Qty*A.Rate,4)) AS Amount
+					 FROM dbo.[FinishGoodsBookingDetail] AS A
+		                        JOIN dbo.[FinishGoodsBooking] AS B ON A.DateWiseConsumptionId=B.Id  GROUP BY A.DateWiseConsumptionId) AS 
+								IRD ON IRD.DateWiseConsumptionId=IR.Id";
+			return _sqlRepository.GetDataCollection(sql);
+		}
+		public IEnumerable<object> GetVendorPayableGLBudgetActivity(string receiveId, string companyId, string plantId, string companypartyAccountGroupId)
+		{
+			var sql = @"DECLARE @receiveId varchar(10)='" + receiveId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companypartyAccountGroupId + @"',@countryId varchar(10)
+
+                            SELECT distinct IR.Id,IRD.Id AS InventoryReceiveDetailId, 'Vendor' AS OtherName, 'Cr' AS TrnType ,MM.MaterialGroupMasterId, NULL AS TaxCategoryId
+                            ,GLGeneralInfoId =case WHEN MM.IsAsset=0 THEN MGPGL.GLGeneralInfoId  ELSE FAG.VendorReconGLId END
+							,GLGeneralInfoCode =case WHEN MM.IsAsset=0 THEN GL.AccountCode  ELSE GLF.AccountCode END
+							,GLGeneralInfoName =case WHEN MM.IsAsset=0 THEN GL.UserName  ELSE GLF.UserName END
+							,BudgetMasterId =case WHEN MM.IsAsset=0 THEN MGPGL.BudgetMasterId  ELSE FAG.VendorReconBudgetMasterId END
+							,BudgetCode =case WHEN MM.IsAsset=0 THEN B.Code  ELSE BF.Code END
+							,BudgetName =case WHEN MM.IsAsset=0 THEN B.UserName  ELSE BF.UserName END
+							,ActivityId =case WHEN MM.IsAsset=0 THEN MGPGL.ActivityId  ELSE FAG.VendorReconActivityId END
+							,ActivityCode =case WHEN MM.IsAsset=0 THEN A.Code  ELSE AF.Code END
+							,ActivityName =case WHEN MM.IsAsset=0 THEN A.UserName  ELSE AF.UserName END
+							
+						FROM [TRN].[InventoryReceiveDetail] AS IRD 
+						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON IM.ArticleId=ART.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId=@plantId AND PartyType='Vendor')AS CP ON IR.PartyId = CP.PartyId
+						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
+						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGPGL.GLGeneralInfoId= GL.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGPGL.BudgetMasterId= BM2.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
+
+                        LEFT JOIN (SELECT FAMBT.BudgetMasterId,FAVGL.VendorReconGLId ,FAVGL.VendorReconBudgetMasterId,FAVGL.VendorReconActivityId 
+						FROM HKP.FixedAssetMasterBudgetTag FAMBT 
+						LEFT JOIN HKP.FixedAssetMasterVendorReconGL FAVGL ON 
+						FAMBT.FixedAssetMasterId=FAVGL.FixedAssetMasterId  AND FAVGL.PartyAccountGroupId=@partyAccountGruopId) AS FAG 
+						ON FAG.BudgetMasterId=MM.BudgetMasterId
+
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON FAG.VendorReconGLId=GLF.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BMF ON FAG.VendorReconBudgetMasterId= BMF.Id
+						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
+						LEFT JOIN [HKP].[Activity] AS AF ON FAG.VendorReconActivityId= AF.Id
+
+						WHERE IRD.InventoryReceiveId=@receiveId";
+			return _sqlRepository.GetDataCollection(sql);
+		}
+		private Dictionary<string, object> GetCompanyPartyGroup(string partyId, string plantId)
+		{
+			var cmdText = @"select PartyAccountGroupId FROM HKP.CompanyParty where PartyId = '" + partyId + "' AND PlantId='" + plantId + @"' and PartyType='Vendor'";
+			return _sqlRepository.GetData(cmdText);
+		}
+		public IEnumerable<object> GetFGJournal(string companyId, string finishGoodsBookId)
+		{
+			var sql = @"DECLARE @receiveId varchar(10)='" + finishGoodsBookId + @"',  @companyId varchar(10)='" + companyId + @"'
+					
+						SELECT  'FGInventory' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId
+							,GLGeneralInfoId=MGGL.InventoryGLId
+							,GLGeneralInfoCode = GL.AccountCode
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId = MGGL.InventoryBudgetMasterId
+							,BudgetCode =B.Code 
+							,BudgetName = B.UserName
+							,ActivityId =MGGL.InventoryActivityId 
+							,ActivityCode =A.Code 
+							,ActivityName =A.UserName
+							, SUM(IRD.Qty*IRD.Rate) AS Dr, NULL Cr
+							, SUM(IRD.Qty*IRD.Rate) AS Amount
+                            ,IRD.Id AS  FinishGoodsBookingDetailId
+						FROM dbo.[FinishGoodsBookingDetail] AS IRD
+						LEFT JOIN dbo.[DateWiseConsumption] DC ON DC.Id=IRD.DateWiseConsumptionId
+						LEFT JOIN dbo.[FinishGoodsBooking] AS IR ON DC.FinishGoodsBookingId=IR.Id
+						LEFT JOIN dbo.[ProductLibrary] AS IM ON IRD.ProductLibraryId=IM.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON MGGL.InventoryGLId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.InventoryBudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGGL.InventoryActivityId= A.Id
+						
+						WHERE IRD.Id=@receiveId
+						GROUP BY MM.MaterialGroupMasterId, MGGL.InventoryGLId, GL.AccountCode, GL.UserName, MGGL.InventoryBudgetMasterId, B.Code, B.UserName, MGGL.InventoryActivityId, A.Code, A.UserName
+					    ,IRD.Id
+                   
+				   UNION
+				   SELECT  'WIPSFG' AS OtherName, 'Cr' AS TrnType,NULL MaterialGroupMasterId
+							,GLGeneralInfoId=GAD.GLGeneralInfoId
+							,GLGeneralInfoCode = GL.AccountCode
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId = GAD.BudgetMasterId
+							,BudgetCode =B.Code 
+							,BudgetName = B.UserName
+							,ActivityId =GAD.ActivityId 
+							,ActivityCode =A.Code 
+							,ActivityName =A.UserName
+							, NULL Dr, SUM(IRD.Qty*IRD.Rate) AS Cr
+							, SUM(IRD.Qty*IRD.Rate) AS Amount
+                            ,NULL FinishGoodsBookingDetailId
+						FROM dbo.[FinishGoodsBookingDetail] AS IRD
+						LEFT JOIN dbo.[DateWiseConsumption] DC ON DC.Id=IRD.DateWiseConsumptionId
+						LEFT JOIN dbo.[FinishGoodsBooking] AS IR ON DC.FinishGoodsBookingId=IR.Id
+						LEFT JOIN ORG.Entity E ON E.Id=IR.ProductionEntityId
+						LEFT JOIN ORG.Company CO ON CO.Id=E.CompanyId
+						LEFT JOIN HKP.GeneralAccountDeterminate GAD ON GAD.COAId=CO.COAId AND GAD.Id='IssueOfRawMaterialToAnOrder'
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON GAD.GLGeneralInfoId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON GAD.BudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
+						
+						WHERE IR.Id=@receiveId
+						GROUP BY  GAD.GLGeneralInfoId, GL.AccountCode, GL.UserName, GAD.BudgetMasterId, B.Code, B.UserName, GAD.ActivityId, A.Code, A.UserName
+					     
+					ORDER BY TrnType DESC 
+";
+			return _sqlRepository.GetDataCollection(sql);
+
+		}
+
+		public GridModel GetFGMaterialDetail(GridParameter parameters, string finishGoodsBookingId)
+		{
+
+			parameters.CmdText = @"DECLARE @finishGoodsBookingId VARCHAR(10)='" + finishGoodsBookingId + @"'
+                        SELECT  FGD.Id AS FinishGoodsBookingDetailId
+                            , MGM.UserName AS MaterialGroupMasterName
+                            , PL.MaterialMasterId, MM.UserName
+                            , PL.ArticleId, ART.StandardName
+                            , FGD.Rate AS TransactionRate
+                            , CU.Code AS CurrencyName, 1 ToCurrencyRate
+                            , FGD.Qty*FGD.Rate AS TrnAmount
+                             ,FGD.Qty AS TransactionQty
+                            
+					  from dbo.[FinishGoodsBookingDetail] AS FGD
+                        LEFT JOIN dbo.[DateWiseConsumption] DC ON DC.Id=FGD.DateWiseConsumptionId
+						LEFT JOIN dbo.[FinishGoodsBooking] AS FG ON DC.FinishGoodsBookingId=FG.Id
+						LEFT JOIN dbo.[ProductLibrary] AS PL ON FGD.ProductLibraryId=PL.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON PL.MaterialMasterId=MM.Id
+                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+                        LEFT JOIN MST.MaterialMasterArticle AS ART ON PL.ArticleId=ART.Id
+						LEFT JOIN ORG.Entity E ON E.Id=FG.ProductionEntityId
+						LEFT JOIN ORG.Company CO ON CO.Id=E.CompanyId
+						LEFT JOIN SCS.Currency CU ON CU.Id=CO.BaseCurrencyId
+                        WHERE FG.Id=@finishGoodsBookingId";
+			return _sqlRepository.GetDifferentGridData(parameters);
+		}
+
 	}
 
 }
