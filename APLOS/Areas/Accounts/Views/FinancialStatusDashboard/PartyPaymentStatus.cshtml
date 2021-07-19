@@ -914,7 +914,7 @@
 
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
-                                    <li><button ng-click="GetTrialBLAccountGroupReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i>Downloard</button></li>
+                                    <li><button ng-click="Print();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i>Downloard</button></li>
                                     <li>@*<button ng-click="GetAcceptanceLiabilityReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Detail</button>*@</li>
                                 </ul>
                             </div>
@@ -953,7 +953,7 @@
                                     <div e-column e-field="Particulars" @*e-template="#TrialBalanceActivityTemplate"*@ e-headertext="Details" e-width="130"></div>
                                     <div e-column e-field="FixedAssetMasterId" @*e-template="#TrialBalanceActivityTemplate"*@ e-headertext="FixedAssetMasterId" e-width="90"></div>
 
-                                    <div e-column e-type="number" e-format="{0:N2}" e-field="DRcumulative" @*e-template="#TrialBalanceDRTemplate"*@ e-headertext="Books Debit" e-width="100" textAlign='Right'></div>
+                                    <div e-column e-type="number" e-format="{0:N2}" e-field="DRcumulative" e-template="#TrialBalanceDRTemplate" e-headertext="Books Debit" e-width="100" textAlign='Right'></div>
                                     <div e-column e-type="number" e-format="{0:N2}" e-field="CRcumulative" e-headertext="Books Credit" e-width="100" textAlign='Right'></div>
                                     @*<div e-column e-type="number" e-format="{0:N2}" e-field="CRcumulative" e-template="#TrialBalanceDRTemplate" e-headertext="CRcumulative" e-width="75" textAlign='Right'></div>*@
 
@@ -964,6 +964,10 @@
 
                             <script type="text/template" id="TrialBalanceActivityTemplate">
                                 <a href="" ng-click="$parent.showTrialBalanceActivityPopUp(data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.Activity}}</span></a>
+                            </script>
+
+                             <script type="text/template" id="TrialBalanceDRTemplate">
+                                <a href="" ng-click="$parent.showTrialBalanceDRcumulativePopUp(data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.DRcumulative}}</span></a>
                             </script>
 
 
