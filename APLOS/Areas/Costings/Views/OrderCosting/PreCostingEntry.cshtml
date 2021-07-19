@@ -61,7 +61,7 @@
                 </td>
 
                 <td class="text-right">
-                    <input type="number" style="color: blue; min-width: 80px; background-color:{{x.Consumption<0?'red':'white'}}" name="MaterialMasterName" @*ng-click="x.Consumption>0?x.Consumption:x.Consumption=''"*@ ng-model="x.Consumption" ng-change="CalculateFinalCosting(x);" class="form-control" ng-dblclick="getValue(x)">
+                    <input type="number" style="color: blue; min-width: 80px; background-color:{{x.Consumption<0?'red':'white'}}" name="MaterialMasterName" @*ng-click="x.Consumption>0?x.Consumption:x.Consumption=''"*@ ng-model="x.Consumption" ng-change="CalculateFinalCosting(x);" class="form-control" @*ng-dblclick="getValue(x)"*@>
                 </td>
                 <td class="text-right">
                     <input type="number" style="min-width:80px;background-color:{{x.ValueLoss<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.ValueLoss>0?x.ValueLoss:x.ValueLoss=''" ng-model="x.ValueLoss" ng-change="CalculateFinalCosting(x);" class="form-control">
