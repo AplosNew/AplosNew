@@ -990,12 +990,11 @@ namespace Aplos.Areas.Accounts.Controllers
         }
         #region ---Assets and Liability Report---
         [HttpPost, Authorize]
-        public JsonResult AccountGroupWiseReport(string allAccountGroupList,string toDate, string reportName)
+        public JsonResult AccountGroupWiseReport(string allAccountGroupList,string toDate, string reportName,bool isDetailLevel, bool isActivityLevel,bool isBudgetLevel)
         {
             try
             {
                 string LineId = string.Empty;
-
 
                 //var settings = new JsonSerializerSettings
                 //{
@@ -1019,17 +1018,77 @@ namespace Aplos.Areas.Accounts.Controllers
                 //}
 
                 //Dstatus = Dstatus.Replace('*', '"');
-
                 //string ShiftId = "'" + shift.Replace(",", "','") + "'";//replaced with ""
 
-                string fileName = "";
+                if (isDetailLevel)
+                {
+                    //var workbook = "";
+                    //IWorkbook workbok = accountsStatusDashboardService.GetTrialBLAccountGroupReport(excelEngine, toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                    //string strFileName = "TrialBLAccountGroupReport.xlsx";
+                    //workbok.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                    //workbok.Close();
 
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
-               // ExcelEngine excelEngine = new ExcelEngine();
-                //DailyAttendanceReport ep = new DailyAttendanceReport(mailReceiverDetailRepository);
-                fileName = accountsStatusDashboardService.GetTrialBLAccountGroupWiseReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, allAccountGroupList, toDate,"",reportName);
-                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+                    string fileName = "";
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+                    // ExcelEngine excelEngine = new ExcelEngine();
+                    //DailyAttendanceReport ep = new DailyAttendanceReport(mailReceiverDetailRepository);
+                    fileName = accountsStatusDashboardService.GetTrialBLAccountGroupWiseDetailReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, allAccountGroupList, toDate, "", reportName);
+                    return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+                }
+                else if (isActivityLevel)
+                {
+
+                    string fileName = "";
+
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+                    // ExcelEngine excelEngine = new ExcelEngine();
+                    //DailyAttendanceReport ep = new DailyAttendanceReport(mailReceiverDetailRepository);
+                    fileName = accountsStatusDashboardService.GetTrialBLAccountGroupWiseActivityReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, allAccountGroupList, toDate, "", reportName);
+                    return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+                }
+                else if (isBudgetLevel)
+                {
+
+                    string fileName = "";
+
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+                    // ExcelEngine excelEngine = new ExcelEngine();
+                    //DailyAttendanceReport ep = new DailyAttendanceReport(mailReceiverDetailRepository);
+                    fileName = accountsStatusDashboardService.GetTrialBLAccountGroupWiseBudgetReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, allAccountGroupList, toDate, "", reportName);
+                    return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+
+                    string fileName = "";
+
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+                    // ExcelEngine excelEngine = new ExcelEngine();
+                    //DailyAttendanceReport ep = new DailyAttendanceReport(mailReceiverDetailRepository);
+                    fileName = accountsStatusDashboardService.GetTrialBLAccountGroupWiseGLReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, allAccountGroupList, toDate, "", reportName);
+                    return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+                }
+
+                //IWorkbook workbok = accountsStatusDashboardService.GetTrialBLAccountGroupReport(excelEngine, toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                //string strFileName = "TrialBLAccountGroupReport.xlsx";
+                //workbok.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                //workbok.Close();
+
+
+               // string fileName = "";
+
+               // var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+               // AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+               //// ExcelEngine excelEngine = new ExcelEngine();
+               // //DailyAttendanceReport ep = new DailyAttendanceReport(mailReceiverDetailRepository);
+               // fileName = accountsStatusDashboardService.GetTrialBLAccountGroupWiseReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, allAccountGroupList, toDate,"",reportName);
+               // return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception ex)
             {

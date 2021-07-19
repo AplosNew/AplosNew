@@ -95,6 +95,7 @@
     <Compile Include="BOM\BOMReports.cs" />
     <Compile Include="BOM\TemplateAttchment.cs" />
     <Compile Include="Costing\CostingBOQPurchaseOrder.cs" />
+    <Compile Include="Costing\CostingReport.cs" />
     <Compile Include="Costing\QuickBOQ.cs" />
     <Compile Include="Costing\CostingBOQ.cs" />
     <Compile Include="OrderControl\clsBOQUpload.cs" />
