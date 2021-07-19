@@ -175,7 +175,6 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 foreach (var item in voucherDetailVMList)
                 {
-
                     if (item.GLGeneralInfoId == null)
                         throw new CustomException("GL is Not Mapped !");
                     if (item.BudgetMasterId == null)
