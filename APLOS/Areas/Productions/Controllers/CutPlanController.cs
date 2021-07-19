@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using Library.Service.Helpers;
 using System.IO;
 using Library.Core;
+using Library.MaterialManagement.CutPlan;
 
 #endregion Using
 
@@ -24,9 +25,9 @@ namespace Aplos.Areas.Productions.Controllers
 {
     public class CutPlanController : BaseController
     {
-        #region Constructor
-        
-        private readonly ISqlRepository _sqlRepository;
+		#region Constructor
+		clsCutPlan cp = new clsCutPlan();
+		private readonly ISqlRepository _sqlRepository;
         public CutPlanController(ISqlRepository R)
         {
             _sqlRepository = R;
@@ -38,5 +39,17 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return View();
         }
+
+        [HttpGet, Authorize]
+        public JsonResult GetProductionOrderDataList(string entityId)
+        {
+            return Json(cp.GetProductionOrderData(entityId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetLineItemData(string entityId, string processId, string productionOrderId, string masterId)
+        {
+            return Json(cp.GetLineItemData(entityId, processId, productionOrderId, masterId), JsonRequestBehavior.AllowGet);
+        }
+
     }   
 }

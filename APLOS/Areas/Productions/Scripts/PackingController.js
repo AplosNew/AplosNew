@@ -568,7 +568,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
     $scope.cartonDetail = [];
     $scope.inactiveCartons = [];
     $scope.showCartons = function (e) {
-        if (parseFloat(e.data.PlanQty.ToString()) <= 0) {
+        if (parseFloat(e.data.quant) <= 0 ) {
             ShowResult("Please First Enter the Plan Qty");
             throw ("Invalid");
         }

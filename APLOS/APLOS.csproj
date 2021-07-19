@@ -2069,6 +2069,7 @@
     <Content Include="Areas\PerformanceManagement\Scripts\JobEvaluationMasterController.js" />
     <Content Include="Areas\PerformanceManagement\Scripts\JobEvaluationReportController.js" />
     <Content Include="Areas\PerformanceManagement\Scripts\PerformanceManagementConfig.js" />
+    <Content Include="Areas\Productions\Scripts\FinishGoodsBookingPostController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionPlanningReportController.js" />
@@ -3573,7 +3574,6 @@
     <Content Include="Areas\HumanResource\Views\AttendanceProcessDataManualStatusNew\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\AttendanceProcessDataNew\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ManualShiftNew\Aplos.cshtml" />
-    <Content Include="Areas\Productions\Views\CutPlan\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -258,10 +258,20 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.SummaryRows = [{
-        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Rate", dataMember: "Rate", format: "{0:0.0000}" }],
+        title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Rate", dataMember: "Rate", format: "{0:0.0000}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GrossConsumption", dataMember: "GrossConsumption", format: "{0:0.0000}" }
+        ],
         showCaptionSummary: true
-
     }];
+
+    //$scope.SummaryRows = [{
+    //    title: "Total", summaryColumns: [
+    //        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Rate", dataMember: "Rate", format: "{0:N4}" },
+    //        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GrossConsumption", dataMember: "GrossConsumption", format: "{0:N4}" }
+    //    ],
+    //    showCaptionSummary: true
+    //}];
 
     // #region checkbox all
 

@@ -55,7 +55,10 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.exportgriddataUrl,
-            data: { 'obj': JSON.stringify(filtered) }
+            data: {
+                'obj': JSON.stringify(filtered),
+                'ReportHeader': $scope.report.AssetsLiability
+            }
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
                 // ShowResult(response.data.Message, 'failure', 'recipeMaterialPopUp');

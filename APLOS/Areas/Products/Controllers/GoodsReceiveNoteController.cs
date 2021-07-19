@@ -891,8 +891,8 @@ namespace Aplos.Areas.Products.Controllers
 		[Authorize, HttpGet]
 		public JsonResult GetInventoryMaterialPayableList(GridParameter parameters, string inveReveiveId)
 		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryMaterialService.GetPayableMaterial(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
+			AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+			return Json(accountsInventoryPayableService.GetPayableMaterial(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
 		}
 
 		[Authorize, HttpGet]
