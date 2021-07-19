@@ -26,6 +26,7 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
         MaterialCode: null,
         MaterialName: null,
         MaterialMasterId: null,
+        ServiceId: null,
     };
 
     $scope.MaterialInput = {
@@ -111,6 +112,7 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
     };
 
     $scope.Save = function () {
+        $scope.ValidateMaxRate();
         try {
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.jobWorkTransformationMasterform.$valid ) {
@@ -216,6 +218,7 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
                 $scope.Transformation.ResponsiblePersonId = response.data[0].ResponsiblePersonId;
                 $scope.Transformation.ByProductApplicable = response.data[0].ByProductApplicable;
                 $scope.Transformation.Remarks = response.data[0].Remarks;
+                $scope.Transformation.ServiceId = response.data[0].ServiceId;
 
                 $scope.getJobWorkItemUOM();
 
@@ -683,4 +686,31 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
     $scope.getAllMaterialInput();
     $scope.getAllData();
     $scope.getJobWorkMaterialNames();
+
+    // Validate Max Rate
+
+    $scope.ValidateMaxRate = function () {
+        try {
+            if (!baseService.isUndefinedOrNull($scope.Transformation.MinRate) && !baseService.isUndefinedOrNull($scope.Transformation.MaxRate)) {
+                var MRate = parseFloat($scope.Transformation.MinRate);
+                var MxRate = parseFloat($scope.Transformation.MaxRate);
+                if (MRate > MxRate) {
+                    $scope.Transformation.MaxRate = parseFloat(0);
+                    throw "Minimum Rate should be less tha Maximum Rate";
+                }
+            }
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+            throw e;
+        }
+    }
+
+    // Add Service
+
+    $scope.serviceCboList = [];
+    $http.get('Setups/CompanyServiceMaster/GetCboList')
+        .then(function (response) {
+            $scope.serviceCboList = response.data;
+        });
 };
