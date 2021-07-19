@@ -809,6 +809,21 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         });
     };
 
+    
+
+    $scope.OrderCostingReport = function (args) {
+        try {
+            $scope.OrderCostingId = args.data.Id;
+
+            var file_src = $scope.path + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+        }
+    }
+
+
+
     $scope.picdata = null;
     $("#uploadImage").change(function () {
         $scope.picdata = this.files[0];
@@ -1647,7 +1662,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
 
                         var totalPre = getFixedAmountDirectMaterial();
 
-                        $scope.OrderCostingItemList[i].TotalGrossAmount = totalPre * (data.Value / 100)
+                        $scope.OrderCostingItemList[i].TotalGrossAmount = (totalPre / ((100 - data.Value) / 100)) - totalPre;// totalPre * (data.Value / 100)
                         $scope.OrderCostingItemList[i].TotalGrossAmount += data.Rate;
 
                         $scope.OrderCostingItemList[i].Rate = data.Rate;
@@ -1742,7 +1757,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
 
                     var totalPre = getFixedAmountDirectMaterial();
 
-                    $scope.OrderCostingItemList[i].TotalGrossAmount = totalPre * ($scope.OrderCostingItemList[i].Value / 100);
+                    $scope.OrderCostingItemList[i].TotalGrossAmount = (totalPre / ((100 - $scope.OrderCostingItemList[i].Value) / 100)) - totalPre;//totalPre * ($scope.OrderCostingItemList[i].Value / 100);
                     $scope.OrderCostingItemList[i].TotalGrossAmount += $scope.OrderCostingItemList[i].Rate;
 
                 }
@@ -1926,7 +1941,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
 
                         var totalPre = getProcurementFixedAmountDirectMaterial();
 
-                        $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * (data.Value / 100)
+                        $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = (totalPre / ((100 - data.Value) / 100)) - totalPre;// totalPre * (data.Value / 100)
                         $scope.OrderCostingItemList[i].TotalProcurementGrossAmount += data.Rate;
 
                         $scope.OrderCostingItemList[i].ProcurementRate = data.Rate;
@@ -2023,7 +2038,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
 
                     var totalPre = getProcurementFixedAmountDirectMaterial();
 
-                    $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+                    $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = (totalPre / ((100 - $scope.OrderCostingItemList[i].ProcurementValue) / 100)) - totalPre;//totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
                     $scope.OrderCostingItemList[i].TotalProcurementGrossAmount += $scope.OrderCostingItemList[i].ProcurementRate;
 
                 }
@@ -4411,7 +4426,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
 
-    
+
 
     $scope.confirmdelete = false;
     $scope.Confirm = function () {
@@ -4569,7 +4584,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
 
-    
+
     $scope.HeightP.push(Object.assign({}, $scope.HeightDetailP));
     $scope.WidthP.push(Object.assign({}, $scope.WidthDetailP));
     $scope.HeightDetailP = {

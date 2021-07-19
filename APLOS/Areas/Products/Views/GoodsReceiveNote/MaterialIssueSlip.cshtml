@@ -532,9 +532,10 @@
 
 						<th>StockQty</th>
 						<th>StockBaseUoM</th>
-						<th>IssuedQty Qty</th>
+						@*<th>IssuedQty Qty</th>*@
 						<th>Requested Qty</th>
 						<th>ConsumptionUOM</th>
+						<th>ConvertUOM</th>
 						<th style="width:500px;">Required(Valid)Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 						@*<th></th>*@
 						<th>TranUOM</th>
@@ -584,16 +585,21 @@
 
 						<td class="text-right">{{x.TotalQty}}</td>
 						<td>{{x.StockUOM}}</td>
-						<td class="text-right">{{x.IssuedQty}}</td>
+						@*<td class="text-right">{{x.IssuedQty}}</td>*@
 						<td class="text-right">{{x.RequisitionQty}}</td>
 						<td>{{x.consumptionUoM}}</td>
+						<td>
+							<div class="select-style">
+								<select class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in x.uoMList" ng-change="ConvertedDataRow(x)"></select>
+							</div>
+						</td>
 						<td class="text-right">
-							<input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.RequestedQty" ng-disabled="true">
+							<input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.RequestedQty" ng-disabled="false">
 						</td>
 						<td>{{x.TransactionUoMName}}</td>
 						@*<td class="text-right">
-								<ul class="list-inline action-list"></ul>
-							</td>*@
+			<ul class="list-inline action-list"></ul>
+		</td>*@
 
 						<td class="text-right table-td">
 							<ul class="list-inline">
@@ -1114,7 +1120,7 @@
 					<div class="content-container-fluid" style="color:black;overflow:scroll">
 						<div style="color:black;" id="ShowStock1" ej-grid e-datasource="ShowStock"
 							 e-templaterefresh="refreshTemplateMasterOrderOperation"
-							 e-recorddoubleclick="SetTheData"
+							 @*e-recorddoubleclick="SetTheData"*@
 							 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
 							 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
 							<div e-columns>
@@ -1128,7 +1134,7 @@
 
 								<div e-column e-field="TransactionQty" e-headertext="TransactionQty" e-width="100"></div>
 								<div e-column e-field="TransactionUoMName" e-headertext="UoM" e-width="100"></div>
-								<div e-column e-template="#CurrentText123" e-field="RequestedQty" textAlign='right' e-headertext="SlipQty" e-width="100"></div>
+								@*<div e-column e-template="#CurrentText123" e-field="RequestedQty" textAlign='right' e-headertext="SlipQty" e-width="100"></div>*@
 								@*<div e-column e-field="RequestedQty" e-headertext="RequestedQty" e-width="80"></div>*@
 
 
@@ -1138,10 +1144,10 @@
 						<script type="text/template" id="checkboxListPO">
 							<input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
 						</script>
-						<script type="text/template" id="CurrentText123">
+						@*<script type="text/template" id="CurrentText123">
 							<input type="text" class="input ejinputtext form-control" ng-disabled="" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.RequestedQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
 
-						</script>
+						</script>*@
 					</div>
 				
 				</div>
