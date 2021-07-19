@@ -60,6 +60,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_glCompanyInfoService.GetCompanyGLCboList(identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
 
+
         [Authorize, HttpGet]
         public ActionResult Aplos()
         {
