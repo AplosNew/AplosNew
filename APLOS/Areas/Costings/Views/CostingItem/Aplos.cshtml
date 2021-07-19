@@ -6,7 +6,7 @@
                 <label class="col-sm-4 control-label">Costing Component<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select ng-disabled="costingItemNew.isSystemGenerated" class="form-control" ng-model="costingItemNew.CostingComponentId" data-ng-change="selectedSegment(costingItemNew.CostingComponentId)" name="CostingComponent" ng-options="item.Value as item.Text for item in CostingComponentList" required>
+                        <select ng-disabled="costingItemNew.Id!=null" class="form-control" ng-model="costingItemNew.CostingComponentId" data-ng-change="selectedSegment(costingItemNew.CostingComponentId)" name="CostingComponent" ng-options="item.Value as item.Text for item in CostingComponentList" required>
                             <option value=""></option>
                         </select>
                     </div>

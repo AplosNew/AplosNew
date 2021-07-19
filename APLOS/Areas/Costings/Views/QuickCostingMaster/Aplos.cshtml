@@ -1261,6 +1261,14 @@
 
                         @*Operations*@
                         <div class="table-responsive modal-table" ng-show="Segment=='Operation' && ModelNew.Id!='' ">
+                            Both CM and Upcharge are derived from system configurations. User cannot change the values from this standard template, however values can be edited from order costing screen:<br />
+                            <div style="font-weight:bold;color:blue;">CM Calculation:</div>
+                            <i>(A)Total Cost For the day=Cost for standard time(fixed cost, which is defined in product master efficiency parameters)+cost for additional time(Working hour defined in template)</i>
+                            <br /><i>(B)Standard Working Hours (defined in product master efficency parameters)</i>
+                            <br /><i>(C)Marketing Target Per Hour (defined in current template)</i>
+                            <br /><i>CM=A/B/C</i>
+                            <div style="font-weight:bold;color:blue;">Upcharge Calculation:</div>
+                            <i>Up Charge=CM*(Value from upcharge matrix based on criticality level and production days)</i>
                             <table class="col-md-12">
                                 <thead>
                                     <tr>
@@ -1311,7 +1319,9 @@
                         @*Direct Process*@
                         <div class="table-responsive modal-table" ng-show="Segment=='DirectProcess' && ModelNew.Id!='' ">
                             Total Direct Material Cost: <b>{{TotalDirectMaterialCost | number:4}}</b><br />
-                            <i>Value loss % has been calculated on total direct material cost</i>
+                            <i>Value loss % has been calculated on total direct material cost </i>
+                            <i>Amount=((Total Direct Material Cost/(1-(Value Loss %/100))-Total Direct Material Cost)+Rate </i>
+
                             <table class="col-md-12">
                                 <thead>
                                     <tr>
@@ -2045,13 +2055,13 @@
         <div class="col-md-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label">Product Master:</label>
-                <label class="col-sm-8 control-label">{{ModelNew.ProductMaster}}</label>                
+                <label class="col-sm-8 control-label">{{ModelNew.ProductMaster}}</label>
             </div>
         </div>
         <div class="col-md-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label">Costing Item:</label>               
-                <label class="col-sm-8 control-label">{{SelectedDirectMaterial.UserName}}</label>               
+                <label class="col-sm-4 control-label">Costing Item:</label>
+                <label class="col-sm-8 control-label">{{SelectedDirectMaterial.UserName}}</label>
             </div>
         </div>
         <div class="col-md-6">
