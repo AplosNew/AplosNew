@@ -1232,7 +1232,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
 
                     var totalPre = getFixedAmountDirectMaterial();
 
-                    $scope.QuickCostingItemList[i].TotalGrossAmount = totalPre * ($scope.QuickCostingItemList[i].Value / 100);
+                    $scope.QuickCostingItemList[i].TotalGrossAmount = totalPre / ((100 - $scope.QuickCostingItemList[i].Value) / 100);//totalPre * ($scope.QuickCostingItemList[i].Value / 100);
                     $scope.QuickCostingItemList[i].TotalGrossAmount += $scope.QuickCostingItemList[i].Rate;
 
                 }
@@ -1398,7 +1398,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
                     else if ($scope.QuickCostingItemList[i].CostingSegment == 'DirectProcess') {
                         var totalPre = calValue("DirectMaterial");
                         totalPre += calValue("Operation");
-                        $scope.QuickCostingItemList[i].TotalGrossAmount = totalPre * (data.Value / 100) + data.Rate;
+                        $scope.QuickCostingItemList[i].TotalGrossAmount = totalPre / ((100 - data.Value) / 100);// totalPre * (data.Value / 100) + data.Rate;
 
                         $scope.QuickCostingItemList[i].Rate = data.Rate;
                         $scope.QuickCostingItemList[i].Value = data.Value;

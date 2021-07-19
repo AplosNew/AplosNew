@@ -1742,7 +1742,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
 
                     var totalPre = getFixedAmountDirectMaterial();
 
-                    $scope.OrderCostingItemList[i].TotalGrossAmount = totalPre * ($scope.OrderCostingItemList[i].Value / 100);
+                    $scope.OrderCostingItemList[i].TotalGrossAmount = totalPre / ((100 - $scope.OrderCostingItemList[i].Value) / 100);//totalPre * ($scope.OrderCostingItemList[i].Value / 100);
                     $scope.OrderCostingItemList[i].TotalGrossAmount += $scope.OrderCostingItemList[i].Rate;
 
                 }
@@ -2023,7 +2023,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
 
                     var totalPre = getProcurementFixedAmountDirectMaterial();
 
-                    $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+                    $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre / ((100 - $scope.OrderCostingItemList[i].ProcurementValue) / 100);//totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
                     $scope.OrderCostingItemList[i].TotalProcurementGrossAmount += $scope.OrderCostingItemList[i].ProcurementRate;
 
                 }
