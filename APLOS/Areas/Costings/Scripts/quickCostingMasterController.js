@@ -1134,7 +1134,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
 
                         var totalPre = getFixedAmountDirectMaterial();
 
-                        $scope.QuickCostingItemList[i].TotalGrossAmount = totalPre * (data.Value / 100)
+                        $scope.QuickCostingItemList[i].TotalGrossAmount = totalPre / ((100 - data.Value) / 100);// totalPre * (data.Value / 100)
                         $scope.QuickCostingItemList[i].TotalGrossAmount += data.Rate;
 
                         $scope.QuickCostingItemList[i].Rate = data.Rate;
