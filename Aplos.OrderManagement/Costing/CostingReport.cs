@@ -24,15 +24,17 @@ namespace Library.OrderManagement.Costing
             _sqlRepository = new SqlRepository();
             identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
         }
-        public void OrderCostingReport(string OrderCostingId)
+        public void OrderCostingReport(string OrderCostingId,string ProductMasterId)
         {
             try
             {
                 string sql = OrderCostingProductInfoSQL(OrderCostingId);
+                string CostingDetailsql = OrderCostingProductDetailSQL(OrderCostingId, ProductMasterId);
+                
                 ExcelEngine excelEngine = new ExcelEngine();
                 //Instantiate the Excel application object
                 IApplication application = excelEngine.Excel;
-
+                ReportUtility reportUtility = new ReportUtility();
                 //Set the default application version
                 application.DefaultVersion = ExcelVersion.Excel2013;
                 IWorkbook workbook = application.Workbooks.Create(1);
@@ -50,8 +52,8 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].RowHeight = 15;
                 sheet.Range[ROW,COL].CellStyle.Font.Bold = true;
                 sheet.Range[ROW,COL].CellStyle.Font.Size = 10;
-                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-                //sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
                 ROW++;
 
                 COL = 1;
@@ -146,8 +148,8 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].RowHeight = 15;
                 sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, COL].CellStyle.Font.Size = 10;
-                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-                //sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
                 ROW++;
 
                 StartRow = ROW;                
@@ -294,7 +296,7 @@ namespace Library.OrderManagement.Costing
                     COL = 5;
                     sheet[ROW, colSpecificTo + 1].Text = dtOrderCostingProductInfo.Rows[i]["SpecifyTo"].ToString();
                     ROW++;
-                    sheet[ROW, colUOM + 1].Text = dtOrderCostingProductInfo.Rows[i]["UOM"].ToString();
+                    sheet[ROW, colUOM + 1].Text = dtOrderCostingProductInfo.Rows[i]["UnitOfMeasurement"].ToString();
                     ROW++;
                     sheet[ROW, colPaymentDays + 1].Text = dtOrderCostingProductInfo.Rows[i]["PaymentDays"].ToString();
                     ROW++;
@@ -364,10 +366,105 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, colTgtSelPrice + 1, ROW, colTgtSelPrice + 2].Merge();
 
 
+                DataTable dtCostingDetailInfo = _sqlRepository.GetDataTable(CostingDetailsql);
+
+                ROW = 23;
+                COL = 1;
+                #region Costing Detail
+                sheet[ROW, COL].Text = "Costing summary";
+                sheet[ROW, COL].RowHeight = 15;
+                sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, COL].CellStyle.Font.Size = 10;
+                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+
+                ROW++;
+                ROW++;
+
+
+
+                sheet[ROW, COL].Text = "Sl No.";
+                sheet[ROW, COL].ColumnWidth = 6;
+                int colSlNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Costing Component";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colCostingComponent = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Buyer Costing(A)";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colBuyerCosting = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Quick Costing(B)";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colQuickCosting= COL;
+                COL++;
+                sheet[ROW, COL].Text = "Pre Costing(C)";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int colPreCosting= COL;
+                COL++;
+                sheet[ROW, COL].Text = "Proc. Costing(D)";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colProcCosting = COL;
+              
+                int CostingDetailEndCol = COL;
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                //sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW - 1, 1, ROW - 1, CostingDetailEndCol].Merge();
+
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
+                ROW++;
+
+                int CostingDetailStartRow = ROW; //row 20
+                for (int i = 0; i < dtCostingDetailInfo.Rows.Count; i++)
+                {
+                    sheet[ROW, colSlNo].Number = (i + 1);
+
+                    sheet[ROW, colCostingComponent].Text = dtCostingDetailInfo.Rows[i]["UserName"].ToString();
+                    sheet[ROW, colBuyerCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["BuyerTarget"].ToString());
+                    sheet[ROW, colQuickCosting].Number =clsStaticInfo.dbl( dtCostingDetailInfo.Rows[i]["CostingValue"].ToString());
+                    sheet[ROW, colPreCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString());
+                    sheet[ROW, colProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString());
+
+                    sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
+
+                    ROW++;
+
+                }
+                sheet[ROW, 1].Text = "Total:";
+                
+                sheet.Range[ROW, 1,ROW, 2].Merge();
+                sheet.Range[ROW, colBuyerCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colBuyerCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colBuyerCosting) + (ROW - 1) + ")";
+                sheet.Range[ROW, colQuickCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colQuickCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colQuickCosting) + (ROW - 1) + ")";
+                sheet.Range[ROW, colPreCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colPreCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colPreCosting) + (ROW - 1) + ")";
+                sheet.Range[ROW, colProcCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colProcCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colProcCosting) + (ROW - 1) + ")";
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
+
+
+
+                sheet.IsGridLinesVisible = false;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[CostingDetailStartRow, 1, ROW, CostingDetailEndCol].CellStyle.Font.Size = 8f;
+
+                //sheet["A" + CostingDetailStartRow.ToString()].FreezePanes();
+
+                sheet.Range[CostingDetailStartRow, colCostingComponent, ROW, CostingDetailEndCol].NumberFormat = clsStaticInfo.NumberFormat(2);
+               // sheet.Range[CostingDetailStartRow, colSlNo, ROW, colSlNo].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
                 //sheet.Range[StartRow, colMaterialCostPerUnit, ROW, endCol].NumberFormat = clsStaticInfo.NumberFormat(2);
                 //sheet.Range[StartRow, colNetConsumptionPerUnit, ROW, endCol].NumberFormat = clsStaticInfo.NumberFormat(2);
                 //sheet.Range[StartRow, colValueLossPercentage, ROW, endCol].NumberFormat = clsStaticInfo.NumberFormat(2);
                 //sheet.Range[StartRow, colGrossConsumption, ROW, endCol].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+
+                #endregion
+
 
                 sheet.IsGridLinesVisible = false;
 
@@ -375,12 +472,9 @@ namespace Library.OrderManagement.Costing
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[7, 1, 21, endCol].CellStyle.Font.Size = 8f;
 
-                //sheet["A" + StartRow.ToString()].FreezePanes();
-
 
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ReportUtility reportUtility = new ReportUtility();
                 reportUtility.PlantHeader(ref sheet, endCol, "Order Costing Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -405,9 +499,10 @@ namespace Library.OrderManagement.Costing
 							,pc.UserName as ProductCategory
 							,psc.UserName as ProductSubCategory,ct.UserName AS CostingTypeName
                              ,pm.CostingType,eff.StandardWorkingHours AS StandardWorkingHoursForProduct
-								,c.Code Currency
+							,c.Code Currency,u.UserName UnitOfMeasurement
 							from OrderCostingMasterTemplate qcm 
 							left outer join SCS.Currency c on c.Id=qcm.CurrencyId
+							left join SCS.UnitOfMeasurement u on u.Id=qcm.UOM
                             left join [HKP].[Party] p ON p.Id = qcm.CustomerId
                             left join [MST].[ProductMaster] pm ON pm.Id = qcm.ProductMasterId
 							left join [HKP].[ProductCategory] as pc on pc.Id = pm.ProductCategoryId
@@ -415,6 +510,66 @@ namespace Library.OrderManagement.Costing
 							LEFT JOIN [TRN].[ProductMasterEfficency] EFF ON eff.ProductMasterId=qcm.ProductMasterId AND EfficencyName='Costing'  
 							LEFT OUTER JOIN CostingTypes AS ct ON ct.CostingType=pm.CostingType
                             WHERE QCM.ID='" + OrderCostingId + @"'";
+
+        }
+
+        private string OrderCostingProductDetailSQL(string OrderCostingId,string ProductMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return @" select isnull(d.id,'New') isNewId, case when isnull(d.Id,'')<>'' THEN isnull(TEMPLATE.CostingComponentId,'DELETE') ELSE '' END AS isToBeDeleted,
+                         d.Id
+                        ,0 as Status,CC.CalculationMethod
+	                    ,d.CostingValue
+	                    ,d.BuyerTarget
+	                    --,d.CostingVersionMasterTemplateId
+                        ,cc.Id as CostingComponentId
+	                    ,cc.Code
+	                    ,cc.ShortName
+	                    ,cc.UserName
+                        ,ctc.Sequence
+	                    ,cc.StandardName
+	                    ,ctc.CostingType
+                        ,cc.CostingSegment
+                        ,isnull(itemval.TotalGrossAmount,0) AS TotalGrossAmount 
+                        ,isnull(itemvalp.TotalGrossAmount,0) AS TotalProcurementGrossAmount 
+                        ,CC.ProcurementCostingSavingsPercentage, CC.PreCostingSavingsPercentage
+						 from hkp.CostingComponent CC
+                        left outer join [dbo].[CostingTypeComponent] AS ctc  ON cc.Id = ctc.CostingComponentId and ctc.CostingType = (SELECT CostingType FROM MST.ProductMaster WHERE Id = '"+ProductMasterId+@"')
+                        left outer join OrderCostingDetailTemplate D on cc.id=d.CostingComponentId and d.OrderCostingMasterTemplateId='"+OrderCostingId+ @"'
+                         LEFT OUTER JOIN ( SELECT i.CostingComponentId,SUM(pc.GrossAmount)AS TotalGrossAmount FROM OrderPreCostingDirectMaterial AS pc  INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=    '" + OrderCostingId + @"' GROUP BY i.CostingComponentId
+                                            UNION ALL SELECT i.CostingComponentId,SUM(pc.Amount)AS TotalGrossAmount FROM OrderPreCostingDirectProcess AS pc   INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=  '" + OrderCostingId + @"'	GROUP BY i.CostingComponentId
+                                            UNION ALL SELECT i.CostingComponentId,SUM(pc.[Value]) AS TotalGrossAmount FROM OrderPreCostingOperation AS pc       INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"'	GROUP BY i.CostingComponentId
+                                            UNION ALL SELECT i.CostingComponentId,SUM(pc.Amount)AS TotalGrossAmount FROM OrderPreCostingSalesExpense AS pc    INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=  '" + OrderCostingId + @"'	GROUP BY i.CostingComponentId
+                                            UNION ALL SELECT i.CostingComponentId,SUM(pc.Amount)AS TotalGrossAmount FROM OrderPreCostingValueLoss AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=  '" + OrderCostingId + @"'	GROUP BY i.CostingComponentId
+                                            UNION ALL SELECT i.CostingComponentId,SUM(pc.Amount)AS TotalGrossAmount FROM OrderPreCostingProfit AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=  '" + OrderCostingId + @"'	GROUP BY i.CostingComponentId
+                                  )AS ITEMVAL ON  itemval.CostingComponentId=d.CostingComponentId
+                        LEFT OUTER JOIN ( SELECT i.CostingComponentId,SUM(pc.GrossAmount)AS TotalGrossAmount FROM OrderProcurementCostingDirectMaterial AS pc  INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=    '" + OrderCostingId + @"' GROUP BY i.CostingComponentId
+                                            UNION ALL SELECT i.CostingComponentId,SUM(pc.Amount)AS TotalGrossAmount FROM OrderProcurementCostingDirectProcess AS pc   INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=  '" + OrderCostingId + @"'	GROUP BY i.CostingComponentId
+                                            UNION ALL SELECT i.CostingComponentId,SUM(pc.[Value]) AS TotalGrossAmount FROM OrderProcurementCostingOperation AS pc       INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"'	GROUP BY i.CostingComponentId
+                                            UNION ALL SELECT i.CostingComponentId,SUM(pc.Amount)AS TotalGrossAmount FROM OrderProcurementCostingSalesExpense AS pc    INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=  '" + OrderCostingId + @"'	GROUP BY i.CostingComponentId
+                                            UNION ALL SELECT i.CostingComponentId,SUM(pc.Amount)AS TotalGrossAmount FROM OrderProcurementCostingValueLoss AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=  '" + OrderCostingId + @"'	GROUP BY i.CostingComponentId
+                                            UNION ALL SELECT i.CostingComponentId,SUM(pc.Amount)AS TotalGrossAmount FROM OrderProcurementCostingProfit AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=  '" + OrderCostingId + @"'	GROUP BY i.CostingComponentId
+                                  )AS ITEMVALP ON  ITEMVALP.CostingComponentId=d.CostingComponentId
+                        left outer join  (
+                        select ctc.CostingComponentId FROM [dbo].[CostingTypeComponent] AS ctc
+                        inner JOIN [HKP].[CostingComponent] AS cc ON cc.Id = ctc.CostingComponentId
+                        WHERE ctc.CostingType = (SELECT CostingType FROM MST.ProductMaster WHERE Id = '" + ProductMasterId + @"')) AS TEMPLATE 
+					    on template.CostingComponentId=d.CostingComponentId
+
+
+                        where   cc.Id IN (
+                            select ctc.CostingComponentId FROM [dbo].[CostingTypeComponent] AS ctc
+                        inner JOIN [HKP].[CostingComponent] AS cc ON cc.Id = ctc.CostingComponentId
+                        WHERE ctc.CostingType = (SELECT CostingType FROM MST.ProductMaster WHERE Id = '" + ProductMasterId + @"')
+
+					    UNION
+
+					    select CostingComponentId from OrderCostingDetailTemplate where  ISNULL(OrderCostingMasterTemplateId,'')='" + OrderCostingId + @"'
+
+					--union
+
+					--select CostingComponentId from CostingVersionDetailTemplate where  ISNULL(OrderCostingMasterTemplateId,'')= '" + OrderCostingId + @"'
+                    )  order by isnull(ctc.Sequence,999999),cc.Description";
 
         }
 
