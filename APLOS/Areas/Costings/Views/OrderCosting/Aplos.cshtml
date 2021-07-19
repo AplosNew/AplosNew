@@ -180,28 +180,14 @@
 
                                             </div>
 
-                                            @*<div class="form-group">
-
-                                                    <div class="">
-                                                        <div class="select-style">
-                                                            <select class="form-control" ng-model="ModelNew.PackingType" name="PackingType" ng-options="item.Value as item.Text for item in PackingTypeList " >
-                                                                <option value=""></option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>*@
+                                        
 
                                         </div>
                                         <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
                                             @*Std Cost for WC / day<sup>*</sup>*@
                                         </div>
                                         <div class="col-xs-12 col-sm-2 col-md-2">
-                                            @*<div class="form-group" show-errors>
-
-                                                    <div class="show-message">
-                                                        <input type="text" name="Std Cost for WC / day" ng-change="calculateSPT();" ng-model="ModelNew.StandardWorkingHourCost" class="form-control" autocomplete="off" required  maxlength="10">
-                                                    </div>
-                                                </div>*@
+                                      
                                         </div>
                                         <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
                                             Direct Approval
@@ -355,44 +341,7 @@
                                 <div class="col-xs-12">
                                     <table>
                                         <tr>
-                                            <td style="width:50%;text-align:left;">
-                                                @*<div class="col-xs-12 col-sm-6 col-md-6">
-                                                        Code<sup>*</sup>
-                                                    </div>
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        <div class="form-group" show-errors>
-
-                                                            <div class=" show-message">
-                                                                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" autocomplete="off" required  maxlength="10">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        User Def Name<sup>*</sup>
-                                                    </div>
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        <div class="form-group" show-errors>
-
-                                                            <div class=" show-message">
-                                                                <input type="text" name="User Name" autocomplete="off" ng-model="ModelNew.UserName" class="form-control" required  maxlength="50">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        Description
-                                                    </div>
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        <div class="form-group">
-
-                                                            <div class="">
-                                                                <textarea class="form-control" rows="1" ng-model="ModelNew.Description"  maxlength="250"></textarea>
-                                                            </div>
-                                                        </div>
-
-                                                    </div>*@
-
+                                            <td style="width:50%;text-align:left;">                                               
                                                 <div class="col-xs-12 col-sm-6 col-md-6">
                                                     Prd. Avl. Days
                                                 </div>
@@ -416,30 +365,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @*<div class="col-xs-12 col-sm-6 col-md-6">
-                                                        Mkt Tgt / SPT<sup>*</sup>
-                                                    </div>
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        <div class="select-style">
-                                                            <select style="width: 90px;margin-left: 0px;" name="UOM" id="UOM" ng-change="CalculateFinalCosting(null);" ng-model="ModelNew.TargetOrSPT">
-                                                                <option value="SPT">SPT</option>
-                                                                <option value="TARGET">Tgt/Hr</option>
-                                                            </select>
-                                                        </div>
-
-                                                    </div>*@
-                                                @*<div class="col-xs-12 col-sm-6 col-md-6">
-                                                        {{ModelNew.TargetOrSPT=='SPT'?'SPT/Min':'Mkt Tgt/HR'}}<sup>*</sup>
-                                                    </div>
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        <div class="form-group" show-errors>
-
-                                                            <div class=" show-message">
-                                                                <input type="text" name="MKTTargetPerHour" autocomplete="off" n-decimals="2" ng-change="CalculateFinalCosting(null);" ng-model="ModelNew.MKTTargetPerHour" class="form-control text-right" required >
-                                                            </div>
-                                                        </div>
-                                                    </div>*@
-
                                                 <div class="col-xs-12 col-sm-6 col-md-6">
                                                     Critical Level<sup>*</sup>
                                                 </div>
@@ -534,55 +459,15 @@
                                                                     <option value=""></option>
                                                                 </select>
                                                                 @*<select id="CurrencyId" class="form-control" name="Currency" ng-model="ModelNew.UOM" required>
-                                                                        <option value="">--Select--</option>
-                                                                        <option ng-repeat="option in ProductUOM" value="{{option.Value}}">{{option.Text}}</option>
-                                                                    </select>*@
+                                                                <option value="">--Select--</option>
+                                                                <option ng-repeat="option in ProductUOM" value="{{option.Value}}">{{option.Text}}</option>
+                                                            </select>*@
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td style="width:50%;text-align:left;padding-left:30px!important;">
-                                                @*<div class="col-xs-12 col-sm-6 col-md-6"> Short Name<sup>*</sup></div>
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        <div class="form-group" show-errors>
-
-                                                            <div class=" show-message">
-                                                                <input type="text" name="Short Name" autocomplete="off" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required >
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        Std. Name<sup>*</sup>
-                                                    </div>
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        <div class="form-group" show-errors>
-
-                                                            <div class=" show-message">
-                                                                <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" autocomplete="off" required  maxlength="50">
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        Active
-                                                    </div>
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        <div class="form-group">
-
-                                                            <div class="">
-                                                                <div class="checkbox-site">
-                                                                    <label>
-                                                                        <input type="checkbox" ng-model="ModelNew.Active"  >
-                                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                                    </label>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>*@
-
                                                 <div class="col-xs-12 col-sm-6 col-md-6">
                                                     Payment Days
                                                 </div>
@@ -630,49 +515,7 @@
                                                         </div>
                                                     </div>
 
-                                                </div>
-                                                @*<div class="col-xs-12 col-sm-6 col-md-6">
-                                                        Costing Id
-                                                    </div>
-                                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                                        <div class="form-group">
-
-                                                            <div class="">
-                                                                <input type="text" name="Id" readonly ng-model="ModelNew.Id" class="form-control">
-                                                            </div>
-                                                        </div>
-                                                    </div>*@
-
-
-
-                                                @* <div class="col-xs-12 col-sm-6 col-md-6">Target Profit</div>
-                                                            <div class="col-xs-12 col-sm-6 col-md-6">
-
-
-                                                                <span class="form-group" show-errors>
-
-                                                                    <span class="show-message">
-                                                                        <span>
-                                                                            <input style="width:70px;padding:0px;" type="text" ng-change="CalculateProfit();" name="Target Profit" n-decimals="2" ng-model="ModelNew.TargetProfit" class="form-control text-right" autocomplete="off" min="1" required >
-                                                                        </span>
-                                                                        <span>
-                                                                            <label style="width:70px;" class="form-check-label">
-                                                                                <input class="form-check-input" ng-model="ModelNew.IsPercentage" type="radio" name="IsPercentage" value="true" ng-change="CalculateProfit()">
-                                                                                %
-                                                                            </label>
-                                                                        </span>
-                                                                        <span>
-                                                                            <label style="width:70px;" class="form-check-label">
-                                                                                <input class="form-check-input" ng-model="ModelNew.IsPercentage" type="radio" name="IsPercentage" value="false" ng-change="CalculateProfit()">
-                                                                                Fixed
-                                                                            </label>
-                                                                        </span>
-                                                                    </span>
-
-                                                                </span>
-
-                                                    </div>*@
-
+                                                </div>                                               
                                                 <div class="col-xs-12 col-sm-6 col-md-6">
                                                     Remarks
                                                 </div>
@@ -1126,37 +969,37 @@
             </div>
 
             @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                                <div class="row">
-                                    <div class="col-sm-12 col-sm-12 col-md-12">
+                        <div class="row">
+                            <div class="col-sm-12 col-sm-12 col-md-12">
 
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-left">
-                                                <li><button ng-click="AddNewBuyer();" class="btn" ><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i> </button></li>
-                                            </ul>
-                                        </div>
-                                        <div class="content-container-fluid" style="color:black;">
-                                            <div style="        color: black;" id="GridBuyer" ej-grid e-datasource="buyerList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                                 e-pageSettings-pageSize="10" e-allowselection="true" e-filtersettings-filterType="excel">
-                                                <div e-columns>
-                                                    <div e-column e-type="string" e-field="Id" e-headertext="id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                                                    <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer Name" e-width="80"></div>
-                                                    <div e-column e-type="string" e-field="BuyerStyleRefNo" e-headertext="Buyer Style Ref No" e-width="80"></div>
-                                                    <div e-column e-type="string" e-field="OwnStyleRefNo" e-headertext="Own Style Ref No" e-width="60"></div>
-                                                    <div e-column e-type="string" e-headertext="Actions" e-width="50">
-                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.EditBuyer($event);" style="margin: -6px;"></i></button>
-                                                        <button style=" color: #f3f3ec; background-color: #1c1f32; height: 20px; " class="btn">
-                                                            <i class="glyphicon glyphicon-trash" ng-click="$parent.removeBuyer($event);" style="        margin: -6px;
-                "></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="AddNewBuyer();" class="btn" ><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i> </button></li>
+                                    </ul>
+                                </div>
+                                <div class="content-container-fluid" style="color:black;">
+                                    <div style="        color: black;" id="GridBuyer" ej-grid e-datasource="buyerList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                         e-pageSettings-pageSize="10" e-allowselection="true" e-filtersettings-filterType="excel">
+                                        <div e-columns>
+                                            <div e-column e-type="string" e-field="Id" e-headertext="id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                            <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer Name" e-width="80"></div>
+                                            <div e-column e-type="string" e-field="BuyerStyleRefNo" e-headertext="Buyer Style Ref No" e-width="80"></div>
+                                            <div e-column e-type="string" e-field="OwnStyleRefNo" e-headertext="Own Style Ref No" e-width="60"></div>
+                                            <div e-column e-type="string" e-headertext="Actions" e-width="50">
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.EditBuyer($event);" style="margin: -6px;"></i></button>
+                                                <button style=" color: #f3f3ec; background-color: #1c1f32; height: 20px; " class="btn">
+                                                    <i class="glyphicon glyphicon-trash" ng-click="$parent.removeBuyer($event);" style="        margin: -6px;
+        "></i>
+                                                </button>
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
 
-                            </div>*@
+                            </div>
+                        </div>
+
+                    </div>*@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div class="row">
 
@@ -1178,7 +1021,7 @@
                                     <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="140"></div>
                                     <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="140"></div>
                                     @*<div e-column e-type="string" e-field="SalesOrder" e-headertext="Sales Order" e-width="80"></div>
-                                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>*@
+                                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>*@
                                     <div e-column e-template="#deleteTemplateSO" e-width="32" e-textalign="center"></div>
 
                                 </div>
@@ -1198,9 +1041,21 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-12">
+                <div class="form-group">
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="OrderCostingReport(editCostingArgs);" class="btn">Download Report</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
         </div>
         <div class="clearfix"></div>
     </div>
+
 </div>
 
 

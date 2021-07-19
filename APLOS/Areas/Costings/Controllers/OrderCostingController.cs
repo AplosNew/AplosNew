@@ -398,6 +398,22 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetOrderCostingReport(string OrderCostingId)
+        {
+            try
+            {
+                Library.OrderManagement.Costing.CostingReport Report = new Library.OrderManagement.Costing.CostingReport();
+                Report.OrderCostingReport(OrderCostingId);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
 
         [HttpPost, Authorize]
         public ActionResult GetSOList(string column, string value, string TemplateId, string MasterOrderItemId)
