@@ -107,6 +107,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CutPlan\clsCutPlan.cs" />
     <Compile Include="InventoryManagements\GatePassService.cs" />
     <Compile Include="InventoryManagements\InventorySalesService.cs" />
     <Compile Include="InventoryManagements\MaterialMovementPurposeService.cs" />
