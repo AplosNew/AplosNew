@@ -828,7 +828,7 @@ namespace Library.Service.Employees
         //Report service level
         private DataTable GetAutoMailReportData(/*string companyGroupId, string companyId, string plantId*/)
         {
-            var sql = @"SELECT distinct SH.SalaryHeadID,SH.SalaryHead,SH.HeadType,SH.HeadCategory,SGL.DrDirectGLId,SGL.DrDirectBudgetMasterId,SGL.DrDirectActivityId
+            var sql = @"SELECT distinct SH.SalaryHeadID,SH.SalaryHead,SH.HeadType,SH.HeadCategory,Ag.UserName AccountsGroup,SGL.DrDirectGLId,SGL.DrDirectBudgetMasterId,SGL.DrDirectActivityId
                             ,SGL.DrInDirectGLId,SGL.DrInDirectBudgetMasterId,SGL.DrInDirectActivityId
                             ,DGL.AccountCode+' - '+DGL.UserName DirectGLName,DB.UserName DirectBudgetName,DA.UserName DirectActivityName 
                             ,IGL.AccountCode+' - '+IGL.UserName InDirectGLName,IB.UserName InDirectBudgetName,IA.UserName InDirectActivityName 
@@ -839,6 +839,7 @@ namespace Library.Service.Employees
                             ,0 Flag,SGL.Id,SGL.SalaryPayableGroup
                             FROM dbo.SalaryHead SH
                             LEFT JOIN MST.SalaryHeadGL SGL  ON SH.SalaryHeadID=SGL.SalaryHeadId
+                            Left join AccountsGroup AG on Ag.Id = SGL.AccountsGroupId
                             LEFT JOIN HKP.GLGeneralInfo DGL ON DGL.Id=SGL.DrDirectGLId
                             LEFT JOIN MST.BudgetMaster DBM ON DBM.Id=SGL.DrDirectBudgetMasterId
                             LEFT JOIN HKP.Budget DB ON DB.Id=DBM.BudgetId
@@ -927,13 +928,13 @@ namespace Library.Service.Employees
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-   
-            //worksheet[ROW, COL].Text = "DrDirect GLId";
-            //int colDrDirectGlId = COL;
-            //worksheet[ROW, COL].ColumnWidth = 10;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-            //COL++;
+
+            worksheet[ROW, COL].Text = "Account Group";
+            int colAccountGroup = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
 
             //worksheet[ROW, COL].Text = "DrInDirect GLId";
             //int colDrInDirectGLId = COL;
@@ -942,7 +943,7 @@ namespace Library.Service.Employees
             //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             //COL++;
 
-            
+
             //worksheet[ROW, COL].Text = "DrInDirectBudgetMasterId";
             //int colDrInDirectBudgetMasterId = COL;
             //worksheet[ROW, COL].ColumnWidth = 15;
@@ -1104,6 +1105,7 @@ namespace Library.Service.Employees
                 worksheet[ROW, colSalaryHead].Text = dtAutoMailReportList.Rows[i]["SalaryHead"].ToString();
                 worksheet[ROW, colHeadType].Text = dtAutoMailReportList.Rows[i]["HeadType"].ToString();
                 worksheet[ROW, colHeadCategory].Text = dtAutoMailReportList.Rows[i]["HeadCategory"].ToString();
+                worksheet[ROW, colAccountGroup].Text = dtAutoMailReportList.Rows[i]["AccountsGroup"].ToString();
 
                 //worksheet[ROW,  colDrDirectGlId].Text = dtAutoMailReportList.Rows[i]["DrDirectGLId"].ToString();
                 //worksheet[ROW, colDrInDirectGLId].Text = dtAutoMailReportList.Rows[i]["DrInDirectGLId"].ToString();

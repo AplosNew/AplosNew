@@ -818,13 +818,14 @@
                             <tr>
                                 <th>JWActicity</th>
                                 <th>JWOutPutItem</th>
+                                <th>Material</th>
+                                <th>Article</th>
                                 <th>MaterialSpecification</th>
                                 <th>MaterialRefference</th>
                                 <th>MaterialStorageLocation</th>
 
                                 <th>OutPutItemUOM</th>
-                                <th>Material</th>
-                                <th>Article</th>
+
 
                                 <th>Sku1</th>
                                 <th>Sku2</th>
@@ -865,12 +866,13 @@
                             <tr ng-repeat="x in PoChildList" ng-dblclick="GetJWPOinputByProductList(x);">
                                 <td>{{x.JobWorkActivity}}</td>
                                 <td>{{x.JWItemName}}</td>
+                                <td>{{x.MaterialMasterName}}</td>
+                                <td>{{x.ArticleName}}</td>
                                 <td>{{x.MaterialSpecification}}</td>
                                 <td>{{x.MaterialReference}}</td>
                                 <td>{{x.MaterialStorage}}</td>
                                 <td>{{x.JWItemUOM}}</td>
-                                <td>{{x.MaterialMasterName}}</td>
-                                <td>{{x.ArticleName}}</td>
+
                                 <td>{{x.FirstCharacteristicsValue}}</td>
                                 <td>{{x.SecondCharacteristicsValue}}</td>
                                 <td>{{x.ThirdCharacteristicsValue}}</td>
@@ -893,7 +895,7 @@
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
-                                    <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
+        <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
                                 @*<td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number}}</td>*@
 
@@ -1349,7 +1351,7 @@
                                     <input type="hidden" ng-model="detailModel.MaterialMasterId" />
                                     <span class="input-group-btn">
                                         <button ng-click="MaterialMstPopUp()" ng-disabled="detailModel.MaterialMasterId==null || detailModel.MaterialMasterId!=null" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                        <button ng-click="MaterialMstClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                        <button ng-click="MaterialMstClear()" ng-disabled="detailModel.MaterialMasterId==null" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                     </span>
                                 </div>
                                 @*</div>*@
@@ -1453,12 +1455,13 @@
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Output Material UOM<sup>*</sup></label>
                                 <div class=" show-message">
-                                    <div class="select-style">
+                                    <input type="text" ng-model="detailModel.OutputMaterialUOM" class="form-control" tabindex="2" readonly maxlength="50">
+                                    @*<div class="select-style">
                                         <select class="form-control" ng-model="detailModel.OutputMaterialUOMId" name="Output Material UOM" required
                                                 ng-options="item.Value as item.Text for item in OMatUOMList" tabindex="3">
                                             <option value=""></option>
                                         </select>
-                                    </div>
+                                    </div>*@
                                 </div>
                             </div>
                         </div>
@@ -1545,7 +1548,7 @@
                             <div class="form-group" show-errors>
                                 <label class="control-label">Rate/ Unit<sup>*</sup></label>
                                 <div class="show-message">
-                                    <input type="text" ng-model="detailModel.RatePerUnit" name="Rate Per Unit" ng-change="ValidateRate();" onkeypress="return isNumber(event)" required class="form-control" tabindex="2" maxlength="50">
+                                    <input type="text" ng-model="detailModel.RatePerUnit" n-decimals="4" name="Rate Per Unit" ng-change="ValidateRate();" onkeypress="return isNumber(event)" required class="form-control" tabindex="2" maxlength="50">
                                 </div>
                             </div>
                         </div>
@@ -3495,10 +3498,18 @@
                             </div>
                             <div class="clearfix"></div>
                             <div class="col-xs-4 col-sm-4 col-md-4">
-                                <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">Article<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="text" ng-model="TransformOrderWiseReq.ArtclCode" name="Article Code" readonly required class="form-control" tabindex="2" maxlength="50">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Material</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="TransformOrderWiseReq.Material" readonly class="form-control" tabindex="2" maxlength="50">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Article</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="TransformOrderWiseReq.ArtclCode" readonly class="form-control" tabindex="2" maxlength="50">
                                     </div>
                                 </div>
                             </div>
@@ -3510,6 +3521,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="clearfix"></div>
                             <div class="col-xs-4 col-sm-4 col-md-4">
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Plan Quantity<sup>*</sup></label>
@@ -3518,7 +3530,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="clearfix"></div>
+
                             <div class="col-xs-4 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Remarks</label>

@@ -35,6 +35,11 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return View();
         }
+        public ActionResult ConsumptionBookPost()
+        {
+            return View();
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetList()
         {

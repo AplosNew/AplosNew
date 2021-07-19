@@ -7218,5 +7218,27 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 		}
 		#endregion
 
+		
+		[Authorize, HttpPost]
+		public JsonResult ConverttedBOQUOMData(Dictionary<string, object> data)
+		{
+			Library.General.Conversions.UOMConversion conversion = new Library.General.Conversions.UOMConversion();
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				data["RequisitionQty"] = conversion.Convert(data["MaterialMasterId"].ToString(), data["consumptionUoMId"].ToString(), data["TransactionUoMId"].ToString(), OTSBD.clsStaticInfo.dbl(data["RequestedQtyOrginal"].ToString())).ToString("F2");
+				//data["IssuedQty"] = conversion.Convert(data["MaterialMasterId"].ToString(), data["consumptionUoMId"].ToString(), data["TransactionUoMId"].ToString(), OTSBD.clsStaticInfo.dbl(data["IssuedQty"].ToString())).ToString("F2");
+				//data["OtherPOQty"] = conversion.Convert(data["MaterialMasterId"].ToString(), data["FromPoUomId"].ToString(), data["TransactionUoMId"].ToString(), OTSBD.clsStaticInfo.dbl(data["OtherPOQty"].ToString())).ToString("F2"); 
+				return Json(new { data, Message = AplosMessage.Success });
+			}
+			catch (global::System.Exception ex)
+			{
+				return Json(new { Error = true, Message = ex.Message });
+
+
+			}
+
+
+		}
 	}
 }
