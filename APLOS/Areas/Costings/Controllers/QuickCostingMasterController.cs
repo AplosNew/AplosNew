@@ -3017,7 +3017,7 @@ namespace Aplos.Areas.Costings.Controllers
 
 
                         //now add percentage portion with the CurrentGrossValue
-                        CurrentGrossValue += TotalFixedValue / ((100 - Percentage) / 100); //TotalFixedValue * (Percentage / 100);
+                        CurrentGrossValue += (TotalFixedValue / ((100 - Percentage) / 100))- TotalFixedValue; //TotalFixedValue * (Percentage / 100);
 
                         dtReference.Rows[i]["TotalGrossAmount"] = CurrentGrossValue;
                     }

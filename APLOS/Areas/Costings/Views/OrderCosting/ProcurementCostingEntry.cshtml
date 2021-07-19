@@ -300,6 +300,8 @@
 <div class="table-responsive modal-table" ng-show="Segment=='DirectProcess' && ModelNew.Id!='' ">
     Total Direct Material Cost: <b>{{TotalProcurementDirectMaterialCost | number:4}}</b><br />
     <i>Value loss % has been calculated on total direct material cost</i>
+    <i>Amount=((Total Direct Material Cost/(1-(Value Loss %/100))-Total Direct Material Cost)+Rate </i>
+
     <table class="col-md-12">
         <thead>
             <tr>
