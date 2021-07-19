@@ -115,7 +115,105 @@ namespace Library.OrderManagement.Packing
             }
         }
 
-        public void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> FinishGoodsBookingDetailList)
+		public void GetDateWiseConsumptionData(string fromDate, string toDate, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+			try
+            {
+                string sql = @"Select ''Id,''FinishGoodsBookingId,FORMAT(A.WorkDate,'dd-MMM-yyyy')WorkDate from (
+						SELECT SC.POId ProductionOrderId,sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate,MM.UserName MaterialMaster,MMA.StandardName Article
+							,Qty=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END),ISNULL(B.Rate,0)Rate, Amount=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END) * ISNULL(B.Rate,0)
+						,ISN.WorkDate
+						FROM dbo.ItemScanChild SC 
+						LEFT JOIN dbo.ProductLibrary PL ON PL.Code=SC.ProductCode
+						LEFT JOIN dbo.ItemScan ISN ON ISN.Id=SC.MasterId
+						LEFT JOIN dbo.CostingMasterTemplate AS CT ON CT.Id=PL.CostingMasterTemplateId
+						LEFT JOIN 
+						(
+						SELECT DISTINCT COST.CostingMasterTemplateId,COST.Rate 
+						FROM (select A.CostingMasterTemplateId,sum(A.rate) AS Rate from CostingMasterTemplate CMT 
+							JOIN
+							( 
+							SELECT DM.CostingItemId,DM.CostingMasterTemplateId,DM.GrossAmount Rate from [dbo].PreCostingDirectMaterial DM
+							UNION
+							SELECT DP.CostingItemId,DP.CostingMasterTemplateId,DP.Amount Rate from [dbo].PreCostingDirectProcess DP
+							UNION
+							SELECT OP.CostingItemId,OP.CostingMasterTemplateId,OP.[Value] Rate from [dbo].PreCostingOperation OP
+							UNION
+							SELECT P.CostingItemId,P.CostingMasterTemplateId,P.[Value] Rate from [dbo].PreCostingProfit P
+							UNION
+							SELECT SE.CostingItemId,SE.CostingMasterTemplateId,SE.[Value] Rate from [dbo].PreCostingSalesExpense SE
+							UNION
+							SELECT VL.CostingItemId,VL.CostingMasterTemplateId,VL.[Value] Rate from [dbo].PreCostingValueLoss VL
+							)  AS 	A ON A.CostingMasterTemplateId=CMT.Id
+							LEFT JOIN [HKP].[CostingItem] CI ON CI.Id=A.CostingItemId 
+							LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id=CI.CostingComponentId
+						GROUP BY a.CostingMasterTemplateId) AS COST
+						) B ON B.CostingMasterTemplateId=CT.Id
+						LEFT JOIN MST.MaterialMaster MM ON MM.Id=PL.MaterialMasterId
+						LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
+						WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.FinishGoodsBookingDetailId,'')=''
+						GROUP BY ISN.WorkDate,SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName
+						) A Group By A.WorkDate";
+				objCon = new ConnectionManager.DAL.ConManager("1");
+				objCon.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+			}
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+		public void GetDateWiseDetailDataData(string fromDate, string toDate, out DataSet dsRef)
+		{
+			ConnectionManager.DAL.ConManager objCon;
+			try
+			{
+				string sql = @"Select '' Id,''DateWiseConsumptiond,FORMAT(A.WorkDate,'dd-MMM-yyyy') WorkDate,A.ProductCode,A.ProductionOrderId,A.Qty,A.Rate,A.Amount,A.MaterialMaster,A.Article,A.ProductLibraryId from (
+								SELECT SC.POId ProductionOrderId,sc.ProductCode, PL.Id ProductLibraryId, PL.CostingMasterTemplateId, CT.UserName CostingMasterTemplate,MM.UserName MaterialMaster,MMA.StandardName Article
+									,Qty=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END),ISNULL(B.Rate,0)Rate, Amount=SUM(CASE WHEN SC.IsDespatch=0 THEN SC.NetWeight ELSE 0 END) * ISNULL(B.Rate,0)
+								,ISN.WorkDate
+								FROM dbo.ItemScanChild SC 
+								LEFT JOIN dbo.ProductLibrary PL ON PL.Code=SC.ProductCode
+								LEFT JOIN dbo.ItemScan ISN ON ISN.Id=SC.MasterId
+								LEFT JOIN dbo.CostingMasterTemplate AS CT ON CT.Id=PL.CostingMasterTemplateId
+								LEFT JOIN 
+								(
+								SELECT DISTINCT COST.CostingMasterTemplateId,COST.Rate 
+								FROM (select A.CostingMasterTemplateId,sum(A.rate) AS Rate from CostingMasterTemplate CMT 
+									JOIN
+									( 
+									SELECT DM.CostingItemId,DM.CostingMasterTemplateId,DM.GrossAmount Rate from [dbo].PreCostingDirectMaterial DM
+									UNION
+									SELECT DP.CostingItemId,DP.CostingMasterTemplateId,DP.Amount Rate from [dbo].PreCostingDirectProcess DP
+									UNION
+									SELECT OP.CostingItemId,OP.CostingMasterTemplateId,OP.[Value] Rate from [dbo].PreCostingOperation OP
+									UNION
+									SELECT P.CostingItemId,P.CostingMasterTemplateId,P.[Value] Rate from [dbo].PreCostingProfit P
+									UNION
+									SELECT SE.CostingItemId,SE.CostingMasterTemplateId,SE.[Value] Rate from [dbo].PreCostingSalesExpense SE
+									UNION
+									SELECT VL.CostingItemId,VL.CostingMasterTemplateId,VL.[Value] Rate from [dbo].PreCostingValueLoss VL
+									)  AS 	A ON A.CostingMasterTemplateId=CMT.Id
+									LEFT JOIN [HKP].[CostingItem] CI ON CI.Id=A.CostingItemId 
+									LEFT JOIN [HKP].[CostingComponent] CC ON CC.Id=CI.CostingComponentId
+								GROUP BY a.CostingMasterTemplateId) AS COST
+								) B ON B.CostingMasterTemplateId=CT.Id
+								LEFT JOIN MST.MaterialMaster MM ON MM.Id=PL.MaterialMasterId
+								LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
+								WHERE ISN.WorkDate between '" + fromDate + @"' AND '"+toDate+@"' AND ISNULL(SC.FinishGoodsBookingDetailId,'')=''
+								GROUP BY ISN.WorkDate,SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName
+								) A Group By A.WorkDate,A.ProductCode,A.ProductionOrderId,A.Qty,A.Rate,A.Amount,A.MaterialMaster,A.Article,A.ProductLibraryId";
+				objCon = new ConnectionManager.DAL.ConManager("1");
+				objCon.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> FinishGoodsBookingDetailList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -149,10 +247,16 @@ namespace Library.OrderManagement.Packing
 
 				}
 
-                DataSet dsMaster, dsFinishGoodsBookingDetail, dsItemScanChild;
+                DataSet dsMaster, dsFinishGoodsBookingDetail, dsItemScanChild, dsDateWiseConsumption;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[FinishGoodsBooking] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FinishGoodsBookingDetail WHERE FinishGoodsBookingId ='" + data["Id"] + "'", out dsFinishGoodsBookingDetail, false, "1");
+
+				//con.OpenDataSetThroughAdapter("SELECT * FROM dbo.DateWiseConsumption WHERE FinishGoodsBookingId ='" + data["Id"] + "'", out dsDateWiseConsumption, false, "1");
+
+				GetDateWiseConsumptionData(data["FromDate"].ToString(), data["ToDate"].ToString(), out dsDateWiseConsumption);
+				GetDateWiseDetailDataData(data["FromDate"].ToString(), data["ToDate"].ToString(), out dsFinishGoodsBookingDetail);
+
+				//con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FinishGoodsBookingDetail WHERE ProductionOrderId IN (" + pOId + @")", out dsFinishGoodsBookingDetail, false, "1");
                 con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.ItemScanChild WHERE MasterId IN (Select Id from dbo.ItemScan ISN WHERE ISN.WorkDate between '" + data["FromDate"] + "' AND '" + data["ToDate"] + "') AND POId IN (" + pOId + @") AND ProductCode IN (" + productCode + @")", out dsItemScanChild, false, "1");
                 //con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.ItemScanChild WHERE MasterId IN (Select Id from dbo.ItemScan ISN WHERE ISN.WorkDate between '" + data["FromDate"] + "' AND '" + DateTime.Now.ToString("dd-MMM-yyyy") + "') AND POId IN (" + pOId + @") AND ProductCode IN (" + productCode + @")", out dsItemScanChild, false, "1");
 
@@ -179,55 +283,89 @@ namespace Library.OrderManagement.Packing
 
                 masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
+				for (int i = 0; i < dsDateWiseConsumption.Tables[0].Rows.Count; i++)
+				{
+					DataRow drDateWiseConsumption = dsDateWiseConsumption.Tables[0].NewRow();
+					CopyRow(dsDateWiseConsumption.Tables[0].Rows[i], ref drDateWiseConsumption);
+					drDateWiseConsumption["Id"] = masterId + "-" + (i + 1);
+					 string datewiseConsumptionId= masterId + "-" + (i + 1);
+					drDateWiseConsumption["FinishGoodsBookingId"] = masterId;
+					dsDateWiseConsumption.Tables[0].Rows.Add(drDateWiseConsumption);
 
-                foreach (var item in FinishGoodsBookingDetailList)
-                {
-                    DataView dv = new DataView(dsFinishGoodsBookingDetail.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                    if (dv.Count == 0)
-                    {
-						detailId = GetFinishGoodsBookingDetailPK();
-
-						item["Id"] = detailId;
-                        item["FinishGoodsBookingId"] = masterId;
-
-                        AddNewRow(dsFinishGoodsBookingDetail.Tables[0], item);
-                    }
-                    else
-                    {
-                        DataRow drmo = dv[0].Row;
-                        EditRow(drmo, item);
-						detailId = dsFinishGoodsBookingDetail.Tables[0].Rows[0]["Id"].ToString();
-					}
-					
-					if (dsItemScanChild.Tables[0].Rows.Count > 0)
+					dsFinishGoodsBookingDetail.Tables[0].DefaultView.RowFilter = "WorkDate='" + dsDateWiseConsumption.Tables[0].Rows[i]["WorkDate"].ToString() + "'";
+					for (int K = 0; K < dsFinishGoodsBookingDetail.Tables[0].DefaultView.Count; K++)
 					{
-						for (int i = 0; i < dsItemScanChild.Tables[0].Rows.Count; i++)
-						{
-							dsItemScanChild.Tables[0].DefaultView.RowFilter = "Id='" + dsItemScanChild.Tables[0].Rows[i]["Id"].ToString() + "' AND POId = '" + item["ProductionOrderId"] + "' AND ProductCode = '" + item["ProductCode"] + "'";
-							//dv.RowFilter = "Id='" + item["Id"] + "' AND POId = '" + item["ProductionOrderId"] + "' AND ProductCode = '" + item["ProductCode"] + "'";
-							if (dsItemScanChild.Tables[0].DefaultView.Count > 0)
-							{
-								//edit
-								DataRow dr = dsItemScanChild.Tables[0].DefaultView[0].Row;
-								dr.BeginEdit();
-								//dr["FinishGoodsBookingId"] = masterId;
-								dr["FinishGoodsBookingDetailId"] = detailId;
 
-								dr["UpdatedBy"] = identity.Name;
-								dr["UpdatedDate"] = System.DateTime.Now.ToString();
-								dr.EndEdit();
+						DataRow drFinishGoodsBookingDetail = dsFinishGoodsBookingDetail.Tables[0].NewRow();
+						CopyRow(dsFinishGoodsBookingDetail.Tables[0].DefaultView[K].Row, ref drFinishGoodsBookingDetail);
+						drFinishGoodsBookingDetail["Id"] = datewiseConsumptionId + "-" + (K + 1);
+						detailId = datewiseConsumptionId + "-" + (K + 1);
+						drFinishGoodsBookingDetail["DateWiseConsumptiond"] = datewiseConsumptionId;
+
+						dsFinishGoodsBookingDetail.Tables[0].Rows.Add(drFinishGoodsBookingDetail);
+
+
+						if (dsItemScanChild.Tables[0].Rows.Count > 0)
+						{
+							for (int j = 0; j < dsItemScanChild.Tables[0].Rows.Count; j++)
+							{
+								dsItemScanChild.Tables[0].DefaultView.RowFilter = "Id='" + dsItemScanChild.Tables[0].Rows[j]["Id"].ToString() + "' AND POId = '" + dsFinishGoodsBookingDetail.Tables[0].Rows[i]["ProductionOrderId"] + "' AND ProductCode = '" + dsFinishGoodsBookingDetail.Tables[0].Rows[i]["ProductCode"] + "'";
+								
+								if (dsItemScanChild.Tables[0].DefaultView.Count > 0)
+								{
+									//edit
+									DataRow dr = dsItemScanChild.Tables[0].DefaultView[0].Row;
+									dr.BeginEdit();
+									
+									dr["FinishGoodsBookingDetailId"] = detailId;
+
+									dr["UpdatedBy"] = identity.Name;
+									dr["UpdatedDate"] = System.DateTime.Now.ToString();
+									dr.EndEdit();
+								}
 							}
 						}
+
+
+
 					}
 
+
+					
 				}
 
-				
+
+
+                //            foreach (var item in FinishGoodsBookingDetailList)
+                //            {
+                //                DataView dv = new DataView(dsFinishGoodsBookingDetail.Tables[0]);
+                //                dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                //                if (dv.Count == 0)
+                //                {
+                //		detailId = GetFinishGoodsBookingDetailPK();
+
+                //		item["Id"] = detailId;
+                //                    item["FinishGoodsBookingId"] = masterId;
+
+                //                    AddNewRow(dsFinishGoodsBookingDetail.Tables[0], item);
+                //                }
+                //                else
+                //                {
+                //                    DataRow drmo = dv[0].Row;
+                //                    EditRow(drmo, item);
+                //		detailId = dsFinishGoodsBookingDetail.Tables[0].Rows[0]["Id"].ToString();
+                //	}
+
+
+
+                //}
+
+
 
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsFinishGoodsBookingDetail, dsItemScanChild);
+                obj.SaveDataSets(dsMaster, dsDateWiseConsumption, dsFinishGoodsBookingDetail, dsItemScanChild);
 
             }
             catch (Exception ex)
@@ -236,7 +374,37 @@ namespace Library.OrderManagement.Packing
             }
         }
 
-        private string GetFinishGoodsBookingDetailPK()
+		private void CopyRow(DataRow drSource, ref DataRow drDestination)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
+			{
+				try
+				{
+					drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
+
+				}
+				catch (Exception ex)
+				{
+				}
+				try
+				{
+					drDestination["AddedBy"] = identity.Name;
+					drDestination["AddedDate"] = DateTime.Now;
+					drDestination["AddedFromIP"] = identity.IPAddress;
+					drDestination["UpdatedBy"] = identity.Name;
+					drDestination["UpdatedFromIP"] = identity.IPAddress;
+					drDestination["UpdatedDate"] = DateTime.Now;
+
+				}
+				catch (Exception ex)
+				{
+				}
+			}
+
+		}
+
+		private string GetFinishGoodsBookingDetailPK()
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
@@ -311,7 +479,7 @@ namespace Library.OrderManagement.Packing
 
             try
             {
-                string sql = @"SELECT PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
+                string sql = @"SELECT PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
 								   ,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
 									,SONo=STUFF((select distinct ','+XSO.Id from 
@@ -324,7 +492,7 @@ namespace Library.OrderManagement.Packing
 								   LEFT JOIN ORG.Entity E ON E.Id=PO.EntityId
 								  
 								   LEFT JOIN 
-								   (select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory
+								   (select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory,SO.Qty
 								   
 								   ,Buyer=  REPLACE(REPLACE(
 										            STUFF((select distinct ','+XB.UserName from 
@@ -561,27 +729,27 @@ namespace Library.OrderManagement.Packing
         {
             try
             {
-				string sql = @"select CT.Id, SUM(A.Rate) Rate,CI.UserName CostingItem, CC.UserName CostingComponent
+				string sql = @"select CT.Id, SUM(A.Rate) Rate,A.GrossConsumption,CI.UserName CostingItem, CC.UserName CostingComponent
 								from dbo.CostingMasterTemplate CT
 								left JOIN
 									( 
-									Select DM.CostingItemId,DM.CostingMasterTemplateId,DM.GrossAmount Rate from [dbo].PreCostingDirectMaterial DM
+									Select DM.CostingItemId,DM.CostingMasterTemplateId,DM.GrossAmount Rate,DM.GrossConsumption from [dbo].PreCostingDirectMaterial DM
 									UNION
-									Select DP.CostingItemId,DP.CostingMasterTemplateId,DP.Amount Rate from [dbo].PreCostingDirectProcess DP
+									Select DP.CostingItemId,DP.CostingMasterTemplateId,DP.Amount Rate,0 GrossConsumption from [dbo].PreCostingDirectProcess DP
 									UNION
-									Select OP.CostingItemId,OP.CostingMasterTemplateId,OP.[Value] Rate from [dbo].PreCostingOperation OP
+									Select OP.CostingItemId,OP.CostingMasterTemplateId,OP.[Value] Rate,0 GrossConsumption from [dbo].PreCostingOperation OP
 									UNION
-									Select P.CostingItemId,P.CostingMasterTemplateId,P.[Value] Rate from [dbo].PreCostingProfit P
+									Select P.CostingItemId,P.CostingMasterTemplateId,P.[Value] Rate,0 GrossConsumption from [dbo].PreCostingProfit P
 									UNION
-									Select SE.CostingItemId,SE.CostingMasterTemplateId,SE.[Value] Rate from [dbo].PreCostingSalesExpense SE
+									Select SE.CostingItemId,SE.CostingMasterTemplateId,SE.[Value] Rate,0 GrossConsumption from [dbo].PreCostingSalesExpense SE
 									UNION
-									Select VL.CostingItemId,VL.CostingMasterTemplateId,VL.[Value] Rate from [dbo].PreCostingValueLoss VL
+									Select VL.CostingItemId,VL.CostingMasterTemplateId,VL.[Value] Rate,0 GrossConsumption from [dbo].PreCostingValueLoss VL
 									) 
 								A ON A.CostingMasterTemplateId=CT.Id
 								left JOIN [HKP].[CostingItem] CI ON CI.Id=A.CostingItemId 
 								left JOIN [HKP].[CostingComponent] CC ON CC.Id=CI.CostingComponentId
 								WHERE CT.Id='"+ costingId + @"'
-								GROUP BY CT.Id,CI.UserName, CC.UserName";
+								GROUP BY CT.Id,A.GrossConsumption,CI.UserName, CC.UserName";
 				return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
