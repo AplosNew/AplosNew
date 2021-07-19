@@ -32,65 +32,12 @@
         </div>
         <div class="clearfix"></div>
         <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" style="margin-bottom: 0px;" ng-hide="modelNew.EmployeeId==null">
-                <label class="col-sm-3 control-label"><b>EmployeeCode :</b></label>
-                <label class="col-sm-9 control-label"><b>{{modelNew.EmployeeCode}}</b></label>
-            </div>
+           
             <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">Vendor :</label>
-                <label class="col-sm-9 control-label">{{modelNew.PartyCode}} - {{modelNew.PartyName}}</label>
-            </div>
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">Invoicing By :</label>
-                <label class="col-sm-9 control-label">{{modelNew.InvoicingBy}}</label>
-            </div>
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">Invoicing Address :</label>
-                <label class="col-sm-9 control-label" style="white-space: pre-line;">{{modelNew.InvoicingByAddress}}</label>
-            </div>
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">Gate Entry No :</label>
-                <label class="col-sm-9 control-label">{{modelNew.GateEntryNo}}</label>
-            </div>
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">FOC :</label>
-                <label class="col-sm-9 control-label">{{modelNew.IsFOC}}</label>
-            </div>
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">GRN No :</label>
+                <label class="col-sm-3 control-label">Fisnish Goods No :</label>
                 <label class="col-sm-9 control-label">{{modelNew.Id}}</label>
             </div>
-            @*<div class="form-group" style="margin-bottom: 0px;">
-                    <label class="col-sm-3 control-label">Payment Term :</label>
-                    <label class="col-sm-9 control-label">{{modelNew.PaymentTermName}}</label>
-                </div>*@
-            @*<div class="form-group" style="margin-bottom: 0px;">
-                    <label class="col-sm-3 control-label">Base on due date :</label>
-                    <label class="col-sm-9 control-label">{{modelNew.BaseOnDueDate}}</label>
-                </div>*@
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">Acceptance No :</label>
-                <label class="col-sm-9 control-label">{{AcceptanceId}}</label>
-            </div>
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">Acceptance Date :</label>
-                <label class="col-sm-9 control-label">{{AcceptanceDate}}</label>
-            </div>
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">LC No :</label>
-                <label class="col-sm-9 control-label">{{LCNo}}</label>
-            </div>
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">Contract No :</label>
-                <label class="col-sm-9 control-label">{{ContractId}}</label>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-3 control-label">Is Invoice</label>
-                <label class="switch col-sm-9" style="margin-left:18px;">
-                    <input type="checkbox" ng-model="modelNew.IsInvoice" ng-disabled="IsInvoiceDisable" ng-change="controlInvoicePaymentTerm();">
-                    <span class="slider round"></span>
-                </label>
-            </div>
+           
             <div class="form-group">
                 <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
                 <div class="col-sm-9 show-message">
@@ -104,124 +51,30 @@
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" style="margin-bottom: 0px;" ng-hide="modelNew.EmployeeId==null">
-                <label class="col-sm-3 control-label"><b>Employee Name :</b></label>
-                <label class="col-sm-9 control-label"><b>{{modelNew.EmployeeName}}</b></label>
-            </div>
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">Party Account Group :</label>
-                <label class="col-sm-9 control-label">{{modelNew.PartyAccountGroupName}}</label>
-            </div>
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">Delivery By :</label>
-                <label class="col-sm-9 control-label">{{modelNew.DeliveryBy}}</label>
-            </div>
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">Delivery Address :</label>
-                <label class="col-sm-9 control-label" style="white-space: pre-line;">{{modelNew.DeliveryByAddress}}</label>
-            </div>
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">Gate Entry Date :</label>
-                <label class="col-sm-9 control-label">{{modelNew.EntryDate}}</label>
-            </div>
+            
             <div class="form-group" style="margin-bottom: 0px;">
                 <label class="col-sm-3 control-label">GRN Date :</label>
                 <label class="col-sm-9 control-label">{{modelNew.GRNDateNew}}</label>
             </div>
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">Currency :</label>
-                <label class="col-sm-9 control-label">{{modelNew.CurrencyCode}}</label>
-            </div>
-            @*<div class="form-group" style="margin-bottom: 0px;">
-                    <label class="col-sm-3 control-label">Due Date :</label>
-                    <label class="col-sm-9 control-label">{{modelNew.MatureDate}}</label>
-                </div>*@
-            <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">Non Creditable :</label>
-                <label class="col-sm-9 control-label">{{modelNew.IsNonCreditable?'Yes':'No'}}</label>
-            </div>
+            
+            
             <div class="form-group" show-errors>
                 <label class="col-sm-3 control-label">Note For Accounts<sup>*</sup></label>
                 <div class="col-sm-9 show-message">
                     <textarea name="Description" class="form-control" rows="2" maxlength="1000" ng-model="modelNew.Narration" tabindex="7"></textarea>
                 </div>
             </div>
-            <div class="form-group" show-errors ng-show="modelNew.IsInvoice">
-                <label class="col-sm-3 control-label">Invoice No<sup>*</sup></label>
-                <div class="col-sm-9 show-message">
-                    <input type="text" maxlength="50" name="Doc Ref" ng-model="modelNew.InvoiceNo" class="form-control" autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group" show-errors ng-show="modelNew.IsInvoice">
-                <label class="col-sm-3 control-label">Invoice Date<sup>*</sup></label>
-                <div class="col-sm-9 show-message">
-                    <input type="text" name="InvoiceDate" ng-model="modelNew.InvoiceDate" datepicker class="form-control datepicker" tabindex="11">
-                </div>
-            </div>
+           
 
         </div>
         <div></div>
 
-        <div class="clearfix"></div>
-        <div class="col-xs-12 col-sm-6 col-md-6" ng-show="modelNew.EmployeeId">
-            <div id="div_TransactionType" class="form-group">
-                <label class="col-sm-3 control-label">Transaction Type<sup>*</sup></label>
-                <div class="col-sm-9 show-message">
-                    <div class="select-style">
-                        <select ng-change="glPushInList();" name="Transaction Type" class="form-control" ng-model="modelNew.EmployeeTransactionTypeId">
-                            <option value=""></option>
-                            <option ng-repeat="option in employeeTransactionTypeList" value="{{option.EmployeeTransactionTypeId}}">{{option.EmployeeTransactionTypeName}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </fieldset>
-    <fieldset class="scheduler-border" ng-hide="IsPaymentTermHide">
-        <legend class="scheduler-border">Payment Term</legend>
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label">Payment Term<sup>*</sup></label>
-                <div class="col-sm-2 show-message">
-                    <div class="select-style">
-                        <select tabindex="10" id="paymentTermId" class="form-control" name="Payment Term" ng-model="modelNew.PaymentTermId" ng-change="changePaymentTerm(modelNew.PaymentTermId);">
-                            <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
-                </div>
-                <label class="col-sm-2 control-label">Due Date BaseOn<sup>*</sup></label>
-                <div class="col-sm-2 show-message">
-                    <input type="text" name="BaseOnDueDate" ng-model="modelNew.BaseOnDueDate" ng-change="getMatureDate(modelNew.BaseOnDueDate,modelNew.BaseNoOfDays)" datepicker class="form-control datepicker" tabindex="11">
-                </div>
-                <label class="col-sm-1 control-label">No Of Days</label>
-                <div class="col-sm-1 show-message">
-                    <input id="baseNoOfday" type="number" name="No Of Days" ng-model="modelNew.BaseNoOfDays" ng-change="getMatureDate(modelNew.BaseOnDueDate, modelNew.BaseNoOfDays)" class="form-control" tabindex="12">
-                </div>
-                <label class="col-sm-1 control-label">Mature Date</label>
-                <div class="col-sm-1 show-message">
-                    <input type="text" name="Mature Date" ng-model="modelNew.MatureDate" class="form-control" readonly>
-                </div>
-            </div>
-        </div>
-    </fieldset>
-    <fieldset class="scheduler-border" ng-hide="modelNew.EmployeeId==null">
-        <legend class="scheduler-border">Due Date</legend>
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label">Due Date BaseOn<sup>*</sup></label>
-                <div class="col-sm-2 show-message">
-                    <input type="text" name="BaseOnDueDate" ng-model="modelNew.NewBaseOnDueDate" ng-change="getMatureDateNew(modelNew.NewBaseOnDueDate)" datepicker class="form-control datepicker" tabindex="11">
-                </div>
-            </div>
-        </div>
     </fieldset>
     <div class="tab-design">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Material Info</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Service" role="tab" data-toggle="tab">Service Info</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="Transaction" role="tab" data-toggle="tab">Journal</a></li>
-                @*<li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="address" role="tab" data-toggle="tab" ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)">Parallel Currency</a></li>*@
             </ul>
         </div>
         <div class="tab-content">
@@ -234,22 +87,6 @@
                                 <li> <button ng-click="downloadGRN();" class="btn"> GRN Report</button></li>
                             </ul>
 
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-4 col-md-4" ng-show="PurchaseOrderDiscountList.length">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">PO Discount</label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="PODiscountAmount" ng-model="PODiscountAmount" readonly>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-4 col-md-4">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label"> Discount</label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="DiscountAmount" class="form-control text-right" n-decimals="2" ng-model="DiscountAmount" ng-keyup="podiscountAmountCal(DiscountAmount)" autocomplete="off">
                         </div>
                     </div>
                 </div>
@@ -281,15 +118,8 @@
                                 <td>{{x.MaterialGroupMasterName}}</td>
                                 <td>{{x.UserName}}</td>
                                 <td>{{x.StandardName}}</td>
-                                <td>{{x.FirstCharacteristicsValue}}</td>
-                                <td>{{x.SecondCharacteristicsValue}}</td>
-                                <td>{{x.ThirdCharacteristicsValue}}</td>
-                                <td>{{x.HSNCode}}</td>
-                                <td>{{x.IsAsset?'Yes':'No'}}</td>
                                 <td class="text-right">{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
                                 <td class="text-right">{{x.TransactionRate | number| setDecimal:2}}  {{x.CurrencyName}}</td>
-                                <td class="text-right">{{x.TrnAmount | number| setDecimal:2}}</td>
-                                <td class="text-right">{{x.TaxAmount | number| setDecimal:2}}</td>
                                 <td class="text-right">{{x.BaseAmount | number| setDecimal:2}}</td>
                             </tr>
                             <tr>
@@ -297,8 +127,6 @@
                                 <td class="text-right" ng-hide="sumORnot"></td>
                                 <td class="text-right" ng-show="sumORnot"><strong>{{inventoryReceivedList | sumByKey : 'TransactionQty' }}</strong></td>
                                 <td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'TransactionRate'| number| setDecimal:2}}</strong></td>
-                                <td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'TrnAmount'| number| setDecimal:2 }}</strong></td>
-                                <td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'TaxAmount'| number| setDecimal:2 }}</strong></td>
                                 <td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'BaseAmount'| number| setDecimal:2 }}</strong></td>
                             </tr>
                         </tbody>
@@ -308,85 +136,16 @@
 
 
                 <div class="clearfix"></div>
-                @*<div class="table-responsive modal-table" ng-show="PurchaseOrderDiscountList.length">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>GRNNO</th>
-                                    <th>PO Id</th>
-                                    <th>Material Group</th>
-                                    <th>Discount Amount </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="x in PurchaseOrderDiscountList">
-                                    <td>{{x.GRNNo}}</td>
-                                    <td>{{x.POId}}</td>
-                                    <td>{{x.MaterialGroup}}</td>
-                                    <td><input type="text" class="form-control text-right" id="Amount" ng-model="x.Amount " n-decimals="2" tabindex="11" ng-keyup="podiscountAmountCal(x)" autocomplete="off"></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3" class="text-right"><strong>Total : </strong></td>
-                                    <td class="text-right"><strong>{{PurchaseOrderDiscountList | sumByKey : 'Amount'| number| setDecimal:2 }}</strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>*@
-                @*</div>*@
+              
             </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div ng-form="tabForm2">
-                    <div class="table-responsive modal-table">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Service</th>
-                                    <th>Amount (TRN)</th>
-                                    <th>Total Tax Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="x in chargesList" ng-show="chargesList.length">
-                                    <td>{{x.ServiceMasterName}}</td>
-                                    <td class="text-right">{{x.Amount}}</td>
-                                    <td class="text-right">{{x.TotalTaxAmount}}</td>
-                                </tr>
-
-                                <tr ng-show="chargesList.length">
-                                    <td class="text-right"><strong>Total : </strong></td>
-                                    <td class="text-right"><strong>{{chargesList | sumByKey : 'Amount'| setDecimal:currencyPrecision| number }}</strong></td>
-                                    <td class="text-right"><strong>{{chargesList | sumByKey : 'TotalTaxAmount'| setDecimal:currencyPrecision| number }}</strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" ng-keypress="materialConfigMassege()">
-                @*<div class="form-group" style="margin-bottom: 0px;color:red">
-                        <label class="col-sm-9 control-label">{{MaterialAssetBudgetMessage}}</label>
-
-                    </div>*@
+              
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="common-btn">
                         <ul class="common-btn list-inline text-left">
                             <li> <button ng-click="materialConfigMassege();" class="btn"> Show Reason</button></li>
                         </ul>
 
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-4 col-md-4">
-                </div>
-                <div class="col-xs-12 col-sm-4 col-md-4">
-
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Additional Tax</label>
-                        <label class="switch col-sm-8" style="margin-left:18px;">
-                            <input type="checkbox" ng-disabled="modelNew.IsInvoice==false" ng-model="modelNew.AddtionalTax">
-                            <span class="slider round"></span>
-                        </label>
                     </div>
                 </div>
                 <div class="clearfix"></div>
@@ -473,38 +232,7 @@
                 </div>
 
             </div>
-            @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }" ng-form="tabForm4" ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)">
-                    <div class="clearfix"></div>
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-6 col-md-6">
-                            <fieldset ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)" class="scheduler-border">
-                                <legend class="scheduler-border">Currency Exchange Rate</legend>
-                                <div class="table-responsive modal-table">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Unit</th>
-                                                <th>From</th>
-                                                <th>To</th>
-                                                <th>Rate</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr ng-repeat="x in currencyExchangeRate" ng-hide="x.ParallelCurrencyId==modelNew.CurrencyId">
-                                                <td>{{x.FromCurrencyUnit}}</td>
-                                                <td>{{x.FromCurrencyCode}}</td>
-                                                <td>{{x.CompanyCurrencyRate}}</td>
-                                                <td>
-                                                    <input n-decimals="4" ng-maxlength="3" type="text" class="form-control text-right" ng-model="x.ToCurrencyRate" ng-keyup="changeCurrencyExchangeRate();" />
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </fieldset>
-                        </div>
-                    </div>
-                </div>*@
+
         </div>
     </div>
     <div class="clearfix"></div>
@@ -584,8 +312,41 @@
     <i>**Showing top 100 Posted GRN  order by PostingDate</i>
 </div>
 
-@Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_ApprovedGRNDetailPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_AdditionalTaxPopUp.cshtml")
 
+<style>
+    .modellgModify1 {
+        width: 900px;
+    }
+</style>
 
+<div class="modal fade site-modal in" id="GRNpopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify1">
+        <div class="modal-content">
+            <div class="modal-header"> FinishGoods Book <button type="button" class="close" ng-click="closeGRNPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        @*style="color:black;overflow:scroll"*@
+                        <div style="color:black;overflow:scroll" id="GRNGrid" ej-grid e-datasource="approvedGRNList" e-recorddoubleclick="selectDoubleClick"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" @*e-allowscrolling="true"*@>
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="FinishGoods No" e-width="100"></div>
+                                <div e-column e-field="FromDate" e-headertext="From Date" e-width="70" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+                                <div e-column e-field="ToDate" e-headertext="To Date" e-width="70" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+                                <div e-column e-field="Qty" e-headertext="Qty" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="Amount" e-headertext="Amount (TRN)" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="Description" e-headertext="Description" e-width="130" textAlign='Left'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeGRNPopUp();" class="btn"> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 

@@ -249,7 +249,7 @@ namespace Library.Accounting.Accounts
 						
 						WHERE IRD.SalesId=@salesId
 						GROUP BY MM.MaterialGroupMasterId, MGGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, MGGL.BudgetMasterId, B.Code, B.UserName, MGGL.ActivityId, A.Code, A.UserName
-					    ,MM.IsAsset,MM.FixedAssetMasterId,IRD.Id,MM.IsAsset
+					    ,MM.IsAsset,MM.FixedAssetMasterId,MM.IsAsset
                     ) AS T
 					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId
                     , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset
