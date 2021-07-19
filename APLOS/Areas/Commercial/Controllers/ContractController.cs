@@ -1772,7 +1772,7 @@ namespace Aplos.Areas.Commercial.Controllers
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
                 //|| dicTaxes.ContainsValue(C)
-                if (C == colArticle  || C == colRate || C == colQty || /*C == colDescriptionOfMaterial ||*/ C == colHSN || C == colDeliveryDate || C == colSONo)
+                if (C == colArticle  || C == colRate ||/* C == colQty ||*/ C == colDestination || C == colHSN || C == colDeliveryDate || C == colSONo)
                     continue;
 
                 double value = 0;

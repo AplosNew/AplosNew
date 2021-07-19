@@ -4057,8 +4057,8 @@ namespace Library.MaterialManagement.Inventory
 							,TCV.UserName AS Sku3,C.UserName CountryName,C.Id CountryId
 							,TUoM.Id BaseUOMId
 							,TUoM.Id TransactionUoMId
-							--,TUoM.UserName UOM
-							 ,isnull(PostingQty.UoM,'') UOM
+							,TUoM.UserName UOM
+							 --,isnull(PostingQty.UoM,'') UOM
 							,TUoM.UserName TransactionUoM
 							,IR.CostCenterId
 							,CC.UserName AS CostCenterName
@@ -4091,7 +4091,7 @@ namespace Library.MaterialManagement.Inventory
 							LEFT JOIN HKP.CharacteristicsValue AS SCV ON IR.SecondCharacteristicsValueId = SCV.Id
 							LEFT JOIN HKP.CharacteristicsValue AS TCV ON IR.ThirdCharacteristicsValueId = TCV.Id
 							LEFT JOIN [SCS].[Country] AS C ON C.Id = IR.CountryId
-							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
+							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON Ir.TransactionUoMId = TUoM.Id
 							LEFT JOIN [SEC].[User] As Us On IR.AddedBy=Us.UserId                                   
 							LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 
@@ -4101,13 +4101,13 @@ namespace Library.MaterialManagement.Inventory
 							Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
 							LEFT JOIN HKP.Activity IA1 ON IA1.Id=IR.ExpenseActivityId
 							LEFT JOIN(
-										SELECT TUoM.UserName UoM,0 TotalQty,0 PostingQty,ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
+										SELECT TUoM.Id UoM,0 TotalQty,0 PostingQty,ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
 											,IM.MaterialMasterId
 												,IM.ArticleId
 												,IM.FirstCharacteristicsValueId
 												, IM.SecondCharacteristicsValueId
 												,IM.ThirdCharacteristicsValueId
-												, IRD.MaterialStorageId
+												, IRD.MaterialStorageId,IM.PlantId
 											FROM [TRN].[InventoryReceiveDetail] AS IRD
 												LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 												LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -4123,7 +4123,7 @@ namespace Library.MaterialManagement.Inventory
 												,IM.FirstCharacteristicsValueId
 												, IM.SecondCharacteristicsValueId
 												,IM.ThirdCharacteristicsValueId
-												, IRD.MaterialStorageId,TUoM.UserName
+													, IRD.MaterialStorageId,TUoM.Id,IM.PlantId
 									)ApprovedQty ON 
 												ApprovedQty.MaterialMasterId=IR.MaterialMasterId 
 												AND ApprovedQty.ArticleId=IR.ArticleId
@@ -4131,15 +4131,17 @@ namespace Library.MaterialManagement.Inventory
 												AND ISNULL(ApprovedQty.SecondCharacteristicsValueId,'')=ISNULL(IR.SecondCharacteristicsValueId,'')
 												AND ISNULL(ApprovedQty.ThirdCharacteristicsValueId,'')=ISNULL(IR.ThirdCharacteristicsValueId,'')
 												AND ApprovedQty.MaterialStorageId='" + StorageLocationId + @"'
+												AND  ApprovedQty.PlantId=IRM.PlantId
+												AND  ApprovedQty.UoM=IR.TransactionUoMId
 
                             LEFT JOIN(
-										  SELECT TUoM.UserName UoM,0 TotalQty,0 PostingQty,0 ApprovedQty, UnApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0))))
+										  SELECT TUoM.Id UoM,0 TotalQty,0 PostingQty,0 ApprovedQty, UnApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0))))
 										  ,IM.MaterialMasterId
 																,IM.ArticleId
 																,IM.FirstCharacteristicsValueId
 																, IM.SecondCharacteristicsValueId
 																,IM.ThirdCharacteristicsValueId
-																, IRD.MaterialStorageId
+																, IRD.MaterialStorageId,IM.PlantId
 												FROM [TRN].[InventoryReceiveDetail] AS IRD
 												JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 												JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -4155,22 +4157,25 @@ namespace Library.MaterialManagement.Inventory
 												,IM.FirstCharacteristicsValueId
 												, IM.SecondCharacteristicsValueId
 												,IM.ThirdCharacteristicsValueId
-												, IRD.MaterialStorageId,TUoM.UserName
+												, IRD.MaterialStorageId,TUoM.Id,IM.PlantId
 								)UnApprovedQty ON UnApprovedQty.MaterialMasterId=IR.MaterialMasterId 
 												AND UnApprovedQty.ArticleId=IR.ArticleId
 												AND ISNULL(UnApprovedQty.FirstCharacteristicsValueId,'')=ISNULL(IR.FirstCharacteristicsValueId,'')
 												AND ISNULL(UnApprovedQty.SecondCharacteristicsValueId,'')=ISNULL(IR.SecondCharacteristicsValueId,'')
 												AND ISNULL(UnApprovedQty.ThirdCharacteristicsValueId,'')=ISNULL(IR.ThirdCharacteristicsValueId,'')
 												AND ApprovedQty.MaterialStorageId='" + StorageLocationId + @"'
+												AND  UnApprovedQty.PlantId=IRM.PlantId
+												AND  UnApprovedQty.UoM=IR.TransactionUoMId
 
 								Left JOIN(
-										SELECT TUoM.UserName UoM,0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
+										SELECT TUoM.Id UoM,0 TotalQty, PostingQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))),0 ApprovedQty, 0 UnApprovedQty
 										,IM.MaterialMasterId
 																,IM.ArticleId
 																,IM.FirstCharacteristicsValueId
 																, IM.SecondCharacteristicsValueId
 																,IM.ThirdCharacteristicsValueId
 																, IRD.MaterialStorageId
+																,IM.PlantId
 												FROM [TRN].[InventoryReceiveDetail] AS IRD
 												JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 												JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -4186,13 +4191,15 @@ namespace Library.MaterialManagement.Inventory
 																,IM.FirstCharacteristicsValueId
 																, IM.SecondCharacteristicsValueId
 																,IM.ThirdCharacteristicsValueId
-																, IRD.MaterialStorageId,TUoM.UserName
+																, IRD.MaterialStorageId,TUoM.Id,IM.PlantId
 												)PostingQty  ON PostingQty.MaterialMasterId=IR.MaterialMasterId 
 												AND PostingQty.ArticleId=IR.ArticleId
 												AND ISNULL(PostingQty.FirstCharacteristicsValueId,'')=ISNULL(IR.FirstCharacteristicsValueId,'')
 												AND ISNULL(PostingQty.SecondCharacteristicsValueId,'')=ISNULL(IR.SecondCharacteristicsValueId,'')
 												AND ISNULL(PostingQty.ThirdCharacteristicsValueId,'')=ISNULL(IR.ThirdCharacteristicsValueId,'')
                                                 AND PostingQty.MaterialStorageId='" + StorageLocationId + @"'
+												AND  PostingQty.PlantId=IRM.PlantId
+												AND  PostingQty.UoM=IR.TransactionUoMId
                                                 LEFT JOIN(
 															SELECT isnull(sum(c.Qty),0) Qty ,c.IssueRequestDetailId	 
 															from trn.InventoryIssue  a          
@@ -4233,7 +4240,7 @@ namespace Library.MaterialManagement.Inventory
 							,TUoM.Id
 							,TUoM.Id
 							--,TUoM.UserName UOM
-							 , PostingQty.UoM
+							 --, PostingQty.UoM
 							,TUoM.UserName
 							,IR.CostCenterId
 							,CC.UserName

@@ -212,7 +212,7 @@ namespace Library.OrderManagement.Packing
 								//edit
 								DataRow dr = dsItemScanChild.Tables[0].DefaultView[0].Row;
 								dr.BeginEdit();
-								dr["FinishGoodsBookingId"] = masterId;
+								//dr["FinishGoodsBookingId"] = masterId;
 								dr["FinishGoodsBookingDetailId"] = detailId;
 
 								dr["UpdatedBy"] = identity.Name;
@@ -713,7 +713,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							) B ON B.CostingMasterTemplateId=CT.Id
 							LEFT JOIN MST.MaterialMaster MM ON MM.Id=PL.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
-							WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.FinishGoodsBookingId,'')=''
+							WHERE ISN.WorkDate between '" + fromDate + @"' AND '" + toDate + @"' AND ISNULL(SC.FinishGoodsBookingDetailId,'')=''
 							GROUP BY SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName";
 				return _sqlRepository.GetDataCollection(sql, null);
 			}
@@ -757,8 +757,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							) B ON B.CostingMasterTemplateId=CT.Id
 							LEFT JOIN MST.MaterialMaster MM ON MM.Id=PL.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=PL.ArticleId
-							LEFT JOIN FinishGoodsBooking FG ON FG.Id=SC.FinishGoodsBookingId
-							LEFT JOIN FinishGoodsBookingDetail FGD ON FGD.FinishGoodsBookingId=FG.Id AND SC.FinishGoodsBookingDetailId=FGD.Id
+							LEFT JOIN FinishGoodsBookingDetail FGD ON SC.FinishGoodsBookingDetailId=FGD.Id
+							LEFT JOIN FinishGoodsBooking FG ON FG.Id=FGD.FinishGoodsBookingId
 	                        WHERE FG.Id='" + masterId + @"'
 							GROUP BY FGD.Id,SC.POId,SC.ProductCode,PL.Id,PL.CostingMasterTemplateId,B.Rate,CT.UserName,MM.UserName,MMA.StandardName";
 

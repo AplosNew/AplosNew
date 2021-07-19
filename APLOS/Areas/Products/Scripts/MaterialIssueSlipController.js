@@ -266,6 +266,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 							var resConPlQrt = $scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty;
 							var Wastage = (resConPlQrt * $scope.FilterList123[i].WastagePer) / 100;
 							$scope.FilterList123[i].RequisitionQty = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
+							$scope.FilterList123[i].RequestedQtyOrginal = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
 							//$scope.FilterList123[i].RequestedQty = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
 							
 						//}
@@ -2582,6 +2583,43 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		angular.element(document.querySelector('#POPopUp')).modal('hide');
 
 	};
-	
+	$scope.ConvertedDataRowList = [];
+	$scope.GetListForMasterOrderTemp = [];
+	$scope.ConvertedDataRow = function (data) {
+		//var gridObj = $("#GridReq").data("ejGrid");
+		//var gridObjUpdate = $("#PODetailUpdate").data("ejGrid");
+		//var x = $event;
+		//var res = x.data;
+		debugger;
+		$http({
+			method: 'POST',
+			url: 'Products/InventoryIssue/ConverttedBOQUOMData',
+			data: {
+				'data': data
+			},
+			dataType: 'JSON'
+		}).then(function (response) {
+			$scope.ConvertedDataRowList = response.data;
+			for (var i = 0; i < $scope.FilterList123.length; i++) {
+				if ($scope.FilterList123[i].BOQId === $scope.ConvertedDataRowList.data.BOQId) {
+					$scope.FilterList123[i].RequisitionQty = $scope.ConvertedDataRowList.data.RequisitionQty;
+					$scope.FilterList123[i].IssuedQty = $scope.ConvertedDataRowList.data.IssuedQty;
+					$scope.FilterList123[i].TransactionUoMName = $scope.ConvertedDataRowList.data.TransactionUoMName;
+					$scope.FilterList123[i].TransactionUoMId = $scope.ConvertedDataRowList.data.TransactionUoMId;
+					
+					
+
+				}
+			}
+			//gridObj.refreshContent(true);
+			//gridObjUpdate.refreshContent(true);
+
+			//gridObj.refreshTemplate();
+			//gridObjUpdate.refreshTemplate();
+
+		});
+
+	};
+
 }
 	
