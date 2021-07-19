@@ -809,6 +809,21 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         });
     };
 
+    
+
+    $scope.OrderCostingReport = function (args) {
+        try {
+            $scope.OrderCostingId = args.data.Id;
+
+            var file_src = $scope.path + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+        }
+    }
+
+
+
     $scope.picdata = null;
     $("#uploadImage").change(function () {
         $scope.picdata = this.files[0];
