@@ -181,7 +181,6 @@ namespace Aplos.Areas.Productions.Controllers
                         throw new CustomException("Budget is Not Mapped !");
                     if (item.ActivityId == null)
                         throw new CustomException("Activity is Not Mapped!");
-
                 }
 
                 if (voucherDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != voucherDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
