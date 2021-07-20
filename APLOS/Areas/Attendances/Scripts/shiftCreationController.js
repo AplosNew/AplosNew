@@ -64,6 +64,17 @@ function shiftCreationController(commonMessage, $scope, $rootScope, baseService,
         RawOUTDefinitionTo: null,
         LateMarginSeconds: "59",
         INAfterOUTAsOTStart: false,
+        HalfDayDuration: null,
+        ShortDuration: null,
+        MaxOutDuration: null,
+        FullDayDuration: null,
+        ShiftDuration: null,
+        ShiftEarlyOutMargin: null,
+        ShiftEarlyInMargin: null,
+        ShiftLateOutMargin: null,
+        ShiftLateInMargin: null,
+        HoursWithoutOT: null,
+
     };
 
     $scope.ShiftList = [];
@@ -262,6 +273,16 @@ function shiftCreationController(commonMessage, $scope, $rootScope, baseService,
             CheckField("Shift Defination Name", $scope.ShiftDefinationModel.ShiftDefinationName);
             CheckField("Shift Defination Description", $scope.ShiftDefinationModel.ShiftDefinationDescription);
             CheckField("Shift Type", $scope.ShiftDefinationModel.ShiftType);
+            CheckField("Shift Duration", $scope.ShiftDefinationModel.ShiftDuration);
+            CheckField("HalfDay Duration", $scope.ShiftDefinationModel.HalfDayDuration);
+            CheckField("FullDay Duration", $scope.ShiftDefinationModel.FullDayDuration);
+            CheckField("ShortDay Duration", $scope.ShiftDefinationModel.ShortDuration);
+            CheckField("MaxOut Duration", $scope.ShiftDefinationModel.MaxOutDuration);
+            CheckField("Shift EarlyIn Margin", $scope.ShiftDefinationModel.ShiftEarlyInMargin);
+            CheckField("Shift EarlyOut Margin", $scope.ShiftDefinationModel.ShiftEarlyOutMargin);
+            CheckField("Shift LateIn Margin", $scope.ShiftDefinationModel.ShiftLateInMargin);
+            CheckField("Shift LateOut Margin", $scope.ShiftDefinationModel.ShiftLateOutMargin);
+            CheckField("Hours Without OT", $scope.ShiftDefinationModel.HoursWithoutOT);
 
         } catch (ex) {
             throw ex;
