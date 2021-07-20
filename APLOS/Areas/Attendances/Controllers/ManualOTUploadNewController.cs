@@ -171,6 +171,44 @@ namespace Aplos.Areas.Attendances.Controllers
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult LoadAllEmpDetails(string ToDate, string FromDate, string Id, string PlantId, IEnumerable<OTfromAppExcelData> GetValuesOfExcel)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var empcodedetails = "' '";
+                var empworkdates = "''";
+                foreach (var get in GetValuesOfExcel)
+                {
+                    empcodedetails += ",'" + get.EmployeeCode + "' ";
+                    empworkdates += ",'" + get.WorkingDate + "' ";
+                }
+
+                string sql = "";
+                if (!string.IsNullOrEmpty(ToDate) && !string.IsNullOrEmpty(FromDate))
+                {
+                    sql = @"select SystemId AS EmployeeSystemId,EmployeeName,EmployeeCode AS Code, 0 WorkingDate, 0 OTHr from dbo.EmployeeInformation 
+                            where EmployeeCode in (" + empcodedetails + ") and GroupID='" + identity.CompanyGroupId + @"' And PlantId='" + PlantId + @"' ";
+
+                }
+
+
+                var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
+
         [HttpGet, Authorize]
         public JsonResult LoadEmpOfShiftWorkDate(string EmpWorkDate)
         {
@@ -298,7 +336,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpPost]
-        public JsonResult SaveExcelData(Dictionary<string, object> data, IEnumerable<OTfromApp> SaveMultipleEmpOTExcel)
+        public JsonResult SaveExcelData(Dictionary<string, object> data, IEnumerable<OTfromAppNew> SaveMultipleEmpOTExcel)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -306,16 +344,19 @@ namespace Aplos.Areas.Attendances.Controllers
                 DataSet EmpExistOrNot;
                 DataSet EmpDayStatus;
                 DataSet IsEmpSalaryLocked;
+                DataSet EmpExistInAttProData;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 var empdetails = "' '";
                 var empworkingdates = "''";
                 foreach (var empitem in SaveMultipleEmpOTExcel)
                 {
                     empdetails += ",'" + empitem.EmployeeSystemId + "' ";
-                    empworkingdates += ",'" + empitem.APDEmpWorkDate + "' ";
+                    empworkingdates += ",'" + empitem.WorkingDate + "' ";
                 }
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmpSystemId IN ( " + empdetails + " ) and WorkDate IN ("+ empworkingdates + ")  ", out EmpExistOrNot, false, "1");
-                con.OpenDataSetThroughAdapter("select apd.EmpSystemID,apd.WorkDate,apd.DayStatus, dt.Category from AttdnProcessData apd left join DayType dt on apd.DayStatus=dt.DayType where apd.EmpSystemID IN ( " + empdetails + " ) and apd.WorkDate IN (" + empworkingdates + ") ", out EmpDayStatus, false, "1");
+                con.OpenDataSetThroughAdapter("select * from AttdnProcessData where EmpSystemId IN ( " + empdetails + " ) and WorkDate IN (" + empworkingdates + ") ", out EmpExistInAttProData, false, "1");
+
+             //   con.OpenDataSetThroughAdapter("select apd.EmpSystemID,apd.WorkDate,apd.DayStatus, dt.Category from AttdnProcessData apd left join DayType dt on apd.DayStatus=dt.DayType where apd.EmpSystemID IN ( " + empdetails + " ) and apd.WorkDate IN (" + empworkingdates + ") ", out EmpDayStatus, false, "1");
 
                 string EmpYear = Convert.ToDateTime(data["FromDate"]).ToString("yyyy");
                 string EmpMonth = Convert.ToDateTime(data["FromDate"]).ToString("MM");
@@ -332,41 +373,40 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                     if (islocked == false)
                     {
-                        EmpDayStatus.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.WorkDate + "' ";
+                        //  EmpDayStatus.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.WorkDate + "' ";
 
-                        if (EmpDayStatus.Tables[0].DefaultView.Count > 0)
-                        {
-                            if (EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Present" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Late" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Weekend" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Holiday")
+                        //if (EmpDayStatus.Tables[0].DefaultView.Count > 0)
+                        //{
+                        //    if (EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Present" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Late" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Weekend" || EmpDayStatus.Tables[0].DefaultView[0]["Category"].ToString() == "Holiday")
 
-                            {
+                        //    {
 
+                        EmpExistInAttProData.Tables[0].DefaultView.RowFilter = "EmpSystemID ='" + item.EmployeeSystemId + "' and WorkDate='" + item.WorkingDate + "' ";
 
-                                if (EmpExistOrNot.Tables[0].DefaultView.Count == 0)
+                        if (EmpExistInAttProData.Tables[0].DefaultView.Count != 0)
                                 {
-                                    DataRow dr = EmpExistOrNot.Tables[0].NewRow();
-                                    dr["Id"] = "OT" + GetOTPK();
+                                     bool ManFlag = true;
+                            //edit
+                            DataRow dr = EmpExistInAttProData.Tables[0].DefaultView[0].Row;
 
-                                    dr["WorkDate"] = item.APDEmpWorkDate;
+                            dr.BeginEdit();
 
-                                    dr["OThour"] = item.OTHr;
-                                    dr["EmpSystemId"] = item.EmployeeSystemId;
+                            dr["ManualOt"] = item.OTHr;
 
-                                    dr["Remarks"] = data["Remarks"];
-                                    dr["IsConfirmed"] = data["IsConfirmed"];
+                            dr["ManualByWhom"] = identity.Name;
+                            dr["ManualEntryTime"] = System.DateTime.Now.ToString();
+                            dr["ManualFlag"] = ManFlag;
 
-                                    dr["AddedBy"] = identity.Name;
-                                    dr["AddedDate"] = System.DateTime.Now.ToString();
-
-                                    dr["UpdatedBy"] = identity.Name;
-                                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["DateUpdated"] = System.DateTime.Now.ToString();
 
 
-                                    EmpExistOrNot.Tables[0].Rows.Add(dr);
+                            dr.EndEdit();
 
                                 }
                                 else
                                 {
-                                    EmpExistOrNot.Tables[0].DefaultView.RowFilter = "EmpSystemId ='" + item.EmployeeSystemId + "' and WorkDate='" + item.WorkDate + "' ";
+                                    EmpExistOrNot.Tables[0].DefaultView.RowFilter = "EmpSystemId ='" + item.EmployeeSystemId + "' and WorkDate='" + item.WorkingDate + "' ";
                                     if (EmpExistOrNot.Tables[0].DefaultView.Count > 0)
                                     {
 
@@ -375,7 +415,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
                                         drr.BeginEdit();
 
-                                        drr["WorkDate"] = item.APDEmpWorkDate;
+                                        drr["WorkDate"] = item.WorkingDate;
 
                                         drr["OThour"] = item.OTHr;
                                         drr["EmpSystemId"] = item.EmployeeSystemId;
@@ -399,7 +439,7 @@ namespace Aplos.Areas.Attendances.Controllers
                                         DataRow dr = EmpExistOrNot.Tables[0].NewRow();
                                         dr["Id"] = "OT" + GetOTPK();
 
-                                        dr["WorkDate"] = item.APDEmpWorkDate;
+                                        dr["WorkDate"] = item.WorkingDate;
 
                                         dr["OThour"] = item.OTHr;
                                         dr["EmpSystemId"] = item.EmployeeSystemId;
@@ -418,16 +458,14 @@ namespace Aplos.Areas.Attendances.Controllers
                                     }
                                   
                                 }
-                            }
-                        }
-
-
+                   //         }
+                 //       }
 
                     }
 
                 }
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(EmpExistOrNot);
+                _info.SaveDataSets(EmpExistInAttProData, EmpExistOrNot);
 
                 return Json(new { Error = false, Message = AplosMessage.Updated });
 
@@ -521,6 +559,69 @@ namespace Aplos.Areas.Attendances.Controllers
         }
     }
 
+}
+
+public class OTfromAppNew : BaseModel
+{
+
+    #region Scalar Properties
+
+    public string EmployeeSystemId { get; set; }
+    public string EmployeeName { get; set; }
+    public string Code { get; set; }
+
+    public string APDInTime { get; set; }
+    public string APDOutTime { get; set; }
+
+    public string OTHr { get; set; }
+    public string WorkingDate { get; set; }
+
+    public string APDEmpWorkDate { get; set; }
+    public string EMPAPDInTime { get; set; }
+    public string EMPAPDOutTime { get; set; }
+
+    public string WorkDate { get; set; }
+
+    #endregion Scalar Properties
+
+    #region Audit Properties
+
+    /// <summary>
+    ///This is  AddedBy.Who add data keep track by AddedBy.
+    /// </summary>
+    [NeverUpdate]
+    public string AddedBy { get; set; }
+
+    /// <summary>
+    ///This is  AddedDate.Added date keep track by AddedDate.
+    /// </summary>
+    [NeverUpdate]
+    public DateTime AddedDate { get; set; }
+
+    /// <summary>
+    /// Record insert by user from IP address.
+    /// </summary>
+    //[NeverUpdate]
+    //public string AddedFromIP { get; set; }
+
+    /// <summary>
+    /// Record updated user name.
+    /// </summary>
+    public string UpdatedBy { get; set; }
+
+
+    /// <summary>
+    /// Record updated by user date and time.
+    /// </summary>
+    public DateTime? UpdatedDate { get; set; }
+
+
+    /// <summary>
+    /// Record updated by user IP address.
+    /// </summary>
+    //public string UpdatedFromIP { get; set; }
+
+    #endregion Audit Properties
 }
 
 //public class OTfromAppExcelData

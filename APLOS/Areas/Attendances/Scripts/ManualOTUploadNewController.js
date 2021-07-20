@@ -99,14 +99,14 @@ function ManualOTUploadNewController($window,addressService, cboService, commonM
 
         try {
 
-            if (new Date() < new Date($scope.OTManual.ToDate)) {
-                $scope.OTManual.ToDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
-                throw 'To Date should not be greater than Current date.';
-            }
-            if (new Date($scope.OTManual.ToDate) < new Date($scope.OTManual.FromDate)) {
-                $scope.OTManual.ToDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
-                throw 'To Date should not be less than From date.';
-            }
+            //if (new Date() < new Date($scope.OTManual.ToDate)) {
+            //    $scope.OTManual.ToDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+            //    throw 'To Date should not be greater than Current date.';
+            //}
+            //if (new Date($scope.OTManual.ToDate) < new Date($scope.OTManual.FromDate)) {
+            //    $scope.OTManual.ToDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+            //    throw 'To Date should not be less than From date.';
+            //}
 
         }
         catch (e) {
@@ -257,76 +257,104 @@ function ManualOTUploadNewController($window,addressService, cboService, commonM
         $scope.FilteredEmpList = [];
         var ExcelDataList = [];
         var ExcelDates = [];
+        $scope.TempEmpSysId = [];
        
         for (var j = 0; j < $scope.ExcelUploadData.length; j++) {
             $scope.ExcelUploadData[j].WorkingDate = $filter('dateFiltering')(new Date($scope.ExcelUploadData[j].WorkingDate), 'dd-M-yyyy');
             ExcelDataList.push($scope.ExcelUploadData[j]);
-
         }
 
-        $http({
+         $http({
             method: 'POST',
             data: { Id: $scope.OTManual.Id, PlantId: $scope.OTManual.PlantId, ToDate: $scope.OTManual.ToDate, FromDate: $scope.OTManual.FromDate, GetValuesOfExcel: ExcelDataList },
-            url: 'Attendances/ManualOTUploadNew/LoadAllEmpDetailsForSelection/'
+             url: 'Attendances/ManualOTUploadNew/LoadAllEmpDetails/'
         }).then(function successCallback(response) {
             $scope.FilteredEmpList = response.data;
-
-            if (baseService.arrayLength($scope.ExcelUploadData) > 0) {
-                
-                for (var e = 0; e < $scope.ExcelUploadData.length; e++) {
-                    for (var q = 0; q < $scope.FilteredEmpList.length; q++) {
+            if ($scope.FilteredEmpList.length > 0) {
+                for (var a = 0; a < ExcelDataList.length; a++) {
+                    var GetEmpSystemId = $filter("filter")($scope.FilteredEmpList, { "Code": ExcelDataList[a].EmployeeCode});
+                    if (GetEmpSystemId == 0) {
                         
-                        if (baseService.arrayLength($scope.SelectedEmpINOUTListExcel) > 0) {
-                            var t = $scope.SelectedEmpINOUTListExcel.length;
-                            var DatesForExcel = $filter('dateFiltering')(new Date($scope.ExcelUploadData[e].WorkingDate), 'dd-M-yyyy');
-                            var FilteredDateVar = $filter('dateFiltering')(new Date($scope.FilteredEmpList[q].APDEmpWorkDate), 'dd-M-yyyy');
-
-                            if (($scope.ExcelUploadData[e].EmployeeCode == $scope.FilteredEmpList[q].Code) && (DatesForExcel == FilteredDateVar)) {
-                                var OTHrMinForExcel = $scope.ExcelUploadData[e].OTHour;
-                                var FilteredOTHrForExcel = $scope.FilteredEmpList[q].OTHr;
-
-                                if (OTHrMinForExcel < FilteredOTHrForExcel) {
-                               
-                                    $scope.FilteredEmpList[q].OTHr = OTHrMinForExcel;
-                                }
-                                else {
-                       
-                                    $scope.FilteredEmpList[q].OTHr = FilteredOTHrForExcel;
-                                }
-                                $scope.SelectedEmpINOUTListExcel[t] = $scope.FilteredEmpList[q];
-              
-                                $scope.EnableDisableShift();
-                            }
+                    }
+                    else {
+                        $scope.TempEmpSysId = GetEmpSystemId;
+                        $scope.TempEmpSysId[0].OTHr = ExcelDataList[a].OTHour;
+                        $scope.TempEmpSysId[0].WorkingDate = ExcelDataList[a].WorkingDate;
+                        if ($scope.SelectedEmpINOUTListExcel.length > 0) {
+                            var count = $scope.SelectedEmpINOUTListExcel.length;
+                            $scope.SelectedEmpINOUTListExcel[count] = $scope.TempEmpSysId[0];
                         }
                         else {
-                            try {
-                                var DatesForExcel = $filter('dateFiltering')(new Date($scope.ExcelUploadData[e].WorkingDate), 'dd-M-yyyy');
-                                var FilteredDateVar = $filter('dateFiltering')(new Date($scope.FilteredEmpList[q].APDEmpWorkDate), 'dd-M-yyyy');
-   
-                                if (($scope.ExcelUploadData[e].EmployeeCode == $scope.FilteredEmpList[q].Code) && (DatesForExcel == FilteredDateVar)) {
-                                    var OTHrMinForExcel = $scope.ExcelUploadData[e].OTHour;
-                                    var FilteredOTHrForExcel = $scope.FilteredEmpList[q].OTHr;
-                                    if (OTHrMinForExcel < FilteredOTHrForExcel) {
-                                      
-                                        $scope.FilteredEmpList[q].OTHr = OTHrMinForExcel;
-                                    }
-                                    else {
-                                 
-                                        $scope.FilteredEmpList[q].OTHr = FilteredOTHrForExcel;
-                                    }
-                                    $scope.SelectedEmpINOUTListExcel[0] = $scope.FilteredEmpList[q];
-                           
-                                    $scope.EnableDisableShift();
-                                }
-                            } catch (e) {
-                                throw e;
-                            }
+                            $scope.SelectedEmpINOUTListExcel[0] = $scope.TempEmpSysId[0];
                         }
-
                     }
                 }
-
+                
             }
+
+        //$http({
+        //    method: 'POST',
+        //    data: { Id: $scope.OTManual.Id, PlantId: $scope.OTManual.PlantId, ToDate: $scope.OTManual.ToDate, FromDate: $scope.OTManual.FromDate, GetValuesOfExcel: ExcelDataList },
+        //    url: 'Attendances/ManualOTUploadNew/LoadAllEmpDetailsForSelection/'
+        //}).then(function successCallback(response) {
+        //    $scope.FilteredEmpList = response.data;
+
+            //if (baseService.arrayLength($scope.ExcelUploadData) > 0) {
+                
+            //    for (var e = 0; e < $scope.ExcelUploadData.length; e++) {
+            //        for (var q = 0; q < $scope.FilteredEmpList.length; q++) {
+                        
+            //            if (baseService.arrayLength($scope.SelectedEmpINOUTListExcel) > 0) {
+            //                var t = $scope.SelectedEmpINOUTListExcel.length;
+            //                var DatesForExcel = $filter('dateFiltering')(new Date($scope.ExcelUploadData[e].WorkingDate), 'dd-M-yyyy');
+            //                var FilteredDateVar = $filter('dateFiltering')(new Date($scope.FilteredEmpList[q].APDEmpWorkDate), 'dd-M-yyyy');
+
+            //                if (($scope.ExcelUploadData[e].EmployeeCode == $scope.FilteredEmpList[q].Code) && (DatesForExcel == FilteredDateVar)) {
+            //                    var OTHrMinForExcel = $scope.ExcelUploadData[e].OTHour;
+            //                    var FilteredOTHrForExcel = $scope.FilteredEmpList[q].OTHr;
+
+            //                    if (OTHrMinForExcel < FilteredOTHrForExcel) {
+                               
+            //                        $scope.FilteredEmpList[q].OTHr = OTHrMinForExcel;
+            //                    }
+            //                    else {
+                       
+            //                        $scope.FilteredEmpList[q].OTHr = FilteredOTHrForExcel;
+            //                    }
+            //                    $scope.SelectedEmpINOUTListExcel[t] = $scope.FilteredEmpList[q];
+              
+            //                    $scope.EnableDisableShift();
+            //                }
+            //            }
+            //            else {
+            //                try {
+            //                    var DatesForExcel = $filter('dateFiltering')(new Date($scope.ExcelUploadData[e].WorkingDate), 'dd-M-yyyy');
+            //                    var FilteredDateVar = $filter('dateFiltering')(new Date($scope.FilteredEmpList[q].APDEmpWorkDate), 'dd-M-yyyy');
+   
+            //                    if (($scope.ExcelUploadData[e].EmployeeCode == $scope.FilteredEmpList[q].Code) && (DatesForExcel == FilteredDateVar)) {
+            //                        var OTHrMinForExcel = $scope.ExcelUploadData[e].OTHour;
+            //                        var FilteredOTHrForExcel = $scope.FilteredEmpList[q].OTHr;
+            //                        if (OTHrMinForExcel < FilteredOTHrForExcel) {
+                                      
+            //                            $scope.FilteredEmpList[q].OTHr = OTHrMinForExcel;
+            //                        }
+            //                        else {
+                                 
+            //                            $scope.FilteredEmpList[q].OTHr = FilteredOTHrForExcel;
+            //                        }
+            //                        $scope.SelectedEmpINOUTListExcel[0] = $scope.FilteredEmpList[q];
+                           
+            //                        $scope.EnableDisableShift();
+            //                    }
+            //                } catch (e) {
+            //                    throw e;
+            //                }
+            //            }
+
+            //        }
+            //    }
+
+            //}
 
 
         });
@@ -357,24 +385,25 @@ function ManualOTUploadNewController($window,addressService, cboService, commonM
         try {
             for (var i = 0; i < $scope.SelectedEmpINOUTListExcel.length; i++) {
    
-                    if ($scope.SelectedEmpINOUTListExcel[i].Category == null) {
-                        throw 'Attendance is not processed ' + $scope.SelectedEmpINOUTListExcel[i].Code + ' ';
-                    }
+                    //if ($scope.SelectedEmpINOUTListExcel[i].Category == null) {
+                    //    throw 'Attendance is not processed ' + $scope.SelectedEmpINOUTListExcel[i].Code + ' ';
+                    //}
 
-                    if ($scope.SelectedEmpINOUTListExcel[i].Category == "Present" || $scope.SelectedEmpINOUTListExcel[i].Category == "Late" || $scope.SelectedEmpINOUTListExcel[i].Category == "Weekend" || $scope.SelectedEmpINOUTListExcel[i].Category == "Holiday") {
+                    //if ($scope.SelectedEmpINOUTListExcel[i].Category == "Present" || $scope.SelectedEmpINOUTListExcel[i].Category == "Late" || $scope.SelectedEmpINOUTListExcel[i].Category == "Weekend" || $scope.SelectedEmpINOUTListExcel[i].Category == "Holiday") {
 
-                    }
-                    else {
-                        throw 'You cant add OT for the Day Status ' + $scope.SelectedEmpINOUTListExcel[i].Category + '   of the Employee ' + $scope.SelectedEmpINOUTListExcel[i].Code + '  ';
+                    //}
+                    //else {
+                    //    throw 'You cant add OT for the Day Status ' + $scope.SelectedEmpINOUTListExcel[i].Category + '   of the Employee ' + $scope.SelectedEmpINOUTListExcel[i].Code + '  ';
 
-                    }
+                    //}
 
-                    if ($scope.SelectedEmpINOUTListExcel[i].APDOutTime == null) {
-                        throw 'The Employee ' + $scope.SelectedEmpINOUTListExcel[i].Code + ' has Missing Out time';
-                    }
-                    if ($scope.SelectedEmpINOUTListExcel[i].IsOTEntitled == false || $scope.SelectedEmpINOUTListExcel[i].IsOTEntitled == null) {
-                        throw 'The Employee ' + $scope.SelectedEmpINOUTListExcel[i].Code + ' is not OT Entitled';
-                }
+                    //if ($scope.SelectedEmpINOUTListExcel[i].APDOutTime == null) {
+                    //    throw 'The Employee ' + $scope.SelectedEmpINOUTListExcel[i].Code + ' has Missing Out time';
+                    //}
+
+                    //if ($scope.SelectedEmpINOUTListExcel[i].IsOTEntitled == false || $scope.SelectedEmpINOUTListExcel[i].IsOTEntitled == null) {
+                    //    throw 'The Employee ' + $scope.SelectedEmpINOUTListExcel[i].Code + ' is not OT Entitled';
+                    //  }
 
             //    $scope.ShowSaveBtn = false;
             }
@@ -390,7 +419,7 @@ function ManualOTUploadNewController($window,addressService, cboService, commonM
     $scope.SaveExcel = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.General.$valid) {
-            $scope.CheckValidationsForExcelUpload();
+         //   $scope.CheckValidationsForExcelUpload();
             var MultipleExcelDataList = [];
             for (var j = 0; j < $scope.SelectedEmpINOUTListExcel.length; j++) {
                 MultipleExcelDataList.push($scope.SelectedEmpINOUTListExcel[j]);
