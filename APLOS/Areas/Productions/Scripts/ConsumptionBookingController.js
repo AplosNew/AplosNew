@@ -106,10 +106,11 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
                         }
                         else {
                             ShowResult(response.data.Message, "success");
-                            $scope.modelNew = response.data.Data;
-                            $scope.GetItemDetailData();
+                           // $scope.modelNew = response.data.Data;
+                            //$scope.GetItemDetailData();
                             $scope.getSavedData();
-                            $scope.LoadData();
+                            //$scope.LoadData();
+                            $scope.Clear();
                         }
                     }, function errorCallback(response) {
                         ShowResult(response.status.Message, "failure");
