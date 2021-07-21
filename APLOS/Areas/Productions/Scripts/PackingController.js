@@ -638,7 +638,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
     $scope.cartonCollection = [];
     $scope.cartonClose = function () {
 
-        var jj = 0.0;
+        var jj = parseInt(0.0);
         var j = $scope.cartonDetail.length - 1;
         if ($scope.cartonCollection.length > 0) {
             for (var i = $scope.cartonCollection.length - 1; i >= 0; i--) {
@@ -662,7 +662,8 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
 
         for (var i = 0; i < $scope.PoLotRefGrid.length; i++) {
             if ($scope.PoLotRefGrid[i]["LotNo"] == $scope.cartonDetail[0]["LotNo"] && $scope.PoLotRefGrid[i]["ProductCode"] == $scope.cartonDetail[0]["ProductCode"] && $scope.PoLotRefGrid[i]["PO"] == $scope.cartonDetail[0]["POId"]) {
-                $scope.PoLotRefGrid[i]["bookQty"] = jj;
+                
+                $scope.PoLotRefGrid[i]["bookQty"] = parseFloat(jj.toFixed(2));
             }
         }
 
@@ -926,7 +927,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
                 throw ("Invalid");
             }
 
-            if ($scope.PoLoTCollection[i]["PlanQty"] < $scope.PoLoTCollection[i]["BookQty"]) {
+            if ($scope.PoLoTCollection[i]["PlanQty"] <= $scope.PoLoTCollection[i]["BookQty"]) {
                 alert("Book Qty cannot be more than Plan Qty!!");
                 throw ("Invalid");
             }
