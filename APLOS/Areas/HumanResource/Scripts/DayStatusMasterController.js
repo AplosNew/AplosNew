@@ -6,51 +6,6 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
     $scope.path = 'HumanResource/DayStatusMaster/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
 
-    $scope.Master = {
-        Id:null,
-        StandardName: null,
-        Sequence: 0,
-        Remarks:null,
-        DayStatusCategory: null,
-        StandardDayStatus: null,
-        FirstSource: null,
-        UserName: null,
-        ShortName: null,
-        DayStatusSubCategory: null,
-        UserDayStatus: null,
-        ManualAuto: null,
-        InStatusApplicable: null,
-        OutStatusApplicable: null,
-        DurationApplicable: null,
-        DefaultDayStatusId:null,
-        TotalWorkingDay: 0,
-        ActualWorkingDay: 0,
-        PayDay: 0,
-        NonPayDay: 0,
-        PresentValuePD: 0,
-        LeaveValueLP: 0,
-        LeaveValueLWP: 0,
-        AbsentValueAB: 0,
-        WeeklyOffWO: 0,
-        HolidayH: 0,
-        Other: 0,
-        AttendanceBonus: 0,
-        WorkingDayOTApplicable: null,
-        CompensatoryApplicable: null,
-        GoodWorkApplicable: null,
-        ToCheck: null,
-        Active: false,
-        NonWorkingDayOTApplicable: null,
-        CurrentDayStatus: null,
-    };
-
-    //$scope.Child = {
-    //    Id: null,
-    //    MasterId: null,
-    //    PlantId: null,
-    //    EmpTypeId: null,
-    //};
-
   
     // The Tab Switching Code
 
@@ -180,58 +135,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         });
     }
 
-    //Clears The Master as well as the Child
-    $scope.Clear = function () {
-        $scope.Master = {
-            Id: null,
-            StandardName: null,
-            Sequence: 0,
-            Remarks: null,
-            DayStatusCategory: null,
-            StandardDayStatus: null,
-            CurrentDayStatus: null,
-            FirstSource: false,
-            UserName: null,
-            ShortName: null,
-            DayStatusSubCategory: null,
-            UserDayStatus: null,
-            ManualAuto: false,
-            InStatusApplicable: false,
-            OutStatusApplicable: false,
-            DurationApplicable: false,
-            DefaultDayStatusId: null,
-            TotalWorkingDay: 0,
-            ActualWorkingDay: 0,
-            PayDay: 0,
-            NonPayDay: 0,
-            PresentValuePD: 0,
-            LeaveValueLP: 0,
-            LeaveValueLWP: 0,
-            AbsentValueAB: 0,
-            WeeklyOffWO: 0,
-            HolidayH: 0,
-            Other: 0,
-            AttendanceBonus: 0,
-            WorkingDayOTApplicable: false,
-            CompensatoryApplicable: false,
-            GoodWorkApplicable: false,
-            ToCheck: false,
-            Active: null,
-            NonWorkingDayOTApplicable: false,
-        };
-
-        //$scope.Child = {
-        //    Id: null,
-        //    MasterId: null,
-        //    PlantId: null,
-        //    EmpTypeId: null,
-        //};
-        //$scope.childDataList = [];
-        $scope.Action = "Save";
-        $scope.GetSequence();
-        $scope.ConvertBool();
-    }
-
+ 
 
     //**********  Operations for the Child Tab  ********************\\
     //$scope.PlantList = [];
@@ -649,7 +553,15 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         AttendanceReProcessApplicable: false,
         OTLimitLockApplicable: false,
         OTCalculation: 0, 
-
+        CasualLeaveValueCV: 0,
+        MedicalLeaveValueMV: 0,
+        PriviledgeLeavePL: 0,
+        MaternityLeaveValueMLV: 0,
+        LateValueLV: 0,
+        WeekOffHoliDayWOH: 0,
+        CompAssignLv: 0,
+        ManualStatusAllowed: false,
+        DayStatusChange: false,
     };
 
     //Seleting the Current Day Status Starts
