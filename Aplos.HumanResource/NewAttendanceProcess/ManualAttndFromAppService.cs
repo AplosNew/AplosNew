@@ -23,7 +23,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             this._identity = _identity;
             this._sqlRepository = _sqlRepository;
         }
-    
+        
         public IEnumerable<object> GetShiftData(string ShiftId, string Date)
         {
             try

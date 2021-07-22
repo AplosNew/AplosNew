@@ -994,6 +994,7 @@
     <Compile Include="Controllers\BookingSaudaController.cs" />
     <Compile Include="Controllers\DailyProductionsController.cs" />
     <Compile Include="Controllers\EmployeeDataController.cs" />
+    <Compile Include="Controllers\ManualAttndFromAppController.cs" />
     <Compile Include="Controllers\EmpUtilityController.cs" />
     <Compile Include="Controllers\ItemScanController.cs" />
     <Compile Include="Controllers\LeaveSystemController.cs" />
