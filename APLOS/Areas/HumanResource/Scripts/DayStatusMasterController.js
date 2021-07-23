@@ -638,13 +638,17 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
 
         if ((parseFloat($scope.DayChild.PresentValuePD) + parseFloat($scope.DayChild.LeaveValueLP) +
             parseFloat($scope.DayChild.LeaveValueLWP) + parseFloat($scope.DayChild.AbsentValueAB) + parseFloat($scope.DayChild.WeeklyOffWO)
-            + parseFloat($scope.DayChild.HolidayH) + parseFloat($scope.DayChild.Other)) > 1) {
+            + parseFloat($scope.DayChild.HolidayH) + parseFloat($scope.DayChild.Other) + parseFloat($scope.DayChild.LateValueLV)+
+        parseFloat($scope.DayChild.WeekOffHoliDayWOH)+
+        parseFloat($scope.DayChild. CompAssignLv)) > 1) {
             ShowResult("Please check Day Status Value. Total cannot be more than 1!", 'failure');
             throw ("Error");
         }
         if ((parseFloat($scope.DayChild.PresentValuePD) + parseFloat($scope.DayChild.LeaveValueLP) +
             parseFloat($scope.DayChild.LeaveValueLWP) + parseFloat($scope.DayChild.AbsentValueAB) + parseFloat($scope.DayChild.WeeklyOffWO)
-            + parseFloat($scope.DayChild.HolidayH) + parseFloat($scope.DayChild.Other)) != 1) {
+            + parseFloat($scope.DayChild.HolidayH) + parseFloat($scope.DayChild.Other) + parseFloat($scope.DayChild.LateValueLV) +
+            parseFloat($scope.DayChild.WeekOffHoliDayWOH) +
+            parseFloat($scope.DayChild.CompAssignLv)) != 1) {
             ShowResult("Please check Day Status Value. Total should be 1!", 'failure');
             throw ("Error");
         }
