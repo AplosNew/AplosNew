@@ -578,6 +578,8 @@ namespace Library.HumanResource.NewAttendanceProcess
     public class AttendanceProcessNewProcess : BaseModel
     {
         public string Id { get; set; } = "";
+        public string RowId { get; set; } = "";
+        public string AddedBy { get; set; } = "";
         public string EmployeeCode { get; set; } = "";
         public string EmployeeName { get; set; } = "";
         public string Section { get; set; } = "";

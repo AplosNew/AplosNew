@@ -4,6 +4,7 @@ using System.Linq;
 using System.Data;
 using Library.Data.Sql;
 using OTSBD;
+using Library.Service.EmployeeServices;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
@@ -49,6 +50,23 @@ namespace Library.HumanResource.NewAttendanceProcess
 							sd.SystemID=stcm.ShiftDefinationID
                             WHERE sd.systemid='" + ShiftId + @"'
                             ORDER BY sd.SequenceNo ASC";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetExistingShiftData(string EmpId, string Date)
+        {
+            try
+            {
+                var sql = @"select distinct p.RowId,p.ShiftSystemID as ShiftId,p.InTime,
+                p.OutTime,d.UserName as Shift,p.ShiftInTime,p.ShiftOutTime
+				from dbo.AttdnProcessData p
+                left join dbo.ShiftDefination d on d.SystemID=p.ShiftSystemID				 
+				where  EmpSystemID='" + EmpId+"' and WorkDate='"+Date+"'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -57,8 +75,140 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public string SaveData(List<AttdnManualData> DataToSave)
+        {
+            try
+            {
+                List<AttdnManualData> items = DataToSave.ToList();
+
+                DataSet dsRef;
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                string strSql = @"select * from dbo.AttndManualDataFromApp where EmpSystemID='" + items[0].EmpSystemID + "' and WorkDate='" + items[0].WorkDate + "'";
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
+
+                if (dsRef.Tables[0].Rows.Count == 0)
+                {
+
+                    DataRow dr = dsRef.Tables[0].NewRow();
+
+                    dr["GroupID"] = items[0].GroupID;
+                    dr["EmpSystemID"] = items[0].EmpSystemID;
+                    dr["WorkDate"] = items[0].WorkDate;
+                    dr["DayStatus"] = DBNull.Value;
+                    dr["ShiftSystemId"] = items[0].ShiftSystemId;
+
+                    if (items[0].InTime != null)
+                    {
+                        dr["InTime"] = items[0].InTime;
+                    }
+                    else
+                    {
+                        dr["InTime"] = DBNull.Value;
+                    }
+                    if (items[0].OutTime != null)
+                    {
+                        dr["OutTime"] = items[0].OutTime;
+                    }
+                    else
+                    {
+                        dr["OutTime"] = DBNull.Value;
+                    }
+
+                    dr["AddedBy"] = items[0].AddedBy;
+                    dr["DateAdded"] = DateTime.Now.ToString();
+
+
+                    dsRef.Tables[0].Rows.Add(dr);
+
+                }
+                else
+                {
+
+                    DataRow dr = dsRef.Tables[0].Rows[0];
+                    dr.BeginEdit();
+
+                    dr["DayStatus"] = DBNull.Value;
+                    dr["ShiftSystemId"] = items[0].ShiftSystemId;
+
+                    if (items[0].InTime != null)
+                    {
+                        dr["InTime"] = items[0].InTime;
+                    }
+                    else
+                    {
+                        dr["InTime"] = DBNull.Value;
+                    }
+                    if (items[0].OutTime != null)
+                    {
+                        dr["OutTime"] = items[0].OutTime;
+                    }
+                    else
+                    {
+                        dr["OutTime"] = DBNull.Value;
+                    }
+
+
+                    dr["UpdatedBy"] = items[0].AddedBy;
+                    dr["DateUpdated"] = DateTime.Now.ToString();
+
+                    dr.EndEdit();
+
+                }
+
+                clsStaticInfo info = new clsStaticInfo();
+                info.SaveDataSets(dsRef);
+
+                return "true";
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+        
+        public string Save(List<AttendanceProcessNewProcess> data)
+        {
+            try
+            {
+                DataSet shiftchange;
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                string strSql = @"select * from dbo.AttdnProcessData where RowId='" + data[0].RowId + "'" ;
+                objCon.OpenDataSetThroughAdapter(strSql, out shiftchange, false, "1");           
+
+
+                 if (shiftchange.Tables[0].Rows.Count > 0)
+                 {
+                    shiftchange.Tables[0].Rows[0].BeginEdit();
+                    shiftchange.Tables[0].Rows[0]["ShiftSystemID"] = data[0].ShiftSystemID;
+                    shiftchange.Tables[0].Rows[0]["ManualShiftId"] = data[0].ShiftSystemID;
+                    shiftchange.Tables[0].Rows[0]["ShiftDuration"] = data[0].ShiftDuration;
+                    shiftchange.Tables[0].Rows[0]["ShiftShortDuration"] = data[0].ShiftShortDuration;
+                    shiftchange.Tables[0].Rows[0]["ShiftHoursWithoutOT"] = data[0].ShiftHoursWithoutOT;
+                    shiftchange.Tables[0].Rows[0]["ShiftFullDayDuration"] = data[0].ShiftFullDayDuration;
+                    shiftchange.Tables[0].Rows[0]["ShiftHalfDayDuration"] = data[0].ShiftHalfDayDuration;
+                    shiftchange.Tables[0].Rows[0]["ShiftOutTime"] = data[0].ShiftOutTime;
+                    shiftchange.Tables[0].Rows[0]["ShiftInTime"] = data[0].ShiftInTime;
+                    shiftchange.Tables[0].Rows[0]["ManualByWhom"] = data[0].AddedBy;
+                    shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
+                    shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
+                    shiftchange.Tables[0].Rows[0].EndEdit();
+                 }
+
+
+                clsStaticInfo info = new clsStaticInfo();
+                info.SaveDataSets(shiftchange);
+
+                return "true";
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
 
     }
 
-
+   
 }
