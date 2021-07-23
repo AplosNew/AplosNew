@@ -1745,6 +1745,10 @@
     <Content Include="Areas\FixedAssets\Scripts\entityFixedAssetsRegisterController.js" />
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ArrearProcessedTotalReportController.js" />
+    <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataEntityWiseNewController.js" />
+    <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataManualStatusNewController.js" />
+    <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\DayStatusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAdditionDeductionProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ManualShiftControllerController.js" />
