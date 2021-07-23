@@ -398,6 +398,22 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetOrderCostingReport(string OrderCostingId,string ProductMasterId)
+        {
+            try
+            {
+                Library.OrderManagement.Costing.CostingReport Report = new Library.OrderManagement.Costing.CostingReport();
+                Report.OrderCostingReport(OrderCostingId, ProductMasterId);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
 
         [HttpPost, Authorize]
         public ActionResult GetSOList(string column, string value, string TemplateId, string MasterOrderItemId)
@@ -3685,7 +3701,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
 
                         //now add percentage portion with the CurrentGrossValue
-                        CurrentGrossValue += TotalFixedValue * (Percentage / 100);
+                        CurrentGrossValue += (TotalFixedValue / ((100 - Percentage) / 100))- TotalFixedValue; //TotalFixedValue * (Percentage / 100);TotalFixedValue * (Percentage / 100);
 
                         dtReference.Rows[i]["TotalGrossAmount"] = CurrentGrossValue;
                     }
@@ -3793,7 +3809,7 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 
 
                         //now add percentage portion with the CurrentGrossValue
-                        CurrentGrossValue += TotalFixedValue * (Percentage / 100);
+                        CurrentGrossValue += (TotalFixedValue / ((100 - Percentage) / 100))- TotalFixedValue; //TotalFixedValue * (Percentage / 100);TotalFixedValue * (Percentage / 100);
 
                         dtReference.Rows[i]["TotalGrossAmount"] = CurrentGrossValue;
                     }

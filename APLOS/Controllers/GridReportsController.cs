@@ -4,9 +4,11 @@ using Syncfusion.Pdf.Parsing;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Hosting;
@@ -24,7 +26,7 @@ namespace Aplos.Controllers
             return View();
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public JsonResult ExcelExport(List<Dictionary<string, object>> data)
         {
             try
@@ -61,7 +63,7 @@ namespace Aplos.Controllers
                 }
 
 
-                string filename = GridToExcelReport(dt);
+                string filename = GridToExcelReport(dt, "");
 
 
                 return Json(new { FileName = filename, Error = false }, JsonRequestBehavior.AllowGet);
@@ -73,10 +75,10 @@ namespace Aplos.Controllers
 
             //return View();
         }
-        [HttpPost,Authorize]
-        public JsonResult ExcelExportJson(object obj)
+        [HttpPost, Authorize]
+        public JsonResult ExcelExportJson(object obj, string ReportHeader = "")
         {
-			//Json
+            //Json
             try
             {
                 DataTable dt = new DataTable("APIDATA");
@@ -89,7 +91,20 @@ namespace Aplos.Controllers
                     dt = CustomJsonResult.ToDataTable(json);
                 }
 
-                string filename = GridToExcelReport(dt);
+                StringCollection strCol = new StringCollection();
+                for (int i = 0; i < dt.Columns.Count; i++)
+                {
+                    if (dt.Columns[i].ColumnName.ToUpper().Contains("ID") || dt.Columns[i].ColumnName.ToUpper().Contains("PK") || dt.Columns[i].ColumnName.ToUpper().Contains("EJVALUE"))
+                    {
+                        strCol.Add(dt.Columns[i].ColumnName);
+                    }
+                }
+                foreach (string item in strCol)
+                {
+                    dt.Columns.Remove(item);
+                }
+
+                string filename = GridToExcelReport(dt, ReportHeader);
 
 
                 return Json(new { FileName = filename, Error = false }, JsonRequestBehavior.AllowGet);
@@ -102,12 +117,12 @@ namespace Aplos.Controllers
             //return View();
         }
 
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public ActionResult Download(string FileName)
         {
             try
             {
-                
+
                 ExcelEngine excelEngine = new ExcelEngine();
                 string fullPath = HostingEnvironment.MapPath("~/") + FileName;
                 IWorkbook workbook = excelEngine.Excel.Workbooks.Open(fullPath);
@@ -131,7 +146,7 @@ namespace Aplos.Controllers
             return null;
         }
         [HttpGet, Authorize]
-        public ActionResult DownloadUsingFullPath(string FullPath,string fileName)
+        public ActionResult DownloadUsingFullPath(string FullPath, string fileName)
         {
             try
             {
@@ -157,7 +172,7 @@ namespace Aplos.Controllers
             }
             return null;
         }
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public ActionResult DownloadPdf(string FileName)
         {
             try
@@ -211,7 +226,7 @@ namespace Aplos.Controllers
             }
             return View();
         }
-        private string GridToExcelReport(DataTable data)
+        private string GridToExcelReport(DataTable data, string ReportHeader)
         {
             string fileName = "GRID" + System.DateTime.Now.Ticks.ToString() + ".xlsx";
             try
@@ -227,11 +242,16 @@ namespace Aplos.Controllers
                     IWorkbook workbook = application.Workbooks.Create(1);
                     IWorksheet sheet = workbook.Worksheets[0];
 
-                    sheet.ImportDataTable(data, true, 1, 1);
-                    sheet[1, 1, 1, data.Columns.Count].BorderAround(ExcelLineStyle.Hair);
-                    sheet[1, 1, 1, data.Columns.Count].BorderInside(ExcelLineStyle.Hair);
-                    sheet[1, 1, 1, data.Columns.Count].CellStyle.ColorIndex = ExcelKnownColors.Gold;
-                    sheet[1, 1, 1, data.Columns.Count].CellStyle.Font.Bold = true;
+                    int ROW = 1;
+                    sheet[ROW, 1].Text = ReportHeader;
+                    sheet[ROW, 1].CellStyle.Font.Bold = true;
+
+                    ROW++;
+                    sheet.ImportDataTable(data, true, ROW, 1);
+                    sheet[ROW, 1, ROW, data.Columns.Count].BorderAround(ExcelLineStyle.Hair);
+                    sheet[ROW, 1, ROW, data.Columns.Count].BorderInside(ExcelLineStyle.Hair);
+                    sheet[ROW, 1, ROW, data.Columns.Count].CellStyle.ColorIndex = ExcelKnownColors.Gold;
+                    sheet[ROW, 1, ROW, data.Columns.Count].CellStyle.Font.Bold = true;
 
                     workbook.SaveAs(fullPath);
 
@@ -248,5 +268,5 @@ namespace Aplos.Controllers
             }
             return fileName;
         }
-	}
+    }
 }

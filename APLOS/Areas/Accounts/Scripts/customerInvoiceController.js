@@ -1310,7 +1310,7 @@ function customerInvoiceController(cboService, commonMessage, $scope, $rootScope
             $scope.otherVoucher.ActivityId = party.ReconciliationActivityId;
             $scope.otherVoucher.ActivityCode = party.ReconciliationActivityCode;
             $scope.otherVoucher.ActivityName = party.ReconciliationActivityName;
-            $scope.getOtherPartyPlantList(party.Id);
+            $scope.getOtherPartyPlantList($scope.otherVoucher.PartyId);
         }
         $scope.hideOtherPartyPopUp();
     };

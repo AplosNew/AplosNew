@@ -402,6 +402,7 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
+                                <th>Particulars</th>
                                 <th>GL</th>
                                 <th>Budget</th>
                                 <th>Activity</th>
@@ -411,6 +412,7 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="x in newList| orderBy:'Dr'">
+                                <td>{{x.Customer}}</td>
                                 <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
                                 <td>{{x.BudgetName}}</td>
                                 <td>{{x.ActivityName}}</td>
@@ -418,7 +420,7 @@
                                 <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
                             </tr>
                             <tr>
-                                <td colspan="3"></td>
+                                <td colspan="4"></td>
                                 <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
                                 <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
                             </tr>

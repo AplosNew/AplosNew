@@ -382,7 +382,7 @@ namespace Aplos.Areas.Productions.Controllers
                                 ),1,1,''))
 
                                 ,sc.TotalQtyNetWeight,sc.GrossWeight,sc.ProductCode, sc.LotNo,FORMAT(p.AddedDate,'dd-MMM-yyyy') PackingDate,
-                                u.UserName as UoM,pbt.UserName as ConsigneeBilltoName,pst.UserName as ConsigneeShiptoName,c.InvoicingByAddress as ConsigneeBillToAddress,c.DeliveryByAddress as ConsigneeShipToAddress,cu.Code as CurrencyName,cu.Id CurrencyId,
+                                u.UserName as UoM,pbt.UserName as ConsigneeBilltoName,pst.UserName as ConsigneeShiptoName,pst.UserName as AcceptedBy,c.InvoicingByAddress as ConsigneeBillToAddress,c.DeliveryByAddress as ConsigneeShipToAddress,cu.Code as CurrencyName,cu.Id CurrencyId,
                                 c.ContractNo,FORMAT(c.AddedDate,'dd-MMM-yyyy') AddedDate,PT.UserName PaymentTerm
                               
                                 from trn.Packing as p 

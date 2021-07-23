@@ -1116,7 +1116,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
                         $scope.QuickCostingItemList[i].Value = data.Value;
                     }
                     if ($scope.QuickCostingItemList[i].CostingSegment == 'DirectMaterial') {
-                        data.GrossConsumption = (data.Consumption * data.ValueLoss / 100) + data.Consumption;
+                        data.GrossConsumption = data.Consumption / ((100 - data.ValueLoss) / 100); //(data.Consumption * data.ValueLoss / 100) + data.Consumption;
                         data.GrossAmount = data.GrossConsumption * data.Rate;
                         $scope.QuickCostingItemList[i].TotalGrossAmount = data.GrossConsumption * data.Rate;
 
@@ -1134,7 +1134,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
 
                         var totalPre = getFixedAmountDirectMaterial();
 
-                        $scope.QuickCostingItemList[i].TotalGrossAmount = totalPre * (data.Value / 100)
+                        $scope.QuickCostingItemList[i].TotalGrossAmount = (totalPre / ((100 - data.Value) / 100)) - totalPre;// totalPre * (data.Value / 100)
                         $scope.QuickCostingItemList[i].TotalGrossAmount += data.Rate;
 
                         $scope.QuickCostingItemList[i].Rate = data.Rate;
@@ -1232,7 +1232,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
 
                     var totalPre = getFixedAmountDirectMaterial();
 
-                    $scope.QuickCostingItemList[i].TotalGrossAmount = totalPre * ($scope.QuickCostingItemList[i].Value / 100);
+                    $scope.QuickCostingItemList[i].TotalGrossAmount = (totalPre / ((100 - $scope.QuickCostingItemList[i].Value) / 100)) - totalPre;//totalPre * ($scope.QuickCostingItemList[i].Value / 100);
                     $scope.QuickCostingItemList[i].TotalGrossAmount += $scope.QuickCostingItemList[i].Rate;
 
                 }
@@ -1398,7 +1398,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
                     else if ($scope.QuickCostingItemList[i].CostingSegment == 'DirectProcess') {
                         var totalPre = calValue("DirectMaterial");
                         totalPre += calValue("Operation");
-                        $scope.QuickCostingItemList[i].TotalGrossAmount = totalPre * (data.Value / 100) + data.Rate;
+                        $scope.QuickCostingItemList[i].TotalGrossAmount = (totalPre / ((100 - data.Value) / 100)) - totalPre;// totalPre * (data.Value / 100) + data.Rate;
 
                         $scope.QuickCostingItemList[i].Rate = data.Rate;
                         $scope.QuickCostingItemList[i].Value = data.Value;
@@ -3197,7 +3197,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
         } catch (e) {
             ShowResult(e, "failure");
         }
-        
+
     };
     $scope.ConfirmClose = function () {
         var eDialog = $("#dialogAPI").data("ejDialog");
@@ -3225,7 +3225,7 @@ function quickCostingMasterController(cboService, commonMessage, $scope, $rootSc
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
-            }                
+            }
         } catch (e) {
             ShowResult(e, "failure");
         }

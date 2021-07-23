@@ -153,9 +153,19 @@
         </div>
         <div class="col-sm-12 col-md-3 col-lg-3">
             <div class="form-group" show-errors>
+                <label class=" control-label">Service<sup>*</sup></label>
+                <div class=" show-message">
+                    <div class="select-style">
+                        <select id="ddlCurrencyId" name="Service" tabindex="14" class="form-control" required ng-model="ValueAdded.ServiceId" ng-options="item.Value as item.Text for item in serviceCboList"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3 col-lg-3">
+            <div class="form-group" show-errors>
                 <label class="control-label">Process<sup>*</sup></label>
                 @*<div class="col-sm-12">*@
-                    <input id="ddlProcess" ej-dropdownlist e-create="create" e-headertemplate='<input class="temp" type="checkbox" id="checkBox" />' e-multiselectmode="visualmode" e-datasource="processList" e-fields-value="Id" e-fields-text="UserName" e-width="100%" e-showcheckbox="true" />
+                <input id="ddlProcess" ej-dropdownlist e-create="create" e-headertemplate='<input class="temp" type="checkbox" id="checkBox" />' e-multiselectmode="visualmode" e-datasource="processList" e-fields-value="Id" e-fields-text="UserName" e-width="100%" e-showcheckbox="true" />
                 @*</div>*@
             </div>
         </div>

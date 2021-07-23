@@ -697,7 +697,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,BOQD.ThirdCharacteristicsValueId BOQDThirdCharacteristicsValueId
 						,BOQD.BOQId
 						,Sum(ISNULL(GRNALLO.TransactionQty,0)) TransactionQty
-						,Sum(Isnull(MMAU.BaseUOMFactor,0)) BaseUOMFactor
+						,Isnull(MMAU.BaseUOMFactor,0) BaseUOMFactor
 						,Sum(ISNULL(GRNALLO.TransactionQty,0)* Isnull(MMAU.BaseUOMFactor,0))  TotalQty
 						FROM BOQDetail BOQD
 						LEFT JOIN BOQFGMapping BOQFGM on BOQD.Id=BOQFGM.BOQDetailId
@@ -711,7 +711,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId	
-						Left JOIN [MST].[MaterialMasterAlternativeUOM] AS MMAU ON MMAU.MaterialMasterId = MM.Id
+						--Left JOIN [MST].[MaterialMasterAlternativeUOM] AS MMAU ON MMAU.MaterialMasterId = MM.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON TUoM.Id =mm.StockUOMId 	
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
 						left join (select b.BOQDetailId,sum(a.TransactionQty) TransactionQty ,UOM.UserName,UOM.Id StockTransactionUoMId
@@ -724,38 +724,44 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN [SCS].[UnitOfMeasurement] POUoMId ON POUoMId.Id=BOQD.POUoMId
 						LEFT JOIN [SCS].[UnitOfMeasurement] BaseUoMId ON BaseUoMId.Id=BOQD.BaseUoMId
 						LEFT JOIN [SCS].[UnitOfMeasurement] consumptionUoMId ON consumptionUoMId.Id=BOQD.BaseUoMId
+						Left JOIN (Select a.MaterialMasterId,a.AlternativeUOMId,a.BaseUOMId ,Sum(a.BaseUOMFactor) BaseUOMFactor 
+									from [MST].[MaterialMasterAlternativeUOM] a
+									left JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.AlternativeUOMId
+									--left join mst.MaterialMaster mm ON mm.Id=a.MaterialMasterId
+									Group by a.MaterialMasterId,a.AlternativeUOMId,a.BaseUOMId
+									) AS MMAU ON MMAU.MaterialMasterId = BOQD.MaterialMasterId AND MMAU.AlternativeUOMId=TUoM.Id --And MMAU.BaseUOMId=BOQD.BaseUoMId AND MMAU.BaseUOMId=mm.BaseUOMId
 						--Where " + paramter + @"  AND MM.IsAsset=0 AND BOQD.ProcessId='" + processId + @"' AND BOQD.SalesOrderId in(" + parameters + @")
 						Where BOQD.ProcessId='" + processId + @"' and 
 						Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,'')) in (" + SOMATART + ")" +
-						"group by MGM.UserName	,MT.UserName,mm.Id,mm.UserName,BOQD.ArticleId,ART.StandardName,FC.Id,FC.UserName,BOQFGM.FirstCharacteristicsValueId	,isnull(v1.UserName, ''),SC.Id,SC.UserName,BOQFGM.SecondCharacteristicsValueId,isnull(v2.UserName, ''),TC.Id,TC.UserName,BOQFGM.ThirdCharacteristicsValueId,isnull(v3.UserName, ''),TUoM.Id,TUoM.UserName	,BOQD.RequiredQtyPO,BOQD.Consumption,BOQD.WastagePer,POUoMId.Id	,POUoMId.UserName,BaseUoMId.Id,BaseUoMId.UserName,GRNALLO.StockTransactionUoMId,GRNALLO.UserName,consumptionUoMId.UserName,consumptionUoMId.Id,BOQD.SalesOrderId,BOQD.FirstCharacteristicsValueId,BOQD.SecondCharacteristicsValueId,BOQD.ThirdCharacteristicsValueId,BOQD.BOQId";
-				return _sqlRepository.GetDataCollection(sql);
+						"group by MGM.UserName	,MT.UserName,mm.Id,mm.UserName,BOQD.ArticleId,ART.StandardName,FC.Id,FC.UserName,BOQFGM.FirstCharacteristicsValueId	,isnull(v1.UserName, ''),SC.Id,SC.UserName,BOQFGM.SecondCharacteristicsValueId,isnull(v2.UserName, ''),TC.Id,TC.UserName,BOQFGM.ThirdCharacteristicsValueId,isnull(v3.UserName, ''),TUoM.Id,TUoM.UserName	,BOQD.RequiredQtyPO,BOQD.Consumption,BOQD.WastagePer,POUoMId.Id	,POUoMId.UserName,BaseUoMId.Id,BaseUoMId.UserName,GRNALLO.StockTransactionUoMId,GRNALLO.UserName,consumptionUoMId.UserName,consumptionUoMId.Id,BOQD.SalesOrderId,BOQD.FirstCharacteristicsValueId,BOQD.SecondCharacteristicsValueId,BOQD.ThirdCharacteristicsValueId,BOQD.BOQId,Isnull(MMAU.BaseUOMFactor,0)";
+				//return _sqlRepository.GetDataCollection(sql);
 
-				//var Data = _sqlRepository.GetDataCollection(sql);
-				//StringCollection strCol = new StringCollection();
-				//string MaterialMasterList = "''";
-				//for (int i = 0; i < Data.Count; i++)
-				//{
-				//	if (strCol.Contains(Data[i]["MaterialMasterId"].ToString()) == true)
-				//		continue;
-				//	strCol.Add(Data[i]["MaterialMasterId"].ToString());
-				//	MaterialMasterList += ",'" + Data[i]["MaterialMasterId"].ToString() + "'";
+				var Data = _sqlRepository.GetDataCollection(sql);
+				StringCollection strCol = new StringCollection();
+				string MaterialMasterList = "''";
+				for (int i = 0; i < Data.Count; i++)
+				{
+					if (strCol.Contains(Data[i]["MaterialMasterId"].ToString()) == true)
+						continue;
+					strCol.Add(Data[i]["MaterialMasterId"].ToString());
+					MaterialMasterList += ",'" + Data[i]["MaterialMasterId"].ToString() + "'";
 
-				//}
+				}
 
-				//var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
-				//													union
-				//													select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
-				//													) AS M
-				//													 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
-				//													 where m.Id in (" + MaterialMasterList + @")");
+				var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
+																	union
+																	select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
+																	) AS M
+																	 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
+																	 where m.Id in (" + MaterialMasterList + @")");
 
-				//for (int i = 0; i < Data.Count; i++)
-				//{
-				//	var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
-				//	Data[i]["uoMList"] = temp;
-				//}
+				for (int i = 0; i < Data.Count; i++)
+				{
+					var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
+					Data[i]["uoMList"] = temp;
+				}
 
-				//return Data;
+				return Data;
 			}
 			catch (Exception ex)
 			{

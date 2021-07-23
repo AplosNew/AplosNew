@@ -692,8 +692,8 @@ namespace Library.Service.Invoices
                         {
 
                             Amount = otherInvoiceVM.Amount,
-                            PartyId = invoice.PartyId,
-                            PartyPlantId = invoice.PartyPlantId,
+                            PartyId = otherInvoiceVM.PartyId,
+                            PartyPlantId = otherInvoiceVM.PartyPlantId,
                             InvoiceId = invoice.Id,
                             GLGeneralInfoId = otherInvoiceVM.GLGeneralInfoId,
                             BudgetMasterId = otherInvoiceVM.BudgetMasterId,

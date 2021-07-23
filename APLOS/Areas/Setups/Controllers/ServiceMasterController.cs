@@ -41,6 +41,12 @@ namespace Aplos.Areas.Setups.Controllers
         {
             return Json(_serviceMasterService.Query(parameters, new JavaScriptSerializer().Deserialize<string[]>(ids)), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpGet]
+        public JsonResult GetServiceMasterList(GridParameter parameters)
+        {
+            return Json(_serviceMasterService.QueryServiceMaster(parameters), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetHSNCodeByServiceGroupId(string groupId)
         {

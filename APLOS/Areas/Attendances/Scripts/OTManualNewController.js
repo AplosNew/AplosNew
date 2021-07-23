@@ -395,12 +395,17 @@ function OTManualNewController(addressService, cboService, commonMessage, $scope
 
         for (var i = 0; i < $scope.EmpList.length; i++) {
             if ($scope.EmpList[i].isSelected == true) {
-                if ($scope.EmpList[i].OTHr < $scope.OTManual.OThour) {
-                    var MinOTH = $scope.EmpList[i].OTHr;
-                    $scope.EmpList[i].OTHr = MinOTH;
-                }
-                else {
-                    MinOTH = $scope.OTManual.OThour;
+                //if ($scope.EmpList[i].OTHr < $scope.OTManual.OThour) {
+                //    var MinOTH = $scope.EmpList[i].OTHr;
+                //    $scope.EmpList[i].OTHr = MinOTH;
+                //}
+                //else {
+                //    MinOTH = $scope.OTManual.OThour;
+                //    $scope.EmpList[i].OTHr = MinOTH;
+                //}
+
+                if (!baseService.isUndefinedOrNull($scope.OTManual.OThour)) {
+                    var MinOTH = $scope.OTManual.OThour;
                     $scope.EmpList[i].OTHr = MinOTH;
                 }
             }
@@ -487,11 +492,16 @@ function OTManualNewController(addressService, cboService, commonMessage, $scope
                         throw 'The Employee ' + $scope.EmpInOutList[i].Code + ' is not OT Entitled';
                     }
 
-                    if ($scope.OTManual.EMPOThour < $scope.OTManual.OThour) {
-                        var MinOTHour = $scope.OTManual.EMPOThour;
-                        $scope.EmpInOutList[i].OTHr = MinOTHour;
-                    }
-                    else {
+                    //if ($scope.OTManual.EMPOThour < $scope.OTManual.OThour) {
+                    //    var MinOTHour = $scope.OTManual.EMPOThour;
+                    //    $scope.EmpInOutList[i].OTHr = MinOTHour;
+                    //}
+                    //else {
+                    //    var MinOTHour = $scope.OTManual.OThour;
+                    //    $scope.EmpInOutList[i].OTHr = MinOTHour;
+                    //}
+
+                    if (!baseService.isUndefinedOrNull($scope.OTManual.OThour)) {
                         var MinOTHour = $scope.OTManual.OThour;
                         $scope.EmpInOutList[i].OTHr = MinOTHour;
                     }

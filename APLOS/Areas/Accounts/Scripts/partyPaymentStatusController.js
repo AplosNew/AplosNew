@@ -2,6 +2,7 @@
 partyPaymentStatusController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function partyPaymentStatusController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Financial Status Dashboard';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.Action = 'Save';
     $scope.MasterLCList = [];
     $scope.path = 'Accounts/AccountStatusDashboard/';
@@ -16,6 +17,19 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         IsWithAdvance: false
     };
 
+    $scope.report = {
+        IsUpToLevel: 'Detail',
+        IsBudgetLevel: false,
+        IsActivityLevel: true,
+        IsDetailLevel: false,
+
+        //ReportFormat: 'Pdf',
+        ////FromDate: $filter('dateFiltering')(Date.now()),
+        //FromDate: $filter('dateFiltering')(Date.now()),
+        ToDate: $filter('dateFiltering')(Date.now()),
+        AssetsLiability: ''
+    };
+
     $scope.material = {
         ReportFormat: 'Pdf',
         FromDate: $filter('dateFiltering')(Date.now()),
@@ -26,6 +40,36 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         IsNonOrderSpecific: false
     };
 
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportJson';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.Print = function () {
+        //debugger;
+        //// var gridObj = $("#DetailGrid").data("ejGrid");
+        //var gridObj = $("#DetailGrid").ejGrid("instance");
+        //var data = gridObj.model.dataSource;
+
+        var filtered = $("#GridSelectedTrialBalance").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            filtered = $scope.TrialBalanceList;
+        }
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrl,
+            data: {
+                'obj': JSON.stringify(filtered),
+                'ReportHeader': $scope.report.AssetsLiability
+            }
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                // ShowResult(response.data.Message, 'failure', 'recipeMaterialPopUp');
+
+            }
+            else {
+
+                location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
+            }
+        });
+    }
 
     window.chartColors = {
         red: 'rgba(240, 52, 52, .6)',
@@ -2705,18 +2749,18 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     //........#regoin Trian Balance.................
 
-    $scope.report = {
-        IsUpToLevel: 'Detail',
-        IsBudgetLevel: false,
-        IsActivityLevel: true,
-        IsDetailLevel: false,
+    //$scope.report = {
+    //    IsUpToLevel: 'Detail',
+    //    IsBudgetLevel: false,
+    //    IsActivityLevel: true,
+    //    IsDetailLevel: false,
 
-        //ReportFormat: 'Pdf',
-        ////FromDate: $filter('dateFiltering')(Date.now()),
-        //FromDate: $filter('dateFiltering')(Date.now()),
-        ToDate: $filter('dateFiltering')(Date.now())
-        //IsWithAdvance: false
-    };
+    //    //ReportFormat: 'Pdf',
+    //    ////FromDate: $filter('dateFiltering')(Date.now()),
+    //    //FromDate: $filter('dateFiltering')(Date.now()),
+    //    ToDate: $filter('dateFiltering')(Date.now()),
+    //    AssetsLiability: null
+    //};
 
     $scope.upToLevelList = [];
     $scope.getLevelType = function () {
@@ -2738,40 +2782,23 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.report.IsActivityLevel = false;
             $scope.report.IsDetailLevel = false;
 
-            //$scope.reportDateWise.IsBudgetLevel = false;
-            //$scope.reportDateWise.IsDetailLevel = false;
-            //$scope.reportDateWise.IsActivityLevel = false;
         }
         if (level == 'Budget') {
             $scope.report.IsBudgetLevel = true;
             $scope.report.IsActivityLevel = false;
-            //$scope.report.IsDetailLevel = false;
-            //$scope.report.isACGroupLevel = false;
-            //$scope.reportDateWise.IsBudgetLevel = true;
-            //$scope.reportDateWise.IsDetailLevel = false;
-            //$scope.reportDateWise.IsActivityLevel = false;
-            //$scope.reportDateWise.isACGroupLevel = false;
+            $scope.report.IsDetailLevel = false;
 
         }
         if (level == 'Detail') {
             $scope.report.IsDetailLevel = true;
             $scope.report.IsBudgetLevel = false;
             $scope.report.IsActivityLevel = false;
-            //$scope.report.isACGroupLevel = false;
-            //$scope.reportDateWise.IsBudgetLevel = false;
-            //$scope.reportDateWise.IsActivityLevel = false;
-            //$scope.reportDateWise.IsDetailLevel = true;
-            //$scope.reportDateWise.isACGroupLevel = false;
-
         }
 
         else if (level == 'Activity') {
             $scope.report.IsBudgetLevel = false;
             $scope.report.IsDetailLevel = false;
             $scope.report.IsActivityLevel = true;
-            //$scope.reportDateWise.IsDetailLevel = false;
-            //$scope.reportDateWise.IsBudgetLevel = false;
-            //$scope.reportDateWise.IsActivityLevel = true;
 
         }
     };
@@ -3024,6 +3051,121 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     };
 
 
+    //$scope.GetTrialBLAccountGroupReport = function () {
+
+    //    var filtered = $("#empInfoGrid").data("ejGrid").getFilteredRecords();
+    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+    //        filtered = $scope.EmployeeListTemp;
+    //    }
+
+    //    try {
+    //        var file_src = $scope.path + 'GetTrialBLAccountGroupReport?toDate=' + $scope.reportParameters.ToDate /*+ '&isWithAdvance=' + $scope.reportParameters.IsWithAdvance*/;
+    //        $rootScope.report(file_src);
+
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //}
+
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+
+        return string;
+    }
+
+    $scope.GetTrialBLAccountGroupReport = function () {
+        try {
+            var filtered = $("#GridSelectedTrialBalance").data("ejGrid").getFilteredRecords();
+            if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+                filtered = $scope.TrialBalanceList;
+            }
+            //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+            var AccountGroupNames = getString(filtered, "AccountGroupName");
+
+            //var AccountGroupNames = getString(filtered, "GL");
+            //var AccountGroupNames = getString(filtered, "AccountGroupName");
+            //var AccountGroupNames = getString(filtered, "AccountGroupName");
+            //var AccountGroupNames = getString(filtered, "AccountGroupName");
+            //var AccountGroupNames = getString(filtered, "AccountGroupName");
+
+
+            $scope.fileName = $scope.report.AssetsLiability + ".xls";
+
+            $http({
+                method: 'POST',
+               // url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
+                url: 'Accounts/AccountStatusDashboard/AccountGroupWiseReport',
+                data: {
+                    'allAccountGroupList': AccountGroupNames
+                     //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
+                    , 'toDate': $scope.report.ToDate
+                    , 'reportName': $scope.report.AssetsLiability
+                    ,'isDetailLevel': $scope.report.IsDetailLevel
+                   //,'isUpToLevel': $scope.report.IsUpToLevel
+                    , 'isBudgetLevel': $scope.report.IsBudgetLevel
+                    , 'isActivityLevel': $scope.report.IsActivityLevel
+                },
+                 dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+
+    $scope.getTrialBLAllLevelGeneralLedgerPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
+
+        $http({
+            method: "GET",
+            url: "Accounts/AccountStatusDashboard/getLedgerActivityPoPUpListData?gLInfoId=" + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&partyId=' + pId + '&partyPlantId=' + ppId + '&bankMasterId=' + bkmId + '&cashMasterId=' + cmId + '&toDate=' + toDate
+        }).then(function successCallback(response) {
+            $scope.LedgerActivityPoPUpList = response.data;
+
+        });
+        $rootScope.openPopupAngular('TrialBalanceDRPopUp');
+    };
+
+    $scope.showTrialBalanceDRcumulativePopUp = function (args) {
+        $scope.toDate = $scope.reportParameters.ToDate
+
+        if (args.BankMasterId != null) {
+            $scope.getTrialBLDetailLevelBankMasterLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+            $scope.getTrialBLBankMasterHeaderLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+        }
+        else if (args.CashMasterId != null) {
+            $scope.getTrialBLDetailLevelCashMasterLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+            $scope.getTrialBLHeadingCashMasterLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+
+        }
+        else if (args.PartyId != null) {
+            $scope.getTrialBLDetailLevelPartyLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+            $scope.getTrialBLHeadingPartyLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+        }
+        else {
+            $scope.getTrialBLAllLevelGeneralLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+            $scope.getTrialBLHeadingGeneralLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+
+        }
+    };
+
+
+
     //$scope.getTrialBLAccountGroupHeaderPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
 
     //    $http({
@@ -3043,45 +3185,45 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //    // $rootScope.openPopupAngular('TrialBLBankMasterLedgerPopUp');
     //};
 
-    $scope.getTrialBLAccountGroupPopUpData = function (accountGroupId, accountGroupName, toDate) {
+    //$scope.getTrialBLAccountGroupPopUpData = function (accountGroupId, accountGroupName, toDate) {
 
-        $http({
-            method: "GET",
-            url: "Accounts/AccountStatusDashboard/GetAccountGroupPoPUpListData?accountGroupId=" + accountGroupId + '&accountGroupName=' + accountGroupName + '&toDate=' + toDate
-        }).then(function successCallback(response) {
-            $scope.BankLedgerDetailLevelPoPUpList = response.data;
-            //$scope.partyName = $scope.LedgerActivityPoPUpList[0].Party
-        });
-        $rootScope.openPopupAngular('TrialBLAccountGroupIdPopUp');
-    };
-    $scope.closeTrialBLAccountGroupPopUp = function () {
-        angular.element(document.querySelector("#TrialBLAccountGroupIdPopUp")).modal("hide");
-    };
+    //    $http({
+    //        method: "GET",
+    //        url: "Accounts/AccountStatusDashboard/GetAccountGroupPoPUpListData?accountGroupId=" + accountGroupId + '&accountGroupName=' + accountGroupName + '&toDate=' + toDate
+    //    }).then(function successCallback(response) {
+    //        $scope.BankLedgerDetailLevelPoPUpList = response.data;
+    //        //$scope.partyName = $scope.LedgerActivityPoPUpList[0].Party
+    //    });
+    //    $rootScope.openPopupAngular('TrialBLAccountGroupIdPopUp');
+    //};
+    //$scope.closeTrialBLAccountGroupPopUp = function () {
+    //    angular.element(document.querySelector("#TrialBLAccountGroupIdPopUp")).modal("hide");
+    //};
 
-    $scope.showTrialBalanceAccountGroupPopUp = function (args) {
-        $scope.toDate = $scope.reportParameters.ToDate
+    //$scope.showTrialBalanceAccountGroupPopUp = function (args) {
+    //    $scope.toDate = $scope.reportParameters.ToDate
 
-        if (args.AccoutnGroupId != null) {
-            $scope.getTrialBLAccountGroupPopUpData(args.AccoutnGroupId, args.AccountGroupName, $scope.toDate)
-           // $scope.getTrialBLAccountGroupHeaderPopUpData(args.AccoutnGroupId, args.AccountGroupName, $scope.toDate)
-        }
+    //    if (args.AccoutnGroupId != null) {
+    //        $scope.getTrialBLAccountGroupPopUpData(args.AccoutnGroupId, args.AccountGroupName, $scope.toDate)
+    //       // $scope.getTrialBLAccountGroupHeaderPopUpData(args.AccoutnGroupId, args.AccountGroupName, $scope.toDate)
+    //    }
 
-        //else if (args.CashMasterId != null) {
-        //    $scope.getTrialBLDetailLevelCashMasterLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
-        //    $scope.getTrialBLHeadingCashMasterLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+    //    //else if (args.CashMasterId != null) {
+    //    //    $scope.getTrialBLDetailLevelCashMasterLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+    //    //    $scope.getTrialBLHeadingCashMasterLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
 
-        //}
-        //else if (args.PartyId != null) {
-        //    $scope.getTrialBLDetailLevelPartyLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
-        //    $scope.getTrialBLHeadingPartyLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
-        //}
-        //else {
-        //    $scope.getTrialBLDetailLevelGeneralLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
-        //    $scope.getTrialBLHeadingGeneralLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+    //    //}
+    //    //else if (args.PartyId != null) {
+    //    //    $scope.getTrialBLDetailLevelPartyLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+    //    //    $scope.getTrialBLHeadingPartyLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+    //    //}
+    //    //else {
+    //    //    $scope.getTrialBLDetailLevelGeneralLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+    //    //    $scope.getTrialBLHeadingGeneralLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
 
-        //}
+    //    //}
 
-    };
+    //};
 
     //-------------------#endregion  Trial Balance ----------------------------------------
 
