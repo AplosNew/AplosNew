@@ -489,11 +489,11 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             }
         }
         if (counter == 0) {
-            alert("Please Select SO");
+            ShowResult("Please Select SO");
             throw ("Please Select SO");
         }
         if (counter > 1) {
-            alert("Please Select only 1 SO");
+            ShowResult("Please Select only 1 SO");
             throw ("Please Select only 1 SO");
         }
 
@@ -697,11 +697,11 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             }
         }
         if (counter == 0) {
-            alert("Please Select SO");
+            ShowResult("Please Select SO");
             throw("Please Select SO");
         }
         if (counter > 1) {
-            alert("Please Select only 1 SO");
+            ShowResult("Please Select only 1 SO");
             throw("Please Select only 1 SO");
         }
         $scope.AllVals();
@@ -902,12 +902,12 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
         if (diffDays < 0 || diffDays > 4) {
-            alert("Inactive can't be more than 4 days");
+            ShowResult("Inactive can't be more than 4 days");
             throw ("Inactive can't be more than 4 days");
         }
 
         if ($scope.Packing.EntityId == null || $scope.Packing.ByWhom == null || $scope.Packing.DispatchResponsiblePersonId == null || $scope.Packing.StorageLocId == null || $scope.Packing.InactiveDate == null) {
-            alert("Please Fill all the Packing Plan Fields");
+            ShowResult("Please Fill all the Packing Plan Fields");
             throw ("Please Fill all the Packing Plan Fields");
         }
 
@@ -917,23 +917,23 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
 
     $scope.secondVals = function () {
         if ($scope.PoLoTCollection.length == 0) {
-            alert("Please select A PO Lot Reference");
+            ShowResult("Please select A PO Lot Reference");
             throw ("Please select A PO Lot Reference");
         }
 
         for (var i = 0; i < $scope.PoLoTCollection.length; i++) {
             if ( $scope.PoLoTCollection[i]["PlanQty"] == 0) {
-                alert("Plan Qty cannot be 0!");
+                ShowResult("Plan Qty cannot be 0!");
                 throw ("Invalid");
             }
 
-            if ($scope.PoLoTCollection[i]["PlanQty"] <= $scope.PoLoTCollection[i]["BookQty"]) {
-                alert("Book Qty cannot be more than Plan Qty!!");
+            if ($scope.PoLoTCollection[i]["PlanQty"] < $scope.PoLoTCollection[i]["BookQty"]) {
+                ShowResult("Book Qty cannot be more than Plan Qty!!");
                 throw ("Invalid");
             }
 
             if ($scope.PoLoTCollection[i]["BookQty"] > $scope.PoLoTCollection[i]["Available"] || $scope.PoLoTCollection[i]["PlanQty"] > $scope.PoLoTCollection[i]["Available"]) {
-                alert("The Quantities cannot be more than Available Quantity!");
+                ShowResult("The Quantities cannot be more than Available Quantity!");
                 throw ("The Quantities cannot be more than Available Quantity!");
             }
         }
