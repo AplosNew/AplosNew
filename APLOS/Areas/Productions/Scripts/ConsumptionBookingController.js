@@ -211,6 +211,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
     $scope.LoadData = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.modelForm.$valid) {
+            $scope.LineItemsList = [];
             $http.get("Productions/FinishGoodsBooking/GetItemScanChildData?fromDate=" + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
             //$http.get("Productions/FinishGoodsBooking/GetItemScanChildData?productionOrderId=" + $scope.modelNew.ProductionOrderId)
                 .then(
@@ -260,6 +261,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
 
     $scope.SummaryRows = [{
         title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GrossAmount", dataMember: "GrossAmount", format: "{0:0.0000}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Rate", dataMember: "Rate", format: "{0:0.0000}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GrossConsumption", dataMember: "GrossConsumption", format: "{0:0.0000}" }
         ],

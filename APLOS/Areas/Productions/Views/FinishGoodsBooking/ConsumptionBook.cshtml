@@ -82,9 +82,9 @@
                 <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
                 <div e-column e-field="CostingMasterTemplateId" e-headertext="CostingId" e-width="80"></div>
                 @*<div e-column e-headertext="Costing" e-template="#COSTButtons" e-textalign="center" e-width="50"></div>*@
-                <div e-column e-field="Qty" e-headertext="Qty" e-width="70" e-textalign="right"></div>
-                <div e-column e-field="Rate" e-headertext="Rate" e-width="50" e-textalign="right"></div>
-                <div e-column e-field="Amount" e-headertext="Amount" e-width="50" e-textalign="right"></div>
+                <div e-column e-field="Qty" e-headertext="Qty" e-width="70" e-textalign="right" e-format="{0:0.00}"></div>
+                <div e-column e-field="Rate" e-headertext="Rate" e-width="50" e-textalign="right" e-format="{0:0.0000}"></div>
+                <div e-column e-field="Amount" e-headertext="Amount" e-width="50" e-textalign="right" e-format="{0:0.00}"></div>
                 <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-textalign="center" e-width="50"></div>
             </div>
         </div>
@@ -126,7 +126,7 @@
 </div>
 <div class="table-responsive modal-table aplos-grid-toggle">
     <div class="content-container-fluid" style="color:black;overflow:scroll">
-        <div style="color:black;" id="GridMaster" ej-grid e-datasource="masterDataList" e-recorddoubleclick="Get"
+        <div style="color:black;" id="GridMaster" ej-grid e-datasource="masterDataList" @*e-recorddoubleclick="Get"*@
              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
             <div e-columns>
@@ -152,7 +152,6 @@
                 <div style="color:black;" id="CostingItemGrid" ej-grid e-datasource="costingItemDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
                     <div e-columns>
-
                         <div e-column e-field="OrderCostingMasterTemplateId" e-headertext="CostingId" e-width="80"></div>
                         <div e-column e-field="UserName" e-headertext="Costing" e-width="80"></div>
                         <div e-column e-field="Rate" e-headertext="Rate" e-textalign="right" e-width="50"></div>
@@ -183,8 +182,9 @@
 
                         <div e-column e-field="CostingComponent" e-headertext="Costing Component" e-width="80"></div>
                         <div e-column e-field="CostingItem" e-headertext="Costing Item" e-width="80"></div>
-                        <div e-column e-field="Rate" e-headertext="Gross Amount" e-textalign="right" e-width="50"></div>
-                        <div e-column e-field="GrossConsumption" e-headertext="GrossConsumption" e-textalign="right" e-width="50"></div>
+                        <div e-column e-field="GrossConsumption" e-headertext="Gross Consumption" e-textalign="right" e-width="50"></div>
+                        <div e-column e-field="Rate" e-headertext="Rate" e-textalign="right" e-width="50"></div>
+                        <div e-column e-field="GrossAmount" e-headertext="Gross Amount" e-textalign="right" e-width="50"></div>
                     </div>
                 </div>
             </div>
