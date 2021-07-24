@@ -406,9 +406,9 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select LotNo , RefNo , NetWeight , GWeight ,ProductCode , POId from dbo.ItemScanChild where LotNo = '" + LotNo + "' and ProductCode = '" + ProductCode + @"' and POId = '" + PO + @"' and Booked = 0 and IsDespatch = 0";
+                var str = @"Select LotNo , RefNo , cast(NetWeight as decimal(18,2)) as NetWeight , GWeight ,ProductCode , POId from dbo.ItemScanChild where LotNo = '" + LotNo + "' and ProductCode = '" + ProductCode + @"' and POId = '" + PO + @"' and Booked = 0 and IsDespatch = 0";
                 DataTable dt = _sqlRepository.GetDataTable(str);
-                var str1 = @"Select LotNo , RefNo , NetWeight , GWeight ,ProductCode , POId from dbo.ItemScanChild where LotNo = '" + LotNo + "' and ProductCode = '" + ProductCode + @"' and POId = '" + PO + @"' and Booked = 1 and IsDespatch = 0";
+                var str1 = @"Select LotNo , RefNo , cast(NetWeight as decimal(18,2)) as NetWeight , GWeight ,ProductCode , POId from dbo.ItemScanChild where LotNo = '" + LotNo + "' and ProductCode = '" + ProductCode + @"' and POId = '" + PO + @"' and Booked = 1 and IsDespatch = 0";
                 DataTable dt2 = _sqlRepository.GetDataTable(str1);
                 dts = Library.Service.Helpers.DataTableExtensions.DataTableToJson(dt2);
                 dt.Columns.Add("checked", typeof(bool));
@@ -440,14 +440,14 @@ namespace Library.OrderManagement.Production
                         dbo.ItemScanChild sc
                         left join trn.POLotReference pol  on pol.Id = sc.PackingId
                         left join(
-                        Select isc.ProductCode , isc.POId , sum(isc.NetWeight) as StockQty from
+                        Select isc.ProductCode , isc.POId , isc.LotNo , sum(isc.NetWeight) as StockQty from
                         dbo.ItemScanChild isc 
                         left join dbo.ItemScan isch on isch.Id = isc.MasterId
                         left join trn.POLotReference pol on pol.Id = isc.PackingId
                         where isch.WorkDate between '" + FromDate + @"' and '" + ToDate + @"'
                         and isc.IsDespatch = 0 
-                        group by isc.ProductCode , POId
-                        ) StockQty on StockQty.ProductCode = sc.ProductCode and StockQty.POId = sc.POId
+                         group by isc.ProductCode , POId , isc.LotNo
+                        ) StockQty on StockQty.ProductCode = sc.ProductCode and StockQty.POId = sc.POId and StockQty.LotNo = sc.LotNo
                         left join(
                         Select isc.ProductCode , isc.POId , isnull(sum(isc.NetWeight),0) as Despatch from
                         dbo.ItemScanChild isc 

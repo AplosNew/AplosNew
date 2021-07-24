@@ -890,6 +890,8 @@ var upanelApp = angular
     .controller("MarkerController", MarkerController)
     .controller("partyPaymentStatusReportController", partyPaymentStatusReportController)
     .controller("OTManualNewController", OTManualNewController)
+    .controller("ManualOTUploadNewController", ManualOTUploadNewController)
+    .controller("ManualOTReportNewController", ManualOTReportNewController)
     .controller("CutPlanController", CutPlanController)
     .controller("FinishGoodsBookingPostController", FinishGoodsBookingPostController)
 

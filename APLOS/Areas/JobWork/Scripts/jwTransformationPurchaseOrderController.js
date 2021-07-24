@@ -4150,4 +4150,12 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             ShowResult(e, "failure");
         }
     }
+
+    $scope.AllTabPrint = function (z) {
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        location.href = "JobWork/JWTransformationPurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
+        $scope.getalldata();
+    };
 }

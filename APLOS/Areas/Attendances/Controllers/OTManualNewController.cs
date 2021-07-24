@@ -342,7 +342,8 @@ namespace Aplos.Areas.Attendances.Controllers
                             DEPT.UserName DepartmentName,S.UserName Section,
                             EMP.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant,PL.Id as PlantId
-                            ,mo.OThour as ManualOT
+                            --,mo.OThour as ManualOT
+							,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt else mo.OThour End
                             ,IsOTEntitled =CASE WHEN dmc.IsOTEntitled=1 THEN 'Yes' ELSE 'No' END
                             FROM EmployeeInformation EMP
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
@@ -373,7 +374,8 @@ namespace Aplos.Areas.Attendances.Controllers
                             DEPT.UserName DepartmentName,S.UserName Section,
                             EMP.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant,PL.Id as PlantId
-                            ,mo.OThour as ManualOT
+                            --,mo.OThour as ManualOT
+							,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt else mo.OThour End
                             ,IsOTEntitled =CASE WHEN dmc.IsOTEntitled=1 THEN 'Yes' ELSE 'No' END
                             FROM EmployeeInformation EMP
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
@@ -428,7 +430,8 @@ namespace Aplos.Areas.Attendances.Controllers
                             DEPT.UserName DepartmentName,S.UserName Section,
                             EMP.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant,PL.Id as PlantId
-                            ,mo.OThour as ManualOT
+                            --,mo.OThour as ManualOT
+							,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt else mo.OThour End
                             ,dmc.IsOTEntitled
                             FROM EmployeeInformation EMP
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
@@ -459,7 +462,8 @@ namespace Aplos.Areas.Attendances.Controllers
                             DEPT.UserName DepartmentName,S.UserName Section,
                             EMP.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant,PL.Id as PlantId
-                            ,mo.OThour as ManualOT
+                            --,mo.OThour as ManualOT
+							,ManualOT=case when apd.EmpSystemID is not null and apd.WorkDate is not null then apd.ManualOt else mo.OThour End
                             ,dmc.IsOTEntitled
                             FROM EmployeeInformation EMP
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
