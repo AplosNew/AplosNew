@@ -460,13 +460,14 @@ namespace Library.Service.EmployeeServices
             }
         }
 
-        public IEnumerable<object> GetBookedQty(string Lot, string Prod, string PO,string Pqty)
+        public IEnumerable<object> GetBookedQty(string Lot, string Prod, string PO,string Pqty,string PoLotRefernceId)
         {
             try
             {
                 decimal PlanQty = Convert.ToDecimal(Pqty);
                 var sql = @"select '" + PlanQty + "'-req.BookedQty as AvailQty from(select isnull(Floor(Sum(Netweight)),0) as BookedQty " +
-                    "from dbo.ItemScanChild where ProductCode='"+Prod+"'and POId='"+PO+"' and LotNo='"+Lot+"' and Booked ='1' ) as req";
+                    "from dbo.ItemScanChild where ProductCode='"+Prod+"'and POId='"+PO+ "'and PackingId='"+PoLotRefernceId+"' " +
+                    "and LotNo='" + Lot+"' and Booked ='1' ) as req";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
