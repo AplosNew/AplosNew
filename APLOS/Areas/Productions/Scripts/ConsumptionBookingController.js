@@ -211,6 +211,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
     $scope.LoadData = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.modelForm.$valid) {
+            $scope.LineItemsList = [];
             $http.get("Productions/FinishGoodsBooking/GetItemScanChildData?fromDate=" + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
             //$http.get("Productions/FinishGoodsBooking/GetItemScanChildData?productionOrderId=" + $scope.modelNew.ProductionOrderId)
                 .then(

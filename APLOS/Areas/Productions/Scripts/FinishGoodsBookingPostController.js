@@ -175,7 +175,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
             });
     }
     function getInventoryMaterialList(inveReveiveId, employeeId, isReversCharge, foc) {
-        $http.get('Productions/FinishGoodsBooking/GetFGJournal?inveReveiveId=' + inveReveiveId)
+        $http.get('Productions/FinishGoodsBooking/GetFGJournal?finishGoodsBookId=' + inveReveiveId)
             .then(function (response) {
                 $scope.inventoryPayableList = [];
                 $scope.inventoryReceiveDetailList = [];
@@ -183,7 +183,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
                 $scope.newList = [];
                 $scope.inventoryMaterialList = response.data;
 
-                if (!$scope.modelNew.IsNonCreditable)
+                
                     reArrangeCreditableList($scope.inventoryMaterialList, $scope.newList, $scope.inventoryReceiveDetailList);
                 if (baseService.isUndefinedOrNull(employeeId))
                     getVendorPayableGLBudgetActivity(inveReveiveId);
@@ -324,7 +324,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
     };
 
     function getRecievedList() {
-        $http.get('Productions/FinishGoodsBooking/GetFGMaterialDetail?finishGoodsBookId=' + $scope.modelNew.Id)
+        $http.get('Productions/FinishGoodsBooking/GetFGMaterialDetail?finishGoodsBookingId=' + $scope.modelNew.Id)
             .then(function (response) {
                 $scope.inventoryReceivedList = response.data.Rows;
             });

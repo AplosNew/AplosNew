@@ -53,8 +53,10 @@
         <div class="col-xs-12 col-sm-6 col-md-6">
             
             <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">GRN Date :</label>
-                <label class="col-sm-9 control-label">{{modelNew.GRNDateNew}}</label>
+                <label class="col-sm-3 control-label">Posting Date :</label>
+                <div class="col-sm-9 show-message">
+                    <input required datepicker="" id="postingDate" type="text" name="PostingDate" ng-model="modelNew.PostingDate" class="form-control" tabindex="1">
+                </div>
             </div>
             
             
@@ -99,18 +101,9 @@
                                 <th>Material Group</th>
                                 <th>Material Master</th>
                                 <th>Article</th>
-                                <th>SKU1</th>
-                                <th>SKU2</th>
-                                <th>SKU3</th>
-                                <th>HSN</th>
-                                <th>Asset</th>
                                 <th>Qty</th>
                                 <th>Rate</th>
                                 <th>Amount (TRN)</th>
-                                <th>Tax</th>
-                                @*<th>Service Charge</th>*@
-                                @*<th>Service Tax</th>*@
-                                <th>Amount (BC)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -120,14 +113,14 @@
                                 <td>{{x.StandardName}}</td>
                                 <td class="text-right">{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
                                 <td class="text-right">{{x.TransactionRate | number| setDecimal:2}}  {{x.CurrencyName}}</td>
-                                <td class="text-right">{{x.BaseAmount | number| setDecimal:2}}</td>
+                                <td class="text-right">{{x.TrnAmount | number| setDecimal:2}}</td>
                             </tr>
                             <tr>
-                                <td colspan="8" class="text-right"><strong>Total : </strong></td>
+                                <td colspan="3" class="text-right"><strong>Total : </strong></td>
                                 <td class="text-right" ng-hide="sumORnot"></td>
                                 <td class="text-right" ng-show="sumORnot"><strong>{{inventoryReceivedList | sumByKey : 'TransactionQty' }}</strong></td>
                                 <td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'TransactionRate'| number| setDecimal:2}}</strong></td>
-                                <td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'BaseAmount'| number| setDecimal:2 }}</strong></td>
+                                <td class="text-right"><strong>{{inventoryReceivedList | sumByKey : 'TrnAmount'| number| setDecimal:2 }}</strong></td>
                             </tr>
                         </tbody>
                     </table>
