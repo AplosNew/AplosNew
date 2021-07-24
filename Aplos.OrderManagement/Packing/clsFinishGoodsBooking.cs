@@ -926,8 +926,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 					FROM dbo.[FinishGoodsBooking] AS IR 
 					LEFT JOIN dbo.[DateWiseConsumption] DC ON DC.FinishGoodsBookingId=IR.Id
                      LEFT JOIN (SELECT A.DateWiseConsumptionId, SUM(A.Qty) AS Qty, SUM(ROUND(A.Qty*A.Rate,4)) AS Amount
-					 FROM dbo.[FinishGoodsBookingDetail] AS A  GROUP BY A.DateWiseConsumptionId) AS 
-								IRD ON IRD.DateWiseConsumptionId=DC.Id";
+					 FROM dbo.[FinishGoodsBookingDetail] AS A  GROUP BY A.DateWiseConsumptionId) AS  IRD ON IRD.DateWiseConsumptionId=DC.Id
+					WHERE DC.VoucherId IS NULL";
 			return _sqlRepository.GetDataCollection(sql);
 		}
 		public IEnumerable<object> GetVendorPayableGLBudgetActivity(string receiveId, string companyId, string plantId, string companypartyAccountGroupId)

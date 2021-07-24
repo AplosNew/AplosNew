@@ -7,6 +7,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Model.Enums;
 using Library.OrderManagement.Packing;
 using Library.ViewModel.Vouchers;
 using System;
@@ -142,7 +143,13 @@ namespace Aplos.Areas.Productions.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(clsFinishGoodsBooking.GetListForFinishGoodsBookingPost(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
-
+        [Authorize, HttpGet]
+        public JsonResult GetPostedFinishGoodsBookingData()
+        {
+            AccountingFinishGoodsService accountingFinishGoodsService = new AccountingFinishGoodsService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountingFinishGoodsService.GetPostedFinishGoodsBookingData(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpGet]
         public JsonResult GetFGMaterialDetail(GridParameter parameters, string finishGoodsBookingId)
         {
@@ -194,6 +201,26 @@ namespace Aplos.Areas.Productions.Controllers
                 Message = string.Format(AplosMessage.VoucherSave, accountingFinishGoodsService.InsertFinishGoodsBookingPosting(voucherVM, voucherDetailVMList))
             });
 
+        }
+        [HttpGet, Authorize]
+        public ActionResult FinishGoodsBookingPostReport(ReportFormat reportFormat, string voucherId)
+        {
+            AccountingFinishGoodsService accountingFinishGoodsService = new AccountingFinishGoodsService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var workbook = accountingFinishGoodsService.FinishGoodsBookingPostReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName, false);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
         }
     }
 }
