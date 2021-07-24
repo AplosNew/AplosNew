@@ -85,12 +85,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                 string strSql = @"select * from dbo.AttndManualDataFromApp where EmpSystemID='" + items[0].EmpSystemID + "' and WorkDate='" + items[0].WorkDate + "'";
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
-
+                int i = 0;
                 if (dsRef.Tables[0].Rows.Count == 0)
                 {
 
                     DataRow dr = dsRef.Tables[0].NewRow();
-
+                    i = 1;
                     dr["GroupID"] = items[0].GroupID;
                     dr["EmpSystemID"] = items[0].EmpSystemID;
                     dr["WorkDate"] = items[0].WorkDate;
@@ -123,7 +123,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 else
                 {
-
+                    i = 1;
                     DataRow dr = dsRef.Tables[0].Rows[0];
                     dr.BeginEdit();
 
@@ -157,9 +157,14 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 clsStaticInfo info = new clsStaticInfo();
                 info.SaveDataSets(dsRef);
-
-                return "true";
-
+                if (i == 1)
+                {
+                    return "true";
+                }
+                else
+                {
+                    return "false";
+                }
             }
             catch (Exception ex)
             {
@@ -174,8 +179,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 DataSet shiftchange;
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                 string strSql = @"select * from dbo.AttdnProcessData where RowId='" + data[0].RowId + "'" ;
-                objCon.OpenDataSetThroughAdapter(strSql, out shiftchange, false, "1");           
-
+                objCon.OpenDataSetThroughAdapter(strSql, out shiftchange, false, "1");
+                int i = 0;
 
                  if (shiftchange.Tables[0].Rows.Count > 0)
                  {
@@ -193,14 +198,20 @@ namespace Library.HumanResource.NewAttendanceProcess
                     shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
                     shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
                     shiftchange.Tables[0].Rows[0].EndEdit();
+                    i = 1;
                  }
 
 
                 clsStaticInfo info = new clsStaticInfo();
                 info.SaveDataSets(shiftchange);
-
-                return "true";
-
+                if (i == 1)
+                {
+                    return "true";
+                }
+                else
+                {
+                    return "false";
+                }
             }
             catch (Exception ex)
             {
