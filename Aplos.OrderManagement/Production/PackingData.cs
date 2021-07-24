@@ -406,9 +406,9 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select LotNo , RefNo , NetWeight , GWeight ,ProductCode , POId from dbo.ItemScanChild where LotNo = '" + LotNo + "' and ProductCode = '" + ProductCode + @"' and POId = '" + PO + @"' and Booked = 0 and IsDespatch = 0";
+                var str = @"Select LotNo , RefNo , cast(NetWeight as decimal(18,2)) as NetWeight , GWeight ,ProductCode , POId from dbo.ItemScanChild where LotNo = '" + LotNo + "' and ProductCode = '" + ProductCode + @"' and POId = '" + PO + @"' and Booked = 0 and IsDespatch = 0";
                 DataTable dt = _sqlRepository.GetDataTable(str);
-                var str1 = @"Select LotNo , RefNo , NetWeight , GWeight ,ProductCode , POId from dbo.ItemScanChild where LotNo = '" + LotNo + "' and ProductCode = '" + ProductCode + @"' and POId = '" + PO + @"' and Booked = 1 and IsDespatch = 0";
+                var str1 = @"Select LotNo , RefNo , cast(NetWeight as decimal(18,2)) as NetWeight , GWeight ,ProductCode , POId from dbo.ItemScanChild where LotNo = '" + LotNo + "' and ProductCode = '" + ProductCode + @"' and POId = '" + PO + @"' and Booked = 1 and IsDespatch = 0";
                 DataTable dt2 = _sqlRepository.GetDataTable(str1);
                 dts = Library.Service.Helpers.DataTableExtensions.DataTableToJson(dt2);
                 dt.Columns.Add("checked", typeof(bool));
