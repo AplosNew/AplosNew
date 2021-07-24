@@ -34,14 +34,17 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult GetAllData()
         {
             string sql = "";
-            sql = @"SELECT M.Id,JA.UserName  JobWorkActivityId,I.UserName JobWorkActivityChildId,M.RateApplicable,U.UserName ItemUOM,
-                    C.Code Currency,M.MinRate,M.MaxRate,M.CycleTime,E.EmployeeName ResponsiblePerson,M.ByProductApplicable,M.Remarks
+            sql = @"SELECT M.Id,JA.UserName  JobWorkActivityId,I.UserName JobWorkActivityChildId,M.RateApplicable
+                    ,C.Code Currency,M.MinRate,M.MaxRate,M.CycleTime,E.EmployeeName ResponsiblePerson,M.ByProductApplicable,M.Remarks
+					,ItemUOM=case when I.MaterialMasterId is not null then mmuom.UserName else U.UserName End
                     FROM [MST].[JobWorkTransformationMaster] M
                     LEFT JOIN [SCS].[Currency] C ON C.Id = M.CurrencyId
                     LEFT JOIN [HKP].[JobWorkActivity] JA ON JA.Id = M.JobWorkActivityId
                     LEFT JOIN [HKP].[JobWorkItem] I ON I.Id = M.JobWorkActivityChildId
 					LEFT JOIN Dbo.EmployeeInformation E ON E.SystemId = M.ResponsiblePersonId
-					LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = I.UOMId";
+					LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = I.UOMId
+					left join MST.MaterialMaster mm on mm.Id=I.MaterialMasterId
+					left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

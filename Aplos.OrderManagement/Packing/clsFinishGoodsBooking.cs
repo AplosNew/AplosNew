@@ -969,15 +969,15 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
         {
             var sql = @"SELECT IR.Id,ird.Qty,ird.Amount,IR.[Description],IR.FromDate,IR.ToDate
 					FROM dbo.[FinishGoodsBooking] AS IR 
+					LEFT JOIN dbo.[DateWiseConsumption] DC ON DC.FinishGoodsBookingId=IR.Id
                      LEFT JOIN (SELECT A.DateWiseConsumptionId, SUM(A.Qty) AS Qty, SUM(ROUND(A.Qty*A.Rate,4)) AS Amount
-					 FROM dbo.[FinishGoodsBookingDetail] AS A
-		                        JOIN dbo.[FinishGoodsBooking] AS B ON A.DateWiseConsumptionId=B.Id  GROUP BY A.DateWiseConsumptionId) AS 
-								IRD ON IRD.DateWiseConsumptionId=IR.Id";
-            return _sqlRepository.GetDataCollection(sql);
-        }
-        public IEnumerable<object> GetVendorPayableGLBudgetActivity(string receiveId, string companyId, string plantId, string companypartyAccountGroupId)
-        {
-            var sql = @"DECLARE @receiveId varchar(10)='" + receiveId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companypartyAccountGroupId + @"',@countryId varchar(10)
+					 FROM dbo.[FinishGoodsBookingDetail] AS A  GROUP BY A.DateWiseConsumptionId) AS 
+								IRD ON IRD.DateWiseConsumptionId=DC.Id";
+			return _sqlRepository.GetDataCollection(sql);
+		}
+		public IEnumerable<object> GetVendorPayableGLBudgetActivity(string receiveId, string companyId, string plantId, string companypartyAccountGroupId)
+		{
+			var sql = @"DECLARE @receiveId varchar(10)='" + receiveId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + "', @partyAccountGruopId varchar(10)='" + companypartyAccountGroupId + @"',@countryId varchar(10)
 
                             SELECT distinct IR.Id,IRD.Id AS InventoryReceiveDetailId, 'Vendor' AS OtherName, 'Cr' AS TrnType ,MM.MaterialGroupMasterId, NULL AS TaxCategoryId
                             ,GLGeneralInfoId =case WHEN MM.IsAsset=0 THEN MGPGL.GLGeneralInfoId  ELSE FAG.VendorReconGLId END
@@ -1053,7 +1053,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON MGGL.InventoryActivityId= A.Id
 						
-						WHERE IRD.Id=@receiveId
+						WHERE IR.Id=@receiveId
 						GROUP BY MM.MaterialGroupMasterId, MGGL.InventoryGLId, GL.AccountCode, GL.UserName, MGGL.InventoryBudgetMasterId, B.Code, B.UserName, MGGL.InventoryActivityId, A.Code, A.UserName
 					    ,IRD.Id
                    
