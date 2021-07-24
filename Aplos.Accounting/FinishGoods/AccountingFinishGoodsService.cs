@@ -132,6 +132,8 @@ namespace Library.Accounting.FixedAssets
 
             }
         }
+
+
         public string InsertFinishGoodsBookingPosting(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             )
         {
@@ -147,10 +149,12 @@ namespace Library.Accounting.FixedAssets
                 DataSet _drvDetailCurrencyData = null;
                 DataSet _crvDetailData = null;
                 DataSet _crvDetailCurrencyData = null;
-                DataSet _frDisposeData = null;
-                DataSet _fixedAssetRegisterData = null;
-                DataSet _advanceReqScheData = null;
+                DataSet _finishGoodsBookingData = null;
 
+                voucherVM.CompanyCurrencyRate = 1;
+                voucherVM.CurrencyId = companyCurrencyId;
+                voucherVM.DocDate = voucherVM.PostingDate;
+                voucherVM.DocRefNo ="test";
                 var voucher = new Voucher
                 {
                     CompanyGroupId = voucherVM.CompanyGroupId,
@@ -230,38 +234,32 @@ namespace Library.Accounting.FixedAssets
                         }, ref _crvDetailCurrencyData);
                     }
                 }
-                //if (farDisposeDetailList != null)
-                //{
-                //    foreach (var item in farDisposeDetailList)
-                //    {
 
-                //        var faRegisterDispose = new FixedAssetRegisterDisposed
-                //        {
-                //            DisposedVoucherId= voucher.Id,
-                //            Id=item.FixedAssetRegisterDisposedId,
-                //            Status=voucherVM.Status,
-                //            EmployeeId=voucherVM.EmployeeId,
-                //            PartyId=voucherVM.PartyId,
-                //            PartyPlantId=voucherVM.PartyPlantId,
-                //            AddedBy=item.AddedBy,
-                //            AddedDate=item.AddedDate,
-                //            AddedFromIP=item.AddedFromIP
-                //        };
-                //        UpdateFixedAssetRegisterDispose(faRegisterDispose, ref _frDisposeData);
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.FinishGoodsBooking WHERE Id='"+voucherVM.Id+"'", out _finishGoodsBookingData, false, "1");
+                if (_finishGoodsBookingData.Tables[0].Rows.Count > 0)
+                {
+                    for (int j = 0; j < _finishGoodsBookingData.Tables[0].Rows.Count; j++)
+                    {
+                        _finishGoodsBookingData.Tables[0].DefaultView.RowFilter = "Id='" + voucherVM.Id + @"'";
 
-                //        var faRegister = new FixedAssetRegister
-                //        {
-                //            DisposedVoucherId = voucher.Id,
-                //            DisposedDate = voucher.PostingDate,
-                //            Id = item.FixedAssetRegisterId
-                //        };
-                //        UpdateFixedAssetRegister(faRegister, ref _fixedAssetRegisterData);
+                        if (_finishGoodsBookingData.Tables[0].DefaultView.Count > 0)
+                        {
+                            //edit
+                            DataRow dr = _finishGoodsBookingData.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
 
-                //    }
-                //}
-                
+                            dr["VoucherId"] = voucher.Id;
+                            dr["UpdatedBy"] = voucher.AddedBy;
+                            dr["UpdatedDate"] = voucher.AddedDate;
+                            dr.EndEdit();
+                        }
+                    }
+                }
+               
+
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset , _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData/*, _frDisposeData, _fixedAssetRegisterData, _advanceReqScheData*/
+                objApp.SaveDataSets(_vdataset , _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _finishGoodsBookingData/*, _frDisposeData, _fixedAssetRegisterData, _advanceReqScheData*/
                     );
                 return "";
             }

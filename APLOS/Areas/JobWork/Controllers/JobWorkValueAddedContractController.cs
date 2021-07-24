@@ -3353,7 +3353,6 @@ namespace Aplos.Areas.JobWork.Controllers
 
         #endregion end Reports for Transformation Contract
 
-
     }
 }
 public class JobWorkValueAddedContractChild : BaseModel
