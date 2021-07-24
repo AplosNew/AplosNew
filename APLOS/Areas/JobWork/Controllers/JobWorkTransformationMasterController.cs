@@ -34,14 +34,17 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult GetAllData()
         {
             string sql = "";
-            sql = @"SELECT M.Id,JA.UserName  JobWorkActivityId,I.UserName JobWorkActivityChildId,M.RateApplicable,U.UserName ItemUOM,
-                    C.Code Currency,M.MinRate,M.MaxRate,M.CycleTime,E.EmployeeName ResponsiblePerson,M.ByProductApplicable,M.Remarks
+            sql = @"SELECT M.Id,JA.UserName  JobWorkActivityId,I.UserName JobWorkActivityChildId,M.RateApplicable
+                    ,C.Code Currency,M.MinRate,M.MaxRate,M.CycleTime,E.EmployeeName ResponsiblePerson,M.ByProductApplicable,M.Remarks
+					,ItemUOM=case when I.MaterialMasterId is not null then mmuom.UserName else U.UserName End
                     FROM [MST].[JobWorkTransformationMaster] M
                     LEFT JOIN [SCS].[Currency] C ON C.Id = M.CurrencyId
                     LEFT JOIN [HKP].[JobWorkActivity] JA ON JA.Id = M.JobWorkActivityId
                     LEFT JOIN [HKP].[JobWorkItem] I ON I.Id = M.JobWorkActivityChildId
 					LEFT JOIN Dbo.EmployeeInformation E ON E.SystemId = M.ResponsiblePersonId
-					LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = I.UOMId";
+					LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = I.UOMId
+					left join MST.MaterialMaster mm on mm.Id=I.MaterialMasterId
+					left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -200,11 +203,16 @@ namespace Aplos.Areas.JobWork.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 bplib.clsGenID _genId = new bplib.clsGenID();
                 DataSet dsMaster;
+                DataSet ValidateService;
                 string _Message = "";
                 string Id = "";
                 con2.OpenDataSetThroughAdapter("select * from MST.JobWorkTransformationMaster where JobWorkActivityId='"+ saveData["JobWorkActivityId"] + "' and JobWorkActivityChildId='" + saveData["JobWorkActivityChildId"] + "' AND  Id<>'" + saveData["Id"].ToString() + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Activity and Output Material already exists!!!");
+
+                con2.OpenDataSetThroughAdapter("select * from MST.JobWorkTransformationMaster where JobWorkActivityId='" + saveData["JobWorkActivityId"] + "' and JobWorkActivityChildId='" + saveData["JobWorkActivityChildId"] + "' and ServiceId='" + saveData["ServiceId"] + "' AND  Id<>'" + saveData["Id"].ToString() + "'", out ValidateService, false, "1");
+                if (ValidateService.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Service already exists!!!");
 
                 con.getDataSet("SELECT * FROM [MST].[JobWorkTransformationMaster] WHERE Id='" + saveData["Id"].ToString() + "'", out DataSet dsOut);
                 if (dsOut.Tables[0].Rows.Count == 0)
@@ -224,6 +232,7 @@ namespace Aplos.Areas.JobWork.Controllers
                     dr["ResponsiblePersonId"] = saveData["ResponsiblePersonId"].ToString();
                     dr["ByProductApplicable"] = saveData["ByProductApplicable"].ToString();
                     dr["Remarks"] = saveData["Remarks"].ToString();
+                    dr["ServiceId"] = saveData["ServiceId"].ToString();
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = System.DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -248,6 +257,7 @@ namespace Aplos.Areas.JobWork.Controllers
                     dr["ResponsiblePersonId"] = saveData["ResponsiblePersonId"].ToString();
                     dr["ByProductApplicable"] = saveData["ByProductApplicable"].ToString();
                     dr["Remarks"] = saveData["Remarks"].ToString();
+                    dr["ServiceId"] = saveData["ServiceId"].ToString();
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = System.DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -427,11 +437,13 @@ namespace Aplos.Areas.JobWork.Controllers
             string sql = "";
             sql = @"SELECT M.Id,JobWorkActivityId,jwa.UserName as Activity,M.JobWorkActivityChildId,M.RateApplicable,U.UserName UOM,M.CurrencyId,M.MinRate,
                     M.MaxRate,M.CycleTime,M.ResponsiblePersonId,E.EmployeeName ResponsiblePerson,M.ByProductApplicable,M.Remarks
+					,SM.UserName as Service,M.ServiceId
                     FROM [MST].[JobWorkTransformationMaster] M
                     LEFT JOIN dbo.EmployeeInformation E ON E.SystemId = M.ResponsiblePersonId
                     left JOIN HKP.JobWorkItem I ON I.Id = M.JobWorkActivityChildId
                     left JOIN SCS.UnitOfMeasurement U ON U.Id = I.UOMId
 					left join HKP.JobWorkActivity jwa on jwa.Id=M.JobWorkActivityId
+					left join HKP.ServiceMaster SM on SM.Id=M.ServiceId
                     WHERE M.Id='" + Id + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

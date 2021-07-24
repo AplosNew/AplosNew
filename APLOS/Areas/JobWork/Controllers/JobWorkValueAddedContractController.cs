@@ -206,14 +206,18 @@ namespace Aplos.Areas.JobWork.Controllers
             string sql = "";
             if (ContractType == "OSTransformationPO")
             {
-                sql = @"Select RateApplicable as Value, RateApplicable as Text,MinRate, MaxRate from MST.JobWorkTransformationMaster 
+                sql = @"Select M.RateApplicable as Value, M.RateApplicable as Text,M.MinRate, M.MaxRate,SM.UserName as Service,M.ServiceId 
+                        from MST.JobWorkTransformationMaster M
+                        left join HKP.ServiceMaster SM on SM.Id=M.ServiceId
                         where JobWorkActivityChildId='" + JobWorkItemId + "' and JobWorkActivityId='" + ActivityId + @"' order by RateApplicable ";
             }
 
             if (ContractType == "OSValueAddedPO")
             {
-                sql = @"Select RateApplicable as Value, RateApplicable as Text,MinRate, MaxRate from MST.JobWorkValueAddedMaster 
-                        where JobWorkActivityChildId='"+ JobWorkItemId + @"' and JobWorkActivityId='"+ ActivityId + @"' order by RateApplicable";
+                sql = @"Select M.RateApplicable as Value, M.RateApplicable as Text,M.MinRate, M.MaxRate,SM.UserName as Service,M.ServiceId
+                        from MST.JobWorkValueAddedMaster M
+                        left join HKP.ServiceMaster SM on SM.Id=M.ServiceId
+                        where JobWorkActivityChildId='" + JobWorkItemId + @"' and JobWorkActivityId='"+ ActivityId + @"' order by RateApplicable";
             }
 
 
@@ -3348,7 +3352,6 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         #endregion end Reports for Transformation Contract
-
 
     }
 }

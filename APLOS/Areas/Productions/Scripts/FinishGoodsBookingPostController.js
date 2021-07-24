@@ -1,0 +1,358 @@
+﻿'use strict';
+FinishGoodsBookingPostController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$window'];
+function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $window) {
+    $rootScope.title = "FinishGoods Book Post ";
+    $scope.Action = 'Save';
+    $scope.index = -1;
+    $scope.products = [];
+    $scope.path = 'Productions/FinishGoodsBooking/';
+    $scope.getListUrl = 'Productions/FinishGoodsBooking/GetPostingList/';
+    $scope.saveUrl = 'Productions/FinishGoodsBooking/FinishGoodsBookingPost/';
+    $scope.AcceptanceId = null;
+    $scope.TotalPayableAmount = 0;
+
+    $scope.searchByPostedGRN = "Id"; $scope.searchGRN = "";
+    $scope.searchByPostedGRNList = [{ value: 'Id', name: "GRN No" }, { value: 'GRNDate', name: "GRN Date" }, { value: 'Particular', name: "Particular" }, { value: 'VoucherNo', name: "VoucherNo" }
+        , { value: 'PostingDate', name: "PostingDate" }, { value: 'GateEntryNo', name: "Gate EntryNo" }, { value: 'DocRefNo', name: "DocRef No" }
+        , { value: 'DocDate', name: "Doc Date" }];
+
+    $scope.products = [];
+    $scope.getDataList = function () {
+        $http({
+            method: 'Get',
+            url: 'Productions/FinishGoodsBooking/GetPostedFinishGoodsBookingData',
+            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.products = response.data;
+        });
+    };
+   
+    $scope.getDataList();
+
+    $scope.model = {
+        AlongwithInvoice: null
+        , BaseAmount: null
+        , BaseCurrencyId: null
+        , BaseNoOfDays: null
+        , BaseOnDueDate: null
+        , CompanyGroupId: null
+        , CompanyId: null
+        , PlantId: null
+        , CurrencyCode: null
+        , CurrencyId: null
+        , DeliveryBy: null
+        , DeliveryByAddress: null
+        , DeliveryPartyPlantId: null
+        , DeliveryState: null
+        , DocDate: null
+        , DocRefNo: null
+        , EntryDate: null
+        , FixedAssetOrInventory: null
+        , GRNDate: null
+        , GateEntryNo: null
+        , Id: null
+        , InvoiceDate: null
+        , InvoiceNo: null
+        , InvoicingBy: null
+        , InvoicingByAddress: null
+        , InvoicingPartyPlantId: null
+        , InvoicingState: null
+        , IsNonCreditable: null
+        , MaterialStorageId: null
+        , MatureDate: null
+        , PODepended: null
+        , PartyAccountGroupName: null
+        , PartyCode: null
+        , TransactionAmount: null
+        , TransactionQty: null
+        , TransactionUoM: null
+        , TransactionUoMId: null
+        , EmployeeTransactionTypeId: null
+        , EmployeeId: null
+        , EmployeeCode: null
+        , EmployeeName: null
+
+        , PartyId: null
+        , PartyPlantId: null
+        , PartyName: null
+        , PaymentTermId: null
+        , PaymentTermName: null
+        , PostingDate: new Date()
+        , VoucherTypeId: null
+        , ToCurrencyRate: null
+        , Narration: null
+        , PaymentTermCode: null
+        , AddtionalTax: null
+        , IsInvoice: false
+        , EntityId: null
+    };
+    $scope.modelNew = Object.assign({}, $scope.model);
+
+    // #region Tab
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+    $scope.redirectTab = function () {
+        if ($scope.tabForm1.$invalid) {
+            $scope.setTab(1);
+        }
+        else if ($scope.tabForm2.$invalid) {
+            $scope.setTab(2);
+        }
+        else if ($scope.tabForm3.$invalid) {
+            $scope.setTab(3);
+        }
+        else if ($scope.tabForm4.$invalid) {
+            $scope.setTab(4);
+        }
+    };
+
+   
+    cboService.getCboEntityByPlant(null, null, "", function (result) {
+        $scope.entityList = result;
+    });
+
+
+    $scope.getCboVoucherType = function () {
+        cboService.getCboVoucherTypeAccountPayableList(function (result) {
+            $scope.voucherTypeList = result;
+            if (baseService.arrayLength($scope.voucherTypeList) === 1)
+                $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
+        });
+    }
+
+    $scope.approvedGRNList = [];
+    $scope.getPopUpData = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/FinishGoodsBooking/GetListForFinishGoodsBookingPost',
+        }).then(function successCallback(response) {
+            $scope.approvedGRNList = response.data;
+            for (var i = 0; i < $scope.approvedGRNList.length; i++) {
+                response.data[i].GRNDate = new Date($scope.approvedGRNList[i].GRNDate);
+                response.data[i].DocDate = new Date($scope.approvedGRNList[i].DocDate);
+                response.data[i].PODate = new Date($scope.approvedGRNList[i].PODate);
+            }
+        });
+    };
+    $scope.popUp = function () {
+        $scope.getPopUpData();
+        angular.element(document.querySelector('#GRNpopUp')).modal('show');
+    };
+    $scope.selectDoubleClick = function (data) {
+        var voucherTypeId = $scope.modelNew.VoucherTypeId;
+        $scope.modelNew = data.data;
+        $scope.modelNew.VoucherTypeId = voucherTypeId;
+        $scope.TotalPayableAmount = 0;
+        $scope.getCboVoucherType();
+
+        $scope.modelNew.PostingDate = data.data.GRNDateNew;
+        $scope.modelNew.GRNDateNew = data.data.GRNDateNew;
+       
+        getRecievedList();
+        getInventoryMaterialList(data.data.Id, data.data.EmployeeId, data.data.IsTaxApplicable, $scope.modelNew.IsFOC);
+        getInventoryTaxList(data.data.Id);
+       
+        $scope.closeGRNPopUp();
+    };
+
+    $scope.closeGRNPopUp = function () {
+        $scope.valueData = '';
+        angular.element(document.querySelector('#GRNpopUp')).modal('hide');
+    };
+    function getVendorPayableGLBudgetActivity(inveReveiveId) {
+        $http.get('Productions/FinishGoodsBooking/GetVendorPayableGLBudgetActivity?inveReveiveId=' + inveReveiveId)
+            .then(function (response) {
+                $scope.inventoryPayableList = [];
+                $scope.inventoryPayableList = response.data;
+            });
+    }
+    function getInventoryMaterialList(inveReveiveId, employeeId, isReversCharge, foc) {
+        $http.get('Productions/FinishGoodsBooking/GetFGJournal?finishGoodsBookId=' + inveReveiveId)
+            .then(function (response) {
+                $scope.inventoryPayableList = [];
+                $scope.inventoryReceiveDetailList = [];
+                $scope.inventoryMaterialList = [];
+                $scope.newList = [];
+                $scope.inventoryMaterialList = response.data;
+
+                
+                    reArrangeCreditableList($scope.inventoryMaterialList, $scope.newList, $scope.inventoryReceiveDetailList);
+                if (baseService.isUndefinedOrNull(employeeId))
+                    getVendorPayableGLBudgetActivity(inveReveiveId);
+            });
+    }
+    $scope.inventoryTaxList = [];
+    function getInventoryTaxList(inveReveiveId) {
+        $scope.inventoryTaxList = [];
+        $http.get('Products/InventoryReceive/GetInventoryTaxList?inveReveiveId=' + inveReveiveId)
+            .then(function (response) {
+                $scope.inventoryTaxList = response.data;
+            });
+    }
+
+    $scope.materialConfigMassege = function () {
+        if (!baseService.isUndefinedOrNull($scope.TempEmployeeId) && baseService.isUndefinedOrNull($scope.modelNew.EmployeeTransactionTypeId))
+            ShowResult('Please Select Transaction Type', 'failure');
+        else {
+            for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
+                if ($scope.inventoryMaterialList[i].IsAsset && $scope.inventoryMaterialList[i].TrnType == 'Dr' && baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].BudgetMasterId)) {
+                    var matreialRow = ($filter('filter')($scope.inventoryReceivedList, { "InventoryReceiveDetailId": $scope.inventoryMaterialList[i].InventoryReceiveDetailId }));
+                    if (baseService.isUndefinedOrNull(matreialRow[0].BudgetMasterId)) {
+                        ShowResult('In Material Master, ' + matreialRow[0].UserName + ' is Asset but Budget and Activity are missing !!', 'failure');
+                    }
+                    else if (baseService.isUndefinedOrNull(matreialRow[0].FixedAssetMasterId)) {
+                        ShowResult(matreialRow[0].BudgetName + ' Budget,  Asset Master is missing !!', 'failure');
+                    }
+                    else {
+                        ShowResult(matreialRow[0].FixedAssetMasterName + ' Fixed Asset Master, Asset Under Constraction (AUC) is not determinate !!', 'failure');
+                    }
+                }
+                else if ($scope.inventoryMaterialList[i].IsAsset == 0 && $scope.inventoryMaterialList[i].TrnType == 'Dr' && baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].BudgetMasterId)) {
+                    var matreialRow = ($filter('filter')($scope.inventoryReceivedList, { "InventoryReceiveDetailId": $scope.inventoryMaterialList[i].InventoryReceiveDetailId }));
+                    if (baseService.isUndefinedOrNull(matreialRow[0].BudgetMasterId)) {
+                        ShowResult('In Material Group Determinate, ' + matreialRow[0].MaterialGroupMasterName + ',  Inventory GL,Budget and Activity are missing !!', 'failure');
+                    }
+                }
+                // NEED TO ADD in Query MaterialGroupMasterId 
+                else if ($scope.inventoryMaterialList[i].IsAsset == 0 && $scope.inventoryMaterialList[i].TrnType == 'Cr' && baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].BudgetMasterId)) {
+                    ShowResult('In Material Group Determinate,  Vendor  GL,Budget and Activity are missing !!', 'failure');
+                }
+            }
+            if ($scope.inventoryTaxList.length > 0 && $scope.modelNew.IsNonCreditable == false) {
+                for (var i = 0; i < $scope.inventoryTaxList.length; i++) {
+                    if ($scope.inventoryTaxList[i].ActivityId == null)
+                        ShowResult('In Tax Category Determinate,  Tax  GL,Budget and Activity are missing !!', 'failure');
+                }
+            }
+        }
+    }
+
+
+    function reArrangeCreditableList(list, newList, newInvRecDetailList) {
+      
+        for (var i = 0; i < baseService.arrayLength(list); i++) {
+            var row = list[i];
+           
+            if (row.OtherName === 'FGInventory' && row.TrnType === 'Dr') {
+                newInvRecDetailList.push(list[i]);
+                var has = false;
+                for (var a = 0; a < baseService.arrayLength(newList); a++) {
+                    if (row.OtherName === newList[a].OtherName && row.TrnType === newList[a].TrnType && row.GLGeneralInfoId === newList[a].GLGeneralInfoId && row.BudgetMasterId === newList[a].BudgetMasterId && row.ActivityId === newList[a].ActivityId) {
+                        newList[a].Dr += row.Dr;
+                        newList[a].Amount += row.Dr;
+                        has = true;
+                        break;
+                    }
+                }
+                if (!has)
+                    newList.push(list[i]);
+            }
+           
+             else if (row.OtherName === 'WIPSFG'  && row.TrnType === 'Cr') {
+                newList.push(list[i]);
+                $scope.TotalPayableAmount += list[i].Amount;
+            }
+            
+        }
+    }
+
+
+    $scope.Post = function () {
+        if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
+       
+        for (var i = 0; i < $scope.newList.length; i++) {
+            $scope.newList[i].Amount = parseFloat($scope.newList[i].Amount).toFixed(4);
+        }
+        $http({
+            method: 'POST',
+            url: $scope.saveUrl,
+            data: {
+                 voucherVM: $scope.modelNew
+                , voucherDetailVMList: $scope.newList
+            },
+            dataType: 'JSON'
+        }).then(function (response) {
+            if (response.data.Error === true)
+                ShowResult(response.data.Message, 'failure');
+            else {
+                ShowResult(response.data.Message, 'success');
+
+                $scope.getDataList($scope.modelNew.Id);
+
+            }
+        }), function (response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    };
+    $scope.Clear = function () {
+        $scope.model = {};
+        $scope.modelNew = { PostingDate: new Date() };
+        $scope.inventoryMaterialList = [];
+        $scope.inventoryReceivedList = [];
+        $scope.inventoryPayableList = [];
+        $scope.inventoryReceiveDetailList = [];
+        $scope.advanceTaxesList = [];
+        $scope.newList = [];
+        if (baseService.arrayLength($scope.voucherTypeList) === 1)
+            $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
+    };
+
+    function getRecievedList() {
+        $http.get('Productions/FinishGoodsBooking/GetFGMaterialDetail?finishGoodsBookingId=' + $scope.modelNew.Id)
+            .then(function (response) {
+                $scope.inventoryReceivedList = response.data.Rows;
+            });
+    }
+
+
+   
+
+
+    $scope.onClickReportDownloadWord = function (args) {
+        debugger;
+        var gridObj = $("#GridPrint").data("ejGrid");
+        //getting corresponding record 
+        var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open($scope.path + 'FinishGoodsBookingPostReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
+
+    };
+
+    $scope.commandPDF = [{
+        type: "details", buttonOptions: {
+            text: "PDF",
+            width: "50",
+            height: "20",
+            click: $scope.onClickReportDownloadWord
+        }
+    }];
+
+    $scope.onClickReportDownloadExcel = function (args) {
+        debugger;
+        var gridObj = $("#GridPrint").data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open($scope.path + 'FinishGoodsBookingPostReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
+
+    };
+    $scope.commandExcel = [{
+        type: "details", buttonOptions: {
+            text: "Excel",
+            width: "50",
+            height: "20",
+            click: $scope.onClickReportDownloadExcel
+        }
+    }];
+
+}
