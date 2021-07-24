@@ -377,6 +377,8 @@
     <Compile Include="Areas\Attendances\Controllers\AttendanceFromAppReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AuditReportSummeryController.cs" />
     <Compile Include="Areas\Attendances\Controllers\ExceptionOTProcessController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\ManualOTReportNewController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\ManualOTUploadNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\OTManualNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\WeekOffHolidayOTReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\DailyAttendanceReportController.cs" />
@@ -768,6 +770,7 @@
     <Compile Include="Areas\PerformanceManagement\Controllers\JobEvaluationMasterController.cs" />
     <Compile Include="Areas\PerformanceManagement\Controllers\JobEvaluationReportController.cs" />
     <Compile Include="Areas\PerformanceManagement\PerformanceManagementAreaRegistration.cs" />
+    <Compile Include="Areas\Productions\Controllers\CutPlanController.cs" />
     <Compile Include="Areas\Productions\Controllers\MarkerController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionPlanningReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShadeController.cs" />
@@ -1553,6 +1556,8 @@
     <Content Include="Areas\Attendances\Scripts\AuditReportSummeryController.js" />
     <Content Include="Areas\Attendances\Scripts\ExceptionOTProcessController.js" />
     <Content Include="Areas\Attendances\Scripts\holidayOTReportController.js" />
+    <Content Include="Areas\Attendances\Scripts\ManualOTReportNewController.js" />
+    <Content Include="Areas\Attendances\Scripts\ManualOTUploadNewController.js" />
     <Content Include="Areas\Attendances\Scripts\OTManualNewController.js" />
     <Content Include="Areas\Attendances\Scripts\weekOffOTReportController.js" />
     <Content Include="Areas\Attendances\Scripts\AdditionalPayDayController.js" />
@@ -2068,6 +2073,8 @@
     <Content Include="Areas\PerformanceManagement\Scripts\JobEvaluationMasterController.js" />
     <Content Include="Areas\PerformanceManagement\Scripts\JobEvaluationReportController.js" />
     <Content Include="Areas\PerformanceManagement\Scripts\PerformanceManagementConfig.js" />
+    <Content Include="Areas\Productions\Scripts\FinishGoodsBookingPostController.js" />
+    <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionPlanningReportController.js" />
     <Content Include="Areas\Productions\Scripts\ShadeController.js" />
@@ -3571,6 +3578,10 @@
     <Content Include="Areas\HumanResource\Views\AttendanceProcessDataManualStatusNew\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\AttendanceProcessDataNew\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ManualShiftNew\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\OTManualNew\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\ManualOTUploadNew\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\ManualOTReportNew\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\CutPlan\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

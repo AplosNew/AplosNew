@@ -141,9 +141,14 @@ namespace Aplos.Areas.JobWork.Controllers
                 string _Message = "";
                 string Id = "";
                 DataSet dsMaster;
+                DataSet ValidateService;
                 con2.OpenDataSetThroughAdapter("select * from MST.JobWorkValueAddedMaster where JobWorkActivityId='" + saveData["JobWorkActivityId"] + "' and JobWorkActivityChildId='" + saveData["JobWorkActivityChildId"] + "' AND  Id<>'" + saveData["Id"].ToString() + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Job Work Activity and Activity Item already exists!!!");
+
+                con2.OpenDataSetThroughAdapter("select * from MST.JobWorkValueAddedMaster where JobWorkActivityId='" + saveData["JobWorkActivityId"] + "' and JobWorkActivityChildId='" + saveData["JobWorkActivityChildId"] + "' and ServiceId='"+saveData["ServiceId"] +"' AND  Id<>'" + saveData["Id"].ToString() + "'", out ValidateService, false, "1");
+                if (ValidateService.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Service already exists!!!");
 
                 con.getDataSet("SELECT * FROM [MST].[JobWorkValueAddedMaster] WHERE Id='" + saveData["Id"].ToString() + "'", out DataSet dsOut);
                 if (dsOut.Tables[0].Rows.Count == 0)
@@ -164,6 +169,7 @@ namespace Aplos.Areas.JobWork.Controllers
                     dr["CycleTime"] = OTSBD.clsStaticInfo.dbl(saveData["CycleTime"] == null ? null : saveData["CycleTime"].ToString());
                     dr["ResponsiblePersonId"] = saveData["ResponsiblePersonId"] == null ? null : saveData["ResponsiblePersonId"].ToString();
                     dr["Remarks"] = saveData["Remarks"].ToString();
+                    dr["ServiceId"] = saveData["ServiceId"].ToString();
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = System.DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -189,6 +195,7 @@ namespace Aplos.Areas.JobWork.Controllers
                     dr["CycleTime"] = OTSBD.clsStaticInfo.dbl(saveData["CycleTime"].ToString() == "" ? null : saveData["CycleTime"].ToString());
                     dr["ResponsiblePersonId"] = saveData["ResponsiblePersonId"] == null ? null : saveData["ResponsiblePersonId"].ToString();
                     dr["Remarks"] = saveData["Remarks"].ToString();
+                    dr["ServiceId"] = saveData["ServiceId"].ToString();
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = System.DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -244,8 +251,10 @@ namespace Aplos.Areas.JobWork.Controllers
             string sql = "";
             sql = @"SELECT M.Id,JobWorkActivityId,M.JobWorkActivityChildId,M.StdRejection,M.StdValueLoss,M.RateApplicable,
                     M.CurrencyId,M.MinRate,M.MaxRate,M.CycleTime,M.ResponsiblePersonId,E.EmployeeName ResponsiblePerson,M.Remarks
+					,SM.UserName as Service,M.ServiceId
                     FROM [MST].[JobWorkValueAddedMaster] M
                     LEFT JOIN DBO.EmployeeInformation E ON E.SystemId = M.ResponsiblePersonId
+					left join HKP.ServiceMaster SM on SM.Id=M.ServiceId
                     WHERE M.Id='" + Id + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

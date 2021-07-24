@@ -20,7 +20,8 @@ function jobWorkValueAddedMasterController(addressService, $window, cboService, 
         CycleTime: null,
         ResponsiblePerson: null,
         ResponsiblePersonId: null,
-        Remarks: ''
+        Remarks: '',
+        ServiceId: null,
     };
 
     $scope.rateApplicableList = [{ name: 'Input' }, { name: 'Output' }];
@@ -136,6 +137,7 @@ function jobWorkValueAddedMasterController(addressService, $window, cboService, 
                 $scope.ValueAdded.ResponsiblePerson = response.data[0].ResponsiblePerson;
                 $scope.ValueAdded.ResponsiblePersonId = response.data[0].ResponsiblePersonId;
                 $scope.ValueAdded.Remarks = response.data[0].Remarks;
+                $scope.ValueAdded.ServiceId = response.data[0].ServiceId;
 
                 $scope.getSelectedProcessData();
 
@@ -338,17 +340,26 @@ function jobWorkValueAddedMasterController(addressService, $window, cboService, 
 
     $scope.ValidateMaxRate = function () {
         try {
-            if ($scope.ValueAdded.MinRate != null) {
+            if (!baseService.isUndefinedOrNull($scope.ValueAdded.MinRate) && !baseService.isUndefinedOrNull($scope.ValueAdded.MaxRate) ) {
                 var MRate = parseFloat($scope.ValueAdded.MinRate);
                 var MxRate = parseFloat($scope.ValueAdded.MaxRate);
                 if (MRate > MxRate) {
-                    $scope.ValueAdded.MaxRate = null;
-                    throw 'Minimum Rate should be less tha Maximum Rate';
+                    $scope.ValueAdded.MaxRate = parseFloat(0);
+                    throw "Minimum Rate should be less tha Maximum Rate";
                 }
             }
         }
         catch (e) {
             ShowResult(e, "failure");
+            throw e;
         }
     }
+
+  // Add Service
+
+    $scope.serviceCboList = [];
+    $http.get('Setups/CompanyServiceMaster/GetCboList')
+        .then(function (response) {
+            $scope.serviceCboList = response.data;
+        });
 };

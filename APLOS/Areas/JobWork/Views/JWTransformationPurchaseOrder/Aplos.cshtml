@@ -1455,13 +1455,13 @@
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Output Material UOM<sup>*</sup></label>
                                 <div class=" show-message">
-                                    <input type="text" ng-model="detailModel.OutputMaterialUOM" class="form-control" tabindex="2" readonly maxlength="50">
-                                    @*<div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.OutputMaterialUOMId" name="Output Material UOM" required
+                                    @*<input type="text" ng-model="detailModel.OutputMaterialUOM" class="form-control" tabindex="2" readonly maxlength="50">*@
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="detailModel.OutputMaterialUOMId" ng-disabled="detailModel.OutputMaterialUOMId!=null" name="Output Material UOM" required
                                                 ng-options="item.Value as item.Text for item in OMatUOMList" tabindex="3">
                                             <option value=""></option>
                                         </select>
-                                    </div>*@
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1583,10 +1583,10 @@
                         <div class="clearfix"></div>
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group" show-errors>
-                                <label class=" control-label">Service<sup></sup></label>
+                                <label class=" control-label">Service<sup>*</sup></label>
                                 <div class=" show-message">
                                     <div class="select-style">
-                                        <select id="ddlCurrencyId" name="ServiceId" tabindex="14" class="form-control" submit-required="false" ng-model="detailModel.ServiceId" ng-options="item.Value as item.Text for item in serviceCboList" ng-change="changeService(detailModel.ServiceId);"></select>
+                                        <select id="ddlCurrencyId" name="Service" tabindex="14" class="form-control" required ng-model="detailModel.ServiceId" ng-options="item.Value as item.Text for item in serviceCboList" ng-change="changeService(detailModel.ServiceId);"></select>
                                     </div>
                                 </div>
                             </div>

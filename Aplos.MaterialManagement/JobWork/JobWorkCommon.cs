@@ -2855,10 +2855,16 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             }
             if (type != "BOQ" && type != "PODETAILLIST")
             {
-                con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild where JobActivityId='" + data[0]["JobActivityId"] + "' and JobWorkItemMasterId='" + data[0]["JobWorkItemMasterId"] + "' and ArticleCodeId='" + data[0]["ArticleId"] + "' and MaterialMasterId='" + data[0]["MaterialMasterId"] + "' and JobWorkTransformationContractMasterId='" + data[0]["JWTransformationPurchaseOrderId"] + "' AND  Id<>'" + data[0]["Id"] + "' ", out dsMaster, false, "1");
+                //con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild where JobActivityId='" + data[0]["JobActivityId"] + "' and JobWorkItemMasterId='" + data[0]["JobWorkItemMasterId"] + "' and ArticleId='" + data[0]["ArticleId"] + "' and MaterialMasterId='" + data[0]["MaterialMasterId"] + "' and JobWorkTransformationContractMasterId='" + data[0]["JWTransformationPurchaseOrderId"] + "' AND  Id<>'" + data[0]["Id"] + "' ", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //{
+                //    throw new Exception("Same Activity, JW Output Item, Material and Article already exist.");
+                //}
+
+                con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild where ArticleId='" + data[0]["ArticleId"] + "' and MaterialMasterId='" + data[0]["MaterialMasterId"] + "' and JobWorkTransformationContractMasterId='" + data[0]["JWTransformationPurchaseOrderId"] + "' AND  Id<>'" + data[0]["Id"] + "' ", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
-                    throw new Exception("Same Activity, JW Output Item, Material and Article already exist.");
+                    throw new Exception("Same Material and Article already exist.");
                 }
             }
             
@@ -3726,7 +3732,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                     SET @plantState =(SELECT AD.StateId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
                     SET @plantCountry =(SELECT AD.CountryId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
-                    SELECT TVD.Id, TVD.TaxCategoryId, HP.HSNCodeId, HN.Code AS HSNCode, TC.UserName, HP.[Percentage] AS [Percentage], NULL TaxAmount
+                    SELECT TVD.Id, TVD.TaxCategoryId, HP.HSNCodeId, HN.Code AS HSNCode, TC.UserName, ISNULL(HP.[Percentage],'0') AS [Percentage], 0 TaxAmount
                     FROM [MST].[TaxVariantDetail] AS TVD
                     JOIN [MST].[TaxVariant] AS TV ON TVD.TaxVariantId=TV.Id
                     JOIN [MST].[TaxCategory] AS TC ON TVD.TaxCategoryId=TC.Id
