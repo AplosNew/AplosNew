@@ -393,7 +393,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string TableName = "dbo.DayTypeWithValues";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId<>'" + Header["HeaderId"] + "' and DayType='" + Header["DayType"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where HeaderId='" + Header["HeaderId"] + "' and DayType='" + Header["DayType"] + "' and Id<>'"+Header["Id"]+"'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
                     throw new Exception("Same Day Type is Already Present");

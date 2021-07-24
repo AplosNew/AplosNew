@@ -238,11 +238,11 @@ namespace Aplos.Controllers
         }
 
         [HttpGet]
-        public IHttpActionResult GetBookQty(string Lot, string Prod, string PO,string Pqty)
+        public IHttpActionResult GetBookQty(string Lot, string Prod, string PO,string Pqty,string PoLotRefernceId)
         {
             try
             {
-                var result = _scan.GetBookedQty(Lot, Prod, PO,Pqty);
+                var result = _scan.GetBookedQty(Lot, Prod, PO,Pqty,PoLotRefernceId);
                 return Json(result);
             }
             catch (Exception ex)

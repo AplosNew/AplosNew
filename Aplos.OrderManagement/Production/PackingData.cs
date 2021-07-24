@@ -837,8 +837,10 @@ order by  Assigned, ProductCode , PO
         {
             try
             {
-                var str = @"Select * from trn.POLotReference pol
-                            where PackingLineItemId = '" + PackingLineItemId + @"'";
+                var str = @"Select pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotNo,pol.PlanQty,pol.Status,pol.Remarks , sum(sc.NetWeight) as BookQty from trn.POLotReference pol 
+left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+                            where PackingLineItemId = '" + PackingLineItemId + @"'
+							group by pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotNo,pol.PlanQty,pol.Status,pol.Remarks";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
