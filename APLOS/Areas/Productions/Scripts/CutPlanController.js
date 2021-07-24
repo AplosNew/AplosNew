@@ -51,16 +51,27 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     };
     $scope.SelectPOItem = function ($event) {
         $scope.modelNew.ProductionOrderId = $event.data.POId;
-        $scope.GetLineItemData();
+        //$scope.GetLineItemData();
+        getProductionRecipeMaterialList();
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
     }
     $scope.SalesOrderLineItems = [];
+    $scope.recipeMaterialListSelected = [];
     $scope.GetLineItemData = function () {
         $http({
             method: 'GET',
             url: 'Productions/CutPlan/GetLineItemData?entityId=' + $scope.modelNew.ProductionEntityId + '&processId=' + $scope.modelNew.ProcessId + '&productionOrderId=' + $scope.modelNew.ProductionOrderId + '&masterId=' + $scope.modelNew.Id
         }).then(function successCallback(response) {
             $scope.SalesOrderLineItems = response.data;            
+        });
+    }
+    function getProductionRecipeMaterialList() {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetProductionRecipeMaterialList?productionOrderId=' + $scope.modelNew.ProductionOrderId
+        }).then(function successCallback(response) {
+            $scope.recipeMaterialListSelected = response.data;
+            //getProductionProcessSetList();
         });
     }
 }
