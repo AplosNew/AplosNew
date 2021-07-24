@@ -21,11 +21,11 @@ namespace Aplos.Controllers
         }       
        
         [HttpGet]        
-        public IHttpActionResult GetShiftData(string ShiftId,string Date)
+        public IHttpActionResult GetShiftData(string Plant, string Date)
         {
             try
             {
-                var result = app.GetShiftData(ShiftId,Date);
+                var result = app.GetShiftData(Plant, Date);
                 return Json(result);
             }
             catch (Exception ex)
