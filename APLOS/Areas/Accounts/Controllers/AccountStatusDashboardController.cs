@@ -883,13 +883,13 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetLedgerActivityPoPUpListData(string gLInfoId, string budgetMasterId,  string activityId, string partyId, string partyPlantId, string bankMasterId, string cashMasterId, string toDate)
+        public ActionResult getLedgerAllLevelDRPoPUpListData(string particulars, string gLInfoId, string budgetMasterId,  string activityId,  string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
             //return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-            return Json(accountsStatusDashboardService.GetLedgerActivityPoPUpListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, gLInfoId, budgetMasterId, activityId, partyId, partyPlantId, bankMasterId,cashMasterId,toDate), JsonRequestBehavior.AllowGet);
+            return Json(accountsStatusDashboardService.getLedgerAllLevelDRPoPUpListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, particulars, gLInfoId, budgetMasterId, activityId,toDate), JsonRequestBehavior.AllowGet);
 
         }
 
@@ -925,12 +925,12 @@ namespace Aplos.Areas.Accounts.Controllers
 
         }
         [HttpGet, Authorize]
-        public ActionResult GetGeneralLedgerHeading(string gLInfoId, string budgetMasterId, string activityId, string partyId, string partyPlantId, string bankMasterId, string cashMasterId, string toDate)
+        public ActionResult GetGeneralLedgerAllLevelDRHeading(string particulars, string gLInfoId, string budgetMasterId, string activityId,  string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
-            return Json(accountsStatusDashboardService.GetGeneralLedgerHeading(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, gLInfoId, budgetMasterId, activityId, partyId, partyPlantId, bankMasterId, cashMasterId, toDate), JsonRequestBehavior.AllowGet);
+            return Json(accountsStatusDashboardService.GetGeneralLedgerAllLevelDRHeading(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, particulars,gLInfoId, budgetMasterId, activityId,  toDate), JsonRequestBehavior.AllowGet);
 
         }
 

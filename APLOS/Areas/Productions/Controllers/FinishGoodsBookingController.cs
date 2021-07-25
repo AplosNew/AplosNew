@@ -72,7 +72,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Insert(Dictionary<string, object> data, List<Dictionary<string, object>> FinishGoodsBookingDetailList)
+        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> FinishGoodsBookingDetailList)
         {
             clsFinishGoodsBooking.SaveData(data, FinishGoodsBookingDetailList);
             return Json(new { Data = data, Message = AplosMessage.Insert });
@@ -129,10 +129,10 @@ namespace Aplos.Areas.Productions.Controllers
 
 
         [HttpGet, Authorize]
-        public JsonResult GetItemScanChildData(string fromDate, string toDate)
+        public JsonResult GetItemScanChildData(string entityId,string fromDate, string toDate)
         {
 
-            var jsondata = Json(clsFinishGoodsBooking.GetItemScanChildData(fromDate, toDate), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(clsFinishGoodsBooking.GetItemScanChildData(entityId,fromDate, toDate), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }

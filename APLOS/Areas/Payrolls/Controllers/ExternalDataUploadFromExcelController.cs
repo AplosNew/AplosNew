@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -68,9 +69,9 @@ namespace Aplos.Areas.Payrolls.Controllers
             var Sql = string.Empty;
 
 
-            if (string.IsNullOrEmpty(SalaryHeadId) || SalaryHeadId=="null" || SalaryHeadId == "undefined")
+            if (string.IsNullOrEmpty(SalaryHeadId) || SalaryHeadId == "null" || SalaryHeadId == "undefined")
             {
-                Sql = @"SELECT EI.EmployeeCode,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.* from dbo.MonthWiseExtraSalaryAmtChild d
+                Sql = @"SELECT EI.SystemId,EI.EmployeeCode,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.* from dbo.MonthWiseExtraSalaryAmtChild d
                         LEFT JOIN dbo.MonthWiseExtraSalaryAmtMaster m on m.SystemID=d.MWESAMasterSystemID
                         Left join EmployeeInformation EI on EI.SystemId=m.EmpInfoSystemID
                         LEFT JOIN SalaryHead sh on sh.SalaryHeadID=d.SalaryHeadID
@@ -80,7 +81,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
             else
             {
-                Sql = @"SELECT EI.EmployeeCode,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.* from dbo.MonthWiseExtraSalaryAmtChild d
+                Sql = @"SELECT EI.SystemId,EI.EmployeeCode,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.* from dbo.MonthWiseExtraSalaryAmtChild d
                         LEFT JOIN dbo.MonthWiseExtraSalaryAmtMaster m on m.SystemID=d.MWESAMasterSystemID
                         Left join EmployeeInformation EI on EI.SystemId=m.EmpInfoSystemID
                         LEFT JOIN SalaryHead sh on sh.SalaryHeadID=d.SalaryHeadID
@@ -92,12 +93,12 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
 
-               
+
             }
-             
-                 //_sqlRepository.GetDataCollection(Sql);
-            
-           JsonResult json = Json(_sqlRepository.GetDataCollection(Sql), JsonRequestBehavior.AllowGet);
+
+            //_sqlRepository.GetDataCollection(Sql);
+
+            JsonResult json = Json(_sqlRepository.GetDataCollection(Sql), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
@@ -739,7 +740,484 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         }
 
+        #region Report 
 
+        [HttpPost, Authorize]
+        public JsonResult ExternalDataUploadReport(string EmployeeList, string SalaryHeadId, string MonthNo, string YearNo,string SalaryHeadIDs,string HeadType,string CurrencyID,string EntryAmount,string MonthName)
+        {
+            try
+            {
+                string fileName = "";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                fileName = ExternalDataUploadFromExcelReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "External Data Upload", "", EmployeeList, SalaryHeadId, MonthNo, YearNo, SalaryHeadIDs, HeadType, CurrencyID, EntryAmount, MonthName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+        public string ExternalDataUploadFromExcelReport(string CGId, string CompanyId, string PlantId, string SheetName1, string s1, string EmployeeList, string SalaryHeadId, string MonthNo, string YearNo, string SalaryHeadIDs, string HeadType, string CurrencyID, string EntryAmount, string MonthName)
+        {
+            #region Variable
+
+            clsReport objRpt = null;
+            clsReport objRptD = null;
+            ReportUtility oru = new ReportUtility();
+            DataSet dsHeading = null;
+            string yot = string.Empty;//OTConsiderOn
+            string tot = string.Empty;//OTConsiderOn
+            DataSet dsAttn = null;
+            DataSet dsEmp = null;
+            DataView dvAttn = null;
+            DataView dvEmp = null;
+
+            DataSet dsFactory = null;
+            DataSet dsCmp = null;
+
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet1 = null;
+
+            int xlsRow = 1, xlsCol = 1;
+            int endXlsCol = 1;
+            string FactoryName = "";
+            string CmpName = "";
+            string sOfficeInTime = "00:00:00";
+            string sInTime = "00:00:00";
+            var report = new ReportUtility();
+
+            DataSet dsExtraAbsent = null;
+            DataView dvExtraAbsent = null;
+
+            #endregion Variable
+
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string companyId = identity.CompanyId;
+                objRpt = new clsReport();
+
+                var ob = new clsStaticInfo();
+
+                
+
+                #region DataSet
+                getEmployee(CGId, CompanyId, PlantId, EmployeeList, SalaryHeadId, MonthNo, YearNo, SalaryHeadIDs, HeadType, CurrencyID, EntryAmount, out dsAttn);
+
+                dvAttn = new DataView();
+                dvAttn.Table = dsAttn.Tables[0];
+
+                objRpt.SelectedPlantWiseCompany(identity.PlantId.Trim(), out dsCmp);
+                objRpt.SelectedPlant(identity.PlantId, out dsFactory);
+                #endregion DataSet
+
+                if (dvAttn.Count > 0)
+                {
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+
+                    workbook = application.Workbooks.Create(1);
+                    sheet1 = workbook.Worksheets[0];
+                    sheet1.IsGridLinesVisible = true;
+
+                    xlsRow = 7;
+                    int intRow = 0;
+
+                    string strSubSec = "0";
+                    string strSec = "0";
+                    string strUnit = "0";
+                    int strCount = 0;
+                    string strLateBy = "00:00:00";
+
+                    #region ------------------Column Header------------------
+                    xlsCol = 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Sl No.";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 4.70;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Employee Code";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 8.50;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Employee Name";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 24;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+
+                    sheet1.Range[xlsRow, xlsCol].Text = "Department";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 26;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Designation";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Section";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Sub Section";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Employee Category";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Salary Head";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Head Type";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Currency";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Entry Amount";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.Gray;
+                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
+
+                    endXlsCol = xlsCol;
+                    xlsCol = 1;
+                    xlsRow += 1;
+                    #endregion ------------------Column Header------------------
+                    strCount = 0;
+                    for (int i = 0; i < dvAttn.Count; i++)
+                    {
+                        xlsCol = 1;
+
+                        xlsRow += intRow;
+                        intRow = 1;
+
+
+                        #region ----------------------Data-----------------------
+
+                        strCount += 1;
+                        sheet1.Range[xlsRow, xlsCol].Number = strCount;
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["EmployeeCode"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["EmployeeName"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Department"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Designation"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Section"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["SubSection"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["EmployeeCategory"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["SalaryHead"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["HeadType"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Currency"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Number = Convert.ToDouble(dvAttn[i]["EntryAmount"]);
+                        sheet1.Range[xlsRow, xlsCol].NumberFormat = clsStaticInfo.NumberFormat(2);
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        
+                        // xlsRow += 1;
+
+                        #endregion ----------------------Data-----------------------
+
+
+                    }
+
+                    #region Line Setup
+                    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].WrapText = true;
+                    #endregion
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.CellStyle.Font.Size = 8;
+                    sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                    sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    #region ******************Report Header******************
+                    try
+                    {
+                        string strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), companyId + ".jpg");  // IDCardEng.xlsx
+                        Image companyLogo = Image.FromFile(strPath);
+                        if (companyLogo != null)
+                        {
+                            double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
+                            int totalWidthPixel = (int)(totalWidth * 7.5);
+                            int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
+
+                            companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                            IPictureShape pic = null;
+
+                            pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
+
+
+                        }
+
+
+                    }
+                    catch (Exception)
+                    {
+
+
+                    }
+
+                    xlsRow = 1;
+                    xlsCol = 1;
+
+                    FactoryName = string.Empty;
+
+                    string FactoryAddress = string.Empty;
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                    }
+                    else
+                    {
+                        CmpName = "";
+                    }
+                    sheet1.Range[xlsRow, 3].Text = CmpName;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 30;
+                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    if (dsFactory.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+                        //FactoryName = dsFactory.Tables[0].Rows[0]["PlantName"].ToString();
+                    }
+                    else
+                    {
+                        FactoryName = "";
+                    }
+                    sheet1.Range[xlsRow, 3].Text = FactoryName;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    if (dsFactory.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
+                    }
+                    else
+                    {
+                        FactoryAddress = "";
+                    }
+                    sheet1.Range[xlsRow, 3].Text = FactoryAddress;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 26;
+                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    sheet1.Range[xlsRow, 3].Text = "External Data Upload From Excel Report";
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 11;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    sheet1.Range[xlsRow, 3].Text = "Report of Month:- " + MonthName + ", Year:- " + YearNo;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 9;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    #endregion ******************Report Header******************
+
+                    #region Freeze Panes
+                    sheet1.IsDisplayZeros = false;
+                    sheet1.UsedRange["A8"].FreezePanes();
+                    sheet1.FirstVisibleColumn = 1;
+                    sheet1.FirstVisibleRow = 9;
+                    #endregion
+
+                    #region Page Setup
+                    sheet1.PageSetup.TopMargin = 0.5;
+                    sheet1.PageSetup.BottomMargin = 0.7;
+                    //sheet1.PageSetup.PrintTitleRows = "$1:$2";
+                    sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                    sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + identity.UserId.Trim() + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt").ToString();
+                    sheet1.PageSetup.LeftMargin = 0.5;
+                    sheet1.PageSetup.RightMargin = 0.2;
+                    sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                    sheet1.PageSetup.FitToPagesTall = 0;
+                    sheet1.PageSetup.FitToPagesWide = 1;
+                    sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+
+                    sheet1.Name = "ExternalDataUpload";
+                    #endregion             
+
+                    workbook.Version = ExcelVersion.Excel97to2003;
+                    report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Portrait);
+
+                    // return workbook;
+
+                    var filePath = "";
+                    var SheetName = "";
+                    //return workbook;
+                    workbook.Version = ExcelVersion.Excel97to2003;
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                    return filePath;
+                }
+                else
+                {
+                    throw new Exception("No Data found...");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+
+            }
+        }
+        public void getEmployee(string companyGroupId, string companyId, string plantId, string EmployeeList, string SalaryHeadId, string MonthNo, string YearNo, string SalaryHeadIDs, string HeadType, string CurrencyID, string EntryAmount, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            string SalayHead = string.Empty;
+            try
+            {
+                if (string.IsNullOrEmpty(SalaryHeadId) || SalaryHeadId == "null" || SalaryHeadId == "undefined")
+                {
+                    
+                }
+                else
+                {
+                    SalayHead = " and d.SalaryHeadID in (" + SalaryHeadId + ") ";
+                }
+                strSql = @"SELECT EI.SystemId,EI.EmployeeCode,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.EntryAmount
+                                ,dep.username Department, LG.UserName Designation,L.UserName Line,SS.UserName SubSection,s.UserName Section
+                                ,ec.UserName EmployeeCategory
+						            from dbo.MonthWiseExtraSalaryAmtChild d
+                                            LEFT JOIN dbo.MonthWiseExtraSalaryAmtMaster m on m.SystemID=d.MWESAMasterSystemID
+                                            Left join EmployeeInformation EI on EI.SystemId=m.EmpInfoSystemID
+                                            LEFT JOIN SalaryHead sh on sh.SalaryHeadID=d.SalaryHeadID
+                                            LEFT JOIN  SCS.Currency c on c.id=d.EntryCurrencyID
+						                    left join mst.ManpowerBudget mp on mp.id=ei.BudgetCode
+											left join org.Entity en on en.id=mp.EntityId    
+											left join ORG.Position p on p.Id = mp.PositionId
+											left join org.Department dep on dep.Id = p.DepartmentId
+											left join org.Section s on s.Id = p.SectionId
+											left join org.SubSection ss on ss.Id = p.SubSectionId                                       
+                                            LEFT JOIN org.Line L ON L.Id = mp.LineId
+                                            LEFT JOIN hkp.LegalDesignation LG ON EI.LegalDesignationId = LG.Id 
+											left join MST.DesignationMasterLegalDesignation dml on dml.LegalDesignationId = LG.Id
+											left join mst.DesignationMaster dm on dm.Id = dml.DesignationMasterId
+											left join HKP.EmployeeCategory ec on ec.Id=dm.EmployeeCategoryId
+                        WHERE m.monthNo=" + MonthNo + " and m.YearNo=" + YearNo + " and m.PlantID='" + plantId + @"' and d.ExtDataUploadApp='XL'
+                        and Ei.SystemId in (" + EmployeeList + @") "+ SalayHead + @"
+                        and sh.HeadType in (" + HeadType + ") and d.SalaryHeadID in ("+ SalaryHeadIDs +") and d.EntryAmount in ("+ EntryAmount + ") and d.EntryCurrencyID in ("+ CurrencyID + @")
+                        ORDER BY EI.EmployeeCodePreFix,EI.EmployeeCodeNumeric ";
+
+
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+        #endregion
 
     }
 
