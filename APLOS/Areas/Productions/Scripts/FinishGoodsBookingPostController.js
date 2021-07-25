@@ -1,6 +1,6 @@
 ﻿'use strict';
-FinishGoodsBookingPostController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter'];
-function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter) {
+FinishGoodsBookingPostController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$window'];
+function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $window) {
     $rootScope.title = "FinishGoods Book Post ";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -19,15 +19,16 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
     $scope.products = [];
     $scope.getDataList = function () {
         $http({
-            method: 'POST',
-            url: 'Productions/FinishGoodsBooking/GetPostingList',
+            method: 'Get',
+            url: 'Productions/FinishGoodsBooking/GetPostedFinishGoodsBookingData',
             data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
             dataType: 'JSON',
         }).then(function successCallback(response) {
             $scope.products = response.data;
         });
     };
-    //$scope.getDataList();
+   
+    $scope.getDataList();
 
     $scope.model = {
         AlongwithInvoice: null
@@ -175,7 +176,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
             });
     }
     function getInventoryMaterialList(inveReveiveId, employeeId, isReversCharge, foc) {
-        $http.get('Productions/FinishGoodsBooking/GetFGJournal?inveReveiveId=' + inveReveiveId)
+        $http.get('Productions/FinishGoodsBooking/GetFGJournal?finishGoodsBookId=' + inveReveiveId)
             .then(function (response) {
                 $scope.inventoryPayableList = [];
                 $scope.inventoryReceiveDetailList = [];
@@ -183,7 +184,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
                 $scope.newList = [];
                 $scope.inventoryMaterialList = response.data;
 
-                if (!$scope.modelNew.IsNonCreditable)
+                
                     reArrangeCreditableList($scope.inventoryMaterialList, $scope.newList, $scope.inventoryReceiveDetailList);
                 if (baseService.isUndefinedOrNull(employeeId))
                     getVendorPayableGLBudgetActivity(inveReveiveId);
@@ -264,24 +265,6 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
         }
     }
 
-    
-   
-
-   
-
-   
-    $scope.getNewDataList = function (grnId) {
-        $http({
-            method: 'POST',
-            url: 'Accounts/InventoryPayable/GetPostingList',
-            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
-            dataType: 'JSON',
-        }).then(function successCallback(response) {
-            $scope.products = response.data;
-           
-            $scope.Clear();
-        });
-    };
 
     $scope.Post = function () {
         if (baseService.isUndefinedOrNull($scope.modelNew.EntityId)) return ShowResult('Please Select Entity', 'failure');
@@ -303,7 +286,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
             else {
                 ShowResult(response.data.Message, 'success');
 
-                $scope.getNewDataList($scope.modelNew.Id);
+                $scope.getDataList($scope.modelNew.Id);
 
             }
         }), function (response) {
@@ -324,17 +307,14 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
     };
 
     function getRecievedList() {
-        $http.get('Productions/FinishGoodsBooking/GetFGMaterialDetail?finishGoodsBookId=' + $scope.modelNew.Id)
+        $http.get('Productions/FinishGoodsBooking/GetFGMaterialDetail?finishGoodsBookingId=' + $scope.modelNew.Id)
             .then(function (response) {
                 $scope.inventoryReceivedList = response.data.Rows;
             });
     }
 
 
-    $scope.getPabyableJournal = function (data, reportFormat) {
-        $window.open($scope.path + 'PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.Id + '&employeeId=' + data.EmployeeId + '&isReversCharge=' + data.IsTaxApplicable, '_blank');
-    };
-
+   
 
 
     $scope.onClickReportDownloadWord = function (args) {
@@ -344,7 +324,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
         var data = gridObj.getSelectedRecords()[0];
         var reportFormat = "Pdf";
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
-        $window.open($scope.path + 'PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.Id + '&employeeId=' + data.EmployeeId + '&isReversCharge=' + data.IsTaxApplicable + '&isFoc=' + data.IsFOC, '_blank');
+        $window.open($scope.path + 'FinishGoodsBookingPostReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
 
     };
 
@@ -363,7 +343,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
         var data = gridObj.getSelectedRecords()[0];
         var reportFormat = "Excel";
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
-        $window.open($scope.path + 'PabyableJournal?reportFormat=' + reportFormat + '&inventoryReceiveId=' + data.Id + '&employeeId=' + data.EmployeeId + '&isReversCharge=' + data.IsTaxApplicable + '&isFoc=' + data.IsFOC, '_blank');
+        $window.open($scope.path + 'FinishGoodsBookingPostReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId, '_blank');
 
     };
     $scope.commandExcel = [{
@@ -374,33 +354,5 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
             click: $scope.onClickReportDownloadExcel
         }
     }];
-
-    $scope.downloadGRN = function () {
-        location.href = "GoodsReceiveNote/GRNReport?grnId=" + $scope.modelNew.Id;
-    };
-
-    $scope.onClickGRNID = function (args) {
-        debugger;
-
-        var gridObj = $("#GridPrint").data("ejGrid");
-        var data = gridObj.getSelectedRecords()[0];
-        location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.Id;
-
-    };
-    $scope.commandGRN = [{
-
-        type: "details", buttonOptions: {
-            text: "GRN",
-            width: "50",
-            height: "20",
-
-            click: $scope.onClickGRNID
-        }
-    }];
-    $scope.taxCodCboList = [];
-    $scope.taxcodelistMessage = "";
-
-
-   
 
 }

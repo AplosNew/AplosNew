@@ -57,7 +57,7 @@
                                     <div e-column e-headertext="Actions" e-width="100">
                                         <ul class="list-inline text-center">
                                             <li>
-                                                @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px; padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>*@
+                                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('Grid');" style="margin: -6px;"></i></button>
                                                 <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Excel Report" ng-click="$parent.ConfirmPrintTab('Grid');" style="margin: -6px;"></i></button>
                                             </li>
                                         </ul>
@@ -1351,7 +1351,7 @@
                                     <input type="hidden" ng-model="detailModel.MaterialMasterId" />
                                     <span class="input-group-btn">
                                         <button ng-click="MaterialMstPopUp()" ng-disabled="detailModel.MaterialMasterId==null || detailModel.MaterialMasterId!=null" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                        <button ng-click="MaterialMstClear()" ng-disabled="detailModel.MaterialMasterId==null" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                        <button ng-click="MaterialMstClear()" ng-disabled="detailModel.MaterialMasterId==null || detailModel.MaterialMasterId!=null" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                     </span>
                                 </div>
                                 @*</div>*@
@@ -3743,8 +3743,8 @@
                                         <div e-columns>
                                             <div e-column e-headertext="" e-headertemplateid="#BPheaderTemplate" e-template="#BPcheckboxTemplate" e-textalign="center" e-width="20"></div>
                                             <div e-column e-type="string" e-field="ByProductItem" e-headertext="By Product Item" e-width="80"></div>
-                                            <div e-column e-template="#BPMaterial" e-headertext="By Product Material" e-width="200" style="height: 20px;"></div>
-                                            <div e-column e-template="#BPArt" e-headertext="By Product Article" e-width="200" style="height: 20px;"></div>
+                                            <div e-column e-template="#BPMaterial" e-headertext="By Product Material" e-width="250" style="height: 20px;"></div>
+                                            <div e-column e-template="#BPArt" e-headertext="By Product Article" e-width="250" style="height: 20px;"></div>
                                             <div e-column e-type="string" e-field="Unit" e-headertext="Unit" e-width="80"></div>
                                             <div e-column e-template="#ItemSpecification" e-headertext="Item Specification" e-width="80"></div>
                                             <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="80"></div>
@@ -3789,7 +3789,7 @@
                                             <input type="hidden" ng-model="data.BPMaterialId" />
                                             <span class="input-group-btn">
                                                 <button ng-click="$parent.ByProductMaterialMstPopUp(data)" ng-disabled="data.BPMaterialId==null || data.BPMaterialId!=null" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                <button ng-click="$parent.BPMaterialMstClear(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                                <button ng-click="$parent.BPMaterialMstClear(data)" ng-disabled="data.BPMaterialId==null || data.BPMaterialId!=null" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                             </span>
                                         </div>
                                     </div>
