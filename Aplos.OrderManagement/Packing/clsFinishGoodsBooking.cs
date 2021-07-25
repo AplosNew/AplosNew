@@ -961,12 +961,13 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 
         public IEnumerable<object> GetListForFinishGoodsBookingPost(string plantId)
         {
-            var sql = @"SELECT IR.Id,ird.Qty,ird.Amount,IR.[Description],IR.FromDate,IR.ToDate
-					FROM dbo.[FinishGoodsBooking] AS IR 
-					LEFT JOIN dbo.[DateWiseConsumption] DC ON DC.FinishGoodsBookingId=IR.Id
+            var sql = @"SELECT DC.Id,DC.WorkDate BookingDate,DC.WorkDate PostingDate,ird.Qty,ird.Amount,IR.ProcessId,IR.[Description],ir.ProductionEntityId EntityId,E.UserName Entity,DC.FinishGoodsBookingId,IR.FromDate,IR.ToDate
+					FROM  dbo.[DateWiseConsumption] DC
+					LEFT JOIN dbo.[FinishGoodsBooking] AS IR  ON DC.FinishGoodsBookingId=IR.Id
                      LEFT JOIN (SELECT A.DateWiseConsumptionId, SUM(A.Qty) AS Qty, SUM(ROUND(A.Qty*A.Rate,4)) AS Amount
 					 FROM dbo.[FinishGoodsBookingDetail] AS A  GROUP BY A.DateWiseConsumptionId) AS  IRD ON IRD.DateWiseConsumptionId=DC.Id
-					WHERE DC.VoucherId IS NULL";
+					 LEFT JOIN ORG.Entity E ON E.Id=IR.ProductionEntityId
+					WHERE DC.VoucherId IS NULL and E.PlantId='"+ plantId + @"'";
 			return _sqlRepository.GetDataCollection(sql);
 		}
 		public IEnumerable<object> GetVendorPayableGLBudgetActivity(string receiveId, string companyId, string plantId, string companypartyAccountGroupId)
@@ -1018,9 +1019,9 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
             var cmdText = @"select PartyAccountGroupId FROM HKP.CompanyParty where PartyId = '" + partyId + "' AND PlantId='" + plantId + @"' and PartyType='Vendor'";
             return _sqlRepository.GetData(cmdText);
         }
-        public IEnumerable<object> GetFGJournal(string companyId, string finishGoodsBookId)
+        public IEnumerable<object> GetFGJournal(string companyId, string dateWiseConsumptionId)
         {
-            var sql = @"DECLARE @receiveId varchar(10)='" + finishGoodsBookId + @"',  @companyId varchar(10)='" + companyId + @"'
+            var sql = @"DECLARE @dateWiseConsumptionId varchar(10)='" + dateWiseConsumptionId + @"',  @companyId varchar(10)='" + companyId + @"'
 					
 						SELECT  'FGInventory' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId
 							,GLGeneralInfoId=MGGL.InventoryGLId
@@ -1035,8 +1036,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							, SUM(IRD.Qty*IRD.Rate) AS Dr, NULL Cr
 							, SUM(IRD.Qty*IRD.Rate) AS Amount
                             ,IRD.Id AS  FinishGoodsBookingDetailId
-						FROM dbo.[FinishGoodsBookingDetail] AS IRD
-						LEFT JOIN dbo.[DateWiseConsumption] DC ON DC.Id=IRD.DateWiseConsumptionId
+						FROM dbo.[DateWiseConsumption] DC 
+						LEFT JOIN dbo.[FinishGoodsBookingDetail] AS IRD ON DC.Id=IRD.DateWiseConsumptionId
 						LEFT JOIN dbo.[FinishGoodsBooking] AS IR ON DC.FinishGoodsBookingId=IR.Id
 						LEFT JOIN dbo.[ProductLibrary] AS IM ON IRD.ProductLibraryId=IM.Id
 						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
@@ -1047,7 +1048,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON MGGL.InventoryActivityId= A.Id
 						
-						WHERE IR.Id=@receiveId
+						WHERE DC.Id=@dateWiseConsumptionId
 						GROUP BY MM.MaterialGroupMasterId, MGGL.InventoryGLId, GL.AccountCode, GL.UserName, MGGL.InventoryBudgetMasterId, B.Code, B.UserName, MGGL.InventoryActivityId, A.Code, A.UserName
 					    ,IRD.Id
                    
@@ -1065,8 +1066,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							, NULL Dr, SUM(IRD.Qty*IRD.Rate) AS Cr
 							, SUM(IRD.Qty*IRD.Rate) AS Amount
                             ,NULL FinishGoodsBookingDetailId
-						FROM dbo.[FinishGoodsBookingDetail] AS IRD
-						LEFT JOIN dbo.[DateWiseConsumption] DC ON DC.Id=IRD.DateWiseConsumptionId
+						FROM dbo.[DateWiseConsumption] DC
+						LEFT JOIN dbo.[FinishGoodsBookingDetail] AS IRD ON DC.Id=IRD.DateWiseConsumptionId
 						LEFT JOIN dbo.[FinishGoodsBooking] AS IR ON DC.FinishGoodsBookingId=IR.Id
 						LEFT JOIN ORG.Entity E ON E.Id=IR.ProductionEntityId
 						LEFT JOIN ORG.Company CO ON CO.Id=E.CompanyId
@@ -1076,7 +1077,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON GAD.ActivityId= A.Id
 						
-						WHERE IR.Id=@receiveId
+						WHERE DC.Id=@dateWiseConsumptionId
 						GROUP BY  GAD.GLGeneralInfoId, GL.AccountCode, GL.UserName, GAD.BudgetMasterId, B.Code, B.UserName, GAD.ActivityId, A.Code, A.UserName
 					     
 					ORDER BY TrnType DESC 
@@ -1085,10 +1086,10 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 
         }
 
-        public GridModel GetFGMaterialDetail(GridParameter parameters, string finishGoodsBookingId)
+        public GridModel GetFGMaterialDetail(GridParameter parameters, string dateWiseConsumptionId)
         {
 
-            parameters.CmdText = @"DECLARE @finishGoodsBookingId VARCHAR(10)='" + finishGoodsBookingId + @"'
+            parameters.CmdText = @"DECLARE @dateWiseConsumptionId VARCHAR(10)='" + dateWiseConsumptionId + @"'
                         SELECT  FGD.Id AS FinishGoodsBookingDetailId
                             , MGM.UserName AS MaterialGroupMasterName
                             , PL.MaterialMasterId, MM.UserName
@@ -1098,8 +1099,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
                             , FGD.Qty*FGD.Rate AS TrnAmount
                              ,FGD.Qty AS TransactionQty
                             
-					  from dbo.[FinishGoodsBookingDetail] AS FGD
-                        LEFT JOIN dbo.[DateWiseConsumption] DC ON DC.Id=FGD.DateWiseConsumptionId
+					  from dbo.[DateWiseConsumption] DC
+                        LEFT JOIN dbo.[FinishGoodsBookingDetail] AS FGD ON DC.Id=FGD.DateWiseConsumptionId
 						LEFT JOIN dbo.[FinishGoodsBooking] AS FG ON DC.FinishGoodsBookingId=FG.Id
 						LEFT JOIN dbo.[ProductLibrary] AS PL ON FGD.ProductLibraryId=PL.Id
 						LEFT JOIN [MST].[MaterialMaster] AS MM ON PL.MaterialMasterId=MM.Id
@@ -1108,7 +1109,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 						LEFT JOIN ORG.Entity E ON E.Id=FG.ProductionEntityId
 						LEFT JOIN ORG.Company CO ON CO.Id=E.CompanyId
 						LEFT JOIN SCS.Currency CU ON CU.Id=CO.BaseCurrencyId
-                        WHERE FG.Id=@finishGoodsBookingId";
+                        WHERE DC.Id=@dateWiseConsumptionId";
             return _sqlRepository.GetDifferentGridData(parameters);
         }
 
