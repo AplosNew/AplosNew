@@ -124,7 +124,7 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
 
 
     $scope.getCboVoucherType = function () {
-        cboService.getCboVoucherTypeAccountPayableList(function (result) {
+        cboService.getCboVoucherTypeConsumptionBookList(function (result) {
             $scope.voucherTypeList = result;
             if (baseService.arrayLength($scope.voucherTypeList) === 1)
                 $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;

@@ -129,7 +129,7 @@ namespace Library.Accounting.FixedAssets
                     DocRefNo = voucherVM.DocRefNo,
                     Narration = "Posting",//voucherVM.Narration,
                     PostingDate = voucherVM.PostingDate,
-                    SourceType = "ConsumptionBook",
+                    SourceType = SourceType.ConsumptionBook.ToString(),
                     VoucherTypeId = voucherVM.VoucherTypeId
                 };
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
