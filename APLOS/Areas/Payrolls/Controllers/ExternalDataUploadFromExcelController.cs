@@ -71,7 +71,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
             if (string.IsNullOrEmpty(SalaryHeadId) || SalaryHeadId == "null" || SalaryHeadId == "undefined")
             {
-                Sql = @"SELECT EI.SystemId,EI.EmployeeCode,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.* from dbo.MonthWiseExtraSalaryAmtChild d
+                Sql = @"SELECT EI.SystemId EmpSystemId,EI.EmployeeCode,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.* from dbo.MonthWiseExtraSalaryAmtChild d
                         LEFT JOIN dbo.MonthWiseExtraSalaryAmtMaster m on m.SystemID=d.MWESAMasterSystemID
                         Left join EmployeeInformation EI on EI.SystemId=m.EmpInfoSystemID
                         LEFT JOIN SalaryHead sh on sh.SalaryHeadID=d.SalaryHeadID
@@ -81,7 +81,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
             else
             {
-                Sql = @"SELECT EI.SystemId,EI.EmployeeCode,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.* from dbo.MonthWiseExtraSalaryAmtChild d
+                Sql = @"SELECT EI.SystemId EmpSystemId,EI.EmployeeCode,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.* from dbo.MonthWiseExtraSalaryAmtChild d
                         LEFT JOIN dbo.MonthWiseExtraSalaryAmtMaster m on m.SystemID=d.MWESAMasterSystemID
                         Left join EmployeeInformation EI on EI.SystemId=m.EmpInfoSystemID
                         LEFT JOIN SalaryHead sh on sh.SalaryHeadID=d.SalaryHeadID
@@ -103,7 +103,14 @@ namespace Aplos.Areas.Payrolls.Controllers
             return json;
         }
 
-
+        [HttpGet, Authorize]
+        public ActionResult GetSalaryLock(string EmpSystemId, string MonthNo, string YearNo)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select IsLocked from SalaryLock where EmpSystemId='" + EmpSystemId + "' and YearNo='" + YearNo + "' and MonthNo='" + MonthNo + "'";
+            var data = _sqlRepository.GetDataCollection(sql);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetSalaryHeadListeList()
@@ -743,7 +750,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         #region Report 
 
         [HttpPost, Authorize]
-        public JsonResult ExternalDataUploadReport(string EmployeeList, string SalaryHeadId, string MonthNo, string YearNo,string SalaryHeadIDs,string HeadType,string CurrencyID,string EntryAmount,string MonthName)
+        public JsonResult ExternalDataUploadReport(string EmployeeList, string SalaryHeadId, string MonthNo, string YearNo, string SalaryHeadIDs, string HeadType, string CurrencyID, string EntryAmount, string MonthName)
         {
             try
             {
@@ -802,7 +809,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                 var ob = new clsStaticInfo();
 
-                
+
 
                 #region DataSet
                 getEmployee(CGId, CompanyId, PlantId, EmployeeList, SalaryHeadId, MonthNo, YearNo, SalaryHeadIDs, HeadType, CurrencyID, EntryAmount, out dsAttn);
@@ -879,7 +886,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    
+
                     xlsCol += 1;
                     sheet1.Range[xlsRow, xlsCol].Text = "Head Type";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
@@ -979,7 +986,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        
+
                         // xlsRow += 1;
 
                         #endregion ----------------------Data-----------------------
@@ -1170,7 +1177,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             {
                 if (string.IsNullOrEmpty(SalaryHeadId) || SalaryHeadId == "null" || SalaryHeadId == "undefined")
                 {
-                    
+
                 }
                 else
                 {
@@ -1196,8 +1203,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 											left join mst.DesignationMaster dm on dm.Id = dml.DesignationMasterId
 											left join HKP.EmployeeCategory ec on ec.Id=dm.EmployeeCategoryId
                         WHERE m.monthNo=" + MonthNo + " and m.YearNo=" + YearNo + " and m.PlantID='" + plantId + @"' and d.ExtDataUploadApp='XL'
-                        and Ei.SystemId in (" + EmployeeList + @") "+ SalayHead + @"
-                        and sh.HeadType in (" + HeadType + ") and d.SalaryHeadID in ("+ SalaryHeadIDs +") and d.EntryAmount in ("+ EntryAmount + ") and d.EntryCurrencyID in ("+ CurrencyID + @")
+                        and Ei.SystemId in (" + EmployeeList + @") " + SalayHead + @"
+                        and sh.HeadType in (" + HeadType + ") and d.SalaryHeadID in (" + SalaryHeadIDs + ") and d.EntryAmount in (" + EntryAmount + ") and d.EntryCurrencyID in (" + CurrencyID + @")
                         ORDER BY EI.EmployeeCodePreFix,EI.EmployeeCodeNumeric ";
 
 
@@ -1219,7 +1226,47 @@ namespace Aplos.Areas.Payrolls.Controllers
         }//End Function
         #endregion
 
+        #region Update
+        [HttpPost, Authorize]
+        public JsonResult UpdateUpload(ExternalUpload ExternalUploadUpdate)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataSet dsUpdate;
+                DataView _dvSave = null;
+                ConnectionManager.DAL.ConManager objCon;
+                string sql = "SELECT * FROM [dbo].[MonthWiseExtraSalaryAmtChild] WHERE SystemId='" + ExternalUploadUpdate.Id + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsUpdate, false, "1");
+                _dvSave = new DataView(dsUpdate.Tables[0]);
+                _dvSave.RowFilter = "SystemId ='" + ExternalUploadUpdate.Id + "'";
+                if (_dvSave.Count > 0)
+                {
+                    DataRow dr = _dvSave[0].Row;
+                    dr.BeginEdit();
+                    dr["EntryAmount"] = ExternalUploadUpdate.Amount;
+                    dr["DefineAmount"] = ExternalUploadUpdate.Amount;
+                    dr.EndEdit();
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsUpdate);
+                return Json(new { Error = false, Data = ExternalUploadUpdate, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        #endregion
     }
-
+    public class ExternalUpload
+    {
+        public string Id { get; set; }
+        public string EmpCode { get; set; }
+        public string SalaryHead { get; set; }
+        public string EmpName { get; set; }
+        public string Amount { get; set; }
+    }
 
 }
