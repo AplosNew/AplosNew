@@ -949,12 +949,12 @@
                                     <div e-column e-field="GLGeneralInfoCode" e-headertext="GLGeneralInfoCode" e-width="80"></div>
                                     <div e-column e-field="GL" e-headertext="GL" e-width="130"></div>
                                     <div e-column e-field="Budget" e-headertext="Budget" e-width="130"></div>
-                                    <div e-column e-field="Activity" e-template="#TrialBalanceActivityTemplate" e-headertext="Activity" e-width="130"></div>
+                                    <div e-column e-field="Activity" @*e-template="#TrialBalanceActivityTemplate"*@ e-headertext="Activity" e-width="130"></div>
                                     <div e-column e-field="Particulars" @*e-template="#TrialBalanceActivityTemplate"*@ e-headertext="Details" e-width="130"></div>
                                     <div e-column e-field="FixedAssetMasterId" @*e-template="#TrialBalanceActivityTemplate"*@ e-headertext="FixedAssetMasterId" e-width="90"></div>
 
-                                    <div e-column e-type="number" e-format="{0:N2}" e-field="DRcumulative" e-template="#TrialBalanceDRTemplate" e-headertext="Books Debit" e-width="100" textAlign='Right'></div>
-                                    <div e-column e-type="number" e-format="{0:N2}" e-field="CRcumulative" e-headertext="Books Credit" e-width="100" textAlign='Right'></div>
+                                    <div e-column e-type="number" e-format="{0:N2}" e-field="DR" e-template="#TrialBalanceDRTemplate" e-headertext="Books Debit" e-width="100" textAlign='Right'></div>
+                                    <div e-column e-type="number" e-format="{0:N2}" e-field="CR" e-headertext="Books Credit" e-width="100" textAlign='Right'></div>
                                     @*<div e-column e-type="number" e-format="{0:N2}" e-field="CRcumulative" e-template="#TrialBalanceDRTemplate" e-headertext="CRcumulative" e-width="75" textAlign='Right'></div>*@
 
 
@@ -962,12 +962,12 @@
 
                             </div>
 
-                            <script type="text/template" id="TrialBalanceActivityTemplate">
+                            @*<script type="text/template" id="TrialBalanceActivityTemplate">
                                 <a href="" ng-click="$parent.showTrialBalanceActivityPopUp(data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.Activity}}</span></a>
-                            </script>
+                            </script>*@
 
                              <script type="text/template" id="TrialBalanceDRTemplate">
-                                <a href="" ng-click="$parent.showTrialBalanceDRcumulativePopUp(data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.DRcumulative}}</span></a>
+                                <a href="" ng-click="$parent.showTrialBalanceDRcumulativePopUp(data)"><span style="font-weight:bold;text-decoration:underline;color:blue;">{{data.DR}}</span></a>
                             </script>
 
 

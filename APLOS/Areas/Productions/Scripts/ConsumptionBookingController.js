@@ -94,7 +94,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
                 if ($scope.Action === "Save" || $scope.Action === "Update") {
                     $http({
                         method: "POST",
-                        url: "Productions/FinishGoodsBooking/Insert",
+                        url: "Productions/FinishGoodsBooking/Create",
                         data: {
                             "data": $scope.modelNew
                             , "FinishGoodsBookingDetailList": $scope.selectedLineItems
@@ -261,6 +261,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
 
     $scope.SummaryRows = [{
         title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GrossAmount", dataMember: "GrossAmount", format: "{0:0.0000}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Rate", dataMember: "Rate", format: "{0:0.0000}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GrossConsumption", dataMember: "GrossConsumption", format: "{0:0.0000}" }
         ],
