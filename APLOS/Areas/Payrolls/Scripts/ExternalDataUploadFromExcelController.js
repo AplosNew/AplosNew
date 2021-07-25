@@ -362,8 +362,8 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
             if (filteredRecords.length == 0) {
                 filteredRecords = $scope.SaveDataList;
             }
-            
-            parameters.push({ "Key": "SystemId", "Value": getString(filteredRecords, "SystemId") });
+
+            parameters.push({ "Key": "EmpSystemId", "Value": getString(filteredRecords, "EmpSystemId") });
             parameters.push({ "Key": "SalaryHeadID", "Value": getString(filteredRecords, "SalaryHeadID") });
             parameters.push({ "Key": "HeadType", "Value": getString(filteredRecords, "HeadType") });
             parameters.push({ "Key": "EntryCurrencyID", "Value": getString(filteredRecords, "EntryCurrencyID") });
@@ -395,7 +395,7 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
             ShowResult(e, 'failure');
         }
     };
-     var getString = function (data, column) {
+    var getString = function (data, column) {
         var kk = "";
         var collection = [];
         for (var i = 0; i < data.length; i++) {
@@ -411,6 +411,71 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
             }
         }
         return kk;
+    };
+    $scope.ShowDiv = false;
+    $scope.edit = {
+        Id:null,
+        EmpCode: null,
+        SalaryHead: null,
+        EmpName: null,
+        Amount: null,
+    }
+    $scope.Edit = function (obj) {
+        $scope.edit.Id = obj.data.SystemID;
+        $scope.edit.EmpCode = obj.data.EmployeeCode;
+        $scope.edit.SalaryHead = obj.data.SalaryHead;
+        $scope.edit.EmpName = obj.data.EmployeeName;
+        $scope.edit.Amount = obj.data.EntryAmount;
+
+        $scope.salaryLockCheck(obj.data.EmpSystemId);
+
+    };
+    $scope.IsSalaryLock = false;
+    $scope.salaryLockCheck = function (EmpSystemId) {
+        try {
+            $http({
+                method: 'GET',
+                url: $scope.path + 'GetSalaryLock?EmpSystemId=' + EmpSystemId + '&MonthNo=' + $scope.ModelNew.MonthNo + '&YearNo=' + $scope.ModelNew.YearNo,
+            }).then(function successCallback(response) {
+                if (response.data[0].IsLocked == false) {
+                    if ($scope.IsSalaryLock == false) {
+                        $scope.ShowDiv = true;
+                        var eDialog = $("#Edit").data("ejDialog");
+                        $("#Edit").ejDialog("setTitle", " Edit");
+                        eDialog.open();
+                    }
+                }
+                else {
+                    ShowResult("Salary Locked for this Employee..", "failure");
+                }
+            });
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    $scope.UpdateUpload = function () {
+        try {            
+            $http({
+                method: 'POST',
+                url: $scope.path + "UpdateUpload",
+                data: { 'ExternalUploadUpdate': $scope.edit },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    var eDialog = $("#Edit").data("ejDialog");                    
+                    eDialog.close();
+                    $scope.LoadData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
     };
 }
 
