@@ -402,52 +402,7 @@ public class clsSalaryProcessAplosArrear
         DataView dvMonWiExtAmtFil = null;
         DataView dvSPChdFil = null;
 
-        //DataSet dsTaxDeducMonth = null;
-        //DataRow drTaxDeducMonth = null;
-        //DataView dvTaxDeducMonth = null;
-        //DataTable dtTaxDeducMonth = null;
 
-        //DataSet dsTaxDefinMast = null;
-        //DataRow drTaxDefinMast = null;
-        //DataView dvTaxDefinMast = null;
-        //DataTable dtTaxDefinMast = null;
-
-        //DataSet dsTaxDefinMastAft = null;
-        //DataRow drTaxDefinMastAft = null;
-        //DataView dvTaxDefinMastAft = null;
-        //DataTable dtTaxDefinMastAft = null;
-
-        //DataSet dsTaxDefinMastCRC = null;
-        //DataRow drTaxDefinMastCRC = null;
-        //DataView dvTaxDefinMastCRC = null;
-        //DataTable dtTaxDefinMastCRC = null;
-
-        //DataSet dsTaxSHCRC = null;
-        //DataRow drTaxSHCRC = null;
-        //DataView dvTaxSHCRC = null;
-        //DataTable dtTaxSHCRC = null;
-
-        //DataSet dsTaxDeducMonthCRC = null;
-        //DataRow drTaxDeducMonthCRC = null;
-        //DataView dvTaxDeducMonthCRC = null;
-        //DataTable dtTaxDeducMonthCRC = null;
-
-        //DataView dvTaxDeducMonthCRCFill = null;
-
-        //DataSet dsTaxDeducYearCRC = null;
-        //DataRow drTaxDeducYearCRC = null;
-        //DataView dvTaxDeducYearCRC = null;
-        //DataTable dtTaxDeducYearCRC = null;
-
-        //DataSet dsTaxPolicyMast = null;
-        //DataSet dsTaxPolicyGen = null;
-        //DataSet dsTaxSlab = null;
-        //DataSet dsTaxYearPeriod = null;
-
-        //DataTable dtTaxSHCRCYearlyIncome = null;
-        //DataView dvTaxSHCRCYearlyIncome = null;
-        //DataSet dsSalaryHeadToExclude = null;
-        //DataView dvSalaryHeadToExclude = null;
 
         clsSalaryProc objSlrProc = null;
         clsStaticInfo objStatic = null;
@@ -2857,194 +2812,6 @@ public class clsSalaryProcessAplosArrear
                                         }
                                         #endregion Retention Allowance
 
-                                        #region Over Time Payment Calculation
-
-
-                                        sEmployeeSysID = dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim();
-                                        OTRate = 0;
-                                        var dicOTPol_Sub = dicOTPol.FindAll(x => x.EmpSystemID == sEmployeeSysID);
-                                        if (dicOTPol_Sub.Count > 0)
-                                        {
-                                            decimal _total_ot = 0;
-                                            decOTPmtAmt = 0;
-                                            decOTPmtAmtTemp = 0;
-                                            decOTHour = 0;
-                                            decOTHourNormal = 0;
-                                            decOTHourWeekOff = 0;
-                                            decOTHourHoliDay = 0;
-                                            IsNetPayEffect = true;
-                                            _child_salaryhead_seed++;
-
-
-                                            var dicOTHour_Sub = dicOTHour.FindAll(x => x.EmpSystemID == dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim());
-                                            if (dicOTHour_Sub.Count > 0)
-                                            {
-                                                decOTHourNormal = dicOTHour_Sub[0].NormalOTHr;
-                                                decOTHourWeekOff = dicOTHour_Sub[0].WeekOffOTHr;
-                                                decOTHourHoliDay = dicOTHour_Sub[0].HoliDayOTHr;
-                                            }
-                                            decimal _otRate = 0;
-                                            for (int i = 0; i < dicOTPol_Sub.Count; i++)
-                                            {
-                                                if (dicOTPol_Sub[i].HeadCategory != "Total Earning" && dicOTPol_Sub[i].HeadCategory != "Total Deduction" && dicOTPol_Sub[i].HeadCategory != "Net Payable")
-                                                {
-                                                    //_IsOTEntitled = dicOTPol_Sub[i].IsOTEntitled;
-                                                    tempDisbCur = 0;
-                                                    DisbCur = 0;
-                                                    sFormulaDesID = "";
-                                                    sFormulaResult = "";
-                                                    //sDayType = "";
-                                                    //sDayTypeOperator = "";
-                                                    decDayTypeOperatorValue = 0;
-                                                    sLeaveTypeID = "";
-                                                    sApprovalType = "";
-                                                    decOTHour = 0;
-
-
-                                                    sOverTimePmtPolicyMasterID = dicOTPol_Sub[i].OverTimePmtPolicyMasterID;
-                                                    sOverTimePmtPolicyDetailsID = dicOTPol_Sub[i].ID;
-                                                    sOverTimeDayType = dicOTPol_Sub[i].OverTimeDayType;
-
-                                                    if (sOverTimeDayType == "Working Day")
-                                                    { decOTHour = decOTHourNormal; }
-                                                    else if (sOverTimeDayType == "Week Off")
-                                                    { decOTHour = decOTHourWeekOff; }
-                                                    else if (sOverTimeDayType == "Holiday")
-                                                    { decOTHour = decOTHourHoliDay; }
-
-                                                    IsFixed = dicOTPol_Sub[i].IsFixed;
-                                                    IsFormula = dicOTPol_Sub[i].IsFormula;
-
-                                                    decFixedValue = dicOTPol_Sub[i].FixedValue;
-                                                    sFormulaDes = dicOTPol_Sub[i].FormulaDes;
-                                                    sFormulaDesID = dicOTPol_Sub[i].FormulaDesID;
-                                                    DisbCurID = dicOTPol_Sub[i].DisbusmentCurrencyID;
-                                                    // sEmployeeSysID = dicOTPol_Sub[i].EmpSystemID;//by monir
-
-                                                    sSlrRulMstSysID = dicOTPol_Sub[i].SalaryRuleMasterId;
-                                                    sSlrHD = dicOTPol_Sub[i].SalaryHeadID;
-                                                    sEntCurID = dicOTPol_Sub[i].EntryCurrencyID;
-                                                    sDefCurID = dicOTPol_Sub[i].DefineCurrencyID;
-                                                    sDisbCurID = dicOTPol_Sub[i].DisbusmentCurrencyID;
-                                                    sAcltExcDisbSlrHDID = dicOTPol_Sub[i].AcltExcDisbSlrHDID;
-                                                    sAttdnBnsHeadType = dicOTPol_Sub[i].HeadType;
-
-                                                    sRoundOption = dicOTPol_Sub[i].RoundOption;
-                                                    iDecimalNo = dicOTPol_Sub[i].DecimalNo;
-                                                    bIntegerInDisb = dicOTPol_Sub[i].IntegerInDisb;
-                                                    bIsDecimalInDisb = dicOTPol_Sub[i].IsDecimalInDisb;
-
-                                                    if (IsFixed == true)
-                                                    {
-                                                        decOTPmtAmt = decFixedValue;
-                                                        _otRate = Convert.ToDecimal(decFixedValue);
-                                                        decOTPmtAmt = decOTPmtAmt / 60;//per minn value
-                                                    }
-                                                    else if (IsFormula == true)
-                                                    {
-                                                        obSS.ReLoadFormulaWithValueSalaryProc(sEmployeeSysID, para, sFormulaDesID, out sFormulaValue, false, dtValue, dicSalaryHead);
-                                                        decOTPmtAmt = Convert.ToDecimal(clsSalaryUtility.Evaluate(sFormulaValue.Trim()));
-                                                        _otRate = Convert.ToDecimal(clsSalaryUtility.Evaluate(sFormulaValue.Trim()));
-                                                        decOTPmtAmt = decOTPmtAmt / 60;//per min value
-                                                    }
-
-                                                    if (sOverTimeDayType == "Working Day")
-                                                    {
-                                                        OTRate = _otRate;
-                                                    }
-
-                                                    if (decOTPmtAmt < decOTPmtAmtTemp)
-                                                    { decOTPmtAmt = decOTPmtAmtTemp; }
-
-                                                    decOTPmtAmt = decOTPmtAmt * decOTHour;
-                                                    _total_ot += decOTPmtAmt;
-                                                }//
-                                            }//dicOTPol_Sub
-
-                                            //DefCur = decOTPmtAmt; 
-                                            DefCur = _total_ot;
-
-                                            if (sEntCurID == sDefCurID)
-                                            {
-                                                EntCur = DefCur;
-                                            }
-                                            else if (sEntCurID != sDefCurID & sEntCurID == para.lblLocalCurrencyID.Trim() & sDefCurID == para.lblUseFrgCurID.Trim())
-                                            {
-                                                EntCur = (DefCur * sFrgCurRate);
-                                            }
-                                            else if (sEntCurID != sDefCurID & sDefCurID == para.lblLocalCurrencyID.Trim() & sEntCurID == para.lblUseFrgCurID.Trim())
-                                            {
-                                                EntCur = (DefCur / sFrgCurRate);
-                                            }
-                                            DisbCur = DefCur;
-
-                                            AcltExcDisbSlrHDAmt = 0;
-
-                                            if (IsNetPayEffect == true)
-                                            {
-                                                decTotalErnDedAmt = DisbCur;
-                                                if (sTotalEarningCrnID == sDefCurID)
-                                                {
-                                                    decTotalErnDedAmtDefinitionRate = sFrgCurRate;
-                                                }
-                                                else
-                                                {
-                                                    decTotalErnDedAmtDefinitionRate = Convert.ToDecimal(para.txtForeignCurRate);
-                                                }
-
-                                                if (sDefCurID == para.lblUseFrgCurID.Trim() & sTotalEarningCrnID == para.lblLocalCurrencyID.Trim())
-                                                {//Local Currency
-                                                    decTmpTotalErnDedAmt = (decTotalErnDedAmt * sFrgCurRate);
-                                                    decTotalErnDedAmt = (decTotalErnDedAmt * decTotalErnDedAmtDefinitionRate);
-                                                }
-                                                else if (sTotalEarningCrnID == para.lblUseFrgCurID.Trim() & sDefCurID == para.lblLocalCurrencyID.Trim())
-                                                {//Frg Currency
-                                                    decTmpTotalErnDedAmt = (decTotalErnDedAmt / sFrgCurRate);
-                                                    decTotalErnDedAmt = (decTotalErnDedAmt / decTotalErnDedAmtDefinitionRate);
-                                                }
-                                            }
-
-                                            #region Round Option 
-
-                                            sOutValue = "0";
-                                            obSS.FractionCalculation(sRoundOption, bIntegerInDisb, bIsDecimalInDisb, iDecimalNo, EntCur.ToString(), out sOutValue);
-                                            EntCur = Convert.ToDecimal(sOutValue);
-
-                                            sOutValue = "0";
-                                            obSS.FractionCalculation(sRoundOption, bIntegerInDisb, bIsDecimalInDisb, iDecimalNo, DefCur.ToString(), out sOutValue);
-                                            DefCur = Convert.ToDecimal(sOutValue);
-
-                                            sOutValue = "0";
-                                            obSS.FractionCalculation(sRoundOption, bIntegerInDisb, bIsDecimalInDisb, iDecimalNo, DisbCur.ToString(), out sOutValue);
-                                            DisbCur = Convert.ToDecimal(sOutValue);
-
-                                            #endregion Round Option 
-
-                                            if (sAttdnBnsHeadType == "E")
-                                            {
-                                                decTotalEarningAmt += decTotalErnDedAmt;
-                                            }
-                                            else if (sAttdnBnsHeadType == "D")
-                                            {
-                                                if (DisbCur > 0)
-                                                {
-                                                    DisbCur = (DisbCur * (-1));
-                                                }
-                                                if (AcltExcDisbSlrHDAmt > 0)
-                                                {
-                                                    AcltExcDisbSlrHDAmt = (AcltExcDisbSlrHDAmt * (-1));
-                                                }
-                                                decTotalDeductionAmt -= (decTotalErnDedAmt * (-1));
-                                            }
-
-                                            SetZero(ref EntCur, ref DefCur);
-                                            ParaSalaryProcess ob_sp = SetValue(_childPK_seed_fromDB, _child_emp_seed, _child_salaryhead_seed, sEmployeeSysID, sSalaryID, sPlantID, sSlrRulMstSysID, sSlrHD, sEntCurID, ref EntCur, sDefCurID, ref DefCur, sDisbCurID, DisbCur, sAcltExcDisbSlrHDID, AcltExcDisbSlrHDAmt, IsNetPayEffect);
-                                            SaveDataRow(ref dicProcChild, ob_sp, para);
-                                            GetValueIndtValue(dtValue, ob_sp);
-                                        }
-
-                                        #endregion Over Time Payment Calculation
-
                                         #region Salary Value Uploaded Monthly
 
                                         var dicSlrValMntBs_Sub = dicSlrValMntBs.FindAll(x => x.EmpSystemID == dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim());
@@ -4276,8 +4043,7 @@ public class clsSalaryProcessAplosArrear
                             ///TG CTC NETPAY                            
                             GetNotionalFormula(dsSelectedEmp, para, dicLocal, dicProcChild, dtValue, dicSalaryHead);
                             GetDS(dicProcChild, out dsSPChd);
-                            //objSlrProc.SaveDataSetsForSalaryProcess(dsSPChd, dsRetenAllow, dsSPAttdnProc);
-                            ///BCP201013
+
                             SendNotification("Saving Data", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                             OTSBD.clsStaticInfo _save = new clsStaticInfo();
@@ -4285,25 +4051,9 @@ public class clsSalaryProcessAplosArrear
                             _save.SaveDataSets(dsSPChd);//this is new line
                             dsSPChd.Tables[0].DefaultView.RowFilter = null;
 
+                            
                             SendNotification("Transporting Processed Salary", para.FromDate, TotProcComp, TotSelectEmpForProc);
-                            string SalaryProcessMasterId = "";
-                            if (dsSPChd.Tables[0].DefaultView.Count > 0)
-                                SalaryProcessMasterId = dsSPChd.Tables[0].DefaultView[0]["SlrProcMstSystemID"].ToString();
-                            ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
-                            connection.BeginTransaction();
-                            connection.executeQuery(@"INSERT INTO ArrearProcChild
-                                                        (
-	                                                        SystemID,SlrProcMstSystemID, EmpInfoSystemID,SalaryID,GroupID,PlantID,PayAbleShSystemID,SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID,DefineAmount, DisbusmentCurrencyID,
-	                                                        DisbusmentAmount,AcltExcDisbSlrHDID, AcltExcDisbSlrHDAmt,IsNetPayEffect,IsApproved,IsDisbursed, AddedBy,DateAdded, UpdatedBy,DateUpdated
-                                                        )
-                                                        SELECT 
-	                                                        SystemID, SlrProcMstSystemID, EmpInfoSystemID,SalaryID, GroupID, PlantID,  PayAbleShSystemID,  SalaryHeadID,EntryCurrencyID, isnull(EntryAmount,0), DefineCurrencyID, isnull(DefineAmount,0), DisbusmentCurrencyID,
-                                                            isnull(DisbusmentAmount,0),  AcltExcDisbSlrHDID, isnull(AcltExcDisbSlrHDAmt,0),isnull(IsNetPayEffect,0), isnull(IsApproved,0),  ISNULL(IsDisbursed,0), AddedBy, DateAdded, UpdatedBy, DateUpdated
-                                                        FROM ArrearProcChildTemp WHERE SlrProcMstSystemID='" + SalaryProcessMasterId + @"'");
-
-
-                            connection.executeQuery(@"DELETE FROM ArrearProcChildTemp WHERE SlrProcMstSystemID='" + SalaryProcessMasterId + @"'");
-                            connection.CommitTransaction();
+                            FinalizingProcess(para, dsSPChd);
 
                             SendNotification("Processing Bank Cash Percentages", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             ProcessBankCashPercentage(dsSPChd, dtValue, dicSalaryHead, para);
@@ -4338,26 +4088,22 @@ public class clsSalaryProcessAplosArrear
                 }//For
             }
 
-
+            SendNotification("Calculating Arrear Differences", para.FromDate, TotProcComp, TotSelectEmpForProc);
+            FinalizingProcessUpdateArrearDifferences(BatchNo);
 
             para.lblEmpCount = "No. of Employee Salary Process:- " + TotalEmpProcess.ToString();
-            //sendMessage("No. of Employee Salary Process:- " + TotalEmpProcess.ToString());
             if (strAbstractEmp != "")
             {
                 para.ShowLog = "Process sucessfully Completed... " + strAbstractEmp;
                 SendNotification(para.ShowLog, para.FromDate);
-                //sendMessage("Processed sucessfully Completed... " + strAbstractEmp);
             }
             else
             {
-                //sendMessage("Processed sucessfully Completed... ");
                 para.ShowLog = "Processed sucessfully Completed... ";
                 SendNotification(para.ShowLog, para.FromDate);
 
             }
             return para;
-            //displayMsgs("Processed Successfully Completed...!!!!", "Ok", "Save");
-            //Session["VERIFICATION_STATE"] = 1;
         }
         catch (Exception ex)
         {
@@ -4372,7 +4118,70 @@ public class clsSalaryProcessAplosArrear
             objSlrProc = null;
         }
     }//End Function
+    private void FinalizingProcess(FunctionPara para, DataSet dsSPChd)
+    {
+        try
+        {
 
+            string SalaryProcessMasterId = "";
+            if (dsSPChd.Tables[0].DefaultView.Count > 0)
+                SalaryProcessMasterId = dsSPChd.Tables[0].DefaultView[0]["SlrProcMstSystemID"].ToString();
+            ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+            connection.BeginTransaction();
+            connection.executeQuery(@"INSERT INTO ArrearProcChild
+                                                        (
+	                                                        SystemID,SlrProcMstSystemID, EmpInfoSystemID,SalaryID,GroupID,PlantID,PayAbleShSystemID,SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID,DefineAmount, DisbusmentCurrencyID,
+	                                                        DisbusmentAmount,AcltExcDisbSlrHDID, AcltExcDisbSlrHDAmt,IsNetPayEffect,IsApproved,IsDisbursed, AddedBy,DateAdded, UpdatedBy,DateUpdated
+                                                        )
+                                                        SELECT 
+	                                                        SystemID, SlrProcMstSystemID, EmpInfoSystemID,SalaryID, GroupID, PlantID,  PayAbleShSystemID,  SalaryHeadID,EntryCurrencyID, isnull(EntryAmount,0), DefineCurrencyID, isnull(DefineAmount,0), DisbusmentCurrencyID,
+                                                            isnull(DisbusmentAmount,0),  AcltExcDisbSlrHDID, isnull(AcltExcDisbSlrHDAmt,0),isnull(IsNetPayEffect,0), isnull(IsApproved,0),  ISNULL(IsDisbursed,0), AddedBy, DateAdded, UpdatedBy, DateUpdated
+                                                        FROM ArrearProcChildTemp WHERE SlrProcMstSystemID='" + SalaryProcessMasterId + @"'");
+
+
+            connection.executeQuery(@"DELETE FROM ArrearProcChildTemp WHERE SlrProcMstSystemID='" + SalaryProcessMasterId + @"'");
+            connection.CommitTransaction();
+
+        }
+        catch (Exception ex)
+        {
+
+            throw (ex);
+        }
+
+
+    }
+    private void FinalizingProcessUpdateArrearDifferences(string BatchNo)
+    {
+        try
+        {
+            ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+            connection.BeginTransaction();
+
+            connection.executeQuery(@"UPDATE ArrearProcChild SET Diff=CASE WHEN ISNULL(ac.DisbusmentAmount,0)-ISNULL(sal.DisbusmentAmount,0)>0 
+                                        THEN ISNULL(ac.DisbusmentAmount,0)-ISNULL(sal.DisbusmentAmount,0) ELSE 0 END
+
+                                        FROM ArrearProcChild AS AC
+                                        JOIN  ArrearProcMaster AS AM ON am.SystemID=ac.SlrProcMstSystemID
+
+                                        LEFT JOIN (SELECT spc.EmpInfoSystemID, spc.SalaryHeadID,spm.MonthNo, spm.YearNo,spc.EntryAmount, spc.DefineAmount, spc.DisbusmentAmount
+
+                                          FROM SalaryProcChild AS spc
+                                        JOIN SalaryProcMaster AS spm ON spc.SlrProcMstSystemID=spm.SystemID
+                                        ) AS SAL ON SAL.EmpInfoSystemID=ac.EmpInfoSystemID AND sal.MonthNo=am.MonthNo AND sal.YearNo=AM.YearNo AND sal.SalaryHeadID=ac.SalaryHeadID
+                    WHERE am.ArrearProcessBatchId = '" + BatchNo + @"'
+                    ");
+            connection.CommitTransaction();
+
+        }
+        catch (Exception ex)
+        {
+
+            throw (ex);
+        }
+
+
+    }
     void PT(string empids, string _plantid, string _month, string _year)
     {
         try
