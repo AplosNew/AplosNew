@@ -151,16 +151,16 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(accountingFinishGoodsService.GetPostedFinishGoodsBookingData(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public JsonResult GetFGMaterialDetail(GridParameter parameters, string finishGoodsBookingId)
+        public JsonResult GetFGMaterialDetail(GridParameter parameters, string dateWiseConsumptionId)
         {
-            return Json(clsFinishGoodsBooking.GetFGMaterialDetail(parameters, finishGoodsBookingId), JsonRequestBehavior.AllowGet);
+            return Json(clsFinishGoodsBooking.GetFGMaterialDetail(parameters, dateWiseConsumptionId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetFGJournal(string finishGoodsBookId)
+        public JsonResult GetFGJournal(string dateWiseConsumptionId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(clsFinishGoodsBooking.GetFGJournal(identity.CompanyId, finishGoodsBookId), JsonRequestBehavior.AllowGet);
+            return Json(clsFinishGoodsBooking.GetFGJournal(identity.CompanyId, dateWiseConsumptionId), JsonRequestBehavior.AllowGet);
 
         }
 
