@@ -743,13 +743,13 @@ namespace Aplos.Areas.Payrolls.Controllers
         #region Report 
 
         [HttpPost, Authorize]
-        public JsonResult ExternalDataUploadReport(string EmployeeList, string SalaryHeadId, string MonthNo, string YearNo,string SalaryHeadIDs,string HeadType,string CurrencyID,string EntryAmount)
+        public JsonResult ExternalDataUploadReport(string EmployeeList, string SalaryHeadId, string MonthNo, string YearNo,string SalaryHeadIDs,string HeadType,string CurrencyID,string EntryAmount,string MonthName)
         {
             try
             {
                 string fileName = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                fileName = ExternalDataUploadFromExcelReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "External Data Upload", "", EmployeeList, SalaryHeadId, MonthNo, YearNo, SalaryHeadIDs, HeadType, CurrencyID, EntryAmount);
+                fileName = ExternalDataUploadFromExcelReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "External Data Upload", "", EmployeeList, SalaryHeadId, MonthNo, YearNo, SalaryHeadIDs, HeadType, CurrencyID, EntryAmount, MonthName);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -758,7 +758,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 throw ex;
             }
         }
-        public string ExternalDataUploadFromExcelReport(string CGId, string CompanyId, string PlantId, string SheetName1, string s1, string EmployeeList, string SalaryHeadId, string MonthNo, string YearNo, string SalaryHeadIDs, string HeadType, string CurrencyID, string EntryAmount)
+        public string ExternalDataUploadFromExcelReport(string CGId, string CompanyId, string PlantId, string SheetName1, string s1, string EmployeeList, string SalaryHeadId, string MonthNo, string YearNo, string SalaryHeadIDs, string HeadType, string CurrencyID, string EntryAmount, string MonthName)
         {
             #region Variable
 
@@ -865,23 +865,23 @@ namespace Aplos.Areas.Payrolls.Controllers
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "SubSection";
+                    sheet1.Range[xlsRow, xlsCol].Text = "Sub Section";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "EmployeeCategory";
+                    sheet1.Range[xlsRow, xlsCol].Text = "Employee Category";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "SalaryHead";
+                    sheet1.Range[xlsRow, xlsCol].Text = "Salary Head";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "HeadType";
+                    sheet1.Range[xlsRow, xlsCol].Text = "Head Type";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -891,7 +891,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     xlsCol += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "EntryAmount";
+                    sheet1.Range[xlsRow, xlsCol].Text = "Entry Amount";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -974,9 +974,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         xlsCol += 1;
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["EntryAmount"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].Number = Convert.ToDouble(dvAttn[i]["EntryAmount"]);
+                        sheet1.Range[xlsRow, xlsCol].NumberFormat = clsStaticInfo.NumberFormat(2);
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         
                         // xlsRow += 1;
@@ -1097,7 +1098,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                     xlsRow += 1;
-                    sheet1.Range[xlsRow, 3].Text = "Report of Month:- " + MonthNo + " Year:- " + YearNo;
+                    sheet1.Range[xlsRow, 3].Text = "Report of Month:- " + MonthName + ", Year:- " + YearNo;
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
                     sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
                     sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 9;

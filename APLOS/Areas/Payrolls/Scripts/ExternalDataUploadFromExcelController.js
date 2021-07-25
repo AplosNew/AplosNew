@@ -351,6 +351,7 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.DownloadReport = function () {
         try {
+            var MonthName = "";
             $scope.fileName = "ExternalDataUploadFromExcel.xls";
             if ($scope.SaveDataList.length == 0) {
                 throw "Load Data first..";
@@ -368,12 +369,18 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
             parameters.push({ "Key": "EntryCurrencyID", "Value": getString(filteredRecords, "EntryCurrencyID") });
             parameters.push({ "Key": "EntryAmount", "Value": getString(filteredRecords, "EntryAmount") });
 
+            for (var i = 0; i < $scope.monthList.length; i++) {
+                if ($scope.ModelNew.MonthNo == $scope.monthList[i].Value) {
+                    MonthName = $scope.monthList[i].Text;
+                }
+            }
+
             $http({
                 method: 'POST',
                 url: 'Payrolls/ExternalDataUploadFromExcel/ExternalDataUploadReport',
                 data: {
                     'EmployeeList': parameters[0].Value, 'SalaryHeadId': $scope.ModelNew.SalaryHeadId, 'MonthNo': $scope.ModelNew.MonthNo, 'YearNo': $scope.ModelNew.YearNo
-                    , 'SalaryHeadIDs': parameters[1].Value, 'HeadType': parameters[2].Value, 'CurrencyID': parameters[3].Value, 'EntryAmount': parameters[4].Value,
+                    , 'SalaryHeadIDs': parameters[1].Value, 'HeadType': parameters[2].Value, 'CurrencyID': parameters[3].Value, 'EntryAmount': parameters[4].Value, 'MonthName': MonthName
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
