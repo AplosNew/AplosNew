@@ -94,7 +94,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
                 if ($scope.Action === "Save" || $scope.Action === "Update") {
                     $http({
                         method: "POST",
-                        url: "Productions/FinishGoodsBooking/Insert",
+                        url: "Productions/FinishGoodsBooking/Create",
                         data: {
                             "data": $scope.modelNew
                             , "FinishGoodsBookingDetailList": $scope.selectedLineItems
