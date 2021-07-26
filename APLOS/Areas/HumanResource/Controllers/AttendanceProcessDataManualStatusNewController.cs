@@ -230,32 +230,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 {
 
 
-                }
-
-
-                #region Leave validation
-                string _sql_leave = @"select e.EmployeeCode,format(d.workdate,'dd-MMM-yyyy')wd from LeaveTransactionDetails d
-                                                left join LeaveTransaction t on t.SystemID=d.LvTrnsSystemID
-                                                inner join EmployeeInformation e on e.systemid=t.EmpSystemID where 
-                                                t.EmpSystemID in (" + inEmployeeIds + @") and 
-                                                d.WorkDate in (" + inDates + @") and d.LeaveDuration>=1";
-                DataTable dtLeave = _sqlRepository.GetDataTable(_sql_leave);
-                if(dtLeave.Rows.Count>0)
-                {
-                    string msg = string.Empty;
-                    foreach (DataRow item in dtLeave.Rows)
-                    {
-                        if (msg == "")
-                            msg = "'" + item["EmployeeCode"].ToString() + "' on ("+ item["wd"].ToString() + @")";
-                        else
-                            msg += ", '" + item["EmployeeCode"].ToString() + "' on (" + item["wd"].ToString() + @")";
-                    }
-
-                    throw new Exception("Leave  entry for the following employees must be deleted...");
-                }
-                #endregion
-
-
+                }              
 
                 if (DataToBeSaved.Where(ee => ee.IsError == true).ToList().Count > 0)
                 {
@@ -384,7 +359,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
 
                             KK.DayStatus,KK.DayStatus AS DayStatusNew, KK.OTHr,
-                            KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus
+                            KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus,dt.DayStatusChange
 
                              FROM (
 								
@@ -418,6 +393,11 @@ namespace Aplos.Areas.HumanResource.Controllers
                             left join mst.DesignationMasterLegalDesignation ddm on 
                             ddm.LegalDesignationId = emp.LegalDesignationId
 							left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+                            left join DayStatusPlantChild dc on dc.PlantId=emp.PlantId 
+							and dm.EmployeeCategoryId=dc.EmpTypeId
+							left join DayStatusHeader dh on dh.Id=dc.HeaderId
+							left join DayTypeWithValues dt on dt.HeaderId=dh.Id and dt.DayType=kk.DayStatus
+                        
                         WHERE EMP.PlantID='" + identity.PlantId + @"'
                         ORDER BY kk.EmployeeCode,CONVERT(DATE, WorkDate) ASC ";
 
