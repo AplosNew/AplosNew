@@ -266,6 +266,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 							var resConPlQrt = $scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty;
 							var Wastage = (resConPlQrt * $scope.FilterList123[i].WastagePer) / 100;
 							$scope.FilterList123[i].RequisitionQty = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
+							$scope.FilterList123[i].RequisitionQtyOrginal = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
 							$scope.FilterList123[i].RequestedQtyOrginal = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
 							//$scope.FilterList123[i].RequestedQty = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
 							

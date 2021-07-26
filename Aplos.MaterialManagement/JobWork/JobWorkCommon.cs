@@ -4445,9 +4445,13 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
             try
             {
-                strSQL = @"SELECT POS.Id ServiceId,SM.UserName  Service , POS.Description, POS.Amount,POS.TotalTaxAmount,Pos.AddedBy,pos.AddedDate,pos.UpdatedBy,pos.UpdatedDate FROM TRN.PurchaseOrder PO
-                            INNER join TRN.POService POS ON POS.InventoryReceiveId = PO.Id
-                            INNER JOIN HKP.ServiceMaster SM ON POS.ServiceMasterId = SM.Id 
+                strSQL = @"SELECT POS.Id ServiceId,SM.UserName  Service , POS.Description--, POS.Amount
+                             ,POS.TransactionAmount as Amount
+                            ,POS.TotalTaxAmount,Pos.AddedBy,pos.AddedDate,pos.UpdatedBy,pos.UpdatedDate 
+                            FROM dbo.JWTransformationPurchaseOrder PO --TRN.PurchaseOrder PO
+                            --INNER join TRN.POService POS ON POS.InventoryReceiveId = PO.Id
+							left join dbo.JWTransformationPurchaseOrderService POS ON POS.JWTransformationPurchaseOrderId = PO.Id
+                            left JOIN HKP.ServiceMaster SM ON POS.ServiceMasterId = SM.Id 
                             where PO.Id = '" + purchaseOrderId + @"'";
 
 
@@ -4469,12 +4473,18 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             string strSQL;
             try
             {
-                strSQL = @"select InventoryServiceId,PO.Id PurchaseOrderId,POD.Id PurchaseOrderDetailId,tg.Code AS TaxCode,PODT.Percentage, PODT.TaxAmount from TRN.PurchaseOrder PO
-                            INNER JOIN TRN.PurchaseOrderDetail POD ON POD.InventoryReceiveId = PO.Id
-                            Inner join TRN.PurchaseOrderTax PODT ON PODT.InventoryReceiveId = PO.Id and PODT.InventoryReceiveDetailId = POD.Id
+                strSQL = @"select   PODT.ServiceMasterId InventoryServiceId,
+                            PO.Id PurchaseOrderId,POD.Id PurchaseOrderDetailId,tg.Code AS TaxCode,PODT.Percentage, PODT.TaxAmount 
+                            from dbo.JWTransformationPurchaseOrder PO --TRN.PurchaseOrder PO
+                            --INNER JOIN TRN.PurchaseOrderDetail POD ON POD.InventoryReceiveId = PO.Id
+							left JOIN dbo.JobWorkTransformationContractChild POD ON POD.JobWorkTransformationContractMasterId = PO.Id
+                            --Inner join TRN.PurchaseOrderTax PODT ON PODT.InventoryReceiveId = PO.Id and PODT.InventoryReceiveDetailId = POD.Id
+							LEFT join dbo.JWTransformationPurchaseOrderTax PODT ON PODT.JWTransformationPurchaseOrderId = PO.Id and PODT.JWTransformationPurchaseOrderDetailId = POD.Id
                             LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=PODT.TaxCategoryId
-                            WHERE PO.Id='" + purchaseOrderId + @"' 
-							and InventoryReceiveDetailId  is not null and  InventoryServiceId is null AND PODT.Percentage > 0 
+                            WHERE PO.Id='"+ purchaseOrderId + @"' 
+							--and InventoryReceiveDetailId  is not null and  InventoryServiceId is null AND PODT.Percentage > 0 
+							and PODT.JWTransformationPurchaseOrderDetailId  is not null and PODT.ServiceMasterId is null 
+							AND PODT.Percentage > 0 
 							ORDER BY tg.[Sequence] ";
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -5133,12 +5143,28 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
             try
             {
-                strSQL = @"SELECT InventoryServiceId,PO.Id PurchaseOrderId,tg.Code AS TaxCode,PODT.Percentage, PODT.TaxAmount from TRN.PurchaseOrder PO
-                            INNER JOIN TRN.POService POS ON POS.InventoryReceiveId = PO.Id
-                            INNER JOIN TRN.PurchaseOrderTax PODT ON PODT.InventoryReceiveId = PO.Id and PODT.InventoryServiceId = POS.Id
+                //        strSQL = @"SELECT InventoryServiceId,PO.Id PurchaseOrderId,tg.Code AS TaxCode,PODT.Percentage, PODT.TaxAmount from TRN.PurchaseOrder PO
+                //                    INNER JOIN TRN.POService POS ON POS.InventoryReceiveId = PO.Id
+                //                    INNER JOIN TRN.PurchaseOrderTax PODT ON PODT.InventoryReceiveId = PO.Id and PODT.InventoryServiceId = POS.Id
+                //                      LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=PODT.TaxCategoryId
+                //                        WHERE PO.Id='" + purchaseOrderId + @"' 
+                //AND InventoryServiceId   IS NOT NULL AND  InventoryReceiveDetailId IS NULL 
+                // ORDER BY tg.[Sequence] ";
+
+                strSQL = @"SELECT PODT.ServiceMasterId InventoryServiceId,
+                            PO.Id PurchaseOrderId,tg.Code AS TaxCode,PODT.Percentage, PODT.TaxAmount 
+                            from dbo.JWTransformationPurchaseOrder PO --TRN.PurchaseOrder PO
+                            --INNER JOIN TRN.POService POS ON POS.InventoryReceiveId = PO.Id
+							left JOIN dbo.JWTransformationPurchaseOrderService POS ON POS.JWTransformationPurchaseOrderId = PO.Id
+                            --INNER JOIN TRN.PurchaseOrderTax PODT ON PODT.InventoryReceiveId = PO.Id and PODT.InventoryServiceId = POS.Id
+							left JOIN dbo.JobWorkTransformationContractChild POD ON POD.JobWorkTransformationContractMasterId = PO.Id
+							 LEFT JOIN dbo.JWTransformationPurchaseOrderTax PODT ON PODT.JWTransformationPurchaseOrderId = PO.Id and PODT.JWTransformationPurchaseOrderDetailId = POD.Id
                               LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=PODT.TaxCategoryId
-                                WHERE PO.Id='" + purchaseOrderId + @"' 
-								AND InventoryServiceId   IS NOT NULL AND  InventoryReceiveDetailId IS NULL 
+                                WHERE PO.Id='"+ purchaseOrderId + @"' 
+								--AND InventoryServiceId   IS NOT NULL 
+								-- and InventoryReceiveDetailId is null
+								AND PODT.ServiceMasterId   IS NOT NULL 
+								AND  PODT.JWTransformationPurchaseOrderDetailId IS NULL 
 								 ORDER BY tg.[Sequence] ";
 
 
