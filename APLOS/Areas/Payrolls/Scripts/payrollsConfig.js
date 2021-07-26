@@ -344,6 +344,10 @@
             templateUrl: 'Payrolls/EmployeeAdvanceDeduction/Aplos',
             controller: 'EmployeeAdvanceDeductionController'
         })
+        .when('/company-wise-external-data-upload-from-excel', {
+            templateUrl: 'Payrolls/CompanyWiseExternalDataUploadFromExcel/Aplos',
+            controller: 'CompanyWiseExternalDataUploadFromExcelController'
+        })
         ;
 
       
