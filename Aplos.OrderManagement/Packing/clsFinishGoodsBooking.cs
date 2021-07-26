@@ -1035,8 +1035,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							,ActivityId =MGGL.InventoryActivityId 
 							,ActivityCode =A.Code 
 							,ActivityName =A.UserName
-							, SUM(IRD.Qty*IRD.Rate) AS Dr, NULL Cr
-							, SUM(IRD.Qty*IRD.Rate) AS Amount
+							, SUM(IRD.Amount) AS Dr, NULL Cr
+							, SUM(IRD.Amount) AS Amount
                             ,IRD.Id AS  FinishGoodsBookingDetailId
 						FROM dbo.[DateWiseConsumption] DC 
 						LEFT JOIN dbo.[FinishGoodsBookingDetail] AS IRD ON DC.Id=IRD.DateWiseConsumptionId
@@ -1065,8 +1065,8 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
 							,ActivityId =GAD.ActivityId 
 							,ActivityCode =A.Code 
 							,ActivityName =A.UserName
-							, NULL Dr, SUM(IRD.Qty*IRD.Rate) AS Cr
-							, SUM(IRD.Qty*IRD.Rate) AS Amount
+							, NULL Dr, SUM(IRD.Amount) AS Cr
+							, SUM(IRD.Amount) AS Amount
                             ,NULL FinishGoodsBookingDetailId
 						FROM dbo.[DateWiseConsumption] DC
 						LEFT JOIN dbo.[FinishGoodsBookingDetail] AS IRD ON DC.Id=IRD.DateWiseConsumptionId
@@ -1098,7 +1098,7 @@ group by  po.ProductionOrderId,moi.Id,a.OrderCostingMasterTemplateId,OCMT.UserNa
                             , PL.ArticleId, ART.StandardName
                             , FGD.Rate AS TransactionRate
                             , CU.Code AS CurrencyName, 1 ToCurrencyRate
-                            , FGD.Qty*FGD.Rate AS TrnAmount
+                            , FGD.Amount AS TrnAmount
                              ,FGD.Qty AS TransactionQty
                             
 					  from dbo.[DateWiseConsumption] DC

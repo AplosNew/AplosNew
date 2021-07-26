@@ -5358,6 +5358,7 @@ namespace Library.Service.Invoices
                         //_invoiceDetailRepository.Insert(invoiceDetail);
                         InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                         currentVoucherDetaiRecord++;
+                        voucherDr.InvoiceDetailId = invoiceDetail.Id;
                         _voucherService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord);
 
                         #region Currency
