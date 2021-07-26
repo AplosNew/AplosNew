@@ -805,7 +805,7 @@ order by  Assigned, ProductCode , PO
             try
             {
                 var str = @"Select PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, DATEDIFF(Day,GETDATE() , InactiveDate) as Active , p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
-                            ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks from trn.Packing pk
+                            ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId from trn.Packing pk
                             left join hkp.Party p on p.Id = pk.CustomerId
                             left join dbo.EmployeeInformation e on e.SystemId = pk.ByWhom
                             left join dbo.EmployeeInformation ei on ei.SystemId = pk.DispatchResponsiblePersonId

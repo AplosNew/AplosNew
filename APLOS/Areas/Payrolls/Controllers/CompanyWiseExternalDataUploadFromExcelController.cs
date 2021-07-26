@@ -34,7 +34,7 @@ using System.Web.Script.Serialization;
 
 namespace Aplos.Areas.Payrolls.Controllers
 {
-    public class ExternalDataUploadFromExcelController : BaseController
+    public class CompanyWiseExternalDataUploadFromExcelController : BaseController
     {
         #region Constructor
 
@@ -42,7 +42,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         private readonly clsTemplateDownloadExternalData _AttendanceManagementService;
         private readonly clsExternalDataUpload _SalaryStructureUploadService;
 
-        public ExternalDataUploadFromExcelController(
+        public CompanyWiseExternalDataUploadFromExcelController(
                ISqlRepository sqlRepository,
                clsTemplateDownloadExternalData AttendanceManagementService,
                clsExternalDataUpload SalaryStructureUploadService
@@ -76,7 +76,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         Left join EmployeeInformation EI on EI.SystemId=m.EmpInfoSystemID
                         LEFT JOIN SalaryHead sh on sh.SalaryHeadID=d.SalaryHeadID
                         LEFT JOIN  SCS.Currency c on c.id=d.EntryCurrencyID
-                        WHERE m.monthNo=" + MonthNo + @" and m.YearNo=" + YearNo + @" and m.PlantID='" + identity.PlantId + @"' and d.ExtDataUploadApp='XL'
+                        WHERE m.monthNo=" + MonthNo + @" and m.YearNo=" + YearNo + @" and d.ExtDataUploadApp='XL'
                         ORDER BY EI.EmployeeCodePreFix,EI.EmployeeCodeNumeric ";
             }
             else
@@ -86,7 +86,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         Left join EmployeeInformation EI on EI.SystemId=m.EmpInfoSystemID
                         LEFT JOIN SalaryHead sh on sh.SalaryHeadID=d.SalaryHeadID
                         LEFT JOIN  SCS.Currency c on c.id=d.EntryCurrencyID
-                        WHERE m.monthNo=" + MonthNo + @" and m.YearNo=" + YearNo + @" and m.PlantID='" + identity.PlantId + @"'
+                        WHERE m.monthNo=" + MonthNo + @" and m.YearNo=" + YearNo + @" 
                         and d.SalaryHeadID='" + SalaryHeadId + @"' and d.ExtDataUploadApp='XL'
                         ORDER BY EI.EmployeeCodePreFix,EI.EmployeeCodeNumeric ";
 
@@ -756,7 +756,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             {
                 string fileName = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                fileName = ExternalDataUploadFromExcelReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "External Data Upload", "", EmployeeList, SalaryHeadId, MonthNo, YearNo, SalaryHeadIDs, HeadType, CurrencyID, EntryAmount, MonthName);
+                fileName = ExternalDataUploadFromExcelReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Company Wise External Data Upload", "", EmployeeList, SalaryHeadId, MonthNo, YearNo, SalaryHeadIDs, HeadType, CurrencyID, EntryAmount, MonthName);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -1202,7 +1202,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 											left join MST.DesignationMasterLegalDesignation dml on dml.LegalDesignationId = LG.Id
 											left join mst.DesignationMaster dm on dm.Id = dml.DesignationMasterId
 											left join HKP.EmployeeCategory ec on ec.Id=dm.EmployeeCategoryId
-                        WHERE m.monthNo=" + MonthNo + " and m.YearNo=" + YearNo + " and m.PlantID='" + plantId + @"' and d.ExtDataUploadApp='XL'
+                        WHERE m.monthNo=" + MonthNo + " and m.YearNo=" + YearNo + @" and d.ExtDataUploadApp='XL'
                         and Ei.SystemId in (" + EmployeeList + @") " + SalayHead + @"
                         and sh.HeadType in (" + HeadType + ") and d.SalaryHeadID in (" + SalaryHeadIDs + ") and d.EntryAmount in (" + EntryAmount + ") and d.EntryCurrencyID in (" + CurrencyID + @")
                         ORDER BY EI.EmployeeCodePreFix,EI.EmployeeCodeNumeric ";
@@ -1228,7 +1228,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #region Update
         [HttpPost, Authorize]
-        public JsonResult UpdateUpload(ExternalUpload ExternalUploadUpdate)
+        public JsonResult UpdateUpload(CompanyWiseExternalUpload ExternalUploadUpdate)
         {
             try
             {
@@ -1260,7 +1260,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
         #endregion
     }
-    public class ExternalUpload
+    public class CompanyWiseExternalUpload
     {
         public string Id { get; set; }
         public string EmpCode { get; set; }

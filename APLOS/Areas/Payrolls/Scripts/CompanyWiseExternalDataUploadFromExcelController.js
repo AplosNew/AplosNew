@@ -1,10 +1,10 @@
 ﻿'use strict';
-ExternalDataUploadFromExcelController.$inject = ['$scope', '$http', '$location', "$rootScope", '$window', "$compile", 'baseService', 'fileReader'];
-function ExternalDataUploadFromExcelController($scope, $http, $location, $rootScope, $window, $compile, baseService, fileReader) {
-    $scope.path = 'Payrolls/ExternalDataUploadFromExcel/';
+CompanyWiseExternalDataUploadFromExcelController.$inject = ['$scope', '$http', '$location', "$rootScope", '$window', "$compile", 'baseService', 'fileReader'];
+function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $location, $rootScope, $window, $compile, baseService, fileReader) {
+    $scope.path = 'Payrolls/CompanyWiseExternalDataUploadFromExcel/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
-    $rootScope.title = 'Salary Structure Data Upload';
+    $rootScope.title = 'Company Wise External Data Upload From Excel';
     $scope.SaveDataList = []
 
 

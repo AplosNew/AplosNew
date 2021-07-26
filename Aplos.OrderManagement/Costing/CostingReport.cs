@@ -24,13 +24,13 @@ namespace Library.OrderManagement.Costing
             _sqlRepository = new SqlRepository();
             identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
         }
-        public void OrderCostingReport(string OrderCostingId,string ProductMasterId)
+        public void OrderCostingReport(string OrderCostingId,string ProductMasterId, string preCosting, string ProcurementCosting)
         {
             try
             {
                 string sql = OrderCostingProductInfoSQL(OrderCostingId);
                 string CostingDetailsql = OrderCostingProductDetailSQL(OrderCostingId, ProductMasterId);
-                String CostingComponentSql = OrderCostingComponentSQL(OrderCostingId);
+                String CostingComponentSql = OrderCostingComponentSQL(OrderCostingId,preCosting,ProcurementCosting);
 
 
                 ExcelEngine excelEngine = new ExcelEngine();
@@ -224,9 +224,7 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[7, 1, 21, 1].CellStyle.Font.Bold = true;
                 sheet.Range[7, 4, 21, 4].CellStyle.Font.Bold = true;
                 sheet.Range[7, 7, 21, 7].CellStyle.Font.Bold = true;
-                //sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
-                //sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                //sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+             
                 ROW++;
 
                  StartRow = 7; //row 20
@@ -459,17 +457,32 @@ namespace Library.OrderManagement.Costing
 
                 ROW++;
                 ROW++;
-
-
-                
+                COL = 1;
+                if (preCosting == "1")
+                {
+                    sheet[ROW, COL].Text = "Pre Costing.";
+                    sheet[ROW, COL].RowHeight = 20;
+                    sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+                    sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
+                    sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                    sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+                }
+                if (ProcurementCosting == "1")
+                {
+                    sheet[ROW, COL].Text = "Procurement Costing.";
+                    sheet[ROW, COL].RowHeight = 20;
+                    sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+                    sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
+                    sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                    sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+                }
+                ROW++;
+                int CostingComponentEndcol = 0;
                 for (int i = 0; i < dtCostingDetailInfo.Rows.Count; i++)
                 {
 
                     COL = 1;
                     dtOrderCostingComponent.DefaultView.RowFilter = "CostingComponentId='" + dtCostingDetailInfo.Rows[i]["CostingComponentId"].ToString() + "'";
-
-
-
                     sheet[ROW, COL].Text = dtCostingDetailInfo.Rows[i]["StandardName"].ToString() + " breakdown.";
                     sheet[ROW, COL].RowHeight = 15;
                     sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
@@ -496,7 +509,7 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, COL].ColumnWidth = 10;
                     int colAmount = COL;
 
-                    int CostingComponentEndcol = COL;
+                     CostingComponentEndcol = COL;
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Font.Bold = true;
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
                     sheet.Range[ROW , colCostingItem, ROW, colCostingItem + 2].Merge();
@@ -538,11 +551,16 @@ namespace Library.OrderManagement.Costing
                 }
 
 
+                sheet.Range[34, 1, 34, CostingComponentEndcol].Merge();
+
+
+
 
                 sheet.IsGridLinesVisible = false;
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[7, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet.Range[34, 1,34, CostingComponentEndcol].CellStyle.Font.Size = 15;
 
 
 
@@ -645,10 +663,13 @@ namespace Library.OrderManagement.Costing
 
         }
 
-        private string OrderCostingComponentSQL(string OrderCostingId)
+        private string OrderCostingComponentSQL(string OrderCostingId, string preCosting, string ProcurementCosting)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @" SELECT  ci.Id,CC.CalculationMethod, ctc.Sequence AS ComponentSequence,ci.Sequence AS ItemSequnce, ci.CostingCategoryId, ci.CostingComponentId,ci.UserName CostingItem
+
+            if (preCosting == "1")
+            {
+                return @" SELECT  ci.Id,CC.CalculationMethod, ctc.Sequence AS ComponentSequence,ci.Sequence AS ItemSequnce, ci.CostingCategoryId, ci.CostingComponentId,ci.UserName CostingItem
 ,cc.CostingSegment,upper(isnull(itemval.ValueType,'FIXED')) AS ValueType,
                         isnull(itemval.TotalGrossAmount,0) AS TotalGrossAmount,isnull(itemval.Value,0) AS Value,isnull(itemval.Rate,0) AS Rate
 						  from  OrderCostingDetailTemplate D 
@@ -668,6 +689,35 @@ namespace Library.OrderManagement.Costing
                                   )AS ITEMVAL ON  itemval.Id=ci.Id
                          WHERE d.OrderCostingMasterTemplateId='" + OrderCostingId + @"'
                           order by ctc.Sequence,ci.Sequence";
+            }
+           else
+            {
+                return @"  SELECT ci.Id,CC.CalculationMethod, ctc.Sequence AS ComponentSequence,ci.Sequence AS ItemSequnce, ci.CostingCategoryId, ci.CostingComponentId,ci.UserName CostingItem
+, cc.CostingSegment,upper(isnull(itemval.ValueType, 'FIXED')) AS ValueType,
+                        isnull(itemval.TotalGrossAmount, 0) AS TotalGrossAmount, isnull(itemval.Value, 0) AS Value, isnull(itemval.Rate, 0) AS Rate
+
+                          from OrderCostingDetailTemplate D
+
+                         INNER JOIN OrderCostingMasterTemplate AS cmt ON cmt.Id = d.OrderCostingMasterTemplateId
+
+                         inner join hkp.CostingComponent CC on cc.id = d.CostingComponentId
+
+                         INNER JOIN hkp.CostingItem AS ci ON ci.CostingComponentId = cc.Id
+                         left outer join[dbo].[CostingTypeComponent] AS ctc
+                         ON cc.Id = ctc.CostingComponentId and ctc.CostingType = (SELECT CostingType FROM MST.ProductMaster
+                                                                                  WHERE Id = cmt.ProductMasterId)
+
+                         inner JOIN(SELECT 'FIXED' AS ValueType, 0 AS Value,0 AS Rate, i.Id,pc.GrossAmount AS TotalGrossAmount FROM OrderProcurementCostingDirectMaterial AS pc INNER JOIN HKP.CostingItem I on i.Id = PC.CostingItemId and pc.OrderCostingMasterTemplateId = '" + OrderCostingId + @"'
+                                            UNION ALL SELECT 'PERCENTAGE' AS ValueType, PC.Value,PC.Rate, i.Id,pc.Amount AS TotalGrossAmount FROM OrderProcurementCostingDirectProcess AS pc INNER JOIN HKP.CostingItem I on i.Id = PC.CostingItemId and pc.OrderCostingMasterTemplateId = '" + OrderCostingId + @"'
+                                            UNION ALL SELECT 'FIXED' AS ValueType, 0 AS Value,0 AS Rate, i.Id,pc.[Value]  AS TotalGrossAmount FROM OrderProcurementCostingOperation AS pc       INNER JOIN HKP.CostingItem I on i.Id = PC.CostingItemId and pc.OrderCostingMasterTemplateId = '" + OrderCostingId + @"'
+                                            UNION ALL SELECT pc.[Type],            PC.Value,0 AS Rate, i.Id,          pc.Amount AS TotalGrossAmount FROM OrderProcurementCostingSalesExpense AS pc INNER JOIN HKP.CostingItem I on i.Id = PC.CostingItemId and pc.OrderCostingMasterTemplateId = '" + OrderCostingId + @"'
+                                            UNION ALL SELECT pc.[Type],            PC.Value,0 AS Rate, i.Id,           pc.Amount AS TotalGrossAmount FROM OrderProcurementCostingValueLoss AS pc INNER JOIN HKP.CostingItem I on i.Id = PC.CostingItemId and pc.OrderCostingMasterTemplateId = '" + OrderCostingId + @"'
+                                            UNION ALL SELECT pc.[Type],            PC.Value,0 AS Rate, i.Id,           pc.Amount AS TotalGrossAmount FROM OrderProcurementCostingProfit AS pc INNER JOIN HKP.CostingItem I on i.Id = PC.CostingItemId and pc.OrderCostingMasterTemplateId = '" + OrderCostingId + @"'
+                                  )AS ITEMVAL ON itemval.Id = ci.Id
+                         WHERE d.OrderCostingMasterTemplateId = '" + OrderCostingId + @"'
+                          order by ctc.Sequence,ci.Sequence";
+            }
+            
 
         }
 
