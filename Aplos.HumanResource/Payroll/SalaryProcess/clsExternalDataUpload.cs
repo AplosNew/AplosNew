@@ -1911,7 +1911,7 @@ namespace Library.Service.Payrolls.SalaryProcess
 
                     }
 
-
+                    
 
                     objEmpExtAmt.DeleteCompanyWiseOldExtraData(YearNo, MonthNo, Identity.PlantId, ExtraSlrHd);
 
@@ -1932,10 +1932,6 @@ namespace Library.Service.Payrolls.SalaryProcess
 
                     string ChdSystemID = "";
 
-                    //for (int i = 0; i < dsMWESAChdGrd.Tables[0].Rows.Count; i++)
-                    //{
-
-
                     foreach (ExternalDataUploadVM Item in data)
                     {
                         string strMstSysID = Item.MWESAMasterSystemID;
@@ -1945,14 +1941,6 @@ namespace Library.Service.Payrolls.SalaryProcess
                         {
                             #region Master Table
                             bool IsEmpAvailable = false;
-
-
-                            //dvMWESAMst.RowFilter = "EmpInfoSystemID = '" + empid.Trim() + "'";
-                            //if(dvMWESAMst.Count>0)
-                            //{
-                            //    IsEmpAvailable = true;
-                            //}
-                            //dvMWESAMst.RowFilter = null;
 
                             dvMWESAMst.Table = dtMWESAMst;
                             // throw new Exception(strMstSysID.Trim());
