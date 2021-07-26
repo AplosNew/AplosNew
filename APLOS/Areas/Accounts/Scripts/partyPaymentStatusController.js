@@ -57,7 +57,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             url: $scope.exportgriddataUrl,
             data: {
                 'obj': JSON.stringify(filtered),
-                'ReportHeader': $scope.report.AssetsLiability
+                'ReportHeader': $scope.report.AssetsLiability + '   ' + $scope.report.ToDate,
+               //'toDate': $scope.report.ToDate
             }
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -2825,6 +2826,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
             }).then(function successCallback(response) {
                 $scope.TrialBalanceList = response.data;
+                console.log('Trial Balance List', $scope.TrialBalanceList);
                // createLoanTakenBarChart(response.data);
             }),
                 function errorCallBack(response) {
@@ -2839,14 +2841,14 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //$scope.GetTrialBalanceData();
 
     $scope.summaryRowsTrialBalance = [{
-        title: "Total DR. & CR.", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DRcumulative", dataMember: "DRcumulative", format: "{0:N2}" },
-                                                 { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CRcumulative", dataMember: "CRcumulative", format: "{0:N2}" }],
+        title: "Total DR. & CR.", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DR", dataMember: "DR", format: "{0:N2}" },
+                                                 { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CR", dataMember: "CR", format: "{0:N2}" }],
         showCaptionSummary: true
     }];
 
 
-    $scope.LedgerActivityPoPUpList = [];
-    $scope.BankLedgerDetailLevelPoPUpList = [];
+   // $scope.LedgerActivityPoPUpList = [];
+    //$scope.BankLedgerDetailLevelPoPUpList = [];
 
     $scope.getTrialBLDetailLevelBankMasterLedgerPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
 
@@ -2860,12 +2862,12 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         $rootScope.openPopupAngular('TrialBLBankMasterLedgerPopUp');
     };
 
-    $scope.BankLedgerHeadingPoPUpList = [];
-    $scope.getTrialBLBankMasterHeaderLedgerPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
+    //$scope.BankLedgerHeadingPoPUpList = [];
+    $scope.getTrialBLBankMasterHeaderLedgerPopUpData = function (glId, budMId, actId, bkmId, toDate) {
 
         $http({
             method: "GET",
-            url: "Accounts/AccountStatusDashboard/GetBankMasterLedgerHeading?gLInfoId=" + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&partyId=' + pId + '&partyPlantId=' + ppId + '&bankMasterId=' + bkmId + '&cashMasterId=' + cmId + '&toDate=' + toDate
+            url: "Accounts/AccountStatusDashboard/GetBankMasterLedgerHeading?gLInfoId=" + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&bankMasterId=' + bkmId + '&toDate=' + toDate
         }).then(function successCallback(response) {
             $scope.BankLedgerHeadingPoPUpList = response.data;
             $scope.bankName = $scope.BankLedgerHeadingPoPUpList[0].BankName
@@ -2881,7 +2883,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     };
 
 
-    $scope.CashLedgerDetailLevelPoPUpList = [];
+    //$scope.CashLedgerDetailLevelPoPUpList = [];
     $scope.getTrialBLDetailLevelCashMasterLedgerPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
 
         $http({
@@ -2893,7 +2895,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         $rootScope.openPopupAngular('TrialBLCashMasterLedgerPopUp');
     };
 
-    $scope.CashLedgerHeadingPoPUpList = [];
+    //$scope.CashLedgerHeadingPoPUpList = [];
     $scope.getTrialBLHeadingCashMasterLedgerPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
 
         $http({
@@ -2924,7 +2926,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         // angular.element(document.querySelector("#loanTakenSetOffPopUp")).modal("show");
     };
 
-    $scope.GeneralLedgerHeadingPoPUpList = [];
+    //$scope.GeneralLedgerHeadingPoPUpList = [];
     $scope.getTrialBLHeadingGeneralLedgerPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
 
         $http({
@@ -2943,7 +2945,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         // $rootScope.openPopupAngular('TrialBLCashMasterLedgerPopUp');
     };
 
-    $scope.PartyLedgerDetailLevelPoPUpList = [];
+   // $scope.PartyLedgerDetailLevelPoPUpList = [];
     $scope.getTrialBLDetailLevelPartyLedgerPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
         $http({
             method: "GET",
@@ -2955,7 +2957,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         $rootScope.openPopupAngular('TrialBLDetailLevelPartyLedgerPopUp');
     };
 
-    $scope.PartyLedgerHeadingPoPUpList = [];
+   // $scope.PartyLedgerHeadingPoPUpList = [];
     $scope.getTrialBLHeadingPartyLedgerPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
         $http({
             method: "GET",
@@ -3033,7 +3035,13 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CrAmount", dataMember: "CrAmount", format: "{0:N2}" },
         { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CompanyCurrencyDrAmount", dataMember: "CompanyCurrencyDrAmount", format: "{0:N2}" },
         { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CompanyCurrencyCrAmount", dataMember: "CompanyCurrencyCrAmount", format: "{0:N2}" }],
-        showCaptionSummary: true
+        showCaptionSummary: true,
+
+        //title: "Cloging Balance", summaryColumns: [{ summaryType: ej.Grid.SummaryType.sum, displayColumn: "DrAmount", dataMember: "DrAmount", format: "{0:N2}" },
+        //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CrAmount", dataMember: "CrAmount", format: "{0:N2}" },
+        //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CompanyCurrencyDrAmount", dataMember: "CompanyCurrencyDrAmount", format: "{0:N2}" },
+        //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CompanyCurrencyCrAmount", dataMember: "CompanyCurrencyCrAmount", format: "{0:N2}" }],
+        //showCaptionSummary: true
     }];
     
 
@@ -3051,21 +3059,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     };
 
 
-    //$scope.GetTrialBLAccountGroupReport = function () {
-
-    //    var filtered = $("#empInfoGrid").data("ejGrid").getFilteredRecords();
-    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-    //        filtered = $scope.EmployeeListTemp;
-    //    }
-
-    //    try {
-    //        var file_src = $scope.path + 'GetTrialBLAccountGroupReport?toDate=' + $scope.reportParameters.ToDate /*+ '&isWithAdvance=' + $scope.reportParameters.IsWithAdvance*/;
-    //        $rootScope.report(file_src);
-
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //}
 
     var getString = function (data, column) {
         var string = "''";
@@ -3091,11 +3084,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
             //var AccountGroupNames = getString(filtered, "GL");
             //var AccountGroupNames = getString(filtered, "AccountGroupName");
-            //var AccountGroupNames = getString(filtered, "AccountGroupName");
-            //var AccountGroupNames = getString(filtered, "AccountGroupName");
-            //var AccountGroupNames = getString(filtered, "AccountGroupName");
-
-
+     
             $scope.fileName = $scope.report.AssetsLiability + ".xls";
 
             $http({
@@ -3129,11 +3118,124 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     };
 
 
-    $scope.getTrialBLAllLevelGeneralLedgerPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
+
+
+
+   
+    $scope.BankLedgerDetailLevelPoPUpList = [];
+
+    $scope.getTrialBLAllLevelBankMasterLedgerPopUpData = function (particulars,glId, budMId, actId, bkmId, toDate) {
 
         $http({
             method: "GET",
-            url: "Accounts/AccountStatusDashboard/getLedgerActivityPoPUpListData?gLInfoId=" + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&partyId=' + pId + '&partyPlantId=' + ppId + '&bankMasterId=' + bkmId + '&cashMasterId=' + cmId + '&toDate=' + toDate
+            url: "Accounts/AccountStatusDashboard/GetBankLedgerAllLevelPoPUpListData?particulars=" + particulars + '&glInfoId=' + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&bankMasterId=' + bkmId + '&toDate=' + toDate
+        }).then(function successCallback(response) {
+            $scope.BankLedgerDetailLevelPoPUpList = response.data;
+            //$scope.partyName = $scope.LedgerActivityPoPUpList[0].Party
+        });
+        $rootScope.openPopupAngular('TrialBLBankMasterLedgerPopUp');
+    };
+
+    $scope.BankLedgerHeadingPoPUpList = [];
+    $scope.getTrialBLAllLevelBankMasterHeaderLedgerPopUpData = function (particulars,glId, budMId, actId, bkmId, toDate) {
+
+        $http({
+            method: "GET",
+            url: "Accounts/AccountStatusDashboard/GetAllLevelBankMasterLedgerHeading?particulars=" + particulars + '&glInfoId=' + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&bankMasterId=' + bkmId + '&toDate=' + toDate
+        }).then(function successCallback(response) {
+            $scope.BankLedgerHeadingPoPUpList = response.data;
+            $scope.bankName = $scope.BankLedgerHeadingPoPUpList[0].BankName
+            $scope.accountNumber = $scope.BankLedgerHeadingPoPUpList[0].AccountNumber
+            $scope.currencyCode = $scope.BankLedgerHeadingPoPUpList[0].CurrencyCode
+
+            $scope.BankBranchName = $scope.BankLedgerHeadingPoPUpList[0].BankName
+            $scope.AccountTitle = $scope.BankLedgerHeadingPoPUpList[0].AccountNumber
+            $scope.gLGeneralInfoCode = $scope.BankLedgerHeadingPoPUpList[0].GLGeneralInfoCode
+            $scope.gLGeneralInfoName = $scope.BankLedgerHeadingPoPUpList[0].GLGeneralInfoName
+        });
+        // $rootScope.openPopupAngular('TrialBLBankMasterLedgerPopUp');
+    };
+
+    $scope.CashLedgerHeadingPoPUpList = [];
+    $scope.getTrialBLHeadingAllLevelCashMasterLedgerPopUpData = function (particulars,glId, budMId, actId,  cmId, toDate) {
+
+        $http({
+            method: "GET",
+            url: "Accounts/AccountStatusDashboard/GetCashMasterLedgerHeading?particulars=" + particulars + '&glInfoId=' + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId +  '&cashMasterId=' + cmId + '&toDate=' + toDate
+        }).then(function successCallback(response) {
+            $scope.CashLedgerHeadingPoPUpList = response.data;
+            $scope.cashName = $scope.CashLedgerHeadingPoPUpList[0].CashName
+            $scope.currencyCode = $scope.CashLedgerHeadingPoPUpList[0].CurrencyCode
+
+            $scope.gLGeneralInfoCode = $scope.CashLedgerHeadingPoPUpList[0].GLGeneralInfoCode
+            $scope.gLGeneralInfoName = $scope.CashLedgerHeadingPoPUpList[0].GLGeneralInfoName
+        });
+        // $rootScope.openPopupAngular('TrialBLCashMasterLedgerPopUp');
+    };
+    $scope.CashLedgerDetailLevelPoPUpList = [];
+    $scope.getTrialBLAllLevelCashMasterLedgerPopUpData = function (particulars, glId, budMId, actId, cmId, toDate) {
+
+        $http({
+            method: "GET",
+            url: "Accounts/AccountStatusDashboard/GetCashLedgerAllLevelPoPUpListData?particulars=" + particulars + '&glInfoId=' + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId +  '&cashMasterId=' + cmId + '&toDate=' + toDate
+        }).then(function successCallback(response) {
+            $scope.CashLedgerDetailLevelPoPUpList = response.data;
+        });
+        $rootScope.openPopupAngular('TrialBLCashMasterLedgerPopUp');
+    };
+
+    $scope.PartyLedgerHeadingPoPUpList = [];
+    $scope.getTrialBLAllLevelHeadingPartyLedgerPopUpData = function (particulars,glId, budMId, actId, pId, ppId, toDate) {
+        $http({
+            method: "GET",
+            url: "Accounts/AccountStatusDashboard/GetPartyLedgerHeading?particulars=" + particulars + '&glInfoId=' + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&partyId=' + pId + '&partyPlantId=' + ppId + '&toDate=' + toDate
+        }).then(function successCallback(response) {
+            $scope.PartyLedgerHeadingPoPUpList = response.data;
+            $scope.partyCode = $scope.PartyLedgerHeadingPoPUpList[0].PartyCode
+            $scope.partyName = $scope.PartyLedgerHeadingPoPUpList[0].PartyName
+            $scope.partyPlantName = $scope.PartyLedgerHeadingPoPUpList[0].PartyName
+            $scope.currencyCode = $scope.PartyLedgerHeadingPoPUpList[0].CurrencyCode
+            $scope.partyAccountGroupName = $scope.PartyLedgerHeadingPoPUpList[0].PartyAccountGroupName
+        });
+        // $rootScope.openPopupAngular('TrialBLCashMasterLedgerPopUp');
+    };
+    $scope.PartyLedgerDetailLevelPoPUpList = [];
+    $scope.getTrialBLAllLevelPartyLedgerPopUpData = function (particulars,glId, budMId, actId, pId, ppId, toDate) {
+        $http({
+            method: "GET",
+            url: "Accounts/AccountStatusDashboard/GetPartyLedgerAllLevelPoPUpListData?particulars=" + particulars + '&glInfoId=' + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&partyId=' + pId + '&partyPlantId=' + ppId + '&toDate=' + toDate
+        }).then(function successCallback(response) {
+            $scope.PartyLedgerDetailLevelPoPUpList = response.data;
+            //$scope.partyName = $scope.LedgerActivityPoPUpList[0].Party
+        });
+        $rootScope.openPopupAngular('TrialBLDetailLevelPartyLedgerPopUp');
+    };
+
+    $scope.GeneralLedgerHeadingPoPUpList = [];
+    $scope.getTrialBLHeadingAllLevelGeneralLedgerPopUpData = function (particulars,glId, budMId, actId, toDate) {
+
+        $http({
+            method: "GET",
+            url: "Accounts/AccountStatusDashboard/GetGeneralLedgerAllLevelDRHeading?particulars=" + particulars + '&gLInfoId=' + glId +  '&budgetMasterId=' + budMId + '&activityId=' + actId +  '&toDate=' + toDate
+        }).then(function successCallback(response) {
+            $scope.GeneralLedgerHeadingPoPUpList = response.data;
+            $scope.accountTypeName = $scope.GeneralLedgerHeadingPoPUpList[0].AccountTypeName
+            $scope.accountGroupName = $scope.GeneralLedgerHeadingPoPUpList[0].AccountGroupName
+            $scope.refNo = $scope.GeneralLedgerHeadingPoPUpList[0].RefNo
+            $scope.gLGeneralInfoCode = $scope.GeneralLedgerHeadingPoPUpList[0].GLGeneralInfoCode
+            $scope.gLGeneralInfoName = $scope.GeneralLedgerHeadingPoPUpList[0].GLGeneralInfoName
+            $scope.budget = $scope.GeneralLedgerHeadingPoPUpList[0].Budget
+            $scope.activity = $scope.GeneralLedgerHeadingPoPUpList[0].Activity
+        });
+        // $rootScope.openPopupAngular('TrialBLCashMasterLedgerPopUp');
+    };
+
+    $scope.LedgerActivityPoPUpList = [];
+    $scope.getTrialBLAllLevelGeneralLedgerPopUpData = function (particulars, glId, budMId, actId, toDate) {
+
+        $http({
+            method: "GET",
+            url: "Accounts/AccountStatusDashboard/getLedgerAllLevelDRPoPUpListData?particulars=" + particulars + '&gLInfoId=' + glId +    '&budgetMasterId=' + budMId + '&activityId=' + actId +  '&toDate=' + toDate
         }).then(function successCallback(response) {
             $scope.LedgerActivityPoPUpList = response.data;
 
@@ -3145,85 +3247,36 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         $scope.toDate = $scope.reportParameters.ToDate
 
         if (args.BankMasterId != null) {
-            $scope.getTrialBLDetailLevelBankMasterLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
-            $scope.getTrialBLBankMasterHeaderLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+            $scope.getTrialBLAllLevelBankMasterLedgerPopUpData(args.Particulars,args.AccountCodeId, args.BudgetMasterId, args.ActivityId,  args.BankMasterId, $scope.toDate)
+            $scope.getTrialBLAllLevelBankMasterHeaderLedgerPopUpData(args.Particulars,args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.BankMasterId, $scope.toDate)
         }
         else if (args.CashMasterId != null) {
-            $scope.getTrialBLDetailLevelCashMasterLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
-            $scope.getTrialBLHeadingCashMasterLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+            $scope.getTrialBLAllLevelCashMasterLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId,  args.CashMasterId, $scope.toDate)
+            $scope.getTrialBLHeadingAllLevelCashMasterLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.CashMasterId, $scope.toDate)
 
         }
         else if (args.PartyId != null) {
-            $scope.getTrialBLDetailLevelPartyLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
-            $scope.getTrialBLHeadingPartyLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+            $scope.getTrialBLAllLevelPartyLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, $scope.toDate)
+            $scope.getTrialBLAllLevelHeadingPartyLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, $scope.toDate)
         }
         else {
-            $scope.getTrialBLAllLevelGeneralLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
-            $scope.getTrialBLHeadingGeneralLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
+            if (baseService.isUndefinedOrNull(args.BudgetMasterId)) {
+                args.BudgetMasterId = null;
+            }
+            if (baseService.isUndefinedOrNull(args.ActivityId)) {
+                args.ActivityId = null;
+            }
+            if (baseService.isUndefinedOrNull(args.Particulars)) {
+                args.Particulars = null;
+            }
+            $scope.getTrialBLAllLevelGeneralLedgerPopUpData(args.Particulars,  args.AccountCodeId, args.BudgetMasterId, args.ActivityId,  $scope.toDate)
+            $scope.getTrialBLHeadingAllLevelGeneralLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, $scope.toDate)
 
         }
     };
 
 
 
-    //$scope.getTrialBLAccountGroupHeaderPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
-
-    //    $http({
-    //        method: "GET",
-    //        url: "Accounts/AccountStatusDashboard/GetBankMasterLedgerHeading?gLInfoId=" + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&partyId=' + pId + '&partyPlantId=' + ppId + '&bankMasterId=' + bkmId + '&cashMasterId=' + cmId + '&toDate=' + toDate
-    //    }).then(function successCallback(response) {
-    //        $scope.BankLedgerHeadingPoPUpList = response.data;
-    //        $scope.bankName = $scope.BankLedgerHeadingPoPUpList[0].BankName
-    //        $scope.accountNumber = $scope.BankLedgerHeadingPoPUpList[0].AccountNumber
-    //        $scope.currencyCode = $scope.BankLedgerHeadingPoPUpList[0].CurrencyCode
-
-    //        $scope.BankBranchName = $scope.BankLedgerHeadingPoPUpList[0].BankName
-    //        $scope.AccountTitle = $scope.BankLedgerHeadingPoPUpList[0].AccountNumber
-    //        $scope.gLGeneralInfoCode = $scope.BankLedgerHeadingPoPUpList[0].GLGeneralInfoCode
-    //        $scope.gLGeneralInfoName = $scope.BankLedgerHeadingPoPUpList[0].GLGeneralInfoName
-    //    });
-    //    // $rootScope.openPopupAngular('TrialBLBankMasterLedgerPopUp');
-    //};
-
-    //$scope.getTrialBLAccountGroupPopUpData = function (accountGroupId, accountGroupName, toDate) {
-
-    //    $http({
-    //        method: "GET",
-    //        url: "Accounts/AccountStatusDashboard/GetAccountGroupPoPUpListData?accountGroupId=" + accountGroupId + '&accountGroupName=' + accountGroupName + '&toDate=' + toDate
-    //    }).then(function successCallback(response) {
-    //        $scope.BankLedgerDetailLevelPoPUpList = response.data;
-    //        //$scope.partyName = $scope.LedgerActivityPoPUpList[0].Party
-    //    });
-    //    $rootScope.openPopupAngular('TrialBLAccountGroupIdPopUp');
-    //};
-    //$scope.closeTrialBLAccountGroupPopUp = function () {
-    //    angular.element(document.querySelector("#TrialBLAccountGroupIdPopUp")).modal("hide");
-    //};
-
-    //$scope.showTrialBalanceAccountGroupPopUp = function (args) {
-    //    $scope.toDate = $scope.reportParameters.ToDate
-
-    //    if (args.AccoutnGroupId != null) {
-    //        $scope.getTrialBLAccountGroupPopUpData(args.AccoutnGroupId, args.AccountGroupName, $scope.toDate)
-    //       // $scope.getTrialBLAccountGroupHeaderPopUpData(args.AccoutnGroupId, args.AccountGroupName, $scope.toDate)
-    //    }
-
-    //    //else if (args.CashMasterId != null) {
-    //    //    $scope.getTrialBLDetailLevelCashMasterLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
-    //    //    $scope.getTrialBLHeadingCashMasterLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
-
-    //    //}
-    //    //else if (args.PartyId != null) {
-    //    //    $scope.getTrialBLDetailLevelPartyLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
-    //    //    $scope.getTrialBLHeadingPartyLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
-    //    //}
-    //    //else {
-    //    //    $scope.getTrialBLDetailLevelGeneralLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
-    //    //    $scope.getTrialBLHeadingGeneralLedgerPopUpData(args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, args.BankMasterId, args.CashMasterId, $scope.toDate)
-
-    //    //}
-
-    //};
 
     //-------------------#endregion  Trial Balance ----------------------------------------
 

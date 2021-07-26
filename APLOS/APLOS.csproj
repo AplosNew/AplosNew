@@ -772,6 +772,7 @@
     <Compile Include="Areas\PerformanceManagement\PerformanceManagementAreaRegistration.cs" />
     <Compile Include="Areas\Productions\Controllers\CutPlanController.cs" />
     <Compile Include="Areas\Productions\Controllers\MarkerController.cs" />
+    <Compile Include="Areas\Productions\Controllers\PackingInvoiceController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionPlanningReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShadeController.cs" />
     <Compile Include="Areas\Productions\Controllers\FebricWidthController.cs" />
@@ -2076,6 +2077,7 @@
     <Content Include="Areas\Productions\Scripts\FinishGoodsBookingPostController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerController.js" />
+    <Content Include="Areas\Productions\Scripts\PackingInvoiceController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionPlanningReportController.js" />
     <Content Include="Areas\Productions\Scripts\ShadeController.js" />
     <Content Include="Areas\Productions\Scripts\FebricWidthController.js" />
@@ -3583,6 +3585,7 @@
     <Content Include="Areas\Attendances\Views\ManualOTReportNew\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\CutPlan\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\FinishGoodsBooking\ConsumptionBookPost.cshtml" />
+    <Content Include="Areas\Productions\Views\PackingInvoice\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

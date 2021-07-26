@@ -9439,25 +9439,30 @@ group by Id) O60 ON O60.Id=IV.Id
             if (isActivityLevel)
             {
 
-                var sql = @"SELECT * FROM( SELECT distinct	GL.Id AS AccountCodeId,
-		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode
-			                     , isnull(sum(vd.DrAmount),0)TranDrAmount	
-								 ,isnull(sum(vd.CrAmount),0)TranCrAmount
-		                         ,sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
-                                , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,
-                                            ACT.BalanceType,
-                                            ACT.Id AS [MainHead]
+                var sql = @"SELECT * FROM( SELECT 
+
+                                        distinct GL.Id AS AccountCodeId
+		                         ,VDC.ParallelCurrencyId
+								
+                                          -- , ACT.BalanceType
+                                            ,ACT.Id AS [MainHead]
                                             	,ag.Id AccoutnGroupId
 				                            ,AG.UserName AccountGroupName
-		                                    ,VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
-                                            VD.BudgetMasterId
+											, GL.AccountCode AS GLGeneralInfoCode
+
+		                                    ,VD.GLGeneralInfoId,GL.UserName AS GL
+                                            ,VD.BudgetMasterId
 											,BUD.Id BudgetId
 		                                    ,BUD.UserName AS Budget,
 											A.Id AS ActivityId
 											,A.UserName AS Activity
+                                            ,vd.PartyId,VD.PartyPlantId
 									,VD.BankMasterId,VD.CashMasterId
-                                      
-											--,format( V.PostingDate, 'dd-MMM-yyyyy')PostingDate
+									 --,CU.Code AS CurrencyCode
+			                     , isnull(sum(vd.DrAmount),0)TranDrAmount	
+								 ,isnull(sum(vd.CrAmount),0)TranCrAmount
+		                         ,sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DR
+                                , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CR
 	                                        FROM TRN.VoucherDetailCurrency AS VDC
 		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -9476,23 +9481,25 @@ group by Id) O60 ON O60.Id=IV.Id
 								          -- and GL.Id='' and BUD.Id=''  and A.Id=''
                                             AND  v.IsPark=0
                                               GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName ,AG.Id,AG.UserName,
-											GL.AccountCode, ACT.BalanceType, ACT.Id, BUD.Id, BUD.UserName, VD.BudgetMasterId, A.Id,A.UserName,VD.BankMasterId,VD.CashMasterId
+											GL.AccountCode, ACT.BalanceType, ACT.Id, BUD.Id, BUD.UserName, VD.BudgetMasterId
+                                            , A.Id,A.UserName,VD.BankMasterId,VD.CashMasterId
+                                            ,VD.PartyId,vd.PartyPlantId
 											 ) ttd 
-                                            WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00
+                                            WHERE ISNULL(DR,0.00) <> 0.00 OR ISNULL(CR,0) <> 0.00
                                             ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL,ttd.Budget, ttd.Activity";
                 dictrialalance = _sqlRepository.GetDataCollection(sql);
 
                 foreach (var item in dictrialalance)
                 {
-                    if (clsStaticInfo.dbl(item["DRcumulative"].ToString()) < 0)
+                    if (clsStaticInfo.dbl(item["DR"].ToString()) < 0)
                     {
-                        item["CRcumulative"] = clsStaticInfo.dbl(item["DRcumulative"]) * -1;
-                        item["DRcumulative"] = 0.00;
+                        item["CR"] = clsStaticInfo.dbl(item["DR"]) * -1;
+                        item["DR"] = 0.00;
                     }
-                    if (clsStaticInfo.dbl(item["CRcumulative"].ToString()) < 0)
+                    if (clsStaticInfo.dbl(item["CR"].ToString()) < 0)
                     {
-                        item["DRcumulative"] = clsStaticInfo.dbl(item["CRcumulative"]) * -1;
-                        item["CRcumulative"] = 0.00;
+                        item["DR"] = clsStaticInfo.dbl(item["CR"]) * -1;
+                        item["CR"] = 0.00;
                     }
                 }
                
@@ -9501,17 +9508,25 @@ group by Id) O60 ON O60.Id=IV.Id
             }
             else if (isBudgetLevel)
             {
-                var sql = @" SELECT * FROM (SELECT distinct	GL.Id AS AccountCodeId,
-		                                  VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
-		                                   sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
-                                           , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,
-                                         ACT.BalanceType,
+                var sql = @" SELECT * FROM (SELECT 
+
+                                            distinct	GL.Id AS AccountCodeId,
+                                         --ACT.BalanceType,
                                          ACT.Id AS [MainHead]
                                         	,ag.Id AccoutnGroupId
                                             ,AG.UserName AccountGroupName
-		                                  ,VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
-                                           VD.BudgetMasterId,
+		                                  ,VD.GLGeneralInfoId
+										  , GL.AccountCode AS GLGeneralInfoCode
+										  ,GL.UserName AS GL
+								
+                                           ,VD.BudgetMasterId,
 		                                   BUD.UserName AS Budget
+										   ,VDC.ParallelCurrencyId
+                                            --,CU.Code AS CurrencyCode
+                                            ,VD.BankMasterId,VD.CashMasterId,VD.PartyId,VD.PartyPlantId
+		                                   ,sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DR
+                                           , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CR
+
 	                                     FROM TRN.VoucherDetailCurrency AS VDC
 		                                 INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                                 INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -9524,39 +9539,40 @@ group by Id) O60 ON O60.Id=IV.Id
                                        where v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                                        and  v.IsPark=0
                                       GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,VD.GLGeneralInfoId,GL.UserName  ,ag.Id, AG.UserName
+                                        ,VD.BankMasterId,VD.CashMasterId,VD.PartyId,VD.PartyPlantId
                                     , GL.AccountCode, ACT.BalanceType,ACT.Id,VD.BudgetMasterId,BUD.UserName,v.PostingDate) ttd 
-                                      WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00
+                                      WHERE ISNULL(DR,0.00) <> 0.00 OR ISNULL(CR,0) <> 0.00
                                       ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL,ttd.Budget";
                 dictrialalance = _sqlRepository.GetDataCollection(sql);
 
                 foreach (var item in dictrialalance)
                 {
-                    if (clsStaticInfo.dbl(item["DRcumulative"].ToString()) < 0)
+                    if (clsStaticInfo.dbl(item["DR"].ToString()) < 0)
                     {
-                        item["CRcumulative"] = clsStaticInfo.dbl(item["DRcumulative"]) * -1;
-                        item["DRcumulative"] = 0.00;
+                        item["CR"] = clsStaticInfo.dbl(item["DR"]) * -1;
+                        item["DR"] = 0.00;
                     }
-                    if (clsStaticInfo.dbl(item["CRcumulative"].ToString()) < 0)
+                    if (clsStaticInfo.dbl(item["CR"].ToString()) < 0)
                     {
-                        item["DRcumulative"] = clsStaticInfo.dbl(item["CRcumulative"]) * -1;
-                        item["CRcumulative"] = 0.00;
+                        item["DR"] = clsStaticInfo.dbl(item["CR"]) * -1;
+                        item["CR"] = 0.00;
                     }
                 }
             }
             else if (IsDetailLevel)
             {
-                var sql = @"SELECT * FROM( SELECT distinct GL.Id AS AccountCodeId,
-                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode
-                    -- , isnull(sum(vd.DrAmount),0)TranDrAmount
-                    -- ,isnull(sum(vd.CrAmount),0)TranCrAmount
-                    , sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
-                    , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,
-                    ACT.BalanceType,
+                var sql = @"SELECT * FROM( SELECT 
+                        
+                    distinct GL.Id AS AccountCodeId,
+                       --ACT.BalanceType,
                     ACT.Id AS [MainHead],
 	                ag.Id AccoutnGroupId,
                     AG.UserName AccountGroupName
-                    ,VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
-                    VD.BudgetMasterId,
+					 ,VD.GLGeneralInfoId
+					, GL.AccountCode AS GLGeneralInfoCode
+
+                   ,GL.UserName AS GL
+                    ,VD.BudgetMasterId,
                     BUD.Id BudgetId
                     ,BUD.UserName AS Budget
                     ,A.Id AS ActivityId
@@ -9571,8 +9587,13 @@ group by Id) O60 ON O60.Id=IV.Id
                     WHEN FM.UserName<>'' THEN FM.UserName
                     ELSE '' END
 
-                    -- A.Id AS ActivityId
-                    , VD.BankMasterId, VD.CashMasterId, VD.PartyId, VD.PartyPlantId,BMA.FixedAssetMasterId
+					,VD.BankMasterId, VD.CashMasterId, VD.PartyId, VD.PartyPlantId,BMA.FixedAssetMasterId
+					,VDC.ParallelCurrencyId
+                    --,CU.Code AS CurrencyCode
+                    -- , isnull(sum(vd.DrAmount),0)TranDrAmount
+                    -- ,isnull(sum(vd.CrAmount),0)TranCrAmount
+                    , sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DR
+                    , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CR 
                     FROM TRN.VoucherDetailCurrency AS VDC
                     INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
                     INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -9596,22 +9617,22 @@ group by Id) O60 ON O60.Id=IV.Id
                     GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName  , ag.Id ,AG.UserName,
                     GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.Id, A.UserName, BUD.Id, BUD.UserName, v.PostingDate, BA.AccountTitle, CM.UserName
                     ,VD.BankMasterId, VD.CashMasterId, P.UserName, PP.UserName, VD.PartyId, VD.PartyPlantId,FM.UserName,BMA.FixedAssetMasterId ) ttd
-                    WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00
+                    WHERE ISNULL(DR,0.00) <> 0.00 OR ISNULL(CR,0) <> 0.00
                      ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL,ttd.Budget, ttd.Activity";
 
                 dictrialalance = _sqlRepository.GetDataCollection(sql);
 
                 foreach (var item in dictrialalance)
                 {
-                    if (clsStaticInfo.dbl(item["DRcumulative"].ToString()) < 0)
+                    if (clsStaticInfo.dbl(item["DR"].ToString()) < 0)
                     {
-                        item["CRcumulative"] = clsStaticInfo.dbl(item["DRcumulative"]) * -1;
-                        item["DRcumulative"] = 0.00;
+                        item["CR"] = clsStaticInfo.dbl(item["DR"]) * -1;
+                        item["DR"] = 0.00;
                     }
-                    if (clsStaticInfo.dbl(item["CRcumulative"].ToString()) < 0)
+                    if (clsStaticInfo.dbl(item["CR"].ToString()) < 0)
                     {
-                        item["DRcumulative"] = clsStaticInfo.dbl(item["CRcumulative"]) * -1;
-                        item["CRcumulative"] = 0.00;
+                        item["DR"] = clsStaticInfo.dbl(item["CR"]) * -1;
+                        item["CR"] = 0.00;
                     }
                 }
 
@@ -9620,15 +9641,22 @@ group by Id) O60 ON O60.Id=IV.Id
 
             else
             {
-                var sql = @"SELECT * FROM (SELECT  distinct	GL.Id AS AccountCodeId,
-		                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
-		                   sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
-                         , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,
-                            ACT.BalanceType,
+                var sql = @"SELECT * FROM (SELECT  
+
+                        distinct GL.Id AS AccountCodeId,
+                            --ACT.BalanceType,
                             ACT.Id AS [MainHead]
                             ,ag.Id
                             ,AG.UserName AccountGroupName
-		                    ,VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode
+		                    ,VD.GLGeneralInfoId
+						   , GL.AccountCode AS GLGeneralInfoCode
+							,GL.UserName AS GL
+							 ,VDC.ParallelCurrencyId
+							 --,CU.Code AS CurrencyCode
+                            ,VD.BankMasterId,VD.CashMasterId,VD.PartyId,VD.PartyPlantId
+		                   ,sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DR
+                         , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CR 
+
 	                        FROM TRN.VoucherDetailCurrency AS VDC
 		                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -9636,25 +9664,28 @@ group by Id) O60 ON O60.Id=IV.Id
                             LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
                             LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
                             LEFT JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                            LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
+							LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
                             where v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                             and  v.IsPark=0
                             group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,VD.GLGeneralInfoId,GL.UserName, GL.AccountCode  ,ag.Id, AG.UserName
+                            ,VD.BankMasterId,VD.CashMasterId,VD.PartyId,VD.PartyPlantId
                             , ACT.BalanceType,ACT.Id,v.PostingDate) ttd 
-                            WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00
+                            WHERE ISNULL(DR,0.00) <> 0.00 OR ISNULL(CR,0) <> 0.00
                             ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL";
                 dictrialalance = _sqlRepository.GetDataCollection(sql);
 
                 foreach (var item in dictrialalance)
                 {
-                    if (clsStaticInfo.dbl(item["DRcumulative"].ToString()) < 0)
+                    if (clsStaticInfo.dbl(item["DR"].ToString()) < 0)
                     {
-                        item["CRcumulative"] = clsStaticInfo.dbl(item["DRcumulative"]) * -1;
-                        item["DRcumulative"] = 0.00;
+                        item["CR"] = clsStaticInfo.dbl(item["DR"]) * -1;
+                        item["DR"] = 0.00;
                     }
-                    if (clsStaticInfo.dbl(item["CRcumulative"].ToString()) < 0)
+                    if (clsStaticInfo.dbl(item["CR"].ToString()) < 0)
                     {
-                        item["DRcumulative"] = clsStaticInfo.dbl(item["CRcumulative"]) * -1;
-                        item["CRcumulative"] = 0.00;
+                        item["DR"] = clsStaticInfo.dbl(item["CR"]) * -1;
+                        item["CR"] = 0.00;
                     }
                 }
             }
@@ -9664,208 +9695,23 @@ group by Id) O60 ON O60.Id=IV.Id
         }
 
        
-        public List<Dictionary<string, object>> GetLedgerActivityPoPUpListData(string companyGroupId, string companyId, string plantId,  string gLInfoId, string budgetMasterId, string activityId, string partyId, string partyPlantId, string bankMasterId, string cashMasterId, string toDate )
+        public List<Dictionary<string, object>> getLedgerAllLevelDRPoPUpListData(string companyGroupId, string companyId, string plantId, string particulars, string gLInfoId, string budgetMasterId, string activityId, string toDate )
         {
             try
             {
-                if (bankMasterId == "null")
-                    bankMasterId = null;
+                if (gLInfoId == "null")
+                    gLInfoId = null;
 
-                if (cashMasterId == "null")
-                    cashMasterId = null;
+                if (budgetMasterId == "null")
+                    budgetMasterId = null;
 
-                if (partyId == "null")
-                    partyId = null;
+                if (activityId == "null")
+                    activityId = null;
 
+                if (particulars == "null")
+                    particulars = null;
 
-                if (!string.IsNullOrEmpty( bankMasterId))
-                {
-
-                    var sql = @"DECLARE @companyGroupId VARCHAR(10)='" + companyGroupId + @"';
-                    DECLARE @companyId VARCHAR(10)='" + companyId + @"';
-                    DECLARE @plantId VARCHAR(10)='" + plantId + @"';
-                    DECLARE @bankMasterId VARCHAR(10)='" + bankMasterId + @"';
-                    SELECT v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, V.PostingDate, V.CurrencyId,
-                    GLT.DrAmount AS DrAmount,
-                    GLT.CrAmount AS CrAmount
-                    , CC.CompanyCurrencyDrAmount, CC.CompanyCurrencyCrAmount, V.Narration,v.AddedDate
-	                ,ob.Id OpeningBalanceId
-                    ,OtherSide = concat( STUFF((select distinct ','+XPP.UserName from
-                    TRN.VoucherDetail AS XVD
-                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
-                    left join HKP.PartyPlant XPP ON XPP.Id=XVD.PartyPlantId
-                    where XVD.VoucherId=V.Id AND XVD.PartyPlantId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                    ,STUFF((select distinct ','+XEI.EmployeeName from
-                    TRN.VoucherDetail AS XVD
-                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
-                    left join dbo.EmployeeInformation XEI ON XEI.SystemId=XVD.EmployeeId
-                    where XVD.VoucherId=V.Id AND XVD.EmployeeId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                    ,STUFF((select distinct ','+XCM.UserName from
-                    TRN.VoucherDetail AS XVD
-                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
-                    left join MST.CashMaster XCM ON XCM.Id=XVD.CashMasterId
-                    where XVD.VoucherId=V.Id AND XVD.CashMasterId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                    ,STUFF((select distinct ','+XA.UserName from
-                    TRN.VoucherDetail AS XVD
-                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
-                    left join HKP.Activity XA ON XA.Id=XVD.ActivityId
-                    where XVD.VoucherId=V.Id AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL AND XVD.PartyPlantId IS NULL for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
-                    FROM [TRN].[GLTransactionDetail] AS GLT
-                    LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=GLT.VoucherDetailId
-                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
-                    LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId
-                    LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
-                    LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
-                    left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
-					left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
-                    LEFT JOIN (SELECT VDC.VoucherId, VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
-                    FROM [TRN].[VoucherDetailCurrency] AS VDC
-                    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
-                    ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
-                    WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId AND VD.BankMasterId=@bankMasterId AND V.SourceType!='OpeningBalance'
-                    --and XVD.PartyPlantId='" + partyPlantId+@"'
-                    --AND V.PostingDate BETWEEN '01-Dec-2020' AND '14-Apr-2021'
-                     and  v.PostingDate <= '" + toDate + @"'
-                    UNION
-                    
-                    SELECT v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, V.PostingDate, V.CurrencyId,
-                    GLT.DrAmount AS DrAmount,
-                    GLT.CrAmount AS CrAmount
-                    , CC.CompanyCurrencyDrAmount, CC.CompanyCurrencyCrAmount, V.Narration,v.AddedDate
-                   		,ob.Id OpeningBalanceId
-                    ,OtherSide = concat( STUFF((select distinct ','+XPP.UserName from
-                    TRN.VoucherDetail AS XVD
-                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
-                    left join HKP.PartyPlant XPP ON XPP.Id=XVD.PartyPlantId
-                    where XVD.VoucherId=V.Id AND XVD.PartyPlantId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                    ,STUFF((select distinct ','+XEI.EmployeeName from
-                    TRN.VoucherDetail AS XVD
-                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
-                    left join dbo.EmployeeInformation XEI ON XEI.SystemId=XVD.EmployeeId
-                    where XVD.VoucherId=V.Id AND XVD.EmployeeId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                    ,STUFF((select distinct ','+XCM.UserName from
-                    TRN.VoucherDetail AS XVD
-                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
-                    left join MST.CashMaster XCM ON XCM.Id=XVD.CashMasterId
-                    where XVD.VoucherId=V.Id AND XVD.CashMasterId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                    ,STUFF((select distinct ','+XA.UserName from
-                    TRN.VoucherDetail AS XVD
-                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
-                    left join HKP.Activity XA ON XA.Id=XVD.ActivityId
-                    where XVD.VoucherId=V.Id AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL AND XVD.PartyPlantId IS NULL for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
-                    FROM [TRN].[GLTransactionDetail] AS GLT
-                    LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=GLT.VoucherDetailId
-                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
-                    LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId
-                    LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
-                    LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
-                    left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
-					left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
-                    LEFT JOIN (SELECT VDC.VoucherId, VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
-                    FROM [TRN].[VoucherDetailCurrency] AS VDC
-                    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
-                    ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
-                    WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId AND VD.BankMasterId=@bankMasterId
-                    AND V.SourceType='OpeningBalance'
-                    --and XVD.PartyPlantId='" + partyPlantId + @"'
-                     and  v.PostingDate <= '" + toDate + @"'
-                    ORDER BY V.PostingDate,V.Addeddate, V.VoucherNo ASC";
-                    return _sqlRepository.GetDataCollection(sql);
-
-                }
-                else if (!string.IsNullOrEmpty(cashMasterId))
-                {
-                    var sql = @"DECLARE @companyGroupId VARCHAR(10)='" + companyGroupId + @"';
-                    DECLARE @companyId VARCHAR(10)='" + companyId + @"';
-                    DECLARE @plantId VARCHAR(10)='" + plantId + @"';
-                    DECLARE @cashMasterId VARCHAR(10)='" + cashMasterId + @"';
-                    SELECT v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, V.PostingDate, V.CurrencyId,
-                    VD.DrAmount ,
-                    VD.CrAmount
-                    , V.Narration
-                    , CC.CompanyCurrencyDrAmount, CC.CompanyCurrencyCrAmount
-	                ,ob.Id OpeningBalanceId
-                    , OtherSide=CASE
-                    WHEN P.UserName<>'' THEN P.UserName
-                    WHEN BM.AccountTitle<>'' THEN BM.AccountTitle
-                    WHEN CM.UserName<>'' THEN CM.UserName
-                    ELSE '' END
-                    FROM [TRN].[VoucherDetail] AS VD
-                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
-                    LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId
-                    LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
-                    LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
-                    left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
-					left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
-                    LEFT JOIN (SELECT VDC.VoucherId, VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
-                    FROM [TRN].[VoucherDetailCurrency] AS VDC
-                    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
-                    ) AS CC ON CC.VoucherId=VD.VoucherId AND CC.VoucherDetailId=VD.Id
-                    WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId=@companyGroupId AND V.CompanyId=@companyId AND V.PlantId=@plantId AND VD.CashMasterId=@cashMasterId --AND V.SourceType!='OpeningBalance'
-                     and  v.PostingDate <= '" + toDate + @"' 
-                    --AND V.SourceType!='OpeningBalance'";
-                    return _sqlRepository.GetDataCollection(sql);
-
-                }
-
-                else if (!string.IsNullOrEmpty(partyId))
-                {
-                    var sql = @"DECLARE @companyId VARCHAR(10)='"+companyId+ @"';
-                        SELECT v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId, REPLACE(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') AS PostingDate, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
-                        , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), v.DocDate, 106), ' ', '-') AS DocDate, V.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
-                        , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, PP.GSTIN
-                        , VD.GLGeneralInfoId,GLGI.UserName AS GLGeneralInfoName, BGM.RefNo, BG.UserName AS BudgetName,V.CurrencyId, A.UserName AS ActivityName, P.Code AS PartyCode, P.UserName AS PartyName, PP.UserName AS PartyPlantName
-	                    ,ob.Id OpeningBalanceId
-                        ,Particular =concat( STUFF((select distinct ','+xpA.UserName+ ' '+'('+ xp.UserName+')' from
-                        TRN.VoucherDetail XVD JOIN [HKP].[Party] AS XP ON XP.Id=XVD.PartyId
-                        JOIN HKP.Activity AS XPA ON XPA.Id=XVD.ActivityId
-                        where XVD.VoucherId=V.Id AND XVD.PartyId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                        ,STUFF((select distinct ','+xp.AccountTitle from
-                        TRN.VoucherDetail XVD JOIN MST.BankMaster AS XP ON XP.Id=XVD.BankMasterId
-                        where XVD.VoucherId=V.Id AND XVD.BankMasterId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                        , STUFF((select distinct ','+xp.UserName from
-                        TRN.VoucherDetail XVD JOIN MST.CashMaster AS XP ON XP.Id=XVD.CashMasterId
-                        where XVD.VoucherId=V.Id AND XVD.CashMasterId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                        ,STUFF((select distinct ','+xp.EmployeeName from
-                        TRN.VoucherDetail XVD JOIN [dbo].[EmployeeInformation] AS XP ON XP.SystemId=XVD.EmployeeId
-                        where XVD.VoucherId=V.Id AND XVD.EmployeeId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                        , STUFF((select distinct ','+xp.UserName from
-                        TRN.VoucherDetail XVD JOIN HKP.Activity AS XP ON XP.Id=XVD.ActivityId
-                        where XVD.VoucherId=V.Id AND XVD.PartyId is null AND XVD.CashMasterId IS NULL AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL
-                        AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
-
-                        FROM [TRN].[VoucherDetail] AS VD
-                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
-                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
-                        LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
-                        LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
-                        LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
-                        LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
-                        LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
-                        LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=VD.PartyPlantId AND P.Id=VD.PartyId
-                         left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
-					    left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
-                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
-                        FROM [TRN].[VoucherDetailCurrency] AS VDC
-                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
-                        ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId+"' AND V.CompanyId='"+companyId+@"'
-                        AND V.PlantId='"+plantId+"' AND VD.PartyId='"+partyId+@"'
-                        and VD.PartyPlantId='"+partyPlantId+@"'
-                        and v.PostingDate <= '"+toDate+@"'
-                        -- AND V.PostingDate BETWEEN '2019-01-01' AND '15-Apr-2021'
-                        AND V.SourceType<>'OpeningBalance' 
-
-                        ORDER BY V.PostingDate, V.VoucherNo ASC";
-                    return _sqlRepository.GetDataCollection(sql);
-
-                }
-
-                else
+                if (!string.IsNullOrEmpty(particulars))
                 {
 
                     var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
@@ -9875,6 +9721,7 @@ group by Id) O60 ON O60.Id=IV.Id
 							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
                             , BGM.RefNo, BG.UserName AS BudgetName,  A.Id ActivityId, A.UserName AS ActivityName, p.Id PartyId, p.username as Party 
                               ,ob.Id OpeningBalanceId
+
                             ,Particular =concat( STUFF((select distinct ','+xpA.UserName+ ' '+'('+ xp.UserName+')' from
 														TRN.VoucherDetail XVD JOIN [HKP].[Party] AS XP ON XP.Id=XVD.PartyId
                                                         JOIN HKP.Activity AS XPA ON XPA.Id=XVD.ActivityId
@@ -9931,14 +9778,170 @@ group by Id) O60 ON O60.Id=IV.Id
 							--And v.PostingDate <= '01-Dec-2020'
 							--AND CONVERT(VARCHAR, V.PostingDate, 23) BETWEEN '2019-01-01' AND '2021-04-10' 
 							--AND CONVERT(VARCHAR, V.PostingDate, 23) <= '" + toDate + @"'
-	                       -- and P.Id='" + partyId + @"'
-                        --	or VD.BankMasterId='" + bankMasterId + "'  or VD.CashMasterId='" + cashMasterId + @"'
+	                 
+                   
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+                else if (!string.IsNullOrEmpty(activityId))
+                {
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            , BGM.RefNo, BG.UserName AS BudgetName,  A.Id ActivityId, A.UserName AS ActivityName
+                            --, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+
+             
+												
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            --LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                          	--and BG.Id=''  
+                            AND VD.BudgetMasterId='" + budgetMasterId + @"'  
+                            AND VD.ActivityId='" + activityId + @"'  
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                            --AND V.SourceType!='OpeningBalance' 
+				
+	                 
+                   
                             and  v.PostingDate <= '" + toDate + @"' 
 							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
                     return _sqlRepository.GetDataCollection(sql);
 
                 }
 
+                else if (!string.IsNullOrEmpty(budgetMasterId))
+                {
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            , BGM.RefNo, BG.UserName AS BudgetName
+                            --,  A.Id ActivityId, A.UserName AS ActivityName, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+                          
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            --LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            --LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                        
+                            AND VD.BudgetMasterId='" + budgetMasterId + @"'  
+                        
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+
+                else
+                {
+
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            --, BGM.RefNo, BG.UserName AS BudgetName,  A.Id ActivityId, A.UserName AS ActivityName, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+
+                            
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            --LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                           -- LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            --LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            --LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                   
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                            --AND V.SourceType!='OpeningBalance' 
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+
+                //
                 // return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -9951,7 +9954,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
         }
         
-        public List<Dictionary<string, object>> GetBankMasterLedgerHeading(string companyGroupId, string companyId, string plantId, string gLInfoId, string budgetMasterId, string activityId, string partyId, string partyPlantId, string bankMasterId, string cashMasterId, string toDate)
+        public List<Dictionary<string, object>> GetBankMasterLedgerHeading(string companyGroupId, string companyId, string plantId, string particulars,string gLInfoId, string budgetMasterId, string activityId, string bankMasterId, string toDate)
         {
 
             var sql = @"SELECT BM.Id, BM.AccountTitle, BM.AccountNumber, BM.CurrencyId, C.Code AS CurrencyCode, B.UserName AS BankName, BB.UserName AS BankBranchName, GLGI.AccountCode AS GLGeneralInfoCode
@@ -9968,7 +9971,7 @@ group by Id) O60 ON O60.Id=IV.Id
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public List<Dictionary<string, object>> GetCashMasterLedgerHeading(string companyGroupId, string companyId, string plantId, string gLInfoId, string budgetMasterId, string activityId, string partyId, string partyPlantId, string bankMasterId, string cashMasterId, string toDate)
+        public List<Dictionary<string, object>> GetCashMasterLedgerHeading(string companyGroupId, string companyId, string plantId, string particulars,string gLInfoId, string budgetMasterId, string activityId,  string cashMasterId, string toDate)
         {
 
             var sql = @"SELECT CM.Id, CM.UserName AS CashName, CM.CurrencyId, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, BGM.RefNo
@@ -9983,7 +9986,7 @@ group by Id) O60 ON O60.Id=IV.Id
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public List<Dictionary<string, object>> GetPartyLedgerHeading(string companyGroupId, string companyId, string plantId, string gLInfoId, string budgetMasterId, string activityId, string partyId, string partyPlantId, string bankMasterId, string cashMasterId, string toDate)
+        public List<Dictionary<string, object>> GetPartyLedgerHeading(string companyGroupId, string companyId, string plantId,string particulars, string gLInfoId, string budgetMasterId, string activityId, string partyId, string partyPlantId, string toDate)
         {
 
             var sql = @"SELECT P.Id AS PartyId, P.Code AS PartyCode, P.UserName AS PartyName, CP.CurrencyId, C.Code AS CurrencyCode, PAG.UserName AS PartyAccountGroupName
@@ -9996,7 +9999,7 @@ group by Id) O60 ON O60.Id=IV.Id
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public List<Dictionary<string, object>> GetGeneralLedgerHeading(string companyGroupId, string companyId, string plantId, string gLInfoId, string budgetMasterId, string activityId, string partyId, string partyPlantId, string bankMasterId, string cashMasterId, string toDate)
+        public List<Dictionary<string, object>> GetGeneralLedgerAllLevelDRHeading( string particulars,string companyGroupId, string companyId, string plantId, string gLInfoId, string budgetMasterId, string activityId, string toDate)
         {
 
             var sql = @"SELECT AG.AccountTypeId AS AccountTypeName, AG.UserName AS AccountGroupName, GLGI.RefNo, bm.GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode
@@ -10017,6 +10020,820 @@ group by Id) O60 ON O60.Id=IV.Id
         }
 
 
+        public List<Dictionary<string, object>> GetPartyLedgerAllLevelPoPUpListData(string companyGroupId, string companyId, string plantId, string particulars, string gLInfoId, string budgetMasterId, string activityId,string partyId, string partyPlantId, string toDate)
+        {
+            try
+            {
+                if (gLInfoId == "null")
+                    gLInfoId = null;
+
+                if (budgetMasterId == "null")
+                    budgetMasterId = null;
+
+                if (activityId == "null")
+                    activityId = null;
+
+                if (particulars == "null")
+                    particulars = null;
+
+                //if (partyId == "null")
+                //    partyId = null;
+
+                //if (partyPlantId == "null")
+                //    partyPlantId = null;
+
+                if (!string.IsNullOrEmpty(particulars))
+                {
+
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            , BGM.RefNo, BG.UserName AS BudgetName,  A.Id ActivityId, A.UserName AS ActivityName, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+
+                            ,Particular =concat( STUFF((select distinct ','+xpA.UserName+ ' '+'('+ xp.UserName+')' from
+														TRN.VoucherDetail XVD JOIN [HKP].[Party] AS XP ON XP.Id=XVD.PartyId
+                                                        JOIN HKP.Activity AS XPA ON XPA.Id=XVD.ActivityId
+													    where	XVD.VoucherId=V.Id AND XVD.PartyId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+												
+                                                    ,STUFF((select distinct ','+xp.AccountTitle from
+														TRN.VoucherDetail XVD JOIN MST.BankMaster AS XP ON XP.Id=XVD.BankMasterId
+													where	XVD.VoucherId=V.Id AND XVD.BankMasterId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+												 , STUFF((select distinct ','+xp.UserName from
+														TRN.VoucherDetail XVD JOIN MST.CashMaster AS XP ON XP.Id=XVD.CashMasterId
+													where	XVD.VoucherId=V.Id AND XVD.CashMasterId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+												 ,STUFF((select distinct ','+xp.EmployeeName from
+														TRN.VoucherDetail XVD JOIN [dbo].[EmployeeInformation] AS XP ON XP.SystemId=XVD.EmployeeId
+													where	XVD.VoucherId=V.Id AND XVD.EmployeeId<>'' AND VD.ActivityId!=XVD.ActivityId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                , STUFF((select distinct ','+xp.UserName from
+														TRN.VoucherDetail XVD JOIN HKP.Activity AS XP ON XP.Id=XVD.ActivityId
+													where	XVD.VoucherId=V.Id AND XVD.PartyId is null AND XVD.CashMasterId IS NULL AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL
+													 AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                          	--and BG.Id=''  
+                            AND VD.BudgetMasterId='" + budgetMasterId + @"'  
+                            AND VD.ActivityId='" + activityId + @"'  
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                            AND VD.PartyId='" + partyId + @"'
+                            AND VD.PartyPlantId='" + partyPlantId + @"'
+                            --AND V.SourceType!='OpeningBalance' 
+							--and A.Id=''
+							--And v.PostingDate <= '01-Dec-2020'
+							--AND CONVERT(VARCHAR, V.PostingDate, 23) BETWEEN '2019-01-01' AND '2021-04-10' 
+							--AND CONVERT(VARCHAR, V.PostingDate, 23) <= '" + toDate + @"'
+	                 
+                   
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+                else if (!string.IsNullOrEmpty(activityId))
+                {
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            , BGM.RefNo, BG.UserName AS BudgetName,  A.Id ActivityId, A.UserName AS ActivityName
+                            --, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+
+             
+												
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            --LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                          	--and BG.Id=''  
+                            AND VD.BudgetMasterId='" + budgetMasterId + @"'  
+                            AND VD.ActivityId='" + activityId + @"'  
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                             AND VD.PartyId='" + partyId + @"'
+                            AND VD.PartyPlantId='" + partyPlantId + @"'
+                            --AND V.SourceType!='OpeningBalance' 
+				
+	                 
+                   
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+
+                else if (!string.IsNullOrEmpty(budgetMasterId))
+                {
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            , BGM.RefNo, BG.UserName AS BudgetName
+                            --,  A.Id ActivityId, A.UserName AS ActivityName, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+                          
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            --LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            --LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                        
+                            AND VD.BudgetMasterId='" + budgetMasterId + @"'  
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                            AND VD.PartyId='" + partyId + @"'
+                            AND VD.PartyPlantId='" + partyPlantId + @"'
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+
+                else
+                {
+
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            --, BGM.RefNo, BG.UserName AS BudgetName,  A.Id ActivityId, A.UserName AS ActivityName, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+
+                            
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            --LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                           -- LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            --LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            --LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                   
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                            AND VD.PartyId='" + partyId + @"'
+                            AND VD.PartyPlantId='" + partyPlantId + @"'
+                            --AND V.SourceType!='OpeningBalance' 
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+
+                //
+                // return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+
+
+        }
+
+        public List<Dictionary<string, object>> GetCashLedgerAllLevelPoPUpListData(string companyGroupId, string companyId, string plantId, string particulars, string gLInfoId, string budgetMasterId, string activityId, string cashMasterId, string toDate)
+        {
+            try
+            {
+                if (gLInfoId == "null")
+                    gLInfoId = null;
+
+                if (budgetMasterId == "null")
+                    budgetMasterId = null;
+
+                if (activityId == "null")
+                    activityId = null;
+
+                if (particulars == "null")
+                    particulars = null;
+
+                //if (partyId == "null")
+                //    partyId = null;
+
+                //if (partyPlantId == "null")
+                //    partyPlantId = null;
+
+                if (!string.IsNullOrEmpty(particulars))
+                {
+
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            , BGM.RefNo, BG.UserName AS BudgetName,  A.Id ActivityId, A.UserName AS ActivityName, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+
+                            ,Particular =concat( STUFF((select distinct ','+xpA.UserName+ ' '+'('+ xp.UserName+')' from
+														TRN.VoucherDetail XVD JOIN [HKP].[Party] AS XP ON XP.Id=XVD.PartyId
+                                                        JOIN HKP.Activity AS XPA ON XPA.Id=XVD.ActivityId
+													    where	XVD.VoucherId=V.Id AND XVD.PartyId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+												
+                                                    ,STUFF((select distinct ','+xp.AccountTitle from
+														TRN.VoucherDetail XVD JOIN MST.BankMaster AS XP ON XP.Id=XVD.BankMasterId
+													where	XVD.VoucherId=V.Id AND XVD.BankMasterId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+												 , STUFF((select distinct ','+xp.UserName from
+														TRN.VoucherDetail XVD JOIN MST.CashMaster AS XP ON XP.Id=XVD.CashMasterId
+													where	XVD.VoucherId=V.Id AND XVD.CashMasterId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+												 ,STUFF((select distinct ','+xp.EmployeeName from
+														TRN.VoucherDetail XVD JOIN [dbo].[EmployeeInformation] AS XP ON XP.SystemId=XVD.EmployeeId
+													where	XVD.VoucherId=V.Id AND XVD.EmployeeId<>'' AND VD.ActivityId!=XVD.ActivityId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                , STUFF((select distinct ','+xp.UserName from
+														TRN.VoucherDetail XVD JOIN HKP.Activity AS XP ON XP.Id=XVD.ActivityId
+													where	XVD.VoucherId=V.Id AND XVD.PartyId is null AND XVD.CashMasterId IS NULL AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL
+													 AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
+
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                          	--and BG.Id=''  
+                            AND VD.BudgetMasterId='" + budgetMasterId + @"'  
+                            AND VD.ActivityId='" + activityId + @"'  
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                             and VD.CashMasterId='"+cashMasterId+@"'
+                            --AND V.SourceType!='OpeningBalance' 
+							--and A.Id=''
+							--And v.PostingDate <= '01-Dec-2020'
+							--AND CONVERT(VARCHAR, V.PostingDate, 23) BETWEEN '2019-01-01' AND '2021-04-10' 
+							--AND CONVERT(VARCHAR, V.PostingDate, 23) <= '" + toDate + @"'
+	                 
+                   
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+                else if (!string.IsNullOrEmpty(activityId))
+                {
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            , BGM.RefNo, BG.UserName AS BudgetName,  A.Id ActivityId, A.UserName AS ActivityName
+                            --, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+
+             
+												
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            --LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
+
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                          	--and BG.Id=''  
+                            AND VD.BudgetMasterId='" + budgetMasterId + @"'  
+                            AND VD.ActivityId='" + activityId + @"'  
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                            and VD.CashMasterId='" + cashMasterId + @"'
+                            --AND V.SourceType!='OpeningBalance' 
+				
+	                 
+                   
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+
+                else if (!string.IsNullOrEmpty(budgetMasterId))
+                {
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            , BGM.RefNo, BG.UserName AS BudgetName
+                            --,  A.Id ActivityId, A.UserName AS ActivityName, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+                          
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            --LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            --LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                        
+                            AND VD.BudgetMasterId='" + budgetMasterId + @"'  
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                            and VD.CashMasterId='" + cashMasterId + @"'
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+
+                else
+                {
+
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            --, BGM.RefNo, BG.UserName AS BudgetName,  A.Id ActivityId, A.UserName AS ActivityName, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+
+                            
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            --LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                           -- LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            --LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            --LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                   
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                            and VD.CashMasterId='" + cashMasterId + @"'
+                            --AND V.SourceType!='OpeningBalance' 
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+
+                //
+                // return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+
+
+        }
+        public List<Dictionary<string, object>> GetBankLedgerAllLevelPoPUpListData(string companyGroupId, string companyId, string plantId, string particulars, string gLInfoId, string budgetMasterId, string activityId, string bankMasterId, string toDate)
+        {
+            try
+            {
+                if (gLInfoId == "null")
+                    gLInfoId = null;
+
+                if (budgetMasterId == "null")
+                    budgetMasterId = null;
+
+                if (activityId == "null")
+                    activityId = null;
+
+                if (particulars == "null")
+                    particulars = null;
+
+                //if (partyId == "null")
+                //    partyId = null;
+
+                //if (partyPlantId == "null")
+                //    partyPlantId = null;
+
+                if (!string.IsNullOrEmpty(particulars))
+                {
+
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            , BGM.RefNo, BG.UserName AS BudgetName,  A.Id ActivityId, A.UserName AS ActivityName, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+
+                            ,Particular =concat( STUFF((select distinct ','+xpA.UserName+ ' '+'('+ xp.UserName+')' from
+														TRN.VoucherDetail XVD JOIN [HKP].[Party] AS XP ON XP.Id=XVD.PartyId
+                                                        JOIN HKP.Activity AS XPA ON XPA.Id=XVD.ActivityId
+													    where	XVD.VoucherId=V.Id AND XVD.PartyId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+												
+                                                    ,STUFF((select distinct ','+xp.AccountTitle from
+														TRN.VoucherDetail XVD JOIN MST.BankMaster AS XP ON XP.Id=XVD.BankMasterId
+													where	XVD.VoucherId=V.Id AND XVD.BankMasterId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+												 , STUFF((select distinct ','+xp.UserName from
+														TRN.VoucherDetail XVD JOIN MST.CashMaster AS XP ON XP.Id=XVD.CashMasterId
+													where	XVD.VoucherId=V.Id AND XVD.CashMasterId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+												 ,STUFF((select distinct ','+xp.EmployeeName from
+														TRN.VoucherDetail XVD JOIN [dbo].[EmployeeInformation] AS XP ON XP.SystemId=XVD.EmployeeId
+													where	XVD.VoucherId=V.Id AND XVD.EmployeeId<>'' AND VD.ActivityId!=XVD.ActivityId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                , STUFF((select distinct ','+xp.UserName from
+														TRN.VoucherDetail XVD JOIN HKP.Activity AS XP ON XP.Id=XVD.ActivityId
+													where	XVD.VoucherId=V.Id AND XVD.PartyId is null AND XVD.CashMasterId IS NULL AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL
+													 AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                          	--and BG.Id=''  
+                            AND VD.BudgetMasterId='" + budgetMasterId + @"'  
+                            AND VD.ActivityId='" + activityId + @"'  
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                       
+                            --AND V.SourceType!='OpeningBalance' 
+							--and A.Id=''
+							--And v.PostingDate <= '01-Dec-2020'
+							--AND CONVERT(VARCHAR, V.PostingDate, 23) BETWEEN '2019-01-01' AND '2021-04-10' 
+							--AND CONVERT(VARCHAR, V.PostingDate, 23) <= '" + toDate + @"'
+	                 
+                   
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+                else if (!string.IsNullOrEmpty(activityId))
+                {
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            , BGM.RefNo, BG.UserName AS BudgetName,  A.Id ActivityId, A.UserName AS ActivityName
+                            --, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+
+             
+												
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            --LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                          	--and BG.Id=''  
+                            AND VD.BudgetMasterId='" + budgetMasterId + @"'  
+                            AND VD.ActivityId='" + activityId + @"'  
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                  
+                            --AND V.SourceType!='OpeningBalance' 
+				
+	                 
+                   
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+
+                else if (!string.IsNullOrEmpty(budgetMasterId))
+                {
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            , BGM.RefNo, BG.UserName AS BudgetName
+                            --,  A.Id ActivityId, A.UserName AS ActivityName, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+                          
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            --LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            --LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                        
+                            AND VD.BudgetMasterId='" + budgetMasterId + @"'  
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                     
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+
+                else
+                {
+
+                    var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT  v.CompanyGroupId, v.CompanyId, v.PlantId, v.SourceType, v.Id VoucherId,  V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                            , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                            --, BGM.RefNo, BG.UserName AS BudgetName,  A.Id ActivityId, A.UserName AS ActivityName, p.Id PartyId, p.username as Party 
+                              ,ob.Id OpeningBalanceId
+
+                            
+                                        ,NULL PartyName
+	                                   	,ISNULL( IR.Id,'') InventoryReceiveId
+										,ISNULL( INVI.Id,'') InventoryIssueId
+										,ISNULL( S.SourceType,'') SalesSourceType
+		                                , ISNULL(IVW.InvoiceWriteOffGroupNo,'')InvoiceWriteOffGroupNo
+
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            --LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                           -- LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            --LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            --LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+	                        left join trn.InventoryReceive IR ON IR.VoucherId = v.Id
+		                    left join trn.InventoryIssue INVI ON INVI.VoucherId = V.Id
+							left join TRN.Sales s on s.VoucherId=V.Id
+		                    left join trn.InvoiceWriteOffDetail IVWD ON IVWD.Id= VD.InvoiceWriteOffDetailId
+							LEFT JOIN TRN.InvoiceWriteOff IVW on IVW.Id = IVWD.InvoiceWriteOffId
+
+                             left join trn.OpeningBalanceDetail obd on obd.Id=vd.OpeningBalanceDetailId
+					        left join trn.OpeningBalance ob on ob.Id=obd.OpeningBalanceId
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+                   
+                            AND VD.GLGeneralInfoId='" + gLInfoId + @"'
+                        
+                            --AND V.SourceType!='OpeningBalance' 
+                            and  v.PostingDate <= '" + toDate + @"' 
+							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
+                    return _sqlRepository.GetDataCollection(sql);
+
+                }
+
+                //
+                // return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+
+
+        }
+
+        
         public List<Dictionary<string, object>> GetAccountGroupPoPUpListData(string companyGroupId, string companyId, string plantId, string accountGroupId, string accountGroupName, string toDate)
         {
 
