@@ -25,6 +25,10 @@ function FinishGoodsBookingPostController(cboService, commonMessage, $scope, $ro
             dataType: 'JSON',
         }).then(function successCallback(response) {
             $scope.products = response.data;
+            for (var i = 0; i < $scope.products.length; i++) {
+                response.data[i].PostingDate = new Date($scope.products[i].PostingDate);
+                response.data[i].DocDate = new Date($scope.products[i].DocDate);
+            }
         });
     };
    
