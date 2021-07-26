@@ -674,7 +674,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,null TransactionUoMName                 
 						,BOQD.RequiredQtyPO RequestedQty1
 						,null RequestedQty,0 RequestedQtyNew   
-						,0 RejectedQty
+						,0 RejectedQty,null RequisitionQtyOrginal
 					
 					
 						,0  ShortageQty
@@ -699,7 +699,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,BOQD.BOQId
 						,Sum(ISNULL(GRNALLO.TransactionQty,0)) TransactionQty
 						,Isnull(MMAU.BaseUOMFactor,0) BaseUOMFactor
-						,Sum(ISNULL(GRNALLO.TransactionQty,0)* Isnull(MMAU.BaseUOMFactor,0))  TotalQty
+						,Sum(ISNULL(GRNALLO.TransactionQty,0))  TotalQty--* Isnull(MMAU.BaseUOMFactor,0)
 						FROM BOQDetail BOQD
 						LEFT JOIN BOQFGMapping BOQFGM on BOQD.Id=BOQFGM.BOQDetailId
 						Left JOIN MST.MaterialMaster AS MM ON BOQD.MaterialMasterId = MM.Id
@@ -715,7 +715,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						--Left JOIN [MST].[MaterialMasterAlternativeUOM] AS MMAU ON MMAU.MaterialMasterId = MM.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON TUoM.Id =mm.StockUOMId 	
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-						left join (select b.BOQDetailId,sum(a.TransactionQty) TransactionQty ,UOM.UserName,UOM.Id StockTransactionUoMId
+						left join (select b.BOQDetailId,sum(a.BaseQty) TransactionQty ,UOM.UserName,UOM.Id StockTransactionUoMId
 								from trn.GRNPORequisitionAllocation a
 								left join trn.POBOQMap b ON b.Id=a.POBOQMapId
 								--LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.TransactionUoMId
