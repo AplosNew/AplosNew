@@ -114,6 +114,8 @@ namespace Library.Accounting.FixedAssets
 
                 voucherVM.CompanyCurrencyRate = 1;
                 voucherVM.CurrencyId = companyCurrencyId;
+                voucherVM.DocDate = Convert.ToDateTime(voucherVM.DocDate);
+                voucherVM.PostingDate = Convert.ToDateTime(voucherVM.PostingDate);
                 var voucher = new Voucher
                 {
                     CompanyGroupId = voucherVM.CompanyGroupId,
@@ -125,7 +127,7 @@ namespace Library.Accounting.FixedAssets
                     TaxYearId = voucherVM.TaxYearId,
                     TaxYearPeriodId = voucherVM.TaxYearPeriodId,
                     VoucherDate = DateTime.Now,
-                    DocDate = voucherVM.DocDate,
+                    DocDate =  voucherVM.DocDate,
                     DocRefNo = voucherVM.DocRefNo,
                     Narration = "Posting",//voucherVM.Narration,
                     PostingDate = voucherVM.PostingDate,
@@ -195,12 +197,12 @@ namespace Library.Accounting.FixedAssets
                 }
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.DateWiseConsumption WHERE FinishGoodsBookingId='" + voucherVM.Id+"'", out _finishGoodsBookingData, false, "1");
+                con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.DateWiseConsumption WHERE Id='" + voucherVM.Id+"'", out _finishGoodsBookingData, false, "1");
                 if (_finishGoodsBookingData.Tables[0].Rows.Count > 0)
                 {
                     for (int j = 0; j < _finishGoodsBookingData.Tables[0].Rows.Count; j++)
                     {
-                        _finishGoodsBookingData.Tables[0].DefaultView.RowFilter = "FinishGoodsBookingId='" + voucherVM.Id + @"'";
+                        _finishGoodsBookingData.Tables[0].DefaultView.RowFilter = "Id='" + voucherVM.Id + @"'";
 
                         if (_finishGoodsBookingData.Tables[0].DefaultView.Count > 0)
                         {
@@ -303,7 +305,7 @@ namespace Library.Accounting.FixedAssets
             //    var advanceDataList = GetVendorInvoiceChargeData(companyGroupId, companyId, plantId, voucherId, sourceType);
             //    var dtGeneralVoucher = advanceDataList;
 
-            var header = GetFinishGoodsBookingPostHeader(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.VendorInvoice);            reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];            var dsLocal = GetFinishGoodsBookingPostData(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.VendorInvoice);            var transcationCurrency = header["CurrencyId"].ToString();
+            var header = GetFinishGoodsBookingPostHeader(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.ConsumptionBook);            reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];            var dsLocal = GetFinishGoodsBookingPostData(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.ConsumptionBook);            var transcationCurrency = header["CurrencyId"].ToString();
             GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
 
 
