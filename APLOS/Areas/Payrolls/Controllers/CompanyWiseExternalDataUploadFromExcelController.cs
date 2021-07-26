@@ -214,7 +214,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         int YearNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(pYearNo));
                         int MonthNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(pMonthNo));
                         
-                        objEmpExtAmt.LoadExternalUploadFromExcelOnGrid(identity.PlantId, pSalaryHeadId, YearNo, MonthNo, out dsEmpInfo);
+                        objEmpExtAmt.LoadCompanyWiseExternalUploadFromExcelOnGrid(identity.PlantId, pSalaryHeadId, YearNo, MonthNo, out dsEmpInfo);
                         dtEmpInfo = dsEmpInfo.Tables[0];
                         dvEmpInfo = new DataView();
 
@@ -429,7 +429,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 throw new Exception("No data found for upload !!!!!");
             }
 
-            _SalaryStructureUploadService.SaveData(YearNo, MonthNo, SalaryHeadId, data, (CustomIdentity)Thread.CurrentPrincipal.Identity);
+            _SalaryStructureUploadService.SaveCompanyWiseData(YearNo, MonthNo, SalaryHeadId, data, (CustomIdentity)Thread.CurrentPrincipal.Identity);
 
 
 
@@ -442,8 +442,8 @@ namespace Aplos.Areas.Payrolls.Controllers
         public ActionResult GetSampleFile(ReportFormat reportFormat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            IWorkbook workbook = _AttendanceManagementService.GetSampleFile(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName);
-            var reportFileName = "External Data upload Sample File";
+            IWorkbook workbook = _AttendanceManagementService.GetSampleFileForCompany(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName);
+            var reportFileName = "Company Wise External Data upload Sample File";
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:

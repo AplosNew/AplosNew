@@ -294,6 +294,82 @@ namespace OTSBD
             }
         }//End Function
 
+        public void LoadCompanyWiseExternalUploadFromExcelOnGrid(string sEntityID, string strSalaryHdID, int YearNo, int MonthNo, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string xstrSQL = @"SELECT MWESChd.MWESAMasterSystemID, MWESChd.SystemID MWESAChildSystemID, E.SystemID EmpInfoSystemID, E.EmployeeCode, 
+		                            E.EmployeeName, CR.MstSystemID CurrencyRuleSystemID, CR.SalaryHeadID, SD.SalaryHead, SD.HeadType, 
+		                            MWESChd.EntryCurrencyID ExistCurrencyID, MWESChdCr.Code ExistCurrency, MWESChd.EntryAmount ExistAmount,
+		                            CR.AmtEntryCurrency EntryCurrencyID, CrEn.Code EntryCurrency, '0' EntryAmount, CR.AmtDefinitionCurrency 
+		                            DefinitionCurrencyID, CrDe.Code DefinitionCurrency, '0' DefineAmount, CR.AmtDisbusmentCurrency 
+		                            AmtDefinationCurrencyID, '0' AmtDefinationRate, '' Remarks
+                            FROM dbo.EmployeeInformation E
+		                            INNER JOIN dbo.SalaryRuleMaster SR ON E.SalaryRuleMasterSystemID = SR.SystemID
+		                            INNER JOIN dbo.CurrencyRuleChild CR ON SR.CurrencyRuleSystemID = CR.MstSystemID ----AND CR.SalaryHeadID = '" + strSalaryHdID + @"'
+		                            LEFT JOIN dbo.SalaryHead SD ON CR.SalaryHeadID = SD.SalaryHeadID
+		                            LEFT JOIN dbo.MonthWiseExtraSalaryAmtMaster MWESMat ON E.SystemID = MWESMat.EmpInfoSystemID 
+															                            ---AND MWESMat.MonthNo = '" + MonthNo + @"' 
+															                            ---AND MWESMat.YearNo = '" + YearNo + @"'
+		                            LEFT JOIN dbo.MonthWiseExtraSalaryAmtChild MWESChd ON MWESMat.SystemID = MWESChd.MWESAMasterSystemID 
+															                            AND SD.SalaryHeadID = MWESChd.SalaryHeadID
+															                            AND CR.MstSystemID = MWESChd.CurrencyRuleSystemID
+		                            LEFT JOIN SCS.Currency MWESChdCr On MWESChd.EntryCurrencyID = MWESChdCr.ID
+		                            LEFT JOIN SCS.Currency CrEn ON CR.AmtEntryCurrency = CrEn.ID
+		                            LEFT JOIN SCS.Currency CrDe ON CR.AmtDefinitionCurrency = CrDe.ID
+                            WHERE --E.PlantID = '" + sEntityID + @"'  AND
+                                CR.SalaryHeadID = '" + strSalaryHdID + @"'
+								  AND MWESMat.MonthNo = '" + MonthNo + @"' 
+								  AND MWESMat.YearNo = '" + YearNo + @"'
+                                  AND MWESChd.SalaryHeadID='" + strSalaryHdID + @"'
+                            ORDER BY E.EmployeeCode";
+
+
+                strSQL = @"SELECT'' MWESAMasterSystemID
+                                    , '' MWESAChildSystemID, 
+                                    E.SystemID EmpInfoSystemID, E.EmployeeCode, 
+		                            E.EmployeeName, CR.MstSystemID CurrencyRuleSystemID, CR.SalaryHeadID, SD.SalaryHead, SD.HeadType
+									, 
+		                            '' ExistCurrencyID
+									, '' ExistCurrency
+									, '' ExistAmount,
+		                            CR.AmtEntryCurrency EntryCurrencyID, CrEn.Code EntryCurrency, '0' EntryAmount, CR.AmtDefinitionCurrency 
+		                            DefinitionCurrencyID, CrDe.Code DefinitionCurrency, '0' DefineAmount, CR.AmtDisbusmentCurrency 
+		                            AmtDefinationCurrencyID, '0' AmtDefinationRate, '' Remarks
+                            FROM dbo.EmployeeInformation E
+		                            INNER JOIN dbo.SalaryRuleMaster SR ON E.SalaryRuleMasterSystemID = SR.SystemID
+		                            INNER JOIN dbo.CurrencyRuleChild CR ON SR.CurrencyRuleSystemID = CR.MstSystemID AND CR.SalaryHeadID = '" + strSalaryHdID + @"'
+		                            LEFT JOIN dbo.SalaryHead SD ON CR.SalaryHeadID = SD.SalaryHeadID
+		                            --LEFT JOIN dbo.MonthWiseExtraSalaryAmtMaster MWESMat ON E.SystemID = MWESMat.EmpInfoSystemID 
+															                            ---AND MWESMat.MonthNo = '" + MonthNo + @"' 
+															                            ---AND MWESMat.YearNo = '" + YearNo + @"'
+		                            --LEFT JOIN dbo.MonthWiseExtraSalaryAmtChild MWESChd ON MWESMat.SystemID = MWESChd.MWESAMasterSystemID 
+															                           --- AND SD.SalaryHeadID = MWESChd.SalaryHeadID
+															                           --- AND CR.MstSystemID = MWESChd.CurrencyRuleSystemID
+		                            ---LEFT JOIN SCS.Currency MWESChdCr On MWESChd.EntryCurrencyID = MWESChdCr.ID
+		                            LEFT JOIN SCS.Currency CrEn ON CR.AmtEntryCurrency = CrEn.ID
+		                            LEFT JOIN SCS.Currency CrDe ON CR.AmtDefinitionCurrency = CrDe.ID
+                            WHERE --E.PlantID = '" + sEntityID + @"' and
+                            E.EmployeeStatus ='Active'
+                                 
+                            ORDER BY E.EmployeeCode";
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
         public void xGetMthWiseExtSalAmtMaster(string plantid, int YearNo, int MonthNo, out DataSet dsRef)
         {
             string strSQL;
@@ -422,6 +498,28 @@ namespace OTSBD
                 objCon = null;
             }
         }//End Function
+        public void CompanyWiseGetMonththWiseExtSalAmtMaster(string plantid, string empids, int YearNo, int MonthNo, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT *
+                                    FROM MonthWiseExtraSalaryAmtMaster 
+                            WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and plantid='" + plantid + @"' and EmpInfoSystemID in (" + empids + @")";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
 
         public void GetMthWiseExtSalAmtChild(string plantid,string empids, int YearNo, int MonthNo, string SalaryHeadId, out DataSet dsRef)
         {
@@ -446,7 +544,73 @@ namespace OTSBD
             }
         }//End Function
 
+        public void CompanyWiseGetMonthWiseExtSalAmtChild(string plantid, string empids, int YearNo, int MonthNo, string SalaryHeadId, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT * FROM MonthWiseExtraSalaryAmtChild 
+                          WHERE SalaryHeadID='" + SalaryHeadId + @"' and MWESAMasterSystemID IN (SELECT SystemID FROM MonthWiseExtraSalaryAmtMaster 
+                                                                    WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and plantid='" + plantid + @"' and EmpInfoSystemID in (" + empids + @"))";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
         public void DeleteOldExtraData(int YearNo, int MonthNo, string plantId, string SalaryHeadId)
+        {
+            //throw new Exception("test");
+            bool IsTransactionStarted = false;
+            string strSQL = string.Empty;
+            string strSQL2 = string.Empty;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = @"DELETE FROM MonthWiseExtraSalaryAmtChild 
+                          WHERE SalaryHeadID='" + SalaryHeadId + @"' and MWESAMasterSystemID IN (SELECT SystemID FROM MonthWiseExtraSalaryAmtMaster 
+                          WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" AND PlantID ='" + plantId + @"')";
+
+                strSQL2 = @"DELETE FROM [MonthWiseExtraSalaryAmtMaster] 
+                          WHERE SystemID not in (SELECT MWESAMasterSystemID FROM MonthWiseExtraSalaryAmtChild  ) AND PlantID ='" + plantId + @"'";
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                IsTransactionStarted = true;
+
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSQL2, true, "1");
+
+                objCon.CommitTransaction();
+                IsTransactionStarted = false;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                if (IsTransactionStarted)
+                {
+                    objCon.RollBack();
+                }
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }//End Function
+
+        public void DeleteCompanyWiseOldExtraData(int YearNo, int MonthNo, string plantId, string SalaryHeadId)
         {
             //throw new Exception("test");
             bool IsTransactionStarted = false;
