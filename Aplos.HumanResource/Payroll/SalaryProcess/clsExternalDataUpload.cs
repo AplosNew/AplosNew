@@ -1835,7 +1835,281 @@ namespace Library.Service.Payrolls.SalaryProcess
             }
         }//End Function
 
+        public void SaveCompanyWiseData(string pYearNo, string pMonthNo, string ExtraSlrHd, List<ExternalDataUploadVM> data, CustomIdentity Identity)
+        {
+            DataSet dsMWESAMst = null;
+            DataTable dtMWESAMst = null;
+            DataRow drMWESAMst = null;
+            DataView dvMWESAMst = null;
 
+            DataSet dsMWESAChd = null;
+            DataTable dtMWESAChd = null;
+            DataRow drMWESAChd = null;
+            DataView dvMWESAChd = null;
+
+            DataSet dsMaster;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+            //DataSet dsMWESAChdGrd = null;
+            //DataTable dtMWESAChdGrd = null;
+            //DataView dvMWESAChdGrd = null;
+            bool shouldDeltData = false;
+
+            clsEmpExtraSalaryAmt objEmpExtAmt = null;
+
+            bool DATA_OK = false;
+
+            try
+            {
+                #region CHECK EDIT/UPDATE ACCESS
+
+                var ob = new clsStaticInfo();
+                //ob.CheckAccess(lblAccessCreate, lblAccessEdit, lblAccessDelete, clsStaticInfo.EnumAccess.CREATE);
+                //ob.CheckAccess(lblAccessCreate, lblAccessEdit, lblAccessDelete, clsStaticInfo.EnumAccess.EDIT);
+
+                #endregion //End CHECK EDIT/UPDATE ACCESS
+                objEmpExtAmt = new clsEmpExtraSalaryAmt();
+
+                if (DATA_OK == false)
+                {
+                    DATA_OK = true;
+                }
+                if (DATA_OK == true)
+                {
+
+
+                    #region NEW ID GENERATE
+
+                    string xstrCurCode;
+                    string _MasterPK = string.Empty;
+                    int CountM = 0;
+                    bplib.clsGenID objGenID = new bplib.clsGenID();
+                    objGenID.GenIDYearly(DateTime.Now.ToShortDateString().ToString(), "ExtraAmt", out _MasterPK);
+
+
+
+
+                    int CountC = 0;
+                    string ChildPK = string.Empty;
+                    objGenID.GenIDYearly(DateTime.Now.ToShortDateString().ToString(), "ExtraAmtChild", out ChildPK);
+
+                    #endregion End ID Generate
+
+                    int YearNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(pYearNo));
+                    int MonthNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(pMonthNo));
+
+                    #region DataSet
+
+                    string empids = string.Empty;
+                    foreach (ExternalDataUploadVM Item in data)
+                    {
+                        if (empids == "")
+                        {
+                            empids = "'" + Item.EmpInfoSystemID + "'";
+                        }
+                        else
+                        {
+                            empids += ",'" + Item.EmpInfoSystemID + "'";
+                        }
+
+                    }
+
+                    
+
+                    objEmpExtAmt.DeleteCompanyWiseOldExtraData(YearNo, MonthNo, Identity.PlantId, ExtraSlrHd);
+
+
+                    objEmpExtAmt.CompanyWiseGetMonththWiseExtSalAmtMaster(Identity.PlantId, empids, YearNo, MonthNo, out dsMWESAMst);
+
+                    dtMWESAMst = dsMWESAMst.Tables[0];
+                    dvMWESAMst = new DataView();
+                    dvMWESAMst.Table = dtMWESAMst;
+
+                    objEmpExtAmt.CompanyWiseGetMonthWiseExtSalAmtChild(Identity.PlantId, empids, YearNo, MonthNo, ExtraSlrHd, out dsMWESAChd);
+
+                    dtMWESAChd = dsMWESAChd.Tables[0];
+                    dvMWESAChd = new DataView();
+                    dvMWESAChd.Table = dtMWESAChd;
+
+                    #endregion DataSet
+
+                    string ChdSystemID = "";
+
+                    foreach (ExternalDataUploadVM Item in data)
+                    {
+                        string strMstSysID = Item.MWESAMasterSystemID;
+                        string empid = Item.EmpInfoSystemID;
+                        
+                        con.OpenDataSetThroughAdapter("select PlantId from EmployeeInformation where SystemId='" + Item.EmpInfoSystemID + "'", out dsMaster, false, "1");
+
+                        if (Convert.ToDecimal(Item.DefineAmount) > 0)
+                        {
+                            #region Master Table
+                            bool IsEmpAvailable = false;
+
+                            dvMWESAMst.Table = dtMWESAMst;
+                            // throw new Exception(strMstSysID.Trim());
+                            dvMWESAMst.RowFilter = "SystemID = '" + strMstSysID + "'";
+                            if (string.IsNullOrEmpty(strMstSysID) || dvMWESAMst.Count == 0)
+                            {
+                                CountM++;
+                                //int SrNo = Convert.ToInt32((strCurCode).Substring(9));
+                                //strMstSysID = (strCurCode).Substring(0, 9);
+                                strMstSysID = "XM" + _MasterPK + "-" + CountM;
+
+                                drMWESAMst = dtMWESAMst.NewRow();
+                                drMWESAMst["SystemID"] = bplib.clsWebLib.RetValidLen(strMstSysID.Trim(), 50);
+                                drMWESAMst["EmpInfoSystemID"] = bplib.clsWebLib.RetValidLen(Item.EmpInfoSystemID, 50);
+
+                                drMWESAMst["AddedBy"] = Identity.Name;
+                                drMWESAMst["DateAdded"] = DateTime.Now;
+
+                                drMWESAMst["PlantID"] = dsMaster.Tables[0].Rows[0]["PlantId"].ToString();
+                                drMWESAMst["MonthNo"] = pMonthNo;
+                                drMWESAMst["YearNo"] = bplib.clsWebLib.GetNumData(pYearNo);
+
+                                drMWESAMst["UpdatedBy"] = Identity.Name;
+                                drMWESAMst["DateUpdated"] = DateTime.Now;
+                                dtMWESAMst.Rows.Add(drMWESAMst);
+                            }
+                            else if (string.IsNullOrEmpty(strMstSysID) == false && dvMWESAMst.Count > 0)
+                            {
+                                drMWESAMst = dvMWESAMst[0].Row;
+                                drMWESAMst.BeginEdit();
+                                drMWESAMst["EmpInfoSystemID"] = bplib.clsWebLib.RetValidLen(Item.EmpInfoSystemID, 50);
+
+                                drMWESAMst["PlantId"] = Identity.PlantId;
+                                drMWESAMst["MonthNo"] = pMonthNo;
+                                drMWESAMst["YearNo"] = bplib.clsWebLib.GetNumData(pYearNo);
+
+                                drMWESAMst["UpdatedBy"] = Identity.Name;
+                                drMWESAMst["DateUpdated"] = DateTime.Now;
+
+                                drMWESAMst.EndEdit();
+                            }
+
+                            #endregion Master Table
+
+                            #region SystemID For Detail Table
+
+                            //int SrNoDet = 0;
+                            //int SrNoDetTmp = 0;
+
+                            //dvMWESAChdGrd.Table = dtMWESAChdGrd;
+                            //dvMWESAChdGrd.RowFilter = "MWESAMasterSystemID = '" + strMstSysID.Trim() + "'";
+                            //if (dvMWESAChdGrd.Count > 0)
+                            //{
+                            //    for (int j = 0; j < dvMWESAChdGrd.Count; j++)
+                            //    {
+                            //        int sysIdLen = strMstSysID.Length + 5;
+
+                            //        SrNoDetTmp = SrNoDet;
+                            //        SrNoDet = Convert.ToInt32((dvMWESAChdGrd[j]["MWESAChildSystemID"].ToString()).Substring(sysIdLen));
+
+                            //        if (SrNoDetTmp > SrNoDet)
+                            //        {
+                            //            SrNoDet = SrNoDetTmp;
+                            //        }
+                            //    }
+                            //}
+
+                            #endregion SystemID For Detail Table
+
+                            #region Detail Table
+
+
+
+
+
+                            ChdSystemID = "";
+                            ChdSystemID = Item.MWESAChildSystemID;
+
+
+                            dvMWESAChd.RowFilter = "SystemID = '" + ChdSystemID + "'";
+                            if (dvMWESAChd.Count == 0)
+                            {
+                                CountC++;
+
+                                ChdSystemID = "XC" + ChildPK + "-" + CountC;
+
+
+                                drMWESAChd = dtMWESAChd.NewRow();
+
+                                drMWESAChd["SystemID"] = bplib.clsWebLib.RetValidLen(ChdSystemID, 50);
+                                drMWESAChd["MWESAMasterSystemID"] = bplib.clsWebLib.RetValidLen(strMstSysID.Trim(), 50);
+
+                                drMWESAChd["AddedBy"] = Identity.Name;
+                                drMWESAChd["DateAdded"] = DateTime.Now;
+
+                                drMWESAChd["SalaryHeadID"] = bplib.clsWebLib.RetValidLen(Item.SalaryHeadID, 50);
+                                drMWESAChd["CurrencyRuleSystemID"] = bplib.clsWebLib.RetValidLen(Item.CurrencyRuleSystemID, 50);
+                                drMWESAChd["EntryCurrencyID"] = bplib.clsWebLib.RetValidLen(Item.EntryCurrencyID, 20);
+                                drMWESAChd["EntryAmount"] = bplib.clsWebLib.GetNumData(Item.EntryAmount);
+                                drMWESAChd["DefineCurrencyID"] = bplib.clsWebLib.RetValidLen(Item.DefinitionCurrencyID, 20);
+                                drMWESAChd["DefineAmount"] = bplib.clsWebLib.GetNumData(Item.DefineAmount);
+                                drMWESAChd["AmtDefinitionCurrencyID"] = bplib.clsWebLib.RetValidLen(Item.AmtDefinationCurrencyID, 20);
+                                drMWESAChd["AmtDefinitionRate"] = bplib.clsWebLib.GetNumData(Item.AmtDefinationRate);
+                                drMWESAChd["ExtDataUploadApp"] = "XL";
+
+                                drMWESAChd["UpdatedBy"] = Identity.Name;
+                                drMWESAChd["DateUpdated"] = DateTime.Now;
+
+                                dtMWESAChd.Rows.Add(drMWESAChd);
+                            }
+                            else
+                            {
+                                drMWESAChd = dvMWESAChd[0].Row;
+                                drMWESAChd.BeginEdit();
+
+                                drMWESAChd["SalaryHeadID"] = bplib.clsWebLib.RetValidLen(Item.SalaryHeadID, 50);
+                                drMWESAChd["CurrencyRuleSystemID"] = bplib.clsWebLib.RetValidLen(Item.CurrencyRuleSystemID, 50);
+                                drMWESAChd["EntryCurrencyID"] = bplib.clsWebLib.RetValidLen(Item.EntryCurrencyID, 20);
+                                drMWESAChd["EntryAmount"] = bplib.clsWebLib.GetNumData(Item.EntryAmount);
+                                drMWESAChd["DefineCurrencyID"] = bplib.clsWebLib.RetValidLen(Item.DefinitionCurrencyID, 20);
+                                drMWESAChd["DefineAmount"] = bplib.clsWebLib.GetNumData(Item.DefineAmount);
+                                drMWESAChd["AmtDefinitionCurrencyID"] = bplib.clsWebLib.RetValidLen(Item.AmtDefinationCurrencyID, 20);
+                                drMWESAChd["AmtDefinitionRate"] = bplib.clsWebLib.GetNumData(Item.AmtDefinationRate);
+                                drMWESAChd["ExtDataUploadApp"] = "XL";
+
+                                drMWESAChd["UpdatedBy"] = Identity.Name;
+                                drMWESAChd["DateUpdated"] = DateTime.Now;
+                                drMWESAChd.EndEdit();
+                            }
+
+                            #endregion Detail Table
+                        }//amount>0
+                    }//for 
+
+                    objEmpExtAmt.SaveDataSets(dsMWESAMst, dsMWESAChd);
+
+                    //ShowLog("Data Save sucessfully...");
+                    //displayMsgs("Data saved Successfully......!!!!", "Ok", "Save");
+
+                    //Session["VERIFICATION_STATE"] = 1;
+                    //State((int)Session["VERIFICATION_STATE"]);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                objEmpExtAmt = null;
+
+                dsMWESAMst = null;
+                dvMWESAMst = null;
+                drMWESAMst = null;
+                dtMWESAMst = null;
+
+                dsMWESAChd = null;
+                dtMWESAChd = null;
+                drMWESAChd = null;
+                dvMWESAChd = null;
+            }
+        }//End Function
 
     }
     public class ExternalDataUploadVM

@@ -352,7 +352,7 @@ function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $locati
     $scope.DownloadReport = function () {
         try {
             var MonthName = "";
-            $scope.fileName = "ExternalDataUploadFromExcel.xls";
+            $scope.fileName = "CompanyWiseExternalDataUploadFromExcel.xls";
             if ($scope.SaveDataList.length == 0) {
                 throw "Load Data first..";
             }

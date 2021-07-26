@@ -66,7 +66,7 @@ namespace Library.HumanResource.Attendance
                 objCon = null;
             }
         }//end of function
-        public void GetManualOutTimeForOTDateWiseReport(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetManualOutTimeForOTDateWiseReport(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -82,7 +82,7 @@ namespace Library.HumanResource.Attendance
                         	 AP.IsOTEntitled = 1
                         	AND AP.IsManualOutTime = 1
                         	AND isnull (AP.OTHr,0) > 0
-                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + FromDate + @"'
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
                         	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
                         ORDER BY 
                         	EmployeeCodePreFix,EmployeeCodeNumeric
@@ -100,7 +100,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function
 
-        public void GetModifiedReport(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetModifiedReport(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120); ;
             string strSql = string.Empty;
@@ -118,7 +118,7 @@ namespace Library.HumanResource.Attendance
                         	    AP.IsOTEntitled = 1
                         	AND AP.IsOTComfirm = 1
                         	AND (isnull(AP.OTHr,0) <> isnull(OTF.TotalOTHr,0))
-                        	AND AP.WorkDate = '" + FromDate + @"'
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
                         	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
                            
                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric
@@ -137,7 +137,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function
 
-        public void GetAbsentReports(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetAbsentReports(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -154,7 +154,7 @@ namespace Library.HumanResource.Attendance
                         	And AP.InTime IS NULL
                         	AND AP.OutTime IS NULL
                             and isnull(ei.EmployeeCurrentStatus,'') not in('TBS','LONG ABSENTEEISM')
-                        	AND AP.WorkDate = '" + FromDate + @"'
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
                         	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
                             
                         ORDER BY AP.WorkDate
@@ -173,7 +173,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function
 
-        public void GetAbsentWithPunchReports(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetAbsentWithPunchReports(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -187,7 +187,7 @@ namespace Library.HumanResource.Attendance
                         LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
                         WHERE  
                                 AP.DayStatus ='A'  
-                        	AND AP.WorkDate = '" + FromDate + @"' 
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"' 
                            and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'                               
 							and (---1
 							( AP.InTime IS NULL	AND AP.OutTime IS not NULL)
@@ -210,7 +210,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function
 
-        public void GetShortDurationAbsentReports(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetShortDurationAbsentReports(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -223,7 +223,7 @@ namespace Library.HumanResource.Attendance
                         FROM AttdnProcessData AP
                         LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId WHERE  
                                 AP.DayStatus ='A'  
-                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + FromDate + @"'   
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
                            and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'                             
 							and  AP.InTime IS not NULL	AND AP.OutTime IS not  NULL								
                         ORDER BY 
@@ -241,7 +241,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function
 
-        public void GetLeaveWithPunchReports(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetLeaveWithPunchReports(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -280,7 +280,7 @@ namespace Library.HumanResource.Attendance
             }
         }
 
-        public void GetOTEntitledWithOutMissingReports(string FromDate,  string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetOTEntitledWithOutMissingReports(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -297,7 +297,7 @@ namespace Library.HumanResource.Attendance
                         	and AP.InTime IS NOT NULL                        	
                         	And AP.OutTime IS NULL  
                             AND  AP.IsOTEntitled = 1
-                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + FromDate + @"'
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
                         	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	
                              
                         ORDER BY 
@@ -316,7 +316,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function
 
-        public void GetOTNotEntitledWithOutMissingReports(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetOTNotEntitledWithOutMissingReports(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -333,7 +333,7 @@ namespace Library.HumanResource.Attendance
                         	And AP.InTime IS NOT NULL                        	
                         	And AP.OutTime IS NULL  
                             AND  AP.IsOTEntitled = 0
-                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + FromDate + @"'
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
                         	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	                           
                         ORDER BY 
                                EmployeeCodePreFix,EmployeeCodeNumeric
@@ -351,7 +351,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function
 
-        public void GetUNApprovedProfile(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetUNApprovedProfile(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -380,7 +380,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function 
 
-        public void GetProfileNoSalary(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetProfileNoSalary(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -395,7 +395,7 @@ namespace Library.HumanResource.Attendance
                         )                          
                         and EI.DOJ <= '" + FromDate + @"'  
                  and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
-                 and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
+                 and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + ToDate + @"')
                         ORDER BY 
                         	EmployeeCodePreFix,EmployeeCodeNumeric";
                 con.getDataSet(strSql, out dsRef);
@@ -410,7 +410,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function 
 
-        public void GetNoSalaryStructureApprove(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetNoSalaryStructureApprove(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -444,7 +444,7 @@ namespace Library.HumanResource.Attendance
                 con = null;
             }
         }//End Function 
-        public void GetWorkDurationSheet(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetWorkDurationSheet(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -469,7 +469,7 @@ namespace Library.HumanResource.Attendance
 		                            LEFT JOIN AttdnManualData AS amd   ON EMP.SystemID=amd.EmpSystemID AND amd.WorkDate=o.WorkDate
 		                            LEFT OUTER JOIN ShiftDefination AS sd ON sd.SystemID=o.ShiftSystemID
 		                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON o.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID                       
-                            WHERE o.WorkDate BETWEEN '" + FromDate + @"' AND '" + FromDate + @"' and o.IsHalfDayLeave <> 1
+                            WHERE o.WorkDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and o.IsHalfDayLeave <> 1
                         ) AS KK
 						LEFT OUTER JOIN EmployeeInformation EI ON KK.Id=EI.SystemID  
 						where 
@@ -490,7 +490,7 @@ namespace Library.HumanResource.Attendance
                 con = null;
             }
         }//End Function 
-        public void GetOtNotConfirmOverstayReport(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetOtNotConfirmOverstayReport(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -508,9 +508,9 @@ namespace Library.HumanResource.Attendance
                         	AND AP.IsOTEntitled = 1
                         	AND AP.IsOTComfirm = 0 and ISNULL (oa.OThour,0)=0 
                             and ap.OTHr >0
-                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + FromDate + @"'
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
                         	and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'	
-                              and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
+                              and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + ToDate + @"')
                         ORDER BY AP.WorkDate
                         	,EmployeeCodePreFix,EmployeeCodeNumeric";
 
@@ -526,7 +526,7 @@ namespace Library.HumanResource.Attendance
                 con = null;
             }
         }//End Function
-        public void GetLongAbsentisom(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetLongAbsentisom(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -538,10 +538,10 @@ namespace Library.HumanResource.Attendance
                             ,EI.EmployeeCode
 
                         FROM EmployeeInformation EI
-                        left join (select * from AttdnProcessData where WorkDate = '" + FromDate + @"' ) AP ON AP.EmpSystemID = EI.SystemId                        
+                        left join (select * from AttdnProcessData where WorkDate between '" + FromDate + @"' and '" + ToDate + @"' ) AP ON AP.EmpSystemID = EI.SystemId                        
                         WHERE 
                          ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
-                                 and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
+                                 and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + ToDate + @"')
                             AND isnull(EI.EmployeeCurrentStatus,'')='LONG ABSENTEEISM' 
                         
                         ORDER BY
@@ -558,7 +558,7 @@ namespace Library.HumanResource.Attendance
                 con = null;
             }
         }//End Function
-        public void GetTBS(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetTBS(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -571,9 +571,9 @@ namespace Library.HumanResource.Attendance
                 FROM EmployeeInformation EI
                 left join AttdnProcessData AP ON AP.EmpSystemID = EI.SystemId
                 WHERE
-                AP.WorkDate='" + FromDate + @"'
+                AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
                 and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
-                and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
+                and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + ToDate + @"')
                 AND EI.EmployeeCurrentStatus='TBS'
                 
                 ORDER BY
@@ -590,7 +590,7 @@ namespace Library.HumanResource.Attendance
                 con = null;
             }
         }//End Function
-        public void GetMaternityLeave(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetMaternityLeave(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -602,7 +602,7 @@ namespace Library.HumanResource.Attendance
                              left join EmployeeInformation ei on ei.SystemId=APD.EmpSystemID
                               left join [dbo].[LeaveType] lET on  lET.Id = APD.LTSystemId
                              where let.LeaveType='Maternity'
-                             AND APD.WorkDate between '" + FromDate + @"' and  '" + FromDate + @"'   
+                             AND APD.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
                              and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
                             
                              order by EmployeeCodePreFix,EmployeeCodeNumeric,APD.WorkDate";
@@ -618,7 +618,7 @@ namespace Library.HumanResource.Attendance
                 con = null;
             }
         }//End Function
-        public void GetBankRemark(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetBankRemark(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -631,9 +631,9 @@ namespace Library.HumanResource.Attendance
                         
                             left join EmployeeBankInfo b on ei.SystemId=b.EmpSystemID
                             where 
-	                    	 EI.DOJ<='" + FromDate + @"' AND (EI.DOS is null OR EI.DOS>= '" + FromDate + @"') 
+	                    	 EI.DOJ<='" + FromDate + @"' AND (EI.DOS is null OR EI.DOS>= '" + ToDate + @"') 
                          and EI.PlantId='" + plantId + @"' AND EI.CompanyId='" + companyId + @"' and EI.GroupID='" + companyGroupId + @"'
-                         and EI.DOJ<='" + FromDate + @"' AND (EI.DOS is null OR EI.DOS>= '" + FromDate + @"')
+                         and EI.DOJ<='" + FromDate + @"' AND (EI.DOS is null OR EI.DOS>= '" + ToDate + @"')
                             and                          
                             (--plant
                             (isnull(EI.PaymentMode,'')='Bank' and ISNULL(b.BankAccNo,'')='') 
@@ -654,7 +654,7 @@ namespace Library.HumanResource.Attendance
                 con = null;
             }
         }//End Function
-        public void GetAttendanceNotLockIndividual(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetAttendanceNotLockIndividual(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -667,7 +667,7 @@ namespace Library.HumanResource.Attendance
                         FROM ExceptionEmployeeAttendanceUnlock  apd
 						left join EmployeeInformation as EI on apd.EmpSystemId=EI.SystemId 
                         WHERE                                                     
-					 apd.WorkDate between '" + FromDate + @"' and '" + FromDate + @"' 
+					 apd.WorkDate between '" + FromDate + @"' and '" + ToDate + @"' 
                         and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'                         
                         ORDER BY 
                         	EmployeeCodePreFix,EmployeeCodeNumeric";
@@ -772,7 +772,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function
 
-        public void GetNotInLegalDesignationMaster(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetNotInLegalDesignationMaster(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -782,7 +782,7 @@ namespace Library.HumanResource.Attendance
                             From EmployeeInformation as EI
                             left join [HKP].[LegalDesignation] ld on ld.Id=EI.LegalDesignationId
                             where EI.LegalDesignationId NOT IN (SELECT LegalDesignationId FROM [MST].[DesignationMasterLegalDesignation])
-									and EI.PlantId='" + plantId + "' and (ei.DOJ<='" + FromDate + @"' and (ei.dos is null or ei.DOS >= '" + FromDate + @"'))  ";
+									and EI.PlantId='" + plantId + "' and (ei.DOJ<='" + FromDate + @"' and (ei.dos is null or ei.DOS >= '" + ToDate + @"'))  ";
                 con.getDataSet(strSql, out dsRef);
 
             }
@@ -796,7 +796,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function
 
-        public void GetSalaryNotApproved(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetSalaryNotApproved(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -827,7 +827,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function
 
-        public void GetSeparatedAbsent(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetSeparatedAbsent(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -923,14 +923,14 @@ namespace Library.HumanResource.Attendance
                               			AND apd.WorkDate = E.DOS
                               			AND ISNULL(apd.PunchInTime, '') = ''
                               		WHERE e.DOS BETWEEN '" + FromDate + @"'
-                              				AND '" + FromDate + @"'
+                              				AND '" + ToDate + @"'
                               		)
                               	AND D.SEQ <= 1
                               	AND D.DayStatus = 'A'
                               	AND ei.DOS BETWEEN '" + FromDate + @"'
-                              		AND '" + FromDate + @"'
+                              		AND '" + ToDate + @"'
                    and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
-                   and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
+                   and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + ToDate + @"')
                               	  GROUP BY eI.SystemId
                               	,ab.AbsentDays
                               	,ei.EmployeeCode
@@ -968,7 +968,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function
 
-        public void GetOffdayMissingPunchReports(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetOffdayMissingPunchReports(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -983,7 +983,7 @@ namespace Library.HumanResource.Attendance
                         Left join DayType DT ON DT.DayType = AP.DayStatus
                         WHERE
                                 dt.OriginalDayType in ('W','H')  
-                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + FromDate + @"'   
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
                            and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
                               
 							and (---1
@@ -1009,7 +1009,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function
 
-        public void GetOffdayWithPunchReports(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetOffdayWithPunchReports(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -1024,7 +1024,7 @@ namespace Library.HumanResource.Attendance
                         Left join DayType DT ON DT.DayType = AP.DayStatus
                             WHERE  
                                 dt.OriginalDayType in ('W','H')  
-                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + FromDate + @"'   
+                        	AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
                            and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
                               
 							and (---1
@@ -1048,7 +1048,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function
 
-        public void GetAbsentWithRawPunchReports(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetAbsentWithRawPunchReports(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -1066,7 +1066,7 @@ namespace Library.HumanResource.Attendance
                         WHERE AP.DayStatus ='A'
                         and ISNULL(rd.LogDownLoadNum,'')<>''
                         
-                        AND AP.WorkDate between '" + FromDate + @"' and  '" + FromDate + @"'
+                        AND AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'
                         and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
                         
                         ORDER BY AP.WorkDate
@@ -1085,7 +1085,7 @@ namespace Library.HumanResource.Attendance
             }
         }//End Function
 
-        public void GetShiftNotAssign(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetShiftNotAssign(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -1115,7 +1115,7 @@ namespace Library.HumanResource.Attendance
 									) x on x.BudgetCode = mpb.Id									
 									
 									where x.flag != '' and isnull(EmployeeCode,'') != ''
-									and x.EffectiveDate >= '" + FromDate + @"' and x.PlantId = '" + plantId + "'";
+									and x.EffectiveDate >= '" + ToDate + @"' and x.PlantId = '" + plantId + "'";
 
                 con.getDataSet(strSql, out dsRef);
 
