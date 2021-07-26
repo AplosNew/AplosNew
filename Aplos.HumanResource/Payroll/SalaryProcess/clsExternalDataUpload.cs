@@ -1847,6 +1847,9 @@ namespace Library.Service.Payrolls.SalaryProcess
             DataRow drMWESAChd = null;
             DataView dvMWESAChd = null;
 
+            DataSet dsMaster;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
             //DataSet dsMWESAChdGrd = null;
             //DataTable dtMWESAChdGrd = null;
             //DataView dvMWESAChdGrd = null;
@@ -1936,6 +1939,8 @@ namespace Library.Service.Payrolls.SalaryProcess
                     {
                         string strMstSysID = Item.MWESAMasterSystemID;
                         string empid = Item.EmpInfoSystemID;
+                        
+                        con.OpenDataSetThroughAdapter("select PlantId from EmployeeInformation where SystemId='" + Item.EmpInfoSystemID + "'", out dsMaster, false, "1");
 
                         if (Convert.ToDecimal(Item.DefineAmount) > 0)
                         {
@@ -1959,7 +1964,7 @@ namespace Library.Service.Payrolls.SalaryProcess
                                 drMWESAMst["AddedBy"] = Identity.Name;
                                 drMWESAMst["DateAdded"] = DateTime.Now;
 
-                                drMWESAMst["PlantID"] = Identity.PlantId;
+                                drMWESAMst["PlantID"] = dsMaster.Tables[0].Rows[0]["PlantId"].ToString();
                                 drMWESAMst["MonthNo"] = pMonthNo;
                                 drMWESAMst["YearNo"] = bplib.clsWebLib.GetNumData(pYearNo);
 
