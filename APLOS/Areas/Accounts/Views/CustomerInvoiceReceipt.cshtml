@@ -228,8 +228,10 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="10"></td>
-                        @*<td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'ConvertedAmount' }}</b></td>*@
+                        <td colspan="8" class="text-right">Total</td>
+                        <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'Amount' }}</b></td>
+                        <td></td>
+                        <td class="text-right"><b>{{ (voucherDetailList) | sumByKey:'ExchangeAmount' }}</b></td>
                         <td></td>
                     </tr>
                 </tfoot>

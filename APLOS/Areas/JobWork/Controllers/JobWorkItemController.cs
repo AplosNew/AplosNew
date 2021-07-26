@@ -34,13 +34,15 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult GetAllData()
         {
             string sql = "";
-            sql = @"SELECT I.Id,I.Code,I.Sequence,I.ShortName,I.StandardName,I.UserName,I.UOMId,U.UserName UOMName,I.IsActive,
+            sql = @"SELECT I.Id,I.Code,I.Sequence,I.ShortName,I.StandardName,I.UserName,I.UOMId,I.IsActive,
                     I.ResponsiblePersonId,E.EmployeeName ResponsiblePersonName,I.MaterialMasterId,mm.Code as MaterialCode, mm.UserName as MaterialName,I.Remarks
+					,UOMName=case when I.MaterialMasterId is not null then mmuom.UserName else U.UserName End
                     FROM HKP.JobWorkItem I 
                     LEFT JOIN [SCS].[UnitOfMeasurement] U ON U.Id = I.UOMId
                     LEFT JOIN [dbo].[EmployeeInformation] E ON E.SystemId = I.ResponsiblePersonId
 					LEFT JOIN MST.MaterialMaster mm on mm.Id=I.MaterialMasterId
-                    ORDER BY I.UserName";
+					left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
+                    ORDER BY I.Sequence desc";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

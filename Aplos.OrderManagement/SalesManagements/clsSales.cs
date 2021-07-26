@@ -291,7 +291,88 @@ namespace Library.OrderManagement.Sales
 			}
 		}
 
+		public IEnumerable<object> GetPackingSOData(string PackingId)
+		{
+			try
+			{
+				var _sql = @"SELECT  MOI.Id MasterOrderItemId,MOI.MasterOrderId,SO.Id SONo, po.PONumber,PODate=REPLACE(CONVERT(CHAR(11), po.PODate, 106),' ','-'), DeliveryDate = REPLACE(CONVERT(CHAR(11), SO.DeliveryDate, 106),' ','-'),SO.ParentId
+							, SO.DestinationId
+							,DT.UserName DestinationName
+							,PM.UserName ProductName
+							, SO.ShipmentModeId
+							,MOI.MaterialMasterId
+							,MM.UserName MaterialMasterName
+							,MOI.ArticleId
+							,WithSKU=CASE WHEN MM.WithSKU=1 THEN 'Yes' WHEN MM.WithSKU=0 THEN 'No' END
+							,MMA.StandardName MaterialMasterArticleName
+							,FCH.Id FirstCharacteristicsId
+							,FCH.CharacteristicsValueId FirstCharacteristicsValueId
+							,CHV.UserName SKU1
+							,CHV2.UserName SKU2
+							,SCH.Id SecondCharacteristicsId
+							,SCH.CharacteristicsValueId SecondCharacteristicsValueId
+							,CHV3.UserName SKU3
+							,TCH.Id ThirdCharacteristicsId
+							,TCH.CharacteristicsValueId ThirdCharacteristicsValueId
+							--,FCH.Qty SKU1Qty,SCH.Qty SKU2Qty
+							, SO.MasterOrderItemId
+							, MOI.MaterialMasterId
+							, CommitmentDate = REPLACE(CONVERT(CHAR(11), SO.CommitmentDate, 106),' ','-')
+							, SO.CustomerPOId
+							, SO.OrderStatusId, SO.OrderCategoryId
+							, SO.SOType, SO.ResponsiblePersonId
+							,MO.TotalQtyUOMId BaseUOMId
+							, SO.UpCharge,  SO.Rate, SO.IsFirstEntry,SO.Discount,EMP.EmployeeName ResponsiblePersonName
+							,FORMAT (SO.LSD, 'dd-MMM-yyyy') as LSD ,FORMAT (SO.MainRawMaterialInhouseDate, 'dd-MMM-yyyy') as MainRawMaterialInhouseDate
+							,FORMAT (SO.OtherRawMaterialInhouseDate, 'dd-MMM-yyyy') as OtherRawMaterialInhouseDate
+							, hasFirst=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[FirstCharacteristics] WHERE SalesOrderId=SO.Id)
+                            
+							,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
+							, isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id),mm.HSNCodeId,mo.InvoicingPartyPlantId
+							,POLR.Qty,POLR.PlanQty,Balance=POLR.PlanQty-POLR.Qty,TransactionQty=POLR.Qty,TransactionAmount=POLR.Qty*SO.Rate
 
+							FROM [TRN].[SalesOrder] AS SO
+							JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+							JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id
+							JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+							LEFT JOIN [MST].[MaterialMasterArticle] AS MMA ON MOI.ArticleId = MMA.Id
+							LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+							LEFT JOIN dbo.EmployeeInformation AS EMP ON EMP.SystemId = SO.ResponsiblePersonId
+							LEFT JOIN [TRN].[FirstCharacteristics] AS FCH ON FCH.SalesOrderId=SO.Id
+							LEFT  JOIN [HKP].[Characteristics] AS CH ON FCH.CharacteristicsId=CH.Id
+							LEFT JOIN [HKP].[CharacteristicsValue] AS CHV ON FCH.CharacteristicsValueId=CHV.Id
+							LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
+
+							LEFT JOIN [TRN].[SecondCharacteristics] AS SCH ON    SO.Id=SCH.SalesOrderId 
+							AND FCH.Id=SCH.FirstCharacteristicsId AND SCH.Qty >0
+							LEFT JOIN [HKP].[Characteristics] AS CH2 ON SCH.CharacteristicsId=CH2.Id
+							LEFT JOIN [HKP].[CharacteristicsValue] AS CHV2 ON SCH.CharacteristicsValueId=CHV2.Id
+
+							LEFT JOIN [TRN].[ThirdCharacteristics] AS TCH ON    SO.Id=TCH.SalesOrderId 
+							LEFT JOIN [HKP].[Characteristics] AS CH3 ON TCH.CharacteristicsId=CH3.Id
+							LEFT JOIN [HKP].[CharacteristicsValue] AS CHV3 ON TCH.CharacteristicsValueId=CHV3.Id
+
+							LEFT JOIN TRN.ProductDefinition AS PD ON PD.MaterialMasterId=MOI.MaterialMasterId
+							LEFT JOIN MST.ProductMaster AS PM ON PM.Id=PD.ProductMasterId
+							LEFT JOIN trn.PackingLineItem PLI ON PLI.SOId=SO.Id
+							LEFT JOIN 
+							(
+							Select SUM(BookQty) Qty, SUM(PlanQty) PlanQty,PackingLineItemId from trn.POLotReference 
+							GROUP BY PackingLineItemId
+							)POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId
+							LEFT JOIN(
+							Select SUM(SM.TransactionQty) TransactionQty,SM.SalesOrderId from TRN.SalesMaterial SM
+							JOIN trn.PackingLineItem PLI ON PLI.SOId=SM.SalesOrderId
+							GROUP BY  SM.SalesOrderId
+							) A ON A.SalesOrderId=SO.Id
+							WHERE  PLI.PackingId='" + PackingId+@"' ORDER BY SO.DeliveryDate";
+				return _sqlRepository.GetDataCollection(_sql);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
 	}
 
 

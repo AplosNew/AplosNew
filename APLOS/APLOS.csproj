@@ -697,6 +697,7 @@
     <Compile Include="Areas\Organizations\Controllers\DesignationBudgetController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\DeductionInvestmentMasterController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\ESICStatementsCompanyController.cs" />
+    <Compile Include="Areas\Payrolls\Controllers\CompanyWiseExternalDataUploadFromExcelController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\GraruityInsuranceReportController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeDayStatusReportController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\GratuityReportCompanyController.cs" />
@@ -772,6 +773,7 @@
     <Compile Include="Areas\PerformanceManagement\PerformanceManagementAreaRegistration.cs" />
     <Compile Include="Areas\Productions\Controllers\CutPlanController.cs" />
     <Compile Include="Areas\Productions\Controllers\MarkerController.cs" />
+    <Compile Include="Areas\Productions\Controllers\PackingInvoiceController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionPlanningReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShadeController.cs" />
     <Compile Include="Areas\Productions\Controllers\FebricWidthController.cs" />
@@ -1868,6 +1870,7 @@
     <Content Include="Areas\Parties\Scripts\partyPaymentStatusReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\DeductionInvestmentMasterController.js" />
     <Content Include="Areas\Payrolls\Scripts\ESICStatementsCompanyController.js" />
+    <Content Include="Areas\Payrolls\Scripts\CompanyWiseExternalDataUploadFromExcelController.js" />
     <Content Include="Areas\Payrolls\Scripts\GraruityInsuranceReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeDayStatusReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\GratuityReportCompanyController.js" />
@@ -2077,6 +2080,7 @@
     <Content Include="Areas\Productions\Scripts\FinishGoodsBookingPostController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerController.js" />
+    <Content Include="Areas\Productions\Scripts\PackingInvoiceController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionPlanningReportController.js" />
     <Content Include="Areas\Productions\Scripts\ShadeController.js" />
     <Content Include="Areas\Productions\Scripts\FebricWidthController.js" />
@@ -3584,6 +3588,8 @@
     <Content Include="Areas\Attendances\Views\ManualOTReportNew\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\CutPlan\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\FinishGoodsBooking\ConsumptionBookPost.cshtml" />
+    <Content Include="Areas\Productions\Views\PackingInvoice\Aplos.cshtml" />
+    <Content Include="Areas\Payrolls\Views\CompanyWiseExternalDataUploadFromExcel\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

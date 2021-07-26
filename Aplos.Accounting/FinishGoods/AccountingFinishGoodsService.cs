@@ -94,45 +94,6 @@ namespace Library.Accounting.FixedAssets
         }
         
 
-        public void UpdateFixedAssetRegisterDispose(FixedAssetRegisterDisposed voucherVM, ref DataSet frdispose)
-        {
-            
-            if (frdispose == null || frdispose.Tables.Count == 0)
-            {
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.getDataSet("Select * from TRN.FixedAssetRegisterDisposed where Id='" + voucherVM.Id + "'", out frdispose);
-
-            }
-            
-            EditRow<FixedAssetRegisterDisposed>(frdispose.Tables[0].Rows[0], voucherVM);
-        }
-        public void UpdateFixedAssetRegister(FixedAssetRegister voucherVM, ref DataSet fixedRegister)
-        {
-
-            if (fixedRegister == null || fixedRegister.Tables.Count == 0)
-            {
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.getDataSet("Select * from TRN.FixedAssetRegister where Id='" + voucherVM.Id + "'", out fixedRegister);
-
-                DataView dv = new DataView(fixedRegister.Tables[0]);
-                dv.RowFilter = "Id='" + voucherVM.Id + "'";
-                
-                if (dv.Count > 0)
-                {
-                    DataRow drmo = dv[0].Row;
-
-                    drmo.BeginEdit();
-
-                    drmo["DisposedVoucherId"] = voucherVM.DisposedVoucherId;                   
-                    drmo["DisposedDate"] = voucherVM.DisposedDate;                   
-
-                    drmo.EndEdit();
-
-                }
-
-            }
-        }
-
 
         public string InsertFinishGoodsBookingPosting(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             )
@@ -153,8 +114,8 @@ namespace Library.Accounting.FixedAssets
 
                 voucherVM.CompanyCurrencyRate = 1;
                 voucherVM.CurrencyId = companyCurrencyId;
-                voucherVM.DocDate = voucherVM.PostingDate;
-                voucherVM.DocRefNo ="test";
+                voucherVM.DocDate = Convert.ToDateTime(voucherVM.DocDate);
+                voucherVM.PostingDate = Convert.ToDateTime(voucherVM.PostingDate);
                 var voucher = new Voucher
                 {
                     CompanyGroupId = voucherVM.CompanyGroupId,
@@ -166,11 +127,11 @@ namespace Library.Accounting.FixedAssets
                     TaxYearId = voucherVM.TaxYearId,
                     TaxYearPeriodId = voucherVM.TaxYearPeriodId,
                     VoucherDate = DateTime.Now,
-                    DocDate = voucherVM.DocDate,
+                    DocDate =  voucherVM.DocDate,
                     DocRefNo = voucherVM.DocRefNo,
                     Narration = "Posting",//voucherVM.Narration,
                     PostingDate = voucherVM.PostingDate,
-                    SourceType = SourceType.FixedAssetDisposeJournal.ToString(),
+                    SourceType = SourceType.ConsumptionBook.ToString(),
                     VoucherTypeId = voucherVM.VoucherTypeId
                 };
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
@@ -236,7 +197,7 @@ namespace Library.Accounting.FixedAssets
                 }
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.FinishGoodsBooking WHERE Id='"+voucherVM.Id+"'", out _finishGoodsBookingData, false, "1");
+                con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.DateWiseConsumption WHERE Id='" + voucherVM.Id+"'", out _finishGoodsBookingData, false, "1");
                 if (_finishGoodsBookingData.Tables[0].Rows.Count > 0)
                 {
                     for (int j = 0; j < _finishGoodsBookingData.Tables[0].Rows.Count; j++)
@@ -271,52 +232,7 @@ namespace Library.Accounting.FixedAssets
             }
         }
 
-        public List<Dictionary<string, object>> GetFixedAssetDisposeList(string column, string value, string companyId)
-        {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-            var sql = @"select top 100 * from (select frd.Id,frd.Id DisposeNo,fr.Remarks,fr.[Status],frd.EmployeeId,ei.EmployeeName,D.UserName Department,DG.UserName Designation,frd.IsPark
-                , SUM(ISNULL(FR.Price,0)) Price,SUM(ISNULL(SAR.subAssetAmount,0)) SubAssetAmount, SUM(ISNULL(FR.Price,0))+SUM(ISNULL(SAR.subAssetAmount,0)) PurchasePrice,SUM(ISNULL(FR.ADBaseAmount,0)) ADBaseAmount
-                , SUM(ISNULL(FR.Price,0))+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(ISNULL(FR.ADBaseAmount,0)) NetBookValue , SUM(ISNULL(fr.NegotiationValue,0)) NegotiationValue
-				,P.UserName CustomerName,frd.PartyId,frd.PartyPlantId
-                from TRN.FixedAssetRegisterDisposed frd 
-				join TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterDisposedId=frd.Id
-                left join TRN.FixedAssetRegister FR on FR.Id=rdd.FixedAssetRegisterId
-                left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
-				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
-				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
-				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
-                LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
-                    where fr.CompanyId='" + companyId + @"' AND frd.DisposedVoucherId IS NULL
-                     group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName ,DG.UserName,frd.EmployeeId,P.UserName ,frd.PartyId,frd.PartyPlantId) AS TEMP WHERE " + strkey + " order by DisposeNo ";
-            return _sqlRepository.GetDataCollection(sql);
-        }
-        public List<Dictionary<string, object>> GetFixedAssetDisposePostedList(string column, string value, string companyId)
-        {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-            var sql = @"select top 100 * from (select frd.Id DisposeNo,V.VoucherNo,V.PostingDate,V.Id,fr.Remarks,fr.[Status],ei.EmployeeName,D.UserName Department,DG.UserName Designation,frd.IsPark
-                , SUM(ISNULL(FR.Price,0)) Price,SUM(ISNULL(SAR.subAssetAmount,0)) SubAssetAmount, SUM(ISNULL(FR.Price,0))+SUM(ISNULL(SAR.subAssetAmount,0)) PurchasePrice,SUM(ISNULL(FR.ADBaseAmount,0)) ADBaseAmount
-                , SUM(ISNULL(FR.Price,0))+SUM(ISNULL(SAR.subAssetAmount,0))-SUM(ISNULL(FR.ADBaseAmount,0)) NetBookValue , SUM(ISNULL(fr.NegotiationValue,0)) NegotiationValue
-                from TRN.FixedAssetRegisterDisposed frd 
-				join TRN.FixedAssetRegisterDisposedDetail rdd ON rdd.FixedAssetRegisterDisposedId=frd.Id
-                left join TRN.FixedAssetRegister FR on FR.Id=rdd.FixedAssetRegisterId
-                left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
-				left join ORG.Department D on D.Id=ei.DepartmentId
-				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
-				 JOIN TRN.Voucher V ON V.Id=frd.DisposedVoucherId
-                LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
-                    where fr.CompanyId='" + companyId + @"'
-                    group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName ,DG.UserName,V.VoucherNo,V.PostingDate,V.Id ) AS TEMP WHERE " + strkey + " order by DisposeNo ";
-            return _sqlRepository.GetDataCollection(sql);
-        }
-
-
-
-
+      
         public void GetParallelCurrency(string companyId, out string companyCurrencyId, out string companyCurrencyCode)
         {
             var companyParallelCurrency = GetCompanyCurrencyId(companyId);
@@ -327,13 +243,7 @@ namespace Library.Accounting.FixedAssets
         }
         private Dictionary<string, object> GetCompanyCurrencyId(string companyId)        {            var cmdText = @"select cpc.CurrencyId,C.Code CurrencyCode from SCS.CompanyParallelCurrency cpc
                             LEFT JOIN SCS.Currency C ON C.Id = CPC.CurrencyId where cpc.ParallelCurrencyType = '" + ParallelCurrencyType.CompanyCurrency.ToString() + "'";            return _sqlRepository.GetData(cmdText);        }
-        //testing 
-        //private bool GetPlantIsShowFCInWord(string plantId)
-        //{
-        //   var IsShowFCInWord = @"SELECT IsShowFCInWord FROM ORG.Plant WHERE Id='"+ plantId + "'";
-        //    return bool.Parse(IsShowFCInWord);
-        //}
-
+     
         private bool GetPlantIsShowFCInWord(string plantId)
         {
             return bplib.clsWebLib.GetBoolData(_sqlRepository.GetDataCollection(@"SELECT IsShowFCInWord FROM ORG.Plant WHERE Id='" + plantId + "'")[0]["IsShowFCInWord"].ToString());
@@ -341,23 +251,19 @@ namespace Library.Accounting.FixedAssets
         #region Fixed assets dispose post report
 
         //old vendor invoice charge set-off data
-        private DataTable GetFixedAssetsDisposePostData(string companyGroupId, string companyId, string plantId, string voucherId, SourceType sourceType)
+        private DataTable GetFinishGoodsBookingPostData(string companyGroupId, string companyId, string plantId, string voucherId, SourceType sourceType)
         {
             var cmdText = @"SELECT V.Id, GL.Id AS AccountCodeId, VDC.VoucherDetailId, FY.FiscalYearName, FYP.PeriodName, FYP.PeriodNo, V.IsPark, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
                             , [Park/Post]=CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END, REPLACE(CONVERT(VARCHAR(11), v.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo, V.VoucherNo, UPPER(V.Narration) AS Narration
                             , V.CurrencyId, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, CU1.Code AS TrnCurrency, V.AddedBy, V.PostedBy, VDC.ParallelCurrencyId, CU.Code AS CurrencyCode
                             , VDC.FromCurrencyId, VDC.ToCurrencyId, VDC.ToCurrencyRate, VD.DrAmount AS DrAmount, VD.CrAmount AS CrAmount, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount, [DRCR]=CASE WHEN VDC.DrAmount>0 THEN '1' ELSE '2' END
-                            , VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode, P.UserName AS Customer, PP.UserName AS CustomerPlant, VD.Narration AS DetailNarration, BUD.UserName AS Budget
+                            , VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode, NULL Customer, NULL CustomerPlant, VD.Narration AS DetailNarration, BUD.UserName AS Budget
 
-                            ,Activity=CASE WHEN VD.CashMasterId<>'' THEN  CM.UserName  WHEN VD.BankMasterId<>'' THEN BNM.AccountTitle Else ACT.UserName end 
-                            ,CM.UserName AS CashMasterName
+                            ,Activity=  ACT.UserName  
+                            ,NULL AS CashMasterName
                             FROM [TRN].[VoucherDetailCurrency] AS VDC
                             JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=VDC.VoucherDetailId
                             JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
-                            LEFT JOIN [TRN].[InvoiceWriteOffDetail] AS IVD ON IVD.Id=VD.InvoiceWriteOffDetailId
-                            LEFT JOIN [TRN].[InvoiceWriteOff] AS IV ON IV.Id=IVD.InvoiceWriteOffId
-                            LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
-                            LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                             LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=VD.GLGeneralInfoId
                             LEFT JOIN [SCS].[Currency] AS CU ON CU.Id=VDC.ParallelCurrencyId
                             LEFT JOIN [SCS].[Currency] AS CU1 ON CU1.Id=V.CurrencyId
@@ -366,35 +272,40 @@ namespace Library.Accounting.FixedAssets
                             LEFT JOIN [MST].[BudgetMaster] BUM ON VD.BudgetMasterId=BUM.Id
                             LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id=BUM.BudgetId
                             LEFT JOIN [HKP].[Activity] AS ACT ON ACT.Id=VD.ActivityId
-                            
-                            LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
-                            LEFT JOIN [MST].[BankMaster] AS BNM ON BNM.Id=VD.BankMasterId
                             WHERE V.Archive=0 AND V.Id='" + voucherId + "' ORDER BY VD.DrAmount DESC";
             return _sqlRepository.GetDataTable(cmdText);
         }
 
+        public IEnumerable<object> GetPostedFinishGoodsBookingData(string plantId)
+        {
+            var sql = @"SELECT IR.Id,ird.Qty,ird.Amount,IR.[Description],IR.FromDate,IR.ToDate,V.VoucherNo,DC.VoucherId,V.PostingDate,V.DocDate,V.DocRefNo
+					FROM dbo.[FinishGoodsBooking] AS IR 
+					LEFT JOIN dbo.[DateWiseConsumption] DC ON DC.FinishGoodsBookingId=IR.Id
+                     LEFT JOIN (SELECT A.DateWiseConsumptionId, SUM(A.Qty) AS Qty, SUM(ROUND(A.Qty*A.Rate,4)) AS Amount
+					 FROM dbo.[FinishGoodsBookingDetail] AS A  GROUP BY A.DateWiseConsumptionId) AS  IRD ON IRD.DateWiseConsumptionId=DC.Id
+                    LEFT JOIN TRN.Voucher V ON V.Id=DC.VoucherId
+					WHERE DC.VoucherId<>''";
+            return _sqlRepository.GetDataCollection(sql);
+        }
         //vendor invoice header data old & NEW
-        private Dictionary<string, object> GetFixedAssetsDisposePostHeader(string companyGroupId, string companyId, string plantId, string disposedVoucherId, SourceType sourceType)        {            var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
+        private Dictionary<string, object> GetFinishGoodsBookingPostHeader(string companyGroupId, string companyId, string plantId, string disposedVoucherId, SourceType sourceType)        {            var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
             , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo
             ,AddedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.AddedBy END
             ,PostedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.PostedBy END
             , UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
-            --, P.UserName AS Vendor, PP.UserName AS VendorPlant
 			, V.CurrencyId, C.Code AS CurrencyCode
-			,EI.EmployeeName
-            FROM [TRN].FixedAssetRegisterDisposed AS BJ
-            LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.DisposedVoucherId
+            FROM  [TRN].[Voucher] AS V 
+			LEFT JOIN dbo.DateWiseConsumption DC ON DC.VoucherId=V.Id
             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
             LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
-			LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=BJ.EmployeeId
-            LEFT JOIN SEC.[User] U ON U.UserId=V.AddedBy            WHERE v.Archive=0 AND v.CompanyGroupId='" + companyGroupId + "' AND v.CompanyId='" + companyId + "' AND v.PlantId='" + plantId + "' AND BJ.DisposedVoucherId='" + disposedVoucherId + "' AND v.SourceType='" + sourceType + "'";            return _sqlRepository.GetData(cmdText);        }
+            LEFT JOIN SEC.[User] U ON U.UserId=V.AddedBy            WHERE v.Archive=0 AND v.CompanyGroupId='" + companyGroupId + "' AND v.CompanyId='" + companyId + "' AND v.PlantId='" + plantId + "' AND V.Id='" + disposedVoucherId + "' AND v.SourceType='" + sourceType + "'";            return _sqlRepository.GetData(cmdText);        }
 
-        public IWorkbook FixedAssetsDisposePostReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string disposedVoucherId)        {            var reportUtility = new ReportUtility();            var excelEngine = new ExcelEngine();            var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);            workbook.Version = ExcelVersion.Excel2016;            var sheet = workbook.Worksheets[0];            sheet.Name = "FixedAssetsDisposePost";
+        public IWorkbook FinishGoodsBookingPostReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string disposedVoucherId)        {            var reportUtility = new ReportUtility();            var excelEngine = new ExcelEngine();            var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);            workbook.Version = ExcelVersion.Excel2016;            var sheet = workbook.Worksheets[0];            sheet.Name = "FinishGoodsBookingPost";
 
             //    var advanceDataList = GetVendorInvoiceChargeData(companyGroupId, companyId, plantId, voucherId, sourceType);
             //    var dtGeneralVoucher = advanceDataList;
 
-            var header = GetFixedAssetsDisposePostHeader(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.FixedAssetDisposeJournal);            reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];            var dsLocal = GetFixedAssetsDisposePostData(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.FixedAssetDisposeJournal);            var transcationCurrency = header["CurrencyId"].ToString();
+            var header = GetFinishGoodsBookingPostHeader(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.ConsumptionBook);            reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];            var dsLocal = GetFinishGoodsBookingPostData(companyGroupId, companyId, plantId, disposedVoucherId, SourceType.ConsumptionBook);            var transcationCurrency = header["CurrencyId"].ToString();
             GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
 
 
@@ -586,7 +497,7 @@ namespace Library.Accounting.FixedAssets
                 sheet.Range[row, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, 5, "Authorized By", true);
 
-                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Fixed Asset Dispose", companyId, plantName, null);
+                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Finish Goods Book", companyId, plantName, null);
                 reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
 
                 //    //else

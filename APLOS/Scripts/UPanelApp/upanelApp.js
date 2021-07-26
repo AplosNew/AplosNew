@@ -894,6 +894,8 @@ var upanelApp = angular
     .controller("ManualOTReportNewController", ManualOTReportNewController)
     .controller("CutPlanController", CutPlanController)
     .controller("FinishGoodsBookingPostController", FinishGoodsBookingPostController)
+    .controller("PackingInvoiceController", PackingInvoiceController)
+    .controller("CompanyWiseExternalDataUploadFromExcelController", CompanyWiseExternalDataUploadFromExcelController)
 
 
     .config(AccessControllerConfig)
