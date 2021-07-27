@@ -361,12 +361,24 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
         });
     };
 
+    $scope.costCenterCboList = [];
+    $scope.GetCboCostCenterIdByEntity = function (entityId) {
+        $http({
+            method: "GET",
+            url: "accounts/expenseBooking/GetCboCostCenterIdByEntity?entityId=" + entityId
+        }).then(function successCallback(response) {
+            $scope.costCenterCboList = response.data;
+
+        });
+    };
+
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;
             cboService.getCboWithEmployee(null, null, function (result) {
                 $scope.entityEmployeeList = result;
                 if ($scope.entityEmployeeList.length > 0) {
                     $scope.budgetTransactionMaster.EntityId = $scope.entityEmployeeList[0].Value;
+                    $scope.GetCboCostCenterIdByEntity($scope.budgetTransactionMaster.EntityId);
                 }
             });
     });
