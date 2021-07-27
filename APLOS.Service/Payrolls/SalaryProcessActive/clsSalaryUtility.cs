@@ -568,6 +568,148 @@ public class clsSalaryUtility
         }
     }//End Function 
 
+
+    public void ReLoadFormulaWithValueArrearProcNetPay(string sEmpSystemID, FunctionPara para, string strFormulaID,
+      out string sFormulaValue, out string StructureValue, bool bEarning, List<SPvalueHeadWise> dtValue, List<SPSalaryHead> dicSlrHd)
+    {
+        DataSet dsLocal = null;
+        //DataView dvLocal = null;
+        //DataView dvSlrHd = null;
+        string strTemp = "";
+        StructureValue = string.Empty;
+        string Structure_temp = string.Empty;
+
+        try
+        {
+            //dtValue
+            //List<SPvalueHeadWise> list = new List<SPvalueHeadWise>();
+            //list= dtValue.ToList<SPvalueHeadWise>();
+
+            dsLocal = new DataSet();
+
+            string strFormulaIDTemp = strFormulaID.Trim();
+            string sLocalCurrencyID = para.lblLocalCurrencyID;
+            string sForeignCurRate = para.lblLocalCurRate;
+
+            if (sForeignCurRate == "")
+            { sForeignCurRate = "1"; }
+
+            sFormulaValue = "";
+
+            string[] strIdCol = strFormulaIDTemp.Split(' ');
+
+            DataTable dt = new DataTable();
+            dt.TableName = "IDLIST";
+            dt.Columns.Add("ID");
+            DataRow dr = null;
+            foreach (string id in strIdCol)
+            {
+                dr = dt.NewRow();
+                dr["ID"] = id.Trim();
+                dt.Rows.Add(dr);
+            }
+            dsLocal.Tables.Add(dt);
+
+            for (int i = 0; i < dsLocal.Tables[0].Rows.Count; i++)
+            {
+                bool IsForStructure = false;
+                strTemp = "";
+
+                strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
+                if (strTemp.Trim() == "+" || strTemp.Trim() == "-" || strTemp.Trim() == "*" || strTemp.Trim() == "/" || strTemp.Trim() == ">" || strTemp.Trim() == "<" || strTemp.Trim() == "(" || strTemp.Trim() == ")")
+                {
+                    strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
+                }
+                else
+                {
+                    //dvLocal = new DataView();
+                    //dvLocal.Table = dtValue;
+
+                    var dtv = dtValue.FindAll(x => x.SalaryHeadID == strTemp.Trim() && x.EmpSystemID == sEmpSystemID);
+                    // dvLocal.RowFilter = "SalaryHeadID = '" + strTemp.Trim() + "' AND EmpSystemID = '" + sEmpSystemID + "'";
+                    if (dtv.Count() > 0)
+                    {
+                        if (bEarning == false)
+                        {
+                            if (dtv[0].EntryCurrencyID == para.lblLocalCurrencyID.Trim())
+                            {
+                                strTemp = dtv[0].EntryAmount;
+                                strTemp = GetAbsValue(strTemp);
+                            }
+                            else
+                            {
+                                strTemp = (Convert.ToDecimal(dtv[0].EntryAmount) * Convert.ToDecimal(para.txtForeignCurRate.Trim())).ToString();
+                                strTemp = GetAbsValue(strTemp);
+                            }
+                        }
+                        else
+                        {
+                            decimal decAmount = Convert.ToDecimal(Convert.ToDecimal(dtv[0].EarningAmount).ToString("0.00"));
+                            var ss = Convert.ToDecimal(Convert.ToDecimal(dtv[0].EntryAmount).ToString("0.00"));
+                            IsForStructure = true;
+
+                            if (decAmount == 0)
+                            { decAmount = Convert.ToDecimal(Convert.ToDecimal(dtv[0].EntryAmount).ToString("0.00")); }
+
+                            if (dtv[0].EarningCurrencyID == para.lblLocalCurrencyID.Trim())
+                            {
+                                strTemp = Convert.ToDecimal(dtv[0].EarningAmount).ToString("0.00");
+                                strTemp = GetAbsValue(strTemp);
+
+                                Structure_temp = Convert.ToDecimal(ss).ToString("0.00");
+                                Structure_temp = GetAbsValue(Structure_temp);
+                            }
+                            else
+                            {
+                                strTemp = (decAmount * Convert.ToDecimal(para.txtForeignCurRate.Trim())).ToString();
+                                strTemp = GetAbsValue(strTemp);
+
+                                Structure_temp = (ss * Convert.ToDecimal(para.txtForeignCurRate.Trim())).ToString();
+                                Structure_temp = GetAbsValue(Structure_temp);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var dicsh = dicSlrHd.FindAll(x => x.SalaryHeadID == strTemp.Trim());
+                        if (dicsh.Count() > 0)
+                        {
+                            strTemp = "0.00";
+                        }
+                        // var dvSPChd_dic = dicProcChild.FindAll(x => x.EmpInfoSystemID == dicLocal_Sub[i].EmpInfoSystemID && x.SalaryHeadID == dicLocal_Sub[i].SalaryHeadID && x.SlrProcMstSystemID == para.lblSalaryProcSystemId.Trim());
+
+                        //dicsal
+                        //dvSlrHd = new DataView();
+                        //dvSlrHd.Table = dtSlrHd;
+                        //dvSlrHd.RowFilter = "SalaryHeadID = '" + strTemp.Trim() + "'";
+                        //if (dvSlrHd.Count == 1)
+                        //{
+                        //    strTemp = "0.00";
+                        //}
+                    }
+                }
+
+
+                sFormulaValue += strTemp.Trim();
+                if (IsForStructure)
+                {
+                    StructureValue += Structure_temp.Trim();
+                }
+                else
+                {
+                    StructureValue += strTemp.Trim();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw (ex);
+        }
+        finally
+        {
+        }
+    }//End Function 
+
 }
 
 public static class clsSalaryUtilityDataTable
