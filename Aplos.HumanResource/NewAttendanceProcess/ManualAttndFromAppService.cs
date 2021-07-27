@@ -97,52 +97,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
 
                 var identity = _identity;
-                try
-                {
-                    string inDates = "";
-                    string inEmployeeIds = "";
-                    foreach (AttendanceProcessNewProcess item in DataToBeSaved)
-                    {
-                        if (inDates == "")
-                            inDates = "'" + item.WorkDate + "'";
-                        else
-                            inDates += ",'" + item.WorkDate + "'";
-
-
-                        if (inEmployeeIds == "")
-                            inEmployeeIds = "'" + item.Id + "'";
-                        else
-                            inEmployeeIds += ",'" + item.Id + "'";
-                    }
-
-                    if (inDates != "")
-                    {
-                        DataTable dtLock = _sqlRepository.GetDataTable("SELECT * FROM PlantWiseAttendanceLock AS pwal WHERE isActive=1 AND pwal.LockedDate IN (" + inDates + ") AND pwal.PlantId='" + identity.PlantId + "'");
-                        DataTable dtLockEmployee = _sqlRepository.GetDataTable("SELECT * FROM ExceptionEmployeeAttendanceUnlock WHERE EmpSystemId IN (" + inEmployeeIds + @")");
-                        for (int i = 0; i < dtLock.Rows.Count; i++)
-                        {
-                            var k = DataToBeSaved.Where(ee => ee.WorkDate.ToUpper() == Convert.ToDateTime(dtLock.Rows[i]["LockedDate"].ToString()).ToString("dd-MMM-yyyy").ToUpper());
-                            foreach (var item in k)
-                            {
-                                dtLockEmployee.DefaultView.RowFilter = "EmpSystemId='" + item.Id + "' AND WorkDate=#" + item.WorkDate + "#";
-                                if (dtLockEmployee.DefaultView.Count == 0)
-                                {
-                                    item.IsError = true;
-                                    item.ErrorMessage = "Day locked";
-                                }
-                            }
-                        }
-
-                        if (DataToBeSaved.Where(ee => ee.IsError == true).ToList().Count > 0)
-                        {
-                            return new RTx { data = DataToBeSaved, IsError = true, msg = "Error occured" };
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-
-                }
+                
+                  
 
                 DataTable NewShiftStandardTime = getDateWiseShift(DataToBeSaved);
                 //validations
@@ -591,6 +547,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         public string LTSystemID { get; set; } = "";
         public string LTSystemIDOriginal { get; set; } = "";
         public bool IsOD { get; set; } = false;
+        public bool IsLock { get; set; } = false;
         public string AttendanceRestDetailId { get; set; } = "";
         public string DayName { get; set; } = "";
         public string DayStatusCode { get; set; } = "";

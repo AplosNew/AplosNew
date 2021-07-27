@@ -5,6 +5,7 @@ using System.Data;
 using Library.Data.Sql;
 using OTSBD;
 using Library.Service.EmployeeServices;
+using bplib;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
@@ -63,7 +64,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             try
             {
                 var sql = @"select distinct p.RowId,p.ShiftSystemID as ShiftId,p.InTime,
-                p.OutTime,d.UserName as Shift,p.ShiftInTime,p.ShiftOutTime
+                p.OutTime,d.UserName as Shift,p.ShiftInTime,p.ShiftOutTime,p.IsLock
 				from dbo.AttdnProcessData p
                 left join dbo.ShiftDefination d on d.SystemID=p.ShiftSystemID				 
 				where  EmpSystemID='" + EmpId+"' and WorkDate='"+Date+"'";
@@ -182,24 +183,25 @@ namespace Library.HumanResource.NewAttendanceProcess
                 objCon.OpenDataSetThroughAdapter(strSql, out shiftchange, false, "1");
                 int i = 0;
 
-                 if (shiftchange.Tables[0].Rows.Count > 0)
-                 {
-                    shiftchange.Tables[0].Rows[0].BeginEdit();
-                    shiftchange.Tables[0].Rows[0]["ShiftSystemID"] = data[0].ShiftSystemID;
-                    shiftchange.Tables[0].Rows[0]["ManualShiftId"] = data[0].ShiftSystemID;
-                    shiftchange.Tables[0].Rows[0]["ShiftDuration"] = data[0].ShiftDuration;
-                    shiftchange.Tables[0].Rows[0]["ShiftShortDuration"] = data[0].ShiftShortDuration;
-                    shiftchange.Tables[0].Rows[0]["ShiftHoursWithoutOT"] = data[0].ShiftHoursWithoutOT;
-                    shiftchange.Tables[0].Rows[0]["ShiftFullDayDuration"] = data[0].ShiftFullDayDuration;
-                    shiftchange.Tables[0].Rows[0]["ShiftHalfDayDuration"] = data[0].ShiftHalfDayDuration;
-                    shiftchange.Tables[0].Rows[0]["ShiftOutTime"] = data[0].ShiftOutTime;
-                    shiftchange.Tables[0].Rows[0]["ShiftInTime"] = data[0].ShiftInTime;
-                    shiftchange.Tables[0].Rows[0]["ManualByWhom"] = data[0].AddedBy;
-                    shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
-                    shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
-                    shiftchange.Tables[0].Rows[0].EndEdit();
-                    i = 1;
-                 }
+                if (shiftchange.Tables[0].Rows.Count > 0)
+                {
+                        shiftchange.Tables[0].Rows[0].BeginEdit();
+                        shiftchange.Tables[0].Rows[0]["ShiftSystemID"] = data[0].ShiftSystemID;
+                        shiftchange.Tables[0].Rows[0]["ManualShiftId"] = data[0].ShiftSystemID;
+                        shiftchange.Tables[0].Rows[0]["ShiftDuration"] = data[0].ShiftDuration;
+                        shiftchange.Tables[0].Rows[0]["ShiftShortDuration"] = data[0].ShiftShortDuration;
+                        shiftchange.Tables[0].Rows[0]["ShiftHoursWithoutOT"] = data[0].ShiftHoursWithoutOT;
+                        shiftchange.Tables[0].Rows[0]["ShiftFullDayDuration"] = data[0].ShiftFullDayDuration;
+                        shiftchange.Tables[0].Rows[0]["ShiftHalfDayDuration"] = data[0].ShiftHalfDayDuration;
+                        shiftchange.Tables[0].Rows[0]["ShiftOutTime"] = data[0].ShiftOutTime;
+                        shiftchange.Tables[0].Rows[0]["ShiftInTime"] = data[0].ShiftInTime;
+                        shiftchange.Tables[0].Rows[0]["ManualByWhom"] = data[0].AddedBy;
+                        shiftchange.Tables[0].Rows[0]["ManualEntryTime"] = DateTime.Now;
+                        shiftchange.Tables[0].Rows[0]["ManualFlag"] = true;
+                        shiftchange.Tables[0].Rows[0].EndEdit();
+                        i = 1;
+                    
+                }
 
 
                 clsStaticInfo info = new clsStaticInfo();
