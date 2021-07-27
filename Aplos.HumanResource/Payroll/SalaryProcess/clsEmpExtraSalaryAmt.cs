@@ -506,7 +506,7 @@ namespace OTSBD
             {
                 strSQL = @"SELECT *
                                     FROM MonthWiseExtraSalaryAmtMaster 
-                            WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and plantid='" + plantid + @"' and EmpInfoSystemID in (" + empids + @")";
+                            WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and EmpInfoSystemID in (" + empids + @")";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -552,7 +552,7 @@ namespace OTSBD
             {
                 strSQL = @"SELECT * FROM MonthWiseExtraSalaryAmtChild 
                           WHERE SalaryHeadID='" + SalaryHeadId + @"' and MWESAMasterSystemID IN (SELECT SystemID FROM MonthWiseExtraSalaryAmtMaster 
-                                                                    WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and plantid='" + plantid + @"' and EmpInfoSystemID in (" + empids + @"))";
+                                                                    WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and EmpInfoSystemID in (" + empids + @"))";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -621,10 +621,10 @@ namespace OTSBD
             {
                 strSQL = @"DELETE FROM MonthWiseExtraSalaryAmtChild 
                           WHERE SalaryHeadID='" + SalaryHeadId + @"' and MWESAMasterSystemID IN (SELECT SystemID FROM MonthWiseExtraSalaryAmtMaster 
-                          WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" AND PlantID ='" + plantId + @"')";
+                          WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" )";
 
                 strSQL2 = @"DELETE FROM [MonthWiseExtraSalaryAmtMaster] 
-                          WHERE SystemID not in (SELECT MWESAMasterSystemID FROM MonthWiseExtraSalaryAmtChild  ) AND PlantID ='" + plantId + @"'";
+                          WHERE SystemID not in (SELECT MWESAMasterSystemID FROM MonthWiseExtraSalaryAmtChild  ) ";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");

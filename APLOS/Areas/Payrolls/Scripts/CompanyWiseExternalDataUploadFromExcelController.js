@@ -7,16 +7,11 @@ function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $locati
     $rootScope.title = 'Company Wise External Data Upload From Excel';
     $scope.SaveDataList = []
 
+    $scope.TotalDeduction = 0.00;
+    $scope.TotalEarning = 0.00;
 
     $scope.LoadData = function () {
         try {
-
-
-
-
-            //if (baseService.isUndefinedOrNull($scope.ModelNew.SalaryHeadId)) {
-            //    throw "Please Select Salary Head.";
-            //}
 
             if (baseService.isUndefinedOrNull($scope.ModelNew.YearNo)) {
                 throw "Please Select Year.";
@@ -40,9 +35,18 @@ function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $locati
 
                 }
                 else {
+                    $scope.TotalDeduction = 0.00;
+                    $scope.TotalEarning = 0.00;
                     $scope.SaveDataList = [];
                     $scope.SaveDataList = response.data;
-
+                    for (var i = 0; i < $scope.SaveDataList.length; i++) {
+                        if ($scope.SaveDataList[i].HeadType == 'E') {
+                            $scope.TotalEarning = parseFloat($scope.SaveDataList[i].EntryAmount) + parseFloat($scope.TotalEarning)
+                        }
+                        else {
+                            $scope.TotalDeduction = parseFloat($scope.SaveDataList[i].EntryAmount) + parseFloat($scope.TotalDeduction)
+                        }
+                    }
                 }
             }, function errorCallback(response) {
 
@@ -377,7 +381,7 @@ function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $locati
 
             $http({
                 method: 'POST',
-                url: 'Payrolls/ExternalDataUploadFromExcel/ExternalDataUploadReport',
+                url: 'Payrolls/CompanyWiseExternalDataUploadFromExcel/ExternalDataUploadReport',
                 data: {
                     'EmployeeList': parameters[0].Value, 'SalaryHeadId': $scope.ModelNew.SalaryHeadId, 'MonthNo': $scope.ModelNew.MonthNo, 'YearNo': $scope.ModelNew.YearNo
                     , 'SalaryHeadIDs': parameters[1].Value, 'HeadType': parameters[2].Value, 'CurrencyID': parameters[3].Value, 'EntryAmount': parameters[4].Value, 'MonthName': MonthName
@@ -414,7 +418,7 @@ function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $locati
     };
     $scope.ShowDiv = false;
     $scope.edit = {
-        Id:null,
+        Id: null,
         EmpCode: null,
         SalaryHead: null,
         EmpName: null,
@@ -437,8 +441,11 @@ function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $locati
                 method: 'GET',
                 url: $scope.path + 'GetSalaryLock?EmpSystemId=' + EmpSystemId + '&MonthNo=' + $scope.ModelNew.MonthNo + '&YearNo=' + $scope.ModelNew.YearNo,
             }).then(function successCallback(response) {
-                if (response.data[0].IsLocked == false) {
-                    if ($scope.IsSalaryLock == false) {
+                if (response.data.length != 0) {
+                    if (response.data[0].IsLocked == true) {
+                        ShowResult("Salary Locked for this Employee..", "failure");
+                    }
+                    else {
                         $scope.ShowDiv = true;
                         var eDialog = $("#Edit").data("ejDialog");
                         $("#Edit").ejDialog("setTitle", " Edit");
@@ -446,7 +453,13 @@ function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $locati
                     }
                 }
                 else {
-                    ShowResult("Salary Locked for this Employee..", "failure");
+
+                    /*if ($scope.IsSalaryLock == false) {*/
+                    $scope.ShowDiv = true;
+                    var eDialog = $("#Edit").data("ejDialog");
+                    $("#Edit").ejDialog("setTitle", " Edit");
+                    eDialog.open();
+                    //}
                 }
             });
         } catch (e) {
@@ -454,7 +467,7 @@ function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $locati
         }
     };
     $scope.UpdateUpload = function () {
-        try {            
+        try {
             $http({
                 method: 'POST',
                 url: $scope.path + "UpdateUpload",
@@ -466,7 +479,7 @@ function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $locati
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    var eDialog = $("#Edit").data("ejDialog");                    
+                    var eDialog = $("#Edit").data("ejDialog");
                     eDialog.close();
                     $scope.LoadData();
                 }

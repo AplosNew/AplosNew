@@ -1978,7 +1978,7 @@ namespace Library.Service.Payrolls.SalaryProcess
                                 drMWESAMst.BeginEdit();
                                 drMWESAMst["EmpInfoSystemID"] = bplib.clsWebLib.RetValidLen(Item.EmpInfoSystemID, 50);
 
-                                drMWESAMst["PlantId"] = Identity.PlantId;
+                                drMWESAMst["PlantId"] = dsMaster.Tables[0].Rows[0]["PlantId"].ToString();
                                 drMWESAMst["MonthNo"] = pMonthNo;
                                 drMWESAMst["YearNo"] = bplib.clsWebLib.GetNumData(pYearNo);
 
@@ -1990,35 +1990,8 @@ namespace Library.Service.Payrolls.SalaryProcess
 
                             #endregion Master Table
 
-                            #region SystemID For Detail Table
-
-                            //int SrNoDet = 0;
-                            //int SrNoDetTmp = 0;
-
-                            //dvMWESAChdGrd.Table = dtMWESAChdGrd;
-                            //dvMWESAChdGrd.RowFilter = "MWESAMasterSystemID = '" + strMstSysID.Trim() + "'";
-                            //if (dvMWESAChdGrd.Count > 0)
-                            //{
-                            //    for (int j = 0; j < dvMWESAChdGrd.Count; j++)
-                            //    {
-                            //        int sysIdLen = strMstSysID.Length + 5;
-
-                            //        SrNoDetTmp = SrNoDet;
-                            //        SrNoDet = Convert.ToInt32((dvMWESAChdGrd[j]["MWESAChildSystemID"].ToString()).Substring(sysIdLen));
-
-                            //        if (SrNoDetTmp > SrNoDet)
-                            //        {
-                            //            SrNoDet = SrNoDetTmp;
-                            //        }
-                            //    }
-                            //}
-
-                            #endregion SystemID For Detail Table
-
+                            
                             #region Detail Table
-
-
-
 
 
                             ChdSystemID = "";

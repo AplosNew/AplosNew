@@ -97,6 +97,12 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetCboCostCenterIdByEntity(string entityId)
+        {
+            return Json(_expenseBookingService.GetCboCostCenterIdByEntity(entityId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetExpenseBookingPendingList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

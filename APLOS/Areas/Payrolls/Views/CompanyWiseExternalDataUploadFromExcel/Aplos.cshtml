@@ -131,7 +131,7 @@
 
 
 
-                <div class="col-md-10">
+                <div class="col-md-6">
                     <input type="hidden" ng-model="EmployeeProfileFromExcel.EmployeeCode">
                     <div class="inputBtnSection common-btn">
                         <label class="fileUpload col-sm-4 ">
@@ -144,9 +144,9 @@
                                ng-click="ImportData()" />
                     </div>
                 </div>
-                @*<div class="col-md-4">
+                <div class="col-md-4">
                     <label class="control-label " style="color:red">If Employee Code Is Duplicate, It will uploaded for both employee</label>
-                </div>*@
+                </div>
                 <div class="col-md-2">
                     <div class="common-btn">
                         <ul class="list-inline text-right">
@@ -255,6 +255,12 @@
                         </button>
                     </div>
                 </script>
+                <div class="col-xs-12 col-sm-12 col-md-12 ">
+                    <label class="col-sm-3 control-label">Total Deduction<sup>*</sup></label>
+                    <label class="col-sm-3 control-label">{{TotalDeduction}}</label>
+                    <label class="col-sm-3 control-label">Total Earning<sup>*</sup></label>
+                    <label class="col-sm-3 control-label">{{TotalEarning}}</label>
+                </div>
                 <div class="col-xs-12 col-sm-12 col-md-12 ">
                     <div class="common-btn">
                         <ul class="list-inline text-right">
