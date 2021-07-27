@@ -2967,6 +2967,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             data[i]["RatePerUnit"] = data[i]["TransactionRate"];
                             data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
                             data[i]["TaxAmount"] = data[i]["TaxAmount"];
+                        //    data[i]["TaxAmount"] = data[i]["JWTaxAmount"];
 
                             EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
                         }
@@ -3403,7 +3404,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 	                            ,JWTPD.RatePerUnit	TransactionRate
 	                            ,(JWTPD.Quantity*JWTPD.RatePerUnit) TransactionAmount
                             , JWTPD.ReferenceNo,((JWTPD.Quantity*JWTPD.RatePerUnit)*po.ToCurrencyRate) BaseAmount
-                            , jwtax.TaxAmount,JWTPD.TransactionUoMId,TransactionUoM.Code TransactionUoM,JWTPD.BaseUOMId,BaseUOM.Code BaseUOM
+                            , jwtax.TaxAmount as JWTaxAmount,JWTPD.TransactionUoMId,TransactionUoM.Code TransactionUoM,JWTPD.BaseUOMId,BaseUOM.Code BaseUOM
                             ,MS.Id MaterialStorageId,MS.UserName MaterialStorage,EEI.EmployeeName ResponsiblePerson ,ISNULL(MM.UserName,'') MaterialName
                             --,FORMAT(JWTPD.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate
                             FROM JobWorkTransformationContractChild JWTPD      
