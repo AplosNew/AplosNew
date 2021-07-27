@@ -7,16 +7,11 @@ function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $locati
     $rootScope.title = 'Company Wise External Data Upload From Excel';
     $scope.SaveDataList = []
 
+    $scope.TotalDeduction = 0.00;
+    $scope.TotalEarning = 0.00;
 
     $scope.LoadData = function () {
         try {
-
-
-
-
-            //if (baseService.isUndefinedOrNull($scope.ModelNew.SalaryHeadId)) {
-            //    throw "Please Select Salary Head.";
-            //}
 
             if (baseService.isUndefinedOrNull($scope.ModelNew.YearNo)) {
                 throw "Please Select Year.";
@@ -40,9 +35,18 @@ function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $locati
 
                 }
                 else {
+                    $scope.TotalDeduction = 0.00;
+                    $scope.TotalEarning = 0.00;
                     $scope.SaveDataList = [];
                     $scope.SaveDataList = response.data;
-
+                    for (var i = 0; i < $scope.SaveDataList.length; i++) {
+                        if ($scope.SaveDataList[i].HeadType == 'E') {
+                            $scope.TotalEarning = parseFloat($scope.SaveDataList[i].EntryAmount) + parseFloat($scope.TotalEarning)
+                        }
+                        else {
+                            $scope.TotalDeduction = parseFloat($scope.SaveDataList[i].EntryAmount) + parseFloat($scope.TotalDeduction)
+                        }
+                    }
                 }
             }, function errorCallback(response) {
 
