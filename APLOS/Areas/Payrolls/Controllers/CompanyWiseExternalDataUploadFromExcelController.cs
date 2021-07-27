@@ -34,7 +34,7 @@ using System.Web.Script.Serialization;
 
 namespace Aplos.Areas.Payrolls.Controllers
 {
-    public class ExternalDataUploadFromExcelController : BaseController
+    public class CompanyWiseExternalDataUploadFromExcelController : BaseController
     {
         #region Constructor
 
@@ -42,7 +42,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         private readonly clsTemplateDownloadExternalData _AttendanceManagementService;
         private readonly clsExternalDataUpload _SalaryStructureUploadService;
 
-        public ExternalDataUploadFromExcelController(
+        public CompanyWiseExternalDataUploadFromExcelController(
                ISqlRepository sqlRepository,
                clsTemplateDownloadExternalData AttendanceManagementService,
                clsExternalDataUpload SalaryStructureUploadService
@@ -76,7 +76,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         Left join EmployeeInformation EI on EI.SystemId=m.EmpInfoSystemID
                         LEFT JOIN SalaryHead sh on sh.SalaryHeadID=d.SalaryHeadID
                         LEFT JOIN  SCS.Currency c on c.id=d.EntryCurrencyID
-                        WHERE m.monthNo=" + MonthNo + @" and m.YearNo=" + YearNo + @" and m.PlantID='" + identity.PlantId + @"' and d.ExtDataUploadApp='XL'
+                        WHERE m.monthNo=" + MonthNo + @" and m.YearNo=" + YearNo + @" and d.ExtDataUploadApp='XL'
                         ORDER BY EI.EmployeeCodePreFix,EI.EmployeeCodeNumeric ";
             }
             else
@@ -86,7 +86,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         Left join EmployeeInformation EI on EI.SystemId=m.EmpInfoSystemID
                         LEFT JOIN SalaryHead sh on sh.SalaryHeadID=d.SalaryHeadID
                         LEFT JOIN  SCS.Currency c on c.id=d.EntryCurrencyID
-                        WHERE m.monthNo=" + MonthNo + @" and m.YearNo=" + YearNo + @" and m.PlantID='" + identity.PlantId + @"'
+                        WHERE m.monthNo=" + MonthNo + @" and m.YearNo=" + YearNo + @" 
                         and d.SalaryHeadID='" + SalaryHeadId + @"' and d.ExtDataUploadApp='XL'
                         ORDER BY EI.EmployeeCodePreFix,EI.EmployeeCodeNumeric ";
 
@@ -134,20 +134,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                 clsEmpExtraSalaryAmt objEmpExtAmt = null;
                 List<ExternalDataUploadVM> data = new List<ExternalDataUploadVM>();
 
-                //var settings = new JsonSerializerSettings
-                //{
-                //    NullValueHandling = NullValueHandling.Ignore,
-                //    MissingMemberHandling = MissingMemberHandling.Ignore
-                //};
-                ////var model = JsonConvert.DeserializeObject<PurchaseLC>(form["model"], settings);
-
-
-
-
-
                 var pre = form["modelNew"];
                 var file = Request.Files["file"];
-
 
                 var _objects = JsonConvert.DeserializeObject<Dictionary<string, object>>(pre);
                 string pSalaryHeadId = getData<string>("SalaryHeadId", _objects);
@@ -159,9 +147,6 @@ namespace Aplos.Areas.Payrolls.Controllers
                     var extension = Path.GetExtension(file.FileName);
                     if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
                     {
-                        //cost.FileName = extension;
-                        //if (!string.IsNullOrEmpty(cost.FileName))
-                        //    cost.FileName = cost.Id.ToString() + cost.FileName;
                     }
                     else
                         throw new CustomException(Resources.ExcelUploadError);
@@ -169,7 +154,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 string path = "";
                 if (file != null)
                 {
-                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData()/*Server.MapPath("~" + new AppSettingsReader().GetValue(UrlResources.EmployeeImage, typeof(string)).ToString())*/, /*cost.FileName*/file.FileName);
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(),file.FileName);
                     if (System.IO.File.Exists(path))
                     {
                         System.IO.File.Delete(path);
@@ -196,7 +181,6 @@ namespace Aplos.Areas.Payrolls.Controllers
                 string exception = "\r\n";
                 try
                 {
-                    //string path = Server.MapPath("TempExcelFile") + "/" + FileUpload1.FileName; exception += "\r\n" + path;
                     try
                     {
                         objEmpExtAmt = new clsEmpExtraSalaryAmt();
@@ -229,20 +213,11 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                         int YearNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(pYearNo));
                         int MonthNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(pMonthNo));
-                        //by monir
-                        //Delete All Data
-                        //clsEmpExtraSalaryAmt objEmpExtAmt = new clsEmpExtraSalaryAmt();
-                        //objEmpExtAmt.DeleteOldExtraData(YearNo, MonthNo, identity.PlantId, pSalaryHeadId);
-
-                        objEmpExtAmt.LoadExternalUploadFromExcelOnGrid(identity.PlantId, pSalaryHeadId, YearNo, MonthNo, out dsEmpInfo);
+                        
+                        objEmpExtAmt.LoadCompanyWiseExternalUploadFromExcelOnGrid(identity.PlantId, pSalaryHeadId, YearNo, MonthNo, out dsEmpInfo);
                         dtEmpInfo = dsEmpInfo.Tables[0];
                         dvEmpInfo = new DataView();
 
-                        //LoadDataSetFromDataGrid(ref dgEmpSalaryDefine, out dsGrd);
-                        //dtGrd = dsGrd.Tables[0];
-                        //dvGrd = new DataView();
-                        //dvGrd.Table = dtGrd;
-                        //dsGrd.Tables[0].DefaultView.RowFilter = "EmployeeCode='102841'";
                         if (dsExcel.Tables[0].Rows.Count > 0)
                         {
                             for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
@@ -339,15 +314,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                         vm.Remarks = "Employee code has not matched with the system database.";
                                         data.Add(vm);
                                     }
-                                }//blank checking
-
-                                //dgEmpSalaryDefine.DataSource = dtGrd;
-                                //dgEmpSalaryDefine.DataBind();
-                                //PanEmpSalaryDefine.Visible = true;
-                                //Button_save.Visible = true;
-                                //Button_save.Enabled = true;
-                                //Session["VERIFICATION_STATE"] = 2;
-                                //lblInfo.Text = "The entry form is in Add Mode. A new data is going to create on press the [create] button below after finish the entry.";
+                                }//blank checking                                                                
                             }
                         }
                         else
@@ -454,262 +421,6 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
         }//
 
-
-
-
-        //private void Import_Excel_File()
-        //{
-        //    FileInfo docFile;
-
-        //    DataSet dsEmpInfo = null;
-        //    DataTable dtEmpInfo = null;
-        //    DataView dvEmpInfo = null;
-
-        //    DataSet dsGrd = null;
-        //    DataTable dtGrd = null;
-        //    DataView dvGrd = null;
-        //    DataRow drGrd = null;
-
-        //    clsEmpExtraSalaryAmt objEmpExtAmt = null;
-        //    string exception = "\r\n";
-        //    try
-        //    {
-        //        #region CHECK EDIT/UPDATE ACCESS
-
-        //        if (lblAccessEdit.Text == "NO")
-        //        {
-        //            Exception ex = new Exception("Access Denied for EDIT/UPDATE ... !!!");
-        //            throw (ex);
-        //        }
-
-        //        #endregion //End CHECK EDIT/UPDATE ACCESS
-
-        //        objEmpExtAmt = new clsEmpExtraSalaryAmt();
-
-        //        #region Validation
-
-        //        if (string.IsNullOrEmpty(ddlPlant.SelectedValue.Trim()) == true)
-        //        {
-        //            ddlPlant.Focus();
-        //            Exception ex = new Exception("Please select Plant...");
-        //            throw (ex);
-        //        }
-        //        if (string.IsNullOrEmpty(ddlYearNo.SelectedValue.Trim()) == true)
-        //        {
-        //            ddlYearNo.Focus();
-        //            Exception ex = new Exception("Please select year No...");
-        //            throw (ex);
-        //        }
-        //        if (string.IsNullOrEmpty(ddlMonthName.SelectedValue.Trim()) == true)
-        //        {
-        //            ddlMonthName.Focus();
-        //            Exception ex = new Exception("Please select month name...");
-        //            throw (ex);
-        //        }
-        //        if (string.IsNullOrEmpty(ddExtraSlrHd.SelectedValue.Trim()) == true)
-        //        {
-        //            ddExtraSlrHd.Focus();
-        //            Exception ex = new Exception("Please select salary head...");
-        //            throw (ex);
-        //        }
-        //        if (string.IsNullOrEmpty(txtForeignCurRate.Text.Trim()) == true)
-        //        {
-        //            txtForeignCurRate.Text = "0.0";
-        //        }
-
-        //        if (txtForeignCurRate.Text.Trim().Length > 20 || bplib.clsWebLib.IsNumeric(txtForeignCurRate.Text.Trim()) == false)
-        //        {
-        //            txtForeignCurRate.Focus();
-        //            Exception ex = new Exception("Invalid / Blank Data not allowed for 'Amount Definition Currency Rate'. \n Please Enter Numeric data Only");
-        //            throw (ex);
-        //        }
-
-        //        #endregion Validation
-
-        //        int YearNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(ddlYearNo.Text));
-        //        int MonthNo = ddlMonthName.SelectedIndex;
-
-        //        if (FileUpload1.HasFile)
-        //        {
-        //            string path = Server.MapPath("TempExcelFile") + "/" + FileUpload1.FileName; exception += "\r\n" + path;
-        //            try
-        //            {
-
-        //                FileUpload1.PostedFile.SaveAs(path);
-
-        //                string ext = Path.GetExtension(FileUpload1.PostedFile.FileName); exception += "\r\n" + path;
-
-        //                if (ext.ToLower() == ".xls" || ext.ToLower() == ".xlsx")
-        //                {
-        //                    string connString = string.Empty;
-
-        //                    /
-        //                    ExcelEngine excelEngine = null;
-        //                    IApplication application = null;
-        //                    IWorkbook workbook = null;
-
-        //                    excelEngine = new ExcelEngine();
-        //                    application = excelEngine.Excel;
-        //                    workbook = excelEngine.Excel.Workbooks.Open(path);
-
-        //                    DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
-
-
-        //                    DataSet dsExcel = new DataSet();
-        //                    dsExcel.Tables.Add(dt);
-
-
-        //                    docFile = new FileInfo(path);
-        //                    if (docFile.Exists)
-        //                    {
-        //                        exception += "\r\nTrying to delete";
-        //                        docFile.Delete();
-        //                    }
-
-        //                    //by monir
-        //                    //Delete All Data
-        //                    //clsEmpExtraSalaryAmt objEmpExtAmt = new clsEmpExtraSalaryAmt();
-        //                    objEmpExtAmt.DeleteOldExtraData(YearNo, MonthNo, ddlPlant.SelectedValue.Trim(), ddExtraSlrHd.SelectedValue);
-
-        //                    objEmpExtAmt.LoadExternalUploadFromExcelOnGrid(ddlPlant.SelectedValue.Trim(), ddExtraSlrHd.SelectedValue.Trim(), YearNo, MonthNo, out dsEmpInfo);
-        //                    dtEmpInfo = dsEmpInfo.Tables[0];
-        //                    dvEmpInfo = new DataView();
-
-        //                    LoadDataSetFromDataGrid(ref dgEmpSalaryDefine, out dsGrd);
-        //                    dtGrd = dsGrd.Tables[0];
-        //                    dvGrd = new DataView();
-        //                    dvGrd.Table = dtGrd;
-        //                    //dsGrd.Tables[0].DefaultView.RowFilter = "EmployeeCode='102841'";
-        //                    if (dsExcel.Tables[0].Rows.Count > 0)
-        //                    {
-        //                        for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
-        //                        {
-        //                            string strTempEntryAmt = "0.0";
-        //                            string strTempDefineAmt = "0.0";
-        //                            string _empCode = Regex.Replace(dsExcel.Tables[0].Rows[i][0].ToString().Trim(), @"\s", "");
-        //                            //string _empCode = dsExcel.Tables[0].Rows[i]["EmployeeCode"].ToString().Trim();
-        //                            strTempEntryAmt = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
-        //                            //strTempEntryAmt = dsExcel.Tables[0].Rows[i]["Amount"].ToString().Trim();
-        //                            //strTempEntryAmt = dsExcel.Tables[0].Rows[i]["F2"].ToString().Trim();
-        //                            if (_empCode.Trim().Length > 0 && strTempDefineAmt.Trim().Length > 0)
-        //                            {
-        //                                dvEmpInfo.Table = dtEmpInfo;
-        //                                dvEmpInfo.RowFilter = "EmployeeCode = '" + _empCode + "'";
-        //                                //if (dvEmpInfo.Count == 1)
-        //                                if (dvEmpInfo.Count > 0)
-        //                                {
-        //                                    if (dvEmpInfo[0]["EntryCurrencyID"].ToString().Trim() == dvEmpInfo[0]["DefinitionCurrencyID"].ToString().Trim())
-        //                                    {
-        //                                        strTempDefineAmt = strTempEntryAmt;
-        //                                    }
-        //                                    else
-        //                                    {
-        //                                        strTempDefineAmt = (Convert.ToDecimal(strTempEntryAmt) / Convert.ToDecimal(txtForeignCurRate.Text)).ToString("#,##0.0000;(#,##0.0000)");
-        //                                    }
-
-        //                                    drGrd = dtGrd.NewRow();
-        //                                    drGrd["MWESAMasterSystemID"] = dvEmpInfo[0]["MWESAMasterSystemID"].ToString().Trim();
-        //                                    drGrd["MWESAChildSystemID"] = dvEmpInfo[0]["MWESAChildSystemID"].ToString().Trim();
-        //                                    drGrd["EmpInfoSystemID"] = dvEmpInfo[0]["EmpInfoSystemID"].ToString().Trim();
-        //                                    drGrd["EmployeeCode"] = dvEmpInfo[0]["EmployeeCode"].ToString().Trim();
-        //                                    drGrd["EmployeeName"] = dvEmpInfo[0]["EmpInfoSystemID"].ToString().Trim();
-        //                                    drGrd["CurrencyRuleSystemID"] = dvEmpInfo[0]["CurrencyRuleSystemID"].ToString().Trim();
-        //                                    drGrd["SalaryHeadID"] = dvEmpInfo[0]["SalaryHeadID"].ToString().Trim();
-        //                                    drGrd["SalaryHead"] = dvEmpInfo[0]["SalaryHead"].ToString().Trim();
-        //                                    drGrd["HeadType"] = dvEmpInfo[0]["HeadType"].ToString().Trim();
-        //                                    drGrd["ExistCurrencyID"] = dvEmpInfo[0]["ExistCurrencyID"].ToString().Trim();
-        //                                    drGrd["ExistCurrency"] = dvEmpInfo[0]["ExistCurrency"].ToString().Trim();
-        //                                    drGrd["ExistAmount"] = dvEmpInfo[0]["ExistAmount"].ToString().Trim();
-        //                                    drGrd["EntryCurrencyID"] = dvEmpInfo[0]["EntryCurrencyID"].ToString().Trim();
-        //                                    drGrd["EntryCurrency"] = dvEmpInfo[0]["EntryCurrency"].ToString().Trim();
-        //                                    drGrd["EntryAmount"] = strTempEntryAmt.Trim();
-        //                                    drGrd["DefinitionCurrencyID"] = dvEmpInfo[0]["DefinitionCurrencyID"].ToString().Trim();
-        //                                    drGrd["DefinitionCurrency"] = dvEmpInfo[0]["DefinitionCurrency"].ToString().Trim();
-        //                                    drGrd["DefineAmount"] = strTempDefineAmt.Trim();
-        //                                    drGrd["AmtDefinationCurrencyID"] = dvEmpInfo[0]["AmtDefinationCurrencyID"].ToString().Trim();
-        //                                    drGrd["AmtDefinationRate"] = dvEmpInfo[0]["AmtDefinationRate"].ToString().Trim();
-        //                                    drGrd["Remarks"] = "";
-        //                                    dtGrd.Rows.Add(drGrd);
-        //                                }
-        //                                else
-        //                                {
-        //                                    drGrd = dtGrd.NewRow();
-        //                                    drGrd["MWESAMasterSystemID"] = "";
-        //                                    drGrd["MWESAChildSystemID"] = "";
-        //                                    drGrd["EmpInfoSystemID"] = "";
-        //                                    drGrd["EmployeeCode"] = _empCode;
-        //                                    drGrd["EmployeeName"] = "";
-        //                                    drGrd["CurrencyRuleSystemID"] = "";
-        //                                    drGrd["SalaryHeadID"] = "";
-        //                                    drGrd["SalaryHead"] = "";
-        //                                    drGrd["HeadType"] = "";
-        //                                    drGrd["ExistCurrencyID"] = "";
-        //                                    drGrd["ExistCurrency"] = "";
-        //                                    drGrd["ExistAmount"] = "";
-        //                                    drGrd["EntryCurrencyID"] = "";
-        //                                    drGrd["EntryCurrency"] = "";
-        //                                    drGrd["EntryAmount"] = strTempEntryAmt.Trim();
-        //                                    drGrd["DefinitionCurrencyID"] = "";
-        //                                    drGrd["DefinitionCurrency"] = "";
-        //                                    drGrd["DefineAmount"] = "0";
-        //                                    drGrd["AmtDefinationCurrencyID"] = "";
-        //                                    drGrd["AmtDefinationRate"] = "";
-        //                                    drGrd["Remarks"] = "Employee code has not matched with the system database.";
-        //                                    dtGrd.Rows.Add(drGrd);
-        //                                }
-        //                            }//blank checking
-
-        //                            dgEmpSalaryDefine.DataSource = dtGrd;
-        //                            dgEmpSalaryDefine.DataBind();
-        //                            PanEmpSalaryDefine.Visible = true;
-        //                            Button_save.Visible = true;
-        //                            Button_save.Enabled = true;
-        //                            Session["VERIFICATION_STATE"] = 2;
-        //                            lblInfo.Text = "The entry form is in Add Mode. A new data is going to create on press the [create] button below after finish the entry.";
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        throw new Exception("Please Select File");
-        //                    }
-        //                }
-        //            }
-        //            catch (Exception ex)
-        //            {
-
-        //                docFile = new FileInfo(path);
-        //                if (docFile.Exists)
-        //                {
-        //                    docFile.Delete();
-        //                }
-        //                throw (ex);
-        //            }
-        //        }
-        //        //TxtMsgBox.Text += "\r\nGlobal.ExcelFilePath" + Global.ExcelFilePath;
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        //throw ex;
-        //        ShowLog(exception.ToString());
-
-        //        TxtMsgBox.Text += "\r\n1ERROR: With Inverted Comma Only: " + Server.MapPath("");
-        //        TxtMsgBox.Text += "\r\n2ERROR With ~" + Server.MapPath("~");
-        //        TxtMsgBox.Text += "\r\n3ERROR: With slash/" + Server.MapPath("/");
-        //        TxtMsgBox.Text += "\r\n4ERROR TempExcelFile" + Server.MapPath("TempExcelFile");
-        //        TxtMsgBox.Text += "\r\n5ERROR:/TempExcelFile" + Server.MapPath("/TempExcelFile");
-
-        //    }
-        //    finally
-        //    {
-        //    }
-        //}
-
-
-
-
-
-
         [HttpPost]
         public ActionResult SaveExternalData(List<ExternalDataUploadVM> data, string YearNo, string MonthNo, string SalaryHeadId)
         {
@@ -718,7 +429,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 throw new Exception("No data found for upload !!!!!");
             }
 
-            _SalaryStructureUploadService.SaveData(YearNo, MonthNo, SalaryHeadId, data, (CustomIdentity)Thread.CurrentPrincipal.Identity);
+            _SalaryStructureUploadService.SaveCompanyWiseData(YearNo, MonthNo, SalaryHeadId, data, (CustomIdentity)Thread.CurrentPrincipal.Identity);
 
 
 
@@ -731,8 +442,8 @@ namespace Aplos.Areas.Payrolls.Controllers
         public ActionResult GetSampleFile(ReportFormat reportFormat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            IWorkbook workbook = _AttendanceManagementService.GetSampleFile(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName);
-            var reportFileName = "External Data upload Sample File";
+            IWorkbook workbook = _AttendanceManagementService.GetSampleFileForCompany(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName);
+            var reportFileName = "Company Wise External Data upload Sample File";
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -756,7 +467,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             {
                 string fileName = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                fileName = ExternalDataUploadFromExcelReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "External Data Upload", "", EmployeeList, SalaryHeadId, MonthNo, YearNo, SalaryHeadIDs, HeadType, CurrencyID, EntryAmount, MonthName);
+                fileName = ExternalDataUploadFromExcelReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Company Wise External Data Upload", "", EmployeeList, SalaryHeadId, MonthNo, YearNo, SalaryHeadIDs, HeadType, CurrencyID, EntryAmount, MonthName);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -882,6 +593,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Plant";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
                     sheet1.Range[xlsRow, xlsCol].Text = "Salary Head";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -911,6 +627,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     endXlsCol = xlsCol;
                     xlsCol = 1;
                     xlsRow += 1;
+                    double Total = 0.00;
                     #endregion ------------------Column Header------------------
                     strCount = 0;
                     for (int i = 0; i < dvAttn.Count; i++)
@@ -966,6 +683,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["PlantName"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
                         sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["SalaryHead"].ToString().ToUpper();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -987,12 +709,25 @@ namespace Aplos.Areas.Payrolls.Controllers
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                        Total = Convert.ToDouble(dvAttn[i]["EntryAmount"]) + Total;
+
                         // xlsRow += 1;
 
                         #endregion ----------------------Data-----------------------
 
 
                     }
+                    xlsRow++;
+                    xlsCol--;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Total ";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                    xlsCol++;
+                    sheet1.Range[xlsRow, xlsCol].Number = Total;
+                    sheet1.Range[xlsRow, xlsCol].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
 
                     #region Line Setup
                     sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -1185,7 +920,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 }
                 strSql = @"SELECT EI.SystemId,EI.EmployeeCode,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.EntryAmount
                                 ,dep.username Department, LG.UserName Designation,L.UserName Line,SS.UserName SubSection,s.UserName Section
-                                ,ec.UserName EmployeeCategory
+                                ,ec.UserName EmployeeCategory,pL.UserName PlantName
 						            from dbo.MonthWiseExtraSalaryAmtChild d
                                             LEFT JOIN dbo.MonthWiseExtraSalaryAmtMaster m on m.SystemID=d.MWESAMasterSystemID
                                             Left join EmployeeInformation EI on EI.SystemId=m.EmpInfoSystemID
@@ -1202,10 +937,11 @@ namespace Aplos.Areas.Payrolls.Controllers
 											left join MST.DesignationMasterLegalDesignation dml on dml.LegalDesignationId = LG.Id
 											left join mst.DesignationMaster dm on dm.Id = dml.DesignationMasterId
 											left join HKP.EmployeeCategory ec on ec.Id=dm.EmployeeCategoryId
-                        WHERE m.monthNo=" + MonthNo + " and m.YearNo=" + YearNo + " and m.PlantID='" + plantId + @"' and d.ExtDataUploadApp='XL'
+                                            Left join ORG.Plant pL on pL.Id=ei.PlantId
+                        WHERE m.monthNo=" + MonthNo + " and m.YearNo=" + YearNo + @" and d.ExtDataUploadApp='XL'
                         and Ei.SystemId in (" + EmployeeList + @") " + SalayHead + @"
                         and sh.HeadType in (" + HeadType + ") and d.SalaryHeadID in (" + SalaryHeadIDs + ") and d.EntryAmount in (" + EntryAmount + ") and d.EntryCurrencyID in (" + CurrencyID + @")
-                        ORDER BY EI.EmployeeCodePreFix,EI.EmployeeCodeNumeric ";
+                        ORDER BY Ei.PlantId ";
 
 
 
@@ -1228,7 +964,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #region Update
         [HttpPost, Authorize]
-        public JsonResult UpdateUpload(ExternalUpload ExternalUploadUpdate)
+        public JsonResult UpdateUpload(CompanyWiseExternalUpload ExternalUploadUpdate)
         {
             try
             {
@@ -1260,7 +996,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         }
         #endregion
     }
-    public class ExternalUpload
+    public class CompanyWiseExternalUpload
     {
         public string Id { get; set; }
         public string EmpCode { get; set; }

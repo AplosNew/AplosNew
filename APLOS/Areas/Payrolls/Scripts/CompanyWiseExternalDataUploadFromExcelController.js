@@ -1,22 +1,17 @@
 ﻿'use strict';
-ExternalDataUploadFromExcelController.$inject = ['$scope', '$http', '$location', "$rootScope", '$window', "$compile", 'baseService', 'fileReader'];
-function ExternalDataUploadFromExcelController($scope, $http, $location, $rootScope, $window, $compile, baseService, fileReader) {
-    $scope.path = 'Payrolls/ExternalDataUploadFromExcel/';
+CompanyWiseExternalDataUploadFromExcelController.$inject = ['$scope', '$http', '$location', "$rootScope", '$window', "$compile", 'baseService', 'fileReader'];
+function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $location, $rootScope, $window, $compile, baseService, fileReader) {
+    $scope.path = 'Payrolls/CompanyWiseExternalDataUploadFromExcel/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
-    $rootScope.title = 'Salary Structure Data Upload';
+    $rootScope.title = 'Company Wise External Data Upload From Excel';
     $scope.SaveDataList = []
 
+    $scope.TotalDeduction = 0.00;
+    $scope.TotalEarning = 0.00;
 
     $scope.LoadData = function () {
         try {
-
-
-
-
-            //if (baseService.isUndefinedOrNull($scope.ModelNew.SalaryHeadId)) {
-            //    throw "Please Select Salary Head.";
-            //}
 
             if (baseService.isUndefinedOrNull($scope.ModelNew.YearNo)) {
                 throw "Please Select Year.";
@@ -40,9 +35,18 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
 
                 }
                 else {
+                    $scope.TotalDeduction = 0.00;
+                    $scope.TotalEarning = 0.00;
                     $scope.SaveDataList = [];
                     $scope.SaveDataList = response.data;
-
+                    for (var i = 0; i < $scope.SaveDataList.length; i++) {
+                        if ($scope.SaveDataList[i].HeadType == 'E') {
+                            $scope.TotalEarning = parseFloat($scope.SaveDataList[i].EntryAmount) + parseFloat($scope.TotalEarning)
+                        }
+                        else {
+                            $scope.TotalDeduction = parseFloat($scope.SaveDataList[i].EntryAmount) + parseFloat($scope.TotalDeduction)
+                        }
+                    }
                 }
             }, function errorCallback(response) {
 
@@ -352,7 +356,7 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
     $scope.DownloadReport = function () {
         try {
             var MonthName = "";
-            $scope.fileName = "ExternalDataUploadFromExcel.xls";
+            $scope.fileName = "CompanyWiseExternalDataUploadFromExcel.xls";
             if ($scope.SaveDataList.length == 0) {
                 throw "Load Data first..";
             }
@@ -377,7 +381,7 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
 
             $http({
                 method: 'POST',
-                url: 'Payrolls/ExternalDataUploadFromExcel/ExternalDataUploadReport',
+                url: 'Payrolls/CompanyWiseExternalDataUploadFromExcel/ExternalDataUploadReport',
                 data: {
                     'EmployeeList': parameters[0].Value, 'SalaryHeadId': $scope.ModelNew.SalaryHeadId, 'MonthNo': $scope.ModelNew.MonthNo, 'YearNo': $scope.ModelNew.YearNo
                     , 'SalaryHeadIDs': parameters[1].Value, 'HeadType': parameters[2].Value, 'CurrencyID': parameters[3].Value, 'EntryAmount': parameters[4].Value, 'MonthName': MonthName
@@ -414,7 +418,7 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
     };
     $scope.ShowDiv = false;
     $scope.edit = {
-        Id:null,
+        Id: null,
         EmpCode: null,
         SalaryHead: null,
         EmpName: null,
@@ -449,12 +453,12 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
                     }
                 }
                 else {
-                   
+
                     /*if ($scope.IsSalaryLock == false) {*/
-                        $scope.ShowDiv = true;
-                        var eDialog = $("#Edit").data("ejDialog");
-                        $("#Edit").ejDialog("setTitle", " Edit");
-                        eDialog.open();
+                    $scope.ShowDiv = true;
+                    var eDialog = $("#Edit").data("ejDialog");
+                    $("#Edit").ejDialog("setTitle", " Edit");
+                    eDialog.open();
                     //}
                 }
             });
@@ -463,7 +467,7 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
         }
     };
     $scope.UpdateUpload = function () {
-        try {            
+        try {
             $http({
                 method: 'POST',
                 url: $scope.path + "UpdateUpload",
@@ -475,7 +479,7 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    var eDialog = $("#Edit").data("ejDialog");                    
+                    var eDialog = $("#Edit").data("ejDialog");
                     eDialog.close();
                     $scope.LoadData();
                 }

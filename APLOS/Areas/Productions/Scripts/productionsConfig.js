@@ -175,5 +175,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/CutPlan/Aplos',
             controller: 'CutPlanController'
         })
+        .when('/packing-invoice', {
+            templateUrl: 'Productions/PackingInvoice/Aplos',
+            controller: 'PackingInvoiceController'
+        })
         ;
 }

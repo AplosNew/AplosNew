@@ -230,7 +230,10 @@ namespace Library.Accounting.Accounts
                 //return _voucherRepository.SqlQuery<DateTime?>(cmdText).FirstOrDefault();
                  List<Dictionary<string,object>> data =  _sqlRepository.GetDataCollection(cmdText);
                 if (data.Count > 0)
+                {
+                    if (!string.IsNullOrEmpty(data[0]["PostingDate"].ToString()))
                     return Convert.ToDateTime(data[0]["PostingDate"].ToString());
+                }
                 return null;
             }
             catch (Exception ex)

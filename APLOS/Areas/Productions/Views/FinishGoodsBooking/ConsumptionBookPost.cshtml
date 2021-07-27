@@ -8,8 +8,8 @@
                 <label class="col-sm-3 control-label">Doc Ref & Date<sup>*</sup></label>
                 <div class="col-sm-9 show-message">
                     <div class="input-group">
-                        <span class="input-group-addon">{{modelNew.DocRefNo}}</span>
-                        <input type="text" ng-model="modelNew.DocDate" class="form-control" readonly>
+                        <span class="input-group-addon">{{modelNew.Id}}</span>
+                        <input type="text" ng-model="modelNew.BookingDate" class="form-control" readonly>
                         <span class="input-group-btn">
                             <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
@@ -19,8 +19,8 @@
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Voucher Type<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
+                <label class="col-sm-3 control-label">Voucher Type<sup>*</sup></label>
+                <div class="col-sm-9 show-message">
                     <div class="select-style">
                         <select class="form-control" name="Voucher Type" ng-disabled="voucherTypeList.length==1" ng-model="modelNew.VoucherTypeId"
                                 ng-options="item.Value as item.Text for item in voucherTypeList" tabindex="2">
@@ -32,41 +32,34 @@
         </div>
         <div class="clearfix"></div>
         <div class="col-xs-12 col-sm-6 col-md-6">
-           
             <div class="form-group" style="margin-bottom: 0px;">
-                <label class="col-sm-3 control-label">Fisnish Goods No :</label>
+                <label class="col-sm-3 control-label">DateWise Consumption No :</label>
                 <label class="col-sm-9 control-label">{{modelNew.Id}}</label>
+            </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Finish Goods No :</label>
+                <label class="col-sm-9 control-label">{{modelNew.FinishGoodsBookingId}}</label>
             </div>
            
             <div class="form-group">
                 <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
-                <div class="col-sm-9 show-message">
-                    <div class="select-style">
-                        <select id="entityId" class="form-control" name="Entity" ng-model="modelNew.EntityId" tabindex="7" required>
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
-                </div>
+                <label class="col-sm-9 control-label">{{modelNew.Entity}}</label>
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6">
-            
+
             <div class="form-group" style="margin-bottom: 0px;">
                 <label class="col-sm-3 control-label">Posting Date :</label>
-                <div class="col-sm-9 show-message">
-                    <input required datepicker="" id="postingDate" type="text" name="PostingDate" ng-model="modelNew.PostingDate" class="form-control" tabindex="1">
-                </div>
+                <label class="col-sm-9 control-label">{{modelNew.PostingDate}}</label>
             </div>
-            
-            
-            <div class="form-group" show-errors>
-                <label class="col-sm-3 control-label">Note For Accounts<sup>*</sup></label>
-                <div class="col-sm-9 show-message">
-                    <textarea name="Description" class="form-control" rows="2" maxlength="1000" ng-model="modelNew.Narration" tabindex="7"></textarea>
-                </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">Process No  :</label>
+                <label class="col-sm-9 control-label">{{modelNew.ProcessId}}</label>
             </div>
-           
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Description<sup>*</sup></label>
+                <label class="col-sm-9 control-label">{{modelNew.Description}}</label>
+            </div>
 
         </div>
         <div></div>
@@ -112,7 +105,7 @@
                                 <td>{{x.UserName}}</td>
                                 <td>{{x.StandardName}}</td>
                                 <td class="text-right">{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
-                                <td class="text-right">{{x.TransactionRate | number| setDecimal:2}}  {{x.CurrencyName}}</td>
+                                <td class="text-right">{{x.TransactionRate | number| setDecimal:4}}  {{x.CurrencyName}}</td>
                                 <td class="text-right">{{x.TrnAmount | number| setDecimal:2}}</td>
                             </tr>
                             <tr>
@@ -264,11 +257,11 @@
              e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
              e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
             <div e-columns>
-                <div e-column e-field="Id" e-headertext="GRN No" e-width="80" textAlign='Center'></div>
+                <div e-column e-field="Id" e-headertext="DateWise Consumption No" e-width="120" textAlign='Center'></div>
                 <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
                 <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                 <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
-                <div e-column e-field="DocDate" e-headertext="Doc Ref Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                <div e-column e-field="DocDate" e-headertext="Doc  Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                 <div e-column e-field="Qty" e-headertext="Qty" e-width="100" textAlign='Right'></div>
                 <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="60" textAlign='Right'></div>
                 <div e-column e-field="Amount" e-headertext="Tran Amount" e-width="100" textAlign='Right'></div>
@@ -308,14 +301,17 @@
                         @*style="color:black;overflow:scroll"*@
                         <div style="color:black;overflow:scroll" id="GRNGrid" ej-grid e-datasource="approvedGRNList" e-recorddoubleclick="selectDoubleClick"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" @*e-allowscrolling="true"*@>
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
                             <div e-columns>
-                                <div e-column e-field="Id" e-headertext="FinishGoods No" e-width="100"></div>
-                                <div e-column e-field="FromDate" e-headertext="From Date" e-width="70" e-format="{0:dd-MMM-yyyy}" type="date"></div>
-                                <div e-column e-field="ToDate" e-headertext="To Date" e-width="70" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+                                <div e-column e-field="Id" e-headertext="DateWiseConsumption No" e-width="120"></div>
+                                <div e-column e-field="BookingDate" e-headertext="Booking Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                                 <div e-column e-field="Qty" e-headertext="Qty" e-width="80" textAlign='Right'></div>
                                 <div e-column e-field="Amount" e-headertext="Amount (TRN)" e-width="80" textAlign='Right'></div>
-                                <div e-column e-field="Description" e-headertext="Description" e-width="130" textAlign='Left'></div>
+                                <div e-column e-field="Description" e-headertext="Description" e-width="120" textAlign='Left'></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="80" textAlign='Left'></div>
+                                <div e-column e-field="FinishGoodsBookingId" e-headertext="FinishGoodsBook No" e-width="100"></div>
+                                <div e-column e-field="FromDate" e-headertext="From Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                <div e-column e-field="ToDate" e-headertext="To Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                             </div>
                         </div>
                     </div>
