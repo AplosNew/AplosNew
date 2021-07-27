@@ -221,7 +221,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
 
                             KK.DayStatus, KK.OTHr,
-                            KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus
+                            KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus,KK.IsLock
 
                              FROM (
 								
@@ -229,7 +229,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 								    DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),O.WorkDate))  AS ShiftInTime,
 		                            DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),o.WorkDate))  AS ShiftOutTime,
 		                            O.InTime, O.IsManualInTime,
-		                            O.OutTime, O.IsManualOutTime, O.IsManualDayStatus,
+		                            O.OutTime, O.IsManualOutTime, O.IsManualDayStatus,O.IsLock,
        
 		                            O.PunchInTime,O.PunchOutTime,
 		                            O.DayStatus, O.OTHr, O.IsOTComfirm,O.DayStatusCode,

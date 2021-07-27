@@ -242,7 +242,7 @@
 @**@
 <script type="text/template" id="daystatus">
     <div class="col-sm-10" style="padding:0px;">
-        <input type="text" name="NewStatus" ng-model="data.DayStatusNew" ng-disabled="data.DayStatusChange!='True'" ng-click="$parent.getDayStatus(this)" class="form-control" maxlength="200" tabindex="5">
+        <input type="text" name="NewStatus" ng-model="data.DayStatusNew" ng-disabled="data.DayStatusChange!='True' || data.IsLock==true" ng-click="$parent.getDayStatus(this)" class="form-control" maxlength="200" tabindex="5">
 
     </div>
 
@@ -250,7 +250,7 @@
 
 <script type="text/template" id="daystatusx">
     <div class="col-sm-10" style="padding:0px;">
-        <input type="text" name="NewStatusx" ng-model="data.DayStatusNew" ng-disabled="data.DayStatusChange!='True'" ng-click="$parent.getDayStatusx(this)" class="form-control" maxlength="200" tabindex="5">
+        <input type="text" name="NewStatusx" ng-model="data.DayStatusNew" ng-disabled="data.DayStatusChange!='True' || data.IsLock==true" ng-click="$parent.getDayStatusx(this)" class="form-control" maxlength="200" tabindex="5">
 
     </div>
 
