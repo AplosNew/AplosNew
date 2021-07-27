@@ -1290,10 +1290,10 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 					//	ShowResult('Rejection Qty can not grater than Own Rejected Qty', 'failure');
 					//	return false;
 					//}
-					else if (baseService.isUndefinedOrNull($scope.FilterList123[i].ExpenseActivityId) && $scope.FilterList123[i].check === true) {
-						ShowResult('Please select Expense Activity Code', 'failure');
-						return false;
-					}
+					//else if (baseService.isUndefinedOrNull($scope.FilterList123[i].ExpenseActivityId) && $scope.FilterList123[i].check === true) {
+					//	ShowResult('Please select Expense Activity Code', 'failure');
+					//	return false;
+					//}
 					else {
 						$scope.FilterList123New.push($scope.FilterList123[i]);
 					}
