@@ -19,12 +19,12 @@ using Library.Service.Helpers;
 
 namespace Aplos.Areas.Productions.Controllers
 {
-    public class ProductionPlanningReportController : BaseController
+    public class ProductionTargetReportController : BaseController
     {
         #region Constructor
         /// <summary>   The CostingTypesService service. </summary>
         private readonly ISqlRepository _sqlRepository;
-        public ProductionPlanningReportController(ISqlRepository R)
+        public ProductionTargetReportController(ISqlRepository R)
         {
             _sqlRepository = R;
 
