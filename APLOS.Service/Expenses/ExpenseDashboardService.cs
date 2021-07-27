@@ -398,7 +398,7 @@ namespace Library.Service.Expenses
                 {
                     if (item.Sequence != -2 && item.Sequence != -1)
                     {
-                        if (item.Sequence <= seq)
+                        if (item.Sequence == seq)
                         {
                             if (item.RType == "Entity")
                             {
@@ -457,6 +457,8 @@ namespace Library.Service.Expenses
 											 JOIN  org.company CMP ON CMP.CompanyGroupId = CMPGR.Id 
 											left join org.Entity E ON E.CompanyGroupId = CMPGR.Id
  JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
+ JOIN [ORG].Division ON Division.Id = E.DivisionId
+ JOIN [ORG].SubDivision ON SubDivision.Id = E.SubDivisionId
 
                                             where cmp.Active =1 and CMPGR.Active = 1  
                                            " + Wcm + @"
@@ -474,6 +476,7 @@ namespace Library.Service.Expenses
 							                LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 					                        LEFT JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
 					                        LEFT JOIN HKP.AccountType AS ACT ON ACT.Id=AG.AccountTypeId
+ JOIN [ORG].[Plant] ON Plant.Id = V.PlantId
 
 											
 								            WHERE VD.BudgetMasterId   IS NOT NULL
@@ -498,6 +501,7 @@ namespace Library.Service.Expenses
 					                        LEFT JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
 					                        LEFT JOIN HKP.AccountType AS ACT ON ACT.Id=AG.AccountTypeId
 
+ JOIN [ORG].[Plant] ON Plant.Id = V.PlantId
 											
 
 								            WHERE VD.BudgetMasterId   IS NOT NULL
@@ -522,6 +526,7 @@ namespace Library.Service.Expenses
 							                LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 					                        LEFT JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
 					                        LEFT JOIN HKP.AccountType AS ACT ON ACT.Id=AG.AccountTypeId
+ JOIN [ORG].[Plant] ON Plant.Id = V.PlantId
 
 												
 								            WHERE VD.BudgetMasterId   IS NOT NULL
@@ -546,6 +551,7 @@ namespace Library.Service.Expenses
 							                LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 					                        LEFT JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
 					                        LEFT JOIN HKP.AccountType AS ACT ON ACT.Id=AG.AccountTypeId
+ JOIN [ORG].[Plant] ON Plant.Id = V.PlantId
 
 										
 								            WHERE VD.BudgetMasterId   IS NOT NULL
@@ -572,6 +578,7 @@ namespace Library.Service.Expenses
 							                LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 					                        LEFT JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
 					                        LEFT JOIN HKP.AccountType AS ACT ON ACT.Id=AG.AccountTypeId
+ JOIN [ORG].[Plant] ON Plant.Id = V.PlantId
 
 									
 								            WHERE VD.BudgetMasterId   IS NOT NULL
@@ -597,6 +604,7 @@ namespace Library.Service.Expenses
 							                LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 					                        LEFT JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
 					                        LEFT JOIN HKP.AccountType AS ACT ON ACT.Id=AG.AccountTypeId
+ JOIN [ORG].[Plant] ON Plant.Id = V.PlantId
 
 
 								            WHERE VD.BudgetMasterId   IS NOT NULL
@@ -622,6 +630,7 @@ namespace Library.Service.Expenses
 							                LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=vd.GLGeneralInfoId
 					                        LEFT JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
 					                        LEFT JOIN HKP.AccountType AS ACT ON ACT.Id=AG.AccountTypeId
+ JOIN [ORG].[Plant] ON Plant.Id = V.PlantId
 											
 
 								            WHERE VD.BudgetMasterId   IS NOT NULL
@@ -645,6 +654,7 @@ namespace Library.Service.Expenses
 							                LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 					                        LEFT JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
 					                        LEFT JOIN HKP.AccountType AS ACT ON ACT.Id=AG.AccountTypeId
+ JOIN [ORG].[Plant] ON Plant.Id = V.PlantId
 											
 								            WHERE VD.BudgetMasterId   IS NOT NULL
 								             " + delayPosting + @"
