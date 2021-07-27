@@ -8,7 +8,8 @@ function AuditReportSummeryController(commonMessage, $scope, $rootScope, baseSer
     $scope.path = 'Attendances/AuditReportSummery/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
-
+    $scope.effectiveDate = ($filter('dateFiltering')(new Date(), 'dd-MM-yyyy'))
+    $scope.ToDate = ($filter('dateFiltering')(new Date(), 'dd-MM-yyyy'))
     $scope.Report = function () {
         try {
             $scope.fileName = "Audit Report Summary " + $scope.effectiveDate + " to  .xls";

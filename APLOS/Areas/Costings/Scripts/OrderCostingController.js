@@ -811,42 +811,42 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
 
 
 
-    $scope.ReportPopUp = function () {
+    //$scope.ReportPopUp = function () {
 
 
-        try {
-            $scope.openPopup('CostingPopUp');
+    //    try {
+    //        $scope.openPopup('CostingPopUp');
 
-        } catch (e) {
+    //    } catch (e) {
 
-        }
-    }
+    //    }
+    //}
 
-    $scope.OrderPreCostingReport = function (args) {
-        try {
+    //$scope.OrderPreCostingReport = function (args) {
+    //    try {
 
-            $scope.OrderCostingId = args.data.Id;
-            $scope.ProductMasterId = args.data.ProductMasterId;
-            $scope.PreCosting = 1;
-            var file_src = $scope.path + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&ProductMasterId=' + $scope.ProductMasterId + '&preCosting=' + $scope.PreCosting ;
-            $rootScope.report(file_src);
+    //        $scope.OrderCostingId = args.data.Id;
+    //        $scope.ProductMasterId = args.data.ProductMasterId;
+    //        $scope.PreCosting = 1;
+    //        var file_src = $scope.path + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&ProductMasterId=' + $scope.ProductMasterId + '&preCosting=' + $scope.PreCosting ;
+    //        $rootScope.report(file_src);
        
-        } catch (e) {
-        }
-    }
-    $scope.OrderProcurementCostingReport = function (args) {
-        try {
+    //    } catch (e) {
+    //    }
+    //}
+    //$scope.OrderProcurementCostingReport = function (args) {
+    //    try {
 
-            $scope.OrderCostingId = args.data.Id;
-            $scope.ProductMasterId = args.data.ProductMasterId;
-            $scope.ProcurementCosting = 1;
+    //        $scope.OrderCostingId = args.data.Id;
+    //        $scope.ProductMasterId = args.data.ProductMasterId;
+    //        $scope.ProcurementCosting = 1;
 
-            var file_src = $scope.path + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&ProductMasterId=' + $scope.ProductMasterId + '&procurementCosting=' + $scope.ProcurementCosting;
-            $rootScope.report(file_src);
+    //        var file_src = $scope.path + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&ProductMasterId=' + $scope.ProductMasterId + '&procurementCosting=' + $scope.ProcurementCosting;
+    //        $rootScope.report(file_src);
 
-        } catch (e) {
-        }
-    }
+    //    } catch (e) {
+    //    }
+    //}
 
 
 
