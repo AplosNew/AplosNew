@@ -7909,7 +7909,7 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
 											, CASE WHEN MONTH(DOS) =  MONTH('" + objm.FDate + @"')  AND YEAR(DOS) = YEAR('" + objm.FDate + @"') then 'Separated' else 'Regular' end CurrentMonthEmployeeStatus
 
                                             ,ADM.TotalProcDate, ADM.TotalPresent, ADM.TotalLate, ADM.TotalAbsent, ADM.TotalLv, ADM.TotalLWP, ADM.TotalMLv, ADM.TotalOTHr,
-                                            ADM.TotalNormalOTHr, ADM.TotalExtraOTHr, ADM.TotalHoliDay, isnull(ADM.TotalWeekOffHoliDay,0) + isnull(ADM.TotalWeekOff,0) TotalWeekOff, ADM.TotalWeekOffHoliDay,SLeave.ShortLeave
+                                            ADM.TotalNormalOTHr, ADM.TotalExtraOTHr, ADM.TotalHoliDay, isnull(ADM.TotalWeekOffHoliDay,0) + isnull(ADM.TotalWeekOff,0) TotalWeekOff, ADM.TotalWeekOffHoliDay,SLeave.ShortLeave,Plant.UserName PlantName
                                     FROM dbo.EmployeeInformation E
                                                 INNER JOIN 
                                     
@@ -7939,7 +7939,8 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
 													
 												) SLeave on adm.MonthNo=SLeave._month and adm.YearNo=SLeave._year and e.SystemId=SLeave.EmpSystemID
 
-                                    WHERE E.PlantID = '" + objm.PlantId + @"' AND ADM.MonthNo = Month( '" + objm.TDate + @"') AND ADM.YearNo = Year('" + objm.TDate + @"')
+                                    WHERE --E.PlantID = '" + objm.PlantId + @"' AND 
+                                        ADM.MonthNo = Month( '" + objm.TDate + @"') AND ADM.YearNo = Year('" + objm.TDate + @"')
                                     --AND (ISNULL(E.EmployeeCurrentStatus,'') != 'TBS' or (ISNULL(E.EmployeeCurrentStatus,'') = 'TBS' AND EmployeeCurrentStatusEffectiveDate >='" + objm.FDate + @"'))
                                     AND (DOS IS NULL  OR DOS >= '" + objm.FDate + @"') AND E.DOJ <= '" + objm.TDate + @"'";
 
@@ -8231,7 +8232,8 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
                                             
                                                 LEFT JOIN dbo.ShiftDefination SD ON AD.ShiftSystemID = SD.SystemID                                            
                                              
-                                    WHERE E.PlantID = '" + plantId + @"' AND AD.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' 
+                                    WHERE --E.PlantID = '" + plantId + @"' AND
+                                        AD.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' 
                                     AND (E.DOS is null or E.DOS >= '" + fromDate + @"')									
 									";
                 if (parameters.Count > 0)
@@ -9461,7 +9463,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
                 strSql = @"SELECT EmpSystemId,InfoType FROM AttendanceInfoExtra AIE INNER JOIN EmployeeInformation E ON E.SystemId = AIE.EmpSystemId
                         WHERE AIE.InfoType IN ('LATEIN','EARLYOUT')
                     AND AIE.WorkDate BETWEEN '" + fromdate + @"' AND '" + todate + @"'
-                     AND E.PlantId = '" + plantId + @"'";
+                     --AND E.PlantId = '" + plantId + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
@@ -9484,12 +9486,12 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
             {
                 strSql = @"SELECT WorkingDate,EmpSystemID
                               FROM [SCS].[WeeklyAbsentismAssignment]
-                              where month(WorkingDate)=" + smonth + " and YEAR(WorkingDate)=" + syear + " and plantid='" + plantid + @"' 
+                              where month(WorkingDate)=" + smonth + " and YEAR(WorkingDate)=" + syear + " --and plantid='" + plantid + @"' 
                             union
 
                             SELECT WorkDate WorkingDate,EmpSystemID
                               FROM [trn].[HolidayAbsentismAssignment]
-                              where month(WorkDate)=" + smonth + " and YEAR(WorkDate)=" + syear + " and plantid='" + plantid + @"'
+                              where month(WorkDate)=" + smonth + " and YEAR(WorkDate)=" + syear + " --and plantid='" + plantid + @"'
                      ";
                 try
                 {

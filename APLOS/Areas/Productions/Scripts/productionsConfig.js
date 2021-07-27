@@ -168,8 +168,8 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             controller: 'MarkerController'
         })
         .when('/production-target-report', {
-            templateUrl: 'Productions/ProductionPlanningReport/Aplos',
-            controller: 'ProductionPlanningReportController'
+            templateUrl: 'Productions/ProductionTargetReport/Aplos',
+            controller: 'ProductionTargetReportController'
         })
         .when('/cut-plan', {
             templateUrl: 'Productions/CutPlan/Aplos',
