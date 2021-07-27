@@ -886,7 +886,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         }
         if (isNaN($scope.detailModel.TotalTaxAmount)) $scope.detailModel.TotalTaxAmount = 0;
     };
-    $scope.productNew.TaxOptionService = "Yes";
+
+  //  $scope.productNew.TaxOptionService = "Yes";
     $scope.changeService = function (JWServiceId) {
         $scope.productNew.TaxOptionService = "Yes";
         if (baseService.isUndefinedOrNull(JWServiceId))
@@ -894,6 +895,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         var hsnCodeId = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCodeId;
         var HSNCode = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCode;
         getTaxCategoryList(hsnCodeId, HSNCode);
+        $scope.productNew.TaxOptionService = "Yes";
         
     };
     function getTaxCategoryList(hsnCodeId, HSNCode) {
@@ -1103,7 +1105,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     //#region Save Update Delete Function
 
     $scope.Save = function () {
-
+        $scope.$broadcast('show-errors-check-validity');
         try {
             $scope.dbval = $scope.StateData;
             $scope.UIval = $scope.productNew.InvoicingState;
@@ -4138,12 +4140,51 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
     $scope.ActionPOBOQ = 'Save';
 
+    $scope.ValidatePODate = function () {
+        try {
+
+            if (new Date($scope.productNew.PODate) < new Date($scope.productNew.DocDate)) {
+                $scope.productNew.PODate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+                throw 'PO Date cannot be less than Doc Date.';
+            }
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
+
+    $scope.ValidateProcessStartDate = function () {
+        try {
+
+            if (new Date($scope.productNew.ProcessStartDate) < new Date($scope.productNew.PODate)) {
+                $scope.productNew.ProcessStartDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+                throw 'Process Start Date cannot be less than PO Date.';
+            }
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
+
     $scope.ValidateProcessEndDate = function () {
         try {
 
             if (new Date($scope.productNew.ProcessEndDate) < new Date($scope.productNew.ProcessStartDate)) {
                 $scope.productNew.ProcessEndDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
-                throw 'Process End Date should not be less than Process Start Date.';
+                throw 'Process End Date cannot be less than Process Start Date.';
+            }
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
+
+    $scope.ValidateContractClosingDate = function () {
+        try {
+
+            if (new Date($scope.productNew.ContractClosingDate) < new Date($scope.productNew.ProcessEndDate)) {
+                $scope.productNew.ContractClosingDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+                throw 'Contract Closing Date cannot be less than Process End Date.';
             }
         }
         catch (e) {
@@ -4158,4 +4199,11 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         location.href = "JobWork/JWTransformationPurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
         $scope.getalldata();
     };
+
+    $scope.GetAmount = function () {
+        if (!baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) && !baseService.isUndefinedOrNull($scope.detailModel.RatePerUnit)) {
+            var Amt = parseFloat($scope.detailModel.TransactionQty) * parseFloat($scope.detailModel.RatePerUnit)
+            $scope.detailModel.Amount = Amt;
+        }
+    }
 }

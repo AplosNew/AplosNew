@@ -115,12 +115,31 @@ function jobWorkActivityController(addressService, $window, cboService, commonMe
                     $rootScope.toggle();
                 }
                 $scope.LoadAllSelectedJobActivityTab();
+                $scope.GetDataToDisableType();
             }
             else {
                 ShowResult('No Data Found..!', 'failure');
             }
         });
     };
+
+ //   $scope.DisableType = false;
+    $scope.GetDataToDisable = [];
+    $scope.GetDataToDisableType = function () {
+        $scope.GetDataToDisable = [];
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetDataToDisable?JWActivityId=' + $scope.JobWorkActivity.Id + '&Type=' + $scope.JobWorkActivity.Type
+        }).then(function successCallback(response) {
+            $scope.GetDataToDisable = response.data;
+            if ($scope.GetDataToDisable.length > 0) {
+                $scope.DisableType = true;
+            }
+            else {
+                $scope.DisableType = false;
+            }
+        });
+    }
 
     $scope.DeleteSelectedData = function () {
         //var x = "#" + Id;
@@ -288,7 +307,8 @@ function jobWorkActivityController(addressService, $window, cboService, commonMe
         $scope.ItemSequenceNumber();
         $scope.LoadAllSelectedJobActivityTab();
         $scope.getAllData();
-        $("#ddlType").removeAttr("disabled");
+        $scope.DisableType = false;
+    //    $("#ddlType").removeAttr("disabled");
     };
 
     $scope.Clear();
