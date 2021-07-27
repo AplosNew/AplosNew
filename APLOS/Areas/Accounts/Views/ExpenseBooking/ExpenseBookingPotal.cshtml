@@ -217,6 +217,7 @@
                         <th>Type</th>
                         <th>Invoice No</th>
                         <th>Invoice Date</th>
+                        <th>Cost Center</th>
                         <th>Amount</th>
                         <th class="text-right">Action</th>
                     </tr>
@@ -230,11 +231,11 @@
                         <td>
                             {{x.ActivityType}}
                             @*<button ng-click="showFuleExpPopUp()" ng-show="x.ActivityType=='FuleExpenses'" class="btn single-small-btn" data-placement="top">
-                                    <i class="glyphicon glyphicon-search"></i>
-                                </button>
-                                <button ng-click="showConveyancePopUp()" ng-show="x.ActivityType=='Conveyance'" class="btn single-small-btn" data-placement="top">
-                                    <i class="glyphicon glyphicon-search"></i>
-                                </button>*@
+                <i class="glyphicon glyphicon-search"></i>
+            </button>
+            <button ng-click="showConveyancePopUp()" ng-show="x.ActivityType=='Conveyance'" class="btn single-small-btn" data-placement="top">
+                <i class="glyphicon glyphicon-search"></i>
+            </button>*@
                         </td>
                         <td id="td_DocRefNo_{{$index}}">
                             <div class="show-message">
@@ -245,6 +246,9 @@
                             <div class="show-message">
                                 <input type="text" ng-model="x.DocDate" class="form-control" datepicker="checkRowValidation(x, $index)">
                             </div>
+                        </td>
+                        <td >
+                                <select class="form-control"  ng-model="x.CostCenterId" ng-options="item.Value as item.Text for item in costCenterCboList| filter:{ Value: x.CostCenterId }:true"></select>
                         </td>
                         <td id="td_Amount_{{$index}}">
                             <div class="show-message">
@@ -260,7 +264,7 @@
                 </tbody>
                 <tfoot ng-show="budgetTransactionDetailList.length">
                     <tr>
-                        <td colspan="7" class="text-right"><b>Sub Total</b></td>
+                        <td colspan="8" class="text-right"><b>Sub Total</b></td>
                         <td class="text-right"><b>{{ budgetTransactionDetailList | sumByKey : 'Amount' }}</b></td>
                         <td></td>
                     </tr>

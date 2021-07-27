@@ -42,7 +42,7 @@ namespace Aplos.Areas.JobWork.Controllers
                     LEFT JOIN [dbo].[EmployeeInformation] E ON E.SystemId = I.ResponsiblePersonId
 					LEFT JOIN MST.MaterialMaster mm on mm.Id=I.MaterialMasterId
 					left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
-                    ORDER BY I.UserName";
+                    ORDER BY I.Sequence desc";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

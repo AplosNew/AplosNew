@@ -8,16 +8,17 @@ function AuditReportSummeryController(commonMessage, $scope, $rootScope, baseSer
     $scope.path = 'Attendances/AuditReportSummery/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
-
+    $scope.effectiveDate = ($filter('dateFiltering')(new Date(), 'dd-MM-yyyy'))
+    $scope.ToDate = ($filter('dateFiltering')(new Date(), 'dd-MM-yyyy'))
     $scope.Report = function () {
         try {
-            $scope.fileName = "Audit Report Summary " + $scope.effectiveDate + ".xls";
+            $scope.fileName = "Audit Report Summary " + $scope.effectiveDate + " to  .xls";
 
             $http({
                 method: 'POST',
                 url: 'Attendances/AuditReportSummery/AuditReportSummery',
                 data: {
-                    'workDate': $scope.effectiveDate
+                    'workDate': $scope.effectiveDate, 'ToDate': $scope.ToDate
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

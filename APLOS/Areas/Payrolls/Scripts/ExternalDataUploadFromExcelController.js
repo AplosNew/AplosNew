@@ -437,8 +437,11 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
                 method: 'GET',
                 url: $scope.path + 'GetSalaryLock?EmpSystemId=' + EmpSystemId + '&MonthNo=' + $scope.ModelNew.MonthNo + '&YearNo=' + $scope.ModelNew.YearNo,
             }).then(function successCallback(response) {
-                if (response.data[0].IsLocked == false) {
-                    if ($scope.IsSalaryLock == false) {
+                if (response.data.length != 0) {
+                    if (response.data[0].IsLocked == true) {
+                        ShowResult("Salary Locked for this Employee..", "failure");
+                    }
+                    else {
                         $scope.ShowDiv = true;
                         var eDialog = $("#Edit").data("ejDialog");
                         $("#Edit").ejDialog("setTitle", " Edit");
@@ -446,7 +449,13 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
                     }
                 }
                 else {
-                    ShowResult("Salary Locked for this Employee..", "failure");
+                   
+                    /*if ($scope.IsSalaryLock == false) {*/
+                        $scope.ShowDiv = true;
+                        var eDialog = $("#Edit").data("ejDialog");
+                        $("#Edit").ejDialog("setTitle", " Edit");
+                        eDialog.open();
+                    //}
                 }
             });
         } catch (e) {

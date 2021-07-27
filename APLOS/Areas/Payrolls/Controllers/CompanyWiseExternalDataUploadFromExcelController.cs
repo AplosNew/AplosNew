@@ -214,7 +214,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         int YearNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(pYearNo));
                         int MonthNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(pMonthNo));
                         
-                        objEmpExtAmt.LoadExternalUploadFromExcelOnGrid(identity.PlantId, pSalaryHeadId, YearNo, MonthNo, out dsEmpInfo);
+                        objEmpExtAmt.LoadCompanyWiseExternalUploadFromExcelOnGrid(identity.PlantId, pSalaryHeadId, YearNo, MonthNo, out dsEmpInfo);
                         dtEmpInfo = dsEmpInfo.Tables[0];
                         dvEmpInfo = new DataView();
 
@@ -429,7 +429,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 throw new Exception("No data found for upload !!!!!");
             }
 
-            _SalaryStructureUploadService.SaveData(YearNo, MonthNo, SalaryHeadId, data, (CustomIdentity)Thread.CurrentPrincipal.Identity);
+            _SalaryStructureUploadService.SaveCompanyWiseData(YearNo, MonthNo, SalaryHeadId, data, (CustomIdentity)Thread.CurrentPrincipal.Identity);
 
 
 
@@ -442,8 +442,8 @@ namespace Aplos.Areas.Payrolls.Controllers
         public ActionResult GetSampleFile(ReportFormat reportFormat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            IWorkbook workbook = _AttendanceManagementService.GetSampleFile(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName);
-            var reportFileName = "External Data upload Sample File";
+            IWorkbook workbook = _AttendanceManagementService.GetSampleFileForCompany(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName);
+            var reportFileName = "Company Wise External Data upload Sample File";
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -593,6 +593,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     xlsCol += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Plant";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
                     sheet1.Range[xlsRow, xlsCol].Text = "Salary Head";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -622,6 +627,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     endXlsCol = xlsCol;
                     xlsCol = 1;
                     xlsRow += 1;
+                    double Total = 0.00;
                     #endregion ------------------Column Header------------------
                     strCount = 0;
                     for (int i = 0; i < dvAttn.Count; i++)
@@ -677,6 +683,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["PlantName"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
                         sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["SalaryHead"].ToString().ToUpper();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -698,12 +709,25 @@ namespace Aplos.Areas.Payrolls.Controllers
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                        Total = Convert.ToDouble(dvAttn[i]["EntryAmount"]) + Total;
+
                         // xlsRow += 1;
 
                         #endregion ----------------------Data-----------------------
 
 
                     }
+                    xlsRow++;
+                    xlsCol--;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Total ";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                    xlsCol++;
+                    sheet1.Range[xlsRow, xlsCol].Number = Total;
+                    sheet1.Range[xlsRow, xlsCol].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
 
                     #region Line Setup
                     sheet1.Range[xlsRow - 1, 1, xlsRow - 1, xlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -896,7 +920,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 }
                 strSql = @"SELECT EI.SystemId,EI.EmployeeCode,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.EntryAmount
                                 ,dep.username Department, LG.UserName Designation,L.UserName Line,SS.UserName SubSection,s.UserName Section
-                                ,ec.UserName EmployeeCategory
+                                ,ec.UserName EmployeeCategory,pL.UserName PlantName
 						            from dbo.MonthWiseExtraSalaryAmtChild d
                                             LEFT JOIN dbo.MonthWiseExtraSalaryAmtMaster m on m.SystemID=d.MWESAMasterSystemID
                                             Left join EmployeeInformation EI on EI.SystemId=m.EmpInfoSystemID
@@ -913,10 +937,11 @@ namespace Aplos.Areas.Payrolls.Controllers
 											left join MST.DesignationMasterLegalDesignation dml on dml.LegalDesignationId = LG.Id
 											left join mst.DesignationMaster dm on dm.Id = dml.DesignationMasterId
 											left join HKP.EmployeeCategory ec on ec.Id=dm.EmployeeCategoryId
+                                            Left join ORG.Plant pL on pL.Id=ei.PlantId
                         WHERE m.monthNo=" + MonthNo + " and m.YearNo=" + YearNo + @" and d.ExtDataUploadApp='XL'
                         and Ei.SystemId in (" + EmployeeList + @") " + SalayHead + @"
                         and sh.HeadType in (" + HeadType + ") and d.SalaryHeadID in (" + SalaryHeadIDs + ") and d.EntryAmount in (" + EntryAmount + ") and d.EntryCurrencyID in (" + CurrencyID + @")
-                        ORDER BY EI.EmployeeCodePreFix,EI.EmployeeCodeNumeric ";
+                        ORDER BY Ei.PlantId ";
 
 
 
