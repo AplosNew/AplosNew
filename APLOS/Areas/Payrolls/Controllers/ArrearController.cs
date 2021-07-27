@@ -148,8 +148,6 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery(@"DELETE FROM ArrearSummaryBatchWise WHERE ArrearProcessBatchId IN (SELECT ArrearProcessBatchId FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
-                con.executeQuery(@"DELETE FROM ArrearSummaryMonthWise WHERE ArrearProcessBatchId IN (SELECT ArrearProcessBatchId FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
                 con.executeQuery(@"DELETE FROM ArrearProcChild WHERE SlrProcMstSystemID IN (SELECT SystemID FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
                 con.executeQuery(@"DELETE FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate) OR  (FromDate BETWEEN '"+ ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "')");
                 con.CommitTransaction();
@@ -332,9 +330,6 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 //return Json(new { Error = true, Message = ex.Message });
                             }
                         }
-
-                        FinalizingProcessUpdateArrearSummary(BatchNo);
-
                         _lock.UnlockProcess();
                         SendNotification("Status: Process Completed");
                         JsonResult json = Json(new { Error = false, Message = AplosMessage.Success });
@@ -360,44 +355,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-        private void FinalizingProcessUpdateArrearSummary(string BatchNo)
-        {
-            try
-            {
-                ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
 
-                connection.BeginTransaction();
-
-                connection.executeQuery(@"INSERT INTO ArrearSummaryBatchWise(
-                                     ArrearProcessBatchId,EmployeeSystemId,TotalSalary,TotalArrear,Diff,AddedBy,DateAdded,UpdatedBy,DateUpdated
-                                )
-
-                                    SELECT am.ArrearProcessBatchId,ei.SystemId,
-                                    0 AS TotalSalary,
-                                    0 AS TotalArrear,
-                                    SUM(AC.Diff) Diff,'ArrearProcess',GETDATE(),'ArrearProcess',GETDATE()
-
-
-                                    FROM ArrearProcMaster AS AM
-                                    JOIN ArrearProcChild AS AC ON am.SystemID=ac.SlrProcMstSystemID
-                                  
-                                    LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=ac.EmpInfoSystemID
-                                    LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID=ac.SalaryHeadID
-
-                                    WHERE sh.HeadCategory='Net Payable' AND AM.ArrearProcessBatchId='" + BatchNo + @"'
-                                    GROUP BY am.ArrearProcessBatchId,ei.SystemId");
-
-                connection.CommitTransaction();
-
-            }
-            catch (Exception ex)
-            {
-
-                throw (ex);
-            }
-
-
-        }
         #region SP related func
 
         void ValidationAttendance(string emplist, string plantid, string fromdate, string todate)

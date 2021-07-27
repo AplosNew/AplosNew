@@ -359,12 +359,13 @@ namespace Library.HumanResource.Attendance
             try
             {
 
-                strSql = @"SELECT COUNT(*) AS CNT
+                strSql = @"SELECT EI.DOJ,EI.SystemId
                         FROM EmployeeInformation EI WHERE EI.EmployeeStatus = 'Active'                        
-                        	and isnull(EI.IsApproved,0)=0 
-                        --	and EI.DOJ <= '" + FromDate + @"' 
-                    and ei.PlantId='" + plantId + @"' --and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'                   
-                      ";
+                        	and EI.IsApproved=0 
+                        	and EI.DOJ <= '" + FromDate + @"' 
+                    and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'                   
+                        ORDER BY 
+                        	EmployeeCodePreFix,EmployeeCodeNumeric";
 
                 con.getDataSet(strSql, out dsRef);
 
@@ -532,15 +533,19 @@ namespace Library.HumanResource.Attendance
 
             try
             {
-                strSql = @"SELECT Count(*) AS CNT
+                strSql = @"SELECT ei.PlantId
+                        	,ei.EmployeeCurrentStatus,EI.CellPhnNo TelePhnNo
+                            ,EI.EmployeeCode
 
                         FROM EmployeeInformation EI
-                         WHERE 
-                         ei.PlantId='" + plantId + @"' --and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
-                                -- and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
+                        left join (select * from AttdnProcessData where WorkDate = '" + FromDate + @"' ) AP ON AP.EmpSystemID = EI.SystemId                        
+                        WHERE 
+                         ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+                                 and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
                             AND isnull(EI.EmployeeCurrentStatus,'')='LONG ABSENTEEISM' 
                         
-                        ";
+                        ORDER BY
+                        	EmployeeCodePreFix,EmployeeCodeNumeric,ap.WorkDate";
                 con.getDataSet(strSql, out dsRef);
 
             }
@@ -561,15 +566,18 @@ namespace Library.HumanResource.Attendance
             try
             {
                 strSql = @"SELECT
-               COUNT(*) AS CNT
+                format(ap.WorkDate,'dd-MMM-yyy') WorkDate ,ei.SystemId
 
                 FROM EmployeeInformation EI
+                left join AttdnProcessData AP ON AP.EmpSystemID = EI.SystemId
                 WHERE
-                ei.PlantId='" + plantId + @"'-- and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
-               -- and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
+                AP.WorkDate='" + FromDate + @"'
+                and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+                and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
                 AND EI.EmployeeCurrentStatus='TBS'
                 
-                ";
+                ORDER BY
+                EmployeeCodePreFix,EmployeeCodeNumeric,ap.WorkDate";
                 con.getDataSet(strSql, out dsRef);
 
             }

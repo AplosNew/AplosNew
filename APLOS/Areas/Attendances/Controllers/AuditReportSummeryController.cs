@@ -159,9 +159,6 @@ namespace Aplos.Areas.Attendances.Controllers
 
             try
             {
-                if (Convert.ToDateTime(workDate) > System.DateTime.Now)
-                    throw new Exception("Report date cannot be greater than system date");
-
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string companyId = identity.CompanyId;
                 objRpt = new clsReport();
@@ -264,7 +261,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     dtBioDvAC = dsBioDvAC.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtBioDvAC.Rows.Count;
                 }
-                sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
+                sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal-1) + (xlsRow) + ")";               
                 xlsRow++;
 
                 sheet1.Range[xlsRow, isl].Text = "2";
@@ -362,7 +359,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 {
                     obj.GetUNApprovedProfile(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsUnApprovedProfile);
                     dtUnApprovedProfile = dsUnApprovedProfile.Tables[0];
-                    sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = clsStaticInfo.dbl(dtUnApprovedProfile.Rows[0]["CNT"].ToString());
+                    sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtUnApprovedProfile.Rows.Count;
                 }
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
@@ -406,7 +403,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 {
                     obj.GetLongAbsentisom(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsLongAbsentisom);
                     dtLongAbsentisom = dsLongAbsentisom.Tables[0];
-                    sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = clsStaticInfo.dbl(dtLongAbsentisom.Rows[0]["CNT"].ToString());
+                    sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtLongAbsentisom.Rows.Count;
                 }
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
@@ -417,7 +414,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 {
                     obj.GetTBS(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsTBS);
                     dtTBS = dsTBS.Tables[0];
-                    sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = clsStaticInfo.dbl(dtTBS.Rows[0]["CNT"].ToString());
+                    sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtTBS.Rows.Count;
                 }
                 sheet1.Range[xlsRow, iTotal].Formula = "=SUM(" + oru.GetColumnNameForXls(startCol) + xlsRow + ":" + oru.GetColumnNameForXls(iTotal - 1) + (xlsRow) + ")";
                 xlsRow++;
@@ -544,7 +541,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[2, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
                 sheet1.Range[2, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
                 sheet1.Range[2, 1, xlsRow, endXlsCol].WrapText = true;
-
+                
                 xlsCol = 1;
                 xlsRow += 1;
                 #endregion ------------------Column Header------------------
@@ -631,10 +628,10 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
-
+                
 
                 xlsRow += 1;
-                sheet1.Range[xlsRow, 3].Text = "Audit Report Summary:- from " + workDate + " to " + System.DateTime.Now.ToString("dd-MMM-yyyy");
+                sheet1.Range[xlsRow, 3].Text = "Audit Report Summary:- " + workDate;
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
                 sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 9;
