@@ -1339,7 +1339,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.CostingPath = 'Costings/OrderCosting/';
 
     $scope.OrderCostingId = null;
-    $scope.ProductMasterId = null;
     $scope.ReportPopUp = function (x) {
         try {
             $scope.OrderCostingId = x.OrderCostingId;
@@ -1352,7 +1351,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.OrderPreCosting = function () {
         try {
             $scope.PreCosting = 1;
-            var file_src = $scope.CostingPath + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&ProductMasterId=' + $scope.ProductMasterId + '&preCosting=' + $scope.PreCosting;
+            var file_src = $scope.CostingPath + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&preCosting=' + $scope.PreCosting;
             $rootScope.report(file_src);
 
         } catch (e) {
@@ -1362,7 +1361,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         try {
             $scope.ProcurementCosting = 1;
 
-            var file_src = $scope.CostingPath + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&ProductMasterId=' + $scope.ProductMasterId + '&procurementCosting=' + $scope.ProcurementCosting;
+            var file_src = $scope.CostingPath + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&procurementCosting=' + $scope.ProcurementCosting;
             $rootScope.report(file_src);
 
         } catch (e) {

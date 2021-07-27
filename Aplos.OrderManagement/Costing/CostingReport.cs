@@ -24,17 +24,15 @@ namespace Library.OrderManagement.Costing
             _sqlRepository = new SqlRepository();
             identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
         }
-        public void OrderCostingReport(string OrderCostingId,string ProductMasterId, string preCosting, string ProcurementCosting)
+        public void OrderCostingReport(string OrderCostingId, string preCosting, string ProcurementCosting)
         {
             try
             {
                 if (OrderCostingId == "null")
-                    throw new Exception("Order Costing ID is empty");
-                if (ProductMasterId == "null")
-                    throw new Exception("Product Master ID is empty");
+                    throw new Exception("No costing template found for the current item.");
 
                 string sql = OrderCostingProductInfoSQL(OrderCostingId);
-                string CostingDetailsql = OrderCostingProductDetailSQL(OrderCostingId, ProductMasterId);
+                string CostingDetailsql = OrderCostingProductDetailSQL(OrderCostingId);
                 String CostingComponentSql = OrderCostingComponentSQL(OrderCostingId,preCosting,ProcurementCosting);
 
 
@@ -47,7 +45,17 @@ namespace Library.OrderManagement.Costing
                 IWorkbook workbook = application.Workbooks.Create(1);
                 IWorksheet sheet = workbook.Worksheets[0];
 
-                sheet.Name = "Order Costing Report";
+                if (preCosting == "1")
+                {
+                   
+                    sheet.Name = "Order Costing Report(Pre Costing)";
+
+                }
+                if (ProcurementCosting == "1")
+                {
+                    sheet.Name = "Order Costing Report(Procurement Costing)";
+
+                }
 
                 DataTable dtOrderCostingProductInfo = _sqlRepository.GetDataTable(sql);
                 DataTable dtOrderCostingComponent = _sqlRepository.GetDataTable(CostingComponentSql);
@@ -319,10 +327,6 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colCurrency + 1].Text = dtOrderCostingProductInfo.Rows[i]["Currency"].ToString();
 
 
-                    //sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                    //sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-
-
 
                 }
                 ROW = 7;
@@ -463,24 +467,24 @@ namespace Library.OrderManagement.Costing
                 ROW++;
                 ROW++;
                 COL = 1;
-                if (preCosting == "1")
-                {
-                    sheet[ROW, COL].Text = "Pre Costing.";
-                    sheet[ROW, COL].RowHeight = 20;
-                    sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
-                    sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
-                    sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
-                    sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-                }
-                if (ProcurementCosting == "1")
-                {
-                    sheet[ROW, COL].Text = "Procurement Costing.";
-                    sheet[ROW, COL].RowHeight = 20;
-                    sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
-                    sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
-                    sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
-                    sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-                }
+                //if (preCosting == "1")
+                //{
+                //    sheet[ROW, COL].Text = "Pre Costing.";
+                //    sheet[ROW, COL].RowHeight = 20;
+                //    sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+                //    sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
+                //    sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                //    sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+                //}
+                //if (ProcurementCosting == "1")
+                //{
+                //    sheet[ROW, COL].Text = "Procurement Costing.";
+                //    sheet[ROW, COL].RowHeight = 20;
+                //    sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+                //    sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
+                //    sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                //    sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+                //}
                 ROW++;
                 int CostingComponentEndcol = 0;
                 for (int i = 0; i < dtCostingDetailInfo.Rows.Count; i++)
@@ -608,7 +612,7 @@ namespace Library.OrderManagement.Costing
 
         }
 
-        private string OrderCostingProductDetailSQL(string OrderCostingId,string ProductMasterId)
+        private string OrderCostingProductDetailSQL(string OrderCostingId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @" select isnull(d.id,'New') isNewId, case when isnull(d.Id,'')<>'' THEN isnull(TEMPLATE.CostingComponentId,'DELETE') ELSE '' END AS isToBeDeleted,
@@ -629,8 +633,8 @@ namespace Library.OrderManagement.Costing
                         ,isnull(itemvalp.TotalGrossAmount,0) AS TotalProcurementGrossAmount 
                         ,CC.ProcurementCostingSavingsPercentage, CC.PreCostingSavingsPercentage
 						 from hkp.CostingComponent CC
-                        left outer join [dbo].[CostingTypeComponent] AS ctc  ON cc.Id = ctc.CostingComponentId and ctc.CostingType = (SELECT CostingType FROM MST.ProductMaster WHERE Id = '"+ProductMasterId+@"')
-                        left outer join OrderCostingDetailTemplate D on cc.id=d.CostingComponentId and d.OrderCostingMasterTemplateId='"+OrderCostingId+ @"'
+                        left outer join [dbo].[CostingTypeComponent] AS ctc  ON cc.Id = ctc.CostingComponentId and ctc.CostingType = (SELECT CostingType FROM MST.ProductMaster WHERE Id = (select ProductMasterId from OrderCostingMasterTemplate  where id='"+OrderCostingId+@"'))
+                        left outer join OrderCostingDetailTemplate D on cc.id=d.CostingComponentId and d.OrderCostingMasterTemplateId='" + OrderCostingId+ @"'
                          LEFT OUTER JOIN ( SELECT i.CostingComponentId,SUM(pc.GrossAmount)AS TotalGrossAmount FROM OrderPreCostingDirectMaterial AS pc  INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=    '" + OrderCostingId + @"' GROUP BY i.CostingComponentId
                                             UNION ALL SELECT i.CostingComponentId,SUM(pc.Amount)AS TotalGrossAmount FROM OrderPreCostingDirectProcess AS pc   INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId=  '" + OrderCostingId + @"'	GROUP BY i.CostingComponentId
                                             UNION ALL SELECT i.CostingComponentId,SUM(pc.[Value]) AS TotalGrossAmount FROM OrderPreCostingOperation AS pc       INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId and pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"'	GROUP BY i.CostingComponentId
@@ -648,14 +652,14 @@ namespace Library.OrderManagement.Costing
                         left outer join  (
                         select ctc.CostingComponentId FROM [dbo].[CostingTypeComponent] AS ctc
                         inner JOIN [HKP].[CostingComponent] AS cc ON cc.Id = ctc.CostingComponentId
-                        WHERE ctc.CostingType = (SELECT CostingType FROM MST.ProductMaster WHERE Id = '" + ProductMasterId + @"')) AS TEMPLATE 
+                        WHERE ctc.CostingType = (SELECT CostingType FROM MST.ProductMaster WHERE Id = (select ProductMasterId from OrderCostingMasterTemplate  where id='"+ OrderCostingId + @"'))) AS TEMPLATE 
 					    on template.CostingComponentId=d.CostingComponentId
 
 
                         where   cc.Id IN (
                             select ctc.CostingComponentId FROM [dbo].[CostingTypeComponent] AS ctc
                         inner JOIN [HKP].[CostingComponent] AS cc ON cc.Id = ctc.CostingComponentId
-                        WHERE ctc.CostingType = (SELECT CostingType FROM MST.ProductMaster WHERE Id = '" + ProductMasterId + @"')
+                        WHERE ctc.CostingType = (SELECT CostingType FROM MST.ProductMaster WHERE Id = (select ProductMasterId from OrderCostingMasterTemplate  where id='" + OrderCostingId + @"'))
 
 					    UNION
 
