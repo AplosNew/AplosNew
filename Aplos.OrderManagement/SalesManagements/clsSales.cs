@@ -365,7 +365,7 @@ namespace Library.OrderManagement.Sales
 							JOIN trn.PackingLineItem PLI ON PLI.SOId=SM.SalesOrderId
 							GROUP BY  SM.SalesOrderId
 							) A ON A.SalesOrderId=SO.Id
-							WHERE  PLI.PackingId='" + PackingId+@"' ORDER BY SO.DeliveryDate";
+							WHERE  PLI.PackingId " + PackingId+@" ORDER BY SO.DeliveryDate";
 				return _sqlRepository.GetDataCollection(_sql);
 			}
 			catch (Exception ex)

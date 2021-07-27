@@ -28,6 +28,11 @@ namespace Library.OrderManagement.Costing
         {
             try
             {
+                if (OrderCostingId == "null")
+                    throw new Exception("Order Costing ID is empty");
+                if (ProductMasterId == "null")
+                    throw new Exception("Product Master ID is empty");
+
                 string sql = OrderCostingProductInfoSQL(OrderCostingId);
                 string CostingDetailsql = OrderCostingProductDetailSQL(OrderCostingId, ProductMasterId);
                 String CostingComponentSql = OrderCostingComponentSQL(OrderCostingId,preCosting,ProcurementCosting);

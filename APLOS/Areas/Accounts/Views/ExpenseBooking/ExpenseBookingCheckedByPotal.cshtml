@@ -67,6 +67,7 @@
                         <th>Activity</th>
                         <th>Invoice No</th>
                         <th>Invoice Date</th>
+                        <th>Cost Center</th>
                         <th>Amount</th>
                         <th class="text-right">Action</th>
                     </tr>
@@ -80,6 +81,9 @@
                         </td>
                         <td>
                             <input type="text" ng-model="x.DocDate" datepicker class="form-control">
+                        </td>
+                        <td>
+                            <select class="form-control" ng-model="x.CostCenterId" ng-options="item.Value as item.Text for item in costCenterCboList| filter:{ Value: x.CostCenterId }:true"></select>
                         </td>
                         <td>
                             <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" ng-model="x.Amount" class="form-control text-right">

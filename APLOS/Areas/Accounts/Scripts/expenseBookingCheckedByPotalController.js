@@ -187,9 +187,20 @@ function expenseBookingCheckedByPotalController(cboService, commonMessage, $scop
             $scope.budgetTransactionDetailList = response.data;
         });
     };
+    $scope.costCenterCboList = [];
+    $scope.GetCboCostCenterIdByEntity = function (entityId) {
+        $http({
+            method: "GET",
+            url: "accounts/expenseBooking/GetCboCostCenterIdByEntity?entityId=" + entityId
+        }).then(function successCallback(response) {
+            $scope.costCenterCboList = response.data;
+
+        });
+    };
 
     $scope.Get = function (data) {
         $scope.budgetTransactionMaster = data.data;
+        $scope.GetCboCostCenterIdByEntity($scope.budgetTransactionMaster.EntityId);
         $scope.GetBudgetTransactionDetail($scope.budgetTransactionMaster.Id);
         $scope.budgetTransactionMaster.AddedDate = $filter("dateFiltering")($scope.budgetTransactionMaster.AddedDate);
         $scope.budgetTransactionMaster.UpdatedDate = $filter("dateFiltering")($scope.budgetTransactionMaster.UpdatedDate);
@@ -198,7 +209,6 @@ function expenseBookingCheckedByPotalController(cboService, commonMessage, $scop
         $scope.budgetTransactionMaster.EmployeeId = $scope.budgetTransactionMaster.EmployeeId;
         $scope.budgetTransactionMaster.ApprovalStatus = $scope.budgetTransactionMaster.ApprovalStatus;
         $scope.budgetTransactionMaster.ApprovedById = null;
-        
         $scope.Action = "Checked";
         $scope.HAction = "Hold";
         $scope.RAction = "Reject";

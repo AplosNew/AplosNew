@@ -429,4 +429,15 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
     };
     //--------------------------------------//
 
+    //$scope.PlantList = [];
+    //$scope.getPlant = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + "GetShift",
+    //    }).then(function successCallback(response) {
+    //        $scope.PlantList = response.data;
+    //    });
+    //}
+    //$scope.Plant();
+
 }
