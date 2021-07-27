@@ -50,7 +50,7 @@ namespace Aplos.Areas.Attendances.Controllers
         #region ---Audit Report Summery---
 
         [HttpPost, Authorize]
-        public JsonResult AuditReportSummery(string workDate,string ToDate)
+        public JsonResult AuditReportSummery(string workDate, string ToDate)
         {
             try
             {
@@ -66,7 +66,7 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }
 
-        public string DailyStatusCountReport(string CGId, string CompanyId, string PlantId, string SheetName1, string s1, string workDate,string ToDate)
+        public string DailyStatusCountReport(string CGId, string CompanyId, string PlantId, string SheetName1, string s1, string workDate, string ToDate)
         {
             #region Variable
 
@@ -260,7 +260,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 int startCol = iReportName + 1;
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetManualOutTimeForOTDateWiseReport(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsBioDvAC);
+                    obj.GetManualOutTimeForOTDateWiseReport(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsBioDvAC);
                     dtBioDvAC = dsBioDvAC.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtBioDvAC.Rows.Count;
                 }
@@ -272,7 +272,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetModifiedReport(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsOnlyOt);
+                    obj.GetModifiedReport(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsOnlyOt);
                     dtOnlyOt = dsOnlyOt.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtOnlyOt.Rows.Count;
                 }
@@ -283,7 +283,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Absent No Punch Time";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetAbsentReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate ,out dsAbsent);
+                    obj.GetAbsentReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsAbsent);
                     dtAbsent = dsAbsent.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtAbsent.Rows.Count;
                 }
@@ -294,7 +294,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Absent With single Punch";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetAbsentWithPunchReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsAbsentWithPunch);
+                    obj.GetAbsentWithPunchReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsAbsentWithPunch);
                     dtAbsentWithPunch = dsAbsentWithPunch.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtAbsentWithPunch.Rows.Count;
                 }
@@ -305,7 +305,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Leave With Punch";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetLeaveWithPunchReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsLeaveWithPunch);
+                    obj.GetLeaveWithPunchReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsLeaveWithPunch);
                     dtLeaveWithPunch = dsLeaveWithPunch.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtLeaveWithPunch.Rows.Count;
                 }
@@ -316,7 +316,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Short Duration Absent";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetShortDurationAbsentReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsShortDurationAbsent);
+                    obj.GetShortDurationAbsentReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsShortDurationAbsent);
                     dtShortDurationAbsent = dsShortDurationAbsent.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtShortDurationAbsent.Rows.Count;
                 }
@@ -327,7 +327,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Short Duration";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetWorkDurationSheet(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsWorkDuration);
+                    obj.GetWorkDurationSheet(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsWorkDuration);
                     dtWorkDuration = dsWorkDuration.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtWorkDuration.Rows.Count;
                 }
@@ -338,7 +338,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "OT Applicable And Out Missing";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetOTEntitledWithOutMissingReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsOTEntitledWithOutMissing);
+                    obj.GetOTEntitledWithOutMissingReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsOTEntitledWithOutMissing);
                     dtOTEntitledWithOutMissing = dsOTEntitledWithOutMissing.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtOTEntitledWithOutMissing.Rows.Count;
                 }
@@ -349,7 +349,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "OT Not Applicable And Out Mis";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetOTNotEntitledWithOutMissingReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsOTNotEntitledWithOutMissing);
+                    obj.GetOTNotEntitledWithOutMissingReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsOTNotEntitledWithOutMissing);
                     dtOTNotEntitledWithOutMissing = dsOTNotEntitledWithOutMissing.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtOTNotEntitledWithOutMissing.Rows.Count;
                 }
@@ -360,7 +360,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Un Approved Profile";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetUNApprovedProfile(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsUnApprovedProfile);
+                    obj.GetUNApprovedProfile(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsUnApprovedProfile);
                     dtUnApprovedProfile = dsUnApprovedProfile.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = clsStaticInfo.dbl(dtUnApprovedProfile.Rows[0]["CNT"].ToString());
                 }
@@ -371,7 +371,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "No Salary Structure";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetProfileNoSalary(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsProfileNoSalary);
+                    obj.GetProfileNoSalary(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsProfileNoSalary);
                     dtProfileNoSalary = dsProfileNoSalary.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtProfileNoSalary.Rows.Count;
                 }
@@ -382,7 +382,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Salary Structure Not Approve";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetNoSalaryStructureApprove(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsNoSalaryStructureApprove);
+                    obj.GetNoSalaryStructureApprove(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsNoSalaryStructureApprove);
                     dtNoSalaryStructureApprove = dsNoSalaryStructureApprove.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtNoSalaryStructureApprove.Rows.Count;
                 }
@@ -393,7 +393,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "OT Not Confirm";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetOtNotConfirmOverstayReport(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, ToDate, out dsOtNotConfirmOverstayReport);
+                    obj.GetOtNotConfirmOverstayReport(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsOtNotConfirmOverstayReport);
                     dtOtNotConfirmOverstay = dsOtNotConfirmOverstayReport.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtOtNotConfirmOverstay.Rows.Count;
                 }
@@ -404,7 +404,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Long Absenteeism";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetLongAbsentisom(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsLongAbsentisom);
+                    obj.GetLongAbsentisom(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsLongAbsentisom);
                     dtLongAbsentisom = dsLongAbsentisom.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = clsStaticInfo.dbl(dtLongAbsentisom.Rows[0]["CNT"].ToString());
                 }
@@ -415,7 +415,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "TBS";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetTBS(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsTBS);
+                    obj.GetTBS(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsTBS);
                     dtTBS = dsTBS.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = clsStaticInfo.dbl(dtTBS.Rows[0]["CNT"].ToString());
                 }
@@ -426,7 +426,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Maternity Leave";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetMaternityLeave(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsMaternityLeave);
+                    obj.GetMaternityLeave(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsMaternityLeave);
                     dtMaternityLeave = dsMaternityLeave.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtMaternityLeave.Rows.Count;
                 }
@@ -437,7 +437,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Bank Remark";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetBankRemark(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsBankRemarks);
+                    obj.GetBankRemark(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsBankRemarks);
                     dtBankRemarks = dsBankRemarks.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtBankRemarks.Rows.Count;
                 }
@@ -448,7 +448,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Separation With Absent";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetSeparatedAbsent(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsSeparatedAbsent);
+                    obj.GetSeparatedAbsent(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsSeparatedAbsent);
                     dtSeparatedAbsent = dsSeparatedAbsent.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtSeparatedAbsent.Rows.Count;
                 }
@@ -469,7 +469,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             cc++;
                         }
                     }
-                    obj.GetAttendanceNotLockIndividual(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsAttendanceNotLock);
+                    obj.GetAttendanceNotLockIndividual(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsAttendanceNotLock);
                     dtAttendanceNotLock = dsAttendanceNotLock.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = cc + dtAttendanceNotLock.Rows.Count;
                 }
@@ -480,7 +480,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "NotIn LegalDesignation Master";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetNotInLegalDesignationMaster(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsNotInLegalDesignationMaster);
+                    obj.GetNotInLegalDesignationMaster(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsNotInLegalDesignationMaster);
                     dtNotInLegalDesignationMaster = dsNotInLegalDesignationMaster.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtNotInLegalDesignationMaster.Rows.Count;
                 }
@@ -491,7 +491,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Salary Not Approved";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetSalaryNotApproved(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsSalaryNotApproved);
+                    obj.GetSalaryNotApproved(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsSalaryNotApproved);
                     dtSalaryNotApproved = dsSalaryNotApproved.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtSalaryNotApproved.Rows.Count;
                 }
@@ -502,7 +502,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Offday Missing Punch";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetOffdayMissingPunchReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsOffdayMissingPunch);
+                    obj.GetOffdayMissingPunchReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsOffdayMissingPunch);
                     dtOffdayMissingPunch = dsOffdayMissingPunch.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtOffdayMissingPunch.Rows.Count;
                 }
@@ -513,7 +513,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Offday With Punch";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetOffdayWithPunchReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsOffdayWithPunch);
+                    obj.GetOffdayWithPunchReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsOffdayWithPunch);
                     dtOffdayWithPunch = dsOffdayWithPunch.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtOffdayWithPunch.Rows.Count;
                 }
@@ -524,7 +524,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Absent With Wrong Shift";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetAbsentWithRawPunchReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsAbsentWithRawPunch);
+                    obj.GetAbsentWithRawPunchReports(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsAbsentWithRawPunch);
                     dtAbsentWithRawPunch = dsAbsentWithRawPunch.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtAbsentWithRawPunch.Rows.Count;
                 }
@@ -535,7 +535,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iReportName].Text = "Shift Not Assign";
                 for (int i = 0; i < dvPlant.Count; i++)
                 {
-                    obj.GetShiftNotAssign(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId,ToDate, out dsShiftUnassign);
+                    obj.GetShiftNotAssign(workDate, dvPlant[i]["Id"].ToString(), companyId, CGId, out dsShiftUnassign);
                     dtShiftUnassign = dsShiftUnassign.Tables[0];
                     sheet1.Range[xlsRow, PlantIndex[dvPlant[i]["Id"].ToString()]].Number = dtShiftUnassign.Rows.Count;
                 }

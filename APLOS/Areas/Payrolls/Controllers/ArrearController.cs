@@ -136,7 +136,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             _lock.LockProcess();
             try
             {
-               
+
 
                 List<Tuple<string, string>> MonthList = new List<Tuple<string, string>>();
                 //construct fromtodates for each month
@@ -151,7 +151,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 con.executeQuery(@"DELETE FROM ArrearSummaryBatchWise WHERE ArrearProcessBatchId IN (SELECT ArrearProcessBatchId FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
                 con.executeQuery(@"DELETE FROM ArrearSummaryMonthWise WHERE ArrearProcessBatchId IN (SELECT ArrearProcessBatchId FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
                 con.executeQuery(@"DELETE FROM ArrearProcChild WHERE SlrProcMstSystemID IN (SELECT SystemID FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate)OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "'))");
-                con.executeQuery(@"DELETE FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate) OR  (FromDate BETWEEN '"+ ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "')");
+                con.executeQuery(@"DELETE FROM ArrearProcMaster WHERE ('" + ArrearFromDate + @"' BETWEEN FromDate AND ToDate) OR  ('" + ArrearToDate + "' BETWEEN FromDate AND ToDate) OR  (FromDate BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "') OR  (ToDate  BETWEEN '" + ArrearFromDate + @"' AND '" + ArrearToDate + "')");
                 con.CommitTransaction();
 
 

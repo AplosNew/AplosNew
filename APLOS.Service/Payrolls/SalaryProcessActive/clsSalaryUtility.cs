@@ -8,17 +8,17 @@ using System.Web;
 
 
 public class clsSalaryUtility
-    {
+{
     public void FractionCalculation(string sRoundOption, bool IntegerInDisb, bool IsDecimalInDisb, int DecimalNo, string sValue, out string sResultValue)
     {
         sResultValue = "0";
         bool IsNegative = false;
         try
         {
-            if(Convert.ToDouble(sValue)<0)
+            if (Convert.ToDouble(sValue) < 0)
             {
                 IsNegative = true;
-                sValue = sValue.Replace("-","");
+                sValue = sValue.Replace("-", "");
             }
 
             if (IntegerInDisb == true)
@@ -58,7 +58,7 @@ public class clsSalaryUtility
                 sResultValue = Convert.ToInt32(Math.Round(Convert.ToDouble(sValue))).ToString();
             }
 
-            if(IsNegative)
+            if (IsNegative)
             {
                 sResultValue = "-" + sResultValue;
                 IsNegative = false;
@@ -144,9 +144,9 @@ public class clsSalaryUtility
                     //dvLocal = new DataView();
                     //dvLocal.Table = dtValue;
 
-                    var dtv = dtValue.FindAll(x => x.SalaryHeadID == strTemp.Trim() && x.EmpSystemID== sEmpSystemID);
-                   // dvLocal.RowFilter = "SalaryHeadID = '" + strTemp.Trim() + "' AND EmpSystemID = '" + sEmpSystemID + "'";
-                    if (dtv.Count() >0)
+                    var dtv = dtValue.FindAll(x => x.SalaryHeadID == strTemp.Trim() && x.EmpSystemID == sEmpSystemID);
+                    // dvLocal.RowFilter = "SalaryHeadID = '" + strTemp.Trim() + "' AND EmpSystemID = '" + sEmpSystemID + "'";
+                    if (dtv.Count() > 0)
                     {
                         if (bEarning == false)
                         {
@@ -171,7 +171,7 @@ public class clsSalaryUtility
                             if (dtv[0].EarningCurrencyID == para.lblLocalCurrencyID.Trim())
                             {
                                 strTemp = Convert.ToDecimal(dtv[0].EarningAmount).ToString("0.00");
-                                strTemp= GetAbsValue(strTemp);
+                                strTemp = GetAbsValue(strTemp);
                             }
                             else
                             {
@@ -182,12 +182,12 @@ public class clsSalaryUtility
                     }
                     else
                     {
-                      var dicsh=  dicSlrHd.FindAll(x=>x.SalaryHeadID==strTemp.Trim());
-                        if(dicsh.Count()>0)
+                        var dicsh = dicSlrHd.FindAll(x => x.SalaryHeadID == strTemp.Trim());
+                        if (dicsh.Count() > 0)
                         {
                             strTemp = "0.00";
                         }
-                       // var dvSPChd_dic = dicProcChild.FindAll(x => x.EmpInfoSystemID == dicLocal_Sub[i].EmpInfoSystemID && x.SalaryHeadID == dicLocal_Sub[i].SalaryHeadID && x.SlrProcMstSystemID == para.lblSalaryProcSystemId.Trim());
+                        // var dvSPChd_dic = dicProcChild.FindAll(x => x.EmpInfoSystemID == dicLocal_Sub[i].EmpInfoSystemID && x.SalaryHeadID == dicLocal_Sub[i].SalaryHeadID && x.SlrProcMstSystemID == para.lblSalaryProcSystemId.Trim());
 
                         //dicsal
                         //dvSlrHd = new DataView();
@@ -731,7 +731,7 @@ public static class clsSalaryUtilityDataTable
         return table;
     }
 }
- public class SPvalueHeadWise
+public class SPvalueHeadWise
 {
     public string EmpSystemID { get; set; }
     public string SalaryHeadID { get; set; }

@@ -3981,7 +3981,7 @@ public class clsSalaryProcessAplosArrear
                             SendNotification("Calculating Arrear Differences", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             FinalizingProcessUpdateArrearDifferences(BatchNo, para.FromDate, dsSelectedEmp.Tables[0], sEmpSysIDColl, dicLocal);
 
-                          
+
 
 
                             SendNotification("Processing Bank Cash Percentages", para.FromDate, TotProcComp, TotSelectEmpForProc);
@@ -4490,7 +4490,7 @@ public class clsSalaryProcessAplosArrear
 
 
     }
-  
+
 
     void PT(string empids, string _plantid, string _month, string _year)
     {

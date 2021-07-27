@@ -280,7 +280,7 @@ namespace Library.HumanResource.Attendance
             }
         }
 
-        public void GetOTEntitledWithOutMissingReports(string FromDate,  string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetOTEntitledWithOutMissingReports(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
