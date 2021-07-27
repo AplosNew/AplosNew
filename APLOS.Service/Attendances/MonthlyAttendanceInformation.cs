@@ -336,6 +336,7 @@ namespace Library.Service.Attendances
                     int iEarlyOut = 0;
                     int iGender = 0;
                     int iEmpCategory = 0;
+                    int iPlant = 0;
                     #endregion
 
                     #region ------------------Column Header------------------
@@ -392,6 +393,13 @@ namespace Library.Service.Attendances
                     sheet1.Range[xlsRow, iDOS].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, iDOS, xlsRow + 1, iDOS].Merge();
 
+                    xlsCol += 1;
+                    iPlant = xlsCol;
+                    sheet1.Range[xlsRow, iPlant].Text = "Plant";
+                    sheet1.Range[xlsRow, iPlant].ColumnWidth = 22;
+                    sheet1.Range[xlsRow, iPlant].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, iPlant].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, iPlant, xlsRow + 1, iPlant].Merge();
 
                     xlsCol += 1;
                     iEmpCategory = xlsCol;
@@ -622,6 +630,7 @@ namespace Library.Service.Attendances
                         sheet1.Range[xlsRow, iSec].Text = dvMonthlyAttnSumm[i]["Section"].ToString().Trim();
                         sheet1.Range[xlsRow, iSubSection].Text = dvMonthlyAttnSumm[i]["SubSection"].ToString().Trim();
                         sheet1.Range[xlsRow, iLine].Text = dvMonthlyAttnSumm[i]["Line"].ToString().Trim();
+                        sheet1.Range[xlsRow, iPlant].Text = dvMonthlyAttnSumm[i]["PlantName"].ToString().Trim();
 
                         sheet1.Range[xlsRow, iDesig].Text = dvMonthlyAttnSumm[i]["LegalDG"].ToString().Trim();
                         string _m = bplib.clsWebLib.GetMonthName(Month);
@@ -1264,7 +1273,8 @@ namespace Library.Service.Attendances
             {
                 string sql = @"select Count(Id) ExtraAbsentWeekOFF,EmpSystemID from [SCS].[WeeklyAbsentismAssignment] WAA
                                             INNER JOIN EmployeeInformation E ON E.SystemId = WAA.EmpSystemId
-                            where E.PlantId= '" + PlantId + @"' and Month(WorkingDate) = " + month + @" and Year(WorkingDate) = " + year + @"
+                            where --E.PlantId= '" + PlantId + @"' and 
+                                Month(WorkingDate) = " + month + @" and Year(WorkingDate) = " + year + @"
                             GROUP BY EmpSystemID";
                 DataTable dt = _sqlRepository.GetDataTable(sql);
                 string empId = "";
@@ -1288,7 +1298,8 @@ namespace Library.Service.Attendances
             {
                 string sql = @"SELECT COUNT(Id) ExtraAbsentHoliday,EmpSystemID  from [trn].[HolidayAbsentismAssignment] HAA
                                             INNER JOIN EmployeeInformation E ON E.SystemId = HAA.EmpSystemId
-                            WHERE E.PlantId= '" + PlantId + @"' and Month(WorkDate) = " + month + @" and Year(WorkDate) = " + year + @"
+                            WHERE --E.PlantId= '" + PlantId + @"' and 
+                                Month(WorkDate) = " + month + @" and Year(WorkDate) = " + year + @"
                                 GROUP BY EmpSystemID";
                 DataTable dt = _sqlRepository.GetDataTable(sql);
                 string empId = "";
