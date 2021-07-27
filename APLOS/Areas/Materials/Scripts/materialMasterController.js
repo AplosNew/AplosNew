@@ -69,6 +69,7 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
         , SkillId: null
         , FixedAssetMasterId: null
         , IsRegular: true
+        , IssueByUoM: false
         , MaterialMasterTypeId: null
     };
     $scope.materialMasterNew = angular.copy($scope.materialMaster);

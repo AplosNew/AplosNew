@@ -1996,7 +1996,6 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             , url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
         }).then(function (response) {
             $scope.taxCategoryList = response.data;
-            console.log($scope.taxCategoryList);
             for (var i = 0; i < $scope.taxCategoryList.length; i++) {
                 if (baseService.isUndefinedOrNull($scope.taxCategoryList[i].hsnCodeId)) {
                     $scope.taxCategoryList[i].HSNCode = HSNCode;

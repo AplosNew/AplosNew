@@ -1953,7 +1953,7 @@ public IEnumerable<object> IssueSlipDetail(string Id)
                                     LEFT JOIN HKP.CharacteristicsValue AS FCV ON IR.FirstCharacteristicsValueId = FCV.Id
                                     LEFT JOIN HKP.CharacteristicsValue AS SCV ON IR.SecondCharacteristicsValueId = SCV.Id
                                     LEFT JOIN HKP.CharacteristicsValue AS TCV ON IR.ThirdCharacteristicsValueId = TCV.Id
-                                    LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
+                                     LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IR.TransactionUoMId = TUoM.Id
                                     LEFT JOIN [SEC].[User] As Us On IR.AddedBy=Us.UserId
                                     LEFT JOIN dbo.EmployeeInformation As Em On Us.EmployeeId=Em.SystemId
                                     LEFT JOIN [ORG].[Department] AS Dp On Dp.Id=Em.DepartmentId

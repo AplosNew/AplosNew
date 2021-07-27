@@ -774,7 +774,7 @@
     <Compile Include="Areas\Productions\Controllers\CutPlanController.cs" />
     <Compile Include="Areas\Productions\Controllers\MarkerController.cs" />
     <Compile Include="Areas\Productions\Controllers\PackingInvoiceController.cs" />
-    <Compile Include="Areas\Productions\Controllers\ProductionPlanningReportController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductionTargetReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShadeController.cs" />
     <Compile Include="Areas\Productions\Controllers\FebricWidthController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShrinkageGroupController.cs" />
@@ -2080,7 +2080,7 @@
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerController.js" />
     <Content Include="Areas\Productions\Scripts\PackingInvoiceController.js" />
-    <Content Include="Areas\Productions\Scripts\ProductionPlanningReportController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionTargetReportController.js" />
     <Content Include="Areas\Productions\Scripts\ShadeController.js" />
     <Content Include="Areas\Productions\Scripts\FebricWidthController.js" />
     <Content Include="Areas\Productions\Scripts\ShrinkageGroupController.js" />
@@ -3571,7 +3571,7 @@
     <Content Include="Areas\Productions\Views\Marker\Aplos.cshtml" />
     <Content Include="Areas\Parties\Views\PartyPaymentStatusReport.cshtml" />
     <Content Include="Areas\HumanResource\Views\PayrollReports\ArrearVsPayroll.cshtml" />
-    <Content Include="Areas\Productions\Views\ProductionPlanningReport\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionTargetReport\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\FinancialStatusDashboard\TrialBLAccountGroupPopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\DayStatusMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\OutPunchConfiguration\Aplos.cshtml" />

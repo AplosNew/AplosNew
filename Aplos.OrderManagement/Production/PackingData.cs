@@ -934,22 +934,27 @@ left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
             }
         }
 
-        //        public DataTable getPackageDetailReport1(string PackingId)
-        //        {
-        //            try
-        //            {
-        //                var str = @"Select pli.PackingLineItemId , sc.RefNo 
-        //from trn.PackingLineItem pli 
-        //left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
-        //left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
-        //where pli.PackingId = '210110' and pol.Status = 'Active'";
-        //                return _sqlRepository.GetDataTable(str);
-        //            }
-        //            catch (Exception e)
-        //            {
-        //                throw e;
-        //            }
-        //        }
+        public IEnumerable<object> GetPackingData()
+        {
+            try
+            {
+                var str = @"SELECT Convert(bit,0) Active,PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, DATEDIFF(Day,GETDATE() , InactiveDate) as Active , p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
+                            ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,CP.CurrencyId,C.Code AS Currency 
+                            FROM TRN.Packing pk
+                            LEFT JOIN hkp.Party p on p.Id = pk.CustomerId
+                            LEFT JOIN dbo.EmployeeInformation e on e.SystemId = pk.ByWhom
+                            LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId = pk.DispatchResponsiblePersonId
+                            LEFT JOIN hkp.MaterialStorage ms on ms.Id = pk.StorageLocId
+                            LEFT JOIN org.Entity en on en.Id = pk.EntityId
+                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
 
 }
