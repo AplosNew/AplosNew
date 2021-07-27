@@ -280,7 +280,7 @@ namespace Library.HumanResource.Attendance
             }
         }
 
-        public void GetOTEntitledWithOutMissingReports(string FromDate,  string plantId, string companyId, string companyGroupId, out DataSet dsRef)
+        public void GetOTEntitledWithOutMissingReports(string FromDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
         {
             ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
@@ -359,13 +359,12 @@ namespace Library.HumanResource.Attendance
             try
             {
 
-                strSql = @"SELECT EI.DOJ,EI.SystemId
+                strSql = @"SELECT COUNT(*) AS CNT
                         FROM EmployeeInformation EI WHERE EI.EmployeeStatus = 'Active'                        
-                        	and EI.IsApproved=0 
-                        	and EI.DOJ <= '" + FromDate + @"' 
-                    and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'                   
-                        ORDER BY 
-                        	EmployeeCodePreFix,EmployeeCodeNumeric";
+                        	and isnull(EI.IsApproved,0)=0 
+                        --	and EI.DOJ <= '" + FromDate + @"' 
+                    and ei.PlantId='" + plantId + @"' --and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'                   
+                      ";
 
                 con.getDataSet(strSql, out dsRef);
 
@@ -533,19 +532,15 @@ namespace Library.HumanResource.Attendance
 
             try
             {
-                strSql = @"SELECT ei.PlantId
-                        	,ei.EmployeeCurrentStatus,EI.CellPhnNo TelePhnNo
-                            ,EI.EmployeeCode
+                strSql = @"SELECT Count(*) AS CNT
 
                         FROM EmployeeInformation EI
-                        left join (select * from AttdnProcessData where WorkDate = '" + FromDate + @"' ) AP ON AP.EmpSystemID = EI.SystemId                        
-                        WHERE 
-                         ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
-                                 and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
+                         WHERE 
+                         ei.PlantId='" + plantId + @"' --and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+                                -- and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
                             AND isnull(EI.EmployeeCurrentStatus,'')='LONG ABSENTEEISM' 
                         
-                        ORDER BY
-                        	EmployeeCodePreFix,EmployeeCodeNumeric,ap.WorkDate";
+                        ";
                 con.getDataSet(strSql, out dsRef);
 
             }
@@ -566,18 +561,15 @@ namespace Library.HumanResource.Attendance
             try
             {
                 strSql = @"SELECT
-                format(ap.WorkDate,'dd-MMM-yyy') WorkDate ,ei.SystemId
+               COUNT(*) AS CNT
 
                 FROM EmployeeInformation EI
-                left join AttdnProcessData AP ON AP.EmpSystemID = EI.SystemId
                 WHERE
-                AP.WorkDate='" + FromDate + @"'
-                and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
-                and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
+                ei.PlantId='" + plantId + @"'-- and ei.CompanyId='" + companyId + @"' and ei.GroupID='" + companyGroupId + @"'
+               -- and ei.DOJ<='" + FromDate + @"' AND (ei.DOS is null OR ei.DOS>= '" + FromDate + @"')
                 AND EI.EmployeeCurrentStatus='TBS'
                 
-                ORDER BY
-                EmployeeCodePreFix,EmployeeCodeNumeric,ap.WorkDate";
+                ";
                 con.getDataSet(strSql, out dsRef);
 
             }
