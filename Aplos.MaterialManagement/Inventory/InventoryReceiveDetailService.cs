@@ -896,8 +896,8 @@ namespace Library.MaterialManagement.Inventory
 									}
 									else if ((issue.TransactionQtyForPO - issue.AllocatedSOQty) < itemDetail.TransactionQty)
 									{
-										//temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-										temp = issue.TransactionQtyForPO - issue.AllocatedSOQty;
+										temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+										//temp = issue.TransactionQtyForPO - issue.AllocatedSOQty;
 										itemDetail.TransactionQty = (issue.TransactionQtyForPO - issue.AllocatedSOQty);
 										isQtyAlocated = true;
 

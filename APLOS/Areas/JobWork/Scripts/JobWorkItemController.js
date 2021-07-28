@@ -60,6 +60,9 @@ function JobWorkItemController(addressService, $window, cboService, commonMessag
                 if ($scope.JobWorkItem.MaterialMasterId !== null) {
                     $scope.JobWorkItem.UOMId = null;
                 }
+                if ($scope.JobWorkItem.MaterialMasterId == null && $scope.JobWorkItem.UOMId == null) {
+                    throw 'Please select UOM';          
+                }
 
                 $http({
                     method: 'POST',
@@ -198,6 +201,7 @@ function JobWorkItemController(addressService, $window, cboService, commonMessag
 
                     $scope.getAllData();
                     $scope.Action = 'Save';
+                    $scope.Clear();
                 }
                 else {
                     ShowResult(response.data.Message, 'failure');

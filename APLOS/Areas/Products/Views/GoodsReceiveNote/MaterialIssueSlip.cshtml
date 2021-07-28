@@ -513,7 +513,7 @@
 							</div>
 						</th>
 						<th style="width:500px;">Cost Center&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-						<th style="width:500px;">Expense Activity Code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+
 
 						<th>Material Type</th>
 						<th>Material Group Name</th>
@@ -524,21 +524,20 @@
 						<th>Sku3</th>
 						<th>Country</th>
 						<th>Sales Order</th>
-
+						<th>Requested Qty</th>
+						<th>ConvertUOM</th>
+						<th style="width:500px;">Required(Valid)Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+						<th>StockQty</th>
+						<th>S.B.UoM</th>
+						@*<th>IssuedQty Qty</th>*@
+						<th>BOQ</th>
+						<th>Con.UOM</th>
+						@*<th></th>*@
+						@*<th>TranUOM</th>*@
 						<th>Consumption</th>
 						<th>WastagePer</th>
 						@*<th>POUoM</th>*@
-
-
-						<th>StockQty</th>
-						<th>StockBaseUoM</th>
-						@*<th>IssuedQty Qty</th>*@
-						<th>Requested Qty</th>
-						<th>ConsumptionUOM</th>
-						<th>ConvertUOM</th>
-						<th style="width:500px;">Required(Valid)Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-						@*<th></th>*@
-						@*<th>TranUOM</th>*@
+						<th style="width:500px;">Expense Activity Code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 						<th class="col-sm-1">Action</th>
 					</tr>
 				</thead>
@@ -559,13 +558,6 @@
 								<select class="form-control" ng-model="x.CostCenterId" ng-options="item.Value as item.Text for item in costCenterList"></select>
 							</div>
 						</td>
-						<td>
-							<button ng-click="popUp($index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax">
-								<i class="glyphicon glyphicon-search"></i>
-							</button>
-							{{x.GLBudgetActivity}}
-
-						</td>
 
 						<td>{{x.MaterialType}}</td>
 						<td>{{x.MaterialMasterGroupName}}</td>
@@ -577,17 +569,8 @@
 						<td>{{x.CountryName}}</td>
 						<td class="text-right">{{x.SalesOrderId}}</td>
 
-
-						<td>{{x.WastagePer}}</td>
-						@*<td>{{x.POUoMName}}</td>*@
-						<td>{{x.Consumption}}</td>
-
-
-						<td class="text-right">{{x.TotalQty}}</td>
-						<td>{{x.StockUOM}}</td>
-						@*<td class="text-right">{{x.IssuedQty}}</td>*@
 						<td class="text-right">{{x.RequisitionQty}}</td>
-						<td>{{x.consumptionUoM}}</td>
+
 						<td>
 							<div class="select-style">
 								<select class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in x.uoMList" ng-change="ConvertedDataRow(x)"></select>
@@ -596,10 +579,26 @@
 						<td class="text-right">
 							<input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.RequestedQty" ng-disabled="false">
 						</td>
+						<td class="text-right">{{x.TotalQty}}</td>
+						<td>{{x.StockUOM}}</td>
+						@*<td class="text-right">{{x.IssuedQty}}</td>*@
+						<td class="text-right">{{x.RequisitionQtyOrginal}}</td>
+						<td>{{x.consumptionUoM}}</td>
 						@*<td>{{x.TransactionUoMName}}</td>*@
 						@*<td class="text-right">
 			<ul class="list-inline action-list"></ul>
 		</td>*@
+
+						@*<td>{{x.POUoMName}}</td>*@
+						<td>{{x.Consumption}}</td>
+						<td>{{x.WastagePer}}</td>
+						<td>
+							<button ng-click="popUp($index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax">
+								<i class="glyphicon glyphicon-search"></i>
+							</button>
+							{{x.GLBudgetActivity}}
+
+						</td>
 
 						<td class="text-right table-td">
 							<ul class="list-inline">

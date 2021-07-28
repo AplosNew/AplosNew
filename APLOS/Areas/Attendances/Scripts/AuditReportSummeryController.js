@@ -7,17 +7,27 @@ function AuditReportSummeryController(commonMessage, $scope, $rootScope, baseSer
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.path = 'Attendances/AuditReportSummery/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
+    var date = new Date(), y = date.getFullYear(), m = date.getMonth();
+    var firstDay = new Date(y, m, 1);
+    $scope.effectiveDate = $filter('dateFiltering')(firstDay);
+
+
+    var yesterday = new Date();
+
+    var datee = yesterday.setDate(yesterday.getDate() - 1);
+
+    $scope.ToDate = $filter('dateFiltering')(new Date(datee), 'dd-MM-yyyy');
 
 
     $scope.Report = function () {
         try {
-            $scope.fileName = "Audit Report Summary " + $scope.effectiveDate + ".xls";
+            $scope.fileName = "Audit Report Summary " + $scope.effectiveDate + " to  .xls";
 
             $http({
                 method: 'POST',
                 url: 'Attendances/AuditReportSummery/AuditReportSummery',
                 data: {
-                    'workDate': $scope.effectiveDate
+                    'workDate': $scope.effectiveDate, 'ToDate': $scope.ToDate
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

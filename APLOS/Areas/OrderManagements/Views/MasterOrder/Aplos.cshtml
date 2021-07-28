@@ -142,11 +142,11 @@
                                 <label class="col-sm-4 control-label">Buyer Division<sup>*</sup></label>
                                 <div class="col-sm-8">
                                     @*
-                <div class="select-style">
-                                                        <select name="Buyer Division" class="form-control" ng-model="fileNew.BuyerDivisionId" ng-options="item.Value as item.Text for item in divisionList" tabindex="13">
-                                                            <option value=""></option>
-                                                        </select>
-                                                    </div>*@
+                                        <div class="select-style">
+                                                                                <select name="Buyer Division" class="form-control" ng-model="fileNew.BuyerDivisionId" ng-options="item.Value as item.Text for item in divisionList" tabindex="13">
+                                                                                    <option value=""></option>
+                                                                                </select>
+                                                                            </div>*@
                                     <div class="select-style">
                                         <select class="form-control" name="Division" id="Division" ng-model="fileNew.BuyerDivisionId" tabindex="8">
                                             @*<option value="ALL">ALL</option>*@
@@ -435,6 +435,7 @@
                                         <th>Remark</th>
                                         <th>Attachment</th>
                                         <th>Order Status</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -453,25 +454,7 @@
                                             </div>
                                         </td>
                                         <td>
-                                            @*
-                                                <div angucomplete-alt
-                                                                                                 id="autocomplete-{{$index}}"
-                                                                                                 placeholder="Aticle code"
-                                                                                                 pause="300"
-                                                                                                 selected-object="SelectedAutoCompleateGroup"
-                                                                                                 remote-url="OrderManagements/MasterOrder/GetArticleCodeList?aticleCode="
-                                                                                                 remote-url-data-field="results"
-                                                                                                 title-field="ArticleCode"
-                                                                                                 description-field="ArticleName"
-                                                                                                 minlength="1"
-                                                                                                 input-class="form-control form-control-small"
-                                                                                                 style="line-height:26px;"
-                                                                                                 match-class="highlight"
-                                                                                                 input-changed="inputChanged"
-                                                                                                 local-search="localSearch"
-                                                                                                 initial-value="x.ArticleCode"
-                                                                                                 override-suggestions="true">
-                                                                                            </div>*@
+
                                             <div class="input-group">
                                                 <input type="text" name="Customer" ng-model="x.ArticleName" class="form-control" readonly style="width: 80px;">
                                                 <span class="input-group-btn">
@@ -546,8 +529,8 @@
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 @*
-                                                    <li>
-                                                    <button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null">Attribute</button></li>*@
+                <li>
+                <button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null">Attribute</button></li>*@
                                                 <li>
                                                     <button ng-click="AddDescription(x)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Description"><i class="glyphicon glyphicon-th-list"></i></button>
                                                 </li>
@@ -599,18 +582,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            @*<div class="input-group" style="width:150px!important">
-                                                    <button name="submit" ng-click="ShowUploadBox(x,'PRE','OrderPreCostingDirectMaterial')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-paperclip"></i></button>
-
-                                                    <a href="POPResources/OrderCosting/{{x.FileName}}" target="_blank">
-                                                        <span style="color:red;padding:4px;">  </span>
-                                                        <span style="height:20px;width:20px;color:blue;">
-                                                            {{x.FileOriginalName}}
-                                                        </span>
-                                                    </a>
-
-
-                                                </div>*@
                                         </td>
                                         <td>
                                             <div class="select-style">
@@ -618,6 +589,10 @@
                                                     <option value="">--Select--</option>
                                                 </select>
                                             </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <button ng-click="ReportPopUp(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Costing Report">Costing</button>
+
                                         </td>
                                     </tr>
                                     <tr>
@@ -636,13 +611,13 @@
                                         <td class="text-center">
                                             <button ng-click="addNewItem();" ng-disabled="fileNew.Id===null" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add Line Item</button>
                                         </td>
-
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
+
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                     <div class="form-elements form-horizontal" ng-form="modelNewForm">
                         <div class="row" id="mainGrid">
@@ -3336,4 +3311,20 @@
         </div>
     </div>
 
+</ej-dialog>
+<ej-dialog id="CostingPopUp" title="Order Costing" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-close="onDialogClose" e-minwidth="450" e-minheight="80" e-open="enableBtn">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="OrderPreCosting();closePopup('CostingPopUp');" class="btn">Pre Costing</button></li>
+                        <li> <button ng-click="OrderProcurementCosting();closePopup('CostingPopUp');" class="btn">Procurement Costing</button></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </ej-dialog>

@@ -348,7 +348,7 @@ namespace Library.Service.Expenses
                 parameters.CmdText = @" SELECT DISTINCT EB.EmployeeId, EI.EmployeeCode+' - '+EI.EmployeeName AS EmployeeCodeName, EB.EntityId, EB.PlantId, P.UserName AS PartyName, EB.PartyId, EB.PartyPlantId,
 										EB.InvoiceDate, EB.InvoiceNumber, EB.CompanyGroupId, EB.BeneficiaryType,
 										EB.CurrencyId, CU.Code As CurrencyCode, EB.Remarks AS Narration,
-                                        GLGI.AccountCode+' - '+GLGI.UserName AS GLGeneralInfoName,EBD.Id,EBD.ExpenseBookingId,EBD.MaterialMasterId
+                                        GLGI.AccountCode+' - '+GLGI.UserName AS GLGeneralInfoName,EBD.Id,EBD.ExpenseBookingId,EBD.MaterialMasterId,EBD.CostCenterId
 										,EBD.FixedAssetRegisterId, EBD.GLGeneralInfoId, EBD.BudgetMasterId, EBD.ActivityId, EBD.DocRefNo, EBD.DocDate, EBD.Amount, EBD.ApprovalStatus,
                                         B.UserName AS BudgetName, A.UserName AS ActivityName, NULL TrnType, EBD.Id AS ExpenseBookingDetailId,
 										CPC.CurrencyId AS ToCurrencyCode, CPC.CurrencyId AS companyCurrencyId, CU.Code AS companyCurrencyName, CPC.CurrencyId AS ToCurrencyId, 1 ToCurrencyRate, CPC.CurrencyId AS FromCurrencyId
@@ -528,7 +528,7 @@ namespace Library.Service.Expenses
                 var cmdText = @"SELECT DISTINCT EB.EmployeeId, EI.EmployeeCode+' - '+EI.EmployeeName AS EmployeeCodeName, EB.ResponsiblePersonId, EIR.EmployeeName AS ResponsiblePersonName, EB.CurrencyId, EB.EntityId, EB.PlantId
                                 , EBD.GLGeneralInfoId, GLGI.AccountCode+' - '+GLGI.UserName AS GLGeneralInfoName, NULL TrnType, EBD.Id AS ExpenseBookingDetailId, REPLACE(CONVERT(VARCHAR(11), EBD.DocDate, 106), ' ', '-') AS DocDate
                                 , EBD.Id, EBD.ExpenseBookingId, EBD.PartyId, EBD.BudgetMasterId, B.UserName AS BudgetName, EBD.ActivityId, A.UserName AS ActivityName, EBD.ActivityPhoneId, EBD.DocRefNo, EBD.Amount
-                                , EBD.ApprovalStatus, EBD.ApprovalStatusDate, EBD.ActivityType, EBD.IsPosted, EBD.MaterialMasterId, MM.UserName AS FixedAsset, EBD.FixedAssetRegisterId, FAR.SerialNo
+                                , EBD.ApprovalStatus, EBD.ApprovalStatusDate, EBD.ActivityType, EBD.IsPosted, EBD.MaterialMasterId, MM.UserName AS FixedAsset, EBD.FixedAssetRegisterId, FAR.SerialNo,EBD.CostCenterId
                                 FROM [TRN].[ExpenseBookingDetail] AS EBD
                                 LEFT JOIN [TRN].[ExpenseBooking] AS EB ON EB.Id=EBD.ExpenseBookingId
                                 LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=EB.EmployeeId
@@ -1079,6 +1079,7 @@ namespace Library.Service.Expenses
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                             ActivityId = voucherDetailVM.ActivityId,
+                            CostCenterId = voucherDetailVM.CostCenterId,
                             CurrencyId = voucher.CurrencyId,
                             EntityId = voucherVM.EntityId,
                             FiscalYearId = voucher.FiscalYearId,
@@ -1345,6 +1346,15 @@ namespace Library.Service.Expenses
                         WHERE EB.CompanyGroupId='" + companyGroupId + "' AND EB.CompanyId='" + companyId + "' AND EB.PlantId='" + plantId + "' AND EB.Id='" + expensesBookingId + "'";
             return _sqlRepository.GetData(sql);
         }
+
+        public IEnumerable<object> GetCboCostCenterIdByEntity(string entityId)
+        {
+            var sql = @"select DISTINCT CC.UserName Text,ECC.CostCenterId [Value] from [ORG].[EntityCostCenter] ECC 
+                        JOIN ORG.CostCenter CC ON CC.Id=ECC.CostCenterId
+                        WHERE ECC.EntityId='" + entityId + "' ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
 
         public List<Dictionary<string, object>> GetExpenseBookingReportData(string expensesBookingId)
         {

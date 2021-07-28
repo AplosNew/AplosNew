@@ -19,270 +19,6 @@ using System.Web;
 public class clsSalaryProcessAplosArrear
 {
     public static string sessionID { get; set; } = "AppProcess";
-
-
-    void CurrencyRate(ParaSalaryProcess spara, FunctionPara fpara, decimal sFrgCurRate)
-    {
-        try
-        {
-            if (spara.sEntCurID == spara.sDefCurID)
-            {
-                spara.EntCur = spara.DefCur;
-            }
-            else if (spara.sEntCurID != spara.sDefCurID & spara.sEntCurID == fpara.lblLocalCurrencyID.Trim() & spara.sDefCurID == fpara.lblUseFrgCurID.Trim())
-            {
-                spara.EntCur = (spara.DefCur * sFrgCurRate);
-            }
-            else if (spara.sEntCurID != spara.sDefCurID & spara.sDefCurID == fpara.lblLocalCurrencyID.Trim() & spara.sEntCurID == fpara.lblUseFrgCurID.Trim())
-            {
-                spara.EntCur = (spara.DefCur / sFrgCurRate);
-            }
-            spara.DisbCur = spara.DefCur;
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-    }
-    void EarlyOutForAttendanceBonus(string emppk, DataSet dsEarlyOut, bool IsEarlyOutApplicable, int EarlyOutMarginValue, ref bool IsAttdnBnsPamy)
-    {
-        try
-        {
-            //bool IsEarlyOutApplicable = false;//from policy
-            //int PolicyEarlyOut = 2;//from policy
-            //int EarlyOut = 0;
-            if (IsEarlyOutApplicable)//&& EarlyOut > PolicyEarlyOut
-            {
-                DataView dvEO = new DataView(dsEarlyOut.Tables[0]);
-                dvEO.RowFilter = "EmpSystemId='" + emppk + "'";
-                if (dvEO.Count > 0)
-                {
-                    string _EO = dvEO[0]["c"].ToString();
-                    if (string.IsNullOrEmpty(_EO) == false)
-                    {
-                        int eo = Convert.ToInt32(_EO);
-                        if (eo > EarlyOutMarginValue)
-                        {
-                            IsAttdnBnsPamy = false;
-                        }
-                    }
-                }
-                IsAttdnBnsPamy = false;
-            }
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-    }
-    void CurrencyConvert(ParaSalaryProcess spPara, FunctionPara para, decimal sFrgCurRate, string sTotalEarningCrnID, out decimal decTotalErnDedAmt)
-    {
-        decimal decTotalErnDedAmtDefinitionRate = 0;
-        try
-        {
-            decTotalErnDedAmt = 0;
-            decTotalErnDedAmt = spPara.DisbCur;
-            if (sTotalEarningCrnID == spPara.sDefCurID)
-            {
-                decTotalErnDedAmtDefinitionRate = sFrgCurRate;
-            }
-            else
-            {
-                decTotalErnDedAmtDefinitionRate = Convert.ToDecimal(para.txtForeignCurRate);
-            }
-
-            if (spPara.sDefCurID == para.lblUseFrgCurID.Trim() & sTotalEarningCrnID == para.lblLocalCurrencyID.Trim())
-            {//Local Currency
-                //decTmpTotalErnDedAmt = (decTotalErnDedAmt * sFrgCurRate);
-                decTotalErnDedAmt = (decTotalErnDedAmt * decTotalErnDedAmtDefinitionRate);
-            }
-            else if (sTotalEarningCrnID == para.lblUseFrgCurID.Trim() & spPara.sDefCurID == para.lblLocalCurrencyID.Trim())
-            {//Frg Currency
-                //decTmpTotalErnDedAmt = (decTotalErnDedAmt / sFrgCurRate);
-                decTotalErnDedAmt = (decTotalErnDedAmt / decTotalErnDedAmtDefinitionRate);
-            }
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-    }
-    bool IsAttendanceBonusBEligible(DataRow dr, DateTime fstDT, DateTime lstDT, bool IsMLVReturn, bool IsMLVGoing)
-    {
-        try
-        {
-            bool IsAttendnBonus = true;
-            if (!string.IsNullOrEmpty(dr["DOJ"].ToString().Trim()))
-            {
-                DateTime DOJ = Convert.ToDateTime(dr["DOJ"].ToString().Trim());
-                if (DOJ > fstDT)
-                {
-                    IsAttendnBonus = false;
-                }
-            }
-            if (!string.IsNullOrEmpty(dr["DOS"].ToString().Trim()))
-            {
-                DateTime DOS = Convert.ToDateTime(dr["DOS"].ToString().Trim());
-                if (DOS < lstDT)
-                {
-                    IsAttendnBonus = false;
-                }
-            }
-
-            if (IsMLVReturn)
-            {
-                DateTime DateReturn = Convert.ToDateTime(dr["ToDate"].ToString().Trim()).AddDays(1);
-                if (DateReturn > fstDT)
-                {
-                    IsAttendnBonus = false;
-                }
-            }
-
-            if (IsMLVGoing)
-            {
-                DateTime DateGoing = Convert.ToDateTime(dr["FromDate"].ToString().Trim()).AddDays(-1);
-                if (DateGoing < lstDT)
-                {
-                    IsAttendnBonus = false;
-                }
-            }
-
-            return IsAttendnBonus;
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-    }
-
-    void RoundOptionHeadWise(dicAttdnBns dicObj, decimal decTotalErnDedAmt, ParaSalaryProcess sp_para, ref decimal decTotalEarningAmt, ref decimal decTotalDeductionAmt)
-    {
-        string sOutValue = "0";
-        clsSalaryUtility obSS = null;
-        try
-        {
-            obSS = new global::clsSalaryUtility();
-
-            sOutValue = "0";
-            obSS.FractionCalculation(dicObj.RoundOption, dicObj.IntegerInDisb, dicObj.IsDecimalInDisb, dicObj.DecimalNo, sp_para.EntCur.ToString(), out sOutValue);
-            sp_para.EntCur = Convert.ToDecimal(sOutValue);
-
-            sOutValue = "0";
-            obSS.FractionCalculation(dicObj.RoundOption, dicObj.IntegerInDisb, dicObj.IsDecimalInDisb, dicObj.DecimalNo, sp_para.DefCur.ToString(), out sOutValue);
-            sp_para.DefCur = Convert.ToDecimal(sOutValue);
-
-            sOutValue = "0";
-            obSS.FractionCalculation(dicObj.RoundOption, dicObj.IntegerInDisb, dicObj.IsDecimalInDisb, dicObj.DecimalNo, sp_para.DisbCur.ToString(), out sOutValue);
-            sp_para.DisbCur = Convert.ToDecimal(sOutValue);
-
-            if (dicObj.HeadType == "E")
-            {
-                decTotalEarningAmt += decTotalErnDedAmt;
-            }
-            else if (dicObj.HeadType == "D")
-            {
-                if (sp_para.DisbCur > 0)
-                {
-                    sp_para.DisbCur = (sp_para.DisbCur * (-1));
-                }
-                if (sp_para.AcltExcDisbSlrHDAmt > 0)
-                {
-                    sp_para.AcltExcDisbSlrHDAmt = (sp_para.AcltExcDisbSlrHDAmt * (-1));
-                }
-                decTotalDeductionAmt -= (decTotalErnDedAmt * (-1));
-            }
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-    }
-    ParaSalaryProcess SetValue(string empSeedDB, int EmpSeed, int SalaryHeadSeed, string sEmployeeSysID, string sSalaryID, string sPlantID, string sSlrRulMstSysID, string sSlrHD, string sEntCurID
-        , ref decimal EntCur, string sDefCurID, ref decimal DefCur, string sDisbCurID, decimal DisbCur, string sAcltExcDisbSlrHDID, decimal AcltExcDisbSlrHDAmt, bool IsNetPayEffect)
-    {
-        try
-        {
-            if (string.IsNullOrEmpty(sEmployeeSysID))
-            {
-                throw new Exception("Emp is missing [Salary Head]" + sSlrHD);
-            }
-            if (string.IsNullOrEmpty(sSlrHD))
-            {
-                throw new Exception("Salary Head is missing [Emp]" + sEmployeeSysID);
-            }
-            if (string.IsNullOrEmpty(sSalaryID))
-            {
-                throw new Exception("Salary Structure is missing [Emp]" + sEmployeeSysID);
-            }
-            if (string.IsNullOrEmpty(sSlrRulMstSysID))
-            {
-                throw new Exception("Salary Rule is missing [Emp]" + sEmployeeSysID);
-            }
-            if (string.IsNullOrEmpty(sPlantID))
-            {
-                throw new Exception("Plant is missing [Emp]" + sEmployeeSysID);
-            }
-
-            if (sSlrHD == "SHD202056")
-            {
-
-            }
-
-            //if(DisbCur==0)
-            //{
-            //    EntCur = 0;
-            //    DefCur = 0;
-            //}
-
-            ParaSalaryProcess ob_sp = new ParaSalaryProcess();
-            ob_sp.AcltExcDisbSlrHDAmt = AcltExcDisbSlrHDAmt;
-            ob_sp.PK = empSeedDB + "_" + EmpSeed + "_" + SalaryHeadSeed;
-            ob_sp.DefCur = DefCur;
-            ob_sp.DisbCur = DisbCur;
-            ob_sp.EmpSystemID = sEmployeeSysID;
-            ob_sp.EntCur = EntCur;
-            ob_sp.IsNetPayEffect = IsNetPayEffect;
-            ob_sp.sAcltExcDisbSlrHDID = sAcltExcDisbSlrHDID;
-            ob_sp.sDefCurID = sDefCurID;
-            ob_sp.sDisbCurID = sDisbCurID;
-            ob_sp.sEntCurID = sEntCurID;
-            ob_sp.sPlantID = sPlantID;
-            ob_sp.sSalaryID = sSalaryID;
-            ob_sp.sSlrHD = sSlrHD;
-            ob_sp.sSlrRulMstSysID = sSlrRulMstSysID;
-            return ob_sp;
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-    }
-
-    decimal GetMaxMinValue(bool isFixed, int Limit, string SalaryHeadId, string sEmployeeSysID, List<SPvalueHeadWise> dtValue)
-    {
-        decimal _result = 0;
-        try
-        {
-            if (isFixed)
-            {
-                _result = Limit;
-            }
-            else//%
-            {
-                var dtv = dtValue.FindAll(x => x.SalaryHeadID == SalaryHeadId && x.EmpSystemID == sEmployeeSysID);
-                if (dtv.Count > 0)
-                {
-                    decimal decAmount = Convert.ToDecimal(Convert.ToDecimal(dtv[0].EarningAmount).ToString("0.00"));
-                    _result = decAmount * Limit / 100;
-                }
-            }
-            return _result;
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-    }
     public FunctionPara SalaryProcess(FunctionPara para, string BatchNo, string ArrearFromDate, string ArrearToDate)
     {
         #region Variable Dataset
@@ -402,52 +138,7 @@ public class clsSalaryProcessAplosArrear
         DataView dvMonWiExtAmtFil = null;
         DataView dvSPChdFil = null;
 
-        //DataSet dsTaxDeducMonth = null;
-        //DataRow drTaxDeducMonth = null;
-        //DataView dvTaxDeducMonth = null;
-        //DataTable dtTaxDeducMonth = null;
 
-        //DataSet dsTaxDefinMast = null;
-        //DataRow drTaxDefinMast = null;
-        //DataView dvTaxDefinMast = null;
-        //DataTable dtTaxDefinMast = null;
-
-        //DataSet dsTaxDefinMastAft = null;
-        //DataRow drTaxDefinMastAft = null;
-        //DataView dvTaxDefinMastAft = null;
-        //DataTable dtTaxDefinMastAft = null;
-
-        //DataSet dsTaxDefinMastCRC = null;
-        //DataRow drTaxDefinMastCRC = null;
-        //DataView dvTaxDefinMastCRC = null;
-        //DataTable dtTaxDefinMastCRC = null;
-
-        //DataSet dsTaxSHCRC = null;
-        //DataRow drTaxSHCRC = null;
-        //DataView dvTaxSHCRC = null;
-        //DataTable dtTaxSHCRC = null;
-
-        //DataSet dsTaxDeducMonthCRC = null;
-        //DataRow drTaxDeducMonthCRC = null;
-        //DataView dvTaxDeducMonthCRC = null;
-        //DataTable dtTaxDeducMonthCRC = null;
-
-        //DataView dvTaxDeducMonthCRCFill = null;
-
-        //DataSet dsTaxDeducYearCRC = null;
-        //DataRow drTaxDeducYearCRC = null;
-        //DataView dvTaxDeducYearCRC = null;
-        //DataTable dtTaxDeducYearCRC = null;
-
-        //DataSet dsTaxPolicyMast = null;
-        //DataSet dsTaxPolicyGen = null;
-        //DataSet dsTaxSlab = null;
-        //DataSet dsTaxYearPeriod = null;
-
-        //DataTable dtTaxSHCRCYearlyIncome = null;
-        //DataView dvTaxSHCRCYearlyIncome = null;
-        //DataSet dsSalaryHeadToExclude = null;
-        //DataView dvSalaryHeadToExclude = null;
 
         clsSalaryProc objSlrProc = null;
         clsStaticInfo objStatic = null;
@@ -2959,10 +2650,11 @@ public class clsSalaryProcessAplosArrear
                                                     decOTPmtAmt = decOTPmtAmt * decOTHour;
                                                     _total_ot += decOTPmtAmt;
                                                 }//
-                                            }//dicOTPol_Sub
+                                            }
 
-                                            //DefCur = decOTPmtAmt; 
-                                            DefCur = _total_ot;
+                                            //I have intentionally set otvalue=0;(because it was necessary) if you have problem with that, please feel free NOT to contact me :)
+                                            //Half Blood Prince
+                                            DefCur = 0;// _total_ot;
 
                                             if (sEntCurID == sDefCurID)
                                             {
@@ -3415,8 +3107,6 @@ public class clsSalaryProcessAplosArrear
                                         }
 
                                         #endregion Salary Value Uploaded Daily
-
-
 
                                         #region Salary Proc Attendence Summary
 
@@ -4276,8 +3966,7 @@ public class clsSalaryProcessAplosArrear
                             ///TG CTC NETPAY                            
                             GetNotionalFormula(dsSelectedEmp, para, dicLocal, dicProcChild, dtValue, dicSalaryHead);
                             GetDS(dicProcChild, out dsSPChd);
-                            //objSlrProc.SaveDataSetsForSalaryProcess(dsSPChd, dsRetenAllow, dsSPAttdnProc);
-                            ///BCP201013
+
                             SendNotification("Saving Data", para.FromDate, TotProcComp, TotSelectEmpForProc);
 
                             OTSBD.clsStaticInfo _save = new clsStaticInfo();
@@ -4285,25 +3974,15 @@ public class clsSalaryProcessAplosArrear
                             _save.SaveDataSets(dsSPChd);//this is new line
                             dsSPChd.Tables[0].DefaultView.RowFilter = null;
 
+
                             SendNotification("Transporting Processed Salary", para.FromDate, TotProcComp, TotSelectEmpForProc);
-                            string SalaryProcessMasterId = "";
-                            if (dsSPChd.Tables[0].DefaultView.Count > 0)
-                                SalaryProcessMasterId = dsSPChd.Tables[0].DefaultView[0]["SlrProcMstSystemID"].ToString();
-                            ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
-                            connection.BeginTransaction();
-                            connection.executeQuery(@"INSERT INTO ArrearProcChild
-                                                        (
-	                                                        SystemID,SlrProcMstSystemID, EmpInfoSystemID,SalaryID,GroupID,PlantID,PayAbleShSystemID,SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID,DefineAmount, DisbusmentCurrencyID,
-	                                                        DisbusmentAmount,AcltExcDisbSlrHDID, AcltExcDisbSlrHDAmt,IsNetPayEffect,IsApproved,IsDisbursed, AddedBy,DateAdded, UpdatedBy,DateUpdated
-                                                        )
-                                                        SELECT 
-	                                                        SystemID, SlrProcMstSystemID, EmpInfoSystemID,SalaryID, GroupID, PlantID,  PayAbleShSystemID,  SalaryHeadID,EntryCurrencyID, isnull(EntryAmount,0), DefineCurrencyID, isnull(DefineAmount,0), DisbusmentCurrencyID,
-                                                            isnull(DisbusmentAmount,0),  AcltExcDisbSlrHDID, isnull(AcltExcDisbSlrHDAmt,0),isnull(IsNetPayEffect,0), isnull(IsApproved,0),  ISNULL(IsDisbursed,0), AddedBy, DateAdded, UpdatedBy, DateUpdated
-                                                        FROM ArrearProcChildTemp WHERE SlrProcMstSystemID='" + SalaryProcessMasterId + @"'");
+                            FinalizingProcess(para, dsSPChd);
+
+                            SendNotification("Calculating Arrear Differences", para.FromDate, TotProcComp, TotSelectEmpForProc);
+                            FinalizingProcessUpdateArrearDifferences(BatchNo, para.FromDate, dsSelectedEmp.Tables[0], sEmpSysIDColl, dicLocal);
 
 
-                            connection.executeQuery(@"DELETE FROM ArrearProcChildTemp WHERE SlrProcMstSystemID='" + SalaryProcessMasterId + @"'");
-                            connection.CommitTransaction();
+
 
                             SendNotification("Processing Bank Cash Percentages", para.FromDate, TotProcComp, TotSelectEmpForProc);
                             ProcessBankCashPercentage(dsSPChd, dtValue, dicSalaryHead, para);
@@ -4340,24 +4019,23 @@ public class clsSalaryProcessAplosArrear
 
 
 
+
+            //SendNotification("Calculating Arrear Summary", para.FromDate, TotProcComp, TotSelectEmpForProc);
+            //FinalizingProcessUpdateArrearSummary(BatchNo, para.FromDate, sEmpSysIDColl);
+
             para.lblEmpCount = "No. of Employee Salary Process:- " + TotalEmpProcess.ToString();
-            //sendMessage("No. of Employee Salary Process:- " + TotalEmpProcess.ToString());
             if (strAbstractEmp != "")
             {
                 para.ShowLog = "Process sucessfully Completed... " + strAbstractEmp;
                 SendNotification(para.ShowLog, para.FromDate);
-                //sendMessage("Processed sucessfully Completed... " + strAbstractEmp);
             }
             else
             {
-                //sendMessage("Processed sucessfully Completed... ");
                 para.ShowLog = "Processed sucessfully Completed... ";
                 SendNotification(para.ShowLog, para.FromDate);
 
             }
             return para;
-            //displayMsgs("Processed Successfully Completed...!!!!", "Ok", "Save");
-            //Session["VERIFICATION_STATE"] = 1;
         }
         catch (Exception ex)
         {
@@ -4372,6 +4050,447 @@ public class clsSalaryProcessAplosArrear
             objSlrProc = null;
         }
     }//End Function
+
+
+    void CurrencyRate(ParaSalaryProcess spara, FunctionPara fpara, decimal sFrgCurRate)
+    {
+        try
+        {
+            if (spara.sEntCurID == spara.sDefCurID)
+            {
+                spara.EntCur = spara.DefCur;
+            }
+            else if (spara.sEntCurID != spara.sDefCurID & spara.sEntCurID == fpara.lblLocalCurrencyID.Trim() & spara.sDefCurID == fpara.lblUseFrgCurID.Trim())
+            {
+                spara.EntCur = (spara.DefCur * sFrgCurRate);
+            }
+            else if (spara.sEntCurID != spara.sDefCurID & spara.sDefCurID == fpara.lblLocalCurrencyID.Trim() & spara.sEntCurID == fpara.lblUseFrgCurID.Trim())
+            {
+                spara.EntCur = (spara.DefCur / sFrgCurRate);
+            }
+            spara.DisbCur = spara.DefCur;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+    void EarlyOutForAttendanceBonus(string emppk, DataSet dsEarlyOut, bool IsEarlyOutApplicable, int EarlyOutMarginValue, ref bool IsAttdnBnsPamy)
+    {
+        try
+        {
+            //bool IsEarlyOutApplicable = false;//from policy
+            //int PolicyEarlyOut = 2;//from policy
+            //int EarlyOut = 0;
+            if (IsEarlyOutApplicable)//&& EarlyOut > PolicyEarlyOut
+            {
+                DataView dvEO = new DataView(dsEarlyOut.Tables[0]);
+                dvEO.RowFilter = "EmpSystemId='" + emppk + "'";
+                if (dvEO.Count > 0)
+                {
+                    string _EO = dvEO[0]["c"].ToString();
+                    if (string.IsNullOrEmpty(_EO) == false)
+                    {
+                        int eo = Convert.ToInt32(_EO);
+                        if (eo > EarlyOutMarginValue)
+                        {
+                            IsAttdnBnsPamy = false;
+                        }
+                    }
+                }
+                IsAttdnBnsPamy = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+    void CurrencyConvert(ParaSalaryProcess spPara, FunctionPara para, decimal sFrgCurRate, string sTotalEarningCrnID, out decimal decTotalErnDedAmt)
+    {
+        decimal decTotalErnDedAmtDefinitionRate = 0;
+        try
+        {
+            decTotalErnDedAmt = 0;
+            decTotalErnDedAmt = spPara.DisbCur;
+            if (sTotalEarningCrnID == spPara.sDefCurID)
+            {
+                decTotalErnDedAmtDefinitionRate = sFrgCurRate;
+            }
+            else
+            {
+                decTotalErnDedAmtDefinitionRate = Convert.ToDecimal(para.txtForeignCurRate);
+            }
+
+            if (spPara.sDefCurID == para.lblUseFrgCurID.Trim() & sTotalEarningCrnID == para.lblLocalCurrencyID.Trim())
+            {//Local Currency
+                //decTmpTotalErnDedAmt = (decTotalErnDedAmt * sFrgCurRate);
+                decTotalErnDedAmt = (decTotalErnDedAmt * decTotalErnDedAmtDefinitionRate);
+            }
+            else if (sTotalEarningCrnID == para.lblUseFrgCurID.Trim() & spPara.sDefCurID == para.lblLocalCurrencyID.Trim())
+            {//Frg Currency
+                //decTmpTotalErnDedAmt = (decTotalErnDedAmt / sFrgCurRate);
+                decTotalErnDedAmt = (decTotalErnDedAmt / decTotalErnDedAmtDefinitionRate);
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+    bool IsAttendanceBonusBEligible(DataRow dr, DateTime fstDT, DateTime lstDT, bool IsMLVReturn, bool IsMLVGoing)
+    {
+        try
+        {
+            bool IsAttendnBonus = true;
+            if (!string.IsNullOrEmpty(dr["DOJ"].ToString().Trim()))
+            {
+                DateTime DOJ = Convert.ToDateTime(dr["DOJ"].ToString().Trim());
+                if (DOJ > fstDT)
+                {
+                    IsAttendnBonus = false;
+                }
+            }
+            if (!string.IsNullOrEmpty(dr["DOS"].ToString().Trim()))
+            {
+                DateTime DOS = Convert.ToDateTime(dr["DOS"].ToString().Trim());
+                if (DOS < lstDT)
+                {
+                    IsAttendnBonus = false;
+                }
+            }
+
+            if (IsMLVReturn)
+            {
+                DateTime DateReturn = Convert.ToDateTime(dr["ToDate"].ToString().Trim()).AddDays(1);
+                if (DateReturn > fstDT)
+                {
+                    IsAttendnBonus = false;
+                }
+            }
+
+            if (IsMLVGoing)
+            {
+                DateTime DateGoing = Convert.ToDateTime(dr["FromDate"].ToString().Trim()).AddDays(-1);
+                if (DateGoing < lstDT)
+                {
+                    IsAttendnBonus = false;
+                }
+            }
+
+            return IsAttendnBonus;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    void RoundOptionHeadWise(dicAttdnBns dicObj, decimal decTotalErnDedAmt, ParaSalaryProcess sp_para, ref decimal decTotalEarningAmt, ref decimal decTotalDeductionAmt)
+    {
+        string sOutValue = "0";
+        clsSalaryUtility obSS = null;
+        try
+        {
+            obSS = new global::clsSalaryUtility();
+
+            sOutValue = "0";
+            obSS.FractionCalculation(dicObj.RoundOption, dicObj.IntegerInDisb, dicObj.IsDecimalInDisb, dicObj.DecimalNo, sp_para.EntCur.ToString(), out sOutValue);
+            sp_para.EntCur = Convert.ToDecimal(sOutValue);
+
+            sOutValue = "0";
+            obSS.FractionCalculation(dicObj.RoundOption, dicObj.IntegerInDisb, dicObj.IsDecimalInDisb, dicObj.DecimalNo, sp_para.DefCur.ToString(), out sOutValue);
+            sp_para.DefCur = Convert.ToDecimal(sOutValue);
+
+            sOutValue = "0";
+            obSS.FractionCalculation(dicObj.RoundOption, dicObj.IntegerInDisb, dicObj.IsDecimalInDisb, dicObj.DecimalNo, sp_para.DisbCur.ToString(), out sOutValue);
+            sp_para.DisbCur = Convert.ToDecimal(sOutValue);
+
+            if (dicObj.HeadType == "E")
+            {
+                decTotalEarningAmt += decTotalErnDedAmt;
+            }
+            else if (dicObj.HeadType == "D")
+            {
+                if (sp_para.DisbCur > 0)
+                {
+                    sp_para.DisbCur = (sp_para.DisbCur * (-1));
+                }
+                if (sp_para.AcltExcDisbSlrHDAmt > 0)
+                {
+                    sp_para.AcltExcDisbSlrHDAmt = (sp_para.AcltExcDisbSlrHDAmt * (-1));
+                }
+                decTotalDeductionAmt -= (decTotalErnDedAmt * (-1));
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+    ParaSalaryProcess SetValue(string empSeedDB, int EmpSeed, int SalaryHeadSeed, string sEmployeeSysID, string sSalaryID, string sPlantID, string sSlrRulMstSysID, string sSlrHD, string sEntCurID
+        , ref decimal EntCur, string sDefCurID, ref decimal DefCur, string sDisbCurID, decimal DisbCur, string sAcltExcDisbSlrHDID, decimal AcltExcDisbSlrHDAmt, bool IsNetPayEffect)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(sEmployeeSysID))
+            {
+                throw new Exception("Emp is missing [Salary Head]" + sSlrHD);
+            }
+            if (string.IsNullOrEmpty(sSlrHD))
+            {
+                throw new Exception("Salary Head is missing [Emp]" + sEmployeeSysID);
+            }
+            if (string.IsNullOrEmpty(sSalaryID))
+            {
+                throw new Exception("Salary Structure is missing [Emp]" + sEmployeeSysID);
+            }
+            if (string.IsNullOrEmpty(sSlrRulMstSysID))
+            {
+                throw new Exception("Salary Rule is missing [Emp]" + sEmployeeSysID);
+            }
+            if (string.IsNullOrEmpty(sPlantID))
+            {
+                throw new Exception("Plant is missing [Emp]" + sEmployeeSysID);
+            }
+
+            if (sSlrHD == "SHD202056")
+            {
+
+            }
+
+            //if(DisbCur==0)
+            //{
+            //    EntCur = 0;
+            //    DefCur = 0;
+            //}
+
+            ParaSalaryProcess ob_sp = new ParaSalaryProcess();
+            ob_sp.AcltExcDisbSlrHDAmt = AcltExcDisbSlrHDAmt;
+            ob_sp.PK = empSeedDB + "_" + EmpSeed + "_" + SalaryHeadSeed;
+            ob_sp.DefCur = DefCur;
+            ob_sp.DisbCur = DisbCur;
+            ob_sp.EmpSystemID = sEmployeeSysID;
+            ob_sp.EntCur = EntCur;
+            ob_sp.IsNetPayEffect = IsNetPayEffect;
+            ob_sp.sAcltExcDisbSlrHDID = sAcltExcDisbSlrHDID;
+            ob_sp.sDefCurID = sDefCurID;
+            ob_sp.sDisbCurID = sDisbCurID;
+            ob_sp.sEntCurID = sEntCurID;
+            ob_sp.sPlantID = sPlantID;
+            ob_sp.sSalaryID = sSalaryID;
+            ob_sp.sSlrHD = sSlrHD;
+            ob_sp.sSlrRulMstSysID = sSlrRulMstSysID;
+            return ob_sp;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    decimal GetMaxMinValue(bool isFixed, int Limit, string SalaryHeadId, string sEmployeeSysID, List<SPvalueHeadWise> dtValue)
+    {
+        decimal _result = 0;
+        try
+        {
+            if (isFixed)
+            {
+                _result = Limit;
+            }
+            else//%
+            {
+                var dtv = dtValue.FindAll(x => x.SalaryHeadID == SalaryHeadId && x.EmpSystemID == sEmployeeSysID);
+                if (dtv.Count > 0)
+                {
+                    decimal decAmount = Convert.ToDecimal(Convert.ToDecimal(dtv[0].EarningAmount).ToString("0.00"));
+                    _result = decAmount * Limit / 100;
+                }
+            }
+            return _result;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+    private void FinalizingProcess(FunctionPara para, DataSet dsSPChd)
+    {
+        try
+        {
+
+            string SalaryProcessMasterId = "";
+            if (dsSPChd.Tables[0].DefaultView.Count > 0)
+                SalaryProcessMasterId = dsSPChd.Tables[0].DefaultView[0]["SlrProcMstSystemID"].ToString();
+            ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+            connection.BeginTransaction();
+            connection.executeQuery(@"INSERT INTO ArrearProcChild
+                                                        (
+	                                                        SystemID,SlrProcMstSystemID, EmpInfoSystemID,SalaryID,GroupID,PlantID,PayAbleShSystemID,SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID,DefineAmount, DisbusmentCurrencyID,
+	                                                        DisbusmentAmount,AcltExcDisbSlrHDID, AcltExcDisbSlrHDAmt,IsNetPayEffect,IsApproved,IsDisbursed, AddedBy,DateAdded, UpdatedBy,DateUpdated
+                                                        )
+                                                        SELECT 
+	                                                        SystemID, SlrProcMstSystemID, EmpInfoSystemID,SalaryID, GroupID, PlantID,  PayAbleShSystemID,  SalaryHeadID,EntryCurrencyID, isnull(EntryAmount,0), DefineCurrencyID, isnull(DefineAmount,0), DisbusmentCurrencyID,
+                                                            isnull(DisbusmentAmount,0),  AcltExcDisbSlrHDID, isnull(AcltExcDisbSlrHDAmt,0),isnull(IsNetPayEffect,0), isnull(IsApproved,0),  ISNULL(IsDisbursed,0), AddedBy, DateAdded, UpdatedBy, DateUpdated
+                                                        FROM ArrearProcChildTemp WHERE SlrProcMstSystemID='" + SalaryProcessMasterId + @"'");
+
+
+            connection.executeQuery(@"DELETE FROM ArrearProcChildTemp WHERE SlrProcMstSystemID='" + SalaryProcessMasterId + @"'");
+            connection.CommitTransaction();
+
+        }
+        catch (Exception ex)
+        {
+
+            throw (ex);
+        }
+
+
+    }
+    private void FinalizingProcessUpdateArrearDifferences(string BatchNo, string FromDate, DataTable dtAllEmployee, string EmployeeSystemIds, Dictionary<string, List<dicLocal>> AllSalaryHeads)
+    {
+        try
+        {
+            ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+            connection.BeginTransaction();
+
+            connection.executeQuery(@"UPDATE ArrearProcChild SET Diff=CASE WHEN sh.HeadType='E' THEN 
+			                                                                    CASE WHEN ISNULL(ac.DisbusmentAmount,0)-ISNULL(sal.DisbusmentAmount,0)>0 
+			                                                                    THEN ISNULL(ac.DisbusmentAmount,0)-ISNULL(sal.DisbusmentAmount,0) ELSE 0 END
+	
+	                                                                  ELSE			
+			                                                                  CASE WHEN ISNULL(ac.DisbusmentAmount,0)-ISNULL(sal.DisbusmentAmount,0)<0 
+			                                                                  THEN ISNULL(ac.DisbusmentAmount,0)-ISNULL(sal.DisbusmentAmount,0) ELSE 0 END
+	
+	                                                                  END
+
+
+                                        FROM ArrearProcChild AS AC
+                                        JOIN SalaryHead AS sh ON sh.SalaryHeadID=ac.SalaryHeadID
+                                        JOIN  ArrearProcMaster AS AM ON am.SystemID=ac.SlrProcMstSystemID
+
+                                        LEFT JOIN (SELECT spc.EmpInfoSystemID, spc.SalaryHeadID,spm.MonthNo, spm.YearNo,spc.EntryAmount, spc.DefineAmount, spc.DisbusmentAmount
+
+                                          FROM SalaryProcChild AS spc
+                                        JOIN SalaryProcMaster AS spm ON spc.SlrProcMstSystemID=spm.SystemID
+                                        ) AS SAL ON SAL.EmpInfoSystemID=ac.EmpInfoSystemID AND sal.MonthNo=am.MonthNo AND sal.YearNo=AM.YearNo AND sal.SalaryHeadID=ac.SalaryHeadID
+                    WHERE am.ArrearProcessBatchId = '" + BatchNo + @"' AND ac.EmpInfoSystemID IN (" + EmployeeSystemIds + @")  AND AM.YearNo=YEAR('" + FromDate + @"') AND AM.MonthNo=MONTH('" + FromDate + @"')
+                    ");
+
+
+            connection.CommitTransaction();
+
+
+
+            //all salary diff heads
+            string _sql = @"SELECT A.EmpInfoSystemID+'-'+A.SalaryHeadID AS KeyParam, A.EmpInfoSystemID,A.SalaryHeadID,A.Diff FROM ArrearProcChild AS A
+                                                JOIN ArrearProcMaster AS M ON m.SystemID=a.SlrProcMstSystemID
+
+                                               WHERE M.ArrearProcessBatchId='" + BatchNo + @"' AND M.YearNo=YEAR('" + FromDate + @"') AND M.MonthNo=MONTH('" + FromDate + @"')
+                                               AND A.EmpInfoSystemID IN (" + EmployeeSystemIds + @")";
+
+            connection = new ConnectionManager.clsConnection();
+            connection.BeginTransaction();
+            connection.getDataSet(_sql, out DataSet dsAllArrearHeads);
+            connection.CommitTransaction();
+            Dictionary<string, DataRow> EmployeeWiseDiffHeads = new Dictionary<string, DataRow>();
+            for (int i = 0; i < dsAllArrearHeads.Tables[0].Rows.Count; i++)
+            {
+                EmployeeWiseDiffHeads.Add(dsAllArrearHeads.Tables[0].Rows[i]["KeyParam"].ToString(), dsAllArrearHeads.Tables[0].Rows[i]);
+            }
+
+            for (int EMP = 0; EMP < dtAllEmployee.Rows.Count; EMP++)
+            {
+
+
+                //get formula for Net Payable
+                string EmployeeSystemId = dtAllEmployee.Rows[EMP]["EmpSystemId"].ToString();
+                List<dicLocal> AllHeads = AllSalaryHeads[EmployeeSystemId];
+                dicLocal netpayhead = AllHeads.Where(ee => clsStaticInfo.nullrecorder(ee.HeadCategory).ToUpper() == "NET PAYABLE").FirstOrDefault();
+                string[] NetPayableFormula = (netpayhead.FormulaDesID + " ").Split(' ');
+                string Formula = "";
+                for (int i = 0; i < NetPayableFormula.Length; i++)
+                {
+                    string strTemp = NetPayableFormula[i].ToString().Trim();
+                    if (strTemp.Trim() == "" || strTemp.Trim() == "+" || strTemp.Trim() == "-" || strTemp.Trim() == "*" || strTemp.Trim() == "/" || strTemp.Trim() == ">" || strTemp.Trim() == "<" || strTemp.Trim() == "(" || strTemp.Trim() == ")")
+                    {
+                        Formula += " " + strTemp;
+                        continue;
+                    }
+
+                    string Key = EmployeeSystemId + "-" + strTemp;
+                    string DiffAmount = "0.00";
+                    if (EmployeeWiseDiffHeads.ContainsKey(Key))
+                        DiffAmount = EmployeeWiseDiffHeads[Key]["Diff"].ToString();
+
+                    NetPayableFormula[i] = Math.Abs(clsStaticInfo.dbl(DiffAmount)).ToString();
+
+
+                    Formula += " " + NetPayableFormula[i];
+                }
+
+
+                double TotalNetPayable = clsStaticInfo.dbl(clsSalaryUtility.Evaluate(Formula.Trim()));
+                if (TotalNetPayable < 0)
+                    TotalNetPayable = 0;
+
+                connection = new ConnectionManager.clsConnection();
+                connection.BeginTransaction();
+
+                connection.executeQuery(@"UPDATE ArrearProcChild SET Diff=" + TotalNetPayable + @"
+
+                                        FROM ArrearProcChild AS AC
+                                        JOIN SalaryHead AS sh ON sh.SalaryHeadID=ac.SalaryHeadID
+                                        JOIN  ArrearProcMaster AS AM ON am.SystemID=ac.SlrProcMstSystemID
+
+                    WHERE sh.HeadCategory='Net Payable' AND am.ArrearProcessBatchId = '" + BatchNo + @"' AND ac.EmpInfoSystemID='" + EmployeeSystemId + @"'  AND AM.YearNo=YEAR('" + FromDate + @"') AND AM.MonthNo=MONTH('" + FromDate + @"')
+                    ");
+
+
+                connection.CommitTransaction();
+
+            }
+
+            connection = new ConnectionManager.clsConnection();
+            connection.BeginTransaction();
+            connection.executeQuery(@"INSERT INTO ArrearSummaryMonthWise(
+                                     ArrearProcessBatchId,MonthNo,YearNo,EmployeeSystemId,TotalSalary,TotalArrear,Diff,AddedBy,DateAdded,UpdatedBy,DateUpdated
+                                )
+
+                                    SELECT am.ArrearProcessBatchId,am.MonthNo, am.YearNo,ei.SystemId,
+                                    SUM(SAL.DisbusmentAmount) AS TotalSalary,
+                                    SUM(ac.DisbusmentAmount) AS TotalArrear,
+                                    SUM(AC.Diff) Diff,'ArrearProcess',GETDATE(),'ArrearProcess',GETDATE()
+
+
+                                    FROM ArrearProcMaster AS AM
+                                    JOIN ArrearProcChild AS AC ON am.SystemID=ac.SlrProcMstSystemID
+                                    LEFT JOIN (SELECT spc.EmpInfoSystemID, spc.SalaryHeadID,spm.MonthNo, spm.YearNo,spc.EntryAmount, spc.DefineAmount, spc.DisbusmentAmount
+
+                                      FROM SalaryProcChild AS spc
+                                    JOIN SalaryProcMaster AS spm ON spc.SlrProcMstSystemID=spm.SystemID
+                                    ) AS SAL ON SAL.EmpInfoSystemID=ac.EmpInfoSystemID AND sal.MonthNo=am.MonthNo AND sal.YearNo=AM.YearNo AND sal.SalaryHeadID=ac.SalaryHeadID
+
+
+                                    LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=ac.EmpInfoSystemID
+                                    LEFT JOIN SalaryHead AS sh ON sh.SalaryHeadID=ac.SalaryHeadID
+
+                                    WHERE sh.HeadCategory='Net Payable' AND AM.ArrearProcessBatchId='" + BatchNo + @"'
+                                    AND ac.EmpInfoSystemID IN (" + EmployeeSystemIds + @")  AND AM.YearNo=YEAR('" + FromDate + @"') AND AM.MonthNo=MONTH('" + FromDate + @"')
+
+                                    GROUP BY am.ArrearProcessBatchId,am.YearNo,am.MonthNo,ei.SystemId");
+
+            connection.CommitTransaction();
+        }
+        catch (Exception ex)
+        {
+
+            throw (ex);
+        }
+
+
+    }
+
 
     void PT(string empids, string _plantid, string _month, string _year)
     {
@@ -4398,7 +4517,7 @@ public class clsSalaryProcessAplosArrear
         {
             string monthyear = "";
             if (string.IsNullOrEmpty(FromDate) == false)
-                monthyear = Convert.ToDateTime(FromDate).ToString("MMM/yyyy");
+                monthyear = Convert.ToDateTime(FromDate).ToString("MMM /yyyy");
 
             Message = monthyear + " " + Message;
 
@@ -6250,7 +6369,7 @@ public class clsSalaryProcessAplosArrear
         }
     }//End Function ProcChild
     void StampCalculation(List<SPvalueHeadWise> dtValue, string _childPK_seed_fromDB, int _child_emp_seed, int _child_salaryhead_seed, List<dicPaymentModeWiseHeadAmount> dicMonWiExtAmt, string pEmployeeSysID, string _SalaryRuleMasterSystemId, string _PaymentMode, FunctionPara para, List<dicLocal> dicLocal_Sub, ref List<ProcChild> dicProcChild,
-   ref decimal decTotalDeductionAmt, ref decimal decTotalErnDedAmt, ref decimal decTotalEarningAmt, ref decimal decTmpTotalErnDedAmt, ref decimal decTotalErnDedAmtDefinitionRate)
+    ref decimal decTotalDeductionAmt, ref decimal decTotalErnDedAmt, ref decimal decTotalEarningAmt, ref decimal decTmpTotalErnDedAmt, ref decimal decTotalErnDedAmtDefinitionRate)
     {
         #region Variables
         string sSalaryID = "";

@@ -8,9 +8,15 @@ function manualOutTimeController(commonMessage, $scope, $rootScope, baseService,
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
     var firstDay = new Date(y, m, 1);
 
+    var yesterday = new Date();
+
+    var datee = yesterday.setDate(yesterday.getDate() - 1);
+
+    $scope.ToDate = $filter('dateFiltering')(new Date(datee), 'dd-MM-yyyy');
+
     $scope.ManualOutTimeDateWise = {        
         FromDate: $filter('dateFiltering')(firstDay),
-        ToDate: $filter('dateFiltering')(Date.now()),
+        ToDate: $filter('dateFiltering')(new Date(datee), 'dd-MM-yyyy'),
         //EmployeeId: null,
         ReportFormat: 'Excel',
         //chkAdditionInfo: false

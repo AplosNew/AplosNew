@@ -809,20 +809,44 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         });
     };
 
-    
 
-    $scope.OrderCostingReport = function (args) {
-        try {
 
-            $scope.OrderCostingId = args.data.Id;
-            $scope.ProductMasterId = args.data.ProductMasterId;
+    //$scope.ReportPopUp = function () {
 
-            var file_src = $scope.path + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&ProductMasterId=' + $scope.ProductMasterId;
-            $rootScope.report(file_src);
 
-        } catch (e) {
-        }
-    }
+    //    try {
+    //        $scope.openPopup('CostingPopUp');
+
+    //    } catch (e) {
+
+    //    }
+    //}
+
+    //$scope.OrderPreCostingReport = function (args) {
+    //    try {
+
+    //        $scope.OrderCostingId = args.data.Id;
+    //        $scope.ProductMasterId = args.data.ProductMasterId;
+    //        $scope.PreCosting = 1;
+    //        var file_src = $scope.path + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&ProductMasterId=' + $scope.ProductMasterId + '&preCosting=' + $scope.PreCosting ;
+    //        $rootScope.report(file_src);
+       
+    //    } catch (e) {
+    //    }
+    //}
+    //$scope.OrderProcurementCostingReport = function (args) {
+    //    try {
+
+    //        $scope.OrderCostingId = args.data.Id;
+    //        $scope.ProductMasterId = args.data.ProductMasterId;
+    //        $scope.ProcurementCosting = 1;
+
+    //        var file_src = $scope.path + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&ProductMasterId=' + $scope.ProductMasterId + '&procurementCosting=' + $scope.ProcurementCosting;
+    //        $rootScope.report(file_src);
+
+    //    } catch (e) {
+    //    }
+    //}
 
 
 

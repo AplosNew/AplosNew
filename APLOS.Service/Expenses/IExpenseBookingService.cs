@@ -38,7 +38,7 @@ namespace Library.Service.Expenses
         void InsertExpenseBookingApproved(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
 
         GridModel QueryExpenseBookingApproved(GridParameter parameters, string companyGroupId, string companyId);
-
+        IEnumerable<object> GetCboCostCenterIdByEntity(string entityId);
         GridModel QueryPoatal(GridParameter parameters, string status);
         IEnumerable<object> QueryPoatal(string status);
         IEnumerable<object> QueryCheckedByPoatal(string status);

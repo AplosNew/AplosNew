@@ -54,7 +54,7 @@ namespace Aplos.Areas.Attendances.Controllers
         #endregion Constructor
 
         #region -- Pages
-        
+
         public ActionResult Aplos()
         {
             return View();
@@ -85,28 +85,28 @@ namespace Aplos.Areas.Attendances.Controllers
         {
 
             //var paramValues = HttpContext.Current.Request.Params.GetValues("listOfIds");
-            Dictionary<string, string> empParameters1=new Dictionary<string, string>();
+            Dictionary<string, string> empParameters1 = new Dictionary<string, string>();
             if (empParameters.Length > 0)
             {
                 if (!string.IsNullOrEmpty(empParameters[0].ToString()))
                 {
                     empParameters1.Add("EmpSystemId", empParameters[0].ToString());
                 }
-                
+
             }
 
 
             try
             {
-               
-                
+
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 //var fileName = "MonthlyAttdnInfo" + DateTime.Now.ToString("yyMMdd") + ".xls";
                 //string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
-                var workbook = _monthlyAttendanceInformation.XlsMonthlyAttendanceSummaryReport(identity.CompanyId, identity.PlantId, Month, Year, identity.Name, DayStatus, empParameters1, withColor, includeCurrentDate,false,  isActive,  isSeperated,  isMaternity);
+                var workbook = _monthlyAttendanceInformation.XlsMonthlyAttendanceSummaryReport(identity.CompanyId, identity.PlantId, Month, Year, identity.Name, DayStatus, empParameters1, withColor, includeCurrentDate, false, isActive, isSeperated, isMaternity);
 
-               
+
 
                 return RenderReportAsPdf(workbook, "MonthlyAttdnInfo");
 
@@ -120,12 +120,12 @@ namespace Aplos.Areas.Attendances.Controllers
 
         }
 
-      
+
 
 
 
         [HttpPost, Authorize]
-        public ActionResult XlsDepWiseAttnRpt(string Month, string Year, string DayStatus, Dictionary<string, string> empParameters, bool withColor,bool includeCurrentDate,bool withSummary, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult XlsDepWiseAttnRpt(string Month, string Year, string DayStatus, Dictionary<string, string> empParameters, bool withColor, bool includeCurrentDate, bool withSummary, bool isActive, bool isSeperated, bool isMaternity)
         {
             try
             {
@@ -133,7 +133,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 var fileName = "MonthlyAttdnInfo" + DateTime.Now.ToString("yyMMdd") + ".xls";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
-                var workbook = _monthlyAttendanceInformation.XlsMonthlyAttendanceSummaryReport(identity.CompanyId, identity.PlantId, Month, Year, identity.Name, DayStatus, empParameters, withColor, includeCurrentDate, withSummary,  isActive,  isSeperated,  isMaternity);
+                var workbook = _monthlyAttendanceInformation.XlsMonthlyAttendanceSummaryReport(identity.CompanyId, identity.PlantId, Month, Year, identity.Name, DayStatus, empParameters, withColor, includeCurrentDate, withSummary, isActive, isSeperated, isMaternity);
 
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
@@ -153,7 +153,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult XlsDepWiseAttnRptDateRange(string FromDate, string ToDate, string DayStatus,string employeeStatus, Dictionary<string, string> empParameters, bool withColor, bool includeCurrentDate, bool withSummary, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult XlsDepWiseAttnRptDateRange(string FromDate, string ToDate, string DayStatus, string employeeStatus, Dictionary<string, string> empParameters, bool withColor, bool includeCurrentDate, bool withSummary, bool isActive, bool isSeperated, bool isMaternity)
         {
             try
             {
@@ -161,7 +161,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 clsMonthlyAttendanceInformation clsMonthlyAttendanceInformation = new clsMonthlyAttendanceInformation();
                 var fileName = "MonthlyAttdnInfo" + DateTime.Now.ToString("yyMMdd") + ".xls";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
-                var workbook = clsMonthlyAttendanceInformation.XlsMonthlyAttendanceSummaryReportDateRange(identity.CompanyId, identity.PlantId, FromDate, ToDate, identity.Name, DayStatus, empParameters, withColor, includeCurrentDate, withSummary,  isActive,  isSeperated,  isMaternity);
+                var workbook = clsMonthlyAttendanceInformation.XlsMonthlyAttendanceSummaryReportDateRange(identity.CompanyId, identity.PlantId, FromDate, ToDate, identity.Name, DayStatus, empParameters, withColor, includeCurrentDate, withSummary, isActive, isSeperated, isMaternity);
 
                 workbook.Version = ExcelVersion.Excel97to2003;
                 workbook.SaveAs(fullPath);
@@ -178,7 +178,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult XlsOTFinalReport(string Month, string Year)
         {
             #region Variable
@@ -616,7 +616,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 application = null;
                 workbook = null;
             }
-        }      
+        }
         List<SwapColumn> GetColDisplayName(DataSet dslocal)
         {
             List<SwapColumn> list = null;
@@ -644,7 +644,7 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }
 
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public ActionResult GetEmployeeInformation(string EffectiveDate, string criteria)
         {
             string sql = string.Empty;
@@ -664,7 +664,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpPost]
-        public ActionResult Process(string pFromDate, string pToDate, Dictionary<string, string>  EmpList, bool CheckBox)
+        public ActionResult Process(string pFromDate, string pToDate, Dictionary<string, string> EmpList, bool CheckBox)
         {
             try
             {
@@ -675,7 +675,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 {
                     if (EmpList.Keys.ElementAt(0) != "")
                     {
-                        EmpIdLoop +=  EmpList["EmpSystemId"] ;
+                        EmpIdLoop += EmpList["EmpSystemId"];
                     }
                 }
                 //foreach (string item in EmpList)
@@ -699,7 +699,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     {
                         obj.LockValidation(identity.PlantId, FromDateV.ToString("dd-MMM-yyyy"), ToDateV.ToString("dd-MMM-yyyy"), EmpIdLoop);
                     }
-                           
+
                     FromDateV = FromDateV.AddDays(1);
                 }
 
@@ -715,12 +715,12 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
 
                 #region Attendance process
-               
+
                 DateTime FromDate = Convert.ToDateTime(pFromDate);
                 DateTime ToDate = Convert.ToDateTime(pToDate);
                 while (FromDate <= ToDate)
                 {
-                   
+
                     ReturnType r = obj.SaveTotal(identity.PlantId, FromDate.ToString("dd-MMM-yyyy"), EmpIdLoop, false);//laila                 
                     FromDate = FromDate.AddDays(1);
                 }
@@ -792,10 +792,11 @@ namespace Aplos.Areas.Attendances.Controllers
             public DateTime workdate { get; set; }
 
         }
-        
-        [HttpPost,Authorize]
-        public ActionResult GetEmpInfo(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
+
+        [HttpPost, Authorize]
+        public ActionResult GetEmpInfo(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity,string PlantId)
         {
+            string Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var month = Convert.ToDateTime(effectiveDate).AddMonths(1);
             var Ld = month.AddDays(-1);
@@ -827,7 +828,7 @@ namespace Aplos.Areas.Attendances.Controllers
             }
             wcEmpStatus += ")";
 
-            param = "E.GroupID='" + identity.CompanyGroupId + "' AND E.CompanyId='" + identity.CompanyId + "' AND E.PlantId='" + identity.PlantId + "'";
+            param = "E.GroupID='" + identity.CompanyGroupId + "' AND E.CompanyId='" + identity.CompanyId + "' AND E.PlantId in (" + Plant + ")";
 
             var cmdText = @"SELECT * fROM (  SELECT   dISTINCT        [CheckBoxSelect] = Convert(bit, 'False'),
                                      isnull(e.SystemId,'') EmpSystemId
@@ -901,7 +902,7 @@ namespace Aplos.Areas.Attendances.Controllers
                                                     
                                         AND
 									(E.DOS IS NULL OR CONVERT(DATE,E.DOS) >= CONVERT(DATE,'" + effectiveDate + @"')
-                                    AND e.DOJ <= '"+ Ld.ToString("dd-MMM-yyyy") + @"'
+                                    AND e.DOJ <= '" + Ld.ToString("dd-MMM-yyyy") + @"'
                                     ) 
                                      ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
 
@@ -914,7 +915,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult GetEmpInfoDateRang(string fromDate , string toDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult GetEmpInfoDateRang(string fromDate, string toDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             //var month = Convert.ToDateTime(toDate).AddMonths(1);
@@ -1032,6 +1033,13 @@ namespace Aplos.Areas.Attendances.Controllers
 
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetPlantList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var str = @"select Id PlantId,UserName PlantName  from ORG.PLANT where CompanyId='" + identity.CompanyId + "'";
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
 
         #endregion -- Operations  
     }

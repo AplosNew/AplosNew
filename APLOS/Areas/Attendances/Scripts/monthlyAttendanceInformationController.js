@@ -1,5 +1,5 @@
 ﻿'use strict';
-monthlyAttendanceInformationController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService','$window'];
+monthlyAttendanceInformationController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$window'];
 function monthlyAttendanceInformationController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $window) {
     $rootScope.title = 'Monthly Attendance Information';
     $scope.index = -1;
@@ -109,6 +109,10 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
             var gridObj = $("#empInfoGrid").ejGrid("instance");
             var filteredRecords = gridObj.getFilteredRecords();
 
+            if (filteredRecords.length == 0) {
+                filteredRecords = $scope.EmployeeListTemp;
+            }
+
             if ($scope.isManualFilter == true) {
                 if (filteredRecords.length == 0) {
                     filteredRecords = $scope.EmployeeListTemp;
@@ -165,7 +169,7 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
             if (angular.isUndefinedOrNull(filteredRecords) === false) {
                 if (filteredRecords.length > 0) {
                     empParameters = [];
-                    empParameters.push( getString(filteredRecords, "EmpSystemId") );
+                    empParameters.push(getString(filteredRecords, "EmpSystemId"));
                 }
             }
             if (empParameters.length === 0) {
@@ -235,7 +239,7 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
                 data: {
                     'Month': $scope.month, 'Year': $scope.year, 'DayStatus': 'ALLSTATUS', 'empParameters': empParameters, 'withColor': $scope.withColor, 'includeCurrentDate': $scope.includeCurrentDate, 'withSummary': $scope.withSummary
                     , 'isActive': $scope.isActive, 'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity
-                }                
+                }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -255,44 +259,56 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
     $scope.EmployeeListDefault = [];
     $scope.EmployeeListTemp = [];
     $scope.GetEmployeeInformation = function () {
+        try {
+            var DropDownListObj = $("#CWPlant").data("ejDropDownList");
+            var PlantId = DropDownListObj.getSelectedValue();
 
-        var monthName = $scope.monthList.filter(function (mnth) {
-            return mnth.Value == $scope.month;
-        });
-        $scope.effectiveDate = 1 + '-' + monthName[0].Text + '-' + $scope.year;
+            if (baseService.isUndefinedOrNull(PlantId)) {
+                throw "Select Plant..";
+            }
 
-        if (angular.isUndefinedOrNull($scope.month)) {
-            ShowResult("Select Month", 'failure');
-        }
-        if (angular.isUndefinedOrNull($scope.year)) {
-            ShowResult("Select Year", 'failure');
-        }
-
-        else {
-
-            var parameters = {
-                'effectiveDate': $scope.effectiveDate, 'payRollGroup': $scope.payGroupListSelected, 'isActive': $scope.isActive,
-                'isSeperated': $scope.isSeperated,
-                'isMaternity': $scope.isMaternity
-            };
-            $http({
-                method: "POST",
-                dataType: 'JSON',
-                url: 'Attendances/AttendanceProcessUI/GetEmpInfo',
-                data: parameters
-            }).then(function successCallback(response) {
-                if (response.data.length > 0) {
-                    $scope.empGrid = true;
-                    $scope.EmployeeListDefault = response.data;//.filter(d => d.isSelect == true);
-                    $scope.EmployeeList = $scope.EmployeeListDefault;
-                    $scope.EmployeeListTemp = $scope.EmployeeListDefault;
-                }
-                else {
-                    $scope.empGrid = false;
-                    ShowResult("No Data Found", 'failure');
-                }
+            var monthName = $scope.monthList.filter(function (mnth) {
+                return mnth.Value == $scope.month;
             });
+            $scope.effectiveDate = 1 + '-' + monthName[0].Text + '-' + $scope.year;
+
+            if (angular.isUndefinedOrNull($scope.month)) {
+                ShowResult("Select Month", 'failure');
+            }
+            if (angular.isUndefinedOrNull($scope.year)) {
+                ShowResult("Select Year", 'failure');
+            }
+
+            else {
+
+                var parameters = {
+                    'effectiveDate': $scope.effectiveDate, 'payRollGroup': $scope.payGroupListSelected, 'isActive': $scope.isActive,
+                    'isSeperated': $scope.isSeperated,
+                    'isMaternity': $scope.isMaternity,
+                    'PlantId': PlantId
+                };
+                $http({
+                    method: "POST",
+                    dataType: 'JSON',
+                    url: 'Attendances/AttendanceProcessUI/GetEmpInfo',
+                    data: parameters
+                }).then(function successCallback(response) {
+                    if (response.data.length > 0) {
+                        $scope.empGrid = true;
+                        $scope.EmployeeListDefault = response.data;//.filter(d => d.isSelect == true);
+                        $scope.EmployeeList = $scope.EmployeeListDefault;
+                        $scope.EmployeeListTemp = $scope.EmployeeListDefault;
+                    }
+                    else {
+                        $scope.empGrid = false;
+                        ShowResult("No Data Found", 'failure');
+                    }
+                });
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
+        
     };
 
     //------Multiple Selection(Excel)-------//
@@ -428,5 +444,24 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
         return string;
     };
     //--------------------------------------//
+    $scope.PlantIdFromUI = null;
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetPlantList",
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+           
+            //}
+
+
+        });
+    }
+    $scope.getPlant();
+    $scope.defaultSelection = function (args) {
+        var DropDownListObj = $("#CWPlant").data("ejDropDownList");
+        DropDownListObj.selectItemByValue($window.plantId);
+    };
 
 }

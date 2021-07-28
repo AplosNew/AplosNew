@@ -399,12 +399,12 @@ bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetOrderCostingReport(string OrderCostingId,string ProductMasterId)
+        public ActionResult GetOrderCostingReport(string OrderCostingId ,string preCosting,string ProcurementCosting)
         {
             try
             {
                 Library.OrderManagement.Costing.CostingReport Report = new Library.OrderManagement.Costing.CostingReport();
-                Report.OrderCostingReport(OrderCostingId, ProductMasterId);
+                Report.OrderCostingReport(OrderCostingId, preCosting, ProcurementCosting);
 
                 return null;
             }

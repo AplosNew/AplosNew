@@ -296,13 +296,25 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
         GLGeneralInfoCode: null,
         GL: null
     };
+    $scope.costCenterCboList = [];
+    $scope.GetCboCostCenterIdByEntity = function (entityId) {
+        $http({
+            method: "GET",
+            url: "accounts/expenseBooking/GetCboCostCenterIdByEntity?entityId=" + entityId
+        }).then(function successCallback(response) {
+            $scope.costCenterCboList = response.data;
+
+        });
+    };
 
     $scope.closeEmployeePopUp = function () {
         if ($scope.employeeIndex !== -1) {
             var employee = $scope.employeeList[$scope.employeeIndex];
             $scope.budgetTransactionMaster.EmployeeName = employee.EmployeeName;
             $scope.budgetTransactionMaster.EmployeeId = employee.SystemId;
+            $scope.budgetTransactionMaster.EntityId = employee.EntityId;
             $scope.GetEmployeeTransactionNo($scope.budgetTransactionMaster.EmployeeId);
+            $scope.GetCboCostCenterIdByEntity($scope.budgetTransactionMaster.EntityId);
             $scope.budgetTransactionDetail = [];
         }
         $scope.hideEmployeePopUp();
@@ -360,6 +372,8 @@ function expenseBookingController(cboService, commonMessage, $scope, $rootScope,
             $scope.budgetTransactionMaster.InvoiceNumber = "EX-" + $scope.employeeTransactionNo;
         });
     };
+
+  
 
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;

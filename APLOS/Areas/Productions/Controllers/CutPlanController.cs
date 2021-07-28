@@ -18,6 +18,7 @@ using Library.Service.Helpers;
 using System.IO;
 using Library.Core;
 using Library.MaterialManagement.CutPlan;
+using Library.Service.OrderManagements;
 
 #endregion Using
 
@@ -25,11 +26,13 @@ namespace Aplos.Areas.Productions.Controllers
 {
     public class CutPlanController : BaseController
     {
-		#region Constructor
-		clsCutPlan cp = new clsCutPlan();
+        #region Constructor
+        private readonly IProductionOrderService _productionOrderService;
+        clsCutPlan cp = new clsCutPlan();
 		private readonly ISqlRepository _sqlRepository;
-        public CutPlanController(ISqlRepository R)
+        public CutPlanController(ISqlRepository R, IProductionOrderService productionOrderService)
         {
+            _productionOrderService = productionOrderService;
             _sqlRepository = R;
         }
 
@@ -50,6 +53,10 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return Json(cp.GetLineItemData(entityId, processId, productionOrderId, masterId), JsonRequestBehavior.AllowGet);
         }
-
+        [HttpGet, Authorize]
+        public JsonResult GetProductionRecipeMaterialList(string productionOrderId)
+        {
+            return Json(_productionOrderService.GetProductionRecipeMaterialList(productionOrderId), JsonRequestBehavior.AllowGet);
+        }
     }   
 }

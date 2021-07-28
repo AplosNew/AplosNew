@@ -75,29 +75,29 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
     $scope.selectedLineItems = [];
     $scope.Save = function () {
         try {
-            $scope.selectedLineItems = [];
-            for (var i = 0; i < $scope.LineItemsList.length; i++) {
-                if ($scope.LineItemsList[i].Active) {
-                    if (baseService.isUndefinedOrNull($scope.LineItemsList[i].Id)) {
-                        $scope.LineItemsList[i].Id = null;
-                        $scope.selectedLineItems.push($scope.LineItemsList[i]);
-                    }
-                    else {
-                        $scope.selectedLineItems.push($scope.LineItemsList[i]);
-                    }
-                }
+            //$scope.selectedLineItems = [];
+            //for (var i = 0; i < $scope.LineItemsList.length; i++) {
+            //    if ($scope.LineItemsList[i].Active) {
+            //        if (baseService.isUndefinedOrNull($scope.LineItemsList[i].Id)) {
+            //            $scope.LineItemsList[i].Id = null;
+            //            $scope.selectedLineItems.push($scope.LineItemsList[i]);
+            //        }
+            //        else {
+            //            $scope.selectedLineItems.push($scope.LineItemsList[i]);
+            //        }
+            //    }
                 
-            }
+            //}
 
             $scope.$broadcast("show-errors-check-validity");
             if ($scope.modelForm.$valid) {
                 if ($scope.Action === "Save" || $scope.Action === "Update") {
                     $http({
                         method: "POST",
-                        url: "Productions/FinishGoodsBooking/Insert",
+                        url: "Productions/FinishGoodsBooking/Create",
                         data: {
                             "data": $scope.modelNew
-                            , "FinishGoodsBookingDetailList": $scope.selectedLineItems
+                            , "FinishGoodsBookingDetailList": $scope.LineItemsList
                         },
                         dataType: "JSON"
                     }).then(function successCallback(response) {
@@ -211,7 +211,8 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
     $scope.LoadData = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.modelForm.$valid) {
-            $http.get("Productions/FinishGoodsBooking/GetItemScanChildData?fromDate=" + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
+            $scope.LineItemsList = [];
+            $http.get("Productions/FinishGoodsBooking/GetItemScanChildData?entityId=" + $scope.modelNew.ProductionEntityId+'&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
             //$http.get("Productions/FinishGoodsBooking/GetItemScanChildData?productionOrderId=" + $scope.modelNew.ProductionOrderId)
                 .then(
                     function successCallback(response) {
@@ -260,6 +261,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
 
     $scope.SummaryRows = [{
         title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GrossAmount", dataMember: "GrossAmount", format: "{0:0.0000}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Rate", dataMember: "Rate", format: "{0:0.0000}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "GrossConsumption", dataMember: "GrossConsumption", format: "{0:0.0000}" }
         ],
