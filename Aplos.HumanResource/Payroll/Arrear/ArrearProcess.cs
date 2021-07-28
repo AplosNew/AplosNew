@@ -190,6 +190,7 @@ namespace Library.HumanResource.Payroll.Arrear
 			                            LEFT JOIN org.Division AS DIV ON DIV.Id=emp.DivisionId
 			                            LEFT JOIN SalaryLock AS sl  ON sl.EmpSystemId=emp.SystemId AND sl.Id=(SELECT TOP 1 Id FROM salaryLock xl where  xl.IsLocked=1 and xl.EmpSystemId=emp.SystemId ORDER BY xl.YearNo DESC,xl.MonthNo DESC)
 			                              WHERE EMP.DOJ <= '" + ToDate + @"'
+                                            and EMP.EmployeeStatus='Active'
 			                              AND (EMP.DOS >= '" + FromDate + @"' OR ISNULL(EMP.DOS,'') = '' OR EMP.DOS = '01/01/1901')
                                            AND SEFD.EffectiveDate <= '" + ToDate + @"' AND emp.PlantId='" + PlantId + @"'
 			                          ";
