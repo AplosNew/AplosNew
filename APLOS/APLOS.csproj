@@ -698,6 +698,7 @@
     <Compile Include="Areas\Payrolls\Controllers\DeductionInvestmentMasterController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\ESICStatementsCompanyController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\CompanyWiseExternalDataUploadFromExcelController.cs" />
+    <Compile Include="Areas\Payrolls\Controllers\CompanyWiseBankSheetController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\GraruityInsuranceReportController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeDayStatusReportController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\GratuityReportCompanyController.cs" />
@@ -1870,6 +1871,7 @@
     <Content Include="Areas\Payrolls\Scripts\DeductionInvestmentMasterController.js" />
     <Content Include="Areas\Payrolls\Scripts\ESICStatementsCompanyController.js" />
     <Content Include="Areas\Payrolls\Scripts\CompanyWiseExternalDataUploadFromExcelController.js" />
+    <Content Include="Areas\Payrolls\Scripts\CompanyWiseBankSheetController.js" />
     <Content Include="Areas\Payrolls\Scripts\GraruityInsuranceReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeDayStatusReportController.js" />
     <Content Include="Areas\Payrolls\Scripts\GratuityReportCompanyController.js" />
@@ -3589,6 +3591,7 @@
     <Content Include="Areas\Productions\Views\FinishGoodsBooking\ConsumptionBookPost.cshtml" />
     <Content Include="Areas\Productions\Views\PackingInvoice\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\CompanyWiseExternalDataUploadFromExcel\Aplos.cshtml" />
+    <Content Include="Areas\Payrolls\Views\CompanyWiseBankSheet\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

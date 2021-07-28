@@ -1,0 +1,28 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{FormTitle}}</h3>
+<div class="form-horizontal form-elements">
+    <div class="row">
+        <div class="col-lg-12">
+            <div id="empInfoGrid" ej-grid e-datasource="GetList" e-allowscrolling="true" e-pageSettings-pageSize="10"
+                 e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateemployee"
+                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" style="margin-left:1%">
+                <div e-columns>
+                    <div e-column e-field="PaymentMood" e-headertext="Payment Mood" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="BankName" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="PlantName" e-headertext="Plant" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Entity" e-headertext="Entity" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="EmpCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="SubSection" e-headertext="Sub Section" e-allowediting="false" e-width="80"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn" >
+        <ul class="list-inline text-right">
+            <li><button ng-click="GetReport();" class="btn"> <i class="glyphicon glyphicon-download"></i>Download Report</button></li>
+        </ul>
+    </div>
+</div>
