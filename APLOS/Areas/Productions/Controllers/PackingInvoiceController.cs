@@ -27,6 +27,10 @@ using Syncfusion.Pdf;
 using Aplos.Areas.Commercial.Controllers;
 using System.Drawing;
 using Library.OrderManagement.Sales;
+using Library.ViewModel.Vouchers;
+using Library.ViewModel.SalesManagements;
+using Library.Model.SalesManagements;
+using Library.Service.SalesManagements;
 
 #endregion Using
 
@@ -34,13 +38,15 @@ namespace Aplos.Areas.Productions.Controllers
 {
     public class PackingInvoiceController : BaseController
     {
+        private readonly ISalesService _salesService;
         PackingData det = new PackingData();
         clsSales clsSales = new clsSales();
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-        public PackingInvoiceController(ISqlRepository R)
+        public PackingInvoiceController(ISalesService salesService,ISqlRepository R)
         {
+            _salesService = salesService;
             _sqlRepository = R;
             det = new PackingData();
         }
@@ -50,6 +56,21 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult Aplos()
         {
             return View();
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetList(GridParameter parameters)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(clsSales.GetPackingSalesList(parameters, identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetMasterOrderSalesMaterialData(string salesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(clsSales.GetPackingSalesMaterialData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, salesId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -63,6 +84,78 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(det.GetPackingData(), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetSalesPackingData(string salesId)
+        {
+            return Json(clsSales.GetSalesPackingData(salesId), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        public JsonResult Create(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedPackingList, IEnumerable<SalesServiceViewModel> salesServiceVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            if (salesMaterialVMList != null)
+            {
+                foreach (var item in salesMaterialVMList)
+                {
+                    if (item.MaterialMasterId == null)
+                        throw new CustomException("Please Select Material !");
+                    if (item.TransactionAmount == 0)
+                        throw new CustomException("Please Input Amount !");
+                    if (item.TransactionQty == 0)
+                        throw new CustomException("Please Input Quantity !");
+                }
+            }
+            if (salesServiceVMList != null)
+            {
+                foreach (var item in salesServiceVMList)
+                {
+                    if (item.ServiceMasterId == null)
+                        throw new CustomException("Please Select Service !");
+                    if (item.Amount == 0)
+                        throw new CustomException("Please Input Service Amount !");
+                }
+            }
+            _salesService.PackingInvoiceInsert(voucherVM, salesMaterialVMList, selectedPackingList, salesServiceVMList);
+            return Json(new { Data = voucherVM, Message = AplosMessage.Insert + "Invoice No: " + voucherVM.Id + "" });
+        }
+
+        [HttpPost]
+        public JsonResult Edit(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedPackingList, IEnumerable<SalesServiceViewModel> salesServiceVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            if (salesMaterialVMList != null)
+            {
+                foreach (var item in salesMaterialVMList)
+                {
+                    if (item.MaterialMasterId == null)
+                        throw new CustomException("Please Select Material !");
+                    if (item.TransactionAmount == 0)
+                        throw new CustomException("Please Input Amount !");
+                    if (item.TransactionQty == 0)
+                        throw new CustomException("Please Input Quantity !");
+                }
+            }
+            if (salesServiceVMList != null)
+            {
+                foreach (var item in salesServiceVMList)
+                {
+                    if (item.ServiceMasterId == null)
+                        throw new CustomException("Please Select Service !");
+                    if (item.Amount == 0)
+                        throw new CustomException("Please Input  Service Amount !");
+                }
+            }
+            _salesService.PackingInvoiceUpdate(voucherVM, salesMaterialVMList, selectedPackingList, salesServiceVMList);
+            return Json(new { Data = voucherVM, Message = AplosMessage.Updated + "Invoice No: " + voucherVM.Id + "" });
+        }
 
     }
 }

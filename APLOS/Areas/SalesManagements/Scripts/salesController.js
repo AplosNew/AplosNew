@@ -58,6 +58,10 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         {
             "name": "Currency",
             "value": "Currency"
+        },
+        {
+            "name": "Status",
+            "value": "RowState"
         }
     ];
 
