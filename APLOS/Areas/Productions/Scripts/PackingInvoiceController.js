@@ -1260,6 +1260,156 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
+    $scope.removeMaterialRow = function (Id, index) {
+        if (baseService.isUndefinedOrNull(Id)) {
+            $scope.salesOrderList.splice(index, 1);
+            return false;
+        }
+        else {
+            $scope.message = 'Are you sure want to permanently delete this?';
+            angular.element(document.querySelector('#removerPopUp')).modal('show');
+            $scope.mateId = Id;
+            $scope.mateIndex = index;
+        }
+    };
+
+    $scope.removeServiceRow = function (Id, index) {
+        if (Id === null) {
+            $(this).remove();
+            $scope.chargesList.splice(index);
+            return false;
+        }
+        else {
+            $scope.message = 'Are you sure want to permanently delete this?';
+            angular.element(document.querySelector('#removeServicePopUp')).modal('show');
+            $scope.serId = Id;
+            $scope.serIndex = index;
+        }
+    };
+
+    $scope.serviceDelete = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'SalesManagements/Sales/DeleteSalesService?Id=' + $scope.serId,
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.serId = null;
+                    $scope.chargesList.splice($scope.serIndex, 1);
+                    $scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+
+    $scope.detailDelete = function () {
+        try {
+
+            if (!baseService.isUndefinedOrNull($scope.mateId)) {
+                $http({
+                    method: 'POST',
+                    url: 'SalesManagements/Sales/DeleteSalesMaterial?Id=' + $scope.mateId,
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true)
+                        ShowResult(response.data.Message, 'failure');
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.mateId = null;
+                        $scope.salesMaterialList.splice($scope.mateIndex, 1);
+                        $scope.getData();
+                        $scope.Clear();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+            } else {
+                $scope.salesMaterialList.splice($scope.mateIndex, 1);
+            }
+
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+
+    $scope.taxDel = function (Id, index) {
+        if (Id === null) {
+            $(this).remove();
+            $scope.receiveTaxList.splice(index);
+            return false;
+        }
+        else {
+            $scope.message = 'Are you sure want to permanently delete this?';
+            angular.element(document.querySelector('#confirmTaxCodeDelPopUp')).modal('show');
+            $scope.metTaxId = Id;
+            $scope.smetTaxIndex = index;
+        }
+    };
+
+    $scope.removeTaxCodeRow = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'SalesManagements/Sales/DeleteTaxRow?Id=' + $scope.metTaxId,
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.metTaxId = null;
+                    $scope.receiveTaxList.splice($scope.smetTaxIndex, 1);
+                    $scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+
+    $scope.taxSerDel = function (Id, index) {
+        if (Id === null) {
+            $(this).remove();
+            $scope.ServicetaxPopList.splice(index);
+            return false;
+        }
+        else {
+            $scope.message = 'Are you sure want to permanently delete this?';
+            angular.element(document.querySelector('#confirmTaxServiceDelPopUp')).modal('show');
+            $scope.serTaxId = Id;
+            $scope.serTaxIndex = index;
+        }
+    };
+
+    $scope.removeServiceTaxRow = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'SalesManagements/Sales/DeleteServiceTaxRow?Id=' + $scope.serTaxId,
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.serTaxId = null;
+                    $scope.ServicetaxPopList.splice($scope.serTaxIndex, 1);
+                    $scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+
     //#region Additional TAX Code
     $scope.advanceTax = { TotalSumAfterTCSVal: 0 };
     $scope.advanceTaxesList = [];
@@ -1432,8 +1582,6 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     }
 
     //#endregion
-
-
 
     //#region PostInvoice
 
@@ -1796,9 +1944,5 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     };
 
     //#endregion PostInvoice
-
-
-
-
 
 }

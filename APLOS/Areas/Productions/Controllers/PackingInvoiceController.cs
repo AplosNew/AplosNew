@@ -157,5 +157,91 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(new { Data = voucherVM, Message = AplosMessage.Updated + "Invoice No: " + voucherVM.Id + "" });
         }
 
+        [HttpPost]
+        public JsonResult Delete(string Id)
+        {
+            DeleteData(Id);
+
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        public void DeleteData(string id)
+        {
+            string strSQL, strPSQL, strBSQL, strOSQL, strSSQL, strASQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                //if (CheckUsing(id))
+                //    throw new CustomException("First delete Operation!");
+
+                strOSQL = "DELETE FROM TRN.SalesTax WHERE SalesId='" + id + "'";
+                strASQL = "DELETE FROM TRN.SalesAdditionalTax WHERE SalesId='" + id + "'";
+                strSSQL = "DELETE FROM TRN.SalesService WHERE SalesId='" + id + "'";
+                strPSQL = "DELETE FROM dbo.SalesPacking WHERE SalesId='" + id + "'";
+                strBSQL = "DELETE FROM TRN.SalesMaterial WHERE SalesId='" + id + "'";
+                strSQL = "DELETE FROM TRN.Sales WHERE Id = '" + id + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strOSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strASQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strPSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strBSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception exx)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
+
+        [HttpPost]
+        public JsonResult DeleteTaxRow(string Id)
+        {
+            _salesService.DeleteTaxRow(Id);
+
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+        [HttpPost]
+        public JsonResult DeleteServiceTaxRow(string Id)
+        {
+            _salesService.DeleteServiceTaxRow(Id);
+
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [HttpPost]
+        public JsonResult DeleteSalesMaterial(string Id)
+        {
+            _salesService.DeleteSalesMaterial(Id);
+
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [HttpPost]
+        public JsonResult DeleteSalesService(string Id)
+        {
+            _salesService.DeleteSalesService(Id);
+
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
     }
 }
