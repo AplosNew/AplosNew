@@ -308,10 +308,11 @@ namespace Aplos.Areas.Payrolls.Controllers
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         xlsCol += 1;
-                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["NetSalary"].ToString().Trim();
+                        sheet1.Range[xlsRow, xlsCol].Number =Convert.ToDouble(dvAttn[i]["NetSalary"].ToString());
+                        sheet1.Range[xlsRow, xlsCol].NumberFormat = clsStaticInfo.NumberFormat(2);
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
-                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.HAlignRight;
                         xlsCol += 1;
                         sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["EmployeeType"].ToString().Trim();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
