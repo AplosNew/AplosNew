@@ -572,14 +572,24 @@
                                             <textarea type="text" ng-model="x.Remark" rows="1" class="form-control" style="width: 105px;"></textarea>
                                         </td>
                                         <td>
-                                            <div class="form-group">
-                                                <label class="col-sm-4 control-label" ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></label>
-                                                <div class="col-sm-8">
-                                                    <div class="inputBtnSection common-btn">
-                                                        <label class="fileUpload" style="height: 30px;">
-                                                            <span class="uploadBtn" id="UploadDefault" e-dialogtext-title="Document" e-data="x.Id" e-autoupload="true" e-begin="onBeginUpload" e-filesize="10971520" ej-uploadbox e-saveurl="uploadUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf" e-error="errorPicUpload" e-complete="getMasterItemList" style="width: 100px; height: 17px;margin:10px"><i class="fa fa-paperclip" aria-hidden="true"> Upload</i></span>
-                                                        </label>
-                                                    </div>
+                                            @*<div class="form-group">
+            <label class="col-sm-4 control-label" ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></label>
+            <div class="col-sm-8">
+                <div class="inputBtnSection common-btn">
+                    <label class="fileUpload" style="height: 30px;">
+                        <span class="uploadBtn" id="UploadDefault" e-dialogtext-title="Document" e-data="x.Id" e-autoupload="true" e-begin="onBeginUpload" e-filesize="10971520" ej-uploadbox e-saveurl="uploadUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf" e-error="errorPicUpload" e-complete="getMasterItemList" style="width: 100px; height: 17px;margin:10px"><i class="fa fa-paperclip" aria-hidden="true"> Upload</i></span>
+                    </label>
+                </div>
+            </div>
+        </div>*@
+
+                                            <div class="col-md-12">
+                                                <div class="col-md-7">
+                                                    <label class="col-sm-4 control-label" ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></label>
+
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <div id="UploadDefault" e-id="{{x.Id}}" e-data="x.Id" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getFileList" e-showroundedcorner="false" @*e-height="30"*@ e-autoupload="true" e-begin="onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" @*e-error="errorUpload"*@></div>
                                                 </div>
                                             </div>
                                         </td>
@@ -607,7 +617,7 @@
                                                 {{itemList | sumByKey : 'SOQty'}}
                                             </label>
                                         </td>
-                                        <td colspan="12"></td>
+                                        <td colspan="14"></td>
                                         <td class="text-center">
                                             <button ng-click="addNewItem();" ng-disabled="fileNew.Id===null" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add Line Item</button>
                                         </td>

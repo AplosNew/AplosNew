@@ -215,6 +215,7 @@
     <Compile Include="Payroll\clsFinalSettlement.cs" />
     <Compile Include="Payroll\IncrementReportSummary\IncrementReportSummary.cs" />
     <Compile Include="Payroll\IncrementReport\IncrementReport.cs" />
+    <Compile Include="Payroll\PayrollManagementDashboard\PayrollManagementDashboard.cs" />
     <Compile Include="Payroll\Reports\PayrollReportsService.cs" />
     <Compile Include="Payroll\SalaryProcess\clsAdvanceProcess.cs" />
     <Compile Include="Payroll\SalaryProcess\clsSalaryLock.cs" />
