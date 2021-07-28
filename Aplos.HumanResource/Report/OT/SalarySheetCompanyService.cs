@@ -98,6 +98,7 @@ namespace Library.HumanResource.Report.OT
                 Dictionary<string, double> dicW = null;
                 Dictionary<string, double> dicH = null;
                 DataSet dsCurrency = null;
+                
 
                 Dictionary<string, DataRow> dicHourlyOTNW = new Dictionary<string, DataRow>();
                 Dictionary<string, DataRow> dicHourlyOTW = new Dictionary<string, DataRow>();
@@ -107,6 +108,7 @@ namespace Library.HumanResource.Report.OT
                 dicHourlyOTW = GetDictionaryHourOTMonthReportWithWeekendORHolidayCompany(year, month, plantId, companyId, companyGroupId, parameters, isActive, isSeperated, "Weekend");
                 dicHourlyOTH = GetDictionaryHourOTMonthReportWithWeekendORHolidayCompany(year, month, plantId, companyId, companyGroupId, parameters, isActive, isSeperated, "Holiday");
 
+                
 
                 //otc.LoadSalaryStructure(plantId, fdateOfMonth, ldateOfMonth, out dsSStructureOT);
                 //otc.LoadOverTimePolicy(plantId, fdateOfMonth, ldateOfMonth, out dsOTPolicy);
@@ -182,7 +184,7 @@ namespace Library.HumanResource.Report.OT
                 #region Column Variables
                 int ColSr = 0, ColIDNo = 0, ColName = 0,ColPlant = 0, ColDOJ = 0, ColDOS = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0, colBank = 0, colBankAccountNo = 0
-                   , ColLWP = 0, cDMP = 0, ColExtraAbsent = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0;
+                   , ColLWP = 0, cDMP = 0, ColExtraAbsent = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colEmploymentType = 0;
                 int npstruct = 0;
 
                 #endregion
@@ -196,6 +198,7 @@ namespace Library.HumanResource.Report.OT
                 SetCellValue("DOS", sheet1, xlsRow, ref xlsCol, out ColDOS, 12);
                 SetCellValue("EmployeeCurrentStatus", sheet1, xlsRow, ref xlsCol, out colEmpCurrentStat, 12);
                 SetCellValue("EmployeeSatatus", sheet1, xlsRow, ref xlsCol, out colEmpStatus, 12);
+                SetCellValue("Employment Type", sheet1, xlsRow, ref xlsCol, out colEmploymentType, 12);
                 SetCellValue("Gender", sheet1, xlsRow, ref xlsCol, out cGender, 12);
                 SetCellValue("Designation", sheet1, xlsRow, ref xlsCol, out ColGVDG, 25);
                 SetCellValue("Employee Category", sheet1, xlsRow, ref xlsCol, out int colEmpCategory, 25);
@@ -244,7 +247,7 @@ namespace Library.HumanResource.Report.OT
 
                 CreateDynamicSHead(dtSalaryHeadSheet, out _total_head_count, ref sheet1, ref xlsRow, ref xlsCol, ref ColGrs, out _count_earning_head, out _count_deducting_head, out _count_earning_ctchead, out _count_earning_notionalhead, out shtList);
 
-
+                //SetCellValue("Structured", sheet1, xlsRow, ref xlsCol, out ColTotalOTHR, 11);
 
 
                 List<SalaryHeadSequence> salList = new List<SalaryHeadSequence>();
@@ -516,6 +519,11 @@ namespace Library.HumanResource.Report.OT
                         sheet1.Range[xlsRow, colEmpStatus].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, colEmpStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         //
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["EmploymentType"].ToString()) == false)
+                            sheet1.Range[xlsRow, colEmploymentType].Text = dtEmployees.Rows[i]["EmploymentType"].ToString();
+                        sheet1.Range[xlsRow, colEmploymentType].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, colEmploymentType].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["LegalDesignation"].ToString()) == false)
                             sheet1.Range[xlsRow, ColGVDG].Text = dtEmployees.Rows[i]["LegalDesignation"].ToString();
                         sheet1.Range[xlsRow, ColGVDG].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -1630,7 +1638,123 @@ namespace Library.HumanResource.Report.OT
             }
         }
 
-        
+        public Dictionary<string, List<DataRow>> GetEmployeeSalaryInfoDetail(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, out DataTable distinctSalaryHead)
+        {
+            string strSQL;
+            DataSet dsRef = null;
+            Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
+            distinctSalaryHead = new DataTable("Tmp");
+            string strSql = @"SELECT SystemID FROM SalaryProcMaster
+                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                        AND MonthNo = Month('" + fromDate + @"') AND YearNo = Year('" + fromDate + @"')";
+            DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
+
+            string salaryProcessID = "''";
+            for (int si = 0; si < dtSalPrcId.Rows.Count; si++)
+            {
+                salaryProcessID += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
+            }
+
+
+            try
+            {
+                strSQL = @"SELECT EmpSlr.*,PSH.Sequence,ISNULL(crc.IsDecimalInDisb,0) IsDecimalInDisb,ISNULL(CRC.IntegerInDisb,1) IntegerInDisb,ISNULL(CRC.DecimalNo,0) DecimalNo FROM(SELECT SPC.SystemID AS SlrProcChdSysID, SPC.SlrProcMstSystemID, SPM.SalaryProcID, SPM.FromDate, SPM.ToDate,
+                                                    SPC.EmpInfoSystemID EmpSystemID, SPC.PlantID, SPM.UserGroupSystemID, SPM.MonthNo, SPM.YearNo, SPC.PayAbleShSystemID,
+                                                    SPC.SalaryHeadID, SPC.EntryCurrencyID, SPC.EntryAmount, SPC.DefineCurrencyID, SPC.DefineAmount,
+                                                    SPC.DisbusmentCurrencyID, SPC.DisbusmentAmount, SPC.AcltExcDisbSlrHDID, SPC.AcltExcDisbSlrHDAmt,
+                                                    CRE.Name AS PlantWiseExchangeCR, EXR.ToCurrencyBuying ExchangeRate, SPM.AmtDefinitionCurrencyID,
+                                                    CR.Name AS AmtDefinitionCurrency, SPM.AmtDefinitionCurrencyRate, SPC.IsNetPayEffect, ISNULL(SH.IsCTCComponent,0) IsCTCComponent, ISNULL(SH.IsGrossComponent,0) IsGrossComponent
+                                                    , sh.SalaryHead, sh.HeadCategory, sh.HeadType, ISNULL(SH.PartOfNetPay,0) PartOfNetPay
+
+                                     FROM SalaryProcChild SPC
+
+                                        left JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
+
+
+
+                                                        LEFT JOIN SalaryHead sh on sh.SalaryHeadID= spc.SalaryHeadID
+
+
+                                                        LEFT JOIN scs.Currency CR ON SPM.AmtDefinitionCurrencyID = CR.Id
+
+                                                        LEFT JOIN (
+                                                                   SELECT* FROM ExchangerateDateWiseForHR
+
+                                                                   WHERE FromDate IN (SELECT MAX(FromDate) FromDate FROM SalaryProcMaster
+
+
+                                                                                                            WHERE SystemID IN(" + salaryProcessID + @")
+																  )) EXR ON SPM.AmtDefinitionCurrencyID = EXR.FromCurrencyCode
+
+                                                                                            AND SPC.PlantID = Exr.PlantID
+
+                                                        LEFT JOIN SCS.Currency CRE ON EXR.FromCurrencyCode = CRE.Id
+
+                                                        where isnull(SPC.SlrProcMstSystemID,'')  IN(" + salaryProcessID + @")) EmpSlr--ON EmpBasic.SystemID = EmpSlr.EmpInfoSystemID AND EmpBasic.PlantID = EmpSlr.PlantID
+
+                                            Inner join EmployeeInformation EEI ON EEI.SystemId = EmpSlr.EmpSystemID
+
+                                         LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EEI.SalaryRuleMasterSystemID
+
+                                        LEFT JOIN SalaryRuleGeneral SRG ON SRG.SalaryRuleMasterSystemID = SRM.SystemID  AND SRG.SalaryHeadID = EmpSlr.SalaryHeadID
+                                        LEFT JOIN(SELECT* FROM [MST].[PlantSalaryHeadSequence] WHERE PlantId = '" + plantId + @"') PSH
+                                                                       ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
+                                        LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = EmpSlr.SalaryHeadID
+
+                                                WHERE EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId = '" + plantId + @"'";
+
+                try
+                {
+                    if (parameters.Count > 0)
+                    {
+                        if (parameters.Keys.ElementAt(0) != "")
+                        {
+                            strSQL += @"AND EmpSlr.EmpSystemID IN(" + parameters["EmpSystemId"] + ")";
+
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                }
+                strSQL += "ORDER BY EmpSystemId ";
+
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(600);
+                con.getDataSet(strSQL, out dsRef);
+
+                distinctSalaryHead = dsRef.Tables[0].DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "Sequence", "HeadCategory", "IntegerInDisb", "DecimalNo", "PartOfNetPay", "IsCTCComponent", "IsGrossComponent");
+                distinctSalaryHead.DefaultView.Sort = "Sequence";
+                distinctSalaryHead = distinctSalaryHead.DefaultView.ToTable();
+
+                DataTable dt = dsRef.Tables[0];
+                List<DataRow> _data = new List<DataRow>();
+                string empId = "";
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (empId != dt.Rows[i]["EmpSystemID"].ToString())
+                    {
+                        _data = new List<DataRow>();
+                        dicBonus.Add(dt.Rows[i]["EmpSystemID"].ToString(), _data);
+                    }
+                    _data.Add(dt.Rows[i]);
+
+                    empId = dt.Rows[i]["EmpSystemID"].ToString();
+                }
+
+                return dicBonus;
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                //objCon = null;
+            }
+        }//End Function
 
 
         public void GenerateDic(Dictionary<string, DataRow> dsPolicy, Dictionary<string, List<DataRow>> dsSalaryStruc, string _currencyId, out Dictionary<string, double> dicNW, out Dictionary<string, double> dicW, out Dictionary<string, double> dicH)
@@ -2385,7 +2509,7 @@ namespace Library.HumanResource.Report.OT
                             FROM
                                     (
 									SELECT DISTINCT E.SystemID EmpSystemId,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
-											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
+											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,E.EmploymentType,
 											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
 											 S.UserName SectionName, E.SubSectionID, SS.UserName SubSectionName, E.EmployeeCategorySystemID,

@@ -171,6 +171,14 @@ function CompanyWiseBankSheetController(cboService, commonMessage, $scope, $root
             $scope.month = DropDownListMonth.getSelectedValue();
             $scope.year = DropDownListYear.getSelectedValue();
 
+            for (var i = 0; i < $scope.monthList.length; i++) {
+                if ($scope.monthList[i].Value == $scope.month) {
+                    var MonthName = $scope.monthList[i].Text;
+                    break
+                }
+            }
+
+
             $http({
                 method: 'POST',
                 url: $scope.path + 'CwReport',
@@ -183,6 +191,7 @@ function CompanyWiseBankSheetController(cboService, commonMessage, $scope, $root
                     ,'isActive': $scope.isActive,
                     'isSeperated': $scope.isSeperated,
                     'isMaternity': $scope.isMaternity,
+                    'MonthName': MonthName
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

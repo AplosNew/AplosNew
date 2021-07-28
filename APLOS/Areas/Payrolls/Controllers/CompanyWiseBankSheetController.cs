@@ -83,7 +83,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
             empStatus += ")";
 
-            var str = @"SELECT distinct b.Id BankId,b.UserName BankName,sp.PaymentMode
+            var str = @"SELECT distinct sp.PaymentMode,isnull(b.Id,'') BankId,isnull(b.UserName,'') BankName
 								,p.Id PlantId, p.UserName PlantName
 								,En.Id EntityId,En.UserName Entity
 								,Dp.Id DepartmentId,DP.UserName DepartmentName
@@ -91,7 +91,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 								,SE.Id SectionId, SE.UserName SectionName
 								,SuS.Id SubSectionId, SuS.UserName SubSectionName
 								,Ec.Id EmployeeCategoryId,EC.UserName EmployeeCategory
-								,sp.IFSCCode,sp.MICRCode
+								
 								FROM SalaryProcessLogDetail sp
 								Left join SalaryProcMaster spm on spm.SystemID=sp.SalaryProcessId
 								Left join HKP.Bank b on b.Id= sp.BankSystemID
@@ -114,13 +114,13 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #region --- Report---
         [HttpPost, Authorize]
-        public JsonResult CwReport(string PaymentModeList, string BankList, string PlantList, string EntityList, string DepartmentList, string DesignationList, string SectionList, string SubSectionList, string Month, string Year, bool isActive, bool isSeperated, bool isMaternity)
+        public JsonResult CwReport(string PaymentModeList, string BankList, string PlantList, string EntityList, string DepartmentList, string DesignationList, string SectionList, string SubSectionList, string Month, string Year, bool isActive, bool isSeperated, bool isMaternity,string MonthName)
         {
             try
             {
                 string fileName = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                fileName = GetReport(PaymentModeList, BankList, PlantList, EntityList, DepartmentList, DesignationList, SectionList, SubSectionList, Month, Year,isActive,isSeperated,isMaternity);
+                fileName = GetReport(PaymentModeList, BankList, PlantList, EntityList, DepartmentList, DesignationList, SectionList, SubSectionList, Month, Year,isActive,isSeperated,isMaternity, MonthName);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -128,7 +128,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 throw ex;
             }
         }
-        public string GetReport(string PaymentModeList, string BankList, string PlantList, string EntityList, string DepartmentList, string DesignationList, string SectionList, string SubSectionList, string Month, string Year, bool isActive, bool isSeperated, bool isMaternity)
+        public string GetReport(string PaymentModeList, string BankList, string PlantList, string EntityList, string DepartmentList, string DesignationList, string SectionList, string SubSectionList, string Month, string Year, bool isActive, bool isSeperated, bool isMaternity, string MonthName)
         {
             #region Variable
 
@@ -436,7 +436,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                     xlsRow += 1;
-                    sheet1.Range[xlsRow, 3].Text = "CompanyWiseBankSheet Report, Month:- " + Month + " Year:-" + Year;
+                    sheet1.Range[xlsRow, 3].Text = "CompanyWiseBankSheet Report, Month:- " + MonthName + " Year:-" + Year;
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
                     sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
                     sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 9;
