@@ -390,7 +390,6 @@ namespace Library.Service.Expenses
                                               AND(SELECT  EndDate FROM SCS.FiscalYearPeriod where '" + toDate + @"' between StartDate and EndDate)";
 
                     delayPosting = @"AND CONVERT(DATE,V.AddedDate) = CONVERT(DATE,'" + toDate + @"') AND MONTH(V.PostingDate) < MONTH('" + toDate + @"') AND YEAR(V.PostingDate) <= YEAR('" + toDate + @"')";
-
                 }
 
                 seq += 1;
