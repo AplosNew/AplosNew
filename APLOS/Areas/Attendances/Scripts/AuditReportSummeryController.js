@@ -7,6 +7,16 @@ function AuditReportSummeryController(commonMessage, $scope, $rootScope, baseSer
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.path = 'Attendances/AuditReportSummery/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
+    var date = new Date(), y = date.getFullYear(), m = date.getMonth();
+    var firstDay = new Date(y, m, 1);
+    $scope.effectiveDate = $filter('dateFiltering')(firstDay);
+
+
+    var yesterday = new Date();
+
+    var datee = yesterday.setDate(yesterday.getDate() - 1);
+
+    $scope.ToDate = $filter('dateFiltering')(new Date(datee), 'dd-MM-yyyy');
 
 
     $scope.Report = function () {

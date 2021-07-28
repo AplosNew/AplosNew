@@ -152,7 +152,13 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
     $scope.EmployeeList = [];
     $scope.EmployeeListDefault = [];
     $scope.EmployeeListTemp = [];
+    $scope.DestinationId = [];
     $scope.GetEmployeeInformation = function () {
+
+        //addition Sayanto
+        var DropDownListObj = $("#plantList").data("ejDropDownList");
+        $scope.DestinationId = DropDownListObj.getSelectedValue();
+        ///
         var monthName = $scope.monthList.filter(function (mnth) {
             return mnth.Value == $scope.month;
         });
@@ -376,6 +382,22 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
     };
     //--------------------------------------//
 
+    // THe Addition Of Plant Filter
+    $scope.plantList = [];
+    $scope.getDestination = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getPlants',
+        }).then(function successCallback(response) {
+            $scope.plantList = response.data;
+        });
+    };
+    $scope.getDestination();
+ 
+//****************** To set data ***********************
+ 
+
+ 
 
 
 

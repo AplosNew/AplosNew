@@ -146,7 +146,13 @@ namespace Aplos.Areas.Attendances.Controllers
             return jsondata;
         }
 
-
+        [HttpGet, Authorize]
+        public ActionResult getPlants()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var str = "Select Id as Value, UserName as Text from org.Plant where CompanyId ='"+identity.CompanyId+"'";
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetCbo()

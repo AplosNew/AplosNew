@@ -9,18 +9,29 @@
         <input type="hidden" ng-model="Header.Id">
         <div class="row">
             <div class="col-xs-12 col-sm-6 col-md-6">
-                <div class="form-group" show-errors id="RosterId" style="display:none;">
+                <div class="form-group"  id="RosterId" style="display:none;">
                     <label class="col-sm-4 control-label">Roster Id<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <input type="text" name="RosterId" ng-model="Header.Id" class="form-control" maxlength="15" readonly>
                     </div>
                 </div>
-                <div class="form-group" show-errors>
+                <div class="form-group" >
+                    <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="Company" ng-change="getPlants()" name="Entity"
+                                    ng-options="item.Value as item.Text for item in CompanyList"  tabindex="2">
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" >
                     <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
                             <select class="form-control" ng-model="Header.PlantId" name="Entity"
-                                    ng-options="item.Value as item.Text for item in PlantList" required tabindex="2">
+                                    ng-options="item.Value as item.Text for item in PlantList"  tabindex="2">
                                 <option value="">--Select--</option>
                             </select>
                         </div>
@@ -216,7 +227,7 @@
                         <div class="col-sm-8 show-message">
                             <div class="select-style">
                                 <select class="form-control" ng-model="BudgetPlantId" name="Plant"
-                                        ng-options="item.Value as item.Text for item in PlantList" required tabindex="2">
+                                        ng-options="item.Value as item.Text for item in PlantList"  tabindex="2">
                                     <option value="">--Select--</option>
                                 </select>
                             </div>
@@ -260,45 +271,59 @@
 
     <div class="row aplos-grid-toggle">
         <div class="col-md-6 col-xs-6 col-lg-6 col-sm-12">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Plant</label>
+            <div class="form-group" >
+                <label class="col-sm-4 control-label">Company<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="BudgetPlantId" name="Plant"
-                                ng-options="item.Value as item.Text for item in PlantList" required tabindex="2">
+                        <select class="form-control" ng-model="Company" ng-change="getPlants()" name="Entity"
+                                ng-options="item.Value as item.Text for item in CompanyList"  tabindex="2">
                             <option value="">--Select--</option>
                         </select>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="table-responsive aplos-grid-toggle">
-        <div class="common-btn" style="margin-top:10px;">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="getCurrentFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-search"></i> View </button></li>
-
-            </ul>
+        <div class="col-md-6 col-xs-6 col-lg-6 col-sm-12">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Plant</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="BudgetPlantId" name="Plant"
+                                    ng-options="item.Value as item.Text for item in PlantList" tabindex="2">
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
         </div>
-        <div id="CurrentListRoster" ej-grid e-datasource="currentList" e-templaterefresh="refreshTemplate"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
-             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;"
-             e-recorddoubleclick="fillUpdates">
-            <div e-columns>
-                <div e-column e-field="Rows" e-headertext="Sr. No." e-width="2"></div>
-                <div e-column e-field="BudgetId" e-headertext="Budget Id" e-width="2"></div>
-                <div e-column e-field="RosterId" e-headertext="Roster Id" e-width="2"></div>
-                <div e-column e-field="AddedDate" e-headertext="Creation Date" e-width="2"></div>
-                <div e-column e-field="AddedBy" e-headertext="Added By" e-width="2"></div>
+
+        </div>
+
+        <div class="table-responsive aplos-grid-toggle">
+            <div class="common-btn" style="margin-top:10px;">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="getCurrentFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-search"></i> View </button></li>
+
+                </ul>
+            </div>
+            <div id="CurrentListRoster" ej-grid e-datasource="currentList" e-templaterefresh="refreshTemplate"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;"
+                 e-recorddoubleclick="fillUpdates">
+                <div e-columns>
+                    <div e-column e-field="Rows" e-headertext="Sr. No." e-width="2"></div>
+                    <div e-column e-field="BudgetId" e-headertext="Budget Id" e-width="2"></div>
+                    <div e-column e-field="RosterId" e-headertext="Roster Id" e-width="2"></div>
+                    <div e-column e-field="AddedDate" e-headertext="Creation Date" e-width="2"></div>
+                    <div e-column e-field="AddedBy" e-headertext="Added By" e-width="2"></div>
+                </div>
             </div>
         </div>
+        <confirm-modal></confirm-modal>
+
+
+
     </div>
-    <confirm-modal></confirm-modal>
-
-
-
-</div>
 
 
 

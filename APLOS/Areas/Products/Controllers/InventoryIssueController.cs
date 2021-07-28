@@ -1290,7 +1290,13 @@ namespace Aplos.Areas.Products.Controllers
 							Order BY II.SalesDate DESC";
 				}
 				//return _sqlRepository.GetDataCollection(sql);
-				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+
+				//return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+				var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+				jsondata.MaxJsonLength = int.MaxValue;
+				return jsondata;
 			}
 			catch (Exception ex)
 			{

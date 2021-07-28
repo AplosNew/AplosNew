@@ -45,12 +45,26 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public IEnumerable<object> getPlants()
+        public IEnumerable<object> getPlants(string cmp)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = @"Select Username as Text , Id as Value from ORG.Plant where CompanyId = '" + identity.CompanyId + "'";
+                var str = @"Select Username as Text , Id as Value from ORG.Plant where CompanyId = '" + cmp + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getCompany()
+        {
+            try
+            {
+               
+                var str = @"Select Username as Text , Id as Value from ORG.Company ";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
