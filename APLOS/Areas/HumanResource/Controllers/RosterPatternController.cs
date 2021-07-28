@@ -70,9 +70,15 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult getPlants()
+        public ActionResult getCompany()
         {
-            return Json(rs.getPlants(), JsonRequestBehavior.AllowGet);
+            return Json(rs.getCompany(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getPlants(string cmp)
+        {
+            return Json(rs.getPlants(cmp), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

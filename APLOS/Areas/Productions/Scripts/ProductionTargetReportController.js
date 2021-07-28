@@ -1,11 +1,11 @@
 ﻿
 'use strict';
-ProductionPlanningReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function ProductionPlanningReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = "Production Planning Report";
+ProductionTargetReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function ProductionTargetReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = "Production Target Report";
     $scope.Action = 'Save';
     $scope.index = -1;
-    $scope.path = 'Productions/ProductionPlanningReport/';
+    $scope.path = 'Productions/ProductionTargetReport/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
