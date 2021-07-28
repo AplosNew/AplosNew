@@ -59,13 +59,13 @@ namespace Aplos.Areas.Leave.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
-        public ActionResult GetEmp(string YearId)
+        public ActionResult GetEmp(string YearId,string ToDate)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 clsLeaveBalance ep = new clsLeaveBalance();
-                return Json(ep.GetEmp(identity.PlantId, identity.CompanyId, YearId), JsonRequestBehavior.AllowGet);
+                return Json(ep.GetEmp(identity.PlantId, identity.CompanyId, YearId,ToDate), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -74,13 +74,13 @@ namespace Aplos.Areas.Leave.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetLeaveBalance(string year, string empId)
+        public ActionResult GetLeaveBalance(string year, string empId,string ToDate)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 clsLeaveBalance ep = new clsLeaveBalance();
-                return Json(_leaveTransactionService.LoadGrdAllocatedLvDetails(identity.CompanyGroupId, identity.PlantId, empId, year), JsonRequestBehavior.AllowGet);
+                return Json(ep.LoadGrdAllocatedLvDetails(identity.CompanyGroupId, identity.PlantId, empId, year,ToDate), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -91,14 +91,14 @@ namespace Aplos.Areas.Leave.Controllers
         #region Report
 
         [HttpGet, Authorize]
-        public ActionResult GetReport(ReportFormat reportFormat, string Year)
+        public ActionResult GetReport(ReportFormat reportFormat, string Year,string ToDate)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 clsLeaveBalance ep = new clsLeaveBalance();
                 var reportFileName = "Leave Register Report";
-                var workbook = ep.XlsLeaveBalanceRpt(identity.PlantId, identity.CompanyId ,Year);
+                var workbook = ep.XlsLeaveBalanceRpt(identity.PlantId, identity.CompanyId ,Year,ToDate);
                 switch (reportFormat)
                 {
                     case ReportFormat.Pdf:
