@@ -201,6 +201,7 @@ function JobWorkItemController(addressService, $window, cboService, commonMessag
 
                     $scope.getAllData();
                     $scope.Action = 'Save';
+                    $scope.Clear();
                 }
                 else {
                     ShowResult(response.data.Message, 'failure');

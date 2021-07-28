@@ -1554,6 +1554,7 @@ namespace Library.Service.Payrolls.SalaryProcess
         //}
         public void SaveData(string pYearNo, string pMonthNo, string ExtraSlrHd, List<ExternalDataUploadVM> data, CustomIdentity Identity)
         {
+            DataSet dsLock = null;
             DataSet dsMWESAMst = null;
             DataTable dtMWESAMst = null;
             DataRow drMWESAMst = null;
@@ -1628,7 +1629,12 @@ namespace Library.Service.Payrolls.SalaryProcess
 
                     }
 
+                    LockDataCheckForEmployee(empids, YearNo, MonthNo, out dsLock);
 
+                    if (dsLock.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Salary Locked For this Employee");
+                    }
 
                     objEmpExtAmt.DeleteOldExtraData(YearNo, MonthNo, Identity.PlantId, ExtraSlrHd);
 
@@ -1838,6 +1844,7 @@ namespace Library.Service.Payrolls.SalaryProcess
         public void SaveCompanyWiseData(string pYearNo, string pMonthNo, string ExtraSlrHd, List<ExternalDataUploadVM> data, CustomIdentity Identity)
         {
             DataSet dsMWESAMst = null;
+            DataSet dsLock = null;
             DataTable dtMWESAMst = null;
             DataRow drMWESAMst = null;
             DataView dvMWESAMst = null;
@@ -1914,7 +1921,12 @@ namespace Library.Service.Payrolls.SalaryProcess
 
                     }
 
-                    
+                    LockDataCheckForEmployee(empids, YearNo, MonthNo, out dsLock);
+
+                    if (dsLock.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Salary Locked For this Employee");
+                    }
 
                     objEmpExtAmt.DeleteCompanyWiseOldExtraData(YearNo, MonthNo, Identity.PlantId, ExtraSlrHd);
 
@@ -2081,6 +2093,26 @@ namespace Library.Service.Payrolls.SalaryProcess
                 dtMWESAChd = null;
                 drMWESAChd = null;
                 dvMWESAChd = null;
+            }
+        }//End Function
+
+        public void LockDataCheckForEmployee(string empids, int YearNo, int MonthNo, out DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = "select * from SalaryLock where EmpSystemId in (" + empids + ") and YearNo='" + YearNo + "' and MonthNo='" + MonthNo + "' and IsLocked=1";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
             }
         }//End Function
 

@@ -69,6 +69,24 @@ namespace Aplos.Areas.JobWork.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetDataToDisable(string JWActivityId, string Type)
+        {
+            string sql = "";
+            if (Type == "Value Added")
+            {
+                sql = @"select * from MST.JobWorkValueAddedMaster where JobWorkActivityId='"+ JWActivityId + @"' ";
+            }
+
+            if (Type == "Transformation")
+            {
+                sql = @"select * from MST.JobWorkTransformationMaster where JobWorkActivityId='"+ JWActivityId + @"' ";
+            }
+
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
 
         // Delete
         [HttpGet, Authorize]

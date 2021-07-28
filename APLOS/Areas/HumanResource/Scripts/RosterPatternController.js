@@ -63,19 +63,31 @@ function RosterPatternController(commonMessage, $scope, $rootScope, baseService,
         UserName: null,
     }
 
-    //Get Plants List 
+    //Get Plants List and Company List
     $scope.PlantList = [];
     $scope.getPlants = function () {
         $http({
             method: 'GET',
-            url: url + 'getPlants'
+            url: url + 'getPlants',
+            params: {'cmp':$scope.Company}
         }).then(function success(response) {
             $scope.PlantList = response.data;
         })
     }
 
-    $scope.getPlants();
 
+    $scope.Company = null;
+    $scope.CompanyList = [];
+    $scope.getCompany = function () {
+        $http({
+            method: 'GET',
+            url: url + 'getCompany'
+        }).then(function success(response) {
+            $scope.CompanyList = response.data;
+        })
+    }
+
+    $scope.getCompany();
 
     //Get The Main Master Grid
     $scope.masterGrid = [];
@@ -442,7 +454,7 @@ function RosterPatternController(commonMessage, $scope, $rootScope, baseService,
     /////
     /////
     ///Everything For the 2nd Page Budget
-    $scope.BudgetPlantId = "";
+    $scope.BudgetPlantId = null;
     $scope.fileData = [];
     $scope.GetSample = function () {
         var reportFormat = "Excel";

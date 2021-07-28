@@ -524,18 +524,14 @@
 						<th>Sku3</th>
 						<th>Country</th>
 						<th>Sales Order</th>
-
-
-
-
+						<th>Requested Qty</th>
+						<th>ConvertUOM</th>
+						<th style="width:500px;">Required(Valid)Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 						<th>StockQty</th>
 						<th>S.B.UoM</th>
 						@*<th>IssuedQty Qty</th>*@
 						<th>BOQ</th>
 						<th>Con.UOM</th>
-						<th>Requested Qty</th>
-						<th>ConvertUOM</th>
-						<th style="width:500px;">Required(Valid)Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 						@*<th></th>*@
 						@*<th>TranUOM</th>*@
 						<th>Consumption</th>
@@ -573,15 +569,6 @@
 						<td>{{x.CountryName}}</td>
 						<td class="text-right">{{x.SalesOrderId}}</td>
 
-
-
-
-
-						<td class="text-right">{{x.TotalQty}}</td>
-						<td>{{x.StockUOM}}</td>
-						@*<td class="text-right">{{x.IssuedQty}}</td>*@
-						<td class="text-right">{{x.RequisitionQtyOrginal}}</td>
-						<td>{{x.consumptionUoM}}</td>
 						<td class="text-right">{{x.RequisitionQty}}</td>
 
 						<td>
@@ -592,6 +579,11 @@
 						<td class="text-right">
 							<input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.RequestedQty" ng-disabled="false">
 						</td>
+						<td class="text-right">{{x.TotalQty}}</td>
+						<td>{{x.StockUOM}}</td>
+						@*<td class="text-right">{{x.IssuedQty}}</td>*@
+						<td class="text-right">{{x.RequisitionQtyOrginal}}</td>
+						<td>{{x.consumptionUoM}}</td>
 						@*<td>{{x.TransactionUoMName}}</td>*@
 						@*<td class="text-right">
 			<ul class="list-inline action-list"></ul>
