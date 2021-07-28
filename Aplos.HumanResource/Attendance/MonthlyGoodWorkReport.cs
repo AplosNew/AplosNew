@@ -22,12 +22,17 @@ namespace Library.HumanResource.Attendance
         }
 
 
-        public void GetMonthlyGoodWorkReport(Dictionary<string, string> parameters,string sPlantID, string frmDate, string toDate, string sUnit, string sDevi, string sDept, string sSect, string sSbSe, string sLine, string sEmpC, string sDeGr, string sDesi, out DataSet dsRef)
+        public void GetMonthlyGoodWorkReport(Dictionary<string, string> parameters, string frmDate, string toDate, string sUnit, string sDevi, string sDept, string sSect, string sSbSe, string sLine, string sEmpC, string sDeGr, string sDesi, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
             string strSql = string.Empty;
             string filters = "";
-            if(parameters["EntityId"] != "'',''")
+
+            if (parameters["PlantId"] != "'',''")
+            {
+                filters = filters + "and isnull(e.PlantId,'') in (" + parameters["PlantId"] + ") ";
+            }
+            if (parameters["EntityId"] != "'',''")
             {
                 filters = filters + "and isnull(en.Id,'') in (" + parameters["EntityId"] + ") ";
             }
@@ -58,7 +63,7 @@ namespace Library.HumanResource.Attendance
                                     (SELECT E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ,
                                             D.UserName Designation,ISNULL( LG.UserName, '') LegalDG, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
                                             S.UserName Section, SB.UserName SubSection, L.UserName Line
-                                            ,ot.WorkDate , ot.OThour as TotalOTHr ,DD.UserName GivenDesignation,hr.OTConsiderOn,E.EmployeeCodeNumeric
+                                            ,ot.WorkDate , ot.OThour as TotalOTHr ,DD.UserName GivenDesignation,hr.OTConsiderOn,E.EmployeeCodeNumeric,E.PlantId , P.UserName as Plant
                                     FROM dbo.EmployeeInformation E
                                                 LEFT JOIN dbo.OTfromApp ot on ot.EmpSystemId = E.SystemId
                                                 LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
@@ -74,9 +79,10 @@ namespace Library.HumanResource.Attendance
                                                 left join mst.PayrollGroupMaster pgm on pgm.EmployeeId = e.SystemId
 												left join hkp.PayrollGroup pg on pg.id = pgm.PayrollGroupId
 												left join org.Entity en on en.PlantId = e.PlantId
+                                                left join org.Plant P on P.Id = E.PlantId
                                                 left join dbo.EmployeeAttendanceGroup eag on eag.EmployeeId = E.SystemId
                                                 left join dbo.AttendanceGroup ag on ag.Id = eag.AttendanceGroupId
-                                    WHERE E.PlantID = '" + sPlantID + @"' AND ot.WorkDate BETWEEN '" + frmDate + @"' AND '" + toDate + @"' AND ot.OThour > 0
+                                    WHERE ot.WorkDate BETWEEN '" + frmDate + @"' AND '" + toDate + @"' AND ot.OThour > 0
 AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"' ) " + filters + @"
 ";
 
@@ -119,7 +125,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"' ) " + filters + 
 
                 strSql = strSql + @") A
                         GROUP BY A.EmployeeCode, A.EmployeeName, A.DOJ, A.Designation,A.LegalDG, A.Unit, A.Division, A.Department,
-		                            A.Section, A.SubSection, A.Line, A.WorkDate, A.TotalOTHr,A.GivenDesignation,OTConsiderOn,A.EmployeeCodeNumeric
+		                            A.Section, A.SubSection, A.Line, A.WorkDate, A.TotalOTHr,A.GivenDesignation,OTConsiderOn,A.EmployeeCodeNumeric, A.PlantId , A.Plant
                         ORDER BY A.Unit, A.EmployeeCodeNumeric, A.Section, A.SubSection";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -135,7 +141,7 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"' ) " + filters + 
             }
         }
 
-        public IEnumerable<object> getFilters(string plantId)
+        public IEnumerable<object> getFilters(string CompanyId)
         {
             try
             {
@@ -144,7 +150,8 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"' ) " + filters + 
                         isnull(sec.Id,'') as SectionId , isnull(sec.UserName ,'') as Section,
                         isnull(ssec.Id,'') as SubSectionId , isnull(ssec.UserName,'') as SubSection,
                         isnull(pg.Id,'') as PayrollGroupId , isnull(pg.UserName,'') as PayRollGroup,
-                        isnull(ag.Id , '') as AttndGroupId , isnull(ag.Username ,'') as AttndGroup
+                        isnull(ag.Id , '') as AttndGroupId , isnull(ag.Username ,'') as AttndGroup,
+						isnull(p.Id,'') as PlantId , isnull(ei.PlantId,'') as ppId , isnull (p.UserName,'') as PlantName
                         from
                         dbo.EmployeeInformation ei
                         left join org.Plant p on p.Id = ei.PlantId
@@ -156,11 +163,12 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"' ) " + filters + 
                         left join hkp.PayrollGroup pg on pg.id = pgm.PayrollGroupId
                         left join dbo.EmployeeAttendanceGroup eag on eag.EmployeeId = ei.SystemId
                         left join dbo.AttendanceGroup ag on ag.Id = eag.AttendanceGroupId
-                        where p.Id = '" + plantId + @"'
+						where p.Id is not null and p.CompanyId = '"+CompanyId+@"'
                         group by e.Id , e.UserName ,
                         dept.Id , dept.UserName ,
                         sec.Id  , sec.UserName ,
-                        ssec.Id  , ssec.UserName , pg.Id , pg.Username , ag.Id , ag.Username
+                        ssec.Id  , ssec.UserName , pg.Id , pg.Username , ag.Id , ag.Username , p.Id , ei.PlantId , p.UserName
+                        
                         ";
                 return _sqlRepository.GetDataCollection(str);
             }

@@ -803,6 +803,7 @@ var upanelApp = angular
     .controller('FinalAttendanceProcessController', FinalAttendanceProcessController)
     .controller('ShiftChangeSectionWiseController', ShiftChangeSectionWiseController)
     .controller('LeaveBalanceReportController', LeaveBalanceReportController)
+    .controller('LeaveBalanceToDateReportController', LeaveBalanceToDateReportController)
     .controller('welfareSummaryReportController', welfareSummaryReportController)
     .controller('salaryStructureReportPlantWiseController', salaryStructureReportPlantWiseController)
     .controller('GRNUncheckedAndUnApprovedController', GRNUncheckedAndUnApprovedController)
