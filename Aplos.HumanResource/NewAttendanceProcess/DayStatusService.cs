@@ -27,7 +27,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = @"Select Username as Text , Id as Value from ORG.Plant where CompanyId = '" + identity.CompanyId + "'";
+                var str = @"Select Username as Text , Id as Value from ORG.Plant --where CompanyId = '" + identity.CompanyId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
