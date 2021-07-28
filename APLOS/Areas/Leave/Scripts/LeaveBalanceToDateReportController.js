@@ -1,9 +1,9 @@
 ﻿'use strict';
-LeaveBalanceReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
-function LeaveBalanceReportController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
+LeaveBalanceToDateReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
+function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
     $rootScope.title = 'Leave Register';
     $scope.Action = 'Save';
-    $scope.path = 'Leave/LeaveBalanceReport/';
+    $scope.path = 'Leave/LeaveBalanceToDateReport/';
 
     $scope.LBR = {
         RadioValue: 'General',
@@ -22,6 +22,13 @@ function LeaveBalanceReportController(commonMessage, $scope, $rootScope, baseSer
     $scope.getYear();
     //#endregion
 
+    $scope.selectedValues = {
+       ToDate: null,        
+    };
+
+
+
+
     //#region Get Function
     $scope.YearId = null;
     $scope.Report = function () {
@@ -30,7 +37,10 @@ function LeaveBalanceReportController(commonMessage, $scope, $rootScope, baseSer
             if ($scope.YearId == "" || $scope.YearId == null) {
                 throw "Select Year";
             }
-            var url = 'Leave/LeaveBalanceReport/GetReport?reportFormat=' + reportFormat + "&Year=" + $scope.YearId;
+            if ($scope.selectedValues.ToDate == "" || $scope.selectedValues.ToDate == null) {
+                throw "Select Date";
+            }
+            var url = $scope.path+ '/GetReport?reportFormat=' + reportFormat + "&Year=" + $scope.YearId + "&ToDate=" + $scope.selectedValues.ToDate;
 
             $rootScope.report(url);
         } catch (e) {
@@ -44,9 +54,13 @@ function LeaveBalanceReportController(commonMessage, $scope, $rootScope, baseSer
             if ($scope.YearId == "" || $scope.YearId == null) {
                 throw "Select Year";
             }
+
+            if ($scope.selectedValues.ToDate == "" || $scope.selectedValues.ToDate == null) {
+                throw "Select Date";
+            }
             $http({
                 method: 'GET',
-                url: $scope.path + 'GetEmp?YearId=' + $scope.YearId,
+                url: $scope.path + 'GetEmp?YearId=' + $scope.YearId + '&ToDate=' + $scope.selectedValues.ToDate,
             }).then(function successCallback(response) {
                 $scope.EmpData = response.data;
                 for (var i = 0; i < $scope.EmpData.length; i++) {
@@ -67,7 +81,7 @@ function LeaveBalanceReportController(commonMessage, $scope, $rootScope, baseSer
 
     $scope.LeaveBalanceList = [];
     $scope.LeaveTypes = function () {
-        $http.get('Leave/LeaveBalanceReport/GetLeaveBalance?YearId=' + $scope.YearNo)
+        $http.get($scope.path+ '/GetLeaveBalance?YearId=' + $scope.YearNo + "&ToDate=" + $scope.selectedValues.ToDate)
             .then(function (response) {
                 $scope.LeaveBalanceList = response.data;
             });
@@ -90,7 +104,7 @@ function LeaveBalanceReportController(commonMessage, $scope, $rootScope, baseSer
     };
 
     $scope.LeaveTypes = function (empId) {
-        $http.get('Leave/LeaveBalanceReport/GetLeaveBalance?year=' + $scope.YearId + '&empId=' + empId)
+        $http.get($scope.path+ '/GetLeaveBalance?year=' + $scope.YearId + '&empId=' + empId + "&ToDate=" + $scope.selectedValues.ToDate)
             .then(function (response) {
                 $scope.LeaveBalanceList = response.data;
             });
