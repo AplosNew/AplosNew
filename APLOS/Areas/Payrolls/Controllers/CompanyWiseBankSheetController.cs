@@ -455,7 +455,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                     #region Page Setup
 
-                    sheet1.Name = "DayStatus";
+                    sheet1.Name = "CompanyWiseBankSheet";
                     sheet1.PageSetup.TopMargin = 0.5;
                     sheet1.PageSetup.BottomMargin = 0.7;
                     sheet1.PageSetup.PrintTitleRows = "$1:$5";
