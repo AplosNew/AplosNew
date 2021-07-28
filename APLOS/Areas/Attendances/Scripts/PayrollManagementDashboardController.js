@@ -1,6 +1,6 @@
 ﻿'use strict';
-AuditReportSummeryController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$window'];
-function AuditReportSummeryController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $window) {
+PayrollManagementDashboardController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$window'];
+function PayrollManagementDashboardController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $window) {
     $rootScope.title = 'Audit Report Summary';
     //$scope.index = -1;
 

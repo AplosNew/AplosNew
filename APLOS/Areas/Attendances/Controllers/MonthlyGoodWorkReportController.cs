@@ -118,13 +118,13 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 #region DataSet
 
-                gw.GetMonthlyGoodWorkReport( parameters,identity.PlantId, dtFrmDt.ToString("dd-MMM-yyyy"), dtEndDate.ToString("dd-MMM-yyyy"), sUnit, sDevi, sDept, sSect, sSbSe, sLine, sEmpC, sDeGr, sDesi, out dsOT );
+                gw.GetMonthlyGoodWorkReport( parameters, dtFrmDt.ToString("dd-MMM-yyyy"), dtEndDate.ToString("dd-MMM-yyyy"), sUnit, sDevi, sDept, sSect, sSbSe, sLine, sEmpC, sDeGr, sDesi, out dsOT );
                 dtOT = dsOT.Tables[0];
                 dvOT = new DataView();
                 dvOT.Table = dsOT.Tables[0];
                 var ListOT = dsOT.Tables[0].ToList<OTReport>();
                 DataView dvEmp = new DataView(dsOT.Tables[0]);
-                DataTable dtEmp = dvEmp.ToTable(true, "EmployeeCode", "EmployeeName", "DOJ", "Unit", "Department", "Section", "Designation", "GivenDesignation", "LegalDG");
+                DataTable dtEmp = dvEmp.ToTable(true, "EmployeeCode", "EmployeeName", "Plant" ,"DOJ", "Unit", "Department", "Section", "Designation", "GivenDesignation", "LegalDG");
                 objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
 
                 objRpt.SelectedPlant(identity.PlantId, out dsFactory);
@@ -145,6 +145,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 int iSrNo = 0;
                 int iEmpCode = 0;
                 int iEmpName = 0;
+                int PlantName = 0;
                 int iDOJ = 0;
                 int iUnit = 0;
                 int iDepart = 0;
@@ -179,6 +180,12 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, iEmpName].ColumnWidth = 22;
                 sheet1.Range[xlsRow, iEmpName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, iEmpName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                xlsCol += 1;
+                PlantName = xlsCol;
+                sheet1.Range[xlsRow, PlantName].Text = "Plant Name";
+                sheet1.Range[xlsRow, PlantName].ColumnWidth = 22;
+                sheet1.Range[xlsRow, PlantName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, PlantName].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 xlsCol += 1;
                 iDOJ = xlsCol;
                 sheet1.Range[xlsRow, iDOJ].Text = "DOJ";
@@ -261,6 +268,10 @@ namespace Aplos.Areas.Attendances.Controllers
                     sheet1.Range[xlsRow, iEmpName].Text = dtEmp.Rows[i]["EmployeeName"].ToString().Trim();
                     sheet1.Range[xlsRow, iEmpName].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, iEmpName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    sheet1.Range[xlsRow, PlantName].Text = dtEmp.Rows[i]["Plant"].ToString().Trim();
+                    sheet1.Range[xlsRow, PlantName].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet1.Range[xlsRow, PlantName].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                     sheet1.Range[xlsRow, iDOJ].Text = dtEmp.Rows[i]["DOJ"].ToString().Trim();
                     sheet1.Range[xlsRow, iDOJ].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -391,40 +402,40 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
-                xlsRow += 1;
-                if (dsFactory.Tables[0].Rows.Count > 0)
-                {
-                    FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
-                    //FactoryName = dsFactory.Tables[0].Rows[0]["PlantName"].ToString();
-                }
-                else
-                {
-                    FactoryName = "";
-                }
-                sheet1.Range[xlsRow, 3].Text = FactoryName;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
-                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                //xlsRow += 1;
+                //if (dsFactory.Tables[0].Rows.Count > 0)
+                //{
+                //    FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+                //    //FactoryName = dsFactory.Tables[0].Rows[0]["PlantName"].ToString();
+                //}
+                //else
+                //{
+                //    FactoryName = "";
+                //}
+                //sheet1.Range[xlsRow, 3].Text = FactoryName;
+                //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                //sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                //sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
-                xlsRow += 1;
-                if (dsFactory.Tables[0].Rows.Count > 0)
-                {
-                    FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
-                }
-                else
-                {
-                    FactoryAddress = "";
-                }
-                sheet1.Range[xlsRow, 3].Text = FactoryAddress;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 26;
-                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                //xlsRow += 1;
+                //if (dsFactory.Tables[0].Rows.Count > 0)
+                //{
+                //    FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
+                //}
+                //else
+                //{
+                //    FactoryAddress = "";
+                //}
+                //sheet1.Range[xlsRow, 3].Text = FactoryAddress;
+                //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                //sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 26;
+                //sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                 xlsRow += 1;
                 sheet1.Range[xlsRow, 3].Text = "Monthly Good Work Information";
@@ -509,7 +520,7 @@ namespace Aplos.Areas.Attendances.Controllers
         public ActionResult getFilters()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(gw.getFilters(identity.PlantId) , JsonRequestBehavior.AllowGet);
+            return Json(gw.getFilters(identity.CompanyId) , JsonRequestBehavior.AllowGet);
         }
       
         class OTReport

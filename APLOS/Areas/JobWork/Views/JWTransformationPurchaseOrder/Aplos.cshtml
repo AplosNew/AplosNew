@@ -388,404 +388,406 @@
 
 
 <div class="form-horizontal form-elements" ng-form="productNewForm">
-    <fieldset class="scheduler-border">
-        <legend class="scheduler-border">Job Work PO Type</legend>
-        <div class="row">
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">PO Type</label>
-                    <div class="col-sm-8">
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="POType" ng-model="productNew.POType" value="OSTransformationPO" ng-change="SetPOType();">
-                                <span class="cr"><i class="cr-icon"></i></span>Transformation
-                            </label>
-                            <label>
-                                <input type="radio" name="POType" ng-model="productNew.POType" value="OSValueAddedPO" ng-change="SetPOType();">
-                                <span class="cr"><i class="cr-icon"></i></span>ValueAdded
-                            </label>
+    <div ng-form name="JWPOForm">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Job Work PO Type</legend>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">PO Type</label>
+                        <div class="col-sm-8">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="POType" ng-model="productNew.POType" value="OSTransformationPO" ng-change="SetPOType();">
+                                    <span class="cr"><i class="cr-icon"></i></span>Transformation
+                                </label>
+                                <label>
+                                    <input type="radio" name="POType" ng-model="productNew.POType" value="OSValueAddedPO" ng-change="SetPOType();">
+                                    <span class="cr"><i class="cr-icon"></i></span>ValueAdded
+                                </label>
 
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-        </div>
-    </fieldset>
 
-    <fieldset class="scheduler-border">
-        <legend class="scheduler-border">Basic Info</legend>
-        <div class="row">
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Order Specific</label>
-                    <div class="col-sm-8">
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="No" ng-click="hide();ClearList('No');" ng-disabled="productNew.Id.length>0">
-                                <span class="cr"><i class="cr-icon"></i></span>No
-                            </label>
-                            <label>
-                                <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="Yes" ng-click="show();ClearList('Yes');" ng-disabled="productNew.Id.length>0">
-                                <span class="cr"><i class="cr-icon"></i></span>Yes
-                            </label>
+            </div>
+        </fieldset>
+
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Basic Info</legend>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Order Specific</label>
+                        <div class="col-sm-8">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="No" ng-click="hide();ClearList('No');" ng-disabled="productNew.Id.length>0">
+                                    <span class="cr"><i class="cr-icon"></i></span>No
+                                </label>
+                                <label>
+                                    <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="Yes" ng-click="show();ClearList('Yes');" ng-disabled="productNew.Id.length>0">
+                                    <span class="cr"><i class="cr-icon"></i></span>Yes
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" id="div_docNo">
-                    <label class="col-sm-4 control-label">Vendor Doc. RefNo<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="DocRefNo" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');" maxlength="100" tabindex="2" autocomplete="off">
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" id="div_docNo" show-errors>
+                        <label class="col-sm-4 control-label">Vendor Doc. RefNo<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="DocRefNo" required ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');" maxlength="100" tabindex="2" autocomplete="off">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" id="div_docDate">
-                    <label class="col-sm-3 control-label " style="padding-left: 0px;">Doc. Date<sup>*</sup></label>
-                    <div class="col-sm-9 show-message ">
-                        <input type="text" name="Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" id="div_docDate" show-errors>
+                        <label class="col-sm-3 control-label " style="padding-left: 0px;">Doc. Date<sup>*</sup></label>
+                        <div class="col-sm-9 show-message ">
+                            <input type="text" name="Doc Date" required ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
+                        </div>
                     </div>
                 </div>
+
             </div>
-
-        </div>
-        <div class="row" ng-hide="productNew.OrderSpecific==='No'">
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label" title="Contract">Contract No</label>
-                    <div class="col-sm-8 input-group" style="padding-left:4%; padding-right:5%">
-                        <input type="text" name="Contract" ng-model="productNew.ContractNo" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
-                        <span class="input-group-btn">
-                            <button ng-click="GetPopUpContract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
-                            <button ng-click="Clearcontract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
-                            <button ng-click="GetMasterOrderByContractList()" ng-hide="productNew.OrderSpecific==='No'" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i></button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label" title="Customer Name" ng-hide="productNew.OrderSpecific==='No'">Customer Name: </label>
-
-                    <label class="col-sm-8 control-label" title="Customer Name label" ng-hide="productNew.OrderSpecific==='No'" style="font-size: 75%;"><b>{{productNew.CustomerName}}</b></label>
-
-
-                </div>
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" id="div_PODate">
-                    <label class="col-sm-4 control-label" style="margin-left: -4%">Master LC Ref No</label>
-
-                    <label class="col-sm-6 control-label">{{productNew.LCRef}}</label>
-
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-xs-6 col-sm-6 col-md-6">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">Vendor<sup>*</sup></label>
-                    <div class="col-sm-9">
-                        <div class="input-group">
-                            <input type="text" hidden id="masterId" /> @*<label id="PartyCode"></label>*@
-                            <span class="input-group-addon"> {{productNew.PartyCode}}</span>
-                            <input type="text" name="Vendor" id="Vendor" ng-model="productNew.PartyName" class="form-control" readonly>
+            <div class="row" ng-hide="productNew.OrderSpecific==='No'">
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" title="Contract">Contract No</label>
+                        <div class="col-sm-8 input-group" style="padding-left:4%; padding-right:5%">
+                            <input type="text" name="Contract" ng-model="productNew.ContractNo" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
                             <span class="input-group-btn">
-                                <button name="submit" ng-click="showPartyPopUpForJWPO(productNew.ContractId)" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                                <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                                <button ng-click="GetPopUpContract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="Clearcontract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
+                                <button ng-click="GetMasterOrderByContractList()" ng-hide="productNew.OrderSpecific==='No'" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i></button>
                             </span>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-xs-3 col-sm-3 col-md-3">
-                <div class="form-group" id="div_grnNo">
-                    <label class="col-sm-4 control-label">PO No<sup>*</sup></label>
-                    <div class="col-sm-8 show-message ">
-                        <input type="text" name="PO No" ng-model="productNew.Id" class="form-control" maxlength="10" disabled>
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" title="Customer Name" ng-hide="productNew.OrderSpecific==='No'">Customer Name: </label>
+
+                        <label class="col-sm-8 control-label" title="Customer Name label" ng-hide="productNew.OrderSpecific==='No'" style="font-size: 75%;"><b>{{productNew.CustomerName}}</b></label>
+
+
                     </div>
                 </div>
-            </div>
-            <div class="col-xs-3 col-sm-3 col-md-3">
-                <div class="form-group" id="div_PODate">
-                    <label class="col-sm-4 control-label ">PO Date<sup>*</sup></label>
-                    <div class="col-sm-8 show-message ">
-                        <input type="text" name="PO Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.PODate" datepicker="modelValidation('div_PODate', 'productNew', 'PODate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" id="div_PODate">
+                        <label class="col-sm-4 control-label" style="margin-left: -4%">Master LC Ref No</label>
+
+                        <label class="col-sm-6 control-label">{{productNew.LCRef}}</label>
+
                     </div>
                 </div>
             </div>
 
-        </div>
+            <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-3 control-label">Vendor<sup>*</sup></label>
+                        <div class="col-sm-9 show-message">
+                            <div class="input-group">
+                                <input type="text" hidden id="masterId" /> @*<label id="PartyCode"></label>*@
+                                <span class="input-group-addon"> {{productNew.PartyCode}}</span>
+                                <input type="text" name="Vendor" id="Vendor" ng-model="productNew.PartyName" class="form-control" required readonly>
+                                <span class="input-group-btn">
+                                    <button name="submit" ng-click="showPartyPopUpForJWPO(productNew.ContractId)" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3">
+                    <div class="form-group" id="div_grnNo">
+                        <label class="col-sm-4 control-label">PO No</label>
+                        <div class="col-sm-8">
+                            <input type="text" ng-model="productNew.Id" class="form-control" maxlength="10" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3">
+                    <div class="form-group" id="div_PODate" show-errors>
+                        <label class="col-sm-4 control-label ">PO Date<sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
+                            <input type="text" name="PO Date" required ng-disabled="inventoryMaterialList.length>0" ng-change="ValidatePODate();" ng-model="productNew.PODate" datepicker="modelValidation('div_PODate', 'productNew', 'PODate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
+                        </div>
+                    </div>
+                </div>
 
+            </div>
+
+            <div class="row">
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Process Start Date<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Process Start Date" ng-model="productNew.ProcessStartDate" ng-change="ValidateProcessStartDate();" datepicker class="form-control" required tabindex="2">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Process End Date<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Process End Date" ng-model="productNew.ProcessEndDate" ng-change="ValidateProcessEndDate();" datepicker class="form-control" required tabindex="2">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" id="div_currency" show-errors>
+                        <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+                        <div class="col-sm-8 show-message ">
+                            <div class="select-style">
+                                <select class="form-control" name="Currency" required id="currency" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
+                                        ng-change="changeCurrency();getToCurrencyRate();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" id="div_rate">
+                        <label class="col-sm-4 control-label">Rate<sup ng-hide="productNew.CurrencyId==productNew.BaseCurrencyId">*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            @*{{currencyPrecision}} ng-disabled="productNew.CurrencyId==productNew.BaseCurrencyId||inventoryMaterialList.length>0"*@
+                            <input type="text" n-decimals="2" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="true" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Non Creditable</label>
+                        <div class="col-sm-1" style="margin-top: 2%;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.IsNonCreditable">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                        <label class="col-sm-2 control-label" ng-show="productNew.TaxApplicable=='Mandatory'">Revers Charge</label>
+                        <div class="col-sm-1" ng-show="productNew.TaxApplicable=='Mandatory'">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-disabled="!productNew.IsTaxApplicableChangeable" ng-model="productNew.IsTaxApplicable">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
         <div class="row">
             <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Process Start Date<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Process Start Date" ng-model="productNew.ProcessStartDate" datepicker class="form-control" required tabindex="2">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border">Payment Term Info</legend>
+                    <div class="col-md-12">
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Payment Term<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select id="paymentTermId" class="form-control" name="Payment Term" ng-model="productNew.PaymentTermId" ng-change="changePaymentTerm();PaymentModeByPaymentTerm();" tabindex="12" required>
+                                        <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-5 control-label">Payment Mode:{{productNew.PaymentMode}}</label>
+                        </div>
+
                     </div>
-                </div>
+                </fieldset>
             </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Process End Date<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Process End Date" ng-model="productNew.ProcessEndDate" ng-change="ValidateProcessEndDate();" datepicker class="form-control" required tabindex="2">
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" id="div_currency">
-                    <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
-                    <div class="col-sm-8 show-message ">
-                        <div class="select-style">
-                            <select class="form-control" id="currency" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
-                                    ng-change="changeCurrency();getToCurrencyRate();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8">
-                                <option value=""></option>
-                            </select>
+            <div class="col-xs-8 col-sm-8 col-md-8">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border">Terms And Instruction</legend>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Delivery Instruction<br />(If Any)<sup></sup></label>
+                            <div class="col-sm-8 show-message">
+                                <textarea class="form-control" rows="2" ng-model="productNew.DeliveryInstruction" tabindex="6"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label"><b>Discount Amount</b><sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="number" name="DiscountAmount" required ng-model="productNew.DiscountAmount" class="form-control" maxlength="200" tabindex="" autocomplete="off" style="text-align:right;">
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" id="div_rate">
-                    <label class="col-sm-4 control-label">Rate<sup ng-hide="productNew.CurrencyId==productNew.BaseCurrencyId">*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        @*{{currencyPrecision}} ng-disabled="productNew.CurrencyId==productNew.BaseCurrencyId||inventoryMaterialList.length>0"*@
-                        <input type="text" n-decimals="2" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="true" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Non Creditable</label>
-                    <div class="col-sm-1" style="margin-top: 2%;">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.IsNonCreditable">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">Special Instruction<br /> (If Any)<sup></sup></label>
+                            <div class="col-sm-7">
+                                <textarea class="form-control" rows="2" ng-model="productNew.SpecialInstruction" tabindex="6"></textarea>
+                            </div>
                         </div>
                     </div>
-                    <label class="col-sm-2 control-label" ng-show="productNew.TaxApplicable=='Mandatory'">Revers Charge</label>
-                    <div class="col-sm-1" ng-show="productNew.TaxApplicable=='Mandatory'">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-disabled="!productNew.IsTaxApplicableChangeable" ng-model="productNew.IsTaxApplicable">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style" ng-show="checkedByList.length">
+                                    <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
+                                        <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </fieldset>
             </div>
         </div>
-    </fieldset>
-    <div class="row">
-        <div class="col-xs-4 col-sm-4 col-md-4">
-            <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Payment Term Info</legend>
-                <div class="col-md-12">
 
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Other's Info</legend>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Payment Term<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="select-style">
-                                <select id="paymentTermId" class="form-control" name="Payment Term" ng-model="productNew.PaymentTermId" ng-change="changePaymentTerm();PaymentModeByPaymentTerm();" tabindex="12" required>
-                                    <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                                <select class="form-control" ng-model="productNew.EntityId" name="Entity"
+                                        ng-options="item.Value as item.Text for item in EntityList" required tabindex="5">
+                                    <option value=""></option>
                                 </select>
                             </div>
                         </div>
                     </div>
-
-
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-5 control-label">Payment Mode:{{productNew.PaymentMode}}</label>
-                    </div>
-
                 </div>
-            </fieldset>
-        </div>
-        <div class="col-xs-8 col-sm-8 col-md-8">
-            <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Terms And Instruction</legend>
-                <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Delivery Instruction<br />(If Any)<sup></sup></label>
+                        <label class="col-sm-4 control-label">Contract Closing Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <textarea class="form-control" rows="2" ng-model="productNew.DeliveryInstruction" tabindex="6"></textarea>
+                            <input type="text" name="Contract Closing Date" ng-model="productNew.ContractClosingDate" ng-change="ValidateContractClosingDate();" datepicker class="form-control" required tabindex="2">
                         </div>
                     </div>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Contract Status<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="productNew.ContractStatus" name="Contract Status"
+                                        required tabindex="5">
+                                    <option value=""></option>
+                                    <option value="Active">Active</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Closed">Closed</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="form-group">
-                        <label class="col-sm-4 control-label"><b>Discount Amount</b><sup>*</sup></label>
+                        <label class="col-sm-4 control-label">Time<sup>*</sup></label>
+                        <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
+                            <input id="Time" type="text" class="form-control input-small" ng-model="productNew.Time" style="margin-left:-36px; width:220px" tabindex="3">
+                            <span class="input-group-addon" style="float:left; width:37px"><i class="glyphicon glyphicon-time"></i></span>
+                        </div>
+                    </div>
+                </div>*@
+                @*<div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Process Start Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="number" name="DiscountAmount" ng-model="productNew.DiscountAmount" class="form-control" maxlength="200" tabindex="" autocomplete="off" style="text-align:right;">
+                            <input type="text" name="Process Start Date" ng-model="productNew.ProcessStartDate" datepicker class="form-control" required tabindex="2">
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="form-group" show-errors>
-                        <label class="col-sm-5 control-label">Special Instruction<br /> (If Any)<sup></sup></label>
-                        <div class="col-sm-7 show-message">
-                            <textarea class="form-control" rows="2" ng-model="productNew.SpecialInstruction" tabindex="6"></textarea>
+                        <label class="col-sm-4 control-label">Process End Date<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Process End Date" ng-model="productNew.ProcessEndDate" ng-change="ValidateProcessEndDate();" datepicker class="form-control" required tabindex="2">
+                        </div>
+                    </div>
+                </div>*@
+            </div>
+            <div class="row">
+
+                @*<div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Contract Closing Date<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Contract Closing Date" ng-model="productNew.ContractClosingDate" datepicker class="form-control" required tabindex="2">
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
+                        <label class="col-sm-4 control-label">Contract Status<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <div class="select-style" ng-show="checkedByList.length">
-                                <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
-                                    <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
+                            <div class="select-style">
+                                <select class="form-control" ng-model="productNew.ContractStatus" name="Contract Status"
+                                        required tabindex="5">
+                                    <option value=""></option>
+                                    <option value="Active">Active</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Closed">Closed</option>
                                 </select>
                             </div>
                         </div>
                     </div>
-                </div>
-            </fieldset>
-        </div>
-    </div>
+                </div>*@
+            </div>
 
-    <fieldset class="scheduler-border">
-        <legend class="scheduler-border">Other's Info</legend>
-        <div class="row">
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="productNew.EntityId" name="Entity"
-                                    ng-options="item.Value as item.Text for item in EntityList" required tabindex="5">
-                                <option value=""></option>
-                            </select>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Remarks</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" rows="2" ng-model="productNew.Remarks" maxlength="250" tabindex="6"></textarea>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Contract Closing Date<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Contract Closing Date" ng-model="productNew.ContractClosingDate" datepicker class="form-control" required tabindex="2">
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Contract Status<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="productNew.ContractStatus" name="Contract Status"
-                                    required tabindex="5">
-                                <option value=""></option>
-                                <option value="Active">Active</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Closed">Closed</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @*<div class="col-xs-4 col-sm-4 col-md-4">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Time<sup>*</sup></label>
-                <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
-                    <input id="Time" type="text" class="form-control input-small" ng-model="productNew.Time" style="margin-left:-36px; width:220px" tabindex="3">
-                    <span class="input-group-addon" style="float:left; width:37px"><i class="glyphicon glyphicon-time"></i></span>
-                </div>
-            </div>
-        </div>*@
-            @*<div class="col-xs-4 col-sm-4 col-md-4">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Process Start Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Process Start Date" ng-model="productNew.ProcessStartDate" datepicker class="form-control" required tabindex="2">
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-4 col-sm-4 col-md-4">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Process End Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Process End Date" ng-model="productNew.ProcessEndDate" ng-change="ValidateProcessEndDate();" datepicker class="form-control" required tabindex="2">
-                </div>
-            </div>
-        </div>*@
-        </div>
-        <div class="row">
+        </fieldset>
 
-            @*<div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Contract Closing Date<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Contract Closing Date" ng-model="productNew.ContractClosingDate" datepicker class="form-control" required tabindex="2">
-                    </div>
-                </div>
+        <div class="col-md-6 text-left" style="padding-top: 17px;">
+            <div>
+                <table class="table-responsive modal-table" ng-show="inventoryMaterialList.length>0">
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td>Amount</td>
+                            <td>Tax</td>
+                            <td>Total</td>
+                        </tr>
+                        <tr>
+                            <td>Materials</td>
+                            <td>{{inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision| number }}</td>
+                            <td>{{inventoryMaterialList | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision | number}}</td>
+                            <td>{{(inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision)+(inventoryMaterialList | sumByKey : 'BaseTaxAmount' | setDecimal:currencyPrecision)|number}}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid;">
+                            <td>Service</td>
+                            <td>{{chargesList | sumByKey : 'Amount'| setDecimal:currencyPrecision | number}}</td>
+                            <td>{{chargesList | sumByKey : 'TotalTaxAmount'| setDecimal:currencyPrecision | number}}</td>
+                            <td>{{(chargesList | sumByKey : 'Amount'| setDecimal:currencyPrecision)+(chargesList | sumByKey : 'TotalTaxAmount' | setDecimal:currencyPrecision)| number}}</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td>Gross Amount</td>
+                            @*<td>{{(inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision)+(inventoryMaterialList | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision )+(inventoryMaterialList | sumByKey : 'ServiceCharge'| setDecimal:currencyPrecision)+(inventoryMaterialList | sumByKey : 'ServiceTax'| setDecimal:currencyPrecision)| number}}</td>*@
+                            <td>{{(inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision)+(inventoryMaterialList | sumByKey : 'BaseTaxAmount' | setDecimal:currencyPrecision)+(chargesList | sumByKey : 'Amount'| setDecimal:currencyPrecision)+(chargesList | sumByKey : 'TotalTaxAmount' | setDecimal:currencyPrecision)| number}}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Contract Status<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="productNew.ContractStatus" name="Contract Status"
-                                    required tabindex="5">
-                                <option value=""></option>
-                                <option value="Active">Active</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Closed">Closed</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>*@
-        </div>
-
-        <div class="row">
-            <div class="col-xs-4 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Remarks</label>
-                    <div class="col-sm-8">
-                        <textarea class="form-control" rows="2" ng-model="productNew.Remarks" maxlength="250" tabindex="6"></textarea>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </fieldset>
-
-    <div class="col-md-6 text-left" style="padding-top: 17px;">
-        <div>
-            <table class="table-responsive modal-table" ng-show="inventoryMaterialList.length>0">
-                <tbody>
-                    <tr>
-                        <td></td>
-                        <td>Amount</td>
-                        <td>Tax</td>
-                        <td>Total</td>
-                    </tr>
-                    <tr>
-                        <td>Materials</td>
-                        <td>{{inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision| number }}</td>
-                        <td>{{inventoryMaterialList | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision | number}}</td>
-                        <td>{{(inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision)+(inventoryMaterialList | sumByKey : 'BaseTaxAmount' | setDecimal:currencyPrecision)|number}}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid;">
-                        <td>Service</td>
-                        <td>{{chargesList | sumByKey : 'Amount'| setDecimal:currencyPrecision | number}}</td>
-                        <td>{{chargesList | sumByKey : 'TotalTaxAmount'| setDecimal:currencyPrecision | number}}</td>
-                        <td>{{(chargesList | sumByKey : 'Amount'| setDecimal:currencyPrecision)+(chargesList | sumByKey : 'TotalTaxAmount' | setDecimal:currencyPrecision)| number}}</td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>Gross Amount</td>
-                        @*<td>{{(inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision)+(inventoryMaterialList | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision )+(inventoryMaterialList | sumByKey : 'ServiceCharge'| setDecimal:currencyPrecision)+(inventoryMaterialList | sumByKey : 'ServiceTax'| setDecimal:currencyPrecision)| number}}</td>*@
-                        <td>{{(inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision)+(inventoryMaterialList | sumByKey : 'BaseTaxAmount' | setDecimal:currencyPrecision)+(chargesList | sumByKey : 'Amount'| setDecimal:currencyPrecision)+(chargesList | sumByKey : 'TotalTaxAmount' | setDecimal:currencyPrecision)| number}}</td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </div>
     <div class="col-md-6 text-left" style="padding-top: 17px;">
@@ -816,15 +818,18 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>JWActicity</th>
+                                <th>JWActivity</th>
                                 <th>JWOutPutItem</th>
                                 <th>Material</th>
                                 <th>Article</th>
+                                <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                 <th>MaterialSpecification</th>
                                 <th>MaterialRefference</th>
                                 <th>MaterialStorageLocation</th>
 
-                                <th>OutPutItemUOM</th>
+                                <th>OutPutItemUoM</th>
 
 
                                 <th>Sku1</th>
@@ -845,9 +850,9 @@
 
 
                                 @*<th>UOM</th>*@
-                                <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                                <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                                <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                @*<th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+        <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+        <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
                                 <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                 <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TotalAmount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                 <th>Rejection</th>
@@ -868,6 +873,11 @@
                                 <td>{{x.JWItemName}}</td>
                                 <td>{{x.MaterialMasterName}}</td>
                                 <td>{{x.ArticleName}}</td>
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>  @*ng-keyup="calculateAmount(x);"*@
+                                <td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x);" ng-disabled="false"> </td>  @*{{x.TransactionRate| setDecimal:currencyPrecision| number}}*@
+                                <td class="text-right" style="width:50px;">{{x.CurrencyName}}</td>
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
                                 <td>{{x.MaterialSpecification}}</td>
                                 <td>{{x.MaterialReference}}</td>
                                 <td>{{x.MaterialStorage}}</td>
@@ -888,12 +898,9 @@
 
 
 
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>  @*ng-keyup="calculateAmount(x);"*@
-                                <td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x);" ng-disabled="false"> </td>  @*{{x.TransactionRate| setDecimal:currencyPrecision| number}}*@
-                                <td class="text-right" style="width:50px;">{{x.CurrencyName}}</td>
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
+
+                                @*<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td>*@ @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.JWTaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
         <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
@@ -935,34 +942,35 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="9" class="text-right"><strong>Total : </strong></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionQty' }}</strong></td>
-
+                                <td colspan="4" class="text-right"><strong>Total : </strong></td>
                                 <td class="text-right" ng-hide="sumORnot"></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionQty' }}</strong></td>
+                                <td></td>
+                                <td></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+
+                                @*<td class="text-right" ng-hide="sumORnot"></td>*@
 
                                 @*<td class="text-right"><strong>{{PoChildList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision| number }}</strong></td>*@
                                 @*<td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision | number}}</strong></td>*@
                                 <td></td>
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                                <td></td>
                                 @*<td></td>*@
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
                                 <td></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
 
 
                                 <td class="text-right"></td>
@@ -978,6 +986,9 @@
 
                                 <th>Material</th>
                                 <th>Article</th>
+                                <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 
                                 <th>Sku1</th>
                                 <th>Sku2</th>
@@ -991,9 +1002,9 @@
                                 <th>ServiceName</th>
 
                                 @*<th>UOM</th>*@
-                                <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                                <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                                <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                @*<th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+        <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+        <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
                                 <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                 <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TotalAmount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                 <th style="width:500px;">Description</th>
@@ -1007,6 +1018,12 @@
 
                                 <td>{{x.MaterialMasterName}}</td>
                                 <td>{{x.ArticleName}}</td>
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>  @*ng-keyup="calculateAmount(x);"*@
+                                <td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x);" ng-disabled="false"> </td>  @*{{x.TransactionRate| setDecimal:currencyPrecision| number}}*@
+                                <td class="text-right" style="width:50px;">{{x.CurrencyName}}</td>
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
+
                                 <td>{{x.FirstCharacteristicsValue}}</td>
                                 <td>{{x.SecondCharacteristicsValue}}</td>
                                 <td>{{x.ThirdCharacteristicsValue}}</td>
@@ -1022,14 +1039,11 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>  @*ng-keyup="calculateAmount(x);"*@
-                                <td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x);" ng-disabled="false"> </td>  @*{{x.TransactionRate| setDecimal:currencyPrecision| number}}*@
-                                <td class="text-right" style="width:50px;">{{x.CurrencyName}}</td>
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
+
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
+                                @*<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.JWTaxAmount" ng-disabled="true"></td>*@ @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
-                                    <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
+        <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
                                 @*<td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number}}</td>*@
                                 <td>
@@ -1060,26 +1074,28 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="9" class="text-right"><strong>Total : </strong></td>
+                                <td colspan="2" class="text-right"><strong>Total : </strong></td>
 
 
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
                                 <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionQty' }}</strong></td>
-
                                 <td class="text-right" ng-hide="sumORnot"></td>
+                                <td></td>
+                                <td></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+
+                                <td></td>
 
                                 @*<td class="text-right"><strong>{{PoChildList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision| number }}</strong></td>*@
                                 @*<td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision | number}}</strong></td>*@
                                 <td></td>
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                                <td></td>
                                 @*<td></td>*@
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
                                 <td></td>
+                                <td></td>
+                                <td></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
 
 
                                 <td class="text-right"></td>
@@ -1380,80 +1396,7 @@
 
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
-                                <label class=" control-label">Job Work Location<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.MaterialLocationId" name="Material Location" ng-change="GetJWMaterialStorage();"
-                                                ng-options="item.Value as item.Text for item in MaterialLocList" required tabindex="5">
-                                            <option value=""></option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-                            <div class="form-group">
-                                <label class=" control-label">Material Storage Location</label>
-                                @*<div class=" show-message">*@
-                                <input type="text" ng-model="detailModel.JWMaterialStorage" readonly class="form-control" tabindex="2" maxlength="50">
-                                @*</div>*@
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Input Material Category<sup>*</sup></label>
-                                <div class="show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.MaterialType" name="Material Type"
-                                                required tabindex="5">
-                                            <option value=""></option>
-                                            <option value="InProcess">In-Process</option>
-                                            <option value="Inventory">Inventory</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Output Material Category<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.FinalOutputCategory" name="Final Output Category"
-                                                required tabindex="5">
-                                            <option value=""></option>
-                                            <option value="InProcess">In-Process</option>
-                                            <option value="FinalSale">Sale</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Material Specification<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <input type="text" ng-model="detailModel.MaterialSpecification" name="Material Specification" required class="form-control" tabindex="2" maxlength="50">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
-                            <div class="form-group">
-                                <label class=" control-label">Material Reference</label>
-                                <div class="">
-                                    <input type="text" ng-model="detailModel.MaterialReference" class="form-control" tabindex="2" maxlength="50">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Output Material UOM<sup>*</sup></label>
+                                <label class=" control-label">Output Material UoM<sup>*</sup></label>
                                 <div class=" show-message">
                                     @*<input type="text" ng-model="detailModel.OutputMaterialUOM" class="form-control" tabindex="2" readonly maxlength="50">*@
                                     <div class="select-style">
@@ -1469,10 +1412,117 @@
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Quantity<sup>*</sup></label>
                                 <div class="show-message">
-                                    <input type="text" ng-model="detailModel.TransactionQty" name="Quantity" onkeypress="return isNumber(event)" required class="form-control" tabindex="2" maxlength="50">
+                                    <input type="text" ng-model="detailModel.TransactionQty" name="Quantity" ng-change="GetAmount();" onkeypress="return isNumber(event)" required class="form-control" tabindex="2" maxlength="50">
                                 </div>
                             </div>
                         </div>
+                        <div class="clearfix"></div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+                            <div class="form-group" show-errors>
+                                <label class=" control-label">Currency<sup>*</sup></label>
+                                <div class=" show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="detailModel.CurrencyId" name="Currency" required
+                                                ng-options="item.Value as item.Text for item in CurrencyyyList" tabindex="3">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                            <div class="form-group" show-errors>
+                                <label class="control-label">Rate/ Unit<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" ng-model="detailModel.RatePerUnit" n-decimals="4" name="Rate Per Unit" ng-change="ValidateRate();GetAmount();" onkeypress="return isNumber(event)" required class="form-control" tabindex="2" maxlength="50">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                            <div class="form-group" show-errors>
+                                <label class="control-label">Amount<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" ng-model="detailModel.Amount" n-decimals="4" onkeypress="return isNumber(event)" required readonly class="form-control" tabindex="2" maxlength="50">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+                            <div class="form-group" show-errors>
+                                <label class=" control-label">Job Work Location<sup>*</sup></label>
+                                <div class=" show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="detailModel.MaterialLocationId" name="Material Location" ng-change="GetJWMaterialStorage();"
+                                                ng-options="item.Value as item.Text for item in MaterialLocList" required tabindex="5">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                            <div class="form-group">
+                                <label class=" control-label">Material Storage Location</label>
+                                @*<div class=" show-message">*@
+                                <input type="text" ng-model="detailModel.JWMaterialStorage" readonly class="form-control" tabindex="2" maxlength="50">
+                                @*</div>*@
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                            <div class="form-group" show-errors>
+                                <label class=" control-label">Input Material Category<sup>*</sup></label>
+                                <div class="show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="detailModel.MaterialType" name="Material Type"
+                                                required tabindex="5">
+                                            <option value=""></option>
+                                            <option value="InProcess">In-Process</option>
+                                            <option value="Inventory">Inventory</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+                            <div class="form-group" show-errors>
+                                <label class=" control-label">Output Material Category<sup>*</sup></label>
+                                <div class=" show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="detailModel.FinalOutputCategory" name="Final Output Category"
+                                                required tabindex="5">
+                                            <option value=""></option>
+                                            <option value="InProcess">In-Process</option>
+                                            <option value="FinalSale">Sale</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                            <div class="form-group" show-errors>
+                                <label class=" control-label">Material Specification<sup>*</sup></label>
+                                <div class=" show-message">
+                                    <input type="text" ng-model="detailModel.MaterialSpecification" name="Material Specification" required class="form-control" tabindex="2" maxlength="50">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                            <div class="form-group">
+                                <label class=" control-label">Material Reference</label>
+                                <div class="">
+                                    <input type="text" ng-model="detailModel.MaterialReference" class="form-control" tabindex="2" maxlength="50">
+                                </div>
+                            </div>
+                        </div>
+
+
                         <div class="clearfix"></div>
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group" show-errors>
@@ -1532,30 +1582,6 @@
 
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
-                                <label class=" control-label">Currency<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.CurrencyId" name="Currency" required
-                                                ng-options="item.Value as item.Text for item in CurrencyyyList" tabindex="3">
-                                            <option value=""></option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class="control-label">Rate/ Unit<sup>*</sup></label>
-                                <div class="show-message">
-                                    <input type="text" ng-model="detailModel.RatePerUnit" n-decimals="4" name="Rate Per Unit" ng-change="ValidateRate();" onkeypress="return isNumber(event)" required class="form-control" tabindex="2" maxlength="50">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
-                            <div class="form-group" show-errors>
                                 <label class=" control-label">Rejection<sup>*</sup></label>
                                 <div class=" show-message">
                                     <input type="text" ng-model="detailModel.Rejection" name="Rejection" required onkeypress="return isNumber(event)" class="form-control" tabindex="2" maxlength="50">
@@ -1563,7 +1589,7 @@
                             </div>
                         </div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Value Loss<sup>*</sup></label>
                                 <div class=" show-message">
@@ -1572,7 +1598,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                        <div class="clearfix"></div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Tolerance<sup></sup></label>
                                 <div class=" show-message">
@@ -1580,8 +1607,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Service<sup>*</sup></label>
                                 <div class=" show-message">
@@ -1593,7 +1620,7 @@
                         </div>
 
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group" show-errors>
 
                                 <label class=" control-label">Responsible Person<sup>*</sup></label>
@@ -1611,6 +1638,7 @@
 
                             </div>
                         </div>
+                        <div class="clearfix"></div>
 
                         @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
             <div class="form-group">
@@ -1621,7 +1649,7 @@
             </div>
         </div>*@
                         @*<div class="clearfix"></div>*@
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group">
                                 <div class="inputBtnSection common-btn">
                                     <label class="fileUpload col-sm-4 ">
@@ -1638,8 +1666,8 @@
 
                             </div>
                         </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+  
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group">
                                 <label class="control-label">Remarks</label>
                                 <div>
@@ -1799,7 +1827,8 @@
                                 </tr>
                                 <tr>
                                     <td colspan="3" class="text-right">Total Tax (BC)</td>
-                                    <td class="text-right">{{taxCategoryList | sumByKey :'TaxAmount' | setDecimal:currencyPrecision}}</td>
+                                    <td class="text-right">{{taxCategoryList | sumByKey :'TaxAmount' | setDecimal:2 | number}}</td>
+                                    @*<td>{{inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:2| number }}</td>*@
 
                                 </tr>
                             </tbody>

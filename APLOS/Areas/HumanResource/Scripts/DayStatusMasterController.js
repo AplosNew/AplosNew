@@ -562,6 +562,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         CompAssignLv: 0,
         ManualStatusAllowed: false,
         DayStatusChange: false,
+        AutoLock: false,
     };
 
     //Seleting the Current Day Status Starts

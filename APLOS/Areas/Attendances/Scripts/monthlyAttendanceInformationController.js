@@ -109,6 +109,10 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
             var gridObj = $("#empInfoGrid").ejGrid("instance");
             var filteredRecords = gridObj.getFilteredRecords();
 
+            if (filteredRecords.length == 0) {
+                filteredRecords = $scope.EmployeeListTemp;
+            }
+
             if ($scope.isManualFilter == true) {
                 if (filteredRecords.length == 0) {
                     filteredRecords = $scope.EmployeeListTemp;
