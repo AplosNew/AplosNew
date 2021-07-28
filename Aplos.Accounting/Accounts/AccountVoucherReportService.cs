@@ -341,7 +341,7 @@ namespace Library.Accounting.Accounts
                         ,V.AddedBy
                         , Replace(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') EntryDate
                         ,v.Narration,ir.NoteForAccounts,ei.EmployeeName
-                        ,ACT.Id AS [Type],C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
+                        ,ACT.Id AS [Type],C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4, CCE.UserName CostCenterName
                         FROM TRN.VoucherDetail AS VD
                         LEFT JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
                         LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
@@ -360,6 +360,8 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=V.EntityId
                         LEFT JOIN [MST].BankMaster AS BKM ON BKM.Id=VD.BankMasterId
                         LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
+					    left join ORG.CostCenter CCE ON CCE.Id =VD.CostCenterId
+
                         left join trn.Invoice I on I.VoucherId=V.Id
                         left join trn.InventoryReceive ir on ir.Id=i.InventoryReceiveId
                         left join dbo.EmployeeInformation ei on ei.SystemId=VD.EmployeeId
@@ -5577,24 +5579,7 @@ namespace Library.Accounting.Accounts
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "GRNNo.";
-            int colGRNNo = COL;
-            worksheet[ROW, COL].ColumnWidth = 20;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-            worksheet[ROW, COL].Text = "AcceptanceNo.";
-            int colAcceptanceNo = COL;
-            worksheet[ROW, COL].ColumnWidth = 20;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
-            worksheet[ROW, COL].Text = "Issue";
-            int colIssue = COL;
-            worksheet[ROW, COL].ColumnWidth = 20;
-            worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            COL++;
-
+         
             worksheet[ROW, COL].Text = "Tran. Currency";
             int colTrnCurrency = COL;
             worksheet[ROW, COL].ColumnWidth = 12;
@@ -5639,6 +5624,30 @@ namespace Library.Accounting.Accounts
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "GRNNo.";
+            int colGRNNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "AcceptanceNo.";
+            int colAcceptanceNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Issue";
+            int colIssue = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Cost Center";
+            int colCostCenterName = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
             worksheet[ROW, COL].Text = "Narration";
@@ -5720,6 +5729,7 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colGRNNo].Text = dtDayBookData.Rows[i]["GRNNo"].ToString();
                 worksheet[ROW, colAcceptanceNo].Text = dtDayBookData.Rows[i]["AcceptanceNo"].ToString();
                 worksheet[ROW, colIssue].Text = dtDayBookData.Rows[i]["Issue"].ToString();
+                worksheet[ROW, colCostCenterName].Text = dtDayBookData.Rows[i]["CostCenterName"].ToString();
 
                 worksheet[ROW, colTrnCurrency].Text = dtDayBookData.Rows[i]["TrnCurrency"].ToString();
                 //worksheet[ROW, colType].Text = dtDayBookData.Rows[i]["Type"].ToString();
