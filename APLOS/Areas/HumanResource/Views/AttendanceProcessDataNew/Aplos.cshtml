@@ -291,7 +291,8 @@
 </script>
 <script type="text/template" id="intime">
 
-    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%" ng-disabled="data.IsLock==true" />
+    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%"
+e-enabled="{{​​​​​​​​​​​​​​data.IsLock==true?'false':'true'}​​​​​​​}​​​​​​​" />
 
 </script>
 <script type="text/template" id="outdate">
@@ -300,14 +301,15 @@
 
 <script type="text/template" id="outtime">
 
-    <div class="form-group">
+    @*<div class="form-group">
         <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
             <input id="Time" type="text" class="form-control timepicker" ng-model="data.OutTime" 
                    ng-disabled="data.IsLock==true">
             <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
         </div>
-    </div>
-    @*<input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" />*@
+    </div>*@
+   <input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" 
+         e-enabled="{{​​​​​​​​​​​​​​data.IsLock==true?'false':'true'}​​​​​​​}​​​​​​​"/>
 
 </script>
 

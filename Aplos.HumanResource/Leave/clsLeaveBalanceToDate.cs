@@ -827,7 +827,7 @@ inner join MST.DesignationMaster dm on dm.Id = dml.DesignationMasterId
 inner join SCS.DesignationMasterConfiguration DC on DC.DesignationMasterId = dm.Id and dc.PlantId = e.PlantId
 inner join LeavePolicyMaster lm on lm.SystemID = dc.LeavePolicyMasterId
 inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
---where e.SystemId IN( '206835','206828' )
+
 
 										 --select * from dbo.LeavePolicyDetail
 											--					 where LPMSystemID =
@@ -865,7 +865,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 											  CalanderYearID = '" + calYearId + @"'
                                               --AND els.LeaveTypeId IN 
                                             --(select id from LeaveType where IsGeneral=1 or IsESIC = 1) 
-                                            AND lt.LeaveType <>'Maternity'
+                                            AND lt.LeaveType <>'Maternity' and lt.Code in('CL','PL')
 											"
                 };
                 parameters.sort = "LeaveName";
@@ -1069,7 +1069,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 
                                             SELECT LT.ID FROM dbo.ESICPolicyLeaveType AS EPLT
                                                       LEFT JOIN dbo.LeaveType AS LT ON LT.Id = EPLT.LeaveTypeID
-                                                      WHERE
+                                                      WHERE LT.Code in('CL','PL') AND
                                                       EPLT.LeaveTypeID IN
                                                        (
                                                          SELECT LTSystemID FROM dbo.LeavePolicyDetail AS LPD
@@ -1211,7 +1211,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                                 WHERE els.EmployeeID = '" + EmpSystemID + @"'                                             
                                               AND CalanderYearID = '" + calYearId + @"'
                                               AND els.LeaveTypeId not IN 
-                                            (select id from LeaveType where IsESIC=1 and IsGeneral=0) AND lt.LeaveType <>'Maternity'"
+                                            (select id from LeaveType where IsESIC=1 and IsGeneral=0) and lt.Code in('CL','PL') AND lt.LeaveType <>'Maternity'"
                     };
                     parameters.sort = "LeaveName";
                     parameters.order = "ASC";
