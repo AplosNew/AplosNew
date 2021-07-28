@@ -947,7 +947,8 @@ left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
                             LEFT JOIN hkp.MaterialStorage ms on ms.Id = pk.StorageLocId
                             LEFT JOIN org.Entity en on en.Id = pk.EntityId
                             LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
-                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId";
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
+                            WHERE Pk.PackingId NOT IN (Select PackingId from dbo.SalesPacking)";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
