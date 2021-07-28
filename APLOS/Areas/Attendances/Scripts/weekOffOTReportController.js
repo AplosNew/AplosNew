@@ -152,12 +152,13 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
     $scope.EmployeeList = [];
     $scope.EmployeeListDefault = [];
     $scope.EmployeeListTemp = [];
-    $scope.DestinationId = [];
+    $scope.PlantIdList = [];
     $scope.GetEmployeeInformation = function () {
 
         //addition Sayanto
         var DropDownListObj = $("#plantList").data("ejDropDownList");
-        $scope.DestinationId = DropDownListObj.getSelectedValue();
+        $scope.PlantIdList = DropDownListObj.getSelectedValue();
+
         ///
         var monthName = $scope.monthList.filter(function (mnth) {
             return mnth.Value == $scope.month;
@@ -178,12 +179,13 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
                 'payRollGroup': $scope.payGroupListSelected,
                 'isActive': $scope.isActive,
                 'isSeperated': $scope.isSeperated,
-                'isMaternity': $scope.isMaternity
+                'isMaternity': $scope.isMaternity,
+                'PlantId': $scope.PlantIdList
             };
             $http({
                 method: "POST",
                 dataType: 'JSON',
-                url: 'Attendances/AttendanceProcessUI/GetEmpInfo',
+                url: 'Attendances/WeekOffHolidayOTReport/GetEmpInfo',
                 data: parameters
             }).then(function successCallback(response) {
                 if (response.data.length > 0) {
@@ -205,6 +207,14 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
             var parameters = [];
             var gridObj = $("#empInfoGrid").ejGrid("instance");
             var filteredRecords = gridObj.getFilteredRecords();
+
+            //addition Sayanto
+            $scope.PlantIdList = "";
+            var DropDownListObj = $("#plantList").data("ejDropDownList");
+            $scope.PlantIdList = DropDownListObj.getSelectedValue();
+
+        ///
+
             if ($scope.isManualFilter == true) {
                 if (filteredRecords.length == 0) {
                     filteredRecords = $scope.EmployeeListTemp;
@@ -230,7 +240,8 @@ function weekOffOTReportController(cboService, commonMessage, $scope, $rootScope
                     'parameters': parameters,
                     'isActive': $scope.isActive,
                     'isSeperated': $scope.isSeperated,
-                    'isMaternity': $scope.isMaternity
+                    'isMaternity': $scope.isMaternity,
+                    'PlantId': $scope.PlantIdList
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
