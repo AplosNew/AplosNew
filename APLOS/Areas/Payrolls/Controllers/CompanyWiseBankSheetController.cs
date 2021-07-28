@@ -83,7 +83,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             }
             empStatus += ")";
 
-            var str = @"SELECT  b.Id BankId,b.UserName BankName,sp.PaymentMode
+            var str = @"SELECT distinct b.Id BankId,b.UserName BankName,sp.PaymentMode
 								,p.Id PlantId, p.UserName PlantName
 								,En.Id EntityId,En.UserName Entity
 								,Dp.Id DepartmentId,DP.UserName DepartmentName
