@@ -271,56 +271,56 @@ namespace Library.OrderManagement.Costing
                     ROW++;
                     sheet[ROW, colShortName + 1].Text = dtOrderCostingProductInfo.Rows[i]["ShortName"].ToString();
                     ROW++;
-                    sheet[ROW, colMktTgtSPT + 1].Text = dtOrderCostingProductInfo.Rows[i]["TargetOrSPT"].ToString();
+                    sheet[ROW, colMktTgtSPT + 1].Number =clsStaticInfo.dbl( dtOrderCostingProductInfo.Rows[i]["TargetOrSPT"].ToString());
                     ROW++;
-                    sheet[ROW, colSPT + 1].Text = dtOrderCostingProductInfo.Rows[i]["SPT"].ToString();
+                    sheet[ROW, colSPT + 1].Number =clsStaticInfo.dbl( dtOrderCostingProductInfo.Rows[i]["SPT"].ToString());
                     ROW++;
-                    sheet[ROW, colStandardPlanHours + 1].Text = dtOrderCostingProductInfo.Rows[i]["StandardWorkingHours"].ToString();
+                    sheet[ROW, colStandardPlanHours + 1].Number =clsStaticInfo.dbl( dtOrderCostingProductInfo.Rows[i]["StandardWorkingHours"].ToString());
                     ROW = StartRow;
                     COL = 5;
                     sheet[ROW, colUserName + 1].Text = dtOrderCostingProductInfo.Rows[i]["UserName"].ToString();
                     ROW++;
                     sheet[ROW, colStandardName + 1].Text = dtOrderCostingProductInfo.Rows[i]["StandardName"].ToString();
                     ROW++;
-                    sheet[ROW, colTargetHour + 1].Text = dtOrderCostingProductInfo.Rows[i]["MKTTargetPerHour"].ToString();
+                    sheet[ROW, colTargetHour + 1].Number =clsStaticInfo.dbl( dtOrderCostingProductInfo.Rows[i]["MKTTargetPerHour"].ToString());
                     ROW++;
-                    sheet[ROW, colEfficiency + 1].Text = dtOrderCostingProductInfo.Rows[i]["EfficiencyPercentage"].ToString();
+                    sheet[ROW, colEfficiency + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["EfficiencyPercentage"].ToString());
 
                     COL = 8;
                     ROW = StartRow;
                     sheet[ROW, colDescription + 1].Text = dtOrderCostingProductInfo.Rows[i]["Description"].ToString();
                     ROW++;
-                    sheet[ROW, colNoOfWS + 1].Text = dtOrderCostingProductInfo.Rows[i]["NoOfWorkstation"].ToString();
+                    sheet[ROW, colNoOfWS + 1].Number =clsStaticInfo.dbl( dtOrderCostingProductInfo.Rows[i]["NoOfWorkstation"].ToString());
                     ROW++;
-                    sheet[ROW, colWCTargetDay + 1].Text = dtOrderCostingProductInfo.Rows[i]["WorkCenterTargetPerDay"].ToString();
+                    sheet[ROW, colWCTargetDay + 1].Number =clsStaticInfo.dbl( dtOrderCostingProductInfo.Rows[i]["WorkCenterTargetPerDay"].ToString());
 
                     ROW = 17;
                     COL = 2;
                     StartRow = ROW;
-                    sheet[ROW, colPrdAvlDays + 1].Text = dtOrderCostingProductInfo.Rows[i]["ProductionAvailableDays"].ToString();
+                    sheet[ROW, colPrdAvlDays + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["ProductionAvailableDays"].ToString());
                     ROW++;
-                    sheet[ROW, colExcess + 1].Text = dtOrderCostingProductInfo.Rows[i]["ExcessShipmentPer"].ToString();
+                    sheet[ROW, colExcess + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["ExcessShipmentPer"].ToString());
                     ROW++;
                     sheet[ROW, colCriticalLevel + 1].Text = dtOrderCostingProductInfo.Rows[i]["CriticalLevel"].ToString();
                     ROW++;
                     sheet[ROW, colPackingType + 1].Text = dtOrderCostingProductInfo.Rows[i]["PackingType"].ToString();
                     ROW++;
-                    sheet[ROW, colTgtSelPrice + 1].Text = dtOrderCostingProductInfo.Rows[i]["TargetSellingPrice"].ToString();
+                    sheet[ROW, colTgtSelPrice + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["TargetSellingPrice"].ToString());
                     ROW = StartRow;
                     COL = 5;
                     sheet[ROW, colSpecificTo + 1].Text = dtOrderCostingProductInfo.Rows[i]["SpecifyTo"].ToString();
                     ROW++;
                     sheet[ROW, colUOM + 1].Text = dtOrderCostingProductInfo.Rows[i]["UnitOfMeasurement"].ToString();
                     ROW++;
-                    sheet[ROW, colPaymentDays + 1].Text = dtOrderCostingProductInfo.Rows[i]["PaymentDays"].ToString();
+                    sheet[ROW, colPaymentDays + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["PaymentDays"].ToString());
                     ROW++;
-                    sheet[ROW, colOrderSize + 1].Text = dtOrderCostingProductInfo.Rows[i]["OrderSize"].ToString();
+                    sheet[ROW, colOrderSize + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["OrderSize"].ToString());
 
                     COL = 8;
                     ROW = StartRow;
-                    sheet[ROW, colTargetCM + 1].Text = dtOrderCostingProductInfo.Rows[i]["TargetCM"].ToString();
+                    sheet[ROW, colTargetCM + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["TargetCM"].ToString());
                     ROW++;
-                    sheet[ROW, colEstNoOfPagList + 1].Text = dtOrderCostingProductInfo.Rows[i]["EstNoOfPackingList"].ToString();
+                    sheet[ROW, colEstNoOfPagList + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["EstNoOfPackingList"].ToString());
                     ROW++;
                     sheet[ROW, colRemarks + 1].Text = dtOrderCostingProductInfo.Rows[i]["Remarks"].ToString();
                     ROW++;
@@ -375,6 +375,7 @@ namespace Library.OrderManagement.Costing
                 ROW++;
                 sheet.Range[ROW, colTgtSelPrice + 1, ROW, colTgtSelPrice + 2].Merge();
 
+                sheet.Range[7,1,21, endCol].NumberFormat= clsStaticInfo.NumberFormat(2);
 
                 DataTable dtCostingDetailInfo = _sqlRepository.GetDataTable(CostingDetailsql);
 
@@ -467,24 +468,7 @@ namespace Library.OrderManagement.Costing
                 ROW++;
                 ROW++;
                 COL = 1;
-                //if (preCosting == "1")
-                //{
-                //    sheet[ROW, COL].Text = "Pre Costing.";
-                //    sheet[ROW, COL].RowHeight = 20;
-                //    sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
-                //    sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
-                //    sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
-                //    sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-                //}
-                //if (ProcurementCosting == "1")
-                //{
-                //    sheet[ROW, COL].Text = "Procurement Costing.";
-                //    sheet[ROW, COL].RowHeight = 20;
-                //    sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
-                //    sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
-                //    sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
-                //    sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-                //}
+             
                 ROW++;
                 int CostingComponentEndcol = 0;
                 for (int i = 0; i < dtCostingDetailInfo.Rows.Count; i++)
@@ -574,7 +558,19 @@ namespace Library.OrderManagement.Costing
 
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                reportUtility.PlantHeader(ref sheet, endCol, "Order Costing Report", identity.PlantId);
+                if (preCosting == "1")
+                {
+
+                    reportUtility.PlantHeader(ref sheet, endCol, "Order Costing Report(Pre Costing)", identity.PlantId);
+
+
+                }
+                if (ProcurementCosting == "1")
+                {
+                    reportUtility.PlantHeader(ref sheet, endCol, "Order Costing Report(Procurement Costing)", identity.PlantId);
+
+
+                }
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
