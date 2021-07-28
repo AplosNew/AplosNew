@@ -81,7 +81,9 @@ namespace Library.HumanResource.Report.OT
                 var para = new ParamList();
                 var leavePara = new ParamList();
                 var attdnProcessParam = new ParamList();
-
+                var done1 = "Ok";
+                var done2 = "Ok";
+                var done3 = "Ok";
                 #endregion Variable
 
                 #region DataSet
@@ -98,7 +100,7 @@ namespace Library.HumanResource.Report.OT
                 Dictionary<string, double> dicW = null;
                 Dictionary<string, double> dicH = null;
                 DataSet dsCurrency = null;
-                
+
 
                 Dictionary<string, DataRow> dicHourlyOTNW = new Dictionary<string, DataRow>();
                 Dictionary<string, DataRow> dicHourlyOTW = new Dictionary<string, DataRow>();
@@ -108,7 +110,7 @@ namespace Library.HumanResource.Report.OT
                 dicHourlyOTW = GetDictionaryHourOTMonthReportWithWeekendORHolidayCompany(year, month, plantId, companyId, companyGroupId, parameters, isActive, isSeperated, "Weekend");
                 dicHourlyOTH = GetDictionaryHourOTMonthReportWithWeekendORHolidayCompany(year, month, plantId, companyId, companyGroupId, parameters, isActive, isSeperated, "Holiday");
 
-                
+
 
                 //otc.LoadSalaryStructure(plantId, fdateOfMonth, ldateOfMonth, out dsSStructureOT);
                 //otc.LoadOverTimePolicy(plantId, fdateOfMonth, ldateOfMonth, out dsOTPolicy);
@@ -182,15 +184,16 @@ namespace Library.HumanResource.Report.OT
                 xlsCol = 1;
 
                 #region Column Variables
-                int ColSr = 0, ColIDNo = 0, ColName = 0,ColPlant = 0, ColDOJ = 0, ColDOS = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
+                int ColSr = 0, ColIDNo = 0, ColName = 0, ColPlant = 0, ColDOJ = 0, ColDOS = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0, colBank = 0, colBankAccountNo = 0
-                   , ColLWP = 0, cDMP = 0, ColExtraAbsent = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colEmploymentType = 0;
+                   , ColLWP = 0, cDMP = 0, ColExtraAbsent = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colBasic = 0, colGross = 0, colCTC = 0, colEmploymentType = 0;
                 int npstruct = 0;
 
                 #endregion
 
                 //1
                 SetCellValue("Sr. No.", sheet1, xlsRow, ref xlsCol, out ColSr);
+                
                 SetCellValue("ID No.", sheet1, xlsRow, ref xlsCol, out ColIDNo, 12);
                 SetCellValue("Name", sheet1, xlsRow, ref xlsCol, out ColName, 17);
                 SetCellValue("Plant", sheet1, xlsRow, ref xlsCol, out ColPlant, 17);
@@ -225,7 +228,13 @@ namespace Library.HumanResource.Report.OT
                 SetCellValue("WeekOff", sheet1, xlsRow, ref xlsCol, out ColWkOf, 9);
                 SetCellValue("Leave", sheet1, xlsRow, ref xlsCol, out ColLv, 11);
                 SetCellValue("Maternity Leave", sheet1, xlsRow, ref xlsCol, out ColMLv, 20);
+
+                SetCellValue("Structured Basic", sheet1, xlsRow, ref xlsCol, out colBasic, 11);
+                SetCellValue("Structured Gross", sheet1, xlsRow, ref xlsCol, out colGross, 11);
+                SetCellValue("Structured CTC", sheet1, xlsRow, ref xlsCol, out colCTC, 11);
+
                 SetCellValue("Total Ot Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOTHR, 11);
+
                 endGenericColumn = xlsCol;
 
                 //SR to
@@ -247,7 +256,6 @@ namespace Library.HumanResource.Report.OT
 
                 CreateDynamicSHead(dtSalaryHeadSheet, out _total_head_count, ref sheet1, ref xlsRow, ref xlsCol, ref ColGrs, out _count_earning_head, out _count_deducting_head, out _count_earning_ctchead, out _count_earning_notionalhead, out shtList);
 
-                //SetCellValue("Structured", sheet1, xlsRow, ref xlsCol, out ColTotalOTHR, 11);
 
 
                 List<SalaryHeadSequence> salList = new List<SalaryHeadSequence>();
@@ -606,6 +614,8 @@ namespace Library.HumanResource.Report.OT
                         sheet1.Range[xlsRow, cGender].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
 
+
+
                         #endregion
                         #region Attendance Data
                         double _ExtraAbsent = 0;
@@ -649,6 +659,32 @@ namespace Library.HumanResource.Report.OT
                             List<DataRow> drSalaryHeadCollection = dicEmpSalry[dtEmployees.Rows[i]["EmpSystemID"].ToString()];
                             if (drSalaryHeadCollection.Count > 0)
                             {
+
+                                for (int ix = 0; ix < listdsSlrStr.Count; ix++)
+                                {
+                                    if (listdsSlrStr[ix].HeadCategory == "Basic" && done1 == "Ok")
+                                    {
+                                        sheet1.Range[xlsRow, colBasic].Number = Convert.ToDouble(listdsSlrStr[ix].DefineAmount);
+                                        sheet1.Range[xlsRow, colBasic].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                        sheet1.Range[xlsRow, colBasic].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                        done1 = "No";
+                                    }
+                                    if (listdsSlrStr[ix].HeadCategory == "CTC" && done2 == "Ok")
+                                    {
+                                        sheet1.Range[xlsRow, colCTC].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
+                                        sheet1.Range[xlsRow, colCTC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                        sheet1.Range[xlsRow, colCTC].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                        done2 = "No";
+                                    }
+                                    if (listdsSlrStr[ix].HeadCategory == "GROSS" && done3 == "Ok")
+                                    {
+                                        sheet1.Range[xlsRow, colGross].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
+                                        sheet1.Range[xlsRow, colGross].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                        sheet1.Range[xlsRow, colGross].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                        done3 = "No";
+                                    }
+
+                                }
                                 for (int CI = 0; CI < drSalaryHeadCollection.Count; CI++)
                                 {
                                     if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "NET PAYABLE")
@@ -657,6 +693,8 @@ namespace Library.HumanResource.Report.OT
                                         continue;
                                     }
 
+
+                                    
                                     try
                                     {
                                         SalaryHeadSequence xx = shtList[drSalaryHeadCollection[CI]["SalaryHeadId"].ToString()];// shtList.Where(ee => ee.SalaryHeadId == drSalaryHeadCollection[CI]["SalaryHeadId"].ToString()).ToList();
@@ -708,7 +746,7 @@ namespace Library.HumanResource.Report.OT
                                     }
 
 
-                                   
+
 
                                 }
 
@@ -1879,7 +1917,7 @@ namespace Library.HumanResource.Report.OT
 
 
 
-        
+
         private void CreateDynamicSHead(DataTable dtSalaryHead, out int _total_head_count, ref IWorksheet sheet1, ref int xlsRow, ref int xlsCol, ref int ColGrs, out int _count_earning_head, out int _count_deducting_head, out int _count_earning_ctchead, out int _count_earning_notionalhead, out Dictionary<string, SalaryHeadSequence> list)
         {
             try
@@ -2061,13 +2099,14 @@ namespace Library.HumanResource.Report.OT
                     }//SalaryHead 
                     #endregion
                 }//for
+
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-       
+
         //Sayanto Change Company Wise
         public Dictionary<string, List<DataRow>> GetEmployeeSalaryInfoDetailCompany(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, out DataTable distinctSalaryHead)
         {
@@ -2313,7 +2352,7 @@ namespace Library.HumanResource.Report.OT
             }
         }//End Function
 
-       
+
         //Sayanto Change Company WIse
         public Dictionary<string, DataRow> GetDictionaryHourOTMonthReportWithWeekendORHolidayCompany(string YearNo, string MonthNo, string plantId, string companyId, string companyGroupId, Dictionary<string, string> parameters, bool isActive, bool isSeperated, string DayCategory)
         {
@@ -2645,7 +2684,7 @@ namespace Library.HumanResource.Report.OT
             }
         }//End Function
 
-       
+
         private void SetCellValue(string text, IWorksheet sheet, int xlsRow, ref int xlsCol, out int ColIndex)
         {
             ColIndex = 0;
@@ -2657,7 +2696,7 @@ namespace Library.HumanResource.Report.OT
             ColIndex = xlsCol;
             xlsCol += 1;
         }
-       
+
         private void SetCellTextNumber(IWorksheet sheet, int xlsRow, int xlsCol, double Value)
         {
             //string NumberFormatString = "#,##0;(#,##0)";
@@ -2683,7 +2722,7 @@ namespace Library.HumanResource.Report.OT
             ColIndex = xlsCol;
             xlsCol += 1;
         }
-        
+
         private void SetCellTextAttdn(IWorksheet sheet, int xlsRow, int xlsCol, double Value)
         {
             //string NumberFormatString = "#,##0;(#,##0)";
@@ -2704,11 +2743,12 @@ namespace Library.HumanResource.Report.OT
             public string EmpSystemID { get; set; }
             public string SalaryHeadID { get; set; }
             public string HeadCategory { get; set; }
+            public decimal DefineAmount { get; set; } = 0;
             public decimal DisbusmentAmount { get; set; } = 0;
             public decimal EntryAmount { get; set; } = 0;
         }
 
-    
+
         //Sayanto Change Company Wise
         public Dictionary<string, List<DataRow>> LoadSalaryStructureCompany(string sPlantID, string sFromDate, string sToDate)
         {
@@ -2785,7 +2825,7 @@ left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
             }
         }//End Function
 
-     
+
         //Sayanto Change Company Wise
         public Dictionary<string, DataRow> LoadOverTimePolicyCompany(string sPlantID, string sFromDate, string sToDate)
         {
