@@ -493,6 +493,7 @@ namespace Library.Service.OrderManagements
                             ,enableJobOrOutSource=CASE WHEN MOI.[Type]='JobWork' OR MOI.[Type]='OutSource' THEN 'false' ELSE 'true' END
                             ,MOI.ProductLibraryId,MOI.FileName,MOI.Remark,MOI.OrderStatusId,MOI.UOMId
                             ,BOQNo=(Select COUNT(Id) from [dbo].[QuickBOQ] Where MasterOrderItemId=MOI.Id)
+,MOI.OrderCostingMasterTemplateId
                         FROM TRN.MasterOrderItem AS MOI
                         JOIN MST.MaterialMaster AS MM ON MOI.MaterialMasterId=MM.Id
                         LEFT JOIN MST.MaterialMasterArticle AS ART ON MOI.ArticleId=ART.Id

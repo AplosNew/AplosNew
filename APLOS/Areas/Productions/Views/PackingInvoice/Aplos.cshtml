@@ -1,440 +1,774 @@
 ﻿<togglable name="{{FormTitle}}"></togglable>
 <div class="form-horizontal form-elements">
-    <div class="form-horizontal form-elements" ng-form="form0">
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Packing list</legend>
-
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li>
-                            <button ng-click="GetPackingListPopUp();" @*ng-disabled="salesVM.RowState==='Posted'"*@ class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Packing list</button>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="clearfix"></div>
-                <div class="table-responsive modal-table" ng-show="selectedPackingList.length">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Packing Id</th>
-                                <th>Entity</th>
-                                <th>Customer</th>
-                                <th>Storage Location</th>
-                                <th>By Whom</th>
-                                <th>Despatch Responsible Person</th>
-                                <th>Created Date</th>
-                                <th>InActive Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="x in selectedPackingList ">
-                                <td>{{x.PackingId}}</td>
-                                <td>{{x.Entity}}</td>
-                                <td>{{x.Customer}}</td>
-                                <td>{{x.StorageLoc}}</td>
-                                <td>{{x.ByWhom}}</td>
-                                <td>{{x.DRespPerson}}</td>
-                                <td>{{x.AddedDate}}</td>
-                                <td>{{x.InActiveDate}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </fieldset>
-
-        </div>
-        <div class="clearfix"></div>
-        <div class="col-xs-12 col-sm-5 col-md-5">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="input-group">
-                        <input type="text" name="Customer" ng-model="salesVM.PartyName" class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button ng-click="showPartyPopUpNew();" disabled class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
-                            <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div id="div_DocDate" class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Invoice Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Invoice Date" ng-model="salesVM.InvoiceDate" datepicker="checkInvoiceDate();changePaymentTerm();" required class="form-control" tabindex="3">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Comercial Invoice No<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" ng-maxlength="25" name="Comercial Invoice No" ng-model="salesVM.ComercialInvoiceNo" class="form-control" tabindex="4" required capitalize autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label" tilte="EXP Form No">EXP Form No</label>
-                <div class="col-sm-2" style="width: 30%;">
-                    <input type="text" ng-maxlength="25" name="EXP Form No" ng-model="salesVM.EXPFromNo" class="form-control" tabindex="4" capitalize autocomplete="off">
-                </div>
-                <label class="col-sm-3 control-label" style="margin-left: -30px;" title="EXP Date">EXP Dt</label>
-                <div class="col-sm-3" style="margin-left: -15%;width: 30%;">
-                    <input type="text" name="EXP Date" ng-model="salesVM.EXPDate" datepicker class="form-control">
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-3 col-md-3">
-            
-            <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label">Entity<sup>*</sup></label>
-                <div class="col-sm-10 show-message">
-                    <div class="select-style">
-                        <select id="entityId" class="form-control" disabled name="Entity" ng-model="salesVM.EntityId" tabindex="7" required>
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Entry Date" ng-model="salesVM.VoucherDate" datepicker class="form-control" disabled required>
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
-                <div class="col-sm-5 show-message" style="padding-right:0px;">
-                    <div class="select-style">
-                        <select id="currency" class="form-control" tabindex="5" name="Currency" ng-model="salesVM.CurrencyId" ng-change="GetCurrencyExchangeRateList();" required>
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-sm-3 show-message" style="padding-left:0px;">
-                    <input type="text" maxlength="50" id="Rate" name="Company Currency Rate" ng-model="salesVM.CompanyCurrencyRate" ng-disabled="salesVM.CurrencyId==salesVM.BaseCurrencyId" class="form-control text-right" tabindex="5" required autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-3 control-label" title="BL Number">BL No.</label>
-                <div class="col-sm-3" style="width: 115px;margin-left: -33px;">
-                    <input type="text" ng-maxlength="50" name="BL Number" ng-model="salesVM.BLNumber" class="form-control" tabindex="4" capitalize autocomplete="off">
-                </div>
-                <label class="col-sm-2 control-label" style="margin-left: -30px;" title="BL Date">BL Dt</label>
-                <div class="col-sm-4" style="margin-left: -12px;width: 42%;">
-                    <input type="text" name="BL Date" ng-model="salesVM.BLDate" datepicker class="form-control">
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            
-            <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label">Narration<sup>*</sup></label>
-                <div class="col-sm-10 show-message">
-                    <textarea rows="2" type="text" ng-maxlength="250" name="Narration" tabindex="8" class="form-control" ng-model="salesVM.Narration" required capitalize></textarea>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label" title="Item Description">Description</label>
-                <div class="col-sm-10">
-                    <textarea rows="2" type="text" ng-maxlength="250" name="Item Description" tabindex="8" class="form-control" ng-model="salesVM.ItemDescription"></textarea>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12">
-            <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Payment Term</legend>
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-2 control-label">Payment Term<sup>*</sup></label>
-                        <div class="col-sm-2 show-message">
-                            <div class="select-style">
-                                <select tabindex="10" id="paymentTermId" ng-disabled="salesVM.IsPaymentTermChangeable==false" class="form-control" name="Payment Term" ng-model="salesVM.PaymentTermId" ng-change="changePaymentTerm(salesVM.PaymentTermId);">
-                                    <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <label class="col-sm-2 control-label">Due Date BaseOn<sup>*</sup></label>
-                        <div class="col-sm-2">
-                            <input type="text" name="BaseOnDueDate" ng-disabled="IsBaseOnDueDateEnable==false" ng-model="salesVM.BaseOnDueDate" ng-change="getMatureDate(salesVM.BaseOnDueDate,salesVM.BaseNoOfDays)" datepicker class="form-control datepicker" tabindex="11">
-                        </div>
-                        <label class="col-sm-1 control-label">No Of Days</label>
-                        <div class="col-sm-1 show-message">
-                            <input id="baseNoOfday" type="number" name="No Of Days" ng-disabled="IsBaseOnDueDateEnable==false" ng-model="salesVM.BaseNoOfDays" ng-change="getMatureDate(salesVM.BaseOnDueDate, salesVM.BaseNoOfDays)" class="form-control" tabindex="12">
-                        </div>
-                        <label class="col-sm-1 control-label">Mature Date</label>
-                        <div class="col-sm-1 show-message">
-                            <input type="text" style="width: 83px;" name="Mature Date" ng-model="salesVM.MatureDate" class="form-control" readonly>
-                        </div>
-
-                    </div>
-                </div>
-            </fieldset>
-        </div>
-        <div class="clearfix"></div>
+    <div class="tab-design" id="tab_show">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Charges</a></li>
+                <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" aria-controls="general" role="tab" data-toggle="tab2">Invoice</a></li>
+                <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2)" href="" aria-controls="address" role="tab" data-toggle="tab2">Post Sales</a></li>
             </ul>
         </div>
         <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
+                <div class="form-horizontal form-elements" ng-form="form0">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <fieldset class="scheduler-border">
+                            <legend class="scheduler-border">Packing list</legend>
 
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-                <div ng-form="tabForm1">
-                   
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li>
+                                        <button ng-click="GetPackingListPopUp();" @*ng-disabled="salesVM.RowState==='Posted'"*@ class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Packing list</button>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="clearfix"></div>
+                            <div class="table-responsive modal-table" ng-show="selectedPackingList.length">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Packing Id</th>
+                                            <th>Entity</th>
+                                            <th>Customer</th>
+                                            <th>Storage Location</th>
+                                            <th>By Whom</th>
+                                            <th>Despatch Responsible Person</th>
+                                            <th>Created Date</th>
+                                            <th>InActive Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in selectedPackingList ">
+                                            <td>{{x.PackingId}}</td>
+                                            <td>{{x.Entity}}</td>
+                                            <td>{{x.Customer}}</td>
+                                            <td>{{x.StorageLoc}}</td>
+                                            <td>{{x.ByWhom}}</td>
+                                            <td>{{x.DRespPerson}}</td>
+                                            <td>{{x.AddedDate}}</td>
+                                            <td>{{x.InActiveDate}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </fieldset>
+
+                    </div>
                     <div class="clearfix"></div>
-                    <div class="table-responsive modal-table" ng-show="salesOrderList.length>0">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>MasterOrder</th>
-                                    <th>SONo</th>
-                                    <th>PONumber</th>
-                                    <th>DeliveryDate</th>
-                                    <th>Destination</th>
-                                    <th>MaterialMasterName</th>
-                                    <th>Article</th>
-                                    <th>SKU1</th>
-                                    <th>SKU2</th>
-                                    <th class="text-right">Rate</th>
-                                    <th class="text-right">Qty</th>
-                                    <th class="text-right">Balance</th>
-                                    <th class="text-right">Amount</th>
-                                    <th class="text-right">Tax</th>
-                                    <th class="text-right">Service Charge</th>
-                                    <th class="text-right">Service Tax</th>
-                                    <th class="text-right">Total Amount  </th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="x in salesOrderList">
-                                    <td>{{x.MasterOrderId}}</td>
-                                    <td>{{x.SONo}}</td>
-                                    <td>{{x.PONumber}}</td>
-                                    <td>{{x.DeliveryDate}}</td>
-                                    <td>{{x.DestinationName}}</td>
-                                    <td>{{x.MaterialMasterName}}</td>
-                                    <td>{{x.MaterialMasterArticleName}}</td>
-                                    <td>{{x.SKU1}}</td>
-                                    <td>{{x.SKU2}}</td>
-                                    <td class="text-right">{{x.Rate}}</td>
-                                    <td class="text-right">{{x.TransactionQty | number:2}}</td>
-                                    <td class="text-right">{{x.Balance | number:2}}</td>
-                                    <td class="text-right">{{x.TransactionAmount | number:2}}</td>
-                                    <td class="text-right">{{x.TaxAmount | number:2}}</td>
-                                    <td class="text-right">{{x.ServiceCharge | number:2}}</td>
-                                    <td class="text-right">{{x.ServiceTax | number:2}}</td>
-                                    <td class="text-right">{{x.NetAmount | number:2}}</td>
-                                    <td class="text-right">
-                                        <ul class="list-inline action-list">
-                                            <li>
-                                                <button ng-click="getMaterialTaxList(x, false,$index)" ng-disabled="salesVM.RowState==='Posted'" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button>
-                                            </li>
-                                            <li>
-                                                <button ng-click="removeMaterialRow(x.Id,$index)" ng-disabled="salesVM.RowState==='Posted'" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
-                                            </li>
-                                        </ul>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="9" class="text-right">
-                                        <strong>Total : </strong>
-                                    </td>
-                                    <td></td>
-                                    <td class="text-right">
-                                        <strong>{{salesOrderList | sumByKey : 'TransactionQty'| setDecimal:2 | number:2}}</strong>
-                                    </td>
-                                    
-                                    <td class="text-right">
-                                        <strong>{{salesOrderList | sumByKey : 'Balance'| setDecimal:2 | number:2}}</strong>
-                                    </td>
-                                    <td class="text-right">
-                                        <strong>{{salesOrderList | sumByKey : 'TransactionAmount'| setDecimal:2 | number:2}}</strong>
-                                    </td>
-                                    <td class="text-right">
-                                        <strong>{{salesOrderList | sumByKey : 'TaxAmount'| setDecimal:2 | number:2}}</strong>
-                                    </td>
-                                    <td class="text-right"><strong>{{salesOrderList | sumByKey : 'ServiceCharge'| setDecimal:currencyPrecision | number}}</strong></td>
-                                    <td class="text-right"><strong>{{salesOrderList | sumByKey : 'ServiceTax'| setDecimal:currencyPrecision | number}}</strong></td>
-                                    <td class="text-right">
-                                        <strong>{{salesOrderList | sumByKey : 'NetAmount'| setDecimal:2 | number:2}}</strong>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="clearfix"></div>
-
-                    </div>
-                </div>
-            </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div ng-form="tabForm2">
-                    <ul class="common-btn list-inline text-left">
-                        <li>
-                            <button ng-click="serviceChargePopUp();" ng-disabled="salesVM.RowState==='Posted'" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button>
-                        </li>
-                    </ul>
-                    <div class="table-responsive modal-table">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Service</th>
-                                    <th>Amount</th>
-                                    <th>Tax Amount</th>
-                                    <th>Total Amount</th>
-                                    <th class="col-sm-1"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="x in chargesList">
-                                    <td>
-                                        {{x.ChargeName}}
-                                    </td>
-                                    <td class="text-right">
-                                        <div class="show-message">
-                                            <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Amount" ng-keyup="calculateServiceAmount(x);">
-                                        </div>
-                                    </td>
-                                    <td class="text-right">{{x.TaxAmount| number:2}}</td>
-                                    <td class="text-right">{{x.x.Amount +x.TaxAmount | number:2}}</td>
-                                    <td class="text-right">
-                                        <ul class="list-inline action-list">
-                                            <li>
-                                                <button ng-click="getServiceTaxList(x, false,x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button>
-                                            </li>
-                                            <li>
-                                                <button ng-click="removeServiceRow(x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
-                                            </li>
-                                        </ul>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="1" class="text-right">
-                                        <strong>Total : </strong>
-                                    </td>
-                                    <td class="text-right">
-                                        <strong>{{chargesList | sumByKey : 'Amount'| setDecimal:2| number:2 }}</strong>
-                                    </td>
-                                    <td class="text-right">
-                                        <strong>{{chargesList | sumByKey : 'TaxAmount'| setDecimal:2| number:2 }}</strong>
-                                    </td>
-                                    <td class="text-right">
-                                        <strong>{{chargesList | sumByKey : 'NetAmount'| setDecimal:2| number:2 }}</strong>
-                                    </td>
-                                    <td class="text-right"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <div class="common-btn">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" ng-disabled="salesVM.RowState==='Posted'|| savebtndisable" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                <li> <button data-toggle="modal" ng-disabled="salesVM.RowState==='Posted'" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            </ul>
-        </div>
-
-        <!--<div class="row">
-            <div class="col-xs-12">
-                <fieldset class="scheduler-border" ng-show="selectedMasterOrderItemList.length>0">
-                    <legend class="scheduler-border">Additional Tax</legend>
-                    <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="col-xs-12 col-sm-5 col-md-5">
                         <div class="form-group">
-                            <label class="col-sm-6 control-label">If Percentage Applicable</label>
-                            <div class="col-sm-6">
-                                <div class="radio">
-                                    <label>
-                                        <input type="radio" name="TaxOptionAddiTax" ng-model="salesVM.TaxOptionAddiTax" value="Yes" ng-click="TaxOptionAdditax('Yes');">-->
-        @*ng-hide="HSNCode !=null"*@
-        <!--<span class="cr"><i class="cr-icon"></i></span>Yes
-        </label>
-        <label>
-            <input type="radio" name="TaxOptionAddiTax" ng-model="salesVM.TaxOptionAddiTax" value="No" ng-click="TaxOptionAdditax('No');">-->
-        @*ng-hide="HSNCode !=null"*@
-        <!--<span class="cr"><i class="cr-icon"></i></span>No
-                                    </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input type="text" name="Customer" ng-model="salesVM.PartyName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showPartyPopUpNew();" disabled class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="div_DocDate" class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Invoice Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Invoice Date" ng-model="salesVM.InvoiceDate" datepicker="checkInvoiceDate();changePaymentTerm();" required class="form-control" tabindex="3">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Comercial Invoice No<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-maxlength="25" name="Comercial Invoice No" ng-model="salesVM.ComercialInvoiceNo" class="form-control" tabindex="4" required capitalize autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" tilte="EXP Form No">EXP Form No</label>
+                            <div class="col-sm-2" style="width: 30%;">
+                                <input type="text" ng-maxlength="25" name="EXP Form No" ng-model="salesVM.EXPFromNo" class="form-control" tabindex="4" capitalize autocomplete="off">
+                            </div>
+                            <label class="col-sm-3 control-label" style="margin-left: -30px;" title="EXP Date">EXP Dt</label>
+                            <div class="col-sm-3" style="margin-left: -15%;width: 30%;">
+                                <input type="text" name="EXP Date" ng-model="salesVM.EXPDate" datepicker class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-2 control-label">Entity<sup>*</sup></label>
+                            <div class="col-sm-10 show-message">
+                                <div class="select-style">
+                                    <select id="entityId" class="form-control" disabled name="Entity" ng-model="salesVM.EntityId" tabindex="7" required>
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Entry Date" ng-model="salesVM.VoucherDate" datepicker class="form-control" disabled required>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+                            <div class="col-sm-5 show-message" style="padding-right:0px;">
+                                <div class="select-style">
+                                    <select id="currency" class="form-control" tabindex="5" name="Currency" ng-model="salesVM.CurrencyId" ng-change="GetCurrencyExchangeRateList();" required>
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 show-message" style="padding-left:0px;">
+                                <input type="text" maxlength="50" id="Rate" name="Company Currency Rate" ng-model="salesVM.CompanyCurrencyRate" ng-disabled="salesVM.CurrencyId==salesVM.BaseCurrencyId" class="form-control text-right" tabindex="5" required autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" title="BL Number">BL No.</label>
+                            <div class="col-sm-3" style="width: 115px;margin-left: -33px;">
+                                <input type="text" ng-maxlength="50" name="BL Number" ng-model="salesVM.BLNumber" class="form-control" tabindex="4" capitalize autocomplete="off">
+                            </div>
+                            <label class="col-sm-2 control-label" style="margin-left: -30px;" title="BL Date">BL Dt</label>
+                            <div class="col-sm-4" style="margin-left: -12px;width: 42%;">
+                                <input type="text" name="BL Date" ng-model="salesVM.BLDate" datepicker class="form-control">
+                                @*<input type="text" class="form-control" ej-numerictextbox e-decimalplaces="0" ej-disabled="true" e-enablertl="false" e-value="model.Amount" e-width="100%" />*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-2 control-label">Narration<sup>*</sup></label>
+                            <div class="col-sm-10 show-message">
+                                <textarea rows="2" type="text" ng-maxlength="250" name="Narration" tabindex="8" class="form-control" ng-model="salesVM.Narration" required capitalize></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" title="Item Description">Description</label>
+                            <div class="col-sm-10">
+                                <textarea rows="2" type="text" ng-maxlength="250" name="Item Description" tabindex="8" class="form-control" ng-model="salesVM.ItemDescription"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <fieldset class="scheduler-border">
+                            <legend class="scheduler-border">Payment Term</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-2 control-label">Payment Term<sup>*</sup></label>
+                                    <div class="col-sm-2 show-message">
+                                        <div class="select-style">
+                                            <select tabindex="10" id="paymentTermId" ng-disabled="salesVM.IsPaymentTermChangeable==false" class="form-control" name="Payment Term" ng-model="salesVM.PaymentTermId" ng-change="changePaymentTerm(salesVM.PaymentTermId);">
+                                                <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <label class="col-sm-2 control-label">Due Date BaseOn<sup>*</sup></label>
+                                    <div class="col-sm-2">
+                                        <input type="text" name="BaseOnDueDate" ng-disabled="IsBaseOnDueDateEnable==false" ng-model="salesVM.BaseOnDueDate" ng-change="getMatureDate(salesVM.BaseOnDueDate,salesVM.BaseNoOfDays)" datepicker class="form-control datepicker" tabindex="11">
+                                    </div>
+                                    <label class="col-sm-1 control-label">No Of Days</label>
+                                    <div class="col-sm-1 show-message">
+                                        <input id="baseNoOfday" type="number" name="No Of Days" ng-disabled="IsBaseOnDueDateEnable==false" ng-model="salesVM.BaseNoOfDays" ng-change="getMatureDate(salesVM.BaseOnDueDate, salesVM.BaseNoOfDays)" class="form-control" tabindex="12">
+                                    </div>
+                                    <label class="col-sm-1 control-label">Mature Date</label>
+                                    <div class="col-sm-1 show-message">
+                                        <input type="text" style="width: 83px;" name="Mature Date" ng-model="salesVM.MatureDate" class="form-control" readonly>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="site-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
+                            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Charges</a></li>
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                            <div ng-form="tabForm1">
+                                <div class="clearfix"></div>
+                                <div class="table-responsive modal-table" ng-show="salesOrderList.length>0">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>MasterOrder</th>
+                                                <th>SONo</th>
+                                                <th>PONumber</th>
+                                                <th>DeliveryDate</th>
+                                                <th>Destination</th>
+                                                <th>MaterialMasterName</th>
+                                                <th>Article</th>
+                                                <th>SKU1</th>
+                                                <th>SKU2</th>
+                                                <th class="text-right">Rate</th>
+                                                <th class="text-right">Qty</th>
+                                                @*<th class="text-right">Balance</th>*@
+                                                <th class="text-right">Amount</th>
+                                                <th class="text-right">Tax</th>
+                                                <th class="text-right">Service Charge</th>
+                                                <th class="text-right">Service Tax</th>
+                                                <th class="text-right">Total Amount  </th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in salesOrderList">
+                                                <td>{{x.MasterOrderId}}</td>
+                                                <td>{{x.SONo}}</td>
+                                                <td>{{x.PONumber}}</td>
+                                                <td>{{x.DeliveryDate}}</td>
+                                                <td>{{x.DestinationName}}</td>
+                                                <td>{{x.MaterialMasterName}}</td>
+                                                <td>{{x.MaterialMasterArticleName}}</td>
+                                                <td>{{x.SKU1}}</td>
+                                                <td>{{x.SKU2}}</td>
+                                                <td class="text-right">{{x.Rate}}</td>
+                                                <td class="text-right">{{x.TransactionQty | number:2}}</td>
+                                                @*<td class="text-right">{{x.Balance | number:2}}</td>*@
+                                                <td class="text-right">{{x.TransactionAmount | number:2}}</td>
+                                                <td class="text-right">{{x.TaxAmount | number:2}}</td>
+                                                <td class="text-right">{{x.ServiceCharge | number:2}}</td>
+                                                <td class="text-right">{{x.ServiceTax | number:2}}</td>
+                                                <td class="text-right">{{x.NetAmount | number:2}}</td>
+                                                <td class="text-right">
+                                                    <ul class="list-inline action-list">
+                                                        <li>
+                                                            <button ng-click="getMaterialTaxList(x, false,$index)" ng-disabled="salesVM.RowState==='Posted'" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button>
+                                                        </li>
+                                                        <li>
+                                                            <button ng-click="removeMaterialRow(x.Id,$index)" ng-disabled="salesVM.RowState==='Posted'" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="9" class="text-right">
+                                                    <strong>Total : </strong>
+                                                </td>
+                                                <td></td>
+                                                <td class="text-right">
+                                                    <strong>{{salesOrderList | sumByKey : 'TransactionQty'| setDecimal:2 | number:2}}</strong>
+                                                </td>
+
+                                                @*<td class="text-right">
+                                                        <strong>{{salesOrderList | sumByKey : 'Balance'| setDecimal:2 | number:2}}</strong>
+                                                    </td>*@
+                                                <td class="text-right">
+                                                    <strong>{{salesOrderList | sumByKey : 'TransactionAmount'| setDecimal:2 | number:2}}</strong>
+                                                </td>
+                                                <td class="text-right">
+                                                    <strong>{{salesOrderList | sumByKey : 'TaxAmount'| setDecimal:2 | number:2}}</strong>
+                                                </td>
+                                                <td class="text-right"><strong>{{salesOrderList | sumByKey : 'ServiceCharge'| setDecimal:currencyPrecision | number}}</strong></td>
+                                                <td class="text-right"><strong>{{salesOrderList | sumByKey : 'ServiceTax'| setDecimal:currencyPrecision | number}}</strong></td>
+                                                <td class="text-right">
+                                                    <strong>{{salesOrderList | sumByKey : 'NetAmount'| setDecimal:2 | number:2}}</strong>
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="clearfix"></div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                            <div ng-form="tabForm2">
+                                <ul class="common-btn list-inline text-left">
+                                    <li>
+                                        <button ng-click="serviceChargePopUp();" ng-disabled="salesVM.RowState==='Posted'" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button>
+                                    </li>
+                                </ul>
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Service</th>
+                                                <th>Amount</th>
+                                                <th>Tax Amount</th>
+                                                <th>Total Amount</th>
+                                                <th class="col-sm-1"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in chargesList">
+                                                <td>
+                                                    {{x.ChargeName}}
+                                                </td>
+                                                <td class="text-right">
+                                                    <div class="show-message">
+                                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Amount" ng-keyup="calculateServiceAmount(x);">
+                                                    </div>
+                                                </td>
+                                                <td class="text-right">{{x.TaxAmount| number:2}}</td>
+                                                <td class="text-right">{{x.x.Amount +x.TaxAmount | number:2}}</td>
+                                                <td class="text-right">
+                                                    <ul class="list-inline action-list">
+                                                        <li>
+                                                            <button ng-click="getServiceTaxList(x, false,x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button>
+                                                        </li>
+                                                        <li>
+                                                            <button ng-click="removeServiceRow(x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="1" class="text-right">
+                                                    <strong>Total : </strong>
+                                                </td>
+                                                <td class="text-right">
+                                                    <strong>{{chargesList | sumByKey : 'Amount'| setDecimal:2| number:2 }}</strong>
+                                                </td>
+                                                <td class="text-right">
+                                                    <strong>{{chargesList | sumByKey : 'TaxAmount'| setDecimal:2| number:2 }}</strong>
+                                                </td>
+                                                <td class="text-right">
+                                                    <strong>{{chargesList | sumByKey : 'NetAmount'| setDecimal:2| number:2 }}</strong>
+                                                </td>
+                                                <td class="text-right"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="clearfix"></div>
-                    <div class="table-responsive modal-table">
-                        <table class="table table-responsive table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Input Tax</th>
-                                    <th>Percentage</th>
-                                    <th>Amount</th>
-                                    <th class="text-right">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td id="td_TaxCode">
-                                        <div class="select-style show-message">
-                                            <select name="TaxCodeId" ng-model="advanceTax.TaxCodeId" ng-change="selectadditionalTax(advanceTax.TaxCodeId)" class="col-sm-3 form-control"
-                                                    ng-options="item.Id as item.UserName for item in taxCodCboListWithhold">
-                                                <option></option>
-                                            </select>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <input type="text" n-decimals="4" class="form-control text-right" ng-disabled="salesVM.TaxOptionAddiTax==='No'" ng-model="advanceTax.ValueOfFixed" ng-keyup="calculateTaxAmountForAdditionalTax(advanceTax.ValueOfFixed);">
-                                        </div>
-                                    </td>
-                                    <td id="td_TaxCodeAmount">
-                                        <div class="show-message">
-                                            <input type="text" n-decimals="2" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="copyTaxesAmount();checkRowValidationSdditionalTax(advanceTax.TaxAmount);" ng-disabled="salesVM.TaxOptionAddiTax==='Yes'">
-                                        </div>
-                                    </td>
-                                    <td class="text-right">
-                                        <a ng-click="additionalTax();" ng-disabled="salesVM.Id==null" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
-                                    </td>
-                                </tr>
-                                <tr ng-repeat="x in advanceTaxesList">
-                                    <td>{{x.TaxName}}</td>
-                                    <td>{{x.ValueOfFixed}}</td>
-                                    <td class="text-right">{{x.TaxAmount | number:2 }}</td>
-                                    <td class="text-right">
-                                        <button ng-click="removeTaxesRow(x.Id,$index)" data-toggle="modal" ng-disabled="x.AdvanceId || salesVM.RowState==='Posted'" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                            <tfoot ng-show="advanceTaxesList.length">
-                                <tr>
-                                    <td colspan="2"><b>Sub Total</b></td>
-                                    <td class="text-right"><b>{{ advanceTaxesList | sumByKey : 'TaxAmount'| setDecimal:2| number:2  }}</b></td>
-                                    <td></td>
-                                </tr>
-
-                            </tfoot>
-                        </table>
-                    </div>
                     <div class="common-btn">
-                        <div class="form-group">
-                            <label class="col-sm-6 control-label">Total Amount (Total Amount+Service Amount+Additional Tax)</label>
-                            <div class="col-sm-2 show-message">
-                                <input type="text" n-decimals="2" name="Total Amount" ng-model="advanceTax.TotalSumAfterTCSVal" class="form-control" tabindex="4" readonly>
-                            </div>
-                        </div>
                         <ul class="list-inline text-right">
-                            <li><button ng-click="SaveAdditinalTax();" ng-disabled="salesVM.Id==null || salesVM.RowState==='Posted'" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
-
+                            <li> <button ng-click="Save();" ng-disabled="salesVM.RowState==='Posted'|| savebtndisable" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            <li> <button data-toggle="modal" ng-disabled="salesVM.RowState==='Posted'" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
                     </div>
-                </fieldset>
-            </div>
-        </div>-->
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <fieldset class="scheduler-border" ng-show="salesOrderList.length>0">
+                                <legend class="scheduler-border">Additional Tax</legend>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-6 control-label">If Percentage Applicable</label>
+                                        <div class="col-sm-6">
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio" name="TaxOptionAddiTax" ng-model="salesVM.TaxOptionAddiTax" value="Yes" ng-click="TaxOptionAdditax('Yes');">
+                                                    <span class="cr"><i class="cr-icon"></i></span>Yes
+                                                </label>
+                                                <label>
+                                                    <input type="radio" name="TaxOptionAddiTax" ng-model="salesVM.TaxOptionAddiTax" value="No" ng-click="TaxOptionAdditax('No');">
+                                                    <span class="cr"><i class="cr-icon"></i></span>No
+                                                </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-responsive table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Input Tax</th>
+                                                <th>Percentage</th>
+                                                <th>Amount</th>
+                                                <th class="text-right">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td id="td_TaxCode">
+                                                    <div class="select-style show-message">
+                                                        <select name="TaxCodeId" ng-model="advanceTax.TaxCodeId" ng-change="selectadditionalTax(advanceTax.TaxCodeId)" class="col-sm-3 form-control"
+                                                                ng-options="item.Id as item.UserName for item in taxCodCboListWithhold">
+                                                            <option></option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div>
+                                                        <input type="text" n-decimals="4" class="form-control text-right" ng-disabled="salesVM.TaxOptionAddiTax==='No'" ng-model="advanceTax.ValueOfFixed" ng-keyup="calculateTaxAmountForAdditionalTax(advanceTax.ValueOfFixed);">
+                                                    </div>
+                                                </td>
+                                                <td id="td_TaxCodeAmount">
+                                                    <div class="show-message">
+                                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="copyTaxesAmount();checkRowValidationSdditionalTax(advanceTax.TaxAmount);" ng-disabled="salesVM.TaxOptionAddiTax==='Yes'">
+                                                    </div>
+                                                </td>
+                                                <td class="text-right">
+                                                    <a ng-click="additionalTax();" ng-disabled="salesVM.Id==null" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                                                </td>
+                                            </tr>
+                                            <tr ng-repeat="x in advanceTaxesList">
+                                                <td>{{x.TaxName}}</td>
+                                                <td>{{x.ValueOfFixed}}</td>
+                                                <td class="text-right">{{x.TaxAmount | number:2 }}</td>
+                                                <td class="text-right">
+                                                    <button ng-click="removeTaxesRow(x.Id,$index)" data-toggle="modal" ng-disabled="x.AdvanceId || salesVM.RowState==='Posted'" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot ng-show="advanceTaxesList.length">
+                                            <tr>
+                                                <td colspan="2"><b>Sub Total</b></td>
+                                                <td class="text-right"><b>{{ advanceTaxesList | sumByKey : 'TaxAmount'| setDecimal:2| number:2  }}</b></td>
+                                                <td></td>
+                                            </tr>
 
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <div class="common-btn">
+                                    <div class="form-group">
+                                        <label class="col-sm-6 control-label">Total Amount (Total Amount+Service Amount+Additional Tax)</label>
+                                        <div class="col-sm-2 show-message">
+                                            <input type="text" n-decimals="2" name="Total Amount" ng-model="advanceTax.TotalSumAfterTCSVal" class="form-control" tabindex="4" readonly>
+                                        </div>
+                                    </div>
+                                    <ul class="list-inline text-right">
+                                        <li><button ng-click="SaveAdditinalTax();" ng-disabled="salesVM.Id==null || salesVM.RowState==='Posted'" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
+
+                                    </ul>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
+                <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+                    <input type="hidden" ng-model="ModelNew.Id">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border">General</legend>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Invoice No<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Purchase LCNo" ng-model="ModelNew.InvoiceNo" class="form-control" readonly tabindex="1">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Contract No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="ContractNo" disabled ng-model="salesVM.ContractNo" class="form-control" tabindex="5">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Bank<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="Bank" id="OB" class="form-control" ng-model="ModelNew.BankMasterId" ng-options="item.Id as item.AccountTitle for item in bankMasterList" tabindex="3">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" tilte="EXP Form No">EXP Form No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-maxlength="25" name="EXP Form No" ng-model="ModelNew.ExpFormNo" class="form-control" tabindex="7">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Cargo Net Wt</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Cargo Net Wt" ng-model="ModelNew.CargoNetWt" class="form-control" autocomplete="off" tabindex="10" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Shipment Mode<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="Shipment Mode" class="form-control" ng-model="ModelNew.ShipmentModeId" ng-options="item.Value as item.Text for item in shipmentModeList" tabindex="13">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Final Destination<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="Destination" class="form-control" ng-model="ModelNew.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" ng-change="GetPortOfDischargeByDstination()" tabindex="15">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Expected time of arrival">ETA</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="ETA" ng-model="ModelNew.ETA" datepicker class="form-control" tabindex="18">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Invoice Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="InvoiceDate" ng-model="ModelNew.InvoiceDate" disabled class="form-control" tabindex="2">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">MastrerLC Ref No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="MastrerLC Ref No" disabled ng-model="salesVM.MLCRef" class="form-control" tabindex="5">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Bank Doc Ref</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="BankDocRef" ng-model="ModelNew.BankDocRef" class="form-control" tabindex="4">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Exp Date">Exp Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="EXP Date" ng-model="ModelNew.ExpDate" datepicker class="form-control" tabindex="8">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Cargo Gross Wt</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="CargoGrossWt" ng-model="ModelNew.CargoGrossWt" class="form-control" autocomplete="off" tabindex="11" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Port <span style="text-transform:lowercase">Of</span> Loading<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="Port Of Loading" class="form-control" ng-model="ModelNew.PortOfLoadingId" ng-options="item.Value as item.Text for item in portList" tabindex="14">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Port Of Discharge@*<sup>*</sup>*@</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="PortOfDischargeId" class="form-control" ng-model="ModelNew.PortOfDischargeId" ng-options="item.Value as item.Text for item in dischargePortList" tabindex="16">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Amount</label>
+                                <div class="col-sm-5" style="margin-right: -30px;">
+                                    <input type="text" name="Amount" ng-model="ModelNew.Amount" disabled class="form-control" tabindex="2">
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="select-style">
+                                        <select id="currency" class="form-control" tabindex="5" name="Currency" ng-disabled="true" ng-model="salesVM.CurrencyId" required>
+                                            @*<option value="">--Select--</option>*@
+                                            <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="input-group">
+                                        <input type="text" name="Customer" ng-model="salesVM.PartyName" class="form-control" readonly>
+                                        <span class="input-group-btn">
+                                            <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Bank Doc Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="BankDocDate" ng-model="ModelNew.BankDocDate" datepicker class="form-control" tabindex="5">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Ex-Factory Doc Ref</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Vendor" ng-model="ModelNew.ExFactoryDocRef" class="form-control" tabindex="5">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">ExFactory Date<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Invoice Date" ng-model="ModelNew.ExFactoryDate" datepicker class="form-control" tabindex="9">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Dimension</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Dimension" ng-model="ModelNew.Dimension" class="form-control" autocomplete="off" tabindex="12" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Port Of Delivery<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="PortOfDelivaryId" class="form-control" ng-model="ModelNew.PortOfDelivaryId" ng-options="item.Value as item.Text for item in deliveryPortList" tabindex="17">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </fieldset>
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border">Transport Agent</legend>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Transport Agent<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input type="text" name="Transport Agent" ng-model="ModelNew.TransportAgentName" class="form-control" readonly>
+                                        <span class="input-group-btn">
+                                            <button ng-click="showPartyPopUp('Transport');" class="btn single-small-btn" tabindex="19"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Vehicle No.</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Vehicle No." ng-model="ModelNew.TransportVehicleNo" class="form-control" tabindex="22">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Doc Ref No.<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Vendor" ng-model="ModelNew.TransportDocRefNo" class="form-control" tabindex="20">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Driver Name</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Vehicle No." ng-model="ModelNew.TransportDriverName" class="form-control" tabindex="23">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Transport Doc Date<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="TransportDocDate" ng-model="ModelNew.TransportDocDate" datepicker class="form-control" tabindex="21">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Driver No.</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Driver No." ng-model="ModelNew.TransportDriverNo" class="form-control" tabindex="24">
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border">Pre Carriage</legend>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Pre CarriageBy<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="PreCarriageBy" ng-model="ModelNew.PreCarriageBy" class="form-control" tabindex="25">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Doc Ref No.<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="TransportDocRefNo" ng-model="ModelNew.PreCarriageDocRef" class="form-control" tabindex="27">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Place Of Receipt<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="PlaceOfReceiptByPreCarriage" ng-model="ModelNew.PlaceOfReceiptByPreCarriage" class="form-control" tabindex="26">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Doc Date<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="PreCarriageDocDate" ng-model="ModelNew.PreCarriageDocDate" datepicker class="form-control" tabindex="28">
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border">CNF Agent</legend>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">CNF Agent<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input type="text" name="CNF Agent" ng-model="ModelNew.CNFAgentName" tabindex="29" class="form-control" readonly>
+                                        <span class="input-group-btn">
+                                            <button ng-click="showPartyPopUp('CNF');" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Vessel Name</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Vessel Name" ng-model="ModelNew.CNFVesselName" class="form-control" tabindex="32">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">BL/AWB Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="BL/AWB Date" ng-model="ModelNew.CNFBLAWBDate" datepicker class="form-control" tabindex="35">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Container No<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Container No" ng-model="ModelNew.CNFContainerNo" class="form-control" tabindex="30">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Vessel Sales Details</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="ModelNew.CNFVesselSalesDetails" maxlength="250" tabindex="33"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Vessel Tracking No<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="CNFVesselTrackingNo" ng-model="ModelNew.CNFVesselTrackingNo" class="form-control" tabindex="31">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">BL/AWB No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="BL/AWBNo" ng-model="ModelNew.CNFBLAWB" class="form-control" maxlength="15" autocomplete="off" tabindex="34">
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SavePostSales();" ng-disabled="salesVM.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ModelNew.Id==null?'Save':'Update'}}</button></li>
+                            <li> <button data-toggle="modal" ng-disabled="ModelNew.Id==null" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            <li> <button ng-click="ClearPostSales();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <div class="row text-right aplos-grid-toggle">
@@ -470,7 +804,7 @@
                 <th>Amount</th>
                 <th>Currency</th>
                 <th>Status</th>
-                <th>Action</th>
+                @*<th>Action</th>*@
             </tr>
         </thead>
         <tbody>
@@ -483,41 +817,22 @@
                 <td>{{x.Amount | number:2}}</td>
                 <td>{{x.CurrencyCode}}</td>
                 <td>{{x.RowState}}</td>
-                <td class="text-right">
-                    <ul class="list-inline action-list">
-                        @*<li ng-show="x.IsPosted || x.IsPark"><a ng-click="confirmPost(x);" href="" class="btn btn-action tooltip-here">Post</a></li>*@
-                        <li>
-                            <a class="btn btn-action" ng-click="CommercialInvoiceReport(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Commercial Invoice" href="" target="_blank"><i class=""></i>CI</a>
-                        </li>
-                        <li>
-                            <a class="btn btn-action" ng-click="LocalTaxInvoiceReport(x);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a>
-                        </li>
-
-                        @*<li>
-                                <a class="btn btn-action" ng-click="SalesReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a>
-                            </li>*@
-
-                        <!--<li>
-                        <a class="btn btn-action"-->
-                        @*href="SalesManagements/Sales/SalesReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&salesId={{x.SalesId}}"*@
-                        <!--target="_blank"><i class="fa fa-file-pdf-o"></i></a>
-                        </li>-->
-                        @*<li>
-                                <a class="btn btn-action" href="SalesManagements/Sales/SalesReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&salesId={{x.SalesId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a>
+                @*<td class="text-right">
+                        <ul class="list-inline action-list">
+                            <li>
+                                <a class="btn btn-action" ng-click="CommercialInvoiceReport(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Commercial Invoice" href="" target="_blank"><i class=""></i>CI</a>
                             </li>
-                            <li ng-show="x.VoucherId">
-                                <a class="btn btn-action" href="SalesManagements/Sales/SalesReceivableReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a>
-                            </li>*@
-                    </ul>
-                </td>
+                            <li>
+                                <a class="btn btn-action" ng-click="LocalTaxInvoiceReport(x);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a>
+                            </li>
+                        </ul>
+                    </td>*@
             </tr>
         </tbody>
     </table>
     <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
 </div>
-@*@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")*@
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")
-
 
 <div class="modal fade site-modal in" id="detailPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -789,9 +1104,7 @@
     </div>
 </div>
 
-
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
-@*@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPivotPopUp.cshtml")*@
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
@@ -997,99 +1310,6 @@
     </div>
 </div>
 
-@*<div class="modal fade site-modal in" id="MOPopUp" role="dialog" data-backdrop="static">
-        <div class="modal-dialog modal-lg modellgModify">
-            <div class="modal-content">
-                <div class="modal-header">
-                    Master Order
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body form-elements form-horizontal">
-                    <div class="col-md-12">
-                        <div style="color:black;" id="GridMasterOrder" ej-grid e-datasource="masterOrderCustomerList" e-allowscrolling="true" e-summaryrows="summaryRows"
-                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-showsummary="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                            <div e-columns>
-                                <div e-column e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="80"></div>
-                                <div e-column e-field="MasterOrderItemId" e-headertext="Item No" e-width="80"></div>
-                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
-                                <div e-column e-field="Buyer" e-headertext="Buyer" e-headertext-color="black" e-textalign="left" e-width="75"></div>
-                                <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
-                                <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
-                                <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="150"></div>
-                                <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
-                                <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80"></div>
-                                <div e-column e-field="Qty" e-headertext="SO Qty" e-width="80"></div>
-                                <div e-column e-field="Amount" e-headertext="SO Amount" e-width="80"></div>
-                                <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
-                                <div e-column e-field="BuyerReferenceNo" e-headertext="Buyer Ord#" e-width="80"></div>
-                                <div e-column e-field="OwnReferenceNo" e-headertext="Own Ord#" e-width="80"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="common-btn" style="padding-right: 15px;">
-                        <ul class="list-inline text-right">
-                            <li>
-                                <button ng-click="CloseMO();" class="btn">Close</button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>*@
-
-@*<div class="modal fade site-modal in" id="partyPopUpNew" role="dialog" data-backdrop="static">
-        <div class="modal-dialog modal-lg ">
-            <div class="modal-content">
-                <div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closePartyPopUpNew();">&times;</button></div>
-                <div class="modal-body form-elements form-horizontal">
-                    <div class="row text-right">
-                        <div class="col-xs-12 col-sm-12 col-sm-12">
-                            <div class="search-form">
-                                <div class="row">
-                                    <div class="col-xs-12 col-sm-3 col-md-3">
-                                        <div class="select-style">
-                                            <select ng-model="searchByParty">
-                                                <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-7 col-md-7">
-                                        <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="showPartyPopUpNew()">
-                                    </div>
-                                    <div class="col-xs-12 col-sm-2 col-md-2">
-                                        <button type="button" ng-click="showPartyPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="content-container-fluid">
-
-                            <div style="color:black;" id="partyPopUpGrid" ej-grid e-datasource="partyList" e-recorddoubleclick="SetVendorData"
-                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
-                                <div e-columns>
-                                    <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
-                                    <div e-column e-field="UserName" e-headertext="Party" e-width="130"></div>
-                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="130"></div>
-                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
-                                    <div e-column e-field="CountryName" e-headertext="Country" e-width="80" textAlign='Right'></div>
-                                    <div e-column e-field="StateName" e-headertext="State" e-width="80" textAlign='Right'></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <ul class="common-btn list-inline text-right">
-                        <li><button ng-click="closePartyPopUpNew();" class="btn"> Close</button></li>
-                    </ul>
-                    <i>**Showing top 100 {{partyType}} order by Code</i>
-                </div>
-            </div>
-        </div>
-    </div>*@
 
 <div class="loader" data-loader>
     Please wait
@@ -1108,9 +1328,9 @@
             </div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
-                    <div id="GridPacking" ej-grid e-datasource="PackingList" @*e-recorddoubleclick="SetPackingList"*@  e-templaterefresh="refreshPackingTemplate"
+                    <div id="GridPacking" ej-grid e-datasource="PackingList"  e-templaterefresh="refreshPackingTemplate"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" @*e-queryCellInfo="cellDetails" e-allowtextwrap="true"*@>
+                         e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
                             <div e-column e-field="PackingId" e-type="string" e-headertext="Packing Id" e-width="80"></div>
@@ -1151,7 +1371,9 @@
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="Grid" ej-grid e-datasource="salesOrderList"--> @*e-templaterefresh="refreshTemplateMasterOrderOperation"*@ <!--e-recorddoubleclick="selectDoubleClick"
+                        <div style="color:black;" id="Grid" ej-grid e-datasource="salesOrderList"-->
+@*e-templaterefresh="refreshTemplateMasterOrderOperation"*@
+<!--e-recorddoubleclick="selectDoubleClick"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                             <div e-columns>

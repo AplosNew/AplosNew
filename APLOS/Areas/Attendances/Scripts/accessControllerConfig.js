@@ -329,5 +329,9 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/ManualOTReportNew/Aplos',
             controller: 'ManualOTReportNewController'
         })
+        .when('/payroll-management-dashboard', {
+            templateUrl: 'Attendances/PayrollManagementDashboard/Aplos',
+            controller: 'PayrollManagementDashboardController'
+        })
         ;
 } 
