@@ -374,10 +374,11 @@
                     <td class="text-right">
                         <ul class="list-inline action-list">
                             <li ng-show="x.IsPosted || x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
-                            <li ng-show="x.OtherIsPark"><a ng-click="ShowJournalPopUp(x);" href="" class="btn btn-action tooltip-here">Subsidy Post</a></li>
+                            <li ng-show="x.OtherIsPark=='OtherInvoiceParked'"><a ng-click="ShowJournalPopUp(x);" href="" class="btn btn-action tooltip-here">Subsidy Post</a></li>
                             <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                             <li><a class="btn btn-action" href="Accounts/Invoice/GetCustomerInvoiceVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/Invoice/GetCustomerInvoiceVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                            <li ng-show="x.OtherIsPark=='OtherInvoicePosted'"><a ng-click="OtherInvoiceVouchereReport('Pdf',x.OtherInvoiceVoucherId);" href="" class="btn btn-action tooltip-here">Subsidy Report</a></li>
                         </ul>
                     </td>
                 </tr>
@@ -430,7 +431,7 @@
 
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li><button ng-click="confirmPost()" title="Post" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
+                        <li><button ng-click="confirmotherInvoicePost(OtherInvoiceJournalId,OtherInvoiceJournal,newList)" title="Post" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
                         <li><button ng-click="closeJournalPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                     </ul>
                 </div>
@@ -442,3 +443,4 @@
 <confirm-archive-generic modalid="confirmTaxCodeDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeTaxCodeRow()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(invoiceId,voucherId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(invoiceId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmotherInvoicePostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="otherInvoicepost(otherinvoiceId,data,otherInvoiceJVlist)"></confirm-archive-generic>
