@@ -120,6 +120,17 @@ namespace Aplos.Areas.Productions.Controllers
                         throw new CustomException("Please Input Service Amount !");
                 }
             }
+            if (selectedPackingList != null)
+            {
+                foreach (var item in selectedPackingList)
+                {
+                    var data = clsSales.GetQtyAmountByPackingId(item.PackingId);
+                    item.Qty = Convert.ToDecimal(data["Qty"].ToString());
+                    item.Amount = Convert.ToDecimal(data["Amount"].ToString());
+                }
+            }
+
+
             _salesService.PackingInvoiceInsert(voucherVM, salesMaterialVMList, selectedPackingList, salesServiceVMList);
             return Json(new { Data = voucherVM, Message = AplosMessage.Insert + "Invoice No: " + voucherVM.Id + "" });
         }
@@ -153,6 +164,17 @@ namespace Aplos.Areas.Productions.Controllers
                         throw new CustomException("Please Input  Service Amount !");
                 }
             }
+
+            if (selectedPackingList != null)
+            {
+                foreach (var item in selectedPackingList)
+                {
+                    var data = clsSales.GetQtyAmountByPackingId(item.PackingId);
+                    item.Qty = Convert.ToDecimal(data["Qty"].ToString());
+                    item.Amount = Convert.ToDecimal(data["Amount"].ToString());
+                }
+            }
+
             _salesService.PackingInvoiceUpdate(voucherVM, salesMaterialVMList, selectedPackingList, salesServiceVMList);
             return Json(new { Data = voucherVM, Message = AplosMessage.Updated + "Invoice No: " + voucherVM.Id + "" });
         }

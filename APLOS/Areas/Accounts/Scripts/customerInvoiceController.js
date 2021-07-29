@@ -1,6 +1,6 @@
 ﻿"use strict";
-customerInvoiceController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
-function customerInvoiceController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
+customerInvoiceController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller","$window"];
+function customerInvoiceController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $window) {
     $scope.voucherDetailList = [];
     $scope.taxCodDataList = [];
     $scope.Action = "Save";
@@ -1327,7 +1327,9 @@ function customerInvoiceController(cboService, commonMessage, $scope, $rootScope
 
     $scope.ShowJournalPopUp = function (data) {
         $scope.OtherInvoiceJournal = data;
+        $scope.OtherInvoiceJournalId = data.OtherInvoiceId;
         getOtherInvoiceJournal(data.Id);
+
         angular.element(document.querySelector('#JournalPopUp')).modal('show');
     }
 
@@ -1342,11 +1344,41 @@ function customerInvoiceController(cboService, commonMessage, $scope, $rootScope
         angular.element(document.querySelector('#JournalPopUp')).modal('hide');
     }
 
-    $scope.pullShakwat = function () {
-        console.log('Hello Shakwat');
-    }
-    $scope.pullShakwat();
-    $scope.pullShakwat1 = function () {
-        console.log('Hello Shakwat');
+    $scope.otherInvoicepost = function (id, data, otherInvoiceJVlist) {
+        $http({
+            method: "POST",
+            url: 'Accounts/Invoice/InsertOtherInvoiceJournal',
+            data: {
+                "otherInvoiceId": id,
+                "voucherVM": data,
+                "voucherDetailVMList": otherInvoiceJVlist
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                if (tdsId != null) {
+                }
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.invoiceId = null;
+    $scope.confirmotherInvoicePost = function (id,data,list) {
+        $scope.otherinvoiceId = id;
+        $scope.data = data;
+        $scope.otherInvoiceJVlist = list;
+        $scope.message_confirmation = "Are you sure to Post?";
+        angular.element(document.querySelector("#confirmotherInvoicePostPopUp")).modal("show");
+    };
+
+    $scope.OtherInvoiceVouchereReport = function (reportFormat, voucherId) {
+        $window.open('Accounts/Invoice/CustomerInvoiceReceiptReport?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
     }
 }

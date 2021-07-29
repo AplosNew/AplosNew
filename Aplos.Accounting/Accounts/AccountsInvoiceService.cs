@@ -360,7 +360,9 @@ namespace Library.Accounting.Accounts
                                         ,IsTDSTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'TDSPosted' WHEN  ADT.InvoiceId IS NULL THEN '' ELSE 'TDSParked' end,V.VoucherTypeId,I.CompanyCurrencyRate
                                         ,I.PartyId,I.PartyPlantId,Null EmployeeId
                                         ,AV.VoucherNo TDSVoucherNo,ADT.VoucherId TDSVoucherId,[Status]= case when I.IsPark=1 then 'Parked' else 'Posted' end
-                                        ,OI.Id OtherInvoiceId,OI.IsPark OtherIsPark
+                                        ,OI.Id OtherInvoiceId
+                                        ,OtherIsPark=CASE WHEN OI.VoucherId<>'' THEN 'OtherInvoicePosted' WHEN  OI.VoucherId IS NULL THEN '' ELSE 'OtherInvoiceParked' end
+                                        ,OI.VoucherId OtherInvoiceVoucherId
                                         FROM TRN.[Invoice] AS I
                                         JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
@@ -379,7 +381,7 @@ namespace Library.Accounting.Accounts
                                         ,IsAdditionalTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'Posted' WHEN  ADT.EmployeePayableId IS NULL THEN '' ELSE 'Parked' end,V.VoucherTypeId,I.CompanyCurrencyRate
                                         ,I.PartyId,I.PartyPlantId,I.EmployeeId
                                         ,AV.VoucherNo TDSVoucherNo,ADT.VoucherId TDSVoucherId,[Status]= case when I.IsPark=1 then 'Parked' else 'Posted' end
-                                        ,NULL OtherInvoiceId,0 OtherIsPark
+                                        ,NULL OtherInvoiceId,NULL OtherIsPark,NULL OtherInvoiceVoucherId
                                         FROM TRN.[EmployeePayable] AS I
                                        LEFT JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
@@ -1469,7 +1471,9 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 							,RGL.ReconciliationActivityName ActivityName
 							, OI.Amount AS Dr, NULL  Cr
 							, OI.Amount AS Amount
-                            
+							, OI.Amount AS DrAmount
+                            , NULL InvoiceDetailId
+                            ,OI.PartyId,OI.PartyPlantId
 						FROM [TRN].[OtherInvoice] AS OI
 						JOIN TRN.Invoice IV ON IV.Id=OI.InvoiceId
 						LEFT JOIN HKP.Party P ON P.Id=OI.PartyId
@@ -1485,7 +1489,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
                                     LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
                                     WHERE CPGL.PartyGLType='ReconciliationGL'
                                     ) AS RGL ON RGL.CompanyPartyId=CP.Id
-						WHERE OI.InvoiceId=@otherInvoiceId AND IV.PlantId=@plantId
+						WHERE OI.Id=@otherInvoiceId AND IV.PlantId=@plantId
 
 						union
 						SELECT  P.UserName Customer, 'Cr' AS TrnType,OI.InvoiceId
@@ -1500,7 +1504,9 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 							,A.UserName ActivityName
 							,  NULL Dr, OI.Amount Cr
 							, OI.Amount AS Amount
-                            
+							, OI.Amount AS CrAmount
+                            ,IVD.Id InvoiceDetailId
+                            ,IV.PartyId,IV.PartyPlantId
 						FROM [TRN].[OtherInvoice] AS OI
 						JOIN TRN.Invoice IV ON IV.Id=OI.InvoiceId
 						JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id
@@ -1509,7 +1515,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
                                     LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=IVD.BudgetMasterId
                                     LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
                                     LEFT JOIN [HKP].[Activity] AS A ON A.Id=IVD.ActivityId
-						WHERE OI.InvoiceId=@otherInvoiceId AND IV.PlantId=@plantId
+						WHERE OI.Id=@otherInvoiceId AND IV.PlantId=@plantId
 					--ORDER BY T.TrnType DESC 
 ";
 					return _sqlRepository.GetDataCollection(sql);

@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Model.Accounts;
 using Library.Model.Enums;
 using Library.Model.Inventory;
 using Library.ViewModel.Inventory;
@@ -35,10 +36,11 @@ namespace Library.Service.Invoices
             , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
             , IEnumerable<ServiceAcknowledgementDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList);
         void PostSingleJournalSales(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList, IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList);
+            , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
+            , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, OtherInvoice otherInvoiceVM);
         void PostMultipleJournalSales(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
            , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
-            , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryJVList);
+            , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryJVList, OtherInvoice otherInvoiceVM);
         string InsertPurchaseReturnPayable(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList);
         string InsertInventoryTransferPayable(string receiveId, VoucherViewModel voucherVM
            , IEnumerable<VoucherDetailViewModel> fromPlantInventoryTransferJV
