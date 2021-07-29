@@ -1433,34 +1433,56 @@ namespace Library.HumanResource.Report.OT
                             List<DataRow> drSalaryHeadCollection = dicEmpSalry[dtEmployees.Rows[i]["EmpSystemID"].ToString()];
                             if (drSalaryHeadCollection.Count > 0)
                             {
-                                for (int ix = 0; ix < listdsSlrStr.Count; ix++)
-                                {
-                                    if (listdsSlrStr[ix].HeadCategory == "Basic" && done1 == "Ok")
-                                    {
-                                        sheet1.Range[xlsRow, colBasic].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
-                                        sheet1.Range[xlsRow, colBasic].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                                        sheet1.Range[xlsRow, colBasic].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                        done1 = "No";
-                                    }
-                                    if (listdsSlrStr[ix].HeadCategory == "CTC" && done2 == "Ok")
-                                    {
-                                        sheet1.Range[xlsRow, colCTC].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
-                                        sheet1.Range[xlsRow, colCTC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                                        sheet1.Range[xlsRow, colCTC].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                        done2 = "No";
-                                    }
-                                    if (listdsSlrStr[ix].HeadCategory == "GROSS" && done3 == "Ok")
-                                    {
-                                        sheet1.Range[xlsRow, colGross].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
-                                        sheet1.Range[xlsRow, colGross].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                                        sheet1.Range[xlsRow, colGross].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                        done3 = "No";
-                                    }
+                                //for (int ix = 0; ix < listdsSlrStr.Count; ix++)
+                                //{
+                                //    if (listdsSlrStr[ix].HeadCategory == "Basic" )
+                                //    {
+                                //        sheet1.Range[xlsRow, colBasic].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
+                                //        sheet1.Range[xlsRow, colBasic].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                //        sheet1.Range[xlsRow, colBasic].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                        
+                                //    }
+                                //    if (listdsSlrStr[ix].HeadCategory == "CTC" )
+                                //    {
+                                //        sheet1.Range[xlsRow, colCTC].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
+                                //        sheet1.Range[xlsRow, colCTC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                //        sheet1.Range[xlsRow, colCTC].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                        
+                                //    }
+                                //    if (listdsSlrStr[ix].HeadCategory == "GROSS" )
+                                //    {
+                                //        sheet1.Range[xlsRow, colGross].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
+                                //        sheet1.Range[xlsRow, colGross].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                //        sheet1.Range[xlsRow, colGross].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                        
+                                //    }
 
-                                }
+                                //}
                                 for (int CI = 0; CI < drSalaryHeadCollection.Count; CI++)
                                 {
-                                  
+
+                                    if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "BASIC")
+                                    {
+                                        sheet1.Range[xlsRow, colBasic].Number = Convert.ToDouble(drSalaryHeadCollection[CI]["EntryAmount"].ToString());
+                                        sheet1.Range[xlsRow, colBasic].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                        sheet1.Range[xlsRow, colBasic].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    }
+                                    if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "CTC")
+                                    {
+                                        sheet1.Range[xlsRow, colCTC].Number = Convert.ToDouble(drSalaryHeadCollection[CI]["EntryAmount"].ToString());
+                                        sheet1.Range[xlsRow, colCTC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                        sheet1.Range[xlsRow, colCTC].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    }
+                                    if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "GROSS")
+                                    {
+                                        sheet1.Range[xlsRow, colGross].Number = Convert.ToDouble(drSalaryHeadCollection[CI]["EntryAmount"].ToString());
+                                        sheet1.Range[xlsRow, colGross].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                        sheet1.Range[xlsRow, colGross].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    }
+
                                     if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "NET PAYABLE")
                                     {
                                         SalaryHeadSequence xx = shtList[drSalaryHeadCollection[CI]["SalaryHeadId"].ToString()];// shtList.Where(ee => ee.SalaryHeadId == drSalaryHeadCollection[CI]["SalaryHeadId"].ToString()).ToList();

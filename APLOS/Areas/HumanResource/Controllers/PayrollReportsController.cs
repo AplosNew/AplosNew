@@ -506,7 +506,15 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
         public ActionResult GetEmpInfoSalaryPorcessed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity,string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
+            string Plant = string.Empty;
+            if (!string.IsNullOrEmpty(PlantId))
+            {
+                Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
+            }
+            else
+            {
+                Plant = identity.PlantId;
+            }
             var jsondata = Json(_payrollReportsService.GetEmpInfoSalaryPorcessed(identity.CompanyGroupId, Plant, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;

@@ -469,7 +469,7 @@ namespace Library.OrderManagement.Sales
 		{
 			try
 			{
-				var str = @"SELECT SP.Id,SP.PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
+				string str = @"SELECT SP.Id,SP.PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
                             ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,CP.CurrencyId,C.Code AS Currency 
                             FROM dbo.SalesPacking SP
 							LEFT JOIN TRN.Packing pk ON pk.PackingId=SP.PackingId
@@ -488,6 +488,29 @@ namespace Library.OrderManagement.Sales
 				throw e;
 			}
 		}
+
+		public Dictionary<string, object> GetQtyAmountByPackingId(string packingid)
+        {
+            try
+            {
+				string sql = @"Select PackingID,Sum(NetWeight) Qty,Sum(Amount) Amount from
+								(
+								SELECT PK.PackingId,IsNull(ISC.NetWeight,0) NetWeight,IsNull(FGBD.Rate,0) Rate,IsNull(ISC.NetWeight,0) * IsNull(FGBD.Rate,0) Amount FROM
+								dbo.ItemScanChild ISC
+								LEFT JOIN TRN.POLotReference POR ON ISC.PackingId=POR.Id
+								LEFT JOIN TRN.PackingLineItem PLI ON POR.PackingLineItemId=PLI.PackingLineItemId
+								LEFT JOIN TRN.Packing PK ON PLI.PackingId=PK.PackingId
+								LEFT JOIN FinishGoodsBookingDetail FGBD ON ISC.FinishGoodsBookingDetailId=FGBD.Id
+								Where PK.PackingId='"+ packingid + @"'
+								) TembTbl group by PackingId";
+				return _sqlRepository.GetData(sql, null);
+			}
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
 
 
