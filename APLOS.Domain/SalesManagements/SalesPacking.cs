@@ -9,6 +9,7 @@ namespace Library.Model.SalesManagements
 
         public string Id { get; set; }
         public decimal Amount { get; set; }
+        public decimal Qty { get; set; }
        
 
         #endregion Scalar Properties
