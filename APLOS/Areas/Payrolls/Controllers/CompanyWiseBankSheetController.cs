@@ -94,7 +94,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 								
 								FROM SalaryProcessLogDetail sp
 								Left join SalaryProcMaster spm on spm.SystemID=sp.SalaryProcessId
-								Left join HKP.Bank b on b.Id= sp.BankSystemID
+								Left join HKP.Bank b on b.Id= sp.BankSystemID and b.Id = sp.BankSystemID
                                 INNER JOIN EmployeeInformation AS EI ON EI.SystemId = sp.EmpSystemID
 								LEFT JOIN MST.ManpowerBudget PMB ON sp.BudgetCode = PMB.Id
                         LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
@@ -114,13 +114,13 @@ namespace Aplos.Areas.Payrolls.Controllers
 
         #region --- Report---
         [HttpPost, Authorize]
-        public JsonResult CwReport(string PaymentModeList, string BankList, string PlantList, string EntityList, string DepartmentList, string DesignationList, string SectionList, string SubSectionList, string Month, string Year, bool isActive, bool isSeperated, bool isMaternity,string MonthName)
+        public JsonResult CwReport(string PaymentModeList, string BankList, string PlantList, string EntityList, string DepartmentList, string DesignationList, string SectionList, string SubSectionList, string Month, string Year, bool isActive, bool isSeperated, bool isMaternity, string MonthName)
         {
             try
             {
                 string fileName = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                fileName = GetReport(PaymentModeList, BankList, PlantList, EntityList, DepartmentList, DesignationList, SectionList, SubSectionList, Month, Year,isActive,isSeperated,isMaternity, MonthName);
+                fileName = GetReport(PaymentModeList, BankList, PlantList, EntityList, DepartmentList, DesignationList, SectionList, SubSectionList, Month, Year, isActive, isSeperated, isMaternity, MonthName);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -173,7 +173,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                 #region DataSet
 
-                GetReportData(PaymentModeList, BankList, PlantList, EntityList, DepartmentList, DesignationList, SectionList, SubSectionList, Month, Year, isActive,isSeperated,isMaternity,out dslocal);
+                GetReportData(PaymentModeList, BankList, PlantList, EntityList, DepartmentList, DesignationList, SectionList, SubSectionList, Month, Year, isActive, isSeperated, isMaternity, out dslocal);
 
                 dvAttn = new DataView();
                 dvAttn.Table = dslocal.Tables[0];
@@ -250,7 +250,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                    
+
 
                     sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Interior.Color = System.Drawing.Color.Gray;
                     sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
@@ -308,7 +308,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         xlsCol += 1;
-                        sheet1.Range[xlsRow, xlsCol].Number =Convert.ToDouble(dvAttn[i]["NetSalary"].ToString());
+                        sheet1.Range[xlsRow, xlsCol].Number = Convert.ToDouble(dvAttn[i]["NetSalary"].ToString());
                         sheet1.Range[xlsRow, xlsCol].NumberFormat = clsStaticInfo.NumberFormat(2);
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -506,6 +506,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             string strSql = string.Empty;
             string secSQL = string.Empty;
             string xxy = string.Empty;
+            string Check = string.Empty;
             clsStaticInfo obs = null;
             string ShiftIds_WC = "";
             string XJobLocation = string.Empty;
@@ -549,6 +550,14 @@ namespace Aplos.Areas.Payrolls.Controllers
                     }
                 }
                 empStatus += ")";
+                if (PaymentModeList == "'Cash'")
+                {
+                    Check = @" --and bank.Id in (" + BankList + @")";
+                }
+                else
+                {
+                    Check = @"and bank.Id in (" + BankList + @")";
+                }
 
                 strSql = @" select p.UserName PlantName,EI.EmployeeCode,EI.EmployeeName
 						,NetSalary = case when spcc.PaymentMode='Bank' then (ISNULL(spcc.SalaryPercentage,0)*ISNULL(spc.DisbusmentAmount,0))/100 else ISNULL(SPC.DisbusmentAmount,0) end
@@ -571,7 +580,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                         LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
 						left join ORG.Plant p on p.Id=ei.PlantId
 						where SPM.SystemID IN  (" + inSalaryProcParam + @") " + empStatus + @"
-                        and spcc.PaymentMode in (" + PaymentModeList + ")  and bank.Id in (" + BankList + @")  
+                        and spcc.PaymentMode in (" + PaymentModeList + @")   "+ Check +@" 
 						and SH.HeadCategory = 'Net Payable'
 						and ei.SystemId in (
 						
