@@ -344,7 +344,7 @@ function jobWorkValueAddedMasterController(addressService, $window, cboService, 
                 var MRate = parseFloat($scope.ValueAdded.MinRate);
                 var MxRate = parseFloat($scope.ValueAdded.MaxRate);
                 if (MRate > MxRate) {
-                    $scope.ValueAdded.MaxRate = parseFloat(0);
+                //    $scope.ValueAdded.MaxRate = parseFloat(0);
                     throw "Minimum Rate should be less tha Maximum Rate";
                 }
             }

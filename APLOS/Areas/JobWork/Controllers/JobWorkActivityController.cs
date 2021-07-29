@@ -225,6 +225,7 @@ namespace Aplos.Areas.JobWork.Controllers
             {
                 DataSet dsMaster;
                 DataSet CheckValMst;
+                DataSet CheckTransMst;
                 if (string.IsNullOrEmpty(Id.ToString()))
                     throw new Exception("Select entry first");
 
@@ -244,7 +245,13 @@ namespace Aplos.Areas.JobWork.Controllers
                         {
                             throw new Exception("This Job Work Item cannot be deleted.");
                         }
-                        
+
+                        con.OpenDataSetThroughAdapter("select * from MST.JobWorkTransformationMaster where JobWorkActivityId='" + JWActivityId + @"' and JobWorkActivityChildId='" + JWItemId + @"' ", out CheckTransMst, false, "1");
+                        if (CheckTransMst.Tables[0].Rows.Count > 0)
+                        {
+                            throw new Exception("This Job Work Item cannot be deleted.");
+                        }
+
                     }
                 }
 
