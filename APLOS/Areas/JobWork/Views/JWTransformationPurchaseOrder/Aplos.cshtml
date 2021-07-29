@@ -398,11 +398,11 @@
                         <div class="col-sm-8">
                             <div class="radio">
                                 <label>
-                                    <input type="radio" name="POType" ng-model="productNew.POType" value="OSTransformationPO" ng-change="SetPOType();">
+                                    <input type="radio" name="POType" ng-model="productNew.POType" value="OSTransformationPO" ng-change="SetPOType();" ng-disabled="productNew.Id.length>0">
                                     <span class="cr"><i class="cr-icon"></i></span>Transformation
                                 </label>
                                 <label>
-                                    <input type="radio" name="POType" ng-model="productNew.POType" value="OSValueAddedPO" ng-change="SetPOType();">
+                                    <input type="radio" name="POType" ng-model="productNew.POType" value="OSValueAddedPO" ng-change="SetPOType();" ng-disabled="productNew.Id.length>0">
                                     <span class="cr"><i class="cr-icon"></i></span>ValueAdded
                                 </label>
 
@@ -438,7 +438,7 @@
                     <div class="form-group" id="div_docNo" show-errors>
                         <label class="col-sm-4 control-label">Vendor Doc. RefNo<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="DocRefNo" required ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');" maxlength="100" tabindex="2" autocomplete="off">
+                            <input type="text" name="DocRefNo" required ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');" maxlength="100" tabindex="1" autocomplete="off">
                         </div>
                     </div>
                 </div>
@@ -446,7 +446,7 @@
                     <div class="form-group" id="div_docDate" show-errors>
                         <label class="col-sm-3 control-label " style="padding-left: 0px;">Doc. Date<sup>*</sup></label>
                         <div class="col-sm-9 show-message ">
-                            <input type="text" name="Doc Date" required ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
+                            <input type="text" name="Doc Date" required ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="2">
                         </div>
                     </div>
                 </div>
@@ -495,7 +495,7 @@
                                 <span class="input-group-addon"> {{productNew.PartyCode}}</span>
                                 <input type="text" name="Vendor" id="Vendor" ng-model="productNew.PartyName" class="form-control" required readonly>
                                 <span class="input-group-btn">
-                                    <button name="submit" ng-click="showPartyPopUpForJWPO(productNew.ContractId)" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    <button name="submit" ng-click="showPartyPopUpForJWPO(productNew.ContractId)" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                     <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                                 </span>
                             </div>
@@ -514,7 +514,7 @@
                     <div class="form-group" id="div_PODate" show-errors>
                         <label class="col-sm-4 control-label ">PO Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message ">
-                            <input type="text" name="PO Date" required ng-disabled="inventoryMaterialList.length>0" ng-change="ValidatePODate();" ng-model="productNew.PODate" datepicker="modelValidation('div_PODate', 'productNew', 'PODate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
+                            <input type="text" name="PO Date" required ng-disabled="inventoryMaterialList.length>0" ng-change="ValidatePODate();" ng-model="productNew.PODate" datepicker="modelValidation('div_PODate', 'productNew', 'PODate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
                         </div>
                     </div>
                 </div>
@@ -526,7 +526,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Process Start Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Process Start Date" ng-model="productNew.ProcessStartDate" ng-change="ValidateProcessStartDate();" datepicker class="form-control" required tabindex="2">
+                            <input type="text" name="Process Start Date" ng-model="productNew.ProcessStartDate" ng-change="ValidateProcessStartDate();" datepicker class="form-control" required tabindex="4">
                         </div>
                     </div>
                 </div>
@@ -534,7 +534,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Process End Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Process End Date" ng-model="productNew.ProcessEndDate" ng-change="ValidateProcessEndDate();" datepicker class="form-control" required tabindex="2">
+                            <input type="text" name="Process End Date" ng-model="productNew.ProcessEndDate" ng-change="ValidateProcessEndDate();" datepicker class="form-control" required tabindex="5">
                         </div>
                     </div>
                 </div>
@@ -544,7 +544,7 @@
                         <div class="col-sm-8 show-message ">
                             <div class="select-style">
                                 <select class="form-control" name="Currency" required id="currency" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
-                                        ng-change="changeCurrency();getToCurrencyRate();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8">
+                                        ng-change="changeCurrency();getToCurrencyRate();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="6">
                                     <option value=""></option>
                                 </select>
                             </div>
@@ -556,7 +556,7 @@
                         <label class="col-sm-4 control-label">Rate<sup ng-hide="productNew.CurrencyId==productNew.BaseCurrencyId">*</sup></label>
                         <div class="col-sm-8 show-message">
                             @*{{currencyPrecision}} ng-disabled="productNew.CurrencyId==productNew.BaseCurrencyId||inventoryMaterialList.length>0"*@
-                            <input type="text" n-decimals="2" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="true" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9">
+                            <input type="text" n-decimals="2" name="GRN Date" ng-model="productNew.ToCurrencyRate" ng-disabled="true" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right">
                         </div>
                     </div>
                 </div>
@@ -594,7 +594,7 @@
                             <label class="col-sm-4 control-label">Payment Term<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select id="paymentTermId" class="form-control" name="Payment Term" ng-model="productNew.PaymentTermId" ng-change="changePaymentTerm();PaymentModeByPaymentTerm();" tabindex="12" required>
+                                    <select id="paymentTermId" class="form-control" name="Payment Term" ng-model="productNew.PaymentTermId" ng-change="changePaymentTerm();PaymentModeByPaymentTerm();" tabindex="7" required>
                                         <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
                                 </div>
@@ -616,13 +616,13 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Delivery Instruction<br />(If Any)<sup></sup></label>
                             <div class="col-sm-8 show-message">
-                                <textarea class="form-control" rows="2" ng-model="productNew.DeliveryInstruction" tabindex="6"></textarea>
+                                <textarea class="form-control" rows="2" ng-model="productNew.DeliveryInstruction" tabindex="8"></textarea>
                             </div>
                         </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label"><b>Discount Amount</b><sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="number" name="DiscountAmount" required ng-model="productNew.DiscountAmount" class="form-control" maxlength="200" tabindex="" autocomplete="off" style="text-align:right;">
+                                <input type="number" name="DiscountAmount" required ng-model="productNew.DiscountAmount" class="form-control" maxlength="200" tabindex="9" autocomplete="off" style="text-align:right;">
                             </div>
                         </div>
                     </div>
@@ -630,7 +630,7 @@
                         <div class="form-group">
                             <label class="col-sm-5 control-label">Special Instruction<br /> (If Any)<sup></sup></label>
                             <div class="col-sm-7">
-                                <textarea class="form-control" rows="2" ng-model="productNew.SpecialInstruction" tabindex="6"></textarea>
+                                <textarea class="form-control" rows="2" ng-model="productNew.SpecialInstruction" tabindex="10"></textarea>
                             </div>
                         </div>
                     </div>
@@ -639,7 +639,7 @@
                             <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style" ng-show="checkedByList.length">
-                                    <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
+                                    <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="11">
                                         <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
                                 </div>
@@ -659,7 +659,7 @@
                         <div class="col-sm-8 show-message">
                             <div class="select-style">
                                 <select class="form-control" ng-model="productNew.EntityId" name="Entity"
-                                        ng-options="item.Value as item.Text for item in EntityList" required tabindex="5">
+                                        ng-options="item.Value as item.Text for item in EntityList" required tabindex="12">
                                     <option value=""></option>
                                 </select>
                             </div>
@@ -670,7 +670,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Contract Closing Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Contract Closing Date" ng-model="productNew.ContractClosingDate" ng-change="ValidateContractClosingDate();" datepicker class="form-control" required tabindex="2">
+                            <input type="text" name="Contract Closing Date" ng-model="productNew.ContractClosingDate" ng-change="ValidateContractClosingDate();" datepicker class="form-control" required tabindex="13">
                         </div>
                     </div>
                 </div>
@@ -680,7 +680,7 @@
                         <div class="col-sm-8 show-message">
                             <div class="select-style">
                                 <select class="form-control" ng-model="productNew.ContractStatus" name="Contract Status"
-                                        required tabindex="5">
+                                        required tabindex="14">
                                     <option value=""></option>
                                     <option value="Active">Active</option>
                                     <option value="Pending">Pending</option>
@@ -749,7 +749,7 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Remarks</label>
                         <div class="col-sm-8">
-                            <textarea class="form-control" rows="2" ng-model="productNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                            <textarea class="form-control" rows="2" ng-model="productNew.Remarks" maxlength="250" tabindex="15"></textarea>
                         </div>
                     </div>
                 </div>
@@ -899,8 +899,8 @@
 
 
 
-                                @*<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td>*@ @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.JWTaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
+                                @*<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.JWTaxAmount" ng-disabled="true"></td>*@ @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
         <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
@@ -944,10 +944,10 @@
                             <tr>
                                 <td colspan="4" class="text-right"><strong>Total : </strong></td>
                                 <td class="text-right" ng-hide="sumORnot"></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionQty' }}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionQty' | setDecimal:2 | number }}</strong></td>
                                 <td></td>
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:2 | number}}</strong></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -970,7 +970,7 @@
                                 @*<td></td>*@
                                 <td></td>
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:2 | number}}</strong></td>
 
 
                                 <td class="text-right"></td>
@@ -1035,7 +1035,7 @@
                                 <td class="text-right" style="width:200px;">
                                     <div class="show-message">
                                         <div class="select-style">
-                                            <select id="ddlCurrencyId" name="x.ServiceId" tabindex="15" class="form-control" submit-required="false" ng-model="Transformation.ServiceId" ng-options="item.Value as item.Text for item in serviceCboList"></select>
+                                            <select id="ddlCurrencyId" name="x.ServiceId" class="form-control" submit-required="false" ng-model="Transformation.ServiceId" ng-options="item.Value as item.Text for item in serviceCboList"></select>
                                         </div>
                                     </div>
                                 </td>
@@ -1077,11 +1077,11 @@
                                 <td colspan="2" class="text-right"><strong>Total : </strong></td>
 
 
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionQty' }}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionQty' | setDecimal:2 | number }}</strong></td>
                                 <td class="text-right" ng-hide="sumORnot"></td>
                                 <td></td>
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:2 | number}}</strong></td>
 
                                 <td></td>
 
@@ -1095,7 +1095,7 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:2 | number}}</strong></td>
 
 
                                 <td class="text-right"></td>
@@ -1334,7 +1334,7 @@
                                 <div class="show-message">
                                     <div class="select-style">
                                         <select class="form-control" ng-model="detailModel.JobActivityId" name="Job Work Activity" required ng-change="GetJWItems();"
-                                                ng-options="item.Value as item.Text for item in JobWorkActivityList" tabindex="3">
+                                                ng-options="item.Value as item.Text for item in JobWorkActivityList" tabindex="16">
                                             <option value=""></option>
                                         </select>
                                     </div>
@@ -1349,7 +1349,7 @@
                                 <div class="show-message">
                                     <div class="select-style">
                                         <select class="form-control" ng-model="detailModel.JobWorkItemMasterId" name="Job Work Items" required
-                                                ng-options="item.Value as item.Text for item in JobWorkItemMstList" ng-change="GetJWitemDataFromTrans();GetRate();GetCurrencyyy();GetMaterialfromJW();" tabindex="3">
+                                                ng-options="item.Value as item.Text for item in JobWorkItemMstList" ng-change="GetJWitemDataFromTrans();GetRate();GetCurrencyyy();GetMaterialfromJW();" tabindex="17">
                                             <option value=""></option>
                                         </select>
                                     </div>
@@ -1366,7 +1366,7 @@
                                     <input type="text" ng-model="detailModel.MaterialName" class="form-control" readonly>
                                     <input type="hidden" ng-model="detailModel.MaterialMasterId" />
                                     <span class="input-group-btn">
-                                        <button ng-click="MaterialMstPopUp()" ng-disabled="detailModel.MaterialMasterId==null || detailModel.MaterialMasterId!=null" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="MaterialMstPopUp()" ng-disabled="detailModel.MaterialMasterId==null || detailModel.MaterialMasterId!=null" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                         <button ng-click="MaterialMstClear()" ng-disabled="detailModel.MaterialMasterId==null || detailModel.MaterialMasterId!=null" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                     </span>
                                 </div>
@@ -1385,7 +1385,7 @@
                                     <input type="text" ng-model="detailModel.ArticleName" class="form-control" readonly>
                                     <input type="hidden" ng-model="detailModel.ArticleId" />
                                     <span class="input-group-btn">
-                                        <button ng-click="MaterialMstArticlePopUp()" ng-disabled="detailModel.MaterialMasterId==null" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="MaterialMstArticlePopUp()" ng-disabled="detailModel.MaterialMasterId==null" tabindex="18" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                         <button ng-click="MaterialMstArticleClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                     </span>
                                 </div>
@@ -1401,7 +1401,7 @@
                                     @*<input type="text" ng-model="detailModel.OutputMaterialUOM" class="form-control" tabindex="2" readonly maxlength="50">*@
                                     <div class="select-style">
                                         <select class="form-control" ng-model="detailModel.OutputMaterialUOMId" ng-disabled="detailModel.OutputMaterialUOMId!=null" name="Output Material UOM" required
-                                                ng-options="item.Value as item.Text for item in OMatUOMList" tabindex="3">
+                                                ng-options="item.Value as item.Text for item in OMatUOMList" tabindex="19">
                                             <option value=""></option>
                                         </select>
                                     </div>
@@ -1412,7 +1412,7 @@
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Quantity<sup>*</sup></label>
                                 <div class="show-message">
-                                    <input type="text" ng-model="detailModel.TransactionQty" name="Quantity" ng-change="GetAmount();" onkeypress="return isNumber(event)" required class="form-control" tabindex="2" maxlength="50">
+                                    <input type="text" ng-model="detailModel.TransactionQty" name="Quantity" ng-change="GetAmount();" onkeypress="return isNumber(event)" required class="form-control" tabindex="20" maxlength="50">
                                 </div>
                             </div>
                         </div>
@@ -1423,7 +1423,7 @@
                                 <div class=" show-message">
                                     <div class="select-style">
                                         <select class="form-control" ng-model="detailModel.CurrencyId" name="Currency" required
-                                                ng-options="item.Value as item.Text for item in CurrencyyyList" tabindex="3">
+                                                ng-options="item.Value as item.Text for item in CurrencyyyList" tabindex="21">
                                             <option value=""></option>
                                         </select>
                                     </div>
@@ -1435,16 +1435,16 @@
                             <div class="form-group" show-errors>
                                 <label class="control-label">Rate/ Unit<sup>*</sup></label>
                                 <div class="show-message">
-                                    <input type="text" ng-model="detailModel.RatePerUnit" n-decimals="4" name="Rate Per Unit" ng-change="ValidateRate();GetAmount();" onkeypress="return isNumber(event)" required class="form-control" tabindex="2" maxlength="50">
+                                    <input type="text" ng-model="detailModel.RatePerUnit" n-decimals="4" name="Rate Per Unit" ng-change="ValidateRate();GetAmount();" onkeypress="return isNumber(event)" required class="form-control" tabindex="22" maxlength="50">
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group" show-errors>
-                                <label class="control-label">Amount<sup>*</sup></label>
+                                <label class="control-label">Transaction Amount<sup>*</sup></label>
                                 <div class="show-message">
-                                    <input type="text" ng-model="detailModel.Amount" n-decimals="4" onkeypress="return isNumber(event)" required readonly class="form-control" tabindex="2" maxlength="50">
+                                    <input type="text" ng-model="detailModel.TransactionAmount" n-decimals="4" onkeypress="return isNumber(event)" required readonly class="form-control" maxlength="24">
                                 </div>
                             </div>
                         </div>
@@ -1455,7 +1455,7 @@
                                 <div class=" show-message">
                                     <div class="select-style">
                                         <select class="form-control" ng-model="detailModel.MaterialLocationId" name="Material Location" ng-change="GetJWMaterialStorage();"
-                                                ng-options="item.Value as item.Text for item in MaterialLocList" required tabindex="5">
+                                                ng-options="item.Value as item.Text for item in MaterialLocList" required tabindex="23">
                                             <option value=""></option>
                                         </select>
                                     </div>
@@ -1467,7 +1467,7 @@
                             <div class="form-group">
                                 <label class=" control-label">Material Storage Location</label>
                                 @*<div class=" show-message">*@
-                                <input type="text" ng-model="detailModel.JWMaterialStorage" readonly class="form-control" tabindex="2" maxlength="50">
+                                <input type="text" ng-model="detailModel.JWMaterialStorage" readonly class="form-control" maxlength="50">
                                 @*</div>*@
                             </div>
                         </div>
@@ -1478,7 +1478,7 @@
                                 <div class="show-message">
                                     <div class="select-style">
                                         <select class="form-control" ng-model="detailModel.MaterialType" name="Material Type"
-                                                required tabindex="5">
+                                                required tabindex="24">
                                             <option value=""></option>
                                             <option value="InProcess">In-Process</option>
                                             <option value="Inventory">Inventory</option>
@@ -1494,7 +1494,7 @@
                                 <div class=" show-message">
                                     <div class="select-style">
                                         <select class="form-control" ng-model="detailModel.FinalOutputCategory" name="Final Output Category"
-                                                required tabindex="5">
+                                                required tabindex="25">
                                             <option value=""></option>
                                             <option value="InProcess">In-Process</option>
                                             <option value="FinalSale">Sale</option>
@@ -1508,7 +1508,7 @@
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Material Specification<sup>*</sup></label>
                                 <div class=" show-message">
-                                    <input type="text" ng-model="detailModel.MaterialSpecification" name="Material Specification" required class="form-control" tabindex="2" maxlength="50">
+                                    <input type="text" ng-model="detailModel.MaterialSpecification" name="Material Specification" required class="form-control" tabindex="26" maxlength="50">
                                 </div>
                             </div>
                         </div>
@@ -1517,7 +1517,7 @@
                             <div class="form-group">
                                 <label class=" control-label">Material Reference</label>
                                 <div class="">
-                                    <input type="text" ng-model="detailModel.MaterialReference" class="form-control" tabindex="2" maxlength="50">
+                                    <input type="text" ng-model="detailModel.MaterialReference" class="form-control" tabindex="27" maxlength="50">
                                 </div>
                             </div>
                         </div>
@@ -1530,7 +1530,7 @@
                                 <div class="show-message">
                                     <div class="select-style">
                                         <select class="form-control" ng-model="detailModel.OrderSpecific" name="Order Specific" required
-                                                tabindex="3">
+                                                tabindex="28">
                                             <option value=""></option>
                                             <option value="Yes">Yes</option>
                                             <option value="NO">No</option>
@@ -1544,7 +1544,7 @@
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Required Capacity<sup>*</sup></label>
                                 <div class="show-message">
-                                    <input type="text" ng-model="detailModel.RequiredCapacity" name="Required Capacity" required onkeypress="return isNumber(event)" class="form-control" tabindex="2" maxlength="50">
+                                    <input type="text" ng-model="detailModel.RequiredCapacity" name="Required Capacity" required onkeypress="return isNumber(event)" class="form-control" tabindex="29" maxlength="50">
                                 </div>
                             </div>
                         </div>
@@ -1555,7 +1555,7 @@
                                 @*<div class=" show-message">*@
                                 <div class="select-style">
                                     <select class="form-control" ng-model="detailModel.ByProductApplicable" ng-disabled="productNew.POType=='OSValueAddedPO'"
-                                            tabindex="3">
+                                            tabindex="30">
                                         <option value=""></option>
                                         <option value="Yes">Yes</option>
                                         <option value="No">No</option>
@@ -1572,7 +1572,7 @@
                                 <div class=" show-message">
                                     <div class="select-style">
                                         <select class="form-control" ng-model="detailModel.RateApplyId" name="Rate Apply" required
-                                                ng-options="item.Value as item.Text for item in RateList" tabindex="3">
+                                                ng-options="item.Value as item.Text for item in RateList" tabindex="31">
                                             <option value=""></option>
                                         </select>
                                     </div>
@@ -1584,7 +1584,7 @@
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Rejection<sup>*</sup></label>
                                 <div class=" show-message">
-                                    <input type="text" ng-model="detailModel.Rejection" name="Rejection" required onkeypress="return isNumber(event)" class="form-control" tabindex="2" maxlength="50">
+                                    <input type="text" ng-model="detailModel.Rejection" name="Rejection" required onkeypress="return isNumber(event)" class="form-control" tabindex="32" maxlength="50">
                                 </div>
                             </div>
                         </div>
@@ -1594,7 +1594,7 @@
                                 <label class=" control-label">Value Loss<sup>*</sup></label>
                                 <div class=" show-message">
 
-                                    <input type="text" ng-model="detailModel.ValueLoss" name="Value Loss" required onkeypress="return isNumber(event)" class="form-control" tabindex="2" maxlength="50">
+                                    <input type="text" ng-model="detailModel.ValueLoss" name="Value Loss" required onkeypress="return isNumber(event)" class="form-control" tabindex="33" maxlength="50">
                                 </div>
                             </div>
                         </div>
@@ -1603,7 +1603,7 @@
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Tolerance<sup></sup></label>
                                 <div class=" show-message">
-                                    <input type="text" name="Cycle Time" tabindex="13" class="form-control" ng-model="detailModel.Tolerance" />
+                                    <input type="text" name="Cycle Time" tabindex="34" class="form-control" ng-model="detailModel.Tolerance" />
                                 </div>
                             </div>
                         </div>
@@ -1613,7 +1613,7 @@
                                 <label class=" control-label">Service<sup>*</sup></label>
                                 <div class=" show-message">
                                     <div class="select-style">
-                                        <select id="ddlCurrencyId" name="Service" tabindex="14" class="form-control" required ng-model="detailModel.ServiceId" ng-options="item.Value as item.Text for item in serviceCboList" ng-change="changeService(detailModel.ServiceId);"></select>
+                                        <select id="ddlCurrencyId" name="Service" tabindex="35" class="form-control" required ng-model="detailModel.ServiceId" ng-options="item.Value as item.Text for item in serviceCboList" ng-change="changeService(detailModel.ServiceId);"></select>
                                     </div>
                                 </div>
                             </div>
@@ -1630,7 +1630,7 @@
                                         <input type="text" ng-model="detailModel.ResponsiblePerson" name="Responsible Person" required class="form-control" readonly ng-class="{filled:detailModel.EmployeeStatus==='Separated'}">
                                         <input type="hidden" ng-model="detailModel.ResponsiblePersonId" />
                                         <span class="input-group-btn">
-                                            <button ng-click="ResPersonPopUp()" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="ResPersonPopUp()" tabindex="36" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                             <button ng-click="ResPersonClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                         </span>
                                     </div>
@@ -1671,7 +1671,7 @@
                             <div class="form-group">
                                 <label class="control-label">Remarks</label>
                                 <div>
-                                    <textarea type="text" ng-model="detailModel.Remarks" class="form-control" tabindex="16" maxlength="250"></textarea>
+                                    <textarea type="text" ng-model="detailModel.Remarks" class="form-control" tabindex="37" maxlength="250"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -1841,7 +1841,7 @@
                         <li><button ng-click="detailSave('JWITEM',false);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{detailModel.Id.length>0?'Update':'Save'}}</button></li>
                         <li><button ng-click="DetailDelete();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                         <li><button ng-click="closeDetaiPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
-                        <li> <button ng-click="detailClear()" class="btn" tabindex="7"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        <li> <button ng-click="detailClear()" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>
             </div>
@@ -1869,7 +1869,7 @@
                                     <div class="input-group">
                                         <input type="text" ng-model="detailModel.MaterialMasterName" class="form-control" readonly>
                                         <span class="input-group-btn">
-                                            <button tabindex="1" ng-click="getMaterialMasterbyTypePopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="getMaterialMasterbyTypePopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                         </span>
                                     </div>
                                 </div>
@@ -2929,7 +2929,7 @@
                 <div class="clearfix"></div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li><button ng-click="saveJWItemdata();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Submit</button></li>
+                        <li><button ng-click="saveJWItemdata();" class="btn" tabindex="38"><i class="glyphicon glyphicon-info-sign right"></i> Submit</button></li>
 
                         <li><button ng-click="closeDetailJWItemPOPUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                     </ul>
@@ -3454,7 +3454,7 @@
                                     <div class="col-sm-8 show-message">
                                         <div class="select-style">
                                             <select class="form-control" ng-model="TransformOrderWiseReq.OrderType" name="Order Specific" required
-                                                    tabindex="3">
+                                                    tabindex="39">
                                                 <option value="">--Select--</option>
                                                 <option value="Internal">Internal</option>
                                                 <option value="External">External</option>
@@ -3469,7 +3469,7 @@
                                     <div class="col-sm-8 show-message">
                                         <div class="select-style">
                                             <select class="form-control" ng-model="TransformOrderWiseReq.CustomerId" name="Customer" required ng-change="GetAllMasterOrderNo();"
-                                                    ng-options="item.Value as item.Text for item in AllCustomerList" tabindex="3">
+                                                    ng-options="item.Value as item.Text for item in AllCustomerList" tabindex="40">
                                                 <option value="">--Select--</option>
                                             </select>
                                         </div>
@@ -3482,7 +3482,7 @@
                                     <div class="col-sm-8 show-message">
                                         <div class="select-style">
                                             <select class="form-control" ng-model="TransformOrderWiseReq.MasterOrderNoId" name="Master Order No" required
-                                                    ng-options="item.Value as item.Text for item in AllMasterOrderNoList" tabindex="3" ng-change="GetAllMasterOrderItem();">
+                                                    ng-options="item.Value as item.Text for item in AllMasterOrderNoList" tabindex="41" ng-change="GetAllMasterOrderItem();">
                                                 <option value="">--Select--</option>
                                             </select>
                                         </div>
@@ -3497,7 +3497,7 @@
                                     <div class="col-sm-8 show-message">
                                         <div class="select-style">
                                             <select class="form-control" ng-model="TransformOrderWiseReq.MasterOrderItemId" name="Master Order Item" required
-                                                    ng-options="item.Value as item.Text for item in AllMasterOrderItemList" tabindex="3">
+                                                    ng-options="item.Value as item.Text for item in AllMasterOrderItemList" tabindex="42">
                                                 <option value="">--Select--</option>
                                             </select>
                                         </div>
@@ -3508,7 +3508,7 @@
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Particulars/ Specification<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" ng-model="TransformOrderWiseReq.ParticularSpecification" name="Particulars/ Specification" required class="form-control" tabindex="2" maxlength="50">
+                                        <input type="text" ng-model="TransformOrderWiseReq.ParticularSpecification" name="Particulars/ Specification" required class="form-control" tabindex="43" maxlength="50">
                                     </div>
                                 </div>
                             </div>
@@ -3518,7 +3518,7 @@
                                     <div class="col-sm-8 show-message">
                                         <div class="select-style">
                                             <select class="form-control" ng-model="TransformOrderWiseReq.OutputMaterialUOMId" name="Output Material UOM" required
-                                                    ng-options="item.Value as item.Text for item in AllUOMList" tabindex="3">
+                                                    ng-options="item.Value as item.Text for item in AllUOMList" tabindex="44">
                                                 <option value="">--Select--</option>
                                             </select>
                                         </div>
@@ -3530,7 +3530,7 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Material</label>
                                     <div class="col-sm-8">
-                                        <input type="text" ng-model="TransformOrderWiseReq.Material" readonly class="form-control" tabindex="2" maxlength="50">
+                                        <input type="text" ng-model="TransformOrderWiseReq.Material" readonly class="form-control" maxlength="50">
                                     </div>
                                 </div>
                             </div>
@@ -3538,7 +3538,7 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Article</label>
                                     <div class="col-sm-8">
-                                        <input type="text" ng-model="TransformOrderWiseReq.ArtclCode" readonly class="form-control" tabindex="2" maxlength="50">
+                                        <input type="text" ng-model="TransformOrderWiseReq.ArtclCode" readonly class="form-control" maxlength="50">
                                     </div>
                                 </div>
                             </div>
@@ -3546,7 +3546,7 @@
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" ng-model="TransformOrderWiseReq.Quantity" onkeypress="return isNumber(event)" name="Quantity" readonly required class="form-control" tabindex="2" maxlength="15">
+                                        <input type="text" ng-model="TransformOrderWiseReq.Quantity" onkeypress="return isNumber(event)" name="Quantity" readonly required class="form-control" maxlength="15">
                                     </div>
                                 </div>
                             </div>
@@ -3555,7 +3555,7 @@
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Plan Quantity<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" ng-model="TransformOrderWiseReq.PlanQuantity" onkeypress="return isNumber(event)" name="Plan Quantity" class="form-control" tabindex="2" maxlength="15">
+                                        <input type="text" ng-model="TransformOrderWiseReq.PlanQuantity" onkeypress="return isNumber(event)" name="Plan Quantity" class="form-control" tabindex="45" maxlength="15">
                                     </div>
                                 </div>
                             </div>
@@ -3565,7 +3565,7 @@
                                     <label class="col-sm-4 control-label">Remarks</label>
                                     <div class="col-sm-8">
 
-                                        <textarea type="text" ng-model="TransformOrderWiseReq.Remarks" class="form-control" tabindex="2" maxlength="250"></textarea>
+                                        <textarea type="text" ng-model="TransformOrderWiseReq.Remarks" class="form-control" tabindex="46" maxlength="250"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -3602,7 +3602,7 @@
                                 <script type="text/template" id="DeleteTransformOrderWiseReqTab">
                                     <div class="common-btn">
                                         <ul class="list-inline text-left">
-                                            <li><button ng-click="$parent.ConfirmDeleteTransformOrderWiseTab(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                            <li><button ng-click="$parent.ConfirmDeleteTransformOrderWiseTab(data.Id);" class="btn" tabindex="47"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
                                         </ul>
                                     </div>
                                 </script>
@@ -3685,7 +3685,7 @@
                                             <input type="text" ng-model="data.InputArticleName" name="Material Master" required class="form-control" readonly>
                                             <input type="hidden" ng-model="data.ArticleId" />
                                             <span class="input-group-btn">
-                                                <button ng-click="$parent.InputArticlePopUp(data)" ng-disabled="data.InputMaterialId==null" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="$parent.InputArticlePopUp(data)" ng-disabled="data.InputMaterialId==null" tabindex="48" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                                 <button ng-click="$parent.InputArticleClear(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                             </span>
                                         </div>
@@ -3731,14 +3731,14 @@
                                 <script type="text/template" id="DeleteMaterialInputTab">
                                     <div class="common-btn">
                                         <ul class="list-inline text-left">
-                                            <li><button ng-click="$parent.ConfirmDeleteMaterialInputTab(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                            <li><button ng-click="$parent.ConfirmDeleteMaterialInputTab(data.Id);" class="btn" tabindex="49"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
                                         </ul>
                                     </div>
                                 </script>
                                 <script type="text/template" id="PopUpByProduct">
                                     <div class="common-btn">
                                         <ul class="list-inline text-left">
-                                            <li><button ng-click="$parent.ConfirmByProductPopUp(data);" ng-disabled="data.ByProductApplicable=='No' " class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                            <li><button ng-click="$parent.ConfirmByProductPopUp(data);" ng-disabled="data.ByProductApplicable=='No' " class="btn" tabindex="50"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
                                         </ul>
                                     </div>
                                 </script>
@@ -3817,7 +3817,7 @@
                                             <input type="text" ng-model="data.ByProductMaterial" name="Material Master" required class="form-control" readonly>
                                             <input type="hidden" ng-model="data.BPMaterialId" />
                                             <span class="input-group-btn">
-                                                <button ng-click="$parent.ByProductMaterialMstPopUp(data)" ng-disabled="data.BPMaterialId==null || data.BPMaterialId!=null" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="$parent.ByProductMaterialMstPopUp(data)" ng-disabled="data.BPMaterialId==null || data.BPMaterialId!=null" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                                 <button ng-click="$parent.BPMaterialMstClear(data)" ng-disabled="data.BPMaterialId==null || data.BPMaterialId!=null" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                             </span>
                                         </div>
@@ -3834,7 +3834,7 @@
                                             <input type="text" ng-model="data.BPArticleName" name="Material Master" required class="form-control" readonly>
                                             <input type="hidden" ng-model="data.BPArticleId" />
                                             <span class="input-group-btn">
-                                                <button ng-click="$parent.BPMaterialMstArticlePopUp(data)" ng-disabled="data.BPMaterialId==null" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="$parent.BPMaterialMstArticlePopUp(data)" ng-disabled="data.BPMaterialId==null" tabindex="51" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                                 <button ng-click="$parent.BPMaterialMstArticleClear(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                             </span>
                                         </div>
@@ -3883,7 +3883,7 @@
                                 <script type="text/template" id="DeleteByProductTab">
                                     <div class="common-btn">
                                         <ul class="list-inline text-left">
-                                            <li><button ng-click="$parent.ConfirmDeleteByProductTab(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                            <li><button ng-click="$parent.ConfirmDeleteByProductTab(data.Id);" class="btn" tabindex="52"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
                                         </ul>
                                     </div>
                                 </script>

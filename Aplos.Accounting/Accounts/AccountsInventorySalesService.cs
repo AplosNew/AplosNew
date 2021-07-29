@@ -386,6 +386,9 @@ namespace Library.Accounting.Accounts
 									,VoucherNo = CASE WHEN IR.EmployeeId <>'' THEN VE.VoucherNo ELSE V.VoucherNo END
 									,PostingDate= CASE WHEN IR.EmployeeId <>'' THEN REPLACE(CONVERT(CHAR(11), VE.PostingDate, 106),' ','-') ELSE REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') END
                                     ,MS.UserName MaterialStorageName
+									,OI.Id OtherInvoiceId,OI.Amount OtherAmount
+                                       ,OtherIsPark=CASE WHEN OI.VoucherId<>'' THEN 'OtherInvoicePosted' WHEN  OI.InvoiceId IS NULL THEN '' ELSE 'OtherInvoiceParked' end
+                                        ,OI.VoucherId OtherInvoiceVoucherId,IV.CompanyCurrencyRate,OV.VoucherNo OtherVoucherNo
                         FROM [TRN].[InventorySales] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.CustomerId=P.Id
                         LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Customer') AS CP ON CP.PartyId=IR.CustomerId AND CP.PlantId=IR.PlantId
@@ -406,6 +409,8 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN TRN.Invoice IV ON IV.InventorySalesId=IR.Id
                         LEFT JOIN [MST].[PaymentTerm] AS PT ON IV.PaymentTermId=PT.Id
 						LEFT JOIN TRN.Voucher V ON V.Id=IV.VoucherId
+						LEFT JOIN TRN.OtherInvoice OI ON OI.InvoiceId=IV.Id
+						LEFT JOIN TRN.Voucher OV ON OV.Id=OI.VoucherId
 						LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IR.Id
 						LEFT JOIN TRN.Voucher VE ON VE.Id=EP.VoucherId
                         LEFT JOIN HKP.MaterialStorage MS ON MS.Id=IR.MaterialStorageId

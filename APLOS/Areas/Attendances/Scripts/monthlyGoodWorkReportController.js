@@ -91,6 +91,7 @@ function monthlyGoodWorkReportController(commonMessage, $scope, $rootScope, base
         }).then(function successCallback(response) {
             $scope.filters = response.data;
             var columnList = [
+                { field: 'PlantName', width: 20, headerText: "Plant Name", type: "string" },
                 { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
                 { field: 'Department', width: 20, headerText: "Department", type: "string" },
                 { field: 'Section', width: 20, headerText: "Section", type: "string" },
@@ -143,6 +144,7 @@ function monthlyGoodWorkReportController(commonMessage, $scope, $rootScope, base
 
 
             var parameters = [];
+            parameters.push({ "Key": "PlantId", "Value": getString(fl, "PlantId") });
             parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
             parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
             parameters.push({ "Key": "SectionId", "Value": getString(fl, "SectionId") });

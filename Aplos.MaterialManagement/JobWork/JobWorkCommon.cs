@@ -2857,7 +2857,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         //    }
         //}
 
-        public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type, List<Dictionary<string, object>> taxCategoryList)
+        public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable)
         {
             string JWPODId = "";
             DataSet dsMaster; DataSet dsPOBOQMap; DataSet dsJwChildMaterial;
@@ -2977,6 +2977,13 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 }
                 else
                 {
+                    decimal SumTax = 0;
+                    for(int a = 0; a < taxCategoryList.Count; a++)
+                    {
+                        decimal T1 = Convert.ToDecimal(taxCategoryList[a]["TaxAmount"]);
+                            SumTax = T1 + SumTax;
+                    }
+
                     for (int i = 0; i < data.Count; i++)
                     {
 
@@ -3000,6 +3007,25 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
                             data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
+                            data[i]["TaxAmount"] = SumTax;
+
+                            if (JWPOIsNonCreditable == "False")
+                            {
+                                decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                                decimal Amt = Convert.ToDecimal(data[i]["TransactionAmount"]);
+                                decimal BAmt = Convert.ToDecimal(Amt * PORate);
+                                data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
+                                data[i]["BaseAmount"] = BAmt;
+                            }
+
+                            if (JWPOIsNonCreditable == "True")
+                            {
+                                decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                                decimal Amt = Convert.ToDecimal(data[i]["TransactionAmount"]);
+                                decimal BAmt = Convert.ToDecimal((Amt + SumTax) * PORate);
+                                data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
+                                data[i]["BaseAmount"] = BAmt;
+                            }
 
                             AddNewRow(dsMaster.Tables[0], data[i]);
 
@@ -3014,6 +3040,26 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
                             data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
+                            data[i]["TaxAmount"] = SumTax;
+
+                            if (JWPOIsNonCreditable == "False")
+                            {
+                                decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                                decimal Amt = Convert.ToDecimal(data[i]["TransactionAmount"]);
+                                decimal BAmt = Convert.ToDecimal(Amt * PORate);
+                                data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
+                                data[i]["BaseAmount"] = BAmt;
+                            }
+
+                            if (JWPOIsNonCreditable == "True")
+                            {
+                                decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                                decimal Amt = Convert.ToDecimal(data[i]["TransactionAmount"]);
+                                decimal BAmt = Convert.ToDecimal((Amt + SumTax) * PORate);
+                                data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
+                                data[i]["BaseAmount"] = BAmt;
+                            }
+
                             EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
                         }
                         string DetailIdid = dsMaster.Tables[0].Rows[i]["Id"].ToString();
@@ -3404,7 +3450,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 	                            ,JWTPD.RatePerUnit	TransactionRate
 	                            ,(JWTPD.Quantity*JWTPD.RatePerUnit) TransactionAmount
                             , JWTPD.ReferenceNo,((JWTPD.Quantity*JWTPD.RatePerUnit)*po.ToCurrencyRate) BaseAmount
-                            , jwtax.TaxAmount as JWTaxAmount,JWTPD.TransactionUoMId,TransactionUoM.Code TransactionUoM,JWTPD.BaseUOMId,BaseUOM.Code BaseUOM
+                            , jwtax.TaxAmount,JWTPD.TransactionUoMId,TransactionUoM.Code TransactionUoM,JWTPD.BaseUOMId,BaseUOM.Code BaseUOM
                             ,MS.Id MaterialStorageId,MS.UserName MaterialStorage,EEI.EmployeeName ResponsiblePerson ,ISNULL(MM.UserName,'') MaterialName
                             --,FORMAT(JWTPD.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate
                             FROM JobWorkTransformationContractChild JWTPD      
