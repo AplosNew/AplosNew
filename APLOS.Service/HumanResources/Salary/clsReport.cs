@@ -9486,6 +9486,51 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
             {
                 strSql = @"SELECT WorkingDate,EmpSystemID
                               FROM [SCS].[WeeklyAbsentismAssignment]
+                              where month(WorkingDate)=" + smonth + " and YEAR(WorkingDate)=" + syear + " and plantid in (" + plantid + @") 
+                            union
+
+                            SELECT WorkDate WorkingDate,EmpSystemID
+                              FROM [trn].[HolidayAbsentismAssignment]
+                              where month(WorkDate)=" + smonth + " and YEAR(WorkDate)=" + syear + " and plantid in (" + plantid + @") 
+                     ";
+                try
+                {
+
+                    if (empParameters.Count > 0)
+                    {
+                        if (empParameters.Keys.ElementAt(0) != "")
+                        {
+                            strSql += @" AND EmpSystemID IN(" + empParameters["EmpSystemId"] + ")";
+                        }
+                    }
+
+                }
+                catch (Exception)
+                {
+
+                }
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//end function
+
+        public void GetExtraAbsentCW(string plantid, Dictionary<string, string> empParameters, int smonth, int syear, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"SELECT WorkingDate,EmpSystemID
+                              FROM [SCS].[WeeklyAbsentismAssignment]
                               where month(WorkingDate)=" + smonth + " and YEAR(WorkingDate)=" + syear + " --and plantid='" + plantid + @"' 
                             union
 

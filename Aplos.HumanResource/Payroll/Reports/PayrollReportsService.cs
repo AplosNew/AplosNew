@@ -9929,7 +9929,7 @@ ELSE CONVERT(BIT,0) END  ---No
                     string inPayrollGroup = "";
                     DataTable dtPayRollGrpEmpId = _sqlRepository.GetDataTable("SELECT employeeid FROM MST.PayrollGroupMaster WHERE PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"') AND PlantID = '" + plantId + @"'");
                     DataTable dtNotPayRollGrpEmpId = _sqlRepository.GetDataTable(@"SELECT SystemId FROM EmployeeInformation E 
-                    WHERE SystemId NOT IN (SELECT employeeid from MST.PayrollGroupMaster where PlantID = '" + plantId + @"')  AND E.PlantID = '" + plantId + @"'");
+                    WHERE SystemId NOT IN (SELECT employeeid from MST.PayrollGroupMaster where PlantID in(" + plantId + @")  AND E.PlantID in(" + plantId + @")");
 
                     if (dtPayRollGrpEmpId.Rows.Count > 0)
                     {
@@ -9978,7 +9978,7 @@ ELSE CONVERT(BIT,0) END  ---No
 
                     string strSql = @"SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                                        WHERE PlantID  in(" + plantId + @")  GROUP BY SlrProcMstSystemID)
                                         AND MonthNo =  MONTH('" + effectiveDate + @"') AND YearNo =  YEAR('" + effectiveDate + @"')";
 
                     DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
@@ -10030,7 +10030,7 @@ ELSE CONVERT(BIT,0) END  ---No
                 var cListOId = string.Empty; var cList = string.Empty; ; var cListId = string.Empty; var Join = string.Empty;
                 var param = string.Empty;
                 if (!string.IsNullOrEmpty(companyGroupId) && !string.IsNullOrEmpty(plantId))
-                    param = "E.GroupID='" + companyGroupId + "' AND E.PlantId='" + plantId + "'";
+                    param = "E.GroupID='" + companyGroupId + "' AND E.PlantId in(" + plantId + @") ";
                 else if (!string.IsNullOrEmpty(companyGroupId) && string.IsNullOrEmpty(plantId))
                     param = "E.GroupID='" + companyGroupId + "'";
 
@@ -10046,6 +10046,7 @@ ELSE CONVERT(BIT,0) END  ---No
 									,ISNULL(Division.UserName,'') Division 
 									,ISNULL(EmpC.UserName,'') EmployeeCategory
 									,ISNULL(Plant.UserName,'') Plant 
+                                    ,ISNULL(Plant.Id,'') PlantID 
 									,ISNULL(Section.UserName,'') Section 
 									,ISNULL(SubSection.UserName,'') SubSection 
 									,ISNULL(Unit.UserName,'') Unit 

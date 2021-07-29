@@ -17,6 +17,8 @@ using Library.Core;
 using ConnectionManager;
 using static Library.Service.Helpers.ReportUtility;
 using Library.Model.Enums;
+using Library.Crosscutting.Security;
+using System.Threading;
 
 namespace Library.HumanResource.Report.OT
 {
@@ -820,6 +822,7 @@ namespace Library.HumanResource.Report.OT
         public IWorkbook GetSalarySheetExtraOTCTCReport(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool sa, bool ca, bool isTopSheet)
         {
             #region Variable
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             clsReport objRpt = null;
             DataView dvEmp = null;
             DataSet dsCmp = null;
@@ -836,7 +839,9 @@ namespace Library.HumanResource.Report.OT
             ReportUtility ru = null;
             var FactoryName = string.Empty;
             var CmpName = string.Empty;
-
+            var done1 = "Ok";
+            var done2 = "Ok";
+            var done3 = "Ok";
             int xlsRow = 1, xlsCol = 1, endXlsCol = 1;
             int colCtc = 0;
             int endGenericColumn = 0;
@@ -941,9 +946,9 @@ namespace Library.HumanResource.Report.OT
 
                 dvSlrSheet = new DataView();
 
-                objRpt.SelectedPlantWiseCompany(plantId, out dsCmp);
+                objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
 
-                objRpt.SelectedPlant(plantId, out dsFactory);
+                objRpt.SelectedPlant(identity.PlantId, out dsFactory);
 
                 #endregion DataSet
 
@@ -968,7 +973,7 @@ namespace Library.HumanResource.Report.OT
                 #region Column Variables
                 int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0, colBank = 0, colBankAccountNo = 0
-                   , ColLWP = 0, cDMP = 0, ColExtraAbsent = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0;
+                   , ColLWP = 0, cDMP = 0, ColExtraAbsent = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colBasic=0, colGross = 0, colCTC = 0;
                 int npstruct = 0;
 
                 #endregion
@@ -1007,6 +1012,9 @@ namespace Library.HumanResource.Report.OT
                 SetCellValue("WeekOff", sheet1, xlsRow, ref xlsCol, out ColWkOf, 9);
                 SetCellValue("Leave", sheet1, xlsRow, ref xlsCol, out ColLv, 11);
                 SetCellValue("Maternity Leave", sheet1, xlsRow, ref xlsCol, out ColMLv, 20);
+                SetCellValue("Structured Basic", sheet1, xlsRow, ref xlsCol, out colBasic, 11);
+                SetCellValue("Structured Gross", sheet1, xlsRow, ref xlsCol, out colGross, 11);
+                SetCellValue("Structured CTC", sheet1, xlsRow, ref xlsCol, out colCTC, 11);
                 SetCellValue("Total Ot Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOTHR, 11);
                 endGenericColumn = xlsCol;
 
@@ -1065,7 +1073,7 @@ namespace Library.HumanResource.Report.OT
                 int colBankPaymentPercentage = 0;
                 int colCashPaymentPercentage = 0;
 
-                DataTable dtbankCash = _sqlRepository.GetDataTable("SELECT * FROM EmployeeWiseBankCashAmount WHERE PlantId = '" + plantId + "' AND MonthNo = '" + month + @"' AND YearNo  ='" + year + @"'");
+                DataTable dtbankCash = _sqlRepository.GetDataTable("SELECT * FROM EmployeeWiseBankCashAmount WHERE PlantId in (" + plantId + ") AND MonthNo = '" + month + @"' AND YearNo  ='" + year + @"'");
 
 
                 if (dtbankCash.Rows.Count > 0)
@@ -1424,6 +1432,31 @@ namespace Library.HumanResource.Report.OT
                             List<DataRow> drSalaryHeadCollection = dicEmpSalry[dtEmployees.Rows[i]["EmpSystemID"].ToString()];
                             if (drSalaryHeadCollection.Count > 0)
                             {
+                                for (int ix = 0; ix < listdsSlrStr.Count; ix++)
+                                {
+                                    if (listdsSlrStr[ix].HeadCategory == "Basic" && done1 == "Ok")
+                                    {
+                                        sheet1.Range[xlsRow, colBasic].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
+                                        sheet1.Range[xlsRow, colBasic].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                        sheet1.Range[xlsRow, colBasic].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                        done1 = "No";
+                                    }
+                                    if (listdsSlrStr[ix].HeadCategory == "CTC" && done2 == "Ok")
+                                    {
+                                        sheet1.Range[xlsRow, colCTC].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
+                                        sheet1.Range[xlsRow, colCTC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                        sheet1.Range[xlsRow, colCTC].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                        done2 = "No";
+                                    }
+                                    if (listdsSlrStr[ix].HeadCategory == "GROSS" && done3 == "Ok")
+                                    {
+                                        sheet1.Range[xlsRow, colGross].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
+                                        sheet1.Range[xlsRow, colGross].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                        sheet1.Range[xlsRow, colGross].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                        done3 = "No";
+                                    }
+
+                                }
                                 for (int CI = 0; CI < drSalaryHeadCollection.Count; CI++)
                                 {
                                   
@@ -3334,7 +3367,7 @@ namespace Library.HumanResource.Report.OT
             distinctSalaryHead = new DataTable("Tmp");
             string strSql = @"SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                                        WHERE PlantID in (" + plantId + @") GROUP BY SlrProcMstSystemID)
                                         AND MonthNo = Month('" + fromDate + @"') AND YearNo = Year('" + fromDate + @"')";
             DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
 
@@ -3386,11 +3419,11 @@ namespace Library.HumanResource.Report.OT
                                          LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EEI.SalaryRuleMasterSystemID
 
                                         LEFT JOIN SalaryRuleGeneral SRG ON SRG.SalaryRuleMasterSystemID = SRM.SystemID  AND SRG.SalaryHeadID = EmpSlr.SalaryHeadID
-                                        LEFT JOIN(SELECT* FROM [MST].[PlantSalaryHeadSequence] WHERE PlantId = '" + plantId + @"') PSH
+                                        LEFT JOIN(SELECT* FROM [MST].[PlantSalaryHeadSequence] WHERE PlantId in (" + plantId + @")) PSH
                                                                        ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
                                         LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = EmpSlr.SalaryHeadID
 
-                                                WHERE EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId = '" + plantId + @"'";
+                                                WHERE EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId in (" + plantId + @")";
 
                 try
                 {
@@ -3537,7 +3570,7 @@ namespace Library.HumanResource.Report.OT
                                       LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
                                     WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @"
                                    AND DT.Category NOT IN('Weekend','Holiday')  
-                                    " + wcDos + @" AND ei.plantid='" + plantId + @"' " + wcEmpSystemId + @"                             
+                                    " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @"                             
                                     GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ
 									,s.UserName,sb.UserName,lg.UserName,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn ,ad.IsAllDesignation 
                                     ,ad.IsFixed,ad.FormulaDesID,dar.IsFixed,dar.FormulaDesID,ad.Rate ,dar.rate,ei.DOS	,bb.UserName,PG.UserName
@@ -3568,6 +3601,7 @@ namespace Library.HumanResource.Report.OT
             }
         }//End Function
 
+        
 
         public DataTable getHourlyOT(string plantId, string monthNo, string yearNo, Dictionary<string, string> parameters)
         {
@@ -3725,7 +3759,7 @@ namespace Library.HumanResource.Report.OT
 									
                                       LEFT JOIN DailyAllowanceRate dar on dar.DailyAllowanceId=ad.id AND dar.PlantId = ad.PlantId AND dar.DesignationId=ei.GivenDesignationId
 
-                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" AND DT.Category IN ('" + DayCategory + @"')  " + wcDos + @" AND ei.plantid='" + plantId + @"' " + wcEmpSystemId + @" 
+                                    WHERE Month(HO.WorkDate) = " + MonthNo + @" and Year(HO.WorkDate) = " + YearNo + @" AND DT.Category IN ('" + DayCategory + @"')  " + wcDos + @" AND ei.plantid in (" + plantId + @") " + wcEmpSystemId + @" 
                                         --AND ad.Catagory='HourlyOffDuty' AND ad.Active=1
                                     GROUP BY  EmployeeName,EmployeeCode,ei.SystemId,DOJ,s.UserName,sb.UserName,lg.UserName
 									,d.UserName,ei.GenderID,HO.EmpSystemId,l.UserName,hr.OTConsiderOn --,EntryAmount
@@ -3769,8 +3803,7 @@ namespace Library.HumanResource.Report.OT
             }
         }//End Function
 
-
-
+      
 
 
         public void GetEmployeeInfoDetailSalaryLogWise(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, out DataSet dsRef)
@@ -3790,13 +3823,13 @@ namespace Library.HumanResource.Report.OT
             {
                 wcSalaryProcessSystemIdStr = @"SystemID IN( SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                                        WHERE PlantID in (" + plantId + @") GROUP BY SlrProcMstSystemID)
                                         AND MonthNo = Month('" + fromDate + "') AND YearNo = Year('" + fromDate + "')  )";
 
 
                 string strSql = @"SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                                        WHERE PlantID in (" + plantId + @") GROUP BY SlrProcMstSystemID)
                                         AND MonthNo =  MONTH('" + fromDate + @"') AND YearNo =  YEAR('" + fromDate + @"')";
 
                 DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSql);
@@ -3863,7 +3896,7 @@ namespace Library.HumanResource.Report.OT
                                     FROM SalaryProcChild c
                                     JOIN SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
                                     WHERE SlrProcMstSystemID in (SELECT systemid FROM SalaryProcMaster WHERE MonthNo= MONTH('" + fromDate + @"') AND YearNo=YEAR('" + toDate + @"'))
-                                    AND PlantID = '" + plantId + @"'
+                                    AND PlantID in (" + plantId + @")
                                     ) SPM ON spm.EmpInfoSystemID=e.SystemId
 									 JOIN SalaryProcessLogDetail SPLD ON SPLD.SalaryProcessId  IN(" + salaryProcessId + @") AND e.SystemId = SPLD.EmpSystemId  --SPLD.SalaryProcessId = SPM.SystemId AND SPC.EmpInfoSystemID = SPLD.EmpSystemId and SPLD.PlantId = '202022' 
                          
@@ -3907,7 +3940,7 @@ namespace Library.HumanResource.Report.OT
 
                                       --Where SPC.SlrProcMstSystemID IN( SELECT SystemID FROM SalaryProcMaster
                                       --WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
-                                                        --WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                                        --WHERE PlantID in (" + plantId + @") GROUP BY SlrProcMstSystemID)
                                         --AND MonthNo =   MONTH('" + fromDate + @"') AND YearNo =  YEAR('" + fromDate + @"')   )   
 									) EmpBasic
                                    LEFT JOIN 
@@ -3938,9 +3971,9 @@ namespace Library.HumanResource.Report.OT
 										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr
 										,ISNULL(HoliDayOTHr,0) HoliDayOTHr,ISNULL(TotalLWP,0) TotalLWP,ISNULL(IsOTEntitled,0) IsOTEntitled,ISNULL(OTRate,0) OTRate,ISNULL(TotalHoliDay,0) TotalHoliDay
 										  FROM SalaryProceAttdnData MMDSA where MMDSA.MonthNo = MONTH('" + fromDate + @"') AND
-						                               MMDSA.YearNo = YEAR('" + fromDate + @"') AND MMDSA.PlantID = '" + plantId + @"' 
+						                               MMDSA.YearNo = YEAR('" + fromDate + @"') AND MMDSA.PlantID in (" + plantId + @")
 											) MMDSA ON EmpBasic.EmpSystemID = MMDSA.EmpSystemID 
-                                            WHERE EmpBasic.CompanyGroupId = '" + companyGroupId + @"'  AND EmpBasic.PlantId ='" + plantId + @"' " + wcEmpStatus + @"";
+                                            WHERE EmpBasic.CompanyGroupId = '" + companyGroupId + @"'  AND EmpBasic.PlantId in (" + plantId + @") " + wcEmpStatus + @"";
                 try
                 {
                     if (parameters.Count > 0)
@@ -4210,17 +4243,17 @@ namespace Library.HumanResource.Report.OT
                                 (---m
                             select max(ed) ed,EmpInfoSystemID from
                             (
-                            select EmpInfoSystemID,max(EffectiveDate) ed from SalaryInfoDefineMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid='" + sPlantID + @"' group by EmpInfoSystemID
+                            select EmpInfoSystemID,max(EffectiveDate) ed from SalaryInfoDefineMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid in (" + sPlantID + @") group by EmpInfoSystemID
 												                            union 
-                            select EmpInfoSystemID,max(EffectiveDate) ed from SalaryInfoBackMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid='" + sPlantID + @"'  group by EmpInfoSystemID
+                            select EmpInfoSystemID,max(EffectiveDate) ed from SalaryInfoBackMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid in (" + sPlantID + @")  group by EmpInfoSystemID
                             ) x 
                             group by EmpInfoSystemID
                             ) ---m
                             mx
                             left join (
-                            select SystemID,EmpInfoSystemID,EffectiveDate  from SalaryInfoDefineMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid='" + sPlantID + @"'
+                            select SystemID,EmpInfoSystemID,EffectiveDate  from SalaryInfoDefineMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid in (" + sPlantID + @")
                             union
-                            select SystemID,EmpInfoSystemID,EffectiveDate  from SalaryInfoBackMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid='" + sPlantID + @"'
+                            select SystemID,EmpInfoSystemID,EffectiveDate  from SalaryInfoBackMaster where IsApproved=1 and EffectiveDate<='" + sToDate + @"' and plantid in (" + sPlantID + @")
                             )
                              m on m.EmpInfoSystemID=mx.EmpInfoSystemID and m.EffectiveDate=mx.ed
                             left join (
@@ -4233,11 +4266,11 @@ namespace Library.HumanResource.Report.OT
                             LEFT JOIN IncrementHistory IH on IH.ToSalaryId=d.SalaryID
                             
                             LEFT JOIN Hkp.LegalDesignation LD ON LD.Id = ih. FromLegalDesignationId
-                            LEFT JOIN MST.LegalSalaryGradeDesignation LGD ON LGD.LegalDesignationId = ih.FromLegalDesignationId AND LGD.PlantId='" + sPlantID + @"'
+                            LEFT JOIN MST.LegalSalaryGradeDesignation LGD ON LGD.LegalDesignationId = ih.FromLegalDesignationId AND LGD.PlantId in (" + sPlantID + @")
                             
                             LEFT JOIN scs.LegalSalaryGrade LG ON LG.Id = LGD.LegalSalaryGradeId
 left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
-                                where (e.DOJ<='" + sToDate + @"') and (e.DOS is null or e.DOS>='" + sFromDate + @"') and e.PlantId='" + sPlantID + @"'
+                                where (e.DOJ<='" + sToDate + @"') and (e.DOS is null or e.DOS>='" + sFromDate + @"') and e.PlantId in (" + sPlantID + @")
                             ORDER BY m.EmpInfoSystemID";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -4289,14 +4322,14 @@ left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
 
 												left join mst.DesignationMaster dml on dml.DesignationId=e.GivenDesignationId
 												inner join (select DesignationMasterId,OverTimePmtPolicyMasterID,IsOTEntitled 
-                                                            from scs.DesignationMasterConfiguration where PlantId='" + sPlantID + @"' and IsOTEntitled=1) dc 
+                                                            from scs.DesignationMasterConfiguration where PlantId in (" + sPlantID + @") and IsOTEntitled=1) dc 
                                                             on dc.DesignationMasterId=dml.Id
-												left join OverTimePmtPolicyMaster otpm on otpm.ID=dc.OverTimePmtPolicyMasterID and otpm.PlantID='" + sPlantID + @"'
+												left join OverTimePmtPolicyMaster otpm on otpm.ID=dc.OverTimePmtPolicyMasterID and otpm.PlantID in (" + sPlantID + @")
 												left join OverTimePmtPolicyDetails oH on oh.OverTimePmtPolicyID=otpm.ID and oh.OverTimeDayType='Holiday'
 												left join OverTimePmtPolicyDetails oW on ow.OverTimePmtPolicyID=otpm.ID and ow.OverTimeDayType='Week Off'
 												left join OverTimePmtPolicyDetails oNW on oNW.OverTimePmtPolicyID=otpm.ID and onw.OverTimeDayType='Working Day'
 
-												where (e.DOJ<='" + sToDate + @"') and (dos is null or e.DOS>='" + sFromDate + @"') and e.PlantId='" + sPlantID + @"'";
+												where (e.DOJ<='" + sToDate + @"') and (dos is null or e.DOS>='" + sFromDate + @"') and e.PlantId in (" + sPlantID + @")";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
