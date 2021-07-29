@@ -427,9 +427,21 @@ namespace Library.HumanResource.Leave
                         if (proDataCurrentYear == false)
                         {
                             #region 01
+                            if (IsBroughtForwardAdd)
+                            {
 
-                            _ob_r.LeaveDays = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS);
-                            _ob_r.Balance = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS.ToString().Trim()) - Convert.ToDecimal(_ob_source.Applied.ToString().Trim());
+                                _ob_r.LeaveDays = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS) + BroughtForward;
+                                _ob_r.Balance = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS) + BroughtForward - Convert.ToDecimal(_ob_source.Applied);
+                                //TotalEarn = BroughtForward + DaysCanBeSanctioned;
+                            }
+                            else
+                            {
+                                //TotalEarn = DaysCanBeSanctioned;
+                                _ob_r.LeaveDays = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS);
+                                _ob_r.Balance = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS) - Convert.ToDecimal(_ob_source.Applied);
+                            }
+                            //_ob_r.LeaveDays = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS);
+                            //_ob_r.Balance = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS.ToString().Trim()) - Convert.ToDecimal(_ob_source.Applied.ToString().Trim());
 
                             #endregion
                         }

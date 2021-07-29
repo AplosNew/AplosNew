@@ -37,8 +37,8 @@ namespace Library.Service.Invoices
               , IEnumerable<VoucherDetailViewModel> banksDetailVMList, IEnumerable<BankChargeViewModel> bankChargeDetailVMList);
         GridModel CustomerInvoiceBanksQuery(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType);
         void InsertCustomerInvoiceWriteOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
-       
 
+        string InsertOtherInvicePost(VoucherViewModel voucherVM, string otherInvoiceId, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
         List<Dictionary<string, object>> GetVoucherWriteOffList(string companyGroupId, string companyId, string plantId, string voucherWriteOffId);
         List<Dictionary<string, object>> GetVoucherWriteOffDetailList(string companyGroupId, string companyId, string plantId, string voucherWriteOffId);
         string InsertPartyReconciliation(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);

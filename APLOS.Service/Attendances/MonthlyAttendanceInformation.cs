@@ -209,7 +209,7 @@ namespace Library.Service.Attendances
 
                 DataSet dsExtraAbsent = null;
                 DataView dvExtraAbsent = null;
-                objRpt.GetExtraAbsent(plantId, empParameters, dtFrmDt.Month, dtEndDate.Year, out dsExtraAbsent);
+                objRpt.GetExtraAbsentCW(plantId, empParameters, dtFrmDt.Month, dtEndDate.Year, out dsExtraAbsent);
                 dvExtraAbsent = new DataView(dsExtraAbsent.Tables[0]);
 
                 DataSet dsAttdnInfoExtra = null;
