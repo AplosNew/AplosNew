@@ -159,8 +159,8 @@ namespace Aplos.Areas.Attendances.Controllers
 
             try
             {
-                if (Convert.ToDateTime(workDate) > System.DateTime.Now)
-                    throw new Exception("From date cannot be greater than system date");
+
+
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string companyId = identity.CompanyId;
@@ -186,6 +186,11 @@ namespace Aplos.Areas.Attendances.Controllers
                     Exception ex = new Exception("Please define ToDate..! (allowed format is  dd-MMM-yyyy ex: '01-jan-2008')...");
                     throw (ex);
                 }
+                if (Convert.ToDateTime(workDate) > Convert.ToDateTime(ToDate))
+                    throw new Exception("From date cannot be greater than to date");
+
+                if (Math.Abs(clsStaticInfo.dateDiff(workDate, ToDate)) > 31)
+                    throw new Exception("Gap between [from date] and [to date] cannot be greater than 31 days");
                 #region DataSet
 
                 try
@@ -634,7 +639,17 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
                 xlsRow += 1;
-                sheet1.Range[xlsRow, 3].Text = "Audit Report Summary:- From " + workDate + " To " + System.DateTime.Now.ToString("dd-MMM-yyyy");
+                sheet1.Range[xlsRow, 3].Text = "Audit Report Summary:- From " + workDate + " To " + ToDate;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 9;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                sheet1.Range[xlsRow, 3].Text = "Report Process Date and Time " + System.DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss tt");
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
                 sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 9;

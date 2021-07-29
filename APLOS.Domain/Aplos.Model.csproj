@@ -509,6 +509,7 @@
     <Compile Include="Configurations\Projects\ProjectPlanningRequisitionMaterialMasterConfiguration.cs" />
     <Compile Include="Configurations\Projects\ProjectPlanningSubCategoryConfiguration.cs" />
     <Compile Include="Configurations\SalesManagements\SalesMaterialSOConfiguration.cs" />
+    <Compile Include="Configurations\SalesManagements\SalesPackingConfiguration.cs" />
     <Compile Include="Configurations\SalesManagements\SalesTaxConfiguration.cs" />
     <Compile Include="Configurations\SalesManagements\SalesServiceConfiguration.cs" />
     <Compile Include="Configurations\SalesManagements\SalesMaterialConfiguration.cs" />
@@ -820,6 +821,7 @@
     <Compile Include="Productions\PlanningTypes.cs" />
     <Compile Include="QMS\QMSInspection.cs" />
     <Compile Include="QMS\QMSRejection.cs" />
+    <Compile Include="SalesManagements\SalesPacking.cs" />
     <Compile Include="SalesManagements\SalesOrderItem.cs" />
     <Compile Include="SalesManagements\SalesMaterial.cs" />
     <Compile Include="SalesManagements\SalesTax.cs" />

@@ -10649,7 +10649,7 @@ group by Id) O60 ON O60.Id=IV.Id
                             AND VD.BudgetMasterId='" + budgetMasterId + @"'  
                             AND VD.ActivityId='" + activityId + @"'  
                             AND VD.GLGeneralInfoId='" + gLInfoId + @"'
-                       
+                             and VD.BankMasterId ='"+bankMasterId+@"'
                             --AND V.SourceType!='OpeningBalance' 
 							--and A.Id=''
 							--And v.PostingDate <= '01-Dec-2020'
@@ -10708,7 +10708,7 @@ group by Id) O60 ON O60.Id=IV.Id
                             AND VD.BudgetMasterId='" + budgetMasterId + @"'  
                             AND VD.ActivityId='" + activityId + @"'  
                             AND VD.GLGeneralInfoId='" + gLInfoId + @"'
-                  
+                                 and VD.BankMasterId ='" + bankMasterId + @"'
                             --AND V.SourceType!='OpeningBalance' 
 				
 	                 
@@ -10762,7 +10762,7 @@ group by Id) O60 ON O60.Id=IV.Id
                         
                             AND VD.BudgetMasterId='" + budgetMasterId + @"'  
                             AND VD.GLGeneralInfoId='" + gLInfoId + @"'
-                     
+                            and VD.BankMasterId ='" + bankMasterId + @"'
                             and  v.PostingDate <= '" + toDate + @"' 
 							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
                     return _sqlRepository.GetDataCollection(sql);
