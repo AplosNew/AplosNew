@@ -695,7 +695,7 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
                 var MRate = parseFloat($scope.Transformation.MinRate);
                 var MxRate = parseFloat($scope.Transformation.MaxRate);
                 if (MRate > MxRate) {
-                    $scope.Transformation.MaxRate = parseFloat(0);
+                //    $scope.Transformation.MaxRate = parseFloat(0);
                     throw "Minimum Rate should be less tha Maximum Rate";
                 }
             }
