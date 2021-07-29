@@ -1624,6 +1624,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             $scope.currencyExchangeRate = null;
         }
     };
+
+    // GetToCurrencyRate
     $scope.getToCurrencyRate = function () {
         $scope.productNew.BaseCurrencyId = $scope.baseCurrencyId;
         if (baseService.isUndefinedOrNull($scope.productNew.DocDate)) {
