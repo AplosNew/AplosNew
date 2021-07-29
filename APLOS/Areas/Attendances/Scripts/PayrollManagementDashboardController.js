@@ -40,6 +40,7 @@ function PayrollManagementDashboardController(commonMessage, $scope, $rootScope,
             ShowResult(e, 'failure');
         }
     };
+    $scope.Report();
     $scope.closePopup = function (popupName) {
         angular.element(document.querySelector("#" + popupName + "")).modal("hide");
         try {
