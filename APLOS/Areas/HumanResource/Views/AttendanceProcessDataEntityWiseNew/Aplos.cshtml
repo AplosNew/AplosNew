@@ -289,15 +289,24 @@
 </script>
 <script type="text/template" id="intime">
 
-    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%" />
-
+    <div class="form-group">
+        <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
+            <input id="StartTime" type="text" class="form-control input-small" ng-model="data.InTime"
+                   style="width:100%" ng-disabled="data.IsLock==true">
+        </div>
+    </div>
 </script>
 <script type="text/template" id="outdate">
     <input type="text" name="Date" ng-model="data.OutDate" datepicker class="form-control" ng-disabled="data.IsLock==true">
 </script>
 <script type="text/template" id="outtime">
 
-    <input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" />
+    <div class="form-group">
+        <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
+            <input id="Timeeee" type="text" class="form-control input-small" ng-model="data.OutTime"
+                   ng-disabled="data.IsLock==true" style="width:100%">
+        </div>
+    </div>
 
 </script>
 <div class="row">
