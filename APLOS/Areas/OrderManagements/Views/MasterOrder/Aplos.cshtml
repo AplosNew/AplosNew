@@ -111,7 +111,8 @@
                                     <div class="input-group">
                                         <input type="text" name="Customer" ng-model="fileNew.CustomerName" class="form-control" readonly required>
                                         <span class="input-group-btn">
-                                            <button ng-click="showPartyPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="showPartyPopUpNew('file');" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                                        @*<button ng-click="showPartyPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>*@
                                             <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                                         </span>
                                     </div>
@@ -1120,7 +1121,7 @@
     </div>
 </div>
 
-@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")
+@*@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")*@
 @*@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")*@
 <ej-dialog id="dialogExchangeCurrency" title="Exchange Rate" e-enablemodal="true" e-position-y="0" e-target="#AplosCurrencyContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="400px" e-open="enableBtn">
     @Html.Partial("~/Areas/OrderManagements/Views/CurrencyExchange/Aplos.cshtml")
