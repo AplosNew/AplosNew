@@ -332,6 +332,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     item.ErrorMessage = "Out time is earlier than In time";
                                 }
 
+                                if (Convert.ToDateTime(item.OutDate + " " + item.OutTime) > DateTime.Now)
+                                {
+                                    item.IsError = true;
+                                    item.ErrorMessage = "Out time is greater than Now";
+                                }
+
                                 TimeSpan ts = Convert.ToDateTime(item.OutDate + " " + item.OutTime).Subtract(Convert.ToDateTime(item.InDate + " " + item.InTime));
                                 if (Math.Abs(ts.TotalHours) > 24)
                                 {
