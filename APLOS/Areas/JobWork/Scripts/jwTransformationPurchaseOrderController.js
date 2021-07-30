@@ -1624,6 +1624,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             $scope.currencyExchangeRate = null;
         }
     };
+
+    // GetToCurrencyRate
     $scope.getToCurrencyRate = function () {
         $scope.productNew.BaseCurrencyId = $scope.baseCurrencyId;
         if (baseService.isUndefinedOrNull($scope.productNew.DocDate)) {
@@ -2045,7 +2047,9 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                         JWActivityId: activityListsel,
                         OrderSpecific: $scope.productNew.OrderSpecific,
                         type: type,
-                        taxCategoryList: $scope.taxCategoryList
+                        taxCategoryList: $scope.taxCategoryList,
+                        JWPOToCurrencyRate: $scope.productNew.ToCurrencyRate,
+                        JWPOIsNonCreditable: $scope.productNew.IsNonCreditable
 
                     },
                     dataType: 'JSON'
@@ -4203,7 +4207,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.GetAmount = function () {
         if (!baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) && !baseService.isUndefinedOrNull($scope.detailModel.RatePerUnit)) {
             var Amt = parseFloat($scope.detailModel.TransactionQty) * parseFloat($scope.detailModel.RatePerUnit)
-            $scope.detailModel.Amount = Amt;
+            var RoundRes = Math.round(Amt * 100) / 100;
+            $scope.detailModel.TransactionAmount = parseFloat(RoundRes);
         }
     }
 }

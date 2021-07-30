@@ -29,17 +29,17 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         private readonly PayrollReportsService _payrollReportsService;
         private readonly IEmployeeProfileService _employeeProfileService;
-
+        private readonly ISqlRepository _sqlRepository;
 
 
         public PayrollReportsController(
-IEmployeeProfileService employeeProfileService
+IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
             )
         {
             _payrollReportsService = new PayrollReportsService();
             _employeeProfileService = employeeProfileService;
-
+            _sqlRepository = sqlRepository;
         }
 
         #endregion Constructor
@@ -455,7 +455,7 @@ IEmployeeProfileService employeeProfileService
 
 
         [HttpPost, Authorize]
-        public ActionResult GetSalarySheetExtraOTCTCReport(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult GetSalarySheetExtraOTCTCReport(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity,string PlantId)
         {
             try
             {
@@ -467,7 +467,7 @@ IEmployeeProfileService employeeProfileService
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
 
-                var workbook = clsWeekOFFOTReport.GetSalarySheetExtraOTCTCReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, identity.IsSysAdmin, identity.IsControlAdmin, isMaternity, false);
+                var workbook = clsWeekOFFOTReport.GetSalarySheetExtraOTCTCReport(identity.CompanyGroupId, identity.CompanyId, PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, identity.IsSysAdmin, identity.IsControlAdmin, isMaternity, false);
                 workbook.Version = ExcelVersion.Excel2013;
                 workbook.SaveAs(fullPath);
 
@@ -503,10 +503,19 @@ IEmployeeProfileService employeeProfileService
 
 
         [HttpPost, Authorize]
-        public ActionResult GetEmpInfoSalaryPorcessed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult GetEmpInfoSalaryPorcessed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity,string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(_payrollReportsService.GetEmpInfoSalaryPorcessed(identity.CompanyGroupId, identity.PlantId, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+            string Plant = string.Empty;
+            if (!string.IsNullOrEmpty(PlantId))
+            {
+                Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
+            }
+            else
+            {
+                Plant = identity.PlantId;
+            }
+            var jsondata = Json(_payrollReportsService.GetEmpInfoSalaryPorcessed(identity.CompanyGroupId, Plant, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -637,6 +646,14 @@ IEmployeeProfileService employeeProfileService
 
 
         #endregion
+
+        [HttpGet, Authorize]
+        public JsonResult GetPlantList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var str = @"select Id PlantId,UserName PlantName  from ORG.PLANT where CompanyId='" + identity.CompanyId + "'";
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
 
         #endregion -- Operations
 
