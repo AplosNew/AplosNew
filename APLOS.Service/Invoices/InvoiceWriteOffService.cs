@@ -399,11 +399,19 @@ namespace Library.Service.Invoices
                 string voucherDetailTempId = null;
                 decimal taxDrAmount = 0;
                 var withholdgl = false;
-
+                var currentInvoiceDetail = 0;
                 var invoiceIds = voucherDetailVMList.Select(r => r.InvoiceId);
                 var inviceDbList = _invoiceRepository.Query(r => invoiceIds.Contains(r.Id)).Select().ToList();
                 var invoiceDetailIds = voucherDetailVMList.Select(r => r.InvoiceDetailId);
                 var inviceDetailDbList = _invoiceDetailRepository.Query(r => invoiceDetailIds.Contains(r.Id)).Select().ToList();
+                var invoiceVM = new VoucherViewModel();
+                invoiceVM = voucherVM;
+                invoiceVM.PartyId = otherInvoice.PartyId;
+                invoiceVM.PartyPlantId = otherInvoice.PartyPlantId;
+                invoiceVM.PartyType = "Customer";
+                invoiceVM.VoucherId = voucher.Id;
+                var invoicedata =_invoiceService.InsertInvoice(invoiceVM);
+
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
                     if (voucherDetailVM.TrnType == "Cr")
@@ -463,7 +471,7 @@ namespace Library.Service.Invoices
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             ActivityId = voucherDetailVM.ActivityId,
                             EntityId = voucherVM.EntityId,
-                            CrAmount = voucherDetailVM.Amount,
+                            CrAmount = voucherDetailVM.CrAmount,
                             DocDate = voucherVM.DocDate,
                             DocRefNo = voucherVM.DocRefNo,
                             Narration = voucherVM.Narration,
@@ -495,12 +503,31 @@ namespace Library.Service.Invoices
 
                     if (voucherDetailVM.TrnType=="Dr")
                     {
+                        currentInvoiceDetail++;
+                        // INSERT INTO InvoiceDetail
+                        var invoiceDetail = new InvoiceDetail
+                        {
+                            InvoiceId = invoicedata.Id,
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            Amount = voucherDetailVM.DrAmount,
+                            NetAmount = voucherDetailVM.DrAmount,
+                            TaxAmount = 0,
+                            WrittenOffAmount = 0,
+                            AddedBy = invoicedata.AddedBy,
+                            AddedDate = invoicedata.AddedDate,
+                            AddedFromIP = invoicedata.AddedFromIP,
+                            Archive = invoicedata.Archive
+                        };
+                        _invoiceService.InsertInvoiceDetail(invoicedata, invoiceDetail, 1);
+
                         var voucherDetailDr = new VoucherDetail
                         {
                             GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             ActivityId = voucherDetailVM.ActivityId,
-                            DrAmount = voucherDetailVM.Amount,
+                            DrAmount = voucherDetailVM.DrAmount,
                             EntityId = voucherVM.EntityId,
                             DocDate = voucherVM.DocDate,
                             DocRefNo = voucherVM.DocRefNo,
