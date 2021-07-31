@@ -549,7 +549,6 @@ namespace Library.Service.Invoices
                             ToCurrencyConversion = 1 / voucherVM.ToCurrencyRate
                         };
                         _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, voucherDetailCurrencyTax);
-
                     }
 
                 }

@@ -384,42 +384,46 @@ namespace Aplos.Areas.Productions.Controllers
                                 ,sc.TotalQtyNetWeight,sc.GrossWeight,sc.ProductCode, sc.LotNo,FORMAT(p.AddedDate,'dd-MMM-yyyy') PackingDate,
                                 u.UserName as UoM,pbt.UserName as ConsigneeBilltoName,pst.UserName as ConsigneeShiptoName,pst.UserName as AcceptedBy,c.InvoicingByAddress as ConsigneeBillToAddress,c.DeliveryByAddress as ConsigneeShipToAddress,cu.Code as CurrencyName,cu.Id CurrencyId,
                                 c.ContractNo,FORMAT(c.AddedDate,'dd-MMM-yyyy') AddedDate,PT.UserName PaymentTerm
-                              
+                              ,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate
                                 from trn.Packing as p 
-                                left  join trn.PackingLineItem pli on pli.PackingId=p.PackingId
-                                left  join trn.POLotReference plr on plr.PackingLineItemId= pli.PackingLineItemId
-                                left  join trn.SalesOrder as so on so.Id=pli.SOId
-                                left  join trn.MasterOrderItem as moi on moi.id=so.MasterOrderItemId
-                                left  join dbo.[contract] as c on c.id = moi.contractId
+                                LEFT JOIN TRN.PackingLineItem pli on pli.PackingId=p.PackingId
+                                LEFT JOIN TRN.POLotReference plr on plr.PackingLineItemId= pli.PackingLineItemId
+                                LEFT JOIN TRN.SalesOrder as so on so.Id=pli.SOId
+                                LEFT JOIN TRN.MasterOrderItem as moi on moi.id=so.MasterOrderItemId
+                                LEFT JOIN dbo.[contract] as c on c.id = moi.contractId
 								
                                 LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId=C.Id						
                                 LEFT JOIN  MST.BankMaster IB on IB.Id=PLC.OpeningBankMasterId
                                 LEFT JOIN  HKP.Bank B on B.Id=IB.BankId
                                 LEFT JOIN MST.AddressMaster AM on AM.Id = B.AddressMasterId
                                 
-                                left join HKP.Party as pc on pc.Id=c.CustomerId
-                                left join HKP.PartyPlant as pbt on pbt.Id=c.InvoicingPartyPlantId
-                                left join HKP.PartyPlant as pst on pst.Id=c.DeliveryPartyPlantId
+                                LEFT JOIN HKP.Party as pc on pc.Id=c.CustomerId
+                                LEFT JOIN HKP.PartyPlant as pbt on pbt.Id=c.InvoicingPartyPlantId
+                                LEFT JOIN HKP.PartyPlant as pst on pst.Id=c.DeliveryPartyPlantId
                                 LEFT JOIN MST.Destination DS ON DS.Id=SO.DestinationId
-                                left join MST.MaterialMaster as mm on mm.Id=moi.MaterialMasterId
-                                left join HKP.HSNCode as h on h.Id=mm.HSNCodeId
-                                left join MST.MaterialMasterArticle as mma on mma.MaterialMasterId=mm.Id AND MOI.ArticleId=MMA.Id
-                                left join TRN.MasterOrder as mo on mo.id=moi.MasterOrderId
-                                left join SCS.UnitOfMeasurement as u on u.Id=mo.TotalQtyUOMId
-                                left join scs.Currency as cu on cu.Id=mo.CurrencyId
-                                left join MSt.PaymentTerm PT ON PT.Id=MO.PaymentTermId
+                                LEFT JOIN MST.MaterialMaster as mm on mm.Id=moi.MaterialMasterId
+                                LEFT JOIN HKP.HSNCode as h on h.Id=mm.HSNCodeId
+                                LEFT JOIN MST.MaterialMasterArticle as mma on mma.MaterialMasterId=mm.Id AND MOI.ArticleId=MMA.Id
+                                LEFT JOIN TRN.MasterOrder as mo on mo.id=moi.MasterOrderId
+                                LEFT JOIN SCS.UnitOfMeasurement as u on u.Id=mo.TotalQtyUOMId
+                                LEFT JOIN SCS.Currency as cu on cu.Id=mo.CurrencyId
+                                LEFT JOIN MST.PaymentTerm PT ON PT.Id=MO.PaymentTermId
 								
-                                left join 
+                                LEFT JOIN 
                                 (
-                                Select sc.netWeight,sc.GWeight,
+                                SELECT sc.netWeight,sc.GWeight,
                                 Count(sc.RefNo) as NoOfPackages, sc.ProductCode ,sc.POId , sc.LotNo
                                 ,(sc.NetWeight * Count(sc.RefNo)) as TotalQtyNetWeight,(sc.GWeight * Count(sc.RefNo)) as GrossWeight
-                                from dbo.ItemScanChild sc 
-								left join trn.POLotReference pol on pol.Id = sc.PackingId
-							    left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
-							    where pli.PackingId = '" + PackingId + @"' and sc.IsDespatch = 0
-                                group by  sc.ProductCode ,sc.POId , sc.LotNo,sc.netWeight,sc.GWeight
+                                FROM dbo.ItemScanChild sc 
+								LEFT JOIN TRN.POLotReference pol on pol.Id = sc.PackingId
+							    LEFT JOIN TRN.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
+							    WHERE pli.PackingId = '" + PackingId + @"' and sc.IsDespatch = 0
+                                GROUP BY  sc.ProductCode ,sc.POId , sc.LotNo,sc.netWeight,sc.GWeight
                                 ) as sc on sc.LotNo = plr.LotNo and sc.ProductCode = plr.ProductCode and sc.POId = plr.PONo
+
+                                LEFT JOIN dbo.SalesPacking SP on SP.PackingId=p.PackingId
+								LEFT JOIN TRN.Sales S on S.Id=SP.SalesId
+
                                 where P.PackingId ='" + PackingId + @"'";
 
                 return _sqlRepository.GetDataTable(strSQL);
