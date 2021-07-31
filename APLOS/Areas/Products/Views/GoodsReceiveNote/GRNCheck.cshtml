@@ -153,14 +153,16 @@
                                 <div e-column e-template="#ToBeApprovedBy" e-headertext="To Be Approved By" e-width="190"></div>
                                 <div e-column e-template="#RejectCheckedReason" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
                                 <div e-column e-template="#CheckbyStatus" e-headertext="Check by Status" e-width="130"></div>
+                                <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
+                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+
+                                <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="120"></div>
+                                <div e-column e-field="Id" e-headertext="GRN No" e-width="120"></div>
                                 <div e-column e-field="GateName" e-headertext="Gate Name" e-width="120"></div>
                                 <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="120"></div>
                                 <div e-column e-field="GRNType" e-headertext="Type" e-width="80"></div>
-                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
                                 <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="180"></div>
                                 @*<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="120"></div>*@
-                                <div e-column e-field="Id" e-headertext="GRN No" e-width="120"></div>
-                                <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="120"></div>
                                 <div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
@@ -258,6 +260,8 @@
 							 e-detailstemplate="detailTemp"
 							 e-detailsdatabound="detailgrid">
                             <div e-columns>
+                                @*<div e-column e-headertext="" e-commands="commandpoUncheckedHR" e-isunbound=true e-textalign="center" e-width="100"></div>*@
+                                @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
                                 <div e-column e-headertext="Actions" e-width="80">
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Update for Hold / Reject" ng-click="$parent.onClickSave('GridRejHold');" style="margin: -6px;"></i></button>
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridRejHold');" style="margin: -6px;"></i></button>
@@ -265,16 +269,16 @@
                                 <div e-column e-template="#ToBeApprovedBy1" e-headertext="To Be Approved By" e-width="200"></div>
                                 <div e-column e-template="#RejectCheckedReason1" e-headertext="Hold / Reject Reason" e-width="150" style="height: 20px;"></div>
                                 <div e-column e-template="#CheckbyStatus1" e-headertext="Check by Status" e-width="150"></div>
-                                @*<div e-column e-headertext="" e-commands="commandpoUncheckedHR" e-isunbound=true e-textalign="center" e-width="100"></div>*@
-                                @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                
+                                <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
+                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="120"></div>
+                                <div e-column e-field="Id" e-headertext="GRN No" e-width="120"></div>
                                 <div e-column e-field="GateName" e-headertext="Gate Name" e-width="120"></div>
                                 <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="120"></div>
                                 <div e-column e-field="GRNType" e-headertext="Type" e-width="80"></div>
-                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
                                 <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="180"></div>
                                 @*<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="120"></div>*@
-                                <div e-column e-field="Id" e-headertext="GRN No" e-width="120"></div>
-                                <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="120"></div>
                                 @*<div e-column e-field="DocRefNo" e-headertext="Vendor Ref No" e-width="100"></div>*@
                                 <div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
@@ -365,14 +369,16 @@
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO1');" style="margin: -6px;"></i></button>
                                 </div>
                                 @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
+                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+
+                                <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="120"></div>
+                                <div e-column e-field="Id" e-headertext="GRN No" e-width="120"></div>
                                 <div e-column e-field="GateName" e-headertext="Gate Name" e-width="120"></div>
                                 <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="120"></div>
                                 <div e-column e-field="GRNType" e-headertext="Type" e-width="80"></div>
-                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
                                 <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="180"></div>
                                 @*<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="120"></div>*@
-                                <div e-column e-field="Id" e-headertext="GRN No" e-width="120"></div>
-                                <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="120"></div>
                                 <div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
