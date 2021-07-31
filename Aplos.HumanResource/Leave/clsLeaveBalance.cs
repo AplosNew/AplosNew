@@ -810,8 +810,9 @@ ELSE CONVERT(BIT,0) END  ---No
 										  ) els
 										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
 										 left outer join (
-															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
-                            where  (FromDate between '" + _FromDate + @"' and '" + _ToDate + @"') and (FromDate between '" + _FromDate + @"' and '" + _ToDate + @"')
+															select sum(LTD.LeaveDuration) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
+															Left Join LeaveTransactionDetails LTD on m.SystemID=LTD.LvTrnsSystemID
+                            where  (WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"') 
                                                     group by EmpSystemID,LTSystemID
 														)ltrn on ltrn.EmpSystemID = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
 										 left outer join (
@@ -874,6 +875,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 												--and els.EmployeeID IN( '206835','206828' )
                                               AND 
 											  CalanderYearID = '" + calYearId + @"'
+                                                and PL.Id='" + sPlantID + @"'
                                               --AND els.LeaveTypeId IN 
                                             --(select id from LeaveType where IsGeneral=1 or IsESIC = 1) 
                                             AND lt.LeaveType <>'Maternity'
