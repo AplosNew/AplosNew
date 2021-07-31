@@ -139,14 +139,24 @@
 							 e-detailsdatabound="detailgrid">
                             <div e-columns>
                                 @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                <div e-column e-headertext="Actions" e-width="80">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved / Hold / Reject" ng-click="$parent.onClickSave('GridPO');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO');" style="margin: -6px;"></i></button>
+                                </div>
+                                <div e-column e-template="#RejectApprovedReason" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
+                                <div e-column e-template="#ApprovedByStatus" e-headertext="Approved By Status" e-width="150"></div>
+                                @*<div e-column e-headertext="" e-commands="commandpo" e-isunbound=true e-textalign="center" e-width="50"></div>*@
+                                @*<div e-column e-headertext="" e-commands="commandpo" e-isunbound=true e-textalign="center" e-width="150"></div>*@
+                                
+                                <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
+                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="120"></div>
+                                <div e-column e-field="Id" e-headertext="GRN No" e-width="120"></div>
                                 <div e-column e-field="GateName" e-headertext="Gate Name" e-width="120"></div>
                                 <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="120"></div>
                                 <div e-column e-field="GRNType" e-headertext="Type" e-width="80"></div>
-                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
                                 <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="180"></div>
                                 @*<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="120"></div>*@
-                                <div e-column e-field="Id" e-headertext="GRN No" e-width="120"></div>
-                                <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="120"></div>
                                 <div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
@@ -160,14 +170,6 @@
                                 <div e-column e-field="TotalMaterialTranAmount" e-headertext="Total Material Tran Amount" textAlign='Right' e-width="120"></div>
                                 <div e-column e-field="TotalMaterialBooksCurrencyAmount" e-headertext="Total Material Books Currency Amount" textAlign='Right' e-width="120"></div>
                                 @*<div e-column e-field="CtnId" e-headertext="Appr.No" e-width="100"></div>*@
-                                <div e-column e-template="#RejectApprovedReason" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
-                                <div e-column e-template="#ApprovedByStatus" e-headertext="Approved By Status" e-width="150"></div>
-                                @*<div e-column e-headertext="" e-commands="commandpo" e-isunbound=true e-textalign="center" e-width="50"></div>*@
-                                @*<div e-column e-headertext="" e-commands="commandpo" e-isunbound=true e-textalign="center" e-width="150"></div>*@
-                                <div e-column e-headertext="Actions" e-width="80">
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved / Hold / Reject" ng-click="$parent.onClickSave('GridPO');" style="margin: -6px;"></i></button>
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO');" style="margin: -6px;"></i></button>
-                                </div>
                                 <div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" textAlign='Right' e-width="150"></div>
@@ -243,14 +245,22 @@
 							 e-detailsdatabound="detailgrid">
                             <div e-columns>
                                 @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                <div e-column e-headertext="Actions" e-width="70">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved/Hold/Reject" ng-click="$parent.onClickSave('GridGRNHR');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridGRNHR');" style="margin: -6px;"></i></button>
+                                </div>
+                                <div e-column e-template="#RejectApprovedReason1" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
+                                <div e-column e-template="#ApprovedByStatus1" e-headertext="Approved By Status" e-width="140"></div>
+                                <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
+                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="120"></div>
+                                <div e-column e-field="Id" e-headertext="GRN No" e-width="120"></div>
+
                                 <div e-column e-field="GateName" e-headertext="Gate Name" e-width="120"></div>
                                 <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="120"></div>
                                 <div e-column e-field="GRNType" e-headertext="Type" e-width="80"></div>
-                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
                                 <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="180"></div>
                                 @*<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="120"></div>*@
-                                <div e-column e-field="Id" e-headertext="GRN No" e-width="120"></div>
-                                <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="120"></div>
                                 <div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
@@ -264,12 +274,6 @@
                                 <div e-column e-field="TotalMaterialTranAmount" e-headertext="Total Material Tran Amount" textAlign='Right' e-width="120"></div>
                                 <div e-column e-field="TotalMaterialBooksCurrencyAmount" e-headertext="Total Material Books Currency Amount" textAlign='Right' e-width="120"></div>
                                 @*<div e-column e-field="CtnId" e-headertext="Appr.No" e-width="80"></div>*@
-                                <div e-column e-template="#RejectApprovedReason1" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
-                                <div e-column e-template="#ApprovedByStatus1" e-headertext="Approved By Status" e-width="140"></div>
-                                <div e-column e-headertext="Actions" e-width="70">
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved/Hold/Reject" ng-click="$parent.onClickSave('GridGRNHR');" style="margin: -6px;"></i></button>
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridGRNHR');" style="margin: -6px;"></i></button>
-                                </div>
                                 <div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" textAlign='Right' e-width="150"></div>
@@ -326,14 +330,20 @@
 							 e-detailsdatabound="detailgrid">
                             <div e-columns>
                                 @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                <div e-column e-headertext="Actions" e-width="80">
+                                    @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-check" title="Checked/Hold/Reject" ng-click="$parent.onClickSave('GridPO1');" style="margin: -6px;"></i></button>*@
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO1');" style="margin: -6px;"></i></button>
+                                </div>
+                                <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
+                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="120"></div>
+                                <div e-column e-field="Id" e-headertext="GRN No" e-width="120"></div>
+
                                 <div e-column e-field="GateName" e-headertext="Gate Name" e-width="120"></div>
                                 <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="120"></div>
                                 <div e-column e-field="GRNType" e-headertext="Type" e-width="80"></div>
-                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
                                 <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="180"></div>
                                 @*<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="120"></div>*@
-                                <div e-column e-field="Id" e-headertext="GRN No" e-width="120"></div>
-                                <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="120"></div>
                                 <div e-column e-field="TransactionQty" e-headertext="Received Qty" textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
@@ -347,10 +357,7 @@
                                 <div e-column e-field="TotalMaterialTranAmount" e-headertext="Total Material Tran Amount" textAlign='Right' e-width="120"></div>
                                 <div e-column e-field="TotalMaterialBooksCurrencyAmount" e-headertext="Total Material Books Currency Amount" textAlign='Right' e-width="120"></div>
                                 @*<div e-column e-field="CtnId" e-headertext="Appr.No" e-width="50"></div>*@
-                                <div e-column e-headertext="Actions" e-width="80">
-                                    @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-check" title="Checked/Hold/Reject" ng-click="$parent.onClickSave('GridPO1');" style="margin: -6px;"></i></button>*@
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO1');" style="margin: -6px;"></i></button>
-                                </div>
+
                                 <div e-column e-field="ServiceTranAmount" e-headertext="Service Amount " textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="ServiceTaxTranAmount" e-headertext="Service Tax " textAlign='Right' e-width="150"></div>
                                 <div e-column e-field="MaterialTaxAmount" e-headertext="Material Tax" textAlign='Right' e-width="150"></div>
