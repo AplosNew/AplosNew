@@ -324,6 +324,7 @@ function jobWorkValueAddedMasterController(addressService, $window, cboService, 
         $scope.ValueAdded.Remarks = '';
         $scope.getAllProcessName();
         $scope.DisableJWActivity = false;
+        $scope.processList = [];
     };
     $scope.Cancel = function () {
         $scope.Clear();
