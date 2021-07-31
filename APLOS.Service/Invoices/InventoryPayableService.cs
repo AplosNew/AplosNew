@@ -5546,9 +5546,6 @@ namespace Library.Service.Invoices
                             DocRefNo = voucher.DocRefNo,
                             Narration = invoice.Narration,
                             EmployeeId = invoice.EmployeeId,
-                            PartyId = invoice.PartyId,
-                            PartyPlantId = invoice.PartyPlantId,
-                            PartyType = invoice.PartyType,
                             PostingWithoutTaxAllow = invoice.IsExcludingTax
                         };
                         invvoucherDetailVM.Id = invvoucherDr.Id;

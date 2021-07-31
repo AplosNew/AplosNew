@@ -493,16 +493,17 @@ namespace Library.OrderManagement.Sales
         {
             try
             {
-				string sql = @"Select PackingID,Sum(NetWeight) Qty,Sum(Amount) Amount from
-								(
-								SELECT PK.PackingId,IsNull(ISC.NetWeight,0) NetWeight,IsNull(FGBD.Rate,0) Rate,IsNull(ISC.NetWeight,0) * IsNull(FGBD.Rate,0) Amount FROM
-								dbo.ItemScanChild ISC
-								LEFT JOIN TRN.POLotReference POR ON ISC.PackingId=POR.Id
-								LEFT JOIN TRN.PackingLineItem PLI ON POR.PackingLineItemId=PLI.PackingLineItemId
-								LEFT JOIN TRN.Packing PK ON PLI.PackingId=PK.PackingId
-								LEFT JOIN FinishGoodsBookingDetail FGBD ON ISC.FinishGoodsBookingDetailId=FGBD.Id
-								Where PK.PackingId='"+ packingid + @"'
-								) TembTbl group by PackingId";
+				string sql = @"Select PackingID,Sum(NetWeight) Qty,Sum(Amount) Amount,TembTbl.ProductLibraryId from
+							(
+							SELECT PK.PackingId,IsNull(ISC.NetWeight,0) NetWeight,IsNull(FGBD.Rate,0) Rate,IsNull(ISC.NetWeight,0) * IsNull(FGBD.Rate,0) Amount,PL.Id ProductLibraryId FROM
+							dbo.ItemScanChild ISC
+							LEFT JOIN TRN.POLotReference POR ON ISC.PackingId=POR.Id
+							LEFT JOIN TRN.PackingLineItem PLI ON POR.PackingLineItemId=PLI.PackingLineItemId
+							LEFT JOIN TRN.Packing PK ON PLI.PackingId=PK.PackingId
+							LEFT JOIN FinishGoodsBookingDetail FGBD ON ISC.FinishGoodsBookingDetailId=FGBD.Id
+							LEFT JOIN dbo.ProductLibrary PL ON PL.Code=ISC.ProductCode
+							Where PK.PackingId='"+ packingid + @"'
+							) TembTbl group by PackingId,ProductLibraryId";
 				return _sqlRepository.GetData(sql, null);
 			}
             catch (Exception ex)
