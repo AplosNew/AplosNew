@@ -1472,6 +1472,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 							, OI.Amount AS Dr, NULL  Cr
 							, OI.Amount AS Amount
 							, OI.Amount AS DrAmount
+							, NULL CrAmount
                             , NULL InvoiceDetailId
                             ,OI.PartyId,OI.PartyPlantId
 						FROM [TRN].[OtherInvoice] AS OI
@@ -1491,7 +1492,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
                                     ) AS RGL ON RGL.CompanyPartyId=CP.Id
 						WHERE OI.Id=@otherInvoiceId AND IV.PlantId=@plantId
 
-						union
+						union all
 						SELECT  P.UserName Customer, 'Cr' AS TrnType,OI.InvoiceId
 							,OI.GLGeneralInfoId
 							,GL.AccountCode GLGeneralInfoCode
@@ -1504,6 +1505,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 							,A.UserName ActivityName
 							,  NULL Dr, OI.Amount Cr
 							, OI.Amount AS Amount
+							, NULL DrAmount
 							, OI.Amount AS CrAmount
                             ,IVD.Id InvoiceDetailId
                             ,IV.PartyId,IV.PartyPlantId

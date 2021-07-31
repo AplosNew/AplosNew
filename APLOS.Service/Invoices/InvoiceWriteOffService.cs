@@ -409,9 +409,9 @@ namespace Library.Service.Invoices
                 invoiceVM.PartyId = otherInvoice.PartyId;
                 invoiceVM.PartyPlantId = otherInvoice.PartyPlantId;
                 invoiceVM.PartyType = "Customer";
-                invoiceVM.VoucherId = voucher.Id;
+                invoiceVM.SourceType = SourceType.CustomerInvoice.ToString();
                 var invoicedata =_invoiceService.InsertInvoice(invoiceVM);
-
+                invoicedata.VoucherId= voucher.Id;
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
                     if (voucherDetailVM.TrnType == "Cr")
@@ -534,7 +534,8 @@ namespace Library.Service.Invoices
                             Narration = voucherVM.Narration,
                             PartyId = voucherDetailVM.PartyId,
                             PartyPlantId = voucherDetailVM.PartyPlantId,
-                            PartyType = voucherDetailVM.PartyType
+                            PartyType = voucherDetailVM.PartyType,
+                            InvoiceDetailId= invoiceDetail.Id
                         };
                         currentVoucherDetailId++;
                         _voucherService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId);
