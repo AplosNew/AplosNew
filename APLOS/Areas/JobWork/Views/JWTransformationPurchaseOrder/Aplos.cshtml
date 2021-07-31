@@ -398,11 +398,11 @@
                         <div class="col-sm-8">
                             <div class="radio">
                                 <label>
-                                    <input type="radio" name="POType" ng-model="productNew.POType" value="OSTransformationPO" ng-change="SetPOType();" ng-disabled="productNew.Id.length>0">
+                                    <input type="radio" name="POType" ng-model="productNew.POType" value="OSTransformationPO" ng-change="SetPOType();" ng-disabled="PoChildList.length>0">
                                     <span class="cr"><i class="cr-icon"></i></span>Transformation
                                 </label>
                                 <label>
-                                    <input type="radio" name="POType" ng-model="productNew.POType" value="OSValueAddedPO" ng-change="SetPOType();" ng-disabled="productNew.Id.length>0">
+                                    <input type="radio" name="POType" ng-model="productNew.POType" value="OSValueAddedPO" ng-change="SetPOType();" ng-disabled="PoChildList.length>0">
                                     <span class="cr"><i class="cr-icon"></i></span>ValueAdded
                                 </label>
 
