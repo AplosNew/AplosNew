@@ -677,6 +677,7 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
+                // , Dictionary<string, object> WeekOff, Dictionary<string, object> OT
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IdentityParameter para = new IdentityParameter
                 {
@@ -721,7 +722,7 @@ namespace Aplos.Areas.Employees.Controllers
                         }
                     }
                 }
-                employeeProfile.SaveData(entity, para, EmployeeCodeCheckLevel, empRef);
+                employeeProfile.SaveData(entity, para, EmployeeCodeCheckLevel, empRef); //, WeekOff, OT
                 return Json(new { EmployeeInformation = entity, Message = AplosMessage.Insert + "Employee Code: " + entity.EmployeeCode + "" });
             }
             catch (Exception ex)
@@ -1853,6 +1854,20 @@ namespace Aplos.Areas.Employees.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(employeeProfile.GetApprovalAuthority(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
+
+        // To add the WeekOff And teh Non Eligible OT
+        //[HttpGet, Authorize]
+        //public ActionResult getWeekOff()
+        //{
+        //    return Json(employeeProfile.getWeekOff(), JsonRequestBehavior.AllowGet);
+        //}
+
+        //[HttpPost, Authorize]
+        //public ActionResult getNonEligibleOT(string DesgId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    return Json(employeeProfile.getNonEligibleOT(DesgId, identity.PlantId), JsonRequestBehavior.AllowGet);
+        //}
 
 
     }

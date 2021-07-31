@@ -295,8 +295,9 @@ namespace Aplos.HumanResource
         }//End Function
 
 
-        public void SaveData(EmployeeInformation data, IdentityParameter para, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef)
+        public void SaveData(EmployeeInformation data, IdentityParameter para, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef) 
         {
+            // , Dictionary<string, object> WeekOff, Dictionary<string, object> OT
             #region DataSet Declare
 
 
@@ -937,7 +938,73 @@ namespace Aplos.HumanResource
 
                     #endregion Employee PIN
 
-                    objApp.SaveDataSets(dsLocal, dsShiftAssign, dsEmpJbLc, dsWeekOffByDay, dsEmpPin, dsEmpRef);
+                    #region Employee Weekly Off
+
+                    //DataSet dsCTOD = null;
+                    //GetCutOffDate(para.PlantId, out dsCTOD);
+                    //WeekOff["EmpSystemId"] = data.SystemId;
+
+                    //if (Convert.ToDateTime(dsCTOD.Tables[0].Rows[0]["CutOffDate"].ToString()) < data.DOJ)
+                    //{
+                    //    WeekOff["EffectiveDate"] = data.DOJ;
+                    //}
+                    //else
+                    //{
+                    //    WeekOff["EffectiveDate"] = Convert.ToDateTime(dsCTOD.Tables[0].Rows[0]["CutOffDate"].ToString());
+                    //}
+
+                    //string TableName = "dbo.EmployeeWeeklyOff";
+                    //DataSet dsWeeklyOff;
+                    //ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    //con.OpenDataSetThroughAdapter("Select * from dbo.EmployeeWeeklyOff where Id = '" + WeekOff["Id"] + "'", out dsWeeklyOff, false, "1");
+
+                    //string _Id = "";
+                    //if (dsWeeklyOff.Tables[0].Rows.Count == 0)
+                    //{
+                    //    bplib.clsGenID genid = new bplib.clsGenID();
+                    //    genid.GenID(TableName, out _Id);
+
+                    //    WeekOff["Id"] = _Id;
+                    //    AddNewRow(dsWeeklyOff.Tables[0], WeekOff);
+                    //}
+
+
+                    #endregion
+
+                    #region Employee Non Eligible OT
+                    //OT["EmpSystemId"] = data.SystemId;
+                    //if (Convert.ToDateTime(dsCTOD.Tables[0].Rows[0]["CutOffDate"].ToString()) < data.DOJ)
+                    //{
+                    //    OT["EffectiveDate"] = data.DOJ;
+                    //}
+                    //else
+                    //{
+                    //    OT["EffectiveDate"] = Convert.ToDateTime(dsCTOD.Tables[0].Rows[0]["CutOffDate"].ToString());
+                    //}
+
+                    //string TableName1 = "dbo.EmployeeWeeklyOff";
+                    //DataSet dsNonOT;
+                    //ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
+                    //conn.OpenDataSetThroughAdapter("Select * from dbo.NonEligibleOT where Id = '" + OT["Id"] + "'", out dsNonOT, false, "1");
+
+                    //if (Boolean.Parse(OT["Exclude"].ToString()) == true)
+                    //{
+                    //    string _Id1 = "";
+                    //    if (dsNonOT.Tables[0].Rows.Count == 0)
+                    //    {
+                    //        bplib.clsGenID genid = new bplib.clsGenID();
+                    //        genid.GenID(TableName1, out _Id1);
+
+                    //        OT["Id"] = _Id1;
+                    //        AddNewRow(dsNonOT.Tables[0], OT);
+                    //    }
+                    //}
+                    
+                    #endregion
+
+
+
+                    objApp.SaveDataSets(dsLocal, dsShiftAssign, dsEmpJbLc, dsWeekOffByDay, dsEmpPin, dsEmpRef); // , dsWeeklyOff, dsNonOT
 
 
                     #region att process only for new emp
@@ -1846,6 +1913,61 @@ namespace Aplos.HumanResource
                 throw ex;
             }
         }
+
+        #endregion
+
+        #region AddOnsFor Week OFf And OT Non Eligible
+        //public IEnumerable<object> getWeekOff()
+        //{
+        //    try
+        //    {
+        //        var str = @"Select Id as Value, UserName as Text from dbo.WeekOffHeader";
+        //        return _sqlRepository.GetDataCollection(str);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw e;
+        //    }
+        //}
+
+        //public IEnumerable<object> getNonEligibleOT(string DesgId, string PlantId)
+        //{
+        //    try
+        //    {
+        //        var str = @"Select distinct PlantId, dm.DesignationGroupId , dg.Id, dc.IsOTEntitled from scs.DesignationMasterConfiguration dc
+        //                    left join mst.DesignationMaster dm on dm.Id = dc.DesignationMasterId
+        //                    left join hkp.Designation dg on dg.Id = dm.DesignationId
+        //                    where dg.Id = '" + DesgId + @"' and PlantId = '" + PlantId + "'";
+        //        return _sqlRepository.GetDataCollection(str);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw e;
+        //    }
+        //}
+
+        //private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    DataRow dr = dt.NewRow();
+        //    foreach (var item in sourceData.Keys)
+        //    {
+        //        try
+        //        {
+        //            dr[item] = sourceData[item];
+        //        }
+        //        catch (Exception)
+        //        {
+        //        }
+        //    }
+        //    dr["AddedBy"] = identity.Name;
+        //    dr["AddedDate"] = System.DateTime.Now.ToString();
+        //    dr["AddedFromIP"] = identity.IPAddress;
+        //    dr["UpdatedBy"] = identity.Name;
+        //    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+        //    dr["UpdatedFromIP"] = identity.IPAddress;
+        //    dt.Rows.Add(dr);
+        //}
 
         #endregion
     }
