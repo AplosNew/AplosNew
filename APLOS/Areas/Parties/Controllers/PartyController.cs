@@ -202,14 +202,33 @@ namespace Aplos.Areas.Parties.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult GetCompanyPartyDataListNew(string column, string value,string partyType)
+        public JsonResult GetCompanyPartyDataSearch(string column, string value,string partyType, string CompanyId, string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var res= GetCompanyPartyListNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value, partyType);
+            if (string.IsNullOrEmpty(CompanyId))
+            {
+                CompanyId = identity.CompanyId;
+            }
+            if (string.IsNullOrEmpty(PlantId))
+            {
+                PlantId = identity.PlantId;
+            }
+            var res= GetCompanyPartyListNew(identity.CompanyGroupId, CompanyId, PlantId, column, value, partyType);
             var jsondata = Json(res, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+
+        [HttpPost, Authorize]
+        public JsonResult GetCompanyPartyDataListNew(string column, string value, string partyType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var res = GetCompanyPartyListNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value, partyType);
+            var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         public List<Dictionary<string, object>> GetCompanyPartyListNew( string companyGroupId, string companyId, string plantId,string column, string value, string customerVendor)
         {
             try
