@@ -870,7 +870,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                                         left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
                                                 WHERE 
-												(emp.DOS is null or emp.DOS >= '" + _FromDate + @"') and
+												(emp.DOS is null or emp.DOS >= '" + _FromDate + @"') and EMP.EmployeeStatus='Active' and
 												(emp.DOJ <= '" + _ToDate + @"') 
 												--and els.EmployeeID IN( '206835','206828' )
                                               AND 

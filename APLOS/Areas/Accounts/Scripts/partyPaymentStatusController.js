@@ -40,8 +40,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         IsNonOrderSpecific: false
     };
 
-    $scope.exportgriddataUrl = 'GridReports/ExcelExportJson';
-    $scope.downloadgriddataUrl = 'GridReports/Download';
+    //$scope.exportgriddataUrl = 'GridReports/ExcelExportJson';
+    //$scope.downloadgriddataUrl = 'GridReports/Download';
+
+    $scope.exportgriddataUrl = 'Accounts/AccountStatusDashboard/ExcelExportJson';
+    $scope.downloadgriddataUrl = 'Accounts/AccountStatusDashboard/Download';
     $scope.Print = function () {
         //debugger;
         //// var gridObj = $("#DetailGrid").data("ejGrid");
@@ -3331,7 +3334,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.TotalDRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.BankLedgerDetailLevelPoPUpList), "CompanyCurrencyDrAmount") * 100 + Number.EPSILON) / 100;
             $scope.TotalCRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.BankLedgerDetailLevelPoPUpList), "CompanyCurrencyCrAmount") * 100 + Number.EPSILON) / 100;
             $scope.BankLedgerClosingBalance = Math.round(($scope.TotalCRAmount - $scope.TotalDRAmount) * 100 + Number.EPSILON) / 100;
-            $scope.DRBalanceType = 'DR'
+            $scope.DRBalanceType = 'CR'
         });
         $rootScope.openPopupAngular('TrialBLBankMasterLedgerPopUp');
     };
@@ -3383,7 +3386,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.TotalDRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.CashLedgerDetailLevelPoPUpList), "CompanyCurrencyDrAmount") * 100 + Number.EPSILON) / 100;
             $scope.TotalCRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.CashLedgerDetailLevelPoPUpList), "CompanyCurrencyCrAmount") * 100 + Number.EPSILON) / 100;
             $scope.CashLedgerClosingBalance = Math.round(($scope.TotalCRAmount - $scope.TotalDRAmount) * 100 + Number.EPSILON) / 100;
-            $scope.DRBalanceType = 'DR'
+            $scope.DRBalanceType = 'CR'
         });
         $rootScope.openPopupAngular('TrialBLCashMasterLedgerPopUp');
     };
@@ -3413,7 +3416,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.TotalDRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.PartyLedgerDetailLevelPoPUpList), "CompanyCurrencyDrAmount") * 100 + Number.EPSILON) / 100;
             $scope.TotalCRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.PartyLedgerDetailLevelPoPUpList), "CompanyCurrencyCrAmount") * 100 + Number.EPSILON) / 100;
             $scope.PartyLedgerClosingBalance = Math.round(($scope.TotalCRAmount - $scope.TotalDRAmount) * 100 + Number.EPSILON) / 100;
-            $scope.DRBalanceType = 'DR'
+            $scope.DRBalanceType = 'CR'
         });
         $rootScope.openPopupAngular('TrialBLDetailLevelPartyLedgerPopUp');
     };
@@ -3448,7 +3451,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.TotalDRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.LedgerActivityPoPUpList), "CompanyCurrencyDrAmount") * 100 + Number.EPSILON) / 100;
             $scope.TotalCRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.LedgerActivityPoPUpList), "CompanyCurrencyCrAmount") * 100 + Number.EPSILON) / 100;
             $scope.GeneralLedgerClosingBalance = Math.round(($scope.TotalCRAmount - $scope.TotalDRAmount) * 100 + Number.EPSILON) / 100;
-            $scope.DRBalanceType = 'DR'
+            $scope.DRBalanceType = 'CR'
 
         });
         $rootScope.openPopupAngular('TrialBalanceDRPopUp');
