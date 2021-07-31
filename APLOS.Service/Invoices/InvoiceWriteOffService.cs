@@ -1005,13 +1005,27 @@ namespace Library.Service.Invoices
 
                 if (voucherVM.PaymentSource == PaymentSource.Bank.ToString() || voucherVM.PaymentSource == PaymentSource.Cash.ToString())
                 {
-                    // INSERT INTO VoucherDetail (Bank or cash side Dr)
+                    var bankMaster = new BankMaster();
+                    var cashMaster = new CashMaster();
                     var voucherDetailCr = new VoucherDetail
                     {
                         Narration = voucher.Narration,
                         PaymentSource = invoiceWriteOff.PaymentSource
                     };
-                    voucherDetailCr.CrAmount = voucherVM.BankMasterId != null ? voucherVM.BankAmount : voucherVM.Amount;
+                    if (!string.IsNullOrEmpty(voucherVM.BankMasterId))
+                    {
+                        bankMaster = _bankMasterRepository.Find(voucherVM.BankMasterId);
+                        voucherDetailCr.CrAmount = (voucherVM.BankMasterId != null && bankMaster.CurrencyId == voucherVM.CurrencyId) ? voucherVM.BankAmount : voucherVM.Amount;
+
+                    }
+                    if (!string.IsNullOrEmpty(voucherVM.CashMasterId))
+                    {
+                         cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
+                        voucherDetailCr.CrAmount = voucherVM.Amount;
+
+                    }
+                    // INSERT INTO VoucherDetail (Bank or cash side Dr)
+                  
                     if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
                         voucherDetailCr.CrAmount -= voucherVM.RoundingAmount;
                     if (invoiceWriteOff.RoundingType == RoundingType.RoundUp.ToString())
@@ -1031,7 +1045,6 @@ namespace Library.Service.Invoices
 
                     if (!string.IsNullOrEmpty(voucherVM.BankMasterId))
                     {
-                        var bankMaster = _bankMasterRepository.Find(voucherVM.BankMasterId);
                         voucherDetailCr.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
                         voucherDetailCr.BudgetMasterId = bankMaster.BudgetMasterId;
                         voucherDetailCr.ActivityId = bankMaster.ActivityId;
@@ -1050,7 +1063,6 @@ namespace Library.Service.Invoices
                     }
                     else if (!string.IsNullOrEmpty(voucherVM.CashMasterId))
                     {
-                        var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
                         voucherDetailCr.GLGeneralInfoId = cashMaster.GLGeneralInfoId;
                         voucherDetailCr.BudgetMasterId = cashMaster.BudgetMasterId;
                         voucherDetailCr.ActivityId = cashMaster.ActivityId;
