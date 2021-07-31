@@ -1005,13 +1005,18 @@ namespace Library.Service.Invoices
 
                 if (voucherVM.PaymentSource == PaymentSource.Bank.ToString() || voucherVM.PaymentSource == PaymentSource.Cash.ToString())
                 {
-                    // INSERT INTO VoucherDetail (Bank or cash side Dr)
-                    var voucherDetailCr = new VoucherDetail
+                    var bankMaster = new BankMaster();
+                    if (!string.IsNullOrEmpty(voucherVM.BankMasterId))
+                    {
+                         bankMaster = _bankMasterRepository.Find(voucherVM.BankMasterId);
+                    }
+                        // INSERT INTO VoucherDetail (Bank or cash side Dr)
+                        var voucherDetailCr = new VoucherDetail
                     {
                         Narration = voucher.Narration,
                         PaymentSource = invoiceWriteOff.PaymentSource
                     };
-                    voucherDetailCr.CrAmount = voucherVM.BankMasterId != null ? voucherVM.BankAmount : voucherVM.Amount;
+                    voucherDetailCr.CrAmount = (voucherVM.BankMasterId != null && bankMaster.CurrencyId== voucherVM.CurrencyId) ? voucherVM.BankAmount : voucherVM.Amount;
                     if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
                         voucherDetailCr.CrAmount -= voucherVM.RoundingAmount;
                     if (invoiceWriteOff.RoundingType == RoundingType.RoundUp.ToString())
@@ -1031,7 +1036,6 @@ namespace Library.Service.Invoices
 
                     if (!string.IsNullOrEmpty(voucherVM.BankMasterId))
                     {
-                        var bankMaster = _bankMasterRepository.Find(voucherVM.BankMasterId);
                         voucherDetailCr.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
                         voucherDetailCr.BudgetMasterId = bankMaster.BudgetMasterId;
                         voucherDetailCr.ActivityId = bankMaster.ActivityId;
