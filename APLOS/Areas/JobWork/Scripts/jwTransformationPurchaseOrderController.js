@@ -892,14 +892,16 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
       $scope.productNew.TaxOptionService = "Yes";
   //  $scope.productNew.TaxOptionService = 'Yes';
+
     $scope.changeService = function (JWServiceId) {
         $scope.productNew.TaxOptionService = "Yes";
+
         if (baseService.isUndefinedOrNull(JWServiceId))
             return $scope.taxCategoryList = [];
         var hsnCodeId = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCodeId;
         var HSNCode = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCode;
         getTaxCategoryList(hsnCodeId, HSNCode);
-        $scope.productNew.TaxOptionService = "Yes";
+  //      $scope.productNew.TaxOptionService = "Yes";
         
     };
     function getTaxCategoryList(hsnCodeId, HSNCode) {
@@ -1762,6 +1764,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.productNew.TaxOptionMat = 'Yes';
         $scope.productNew.TaxOptionService = "Yes";
     //    $scope.productNew.TaxOptionService = 'Yes';
+
         $scope.receiveTaxList = [];
         $scope.detailModel = Object.assign({}, $scope.detailTempModel);
         //$scope.MatPlanning = Object.assign({}, $scope.MatPlanningModelTemp);
@@ -2874,6 +2877,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.serviceChargePopUp = function () {
         $scope.productNew.TaxOptionService = "Yes";
     //    $scope.productNew.TaxOptionService = 'Yes';
+
         //if (baseService.arrayLength($scope.inventoryMaterialList) === 0)
         //    return ShowResult('Without material charges not aplicable.');
         $scope.serviceModel = Object.assign({}, $scope.serviceModelTemp);
