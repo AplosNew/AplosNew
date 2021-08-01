@@ -141,8 +141,9 @@ namespace Library.OrderManagement.Sales
             ,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName
 			, SO.SOType,SO.Rate
            ,0 SalesQty
-           ,Balance=SM.TransactionQty-ISNULL(case when SC.CharacteristicsValueId<>''  then SC.SalesQty
+          ,Balance=SM.TransactionQty-ISNULL(case when SC.CharacteristicsValueId<>''  then SC.SalesQty
 										when FC.CharacteristicsValueId<>'' then FC.SalesQty else SO.Qty 
+							end,0)
            ,ExistSalesQty=
 							ISNULL(case when SC.CharacteristicsValueId<>''  then SC.SalesQty
 										when FC.CharacteristicsValueId<>'' then FC.SalesQty else SO.Qty 

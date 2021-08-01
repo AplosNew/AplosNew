@@ -1242,7 +1242,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         if (!baseService.isUndefinedOrNull($scope.salesVM.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.salesVM.Id,
+                url: 'Productions/PackingInvoice/Delete?Id=' + $scope.salesVM.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
