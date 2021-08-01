@@ -898,6 +898,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						--,Sum(ISNULL(x.WastagePer,0))  WastagePer
 						--,Sum(ISNULL(x.RequisitionQty,0))  RequisitionQty
 						--,Sum(ISNULL(x.RequisitionQtyOrginal,0))  RequisitionQtyOrginal
+						,SUM(ISNULL(x.RequisitionQtyOrginal,0))  RequestedQtyOrginal
 						--,Sum(ISNULL(x.RequestedQty,0))  RequestedQty
 						--,Sum(ISNULL(x.RequestedQtyNew,0))  RequestedQtyNew 
 						--,Sum(ISNULL(x.RejectedQty,0))  RejectedQty				
@@ -1019,7 +1020,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						left outer join (Select * from 
 						(   
 
-				            "+queryString+ @"
+				            " + queryString+ @"
 
 							--Select '212160101-800-411-' ID, 15 Qty
 							--union all
