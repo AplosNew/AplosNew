@@ -473,7 +473,7 @@ namespace Library.MaterialManagement.InventoryManagements
 		}
 
 
-		public IEnumerable<object> GetMaterialListForProductionReq(string Material, string Article, string Skuvalue1, string Skuvalue2, string Skuvalue3, string processId, string parameters,string SOMATART)
+		public IEnumerable<object> GetMaterialListForProductionReq(string Material, string Article, string Skuvalue1, string Skuvalue2, string Skuvalue3, string processId, string parameters,string SOMATART, string queryString)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			string paramter = "";
@@ -651,7 +651,278 @@ namespace Library.MaterialManagement.InventoryManagements
 				//--                      --,Isnull(C.UserName,'') CountryName,C.Id CountryId
 				//						--,BO.Consumption,BO.WastagePer,POUOM.UserName
 				//				";//test cbddfh
-				sql = @"Select Convert(bit, 'False') 'check', MGM.UserName MaterialMasterGroupName--,IRD.InventoryMaterialId
+				//sql = @"Select Convert(bit, 'False') 'check', MGM.UserName MaterialMasterGroupName--,IRD.InventoryMaterialId
+				//		,MT.UserName MaterialType
+				//		,mm.Id MaterialMasterId
+				//		,mm.UserName MaterialMasterName
+				//		,BOQD.ArticleId		
+				//		,ART.StandardName									
+				//		,FC.Id FirstCharacteristicsId
+				//		,FC.UserName AS FirstCharacteristics
+				//		,BOQFGM.FirstCharacteristicsValueId
+				//		,isnull(v1.UserName,'') AS FirstCharacteristicsValue
+				//		,SC.Id SecondCharacteristicsId
+				//		,SC.UserName AS SecondCharacteristics
+				//		,BOQFGM.SecondCharacteristicsValueId
+				//		,isnull(v2.UserName,'') AS SecondCharacteristicsValue
+				//		,TC.Id ThirdCharacteristicsId
+				//		,TC.UserName AS ThirdCharacteristics
+				//		,BOQFGM.ThirdCharacteristicsValueId
+				//		,isnull(v3.UserName,'') AS ThirdCharacteristicsValue						
+				//		--,TUoM.Id AS TransactionUoMId
+				//		,consumptionUoMId.Id AS TransactionUoMId
+				//		,null TransactionUoMName                 
+				//		,BOQD.RequiredQtyPO RequestedQty1
+				//		,null RequestedQty,0 RequestedQtyNew   
+				//		,0 RejectedQty,null RequisitionQtyOrginal
+
+
+				//		,0  ShortageQty
+				//		,0 RejectionQty
+				//		,BOQD.Consumption,BOQD.WastagePer
+
+				//		,POUoMId.Id POUoMId
+				//		,POUoMId.UserName POUoM
+				//		,BaseUoMId.Id BaseUoMId
+				//		,BaseUoMId.UserName BaseUoM
+
+				//		,GRNALLO.StockTransactionUoMId
+				//		,GRNALLO.UserName StockUOM 
+
+				//		,consumptionUoMId.UserName consumptionUoM
+				//		,consumptionUoMId.Id consumptionUoMId
+
+				//		,0 RequisitionQty,BOQD.SalesOrderId
+				//		,BOQD.FirstCharacteristicsValueId BOQDFirstCharacteristicsValueId
+				//		,BOQD.SecondCharacteristicsValueId BOQDSecondCharacteristicsValueId
+				//		,BOQD.ThirdCharacteristicsValueId BOQDThirdCharacteristicsValueId
+				//		,BOQD.BOQId
+				//		,Sum(ISNULL(GRNALLO.TransactionQty,0)) TransactionQty
+				//		,Isnull(MMAU.BaseUOMFactor,0) BaseUOMFactor
+				//		,Sum(ISNULL(GRNALLO.TransactionQty,0))  TotalQty--* Isnull(MMAU.BaseUOMFactor,0)
+				//		FROM BOQDetail BOQD
+				//		LEFT JOIN BOQFGMapping BOQFGM on BOQD.Id=BOQFGM.BOQDetailId
+				//		Left JOIN MST.MaterialMaster AS MM ON BOQD.MaterialMasterId = MM.Id
+
+				//		LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+				//		LEFT JOIN MST.MaterialMasterArticle AS ART ON BOQD.ArticleId = ART.Id
+				//		LEFT OUTER JOIN[HKP].[CharacteristicsValue] V1 ON v1.Id = BOQD.FirstCharacteristicsValueId
+				//		LEFT OUTER JOIN[HKP].[CharacteristicsValue] V2 ON v2.Id = BOQD.SecondCharacteristicsValueId
+				//		LEFT OUTER JOIN[HKP].[CharacteristicsValue] V3 ON v3.Id = BOQD.ThirdCharacteristicsValueId
+				//		LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
+				//		LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
+				//		LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId	
+				//		--Left JOIN [MST].[MaterialMasterAlternativeUOM] AS MMAU ON MMAU.MaterialMasterId = MM.Id
+				//		LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON TUoM.Id =mm.StockUOMId 	
+				//		LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
+				//		left join (select b.BOQDetailId,sum(a.BaseQty) TransactionQty ,UOM.UserName,UOM.Id StockTransactionUoMId
+				//				from trn.GRNPORequisitionAllocation a
+				//				left join trn.POBOQMap b ON b.Id=a.POBOQMapId
+				//				--LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.TransactionUoMId
+				//				LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.BaseUoMId
+				//				group by b.BOQDetailId,UOM.UserName,UOM.Id 
+				//				) GRNALLO ON GRNALLO.BOQDetailId=BOQD.Id
+				//		LEFT JOIN [SCS].[UnitOfMeasurement] POUoMId ON POUoMId.Id=BOQD.POUoMId
+				//		LEFT JOIN [SCS].[UnitOfMeasurement] BaseUoMId ON BaseUoMId.Id=BOQD.BaseUoMId
+				//		LEFT JOIN [SCS].[UnitOfMeasurement] consumptionUoMId ON consumptionUoMId.Id=BOQD.BaseUoMId
+				//		Left JOIN (Select a.MaterialMasterId,a.AlternativeUOMId,a.BaseUOMId ,Sum(a.BaseUOMFactor) BaseUOMFactor 
+				//					from [MST].[MaterialMasterAlternativeUOM] a
+				//					left JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.AlternativeUOMId
+				//					--left join mst.MaterialMaster mm ON mm.Id=a.MaterialMasterId
+				//					Group by a.MaterialMasterId,a.AlternativeUOMId,a.BaseUOMId
+				//					) AS MMAU ON MMAU.MaterialMasterId = BOQD.MaterialMasterId AND MMAU.AlternativeUOMId=TUoM.Id --And MMAU.BaseUOMId=BOQD.BaseUoMId AND MMAU.BaseUOMId=mm.BaseUOMId
+				//		--Where " + paramter + @"  AND MM.IsAsset=0 AND BOQD.ProcessId='" + processId + @"' AND BOQD.SalesOrderId in(" + parameters + @")
+				//		Where BOQD.ProcessId='" + processId + @"' and 
+				//		Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,'')) in (" + SOMATART + ")" +
+				//		"group by MGM.UserName	,MT.UserName,mm.Id,mm.UserName,BOQD.ArticleId,ART.StandardName,FC.Id,FC.UserName,BOQFGM.FirstCharacteristicsValueId	,isnull(v1.UserName, ''),SC.Id,SC.UserName,BOQFGM.SecondCharacteristicsValueId,isnull(v2.UserName, ''),TC.Id,TC.UserName,BOQFGM.ThirdCharacteristicsValueId,isnull(v3.UserName, ''),TUoM.Id,TUoM.UserName	,BOQD.RequiredQtyPO,BOQD.Consumption,BOQD.WastagePer,POUoMId.Id	,POUoMId.UserName,BaseUoMId.Id,BaseUoMId.UserName,GRNALLO.StockTransactionUoMId,GRNALLO.UserName,consumptionUoMId.UserName,consumptionUoMId.Id,BOQD.SalesOrderId,BOQD.FirstCharacteristicsValueId,BOQD.SecondCharacteristicsValueId,BOQD.ThirdCharacteristicsValueId,BOQD.BOQId,Isnull(MMAU.BaseUOMFactor,0)";
+				//sql = @"Select Distinct Convert(bit, 'False') 'check', MGM.UserName MaterialMasterGroupName--,IRD.InventoryMaterialId
+				//		,MT.UserName MaterialType
+				//		,mm.Id MaterialMasterId
+				//		,mm.UserName MaterialMasterName
+				//		,BOQD.ArticleId		
+				//		,ART.StandardName									
+				//		,FC.Id FirstCharacteristicsId
+				//		,FC.UserName AS FirstCharacteristics
+				//		--,BOQFGM.FirstCharacteristicsValueId
+				//		,isnull(v1.UserName,'') AS FirstCharacteristicsValue
+				//		,SC.Id SecondCharacteristicsId
+				//		,SC.UserName AS SecondCharacteristics
+				//		--,BOQFGM.SecondCharacteristicsValueId
+				//		,isnull(v2.UserName,'') AS SecondCharacteristicsValue
+				//		,TC.Id ThirdCharacteristicsId
+				//		,TC.UserName AS ThirdCharacteristics
+				//		--,BOQFGM.ThirdCharacteristicsValueId
+				//		,isnull(v3.UserName,'') AS ThirdCharacteristicsValue						
+				//		--,TUoM.Id AS TransactionUoMId
+				//		,consumptionUoMId.Id AS TransactionUoMId
+				//		,null TransactionUoMName                 
+				//		,BOQD.RequiredQtyPO RequestedQty1
+				//		,null RequestedQty,0 RequestedQtyNew   
+				//		,0 RejectedQty,null RequisitionQtyOrginal
+
+
+				//		,0  ShortageQty
+				//		,0 RejectionQty
+				//		,BOQD.Consumption,BOQD.WastagePer
+
+				//		,POUoMId.Id POUoMId
+				//		,POUoMId.UserName POUoM
+				//		,BaseUoMId.Id BaseUoMId
+				//		,BaseUoMId.UserName BaseUoM
+
+				//		,GRNALLO.StockTransactionUoMId
+				//		,GRNALLO.UserName StockUOM 
+
+				//		,consumptionUoMId.UserName consumptionUoM
+				//		,consumptionUoMId.Id consumptionUoMId
+
+				//		,0 RequisitionQty,BOQD.SalesOrderId
+				//		,BOQD.FirstCharacteristicsValueId BOQDFirstCharacteristicsValueId
+				//		,BOQD.SecondCharacteristicsValueId BOQDSecondCharacteristicsValueId
+				//		,BOQD.ThirdCharacteristicsValueId BOQDThirdCharacteristicsValueId
+				//		,BOQD.BOQId
+				//		,ISNULL(GRNALLO.TransactionQty,0) TransactionQty
+				//		,Isnull(MMAU.BaseUOMFactor,0) BaseUOMFactor
+				//		,ISNULL(GRNALLO.TransactionQty,0)  TotalQty--* Isnull(MMAU.BaseUOMFactor,0)
+				//		,BOQD.FirstCharacteristicsValueId RwFirstCharacteristicsValueId
+				//		,BOQD.SecondCharacteristicsValueId RwSecondCharacteristicsValueId
+				//		,BOQD.ThirdCharacteristicsValueId RwThirdCharacteristicsValueId
+				//                    ,Concat(FGChar.SalesOrderId,'-',ISNULL(FGChar.FirstCharacteristicsValueId,''),'-',ISNULL(FGChar.SecondCharacteristicsValueId,''),'-',ISNULL(FGChar.ThirdCharacteristicsValueId,'')) SOFSTId
+				//		--,Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,'')) SOFSTId
+				//		FROM BOQDetail BOQD
+				//		LEFT JOIN BOQFGMapping BOQFGM on BOQD.Id=BOQFGM.BOQDetailId
+				//		Left JOIN MST.MaterialMaster AS MM ON BOQD.MaterialMasterId = MM.Id
+
+				//		LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+				//		LEFT JOIN MST.MaterialMasterArticle AS ART ON BOQD.ArticleId = ART.Id
+				//		LEFT OUTER JOIN[HKP].[CharacteristicsValue] V1 ON v1.Id = BOQD.FirstCharacteristicsValueId
+				//		LEFT OUTER JOIN[HKP].[CharacteristicsValue] V2 ON v2.Id = BOQD.SecondCharacteristicsValueId
+				//		LEFT OUTER JOIN[HKP].[CharacteristicsValue] V3 ON v3.Id = BOQD.ThirdCharacteristicsValueId
+				//		LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
+				//		LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
+				//		LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId	
+				//		--Left JOIN [MST].[MaterialMasterAlternativeUOM] AS MMAU ON MMAU.MaterialMasterId = MM.Id
+				//		LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON TUoM.Id =mm.StockUOMId 	
+				//		LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
+				//		left join (select b.BOQDetailId,sum(a.BaseQty) TransactionQty ,UOM.UserName,UOM.Id StockTransactionUoMId
+				//				from trn.GRNPORequisitionAllocation a
+				//				left join trn.POBOQMap b ON b.Id=a.POBOQMapId
+				//				--LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.TransactionUoMId
+				//				LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.BaseUoMId
+				//				group by b.BOQDetailId,UOM.UserName,UOM.Id 
+				//				) GRNALLO ON GRNALLO.BOQDetailId=BOQD.Id
+				//		LEFT JOIN [SCS].[UnitOfMeasurement] POUoMId ON POUoMId.Id=BOQD.POUoMId
+				//		LEFT JOIN [SCS].[UnitOfMeasurement] BaseUoMId ON BaseUoMId.Id=BOQD.BaseUoMId
+				//		LEFT JOIN [SCS].[UnitOfMeasurement] consumptionUoMId ON consumptionUoMId.Id=BOQD.BaseUoMId
+				//		Left JOIN (Select a.MaterialMasterId,a.AlternativeUOMId,a.BaseUOMId ,Sum(a.BaseUOMFactor) BaseUOMFactor 
+				//					from [MST].[MaterialMasterAlternativeUOM] a
+				//					left JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.AlternativeUOMId
+				//					--left join mst.MaterialMaster mm ON mm.Id=a.MaterialMasterId
+				//					Group by a.MaterialMasterId,a.AlternativeUOMId,a.BaseUOMId
+				//					) AS MMAU ON MMAU.MaterialMasterId = BOQD.MaterialMasterId AND MMAU.AlternativeUOMId=TUoM.Id --And MMAU.BaseUOMId=BOQD.BaseUoMId AND MMAU.BaseUOMId=mm.BaseUOMId
+				//                   LEFT JOIN(
+				//			SELECT distinct PDAMAP.BOQDetailId
+				//				,SalesOrderId=STUFF((select distinct top 1 '-'+xpo.SalesOrderId from
+				//				BOQDetail xpo
+				//				INNER JOin BOQFGMapping xPDAMAP on xpo.Id=xPDAMAP.BOQDetailId
+				//				where xPDAMAP.BOQDetailId=PDAMAP.BOQDetailId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')	
+
+				//				,FirstCharacteristicsValueId=STUFF((select distinct top 1 '-'+xPDAMAP.FirstCharacteristicsValueId from
+				//				BOQDetail xpo
+				//				INNER JOin BOQFGMapping xPDAMAP on xpo.Id=xPDAMAP.BOQDetailId
+				//				where xPDAMAP.BOQDetailId=PDAMAP.BOQDetailId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+				//				,SecondCharacteristicsValueId=STUFF((select distinct top 1 '-'+xPDAMAP.SecondCharacteristicsValueId from
+				//			    BOQDetail xpo
+				//				INNER JOin BOQFGMapping xPDAMAP on xpo.Id=xPDAMAP.BOQDetailId
+				//				where xPDAMAP.BOQDetailId=PDAMAP.BOQDetailId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+				//				,ThirdCharacteristicsValueId=STUFF((select distinct top 1 '-'+xPDAMAP.ThirdCharacteristicsValueId from
+				//				BOQDetail xpo
+				//				INNER JOin BOQFGMapping xPDAMAP on xpo.Id=xPDAMAP.BOQDetailId
+				//				where xPDAMAP.BOQDetailId=PDAMAP.BOQDetailId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')							
+
+				//				from  BOQFGMapping PDAMAP 
+				//			  LEFT JOIN BOQDetail IR ON IR.Id = PDAMAP.BOQDetailId
+
+				//			  group by  PDAMAP.BOQDetailId
+				//			)FGChar ON FGChar.BOQDetailId=BOQD.Id
+				//		--Where " + paramter + @"  AND MM.IsAsset=0 AND BOQD.ProcessId='" + processId + @"' AND BOQD.SalesOrderId in(" + parameters + @")
+				//		Where BOQD.ProcessId='" + processId + @"' and 
+				//		Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,'')) in (" + SOMATART + ")";
+				////"group by MGM.UserName	,MT.UserName,mm.Id,mm.UserName,BOQD.ArticleId,ART.StandardName,FC.Id,FC.UserName,BOQFGM.FirstCharacteristicsValueId	,isnull(v1.UserName, ''),SC.Id,SC.UserName,BOQFGM.SecondCharacteristicsValueId,isnull(v2.UserName, ''),TC.Id,TC.UserName,BOQFGM.ThirdCharacteristicsValueId,isnull(v3.UserName, ''),TUoM.Id,TUoM.UserName	,BOQD.RequiredQtyPO,BOQD.Consumption,BOQD.WastagePer,POUoMId.Id	,POUoMId.UserName,BaseUoMId.Id,BaseUoMId.UserName,GRNALLO.StockTransactionUoMId,GRNALLO.UserName,consumptionUoMId.UserName,consumptionUoMId.Id,BOQD.SalesOrderId,BOQD.FirstCharacteristicsValueId,BOQD.SecondCharacteristicsValueId,BOQD.ThirdCharacteristicsValueId,BOQD.BOQId,Isnull(MMAU.BaseUOMFactor,0)";
+				////return _sqlRepository.GetDataCollection(sql);
+				sql = @"select distinct
+						 Convert(bit, 'False') 'check'
+						,x.MaterialMasterGroupName
+						,x.MaterialType
+						,x.MaterialMasterId
+						,x.MaterialMasterName
+						,x.ArticleId		
+						,x.StandardName									
+						,x.FirstCharacteristicsId
+						,x.FirstCharacteristics
+						--,BOQFGM.FirstCharacteristicsValueId
+						,x.FirstCharacteristicsValue
+						,x.SecondCharacteristicsId
+						,x.SecondCharacteristics
+						--,BOQFGM.SecondCharacteristicsValueId
+						,x.SecondCharacteristicsValue
+						,x.ThirdCharacteristicsId
+						,x.ThirdCharacteristics
+						--,BOQFGM.ThirdCharacteristicsValueId
+						,x.ThirdCharacteristicsValue						
+						--,TUoM.Id AS TransactionUoMId
+						,x.TransactionUoMId
+						,x.TransactionUoMName 
+
+						,x.POUoMId
+						,x.POUoM
+						,x.BaseUoMId
+						,x.BaseUoM
+						,x.StockTransactionUoMId
+						,x.StockUOM 
+						,x.consumptionUoM
+						,x.consumptionUoMId
+						,x.RwFirstCharacteristicsValueId
+						,x.RwSecondCharacteristicsValueId
+						,x.RwThirdCharacteristicsValueId
+						--,x.SOFSTId
+						,x.SalesOrderId
+						,x.BOQDFirstCharacteristicsValueId
+						,x.BOQDSecondCharacteristicsValueId
+						,x.BOQDThirdCharacteristicsValueId
+						,x.BOQId 
+						--,Sum(ISNULL(x.Qty,0))  Qty
+						--,Sum(ISNULL(x.Consumption,0))  Consumption
+						--,Sum(ISNULL(x.WastagePer,0))  WastagePer
+						--,Sum(ISNULL(x.RequisitionQty,0))  RequisitionQty
+						--,Sum(ISNULL(x.RequisitionQtyOrginal,0))  RequisitionQtyOrginal
+						--,Sum(ISNULL(x.RequestedQty,0))  RequestedQty
+						--,Sum(ISNULL(x.RequestedQtyNew,0))  RequestedQtyNew 
+						--,Sum(ISNULL(x.RejectedQty,0))  RejectedQty				
+						--,Sum(ISNULL(x.ShortageQty,0))  ShortageQty
+						--,Sum(ISNULL(x.RejectionQty,0))  RejectionQty			
+						--,Sum(ISNULL(x.TransactionQty,0))  TransactionQty
+						--,Sum(ISNULL(x.BaseUOMFactor,0))  BaseUOMFactor
+						--,Sum(ISNULL(x.TotalQty,0))  TotalQty	 
+
+						--,sum(ISNULL(x.Qty,0))  Qty
+						,ISNULL(x.Consumption,0)  Consumption
+						,ISNULL(x.WastagePer,0)  WastagePer
+						,SUM(ISNULL(x.RequisitionQty,0))  RequisitionQty
+						,SUM(ISNULL(x.RequisitionQtyOrginal,0))  RequisitionQtyOrginal
+						,ISNULL(x.RequestedQty,0)  RequestedQty
+						,ISNULL(x.RequestedQtyNew,0)  RequestedQtyNew 
+						,ISNULL(x.RejectedQty,0)  RejectedQty				
+						,ISNULL(x.ShortageQty,0) ShortageQty
+						,ISNULL(x.RejectionQty,0)  RejectionQty			
+						,ISNULL(x.TransactionQty,0)  TransactionQty
+						,ISNULL(x.BaseUOMFactor,0)  BaseUOMFactor
+						,ISNULL(x.TotalQty,0)  TotalQty	 
+						from(
+						Select distinct Convert(bit, 'False') 'check'
+						, MGM.UserName MaterialMasterGroupName
 						,MT.UserName MaterialType
 						,mm.Id MaterialMasterId
 						,mm.UserName MaterialMasterName
@@ -659,27 +930,19 @@ namespace Library.MaterialManagement.InventoryManagements
 						,ART.StandardName									
 						,FC.Id FirstCharacteristicsId
 						,FC.UserName AS FirstCharacteristics
-						,BOQFGM.FirstCharacteristicsValueId
+						--,BOQFGM.FirstCharacteristicsValueId
 						,isnull(v1.UserName,'') AS FirstCharacteristicsValue
 						,SC.Id SecondCharacteristicsId
 						,SC.UserName AS SecondCharacteristics
-						,BOQFGM.SecondCharacteristicsValueId
+						--,BOQFGM.SecondCharacteristicsValueId
 						,isnull(v2.UserName,'') AS SecondCharacteristicsValue
 						,TC.Id ThirdCharacteristicsId
 						,TC.UserName AS ThirdCharacteristics
-						,BOQFGM.ThirdCharacteristicsValueId
+						--,BOQFGM.ThirdCharacteristicsValueId
 						,isnull(v3.UserName,'') AS ThirdCharacteristicsValue						
 						--,TUoM.Id AS TransactionUoMId
 						,consumptionUoMId.Id AS TransactionUoMId
-						,null TransactionUoMName                 
-						,BOQD.RequiredQtyPO RequestedQty1
-						,null RequestedQty,0 RequestedQtyNew   
-						,0 RejectedQty,null RequisitionQtyOrginal
-					
-					
-						,0  ShortageQty
-						,0 RejectionQty
-						,BOQD.Consumption,BOQD.WastagePer
+						,null TransactionUoMName 
 
 						,POUoMId.Id POUoMId
 						,POUoMId.UserName POUoM
@@ -691,15 +954,35 @@ namespace Library.MaterialManagement.InventoryManagements
 
 						,consumptionUoMId.UserName consumptionUoM
 						,consumptionUoMId.Id consumptionUoMId
-
-						,0 RequisitionQty,BOQD.SalesOrderId
+						,BOQD.FirstCharacteristicsValueId RwFirstCharacteristicsValueId
+						,BOQD.SecondCharacteristicsValueId RwSecondCharacteristicsValueId
+						,BOQD.ThirdCharacteristicsValueId RwThirdCharacteristicsValueId
+						-- ,Concat(FGChar.SalesOrderId,'-',ISNULL(FGChar.FirstCharacteristicsValueId,''),'-',ISNULL(FGChar.SecondCharacteristicsValueId,''),'-',ISNULL(FGChar.ThirdCharacteristicsValueId,'')) SOFSTId
+						--,Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,'')) SOFSTId
+						,BOQD.SalesOrderId
 						,BOQD.FirstCharacteristicsValueId BOQDFirstCharacteristicsValueId
 						,BOQD.SecondCharacteristicsValueId BOQDSecondCharacteristicsValueId
 						,BOQD.ThirdCharacteristicsValueId BOQDThirdCharacteristicsValueId
 						,BOQD.BOQId
-						,Sum(ISNULL(GRNALLO.TransactionQty,0)) TransactionQty
+
+						--,FGQty.Qty
+						,BOQD.Consumption
+						,BOQD.WastagePer
+						,RequisitionQty=(BOQD.Consumption*FGQty.Qty)+(((BOQD.Consumption*FGQty.Qty)*BOQD.WastagePer)/100)
+						, RequisitionQtyOrginal=(BOQD.Consumption*FGQty.Qty)+(((BOQD.Consumption*FGQty.Qty)*BOQD.WastagePer)/100)					
+						,BOQD.RequiredQtyPO RequestedQty1
+						,null RequestedQty
+						,0 RequestedQtyNew   
+						,0 RejectedQty
+						
+						,0  ShortageQty
+						,0 RejectionQty
+					
+						,ISNULL(GRNALLO.TransactionQty,0) TransactionQty
 						,Isnull(MMAU.BaseUOMFactor,0) BaseUOMFactor
-						,Sum(ISNULL(GRNALLO.TransactionQty,0))  TotalQty--* Isnull(MMAU.BaseUOMFactor,0)
+						,ISNULL(GRNALLO.TransactionQty,0)  TotalQty--* Isnull(MMAU.BaseUOMFactor,0)						
+					
+					
 						FROM BOQDetail BOQD
 						LEFT JOIN BOQFGMapping BOQFGM on BOQD.Id=BOQFGM.BOQDetailId
 						Left JOIN MST.MaterialMaster AS MM ON BOQD.MaterialMasterId = MM.Id
@@ -715,12 +998,12 @@ namespace Library.MaterialManagement.InventoryManagements
 						--Left JOIN [MST].[MaterialMasterAlternativeUOM] AS MMAU ON MMAU.MaterialMasterId = MM.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON TUoM.Id =mm.StockUOMId 	
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-						left join (select b.BOQDetailId,sum(a.BaseQty) TransactionQty ,UOM.UserName,UOM.Id StockTransactionUoMId
-								from trn.GRNPORequisitionAllocation a
-								left join trn.POBOQMap b ON b.Id=a.POBOQMapId
-								--LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.TransactionUoMId
-								LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.BaseUoMId
-								group by b.BOQDetailId,UOM.UserName,UOM.Id 
+						left join (select a.SalesOrderId, b.BOQDetailId,sum(a.BaseQty) TransactionQty ,UOM.UserName,UOM.Id StockTransactionUoMId,a.BaseUoMId
+														 from trn.GRNPORequisitionAllocation a
+														left join trn.POBOQMap b ON b.Id=a.POBOQMapId
+														LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.BaseUoMId
+															--where a.SalesOrderId='212160101' --and b.BOQDetailId='21223-25'
+														group by b.BOQDetailId,UOM.UserName,UOM.Id,a.SalesOrderId,a.BaseUoMId
 								) GRNALLO ON GRNALLO.BOQDetailId=BOQD.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] POUoMId ON POUoMId.Id=BOQD.POUoMId
 						LEFT JOIN [SCS].[UnitOfMeasurement] BaseUoMId ON BaseUoMId.Id=BOQD.BaseUoMId
@@ -731,12 +1014,24 @@ namespace Library.MaterialManagement.InventoryManagements
 									--left join mst.MaterialMaster mm ON mm.Id=a.MaterialMasterId
 									Group by a.MaterialMasterId,a.AlternativeUOMId,a.BaseUOMId
 									) AS MMAU ON MMAU.MaterialMasterId = BOQD.MaterialMasterId AND MMAU.AlternativeUOMId=TUoM.Id --And MMAU.BaseUOMId=BOQD.BaseUoMId AND MMAU.BaseUOMId=mm.BaseUOMId
-						--Where " + paramter + @"  AND MM.IsAsset=0 AND BOQD.ProcessId='" + processId + @"' AND BOQD.SalesOrderId in(" + parameters + @")
-						Where BOQD.ProcessId='" + processId + @"' and 
-						Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,'')) in (" + SOMATART + ")" +
-						"group by MGM.UserName	,MT.UserName,mm.Id,mm.UserName,BOQD.ArticleId,ART.StandardName,FC.Id,FC.UserName,BOQFGM.FirstCharacteristicsValueId	,isnull(v1.UserName, ''),SC.Id,SC.UserName,BOQFGM.SecondCharacteristicsValueId,isnull(v2.UserName, ''),TC.Id,TC.UserName,BOQFGM.ThirdCharacteristicsValueId,isnull(v3.UserName, ''),TUoM.Id,TUoM.UserName	,BOQD.RequiredQtyPO,BOQD.Consumption,BOQD.WastagePer,POUoMId.Id	,POUoMId.UserName,BaseUoMId.Id,BaseUoMId.UserName,GRNALLO.StockTransactionUoMId,GRNALLO.UserName,consumptionUoMId.UserName,consumptionUoMId.Id,BOQD.SalesOrderId,BOQD.FirstCharacteristicsValueId,BOQD.SecondCharacteristicsValueId,BOQD.ThirdCharacteristicsValueId,BOQD.BOQId,Isnull(MMAU.BaseUOMFactor,0)";
-				//return _sqlRepository.GetDataCollection(sql);
+                      
 
+						left outer join (Select * from 
+						(   
+
+				            "+queryString+ @"
+
+							--Select '212160101-800-411-' ID, 15 Qty
+							--union all
+							--Select '212160101-800-410-' ID, 10 Qty
+							--union all
+							--Select '212160103-800-409-' ID,5 Qty
+
+						) FGQty)FGQty ON FGQty.ID=Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,''))
+
+
+						Where BOQD.ProcessId='" + processId + @"'   and Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,'')) in (" + SOMATART+"))x	group by x.MaterialMasterGroupName,x.MaterialType,x.MaterialMasterId,x.MaterialMasterName,x.ArticleId,x.StandardName,x.FirstCharacteristicsId,x.FirstCharacteristics,x.FirstCharacteristicsValue,x.SecondCharacteristicsId,x.SecondCharacteristics,x.SecondCharacteristicsValue,x.ThirdCharacteristicsId,x.ThirdCharacteristics,x.ThirdCharacteristicsValue,x.TransactionUoMId,x.TransactionUoMName ,x.POUoMId,x.POUoM,x.BaseUoMId,x.BaseUoM,x.StockTransactionUoMId,x.StockUOM ,x.consumptionUoM,x.consumptionUoMId,x.RwFirstCharacteristicsValueId,x.RwSecondCharacteristicsValueId,x.RwThirdCharacteristicsValueId,x.SalesOrderId,x.BOQDFirstCharacteristicsValueId,x.BOQDSecondCharacteristicsValueId,x.BOQDThirdCharacteristicsValueId,x.BOQId ,ISNULL(x.Consumption,0)  ,ISNULL(x.WastagePer,0) ,ISNULL(x.RequestedQty,0)  ,ISNULL(x.RequestedQtyNew,0)   ,ISNULL(x.RejectedQty,0),ISNULL(x.ShortageQty,0) ,ISNULL(x.RejectionQty,0),ISNULL(x.TransactionQty,0)  ,ISNULL(x.BaseUOMFactor,0)  ,ISNULL(x.TotalQty,0)";
+								
 				var Data = _sqlRepository.GetDataCollection(sql);
 				StringCollection strCol = new StringCollection();
 				string MaterialMasterList = "''";
@@ -15042,7 +15337,7 @@ namespace Library.MaterialManagement.InventoryManagements
 							)PO ON PO.GRNId = IR.Id
 							LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
-								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CON.MasterLCId
                         WHERE IR.CheckedByStatus='ForChecked' 
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
@@ -15175,7 +15470,7 @@ namespace Library.MaterialManagement.InventoryManagements
 							)PO ON PO.GRNId = IR.Id
 							LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
-								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CON.MasterLCId
                         WHERE IR.CheckedByStatus IS NULL and IR.AuthorizedByStatus='For Approval' 
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
@@ -15308,7 +15603,7 @@ namespace Library.MaterialManagement.InventoryManagements
 							)PO ON PO.GRNId = IR.Id
 							LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
-								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CON.MasterLCId
                         WHERE IR.CheckedByStatus IS NULL and IR.AuthorizedByStatus Is null
                         AND IR.PlantId='" + plantId + @"' 
                         AND ISNULL(IR.[Status],'')<>'Posting' 
@@ -15450,7 +15745,7 @@ namespace Library.MaterialManagement.InventoryManagements
 							)PO ON PO.GRNId = IR.Id
 						LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
-								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CON.MasterLCId
                         WHERE IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 --And IR.POId Is not NULL 
                         and (IR.GRNType='GRNBYPO' OR IR.GRNType='GRNBYREQPO')
                 order by IR.GRNDate ASC";
@@ -15585,7 +15880,7 @@ namespace Library.MaterialManagement.InventoryManagements
 							)PO ON PO.GRNId = IR.Id
 							LEFT JOIN [dbo].[Contract] CON on CON.Id= PO.ContractId
 								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId 
-								 left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CON.MasterLCId
                         WHERE  IR.CheckedByStatus='Checked'  AND IR.PlantId='" + plantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.OpeningBalanceId IS NULL AND IR.EmployeeId IS NULL And IR.IsApproved = 0 --And IR.POId Is not NULL  
                          and (IR.GRNType='GRNBYPO' OR IR.GRNType='GRNBYREQPO')  order by IR.GRNDate ASC";
 
