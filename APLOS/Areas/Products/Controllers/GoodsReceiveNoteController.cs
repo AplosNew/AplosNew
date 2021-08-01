@@ -3521,6 +3521,7 @@ UNION ALL
 					,D.UserName Destination
 					,CPO.PONumber
 					,CPO.PODate,null RequisitionForQty
+					,Concat(SO.Id,'-',ISNULL(FCS.CharacteristicsValueId,''),'-',ISNULL(SCS.CharacteristicsValueId,''),'-',ISNULL(TCS.CharacteristicsValueId,'')) SOFSTId
 					FROM trn.SalesOrder SO 
 					left JOIN trn.MasterOrderItem MOI ON  SO.MasterOrderItemId=MOI.Id					
 					LEFT  JOIN MST.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
@@ -3565,14 +3566,14 @@ UNION ALL
 
 		}
 		[Authorize, HttpGet]
-		public JsonResult GetMaterialListForProductionReq(string Material, string Article, string Skuvalue1, string Skuvalue2, string Skuvalue3, string processId, string parameters, string SOMATART)
+		public JsonResult GetMaterialListForProductionReq(string Material, string Article, string Skuvalue1, string Skuvalue2, string Skuvalue3, string processId, string parameters, string SOMATART, string queryString)
 
 		{
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 				Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-				return Json(obj.GetMaterialListForProductionReq(Material, Article, Skuvalue1, Skuvalue2, Skuvalue3, processId, parameters, SOMATART), JsonRequestBehavior.AllowGet);
+				return Json(obj.GetMaterialListForProductionReq(Material, Article, Skuvalue1, Skuvalue2, Skuvalue3, processId, parameters, SOMATART, queryString), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
 			{
