@@ -287,16 +287,21 @@
 </script>
 
 <script type="text/template" id="indate">
-    <input type="text" name="Date" ng-model="data.InDate" datepicker class="form-control" ng-disabled="data.IsLock==true">
+    <input type="text" name="Date" ng-model="data.InDate" datepicker class="form-control" 
+           ng-disabled="data.IsLock==true">
 </script>
 <script type="text/template" id="intime">
 
-    <div class="form-group">
-        <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
-            <input id="StartTime" type="text" class="form-control input-small" ng-model="data.InTime"
-                   style="width:100%" ng-disabled="data.IsLock==true">
-        </div>
-    </div>
+    @*<div class="form-group">
+            <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
+                <input id="StartTime" type="text" class="form-control input-small" ng-model="data.InTime"
+                       style="width:100%" ng-disabled="data.IsLock==true">
+            </div>
+        </div>*@
+    
+    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%"
+           e-enable="{​​​​​​​{​​​​​​​data.IsLock==true?false:true}​​​​​​​}​​​​​​​" />
+
 </script>
 
 <script type="text/template" id="outdate">
