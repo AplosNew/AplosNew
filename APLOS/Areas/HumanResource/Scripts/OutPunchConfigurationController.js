@@ -44,22 +44,32 @@ function OutPunchConfigurationController(cboService, commonMessage, $scope, $roo
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    $scope.PlantList = [];
-    function getPlants() {
-        $http({
-            method: 'POST',
-            url: 'HumanResource/DayStatusMaster/getPlants',
+  // Getting the Plants and the Company List
 
+    $scope.PlantList = [];
+    $scope.getPlants = function () {
+        $http({
+            method: 'GET',
+            url: 'HumanResource/RosterPattern/getPlants',
+            params: { 'cmp': $scope.Company }
         }).then(function success(response) {
-            $scope.PlantList = [];
             $scope.PlantList = response.data;
         })
-    };
+    }
 
 
+    $scope.Company = null;
+    $scope.CompanyList = [];
+    $scope.getCompany = function () {
+        $http({
+            method: 'GET',
+            url: 'humanresource/RosterPattern/getCompany'
+        }).then(function success(response) {
+            $scope.CompanyList = response.data;
+        })
+    }
 
-
-    getPlants();
+    $scope.getCompany();
 
 
 

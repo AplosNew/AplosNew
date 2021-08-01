@@ -9446,7 +9446,7 @@ group by Id) O60 ON O60.Id=IV.Id
 								
                                           -- , ACT.BalanceType
                                             ,ACT.Id AS [MainHead]
-                                            	,ag.Id AccoutnGroupId
+                                            	--,ag.Id AccoutnGroupId
 				                            ,AG.UserName AccountGroupName
 											, GL.AccountCode AS GLGeneralInfoCode
 
@@ -9456,11 +9456,11 @@ group by Id) O60 ON O60.Id=IV.Id
 		                                    ,BUD.UserName AS Budget,
 											A.Id AS ActivityId
 											,A.UserName AS Activity
-                                            ,vd.PartyId,VD.PartyPlantId
-									,VD.BankMasterId,VD.CashMasterId
+                                            --,vd.PartyId,VD.PartyPlantId
+									--,VD.BankMasterId,VD.CashMasterId
 									 --,CU.Code AS CurrencyCode
-			                     , isnull(sum(vd.DrAmount),0)TranDrAmount	
-								 ,isnull(sum(vd.CrAmount),0)TranCrAmount
+			                    -- , isnull(sum(vd.DrAmount),0)TranDrAmount	
+								 --,isnull(sum(vd.CrAmount),0)TranCrAmount
 		                         ,sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DR
                                 , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CR
 	                                        FROM TRN.VoucherDetailCurrency AS VDC
@@ -9473,8 +9473,8 @@ group by Id) O60 ON O60.Id=IV.Id
 											LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
                                             LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
 											LEFT JOIN HKP.Activity A ON VD.ActivityId=A.Id
-											LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
-											LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
+											--LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
+											--LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
 											LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
 											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
                                             WHERE v.PostingDate <= '" + toDate + "' and v.CompanyId ='" + companyId + "' AND V.PlantId='" + plantId + @"'
@@ -9482,8 +9482,9 @@ group by Id) O60 ON O60.Id=IV.Id
                                             AND  v.IsPark=0
                                               GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName ,AG.Id,AG.UserName,
 											GL.AccountCode, ACT.BalanceType, ACT.Id, BUD.Id, BUD.UserName, VD.BudgetMasterId
-                                            , A.Id,A.UserName,VD.BankMasterId,VD.CashMasterId
-                                            ,VD.PartyId,vd.PartyPlantId
+                                            , A.Id,A.UserName
+                                            --,VD.BankMasterId,VD.CashMasterId
+                                            --,VD.PartyId,vd.PartyPlantId
 											 ) ttd 
                                             WHERE ISNULL(DR,0.00) <> 0.00 OR ISNULL(CR,0) <> 0.00
                                             ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL,ttd.Budget, ttd.Activity";
@@ -9523,7 +9524,7 @@ group by Id) O60 ON O60.Id=IV.Id
 		                                   BUD.UserName AS Budget
 										   ,VDC.ParallelCurrencyId
                                             --,CU.Code AS CurrencyCode
-                                            ,VD.BankMasterId,VD.CashMasterId,VD.PartyId,VD.PartyPlantId
+                                            --,VD.BankMasterId,VD.CashMasterId,VD.PartyId,VD.PartyPlantId
 		                                   ,sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DR
                                            , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CR
 
@@ -9534,12 +9535,12 @@ group by Id) O60 ON O60.Id=IV.Id
                                        LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
                                          LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
                                          LEFT JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
-											LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+										LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
                                      LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
                                        where v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                                        and  v.IsPark=0
                                       GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,VD.GLGeneralInfoId,GL.UserName  ,ag.Id, AG.UserName
-                                        ,VD.BankMasterId,VD.CashMasterId,VD.PartyId,VD.PartyPlantId
+                                        --,VD.BankMasterId,VD.CashMasterId,VD.PartyId,VD.PartyPlantId
                                     , GL.AccountCode, ACT.BalanceType,ACT.Id,VD.BudgetMasterId,BUD.UserName,v.PostingDate) ttd 
                                       WHERE ISNULL(DR,0.00) <> 0.00 OR ISNULL(CR,0) <> 0.00
                                       ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL,ttd.Budget";
@@ -9561,64 +9562,50 @@ group by Id) O60 ON O60.Id=IV.Id
             }
             else if (IsDetailLevel)
             {
-                var sql = @"SELECT * FROM( SELECT 
-                        
-                    distinct GL.Id AS AccountCodeId,
-                       --ACT.BalanceType,
-                    ACT.Id AS [MainHead],
-	                ag.Id AccoutnGroupId,
-                    AG.UserName AccountGroupName
-					 ,VD.GLGeneralInfoId
-					, GL.AccountCode AS GLGeneralInfoCode
+                var sql = @"SELECT * FROM( SELECT distinct	
+		                                    
+		                            ACT.Id AS [MainHead]
+                                    ,AG.UserName AccountGroupName
+                                           -- ACT.BalanceType
+                                       ,GL.Id AS AccountCodeId,
+		                                    GL.AccountCode AS GLGeneralInfoCode,
+		                                    VD.GLGeneralInfoId,GL.UserName AS GL
+											
+                                            ,VD.BudgetMasterId,
+		                                    BUD.UserName AS Budget,
+											A.Id AS ActivityId
+											,A.UserName AS Activity,
+											[Particulars]=CASE 
+											WHEN BA.AccountTitle<>'' THEN BA.AccountTitle
+											WHEN CM.UserName<>'' THEN CM.UserName
+											WHEN P.UserName<>'' THEN PP.UserName
+											ELSE ''	END,
 
-                   ,GL.UserName AS GL
-                    ,VD.BudgetMasterId,
-                    BUD.Id BudgetId
-                    ,BUD.UserName AS Budget
-                    ,A.Id AS ActivityId
-                    ,A.UserName AS Activity,
-
-
-
-                    [Particulars]=CASE
-                    WHEN BA.AccountTitle<>'' THEN BA.AccountTitle
-                    WHEN CM.UserName<>'' THEN CM.UserName
-                    WHEN P.UserName<>'' THEN PP.UserName
-                    WHEN FM.UserName<>'' THEN FM.UserName
-                    ELSE '' END
-
-					,VD.BankMasterId, VD.CashMasterId, VD.PartyId, VD.PartyPlantId,BMA.FixedAssetMasterId
-					,VDC.ParallelCurrencyId
-                    --,CU.Code AS CurrencyCode
-                    -- , isnull(sum(vd.DrAmount),0)TranDrAmount
-                    -- ,isnull(sum(vd.CrAmount),0)TranCrAmount
-                    , sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DR
-                    , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CR 
-                    FROM TRN.VoucherDetailCurrency AS VDC
-                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
-                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
-                    LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
-                    LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
-                    LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
-                    LEFT JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
-                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
-                    LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
-                    LEFT JOIN HKP.Activity A ON VD.ActivityId=A.Id
-                    LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
-                    LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
-                    LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
-                    LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
-                    LEFT JOIN MST.MaterialMaster MM ON MM.BudgetMasterId=VD.BudgetMasterId AND MM.ActivityId=VD.ActivityId AND IsAsset=1
-                    LEFT JOIN HKP.FixedAssetMasterBudgetTag BMA ON BMA.BudgetMasterId=MM.BudgetMasterId
-                    LEFT JOIN MST.FixedAssetMaster FM ON FM.Id=BMA.FixedAssetMasterId
-                    -- WHERE v.PostingDate <= '13-Apr-2021' and v.CompanyId ='C20171' AND V.PlantId='20171'
-                    WHERE v.PostingDate <= '" + toDate+"' and v.CompanyId ='"+companyId+"' AND V.PlantId='"+plantId+ @"'
-                    AND v.IsPark=0
-                    GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName  , ag.Id ,AG.UserName,
-                    GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.Id, A.UserName, BUD.Id, BUD.UserName, v.PostingDate, BA.AccountTitle, CM.UserName
-                    ,VD.BankMasterId, VD.CashMasterId, P.UserName, PP.UserName, VD.PartyId, VD.PartyPlantId,FM.UserName,BMA.FixedAssetMasterId ) ttd
-                    WHERE ISNULL(DR,0.00) <> 0.00 OR ISNULL(CR,0) <> 0.00
-                     ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL,ttd.Budget, ttd.Activity";
+                                            VD.BankMasterId, VD.CashMasterId, VD.PartyId, VD.PartyPlantId
+											,VDC.ParallelCurrencyId
+                                            --,CU.Code AS CurrencyCode
+											  ,sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DR
+											  , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CR
+	                                        FROM TRN.VoucherDetailCurrency AS VDC
+		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+		                                    LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                                            LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                                            LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+                                            LEFT JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+											LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId=BM.Id
+                                            LEFT JOIN [HKP].[Budget] AS BUD ON BM.BudgetId=BUD.Id
+											LEFT JOIN HKP.Activity A ON VD.ActivityId=A.Id
+											LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
+											LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
+											LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
+											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
+                                            WHERE v.PostingDate <= '" + toDate + "' and v.CompanyId ='" + companyId + "' AND V.PlantId='" + plantId + @"'
+                                            AND  v.IsPark=0
+                                            GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, AG.UserName
+											,GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId,A.Id, A.UserName, BUD.UserName, v.PostingDate, A.Id, BA.AccountTitle, CM.UserName
+											,VD.BankMasterId, VD.CashMasterId, P.UserName, PP.UserName, VD.PartyId, VD.PartyPlantId ) ttd 
+                                            WHERE ISNULL(DR,0.00) <> 0.00 OR ISNULL(CR,0) <> 0.00";
 
                 dictrialalance = _sqlRepository.GetDataCollection(sql);
 
@@ -9653,7 +9640,7 @@ group by Id) O60 ON O60.Id=IV.Id
 							,GL.UserName AS GL
 							 ,VDC.ParallelCurrencyId
 							 --,CU.Code AS CurrencyCode
-                            ,VD.BankMasterId,VD.CashMasterId,VD.PartyId,VD.PartyPlantId
+                            --,VD.BankMasterId,VD.CashMasterId,VD.PartyId,VD.PartyPlantId
 		                   ,sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DR
                          , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CR 
 
@@ -9664,12 +9651,12 @@ group by Id) O60 ON O60.Id=IV.Id
                             LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
                             LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
                             LEFT JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
-                            LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
-							LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
+                            --LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
+							--LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
                             where v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                             and  v.IsPark=0
                             group by GL.Id, GL.AccountCode, VDC.ParallelCurrencyId,CU.Code,VD.GLGeneralInfoId,GL.UserName, GL.AccountCode  ,ag.Id, AG.UserName
-                            ,VD.BankMasterId,VD.CashMasterId,VD.PartyId,VD.PartyPlantId
+                           -- ,VD.BankMasterId,VD.CashMasterId,VD.PartyId,VD.PartyPlantId
                             , ACT.BalanceType,ACT.Id,v.PostingDate) ttd 
                             WHERE ISNULL(DR,0.00) <> 0.00 OR ISNULL(CR,0) <> 0.00
                             ORDER BY  ttd.MainHead,ttd.AccountGroupName ,ttd.GL";
@@ -10596,6 +10583,7 @@ group by Id) O60 ON O60.Id=IV.Id
                             , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
 							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
                             , BGM.RefNo, BG.UserName AS BudgetName,  A.Id ActivityId, A.UserName AS ActivityName, p.Id PartyId, p.username as Party 
+                            --,VD.CashMasterId,VD.BankMasterId
                               ,ob.Id OpeningBalanceId
 
                             ,Particular =concat( STUFF((select distinct ','+xpA.UserName+ ' '+'('+ xp.UserName+')' from
@@ -10649,7 +10637,7 @@ group by Id) O60 ON O60.Id=IV.Id
                             AND VD.BudgetMasterId='" + budgetMasterId + @"'  
                             AND VD.ActivityId='" + activityId + @"'  
                             AND VD.GLGeneralInfoId='" + gLInfoId + @"'
-                       
+                             and VD.BankMasterId ='"+bankMasterId+@"'
                             --AND V.SourceType!='OpeningBalance' 
 							--and A.Id=''
 							--And v.PostingDate <= '01-Dec-2020'
@@ -10708,7 +10696,7 @@ group by Id) O60 ON O60.Id=IV.Id
                             AND VD.BudgetMasterId='" + budgetMasterId + @"'  
                             AND VD.ActivityId='" + activityId + @"'  
                             AND VD.GLGeneralInfoId='" + gLInfoId + @"'
-                  
+                                 and VD.BankMasterId ='" + bankMasterId + @"'
                             --AND V.SourceType!='OpeningBalance' 
 				
 	                 
@@ -10762,7 +10750,7 @@ group by Id) O60 ON O60.Id=IV.Id
                         
                             AND VD.BudgetMasterId='" + budgetMasterId + @"'  
                             AND VD.GLGeneralInfoId='" + gLInfoId + @"'
-                     
+                            and VD.BankMasterId ='" + bankMasterId + @"'
                             and  v.PostingDate <= '" + toDate + @"' 
 							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";
                     return _sqlRepository.GetDataCollection(sql);
@@ -10812,7 +10800,7 @@ group by Id) O60 ON O60.Id=IV.Id
                             WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
                    
                             AND VD.GLGeneralInfoId='" + gLInfoId + @"'
-                        
+                              and VD.BankMasterId ='" + bankMasterId + @"'
                             --AND V.SourceType!='OpeningBalance' 
                             and  v.PostingDate <= '" + toDate + @"' 
 							ORDER BY V.PostingDate ASC, V.VoucherNo ASC";

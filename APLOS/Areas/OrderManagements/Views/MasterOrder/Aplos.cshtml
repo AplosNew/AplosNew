@@ -111,7 +111,8 @@
                                     <div class="input-group">
                                         <input type="text" name="Customer" ng-model="fileNew.CustomerName" class="form-control" readonly required>
                                         <span class="input-group-btn">
-                                            <button ng-click="showPartyPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="ShowCustomerPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                                        @*<button ng-click="showPartyPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>*@
                                             <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                                         </span>
                                     </div>
@@ -572,14 +573,24 @@
                                             <textarea type="text" ng-model="x.Remark" rows="1" class="form-control" style="width: 105px;"></textarea>
                                         </td>
                                         <td>
-                                            <div class="form-group">
-                                                <label class="col-sm-4 control-label" ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></label>
-                                                <div class="col-sm-8">
-                                                    <div class="inputBtnSection common-btn">
-                                                        <label class="fileUpload" style="height: 30px;">
-                                                            <span class="uploadBtn" id="UploadDefault" e-dialogtext-title="Document" e-data="x.Id" e-autoupload="true" e-begin="onBeginUpload" e-filesize="10971520" ej-uploadbox e-saveurl="uploadUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf" e-error="errorPicUpload" e-complete="getMasterItemList" style="width: 100px; height: 17px;margin:10px"><i class="fa fa-paperclip" aria-hidden="true"> Upload</i></span>
-                                                        </label>
-                                                    </div>
+                                            @*<div class="form-group">
+            <label class="col-sm-4 control-label" ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></label>
+            <div class="col-sm-8">
+                <div class="inputBtnSection common-btn">
+                    <label class="fileUpload" style="height: 30px;">
+                        <span class="uploadBtn" id="UploadDefault" e-dialogtext-title="Document" e-data="x.Id" e-autoupload="true" e-begin="onBeginUpload" e-filesize="10971520" ej-uploadbox e-saveurl="uploadUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf" e-error="errorPicUpload" e-complete="getMasterItemList" style="width: 100px; height: 17px;margin:10px"><i class="fa fa-paperclip" aria-hidden="true"> Upload</i></span>
+                    </label>
+                </div>
+            </div>
+        </div>*@
+
+                                            <div class="col-md-12">
+                                                <div class="col-md-7">
+                                                    <label class="col-sm-4 control-label" ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></label>
+
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <div id="UploadDefault" e-id="{{x.Id}}" e-data="x.Id" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getFileList" e-showroundedcorner="false" @*e-height="30"*@ e-autoupload="true" e-begin="onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" @*e-error="errorUpload"*@></div>
                                                 </div>
                                             </div>
                                         </td>
@@ -607,7 +618,7 @@
                                                 {{itemList | sumByKey : 'SOQty'}}
                                             </label>
                                         </td>
-                                        <td colspan="12"></td>
+                                        <td colspan="14"></td>
                                         <td class="text-center">
                                             <button ng-click="addNewItem();" ng-disabled="fileNew.Id===null" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add Line Item</button>
                                         </td>
@@ -1110,7 +1121,7 @@
     </div>
 </div>
 
-@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")
+@*@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")*@
 @*@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")*@
 <ej-dialog id="dialogExchangeCurrency" title="Exchange Rate" e-enablemodal="true" e-position-y="0" e-target="#AplosCurrencyContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="400px" e-open="enableBtn">
     @Html.Partial("~/Areas/OrderManagements/Views/CurrencyExchange/Aplos.cshtml")
@@ -2971,6 +2982,58 @@
                 </div>
                 <ul class="common-btn list-inline text-right">
                     <li><button ng-click="closePartyPopUpNew();" class="btn"> Close</button></li>
+                </ul>
+                <i>**Showing top 100 {{partyType}} order by Code</i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="CustomerPopUpNew" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closeCustomerPopUpNew();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByParty">
+                                            <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="ShowCustomerPopUpNew()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="ShowCustomerPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+
+                        <div style="color:black;" id="customerPopUpGrid" ej-grid e-datasource="partyList" e-recorddoubleclick="SetCustomerData"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
+                                <div e-column e-field="UserName" e-headertext="Party" e-width="130"></div>
+                                <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="130"></div>
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-field="CountryName" e-headertext="Country" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="StateName" e-headertext="State" e-width="80" textAlign='Right'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeCustomerPopUpNew();" class="btn"> Close</button></li>
                 </ul>
                 <i>**Showing top 100 {{partyType}} order by Code</i>
             </div>

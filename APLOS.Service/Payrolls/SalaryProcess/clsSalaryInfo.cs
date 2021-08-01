@@ -67,7 +67,7 @@ namespace OTSBD
 			                        INNER JOIN [ORG].[Company] CA ON C.id = CA.BaseCurrencyId		
 		                        WHERE  CA.ID IN (SELECT DISTINCT CompanyID 		
 													                FROM org.Plant		
-													                WHERE ID = '" + sPlantID + @"')		
+													                WHERE ID  in (" + sPlantID + @"))		
 		                        ORDER BY C.[Description]";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");

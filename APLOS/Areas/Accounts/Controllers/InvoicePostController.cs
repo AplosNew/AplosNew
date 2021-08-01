@@ -19,6 +19,7 @@ using Library.ViewModel.Invoices;
 using Library.Model.Payments;
 using Library.Accounting.Accounts;
 using Library.Data.Sql;
+using Library.Model.Accounts;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -295,18 +296,18 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpPost]
         public JsonResult PostInventorySales(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
    , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
-   , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryJVList, bool IsInventorySalesBook)
+   , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryJVList, bool IsInventorySalesBook, OtherInvoice otherInvoiceVM)
         {
             if (IsInventorySalesBook)
             {
-                ;
+                
                 return Json(InventorySalesMultipleJournalPosting(receiveId, acceptanceId, voucherVM, voucherDetailVMList
-                        , voucherDetailCurrencyVMList, inventoryPayableVMList, inventoryReceiveDetailVMList, inventoryJVList));
+                        , voucherDetailCurrencyVMList, inventoryPayableVMList, inventoryReceiveDetailVMList, inventoryJVList, otherInvoiceVM));
             }
             else
             {
                 return Json(InventorySalesSingleJournalPosting(receiveId, acceptanceId, voucherVM, voucherDetailVMList
-                       , voucherDetailCurrencyVMList, inventoryPayableVMList, inventoryReceiveDetailVMList));
+                       , voucherDetailCurrencyVMList, inventoryPayableVMList, inventoryReceiveDetailVMList, otherInvoiceVM));
             }
 
         }
@@ -315,7 +316,7 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult InventorySalesSingleJournalPosting(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
          , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList
          , IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
-         , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList)
+         , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, OtherInvoice otherInvoiceVM)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -344,14 +345,14 @@ namespace Aplos.Areas.Accounts.Controllers
             else
                 throw new CustomException("No Journal");
 
-            _inventoryPayableService.PostSingleJournalSales(receiveId, acceptanceId, voucherVM, voucherDetailVMList, voucherDetailCurrencyVMList, inventoryPayableVMList, inventoryReceiveDetailVMList);
+            _inventoryPayableService.PostSingleJournalSales(receiveId, acceptanceId, voucherVM, voucherDetailVMList, voucherDetailCurrencyVMList, inventoryPayableVMList, inventoryReceiveDetailVMList, otherInvoiceVM);
 
             return Json(new { Message = AplosMessage.Insert });
         }
         [HttpPost]
         public JsonResult InventorySalesMultipleJournalPosting(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
         , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
-        , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryJVList)
+        , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryJVList, OtherInvoice otherInvoiceVM)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -397,7 +398,7 @@ namespace Aplos.Areas.Accounts.Controllers
             else
                 throw new CustomException("No Journal");
 
-            _inventoryPayableService.PostMultipleJournalSales(receiveId, acceptanceId, voucherVM, voucherDetailVMList, voucherDetailCurrencyVMList, inventoryPayableVMList, inventoryReceiveDetailVMList, inventoryJVList);
+            _inventoryPayableService.PostMultipleJournalSales(receiveId, acceptanceId, voucherVM, voucherDetailVMList, voucherDetailCurrencyVMList, inventoryPayableVMList, inventoryReceiveDetailVMList, inventoryJVList, otherInvoiceVM);
 
             return Json(new { Message = AplosMessage.Insert });
         }

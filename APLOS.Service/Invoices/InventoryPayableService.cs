@@ -57,6 +57,7 @@ namespace Library.Service.Invoices
         private readonly ISqlRepository _sqlRepository;
         private readonly IVoucherService _voucherService;
         private readonly IRepositoryAsync<Invoice> _invoiceRepository;
+        private readonly IRepositoryAsync<OtherInvoice> _otherInvoiceRepository;
         private readonly IRepositoryAsync<InvoiceDetail> _invoiceDetailRepository;
         private readonly IRepositoryAsync<InvoiceWriteOffDetail> _invoiceWriteOffDetailRepository;
         private readonly IRepositoryAsync<AdjustmentNoteDetail> _AdjustmentNoteDetailRepository;
@@ -105,6 +106,7 @@ namespace Library.Service.Invoices
             , IAdjustmentNoteService adjustmentNoteService
             , IInvoiceTaxService invoiceTaxService
             , IRepositoryAsync<InvoiceDetail> invoiceDetailRepository
+            , IRepositoryAsync<OtherInvoice> otherInvoiceRepository
             , IRepositoryAsync<InvoiceWriteOffDetail> invoiceWriteOffDetailRepository
             , IRepositoryAsync<AdjustmentNoteDetail> AdjustmentNoteDetailRepository
             , IRepositoryAsync<InvoiceMaterial> invoiceMaterialRepository
@@ -161,6 +163,7 @@ namespace Library.Service.Invoices
             _sqlRepository = sqlRepository;
             _paymentTermService = paymentTermService;
             _invoiceDetailRepository = invoiceDetailRepository;
+            _otherInvoiceRepository = otherInvoiceRepository;
             _invoiceWriteOffDetailRepository = invoiceWriteOffDetailRepository;
             _AdjustmentNoteDetailRepository = AdjustmentNoteDetailRepository;
             _invoiceMaterialRepository = invoiceMaterialRepository;
@@ -4669,7 +4672,8 @@ namespace Library.Service.Invoices
 
         #region InventorySalesPosting
         public void PostSingleJournalSales(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList, IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList)
+            , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
+            , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, OtherInvoice otherInvoiceVM)
         {
             var flag = false;
             try
@@ -5020,6 +5024,27 @@ namespace Library.Service.Invoices
 
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
+                if (otherInvoiceVM.PartyId != null && otherInvoiceVM.GLGeneralInfoId != null)
+                {
+                    var otherInvoice = new OtherInvoice
+                    {
+
+                        Amount = otherInvoiceVM.Amount,
+                        PartyId = otherInvoiceVM.PartyId,
+                        PartyPlantId = otherInvoiceVM.PartyPlantId,
+                        InvoiceId = invoice.Id,
+                        GLGeneralInfoId = otherInvoiceVM.GLGeneralInfoId,
+                        BudgetMasterId = otherInvoiceVM.BudgetMasterId,
+                        ActivityId = otherInvoiceVM.ActivityId,
+                        SourceType = invoice.SourceType,
+                        IsPark = true,
+                        Id = base.GetAutoNumber(nameof(OtherInvoice), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        AddedBy = voucher.AddedBy,
+                        AddedDate = voucher.AddedDate,
+                        AddedFromIP = voucher.AddedFromIP
+                    };
+                    _otherInvoiceRepository.Insert(otherInvoice);
+                }
 
                 _unitOfWork.SaveChanges();
                 flag = false;
@@ -5040,7 +5065,7 @@ namespace Library.Service.Invoices
 
         public void PostMultipleJournalSales(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
            , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
-            , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryJVList)
+            , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryJVList, OtherInvoice otherInvoiceVM)
         {
             var flag = false;
             try
@@ -5391,7 +5416,27 @@ namespace Library.Service.Invoices
 
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
+                if (otherInvoiceVM.PartyId != null && otherInvoiceVM.GLGeneralInfoId != null)
+                {
+                    var otherInvoice = new OtherInvoice
+                    {
 
+                        Amount = otherInvoiceVM.Amount,
+                        PartyId = otherInvoiceVM.PartyId,
+                        PartyPlantId = otherInvoiceVM.PartyPlantId,
+                        InvoiceId = invoice.Id,
+                        GLGeneralInfoId = otherInvoiceVM.GLGeneralInfoId,
+                        BudgetMasterId = otherInvoiceVM.BudgetMasterId,
+                        ActivityId = otherInvoiceVM.ActivityId,
+                        SourceType = invoice.SourceType,
+                        IsPark = true,
+                        Id = base.GetAutoNumber(nameof(OtherInvoice), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        AddedBy = voucher.AddedBy,
+                        AddedDate = voucher.AddedDate,
+                        AddedFromIP = voucher.AddedFromIP
+                    };
+                    _otherInvoiceRepository.Insert(otherInvoice);
+                }
                 _unitOfWork.SaveChanges();
 
                 //Sales Inventory Posting
@@ -5501,9 +5546,6 @@ namespace Library.Service.Invoices
                             DocRefNo = voucher.DocRefNo,
                             Narration = invoice.Narration,
                             EmployeeId = invoice.EmployeeId,
-                            PartyId = invoice.PartyId,
-                            PartyPlantId = invoice.PartyPlantId,
-                            PartyType = invoice.PartyType,
                             PostingWithoutTaxAllow = invoice.IsExcludingTax
                         };
                         invvoucherDetailVM.Id = invvoucherDr.Id;

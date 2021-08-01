@@ -592,7 +592,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.calPayableBaseAmount = function () {
         if ($scope.voucherDetailList.length) {
             $scope.BaseAmountObj.Type = 'A/P';
-            $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 10000 + Number.EPSILON) / 10000;
+            $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "BaseDrAmount") * 10000 + Number.EPSILON) / 10000;
             $scope.BaseAmountObj.BaseCrAmount = null;
             if ($scope.BaseAmountObj.BaseDrAmount > 0)
             $scope.BaseAmountList.push($scope.BaseAmountObj);

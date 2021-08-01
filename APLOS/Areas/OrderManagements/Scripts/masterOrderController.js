@@ -188,18 +188,18 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.ProcessList = [];
     $scope.SubProcessList = [];
-    $scope.GetProcessByCompany= function () {
-     cboService.getCompanyProductionProcessCbo($scope.fileNew.CompanyId, function (response) {
-        $scope.ProcessList = response;
-    });
+    $scope.GetProcessByCompany = function () {
+        cboService.getCompanyProductionProcessCbo($scope.fileNew.CompanyId, function (response) {
+            $scope.ProcessList = response;
+        });
     }
 
-   $scope.GetSubProcessByProcess= function () {
-       cboService.loadSubprocessCbo($scope.fileNew.ExceptionalProcessId,function (response) {
-           $scope.SubProcessList = response;
-       });
+    $scope.GetSubProcessByProcess = function () {
+        cboService.loadSubprocessCbo($scope.fileNew.ExceptionalProcessId, function (response) {
+            $scope.SubProcessList = response;
+        });
     }
-   
+
     $scope.departmentList = [];
     $scope.buyerChange = function () {
         $http.get("Parties/BuyerBrand/GetCbo?buyerId=" + $scope.fileNew.BuyerId)
@@ -688,44 +688,104 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.modelNew = Object.assign({}, $scope.model);
     }
 
-    $scope.partySearchByList = [
-        {
-            'name': $scope.partyType + ' Code',
-            'value': 'Code'
-        },
-        {
-            'name': $scope.partyType + ' Name',
-            'value': 'PartyName'
-        },
-        {
-            'name': 'Account Group',
-            'value': 'PartyAccountGroupName'
-        },
-        {
-            'name': 'Country',
-            'value': 'CountryName'
-        },
-        {
-            'name': 'State',
-            'value': 'StateName'
-        },
-        {
-            'name': 'Currency',
-            'value': 'CurrencyCode'
-        }
-    ];
-    $scope.partyParameters = {
-        limit: 10
-        , offset: 0
-        , order: 'ASC'
-        , sort: 'PartyName, PartyAccountGroupName'
-        , searchBy: 'PartyName'
-        , pageSize: 10
-        , total_count: 0
-        , search: null
-        , serverPagination: true
-    };
-    $scope.showPartyPopUp = function () {
+    //$scope.partySearchByList = [
+    //    {
+    //        'name': $scope.partyType + ' Code',
+    //        'value': 'Code'
+    //    },
+    //    {
+    //        'name': $scope.partyType + ' Name',
+    //        'value': 'PartyName'
+    //    },
+    //    {
+    //        'name': 'Account Group',
+    //        'value': 'PartyAccountGroupName'
+    //    },
+    //    {
+    //        'name': 'Country',
+    //        'value': 'CountryName'
+    //    },
+    //    {
+    //        'name': 'State',
+    //        'value': 'StateName'
+    //    },
+    //    {
+    //        'name': 'Currency',
+    //        'value': 'CurrencyCode'
+    //    }
+    //];
+    //$scope.partyParameters = {
+    //    limit: 10
+    //    , offset: 0
+    //    , order: 'ASC'
+    //    , sort: 'PartyName, PartyAccountGroupName'
+    //    , searchBy: 'PartyName'
+    //    , pageSize: 10
+    //    , total_count: 0
+    //    , search: null
+    //    , serverPagination: true
+    //};
+    //$scope.showPartyPopUp = function () {
+    //    if (baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
+    //        ShowResult('Select Company', 'failure');
+    //        return false;
+    //    }
+    //    if (baseService.isUndefinedOrNull($scope.fileNew.PlantId)) {
+    //        ShowResult('Select Plant', 'failure');
+    //        return false;
+    //    }
+    //    baseService.setCurrentPage('partyList');
+    //    $scope.getPartyList = function (pageno) {
+    //        $scope.partyUrl = $scope.path + 'GetCompanyPartyDataList?companyId=' + $scope.fileNew.CompanyId + '&plantId=' + $scope.fileNew.PlantId + '&partyType=' + $scope.partyType;
+    //        baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
+    //            .then(function (result) {
+    //                $scope.partyList = result.Rows;
+    //                $scope.partyParameters.total_count = result.Total;
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, 'failure');
+    //            }).finally(function () {
+    //            });
+    //    };
+    //    angular.element(document.querySelector('#partyPopUp')).modal('show');
+    //    $scope.getPartyList();
+    //};
+
+    //$scope.selectPartyPopUpRow = function (index, id) {
+    //    $scope.partyIndex = index;
+    //    $scope.selectedParty = id;
+    //};
+
+    //$scope.selectCustomerPopUp = function (index, id) {
+    //    $scope.partyIndex = index;
+    //    $scope.selectedCustomer = id;
+    //};
+
+    //$scope.closePartyPopUp = function (x) {
+    //    var party = x.data;
+    //    $scope.fileNew.PartyCode = party.Code;
+    //    $scope.fileNew.CustomerName = party.UserName;
+    //    $scope.fileNew.PartyId = party.Id;
+    //    $scope.fileNew.CurrencyId = party.CurrencyId;
+    //    $scope.fileNew.PartyAccountGroupId = party.PartyAccountGroupId;
+
+    //    $scope.fileNew.IsPaymentTermChangeable = '';
+    //    $scope.fileNew.PaymentTermId = '';
+
+    //    $scope.fileNew.PaymentTermId = party.PaymentTermId;
+    //    $scope.fileNew.IsPaymentTermChangeable = party.IsPaymentTermChangeable;
+
+    //    $scope.changePaymentTerm($scope.fileNew.PaymentTermId);
+    //    $scope.personList = [];
+    //    getPartyPlantList();
+    //    //GetDepartmentPersonCbo();
+    //    $scope.hidePartyPopUp();
+    //};
+
+    $scope.searchByParty = "UserName"; $scope.searchParty = "";
+
+    $scope.ShowCustomerPopUpNew = function () {
+        $scope.partyType = "Customer";
+        $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
         if (baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
             ShowResult('Select Company', 'failure');
             return false;
@@ -734,54 +794,52 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             ShowResult('Select Plant', 'failure');
             return false;
         }
-        baseService.setCurrentPage('partyList');
-        $scope.getPartyList = function (pageno) {
-            $scope.partyUrl = $scope.path + 'GetCompanyPartyDataList?companyId=' + $scope.fileNew.CompanyId + '&plantId=' + $scope.fileNew.PlantId + '&partyType=' + $scope.partyType;
-            baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
-                .then(function (result) {
-                    $scope.partyList = result.Rows;
-                    $scope.partyParameters.total_count = result.Total;
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure');
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector('#partyPopUp')).modal('show');
-        $scope.getPartyList();
+
+       
+        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $scope.fileNew.CompanyId + '&PlantId=' + $scope.fileNew.PlantId;
+
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+        });
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('show');
     };
 
-    $scope.selectPartyPopUpRow = function (index, id) {
-        $scope.partyIndex = index;
-        $scope.selectedParty = id;
-    };
+    $scope.SetCustomerData = function (obj) {
+        var party = obj.data;
+        $scope.fileNew.PartyCode = party.Code;
+        $scope.fileNew.CustomerName = party.UserName;
+        $scope.fileNew.PartyId = party.Id;
+        $scope.fileNew.CurrencyId = party.CurrencyId;
+        $scope.fileNew.PartyAccountGroupId = party.PartyAccountGroupId;
 
-    $scope.selectCustomerPopUp = function (index, id) {
-        $scope.partyIndex = index;
-        $scope.selectedCustomer = id;
-    };
+        $scope.fileNew.IsPaymentTermChangeable = '';
+        $scope.fileNew.PaymentTermId = '';
 
-    $scope.closePartyPopUp = function () {
-        if ($scope.partyIndex !== -1) {
-            var party = $scope.partyList[$scope.partyIndex];
-            $scope.fileNew.PartyCode = party.Code;
-            $scope.fileNew.CustomerName = party.UserName;
-            $scope.fileNew.PartyId = party.Id;
-            $scope.fileNew.CurrencyId = party.CurrencyId;
-            $scope.fileNew.PartyAccountGroupId = party.PartyAccountGroupId;
+        $scope.fileNew.PaymentTermId = party.PaymentTermId;
+        $scope.fileNew.IsPaymentTermChangeable = party.IsPaymentTermChangeable;
 
-            $scope.fileNew.IsPaymentTermChangeable = '';
-            $scope.fileNew.PaymentTermId = '';
-
-            $scope.fileNew.PaymentTermId = party.PaymentTermId;
-            $scope.fileNew.IsPaymentTermChangeable = party.IsPaymentTermChangeable;
-
-            $scope.changePaymentTerm($scope.fileNew.PaymentTermId);
-        }
+        $scope.changePaymentTerm($scope.fileNew.PaymentTermId);
         $scope.personList = [];
         getPartyPlantList();
         //GetDepartmentPersonCbo();
         $scope.hidePartyPopUp();
-    };
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
+        $scope.searchParty = '';
+    }
+
+    $scope.closeCustomerPopUpNew = function () {
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
+        $scope.hidePartyPopUp();
+        $scope.partyType = "Customer";
+        $scope.searchParty = '';
+    }
+
+
 
     $scope.changePaymentTerm = function () {
         if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId)) {
@@ -1341,8 +1399,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.OrderCostingId = null;
     $scope.ReportPopUp = function (x) {
         try {
-            $scope.OrderCostingId = x.OrderCostingId;
-            $scope.ProductMasterId = x.ProductMasterId;
+            $scope.OrderCostingId = x.OrderCostingMasterTemplateId;
+
             $scope.openPopup('CostingPopUp');
         } catch (e) {
         }
@@ -1360,7 +1418,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.OrderProcurementCosting = function () {
         try {
             $scope.ProcurementCosting = 1;
-
             var file_src = $scope.CostingPath + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&procurementCosting=' + $scope.ProcurementCosting;
             $rootScope.report(file_src);
 
@@ -3814,10 +3871,18 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.showPartyPopUpNew = function () {
         $scope.partyType = 'Vendor';
-        $scope.searchByParty = "UserName"; $scope.searchParty = "";
         $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+        if (baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
+            ShowResult('Select Company', 'failure');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.fileNew.PlantId)) {
+            ShowResult('Select Plant', 'failure');
+            return false;
+        }
+     
 
-        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
+        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $scope.fileNew.CompanyId + '&PlantId=' + $scope.fileNew.PlantId;
 
         $http({
             method: 'POST',
@@ -3834,6 +3899,14 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.modelNew.MarketingCommisssionId = obj.data.Id;
         $scope.modelNew.MarketingCommisssion = obj.data.UserName;
         angular.element(document.querySelector('#partyPopUpNew')).modal('hide');
+        $scope.searchParty = '';
+    }
+
+    $scope.closePartyPopUpNew = function () {
+        angular.element(document.querySelector('#partyPopUpNew')).modal('hide');
+        $scope.hidePartyPopUp();
+        $scope.partyType = "Vendor";
+        $scope.searchParty = '';
     }
 
     $scope.SetMarComValues = function () {
@@ -4227,43 +4300,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 $scope.modelNew.SOQty = response.data[0].Qty
             }
         });
-    }
-
-    $scope.ReportPopUp = function () {
-
-
-        try {
-            $scope.openPopup('CostingPopUp');
-
-        } catch (e) {
-
-        }
-    }
-
-    $scope.OrderPreCostingReport = function (args) {
-        try {
-
-            $scope.OrderCostingId = args.data.Id;
-            $scope.ProductMasterId = args.data.ProductMasterId;
-            $scope.PreCosting = 1;
-            var file_src = $scope.path + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&ProductMasterId=' + $scope.ProductMasterId + '&preCosting=' + $scope.PreCosting;
-            $rootScope.report(file_src);
-
-        } catch (e) {
-        }
-    }
-    $scope.OrderProcurementCostingReport = function (args) {
-        try {
-
-            $scope.OrderCostingId = args.data.Id;
-            $scope.ProductMasterId = args.data.ProductMasterId;
-            $scope.ProcurementCosting = 1;
-
-            var file_src = $scope.path + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&ProductMasterId=' + $scope.ProductMasterId + '&procurementCosting=' + $scope.ProcurementCosting;
-            $rootScope.report(file_src);
-
-        } catch (e) {
-        }
     }
 
     $scope.SaveContract = function () {

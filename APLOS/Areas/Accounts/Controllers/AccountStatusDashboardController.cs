@@ -10,6 +10,14 @@ using System.Threading;
 using Library.Service.Currencies;
 using System.Web.Mvc;
 using System.Collections.Generic;
+using System.Data;
+using System.Web.Script.Serialization;
+using Aplos.Helpers;
+using System.Collections.Specialized;
+using System.IO;
+using System.Web.Hosting;
+using Library.Service.Helpers;
+using Library.Security.Core;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -880,6 +888,150 @@ namespace Aplos.Areas.Accounts.Controllers
             //return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
            return Json(accountsStatusDashboardService.GetTrialBalanceData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, toDate, isBudgetLevel, isActivityLevel, IsDetailLevel), JsonRequestBehavior.AllowGet);
 
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult ExcelExportJson(object obj, string ReportHeader = "")
+        {
+            //Json
+            try
+            {
+                DataTable dt = new DataTable("APIDATA");
+                var json = new JavaScriptSerializer().Serialize(obj);
+
+                if (json != "[]")
+                {
+                    json = json.Replace("\\", "");
+
+                    dt = CustomJsonResult.ToDataTable(json);
+                }
+
+                StringCollection strCol = new StringCollection();
+                for (int i = 0; i < dt.Columns.Count; i++)
+                {
+                    if (dt.Columns[i].ColumnName.ToUpper().Contains("ID") || dt.Columns[i].ColumnName.ToUpper().Contains("PK") || dt.Columns[i].ColumnName.ToUpper().Contains("EJVALUE"))
+                    {
+                        strCol.Add(dt.Columns[i].ColumnName);
+                    }
+                }
+                foreach (string item in strCol)
+                {
+                    dt.Columns.Remove(item);
+                }
+
+                string filename = GridToExcelReport(dt, ReportHeader);
+
+
+                return Json(new { FileName = filename, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+
+            //return View();
+        }
+        private string GridToExcelReport(DataTable data, string ReportHeader)
+        {
+            string fileName = "GRID" + System.DateTime.Now.Ticks.ToString() + ".xlsx";
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //save the file to server temp folder
+                string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
+
+                using (ExcelEngine excelEngine = new ExcelEngine())
+                {
+                    IApplication application = excelEngine.Excel;
+                    application.DefaultVersion = ExcelVersion.Excel2013;
+                    IWorkbook workbook = application.Workbooks.Create(1);
+                    IWorksheet sheet = workbook.Worksheets[0];
+
+                    int ROW = 1;
+                    ROW++;
+                    ROW++;
+                    ROW++;
+                    sheet[ROW, 1].Text = ReportHeader;
+                    sheet[ROW, 1].CellStyle.Font.Bold = true;
+
+                    ROW++;
+
+
+
+                    //sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                    //sheet.UsedRange.CellStyle.Font.Size = 8f;
+                    ReportUtility reportUtility = new ReportUtility();
+                    //reportUtility.PlantHeader(ref worksheet, endCol, " Last 10 Days Payment List Created", PlantId);
+                    reportUtility.PlantHeader(ref sheet, 1, /*"From " + fromDate + " To " + toDate + */ "", identity.PlantId);
+                    //oRU.SetText(ref sheet, 5, 2, "From Date " + fromDate + " To Date " + toDate + "", ExcelHAlign.HAlignCenter);
+
+                    //reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+                    //sheet[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    // worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                   // sheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    //sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                    //sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                    //sheet.IsGridLinesVisible = false;
+
+
+                    sheet.ImportDataTable(data, true, ROW, 1);
+                    sheet[ROW, 1, ROW, data.Columns.Count].BorderAround(ExcelLineStyle.Hair);
+                    sheet[ROW, 1, ROW, data.Columns.Count].BorderInside(ExcelLineStyle.Hair);
+                    sheet[ROW, 1, ROW, data.Columns.Count].CellStyle.ColorIndex = ExcelKnownColors.Gold;
+                    sheet[ROW, 1, ROW, data.Columns.Count].CellStyle.Font.Bold = true;
+
+                    //ROW++;
+                    //sheet[ROW, 1].Text = "Total";
+                    //sheet[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                    //sheet[ROW, 1].Formula = "SUM(" + clsStaticInfo.GetxlsCol(1) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(1) + (ROW - 1).ToString() + ")";
+                    sheet[ROW, 1].NumberFormat = "#,##0.00;(#,##0.00)";
+                    //sheet.Range[ROW, 1, ROW, 1].CellStyle.Font.Bold = true;
+                    //sheet[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                    workbook.SaveAs(fullPath);
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+            return fileName;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult Download(string FileName)
+        {
+            try
+            {
+
+                ExcelEngine excelEngine = new ExcelEngine();
+                string fullPath = HostingEnvironment.MapPath("~/") + FileName;
+                IWorkbook workbook = excelEngine.Excel.Workbooks.Open(fullPath);
+                try
+                {
+                    System.IO.File.Delete(fullPath);
+                }
+                catch (Exception)
+                {
+                }
+
+                workbook.SaveAs(FileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+            return null;
         }
 
         [HttpGet, Authorize]

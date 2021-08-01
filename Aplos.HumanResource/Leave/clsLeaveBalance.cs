@@ -25,7 +25,7 @@ namespace Library.HumanResource.Leave
             _sqlRepository = new SqlRepository();
         }
 
-        public IEnumerable<object> GetEmp(string plantId, string companyId,string calYearId)
+        public IEnumerable<object> GetEmp(string plantId, string companyId, string calYearId)
         {
             string _FromDate = string.Empty;
             string _ToDate = string.Empty;
@@ -144,7 +144,7 @@ namespace Library.HumanResource.Leave
             report.SetHeaderText(ref sheet, ROW, COL, "Current Year Allocation", 20, ExcelHAlign.HAlignLeft);
             int ColCurrentAllocation = COL;
             COL++;
-                        
+
             report.SetHeaderText(ref sheet, ROW, COL, "Leave Days Allowed", 20, ExcelHAlign.HAlignLeft);
             int ColLeaveDays = COL;
             COL++;
@@ -194,7 +194,7 @@ namespace Library.HumanResource.Leave
                 sheet[ROW, ColAvailed].Number = (double)(item.Availed);
                 sheet[ROW, ColEncashedInbetween].Number = (double)(item.EncashedInbetween);
                 sheet[ROW, ColBalance].Number = (double)(item.Balance);
-                
+
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
@@ -295,7 +295,7 @@ namespace Library.HumanResource.Leave
             sheet.Range[ROW, 3, ROW, endCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
             ROW += 1;
-            sheet.Range[ROW, 3].Text = "Leave Register Report: " + _FromDate+ " To " + _ToDate  ;
+            sheet.Range[ROW, 3].Text = "Leave Register Report: " + _FromDate + " To " + _ToDate;
             sheet.Range[ROW, 3, ROW, endCol].Merge();
             sheet.Range[ROW, 3].CellStyle.Font.Size = 10;
             sheet.Range[ROW, 3, ROW, endCol].RowHeight = 20;
@@ -372,84 +372,96 @@ namespace Library.HumanResource.Leave
                     //dvLocal.RowFilter = "SystemID = '" + list_loop[i].SystemID.ToString().Trim() + "'";
                     //if (dvLocal.Count == 1)
                     //{
-                        //drLocal = dvLocal[0].Row;
-                        //drLocal.BeginEdit();
-                        //proDataPrevYear = Convert.ToBoolean(dsLvAllo.Tables[0].Rows[i]["IsProrataPreviousyear"].ToString());
+                    //drLocal = dvLocal[0].Row;
+                    //drLocal.BeginEdit();
+                    //proDataPrevYear = Convert.ToBoolean(dsLvAllo.Tables[0].Rows[i]["IsProrataPreviousyear"].ToString());
 
-                        proDataCurrentYear = Convert.ToBoolean(_ob_source.IsProratacurrentyear);
-                        //proDataCurrentYear = Convert.ToBoolean(dsLvAllo.Tables[0].Rows[i]["IsProratacurrentyear"].ToString());
+                    proDataCurrentYear = Convert.ToBoolean(_ob_source.IsProratacurrentyear);
+                    //proDataCurrentYear = Convert.ToBoolean(dsLvAllo.Tables[0].Rows[i]["IsProratacurrentyear"].ToString());
 
-                        //isAvailExceptionAllowed = Convert.ToBoolean(dsLvAllo.Tables[0].Rows[i]["IsAvailExceptionAllowedOnSpecialAppeal"].ToString());
-                        isAvailExceptionAllowed = Convert.ToBoolean(_ob_source.IsAvailExceptionAllowedOnSpecialAppeal);
-                        //drLocal["EmployeeCode"] = dsLvAllo.Tables[0].Rows[i]["EmployeeCode"].ToString().Trim();
-                        _ob_r.EmployeeCode = _ob_source.EmployeeCode;
-                        _ob_r.EmployeeName = _ob_source.EmployeeName;
-                        _ob_r.DOJ = _ob_source.DOJ;
-                        //drLocal["EmployeeName"] = dsLvAllo.Tables[0].Rows[i]["EmployeeName"].ToString().Trim();
-                        _ob_r.Designation = _ob_source.Designation;
-                        //drLocal["Designation"] = dsLvAllo.Tables[0].Rows[i]["Designation"].ToString().Trim();
-                        _ob_r.Department = _ob_source.Department;
-                        _ob_r.CurrentAllocation = _ob_source.CurrentAllocation;
-                        //drLocal["Department"] = dsLvAllo.Tables[0].Rows[i]["Department"].ToString().Trim();
-                        _ob_r.EmployeeCategory = _ob_source.EmployeeCategory;
-                        _ob_r.LeaveName = _ob_source.LeaveName;
-                        //drLocal["EmployeeCategory"] = dsLvAllo.Tables[0].Rows[i]["EmployeeCategory"].ToString().Trim();
-                        _ob_r.Applied = _ob_source.Applied;
-                        //drLocal["Applied"] = dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim();
-                        _ob_r.Availed = _ob_source.Availed;
-                        _ob_r.BroughtForward = Convert.ToDecimal(_ob_source.BroughtForward);
-                        decimal DaysCanBeSanctioned = 0;
+                    //isAvailExceptionAllowed = Convert.ToBoolean(dsLvAllo.Tables[0].Rows[i]["IsAvailExceptionAllowedOnSpecialAppeal"].ToString());
+                    isAvailExceptionAllowed = Convert.ToBoolean(_ob_source.IsAvailExceptionAllowedOnSpecialAppeal);
+                    //drLocal["EmployeeCode"] = dsLvAllo.Tables[0].Rows[i]["EmployeeCode"].ToString().Trim();
+                    _ob_r.EmployeeCode = _ob_source.EmployeeCode;
+                    _ob_r.EmployeeName = _ob_source.EmployeeName;
+                    _ob_r.DOJ = _ob_source.DOJ;
+                    //drLocal["EmployeeName"] = dsLvAllo.Tables[0].Rows[i]["EmployeeName"].ToString().Trim();
+                    _ob_r.Designation = _ob_source.Designation;
+                    //drLocal["Designation"] = dsLvAllo.Tables[0].Rows[i]["Designation"].ToString().Trim();
+                    _ob_r.Department = _ob_source.Department;
+                    _ob_r.CurrentAllocation = _ob_source.CurrentAllocation;
+                    //drLocal["Department"] = dsLvAllo.Tables[0].Rows[i]["Department"].ToString().Trim();
+                    _ob_r.EmployeeCategory = _ob_source.EmployeeCategory;
+                    _ob_r.LeaveName = _ob_source.LeaveName;
+                    //drLocal["EmployeeCategory"] = dsLvAllo.Tables[0].Rows[i]["EmployeeCategory"].ToString().Trim();
+                    _ob_r.Applied = _ob_source.Applied;
+                    //drLocal["Applied"] = dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim();
+                    _ob_r.Availed = _ob_source.Availed;
+                    _ob_r.BroughtForward = Convert.ToDecimal(_ob_source.BroughtForward);
+                    decimal DaysCanBeSanctioned = 0;
 
-                        decimal BroughtForward = Convert.ToDecimal(_ob_source.BroughtForward);
-                        DaysCanBeSanctioned = Convert.ToDecimal(_ob_source.DaysCanBeSanctioned);
+                    decimal BroughtForward = Convert.ToDecimal(_ob_source.BroughtForward);
+                    DaysCanBeSanctioned = Convert.ToDecimal(_ob_source.DaysCanBeSanctioned);
 
-                        decimal EncashedInbetween = 0;
-                        if (!string.IsNullOrEmpty(_ob_source.EncashedInbetween.ToString()))
+                    decimal EncashedInbetween = 0;
+                    if (!string.IsNullOrEmpty(_ob_source.EncashedInbetween.ToString()))
+                    {
+                        EncashedInbetween = Convert.ToDecimal(_ob_source.EncashedInbetween);
+                    }
+                    _ob_r.EncashedInbetween = EncashedInbetween;
+                    bool IsBroughtForwardAdd = true;
+                    IsBroughtForwardAdd = Convert.ToBoolean(_ob_source.IsBroughtForwardAdd.ToString());
+                    decimal TotalEarn = 0;
+                    if (IsBroughtForwardAdd)
+                    {
+                        TotalEarn = BroughtForward + DaysCanBeSanctioned;
+                    }
+                    else
+                    {
+                        TotalEarn = DaysCanBeSanctioned;
+                    }
+
+
+                    if (_ob_source.LeaveType.ToString().Trim().ToUpper() != "EARN")
+                    {
+                        if (proDataCurrentYear == false)
                         {
-                            EncashedInbetween = Convert.ToDecimal(_ob_source.EncashedInbetween);
-                        }
-                        _ob_r.EncashedInbetween = EncashedInbetween;
-                        bool IsBroughtForwardAdd = true;
-                        IsBroughtForwardAdd = Convert.ToBoolean(_ob_source.IsBroughtForwardAdd.ToString());
-                        decimal TotalEarn = 0;
-                        if (IsBroughtForwardAdd)
-                        {
-                            TotalEarn = BroughtForward + DaysCanBeSanctioned;
-                        }
-                        else
-                        {
-                            TotalEarn = DaysCanBeSanctioned;
-                        }
-
-
-                        if (_ob_source.LeaveType.ToString().Trim().ToUpper() != "EARN")
-                        {
-                            if (proDataCurrentYear == false)
+                            #region 01
+                            if (IsBroughtForwardAdd)
                             {
-                                #region 01
 
-                                _ob_r.LeaveDays = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS);
-                                _ob_r.Balance = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS.ToString().Trim()) - Convert.ToDecimal(_ob_source.Applied.ToString().Trim());
-
-                                #endregion
+                                _ob_r.LeaveDays = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS) + BroughtForward;
+                                _ob_r.Balance = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS) + BroughtForward - Convert.ToDecimal(_ob_source.Applied);
+                                //TotalEarn = BroughtForward + DaysCanBeSanctioned;
                             }
                             else
                             {
-                                #region 02
-
-                                _ob_r.LeaveDays = TotalEarn;
-                                _ob_r.Balance = TotalEarn - Convert.ToDecimal(_ob_source.Applied.ToString().Trim());
-
-                                #endregion
+                                //TotalEarn = DaysCanBeSanctioned;
+                                _ob_r.LeaveDays = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS);
+                                _ob_r.Balance = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS) - Convert.ToDecimal(_ob_source.Applied);
                             }
+                            //_ob_r.LeaveDays = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS);
+                            //_ob_r.Balance = Convert.ToDecimal(_ob_source.CurrentAllocationDCBS.ToString().Trim()) - Convert.ToDecimal(_ob_source.Applied.ToString().Trim());
+
+                            #endregion
                         }
                         else
                         {
-                            _ob_r.LeaveDays = TotalEarn;
-                            _ob_r.Balance = TotalEarn - Convert.ToDecimal(_ob_source.Applied.ToString().Trim()) - EncashedInbetween;
+                            #region 02
 
+                            _ob_r.LeaveDays = TotalEarn;
+                            _ob_r.Balance = TotalEarn - Convert.ToDecimal(_ob_source.Applied.ToString().Trim());
+
+                            #endregion
                         }
-                        //drLocal.EndEdit();
+                    }
+                    else
+                    {
+                        _ob_r.LeaveDays = TotalEarn;
+                        _ob_r.Balance = TotalEarn - Convert.ToDecimal(_ob_source.Applied.ToString().Trim()) - EncashedInbetween;
+
+                    }
+                    //drLocal.EndEdit();
                     //}
 
                     _rt.Add(_ob_r);
@@ -794,12 +806,13 @@ namespace Library.HumanResource.Leave
 ELSE CONVERT(BIT,0) END  ---No
 
 ----------------------------------------------------------------------------------------------------------------------
-                                          FROM (select * from trn.EmployeeLeaveSummary where CalanderYearId='" + calYearId + @"' and PlantId ='"+ sPlantID +@"' --and EmployeeId IN( '206835','206828' )
+                                          FROM (select * from trn.EmployeeLeaveSummary where CalanderYearId='" + calYearId + @"' and PlantId ='" + sPlantID + @"' --and EmployeeId IN( '206835','206828' )
 										  ) els
 										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
 										 left outer join (
-															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
-                            where  (FromDate between '" + _FromDate + @"' and '" + _ToDate + @"') and (FromDate between '" + _FromDate + @"' and '" + _ToDate + @"')
+															select sum(LTD.LeaveDuration) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
+															Left Join LeaveTransactionDetails LTD on m.SystemID=LTD.LvTrnsSystemID
+                            where  (WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"') 
                                                     group by EmpSystemID,LTSystemID
 														)ltrn on ltrn.EmpSystemID = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
 										 left outer join (
@@ -857,11 +870,12 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                                         left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
                                                 WHERE 
-												(emp.DOS is null or emp.DOS >= '" + _FromDate + @"') and
+												(emp.DOS is null or emp.DOS >= '" + _FromDate + @"') and EMP.EmployeeStatus='Active' and
 												(emp.DOJ <= '" + _ToDate + @"') 
 												--and els.EmployeeID IN( '206835','206828' )
                                               AND 
 											  CalanderYearID = '" + calYearId + @"'
+                                                and PL.Id='" + sPlantID + @"'
                                               --AND els.LeaveTypeId IN 
                                             --(select id from LeaveType where IsGeneral=1 or IsESIC = 1) 
                                             AND lt.LeaveType <>'Maternity'
@@ -937,7 +951,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 
 
 public class EmployeeDetails
-{    
+{
     public string EmployeeName { get; set; }
     public string DOJ { get; set; }
     public string EmployeeCode { get; set; }

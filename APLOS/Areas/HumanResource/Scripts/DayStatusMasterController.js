@@ -18,8 +18,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         return $scope.tab === tabNum;
     };
 
-
- 
+   
 
     // Functions for the Current Day Status
     $scope.DayTypesList = [];
@@ -477,6 +476,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.Header = response.data.Data;
                     $scope.DayChild.HeaderId = response.data.Data.Id;
                     $scope.DayS.HeaderId = response.data.Data.Id;
                     $scope.Child.HeaderId = response.data.Data.Id;
@@ -562,6 +562,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         CompAssignLv: 0,
         ManualStatusAllowed: false,
         DayStatusChange: false,
+        AutoLock: false,
     };
 
     //Seleting the Current Day Status Starts
@@ -874,21 +875,41 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         EmpTypeId: null,
     };
 
-    $scope.PlantList = [];
+   
     $scope.EmpTypeList = [];
 
-    //Filling of the Plant And Employee Type List
+    // Getting the Plants and the Company List
 
-    $scope.fillPlantsEmps = function () {
+    $scope.PlantList = [];
+    $scope.getPlants = function () {
         $http({
-            method: 'POST',
-            url: $scope.path + 'getPlants',
-
+            method: 'GET',
+            url: 'HumanResource/RosterPattern/getPlants',
+            params: { 'cmp': $scope.Company }
         }).then(function success(response) {
-            $scope.PlantList = [];
             $scope.PlantList = response.data;
         })
+    }
 
+
+    $scope.Company = null;
+    $scope.CompanyList = [];
+    $scope.getCompany = function () {
+        $http({
+            method: 'GET',
+            url: 'humanresource/RosterPattern/getCompany'
+        }).then(function success(response) {
+            $scope.CompanyList = response.data;
+        })
+    }
+
+    $scope.getCompany();
+
+
+
+    //Filling of the Employee Type List
+
+    $scope.fillPlantsEmps = function () {
         $http({
             method: 'POST',
             url: $scope.path + 'getEmpType',
