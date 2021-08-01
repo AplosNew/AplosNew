@@ -127,6 +127,7 @@ namespace Aplos.Areas.Productions.Controllers
                     var data = clsSales.GetQtyAmountByPackingId(item.PackingId);
                     item.Qty = Convert.ToDecimal(data["Qty"].ToString());
                     item.Amount = Convert.ToDecimal(data["Amount"].ToString());
+                    item.ProductLibraryId = data["ProductLibraryId"].ToString();
                 }
             }
 
@@ -172,6 +173,7 @@ namespace Aplos.Areas.Productions.Controllers
                     var data = clsSales.GetQtyAmountByPackingId(item.PackingId);
                     item.Qty = Convert.ToDecimal(data["Qty"].ToString());
                     item.Amount = Convert.ToDecimal(data["Amount"].ToString());
+                    item.ProductLibraryId = data["ProductLibraryId"].ToString();
                 }
             }
 

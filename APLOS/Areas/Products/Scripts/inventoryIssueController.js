@@ -68,7 +68,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
         , SlipAssetIssueTypeStatus: 'Asset'
         , OrderRefNo: null
         , RefferenceNo: null
-        , OrderSpecific: 'No'
+        , OrderSpecific: null
         , ConsumptionBookingName: null
         , ProductionOrderId: null
         , ContractNo: null
@@ -1415,15 +1415,16 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 
 
 
-    $scope.recorddoubleclick = function ($event) {
-        //debugger;
-        var x = $event;
-        $scope.issueId = x.data.Id;
-        $scope.isuuedate = x.data.AddedDate;
-        $scope.POPopUpClose();
-    };
+    //$scope.recorddoubleclick = function ($event) {
+    //    //debugger;
+    //    var x = $event;
+    //    $scope.issueId = x.data.Id;
+    //    $scope.isuuedate = x.data.AddedDate;
+    //    $scope.productNew.OrderSpecific = x.data.OrderSpecific;
+    //    $scope.POPopUpClose();
+    //};
 
-
+    
 
     //function ($event) {
     //   //debugger;
@@ -1436,17 +1437,17 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 
 
     $scope.slipdetailList = [];
-    $scope.recorddoubleclick = function ($event) {
-        //debugger;
-        var x = $event;
-        var Id = x.data.Id;
-        $scope.issueId = x.data.Id;
-        $scope.isuuedate = x.data.AddedDate;
-        // var gridObj = $("#GridTest").ejGrid("instance");
-        angular.element(document.querySelector('#POPopUp1')).modal('hide');
+    //$scope.recorddoubleclick = function ($event) {
+    //    //debugger;
+    //    var x = $event;
+    //    var Id = x.data.Id;
+    //    $scope.issueId = x.data.Id;
+    //    $scope.isuuedate = x.data.AddedDate;
+    //    // var gridObj = $("#GridTest").ejGrid("instance");
+    //    angular.element(document.querySelector('#POPopUp1')).modal('hide');
 
 
-    }
+    //}
 
     $scope.qtyFunc = function (x) {
         //debugger;
@@ -1599,7 +1600,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
                 , IssueId: null
             };
             $scope.clearCharNames();
-            $http.get($scope.path + 'GetApprovedIssueSlipDetails?Id=' + $scope.issueId + '&StorageLocationId=' + $scope.productNew.MaterialStorageId)
+            $http.get($scope.path + 'GetApprovedIssueSlipDetails?Id=' + $scope.issueId + '&StorageLocationId=' + $scope.productNew.MaterialStorageId + '&OrderSpecific=' + $scope.productNew.OrderSpecific)
                 .then(function (response) {
                     //$scope.slipdetailList = response.data;
                     $scope.detailList = response.data;
@@ -1737,7 +1738,8 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
                 }
                 else {
                     $scope.GetApprovedIssueSlipList = response.data;
-
+                 
+                    
                 }
             }, function errorCallback(response) {
                 ShowResult(response.status.Message, 'failure');
@@ -1896,13 +1898,13 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
   
 
 
-    $scope.recorddoubleclick = function ($event) {
-        //debugger;
-        var x = $event;
-        $scope.issueId = x.data.Id;
-        $scope.isuuedate = x.data.AddedDate;
-        $scope.POPopUpClose();
-    };
+    //$scope.recorddoubleclick = function ($event) {
+    //    //debugger;
+    //    var x = $event;
+    //    $scope.issueId = x.data.Id;
+    //    $scope.isuuedate = x.data.AddedDate;
+    //    $scope.POPopUpClose();
+    //};
 
 
     $scope.recorddoubleclick = function ($event) {
@@ -1911,7 +1913,9 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
         var Id = x.data.Id;
         $scope.issueId = x.data.Id;
         $scope.isuuedate = x.data.AddedDate;
+        $scope.productNew.OrderSpecific = x.data.Orderspecific;
         // var gridObj = $("#GridTest").ejGrid("instance");
+       
         angular.element(document.querySelector('#POPopUp1')).modal('hide');
 
 

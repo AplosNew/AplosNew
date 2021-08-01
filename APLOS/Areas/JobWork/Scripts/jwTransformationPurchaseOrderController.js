@@ -570,7 +570,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         , DiscountAmount: 0
         , TaxOption: 'Yes'
         , TaxOptionMat: 'Yes'
-        , TaxOptionService: 'Yes'
+        , TaxOptionService: "Yes"
         , TaxOptionServiceModify: 'Yes'
         , FileName: null
         , UserFilename: null
@@ -582,9 +582,12 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         ,Date: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
         Time: _Time,
         EntityId: null,
-        ProcessStartDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
-        ProcessEndDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
-        ContractClosingDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+        //ProcessStartDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+        //ProcessEndDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+        //ContractClosingDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
+        ProcessStartDate: null,
+        ProcessEndDate: null,
+        ContractClosingDate: null,
  //     Remarks: null,
         ContractStatus: "Active",
 
@@ -887,15 +890,18 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         if (isNaN($scope.detailModel.TotalTaxAmount)) $scope.detailModel.TotalTaxAmount = 0;
     };
 
-  //  $scope.productNew.TaxOptionService = "Yes";
+      $scope.productNew.TaxOptionService = "Yes";
+  //  $scope.productNew.TaxOptionService = 'Yes';
+
     $scope.changeService = function (JWServiceId) {
         $scope.productNew.TaxOptionService = "Yes";
+
         if (baseService.isUndefinedOrNull(JWServiceId))
             return $scope.taxCategoryList = [];
         var hsnCodeId = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCodeId;
         var HSNCode = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCode;
         getTaxCategoryList(hsnCodeId, HSNCode);
-        $scope.productNew.TaxOptionService = "Yes";
+  //      $scope.productNew.TaxOptionService = "Yes";
         
     };
     function getTaxCategoryList(hsnCodeId, HSNCode) {
@@ -1757,6 +1763,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.detailPopUp = function () {
         $scope.productNew.TaxOptionMat = 'Yes';
         $scope.productNew.TaxOptionService = "Yes";
+    //    $scope.productNew.TaxOptionService = 'Yes';
+
         $scope.receiveTaxList = [];
         $scope.detailModel = Object.assign({}, $scope.detailTempModel);
         //$scope.MatPlanning = Object.assign({}, $scope.MatPlanningModelTemp);
@@ -2868,6 +2876,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
     $scope.serviceChargePopUp = function () {
         $scope.productNew.TaxOptionService = "Yes";
+    //    $scope.productNew.TaxOptionService = 'Yes';
+
         //if (baseService.arrayLength($scope.inventoryMaterialList) === 0)
         //    return ShowResult('Without material charges not aplicable.');
         $scope.serviceModel = Object.assign({}, $scope.serviceModelTemp);
@@ -4148,7 +4158,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         try {
 
             if (new Date($scope.productNew.PODate) < new Date($scope.productNew.DocDate)) {
-                $scope.productNew.PODate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+                //$scope.productNew.PODate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+                $scope.productNew.PODate = null;
                 throw 'PO Date cannot be less than Doc Date.';
             }
         }
@@ -4161,7 +4172,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         try {
 
             if (new Date($scope.productNew.ProcessStartDate) < new Date($scope.productNew.PODate)) {
-                $scope.productNew.ProcessStartDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+                //$scope.productNew.ProcessStartDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+                $scope.productNew.ProcessStartDate = null;
                 throw 'Process Start Date cannot be less than PO Date.';
             }
         }
@@ -4174,7 +4186,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         try {
 
             if (new Date($scope.productNew.ProcessEndDate) < new Date($scope.productNew.ProcessStartDate)) {
-                $scope.productNew.ProcessEndDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+                //$scope.productNew.ProcessEndDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+                $scope.productNew.ProcessEndDate = null;
                 throw 'Process End Date cannot be less than Process Start Date.';
             }
         }
@@ -4187,7 +4200,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         try {
 
             if (new Date($scope.productNew.ContractClosingDate) < new Date($scope.productNew.ProcessEndDate)) {
-                $scope.productNew.ContractClosingDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+                //$scope.productNew.ContractClosingDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
+                $scope.productNew.ContractClosingDate = null;
                 throw 'Contract Closing Date cannot be less than Process End Date.';
             }
         }
@@ -4207,8 +4221,10 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.GetAmount = function () {
         if (!baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) && !baseService.isUndefinedOrNull($scope.detailModel.RatePerUnit)) {
             var Amt = parseFloat($scope.detailModel.TransactionQty) * parseFloat($scope.detailModel.RatePerUnit)
-            var RoundRes = Math.round(Amt * 100) / 100;
-            $scope.detailModel.TransactionAmount = parseFloat(RoundRes);
+            //var RoundRes = Math.round(Amt * 10000) / 10000;
+            //$scope.detailModel.TransactionAmount = parseFloat(RoundRes);
+            var TAmt = Amt.toFixed(4);
+            $scope.detailModel.TransactionAmount = TAmt;
         }
     }
 }

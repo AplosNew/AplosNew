@@ -17,6 +17,7 @@ using Library.Service.Helpers;
 using Syncfusion.XlsIO;
 using System.IO;
 using System.Drawing;
+using System.Collections.Specialized;
 
 namespace Aplos.Areas.Payrolls.Controllers
 {
@@ -118,9 +119,17 @@ namespace Aplos.Areas.Payrolls.Controllers
         {
             try
             {
+                string PaymentListSeperated = PaymentModeList;
+                //var PaymentList = PaymentModeList.Split(',');
+                //string PaymentListSeperated = "";
+                //foreach (var item in PaymentList)
+                //{
+                //    PaymentListSeperated += "*" + item + "*,";
+                //}
+                //PaymentListSeperated = PaymentListSeperated.Replace('*', '"');
                 string fileName = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                fileName = GetReport(PaymentModeList, BankList, PlantList, EntityList, DepartmentList, DesignationList, SectionList, SubSectionList, Month, Year, isActive, isSeperated, isMaternity, MonthName);
+                fileName = GetReport(PaymentListSeperated, BankList, PlantList, EntityList, DepartmentList, DesignationList, SectionList, SubSectionList, Month, Year, isActive, isSeperated, isMaternity, MonthName);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -170,6 +179,22 @@ namespace Aplos.Areas.Payrolls.Controllers
                 objRpt = new clsReport();
 
                 var ob = new clsStaticInfo();
+
+                StringCollection PaymentNewMoodList = new StringCollection();
+
+                //var PaymentListSeperated = PaymentModeList.Split(',');
+                //foreach (var item in PaymentListSeperated)
+                //{
+                //    if (item != "")
+                //    {
+                //        String[] Pay = new String[] { item };
+                //        PaymentNewMoodList.AddRange(Pay);
+
+                //    }
+                //}
+
+
+
 
                 #region DataSet
 

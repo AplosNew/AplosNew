@@ -299,7 +299,7 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
         $scope.partyWiseOutstandingAdvanceList = [];
         $http({
             method: "GET",
-            url: "accounts/Advance/GetPartyWiseOutstandingAdvance?partyId=" + id
+            url: "accounts/Advance/GetCustomerWiseOutstandingAdvance?partyId=" + id
         }).then(function successCallback(response) {
             $scope.partyWiseOutstandingAdvanceList = response.data;
             $scope.TotalAdvanceAmount = $filter("sumByKey")($filter("filter")($scope.partyWiseOutstandingAdvanceList), "Balance");
@@ -327,7 +327,7 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
                 $scope.partyPlantList = [];
                 $scope.getPartyPlantList(party.Id);
                 $scope.GetCurrencyExchangeRateList();
-                //$scope.getPartyWiseOutstandingAdvance($scope.voucher.PartyId);
+                $scope.getPartyWiseOutstandingAdvance($scope.voucher.PartyId);
                 $scope.voucherDetailList = [];
             }
         $scope.hidePartyPopUp();

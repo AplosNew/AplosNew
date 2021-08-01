@@ -34,33 +34,35 @@
 							 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
 							 e-detailstemplate="detailTemp"
 							 e-detailsdatabound="detailgrid">
-							<div e-columns>
-								
-								<div e-column e-field="Id" e-headertext="Sales No" e-width="100"></div>
-								<div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
-								<div e-column e-field="issuetype" e-headertext="issuetype" e-width="150"></div>
-								<div e-column e-field="IssueDate" e-headertext="Sales Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-								<div e-column e-field="MaterialStorage" e-headertext="Material Storage" e-width="170" e-type="date"></div>
-								<div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="170" e-type="date"></div>
-								<div e-column e-field="Qty" e-headertext="Qty" e-width="170" e-type="date"></div>
-								<div e-column e-field="Amount" e-headertext="Amount" e-width="170" e-type="date"></div>
-								<div e-column e-field="Remarks" e-headertext="Remarks" e-width="170" e-type="date"></div>
-								<div e-column e-field="CheckedByName" e-headertext="Checked By " e-width="170" e-type="date"></div>
-								<div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="170" e-type="date"></div>
-								<div e-column e-field="ApprovedByName" e-headertext="Approved By " e-width="170" e-type="date"></div>
-								<div e-column e-field="ApprovedByStatus" e-headertext="Approved Status" e-width="170" e-type="date"></div>
-								@*<div e-column e-template="#ToBeSecurityApprovedBy" e-headertext="To Be Security Approved By" e-width="250"></div>*@
-								<div e-column e-template="#ApprovedHoldRejectReason" e-headertext="Hold / Reject Reason" e-width="250" style="height: 20px; padding-top:-15px;"></div>
-								<div e-column e-template="#ApprovedByStatus" e-headertext="Approved Status" e-width="150"></div>
-								<div e-column e-headertext="Actions" e-width="80">
-									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Checked/H/R" ng-click="$parent.onClickGatePassChecked('GatePassUnApprovedList');" style="margin: -6px;"></i></button>
-									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassUnApprovedList');" style="margin: -6px;"></i></button>
-								</div>
+                            <div e-columns>
+
+                                <div e-column e-headertext="Actions" e-width="80">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Checked/H/R" ng-click="$parent.onClickGatePassChecked('GatePassUnApprovedList');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassUnApprovedList');" style="margin: -6px;"></i></button>
+                                </div>
+                                <div e-column e-template="#ApprovedHoldRejectReason" e-headertext="Hold / Reject Reason" e-width="250" style="height: 20px; padding-top:-15px;"></div>
+                                <div e-column e-template="#ApprovedByStatus" e-headertext="Approved Status" e-width="150"></div>
+                                <div e-column e-field="CustomerCode" e-headertext="Customer Code" e-width="100"></div>
+                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="100"></div>
+                                <div e-column e-field="IssueDate" e-headertext="Sales Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                <div e-column e-field="Id" e-headertext="Sales No" e-width="100"></div>
+                                <div e-column e-field="Qty" e-headertext="Qty" e-width="170" e-type="date"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount" e-width="170" e-type="date"></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
+                                <div e-column e-field="issuetype" e-headertext="issuetype" e-width="150"></div>
+                                <div e-column e-field="MaterialStorage" e-headertext="Material Storage" e-width="170" e-type="date"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="170" e-type="date"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="170" e-type="date"></div>
+                                <div e-column e-field="CheckedByName" e-headertext="Checked By " e-width="170" e-type="date"></div>
+                                <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="170" e-type="date"></div>
+                                <div e-column e-field="ApprovedByName" e-headertext="Approved By " e-width="170" e-type="date"></div>
+                                <div e-column e-field="ApprovedByStatus" e-headertext="Approved Status" e-width="170" e-type="date"></div>
+                                @*<div e-column e-template="#ToBeSecurityApprovedBy" e-headertext="To Be Security Approved By" e-width="250"></div>*@
 
 
 
 
-							</div>
+                            </div>
 
 						</div>
 						<script id="tabGridContents" type="text/x-jsrender">
@@ -135,33 +137,35 @@
 							 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
 							 e-detailstemplate="detailTemp"
 							 e-detailsdatabound="detailgrid">
-							<div e-columns>
-								<div e-column e-field="Id" e-headertext="Sales No" e-width="100"></div>
-								<div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
-								<div e-column e-field="issuetype" e-headertext="issuetype" e-width="150"></div>
-								<div e-column e-field="IssueDate" e-headertext="Sales Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-								<div e-column e-field="MaterialStorage" e-headertext="Material Storage" e-width="170" e-type="date"></div>
-								<div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="170" e-type="date"></div>
-								<div e-column e-field="Qty" e-headertext="Qty" e-width="170" e-type="date"></div>
-								<div e-column e-field="Amount" e-headertext="Amount" e-width="170" e-type="date"></div>
-								<div e-column e-field="Remarks" e-headertext="Remarks" e-width="170" e-type="date"></div>
-								<div e-column e-field="CheckedByName" e-headertext="Checked By " e-width="170" e-type="date"></div>
-								<div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="170" e-type="date"></div>
-								<div e-column e-field="ApprovedByName" e-headertext="Approved By " e-width="170" e-type="date"></div>
-								<div e-column e-field="ApprovedByStatus" e-headertext="Approved Status" e-width="170" e-type="date"></div>
-								@*<div e-column e-template="#ToBeSecurityApprovedBy1" e-headertext="To Be Security Approved By" e-width="250"></div>*@
-								<div e-column e-template="#ApprovedHoldRejectReason1" e-headertext="Hold / Reject Reason" e-width="250" style="height: 20px; padding-top:-15px;"></div>
-								<div e-column e-template="#ApprovedByStatus1" e-headertext="Approved Status" e-width="150"></div>
-								<div e-column e-headertext="Actions" e-width="80">
-									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Checked/H/R" ng-click="$parent.onClickGatePassChecked('GatePassHoldRejectList');" style="margin: -6px;"></i></button>
-									<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassHoldRejectList');" style="margin: -6px;"></i></button>
-								</div>
+                            <div e-columns>
+                                <div e-column e-headertext="Actions" e-width="80">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Checked/H/R" ng-click="$parent.onClickGatePassChecked('GatePassHoldRejectList');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassHoldRejectList');" style="margin: -6px;"></i></button>
+                                </div>
+                                <div e-column e-template="#ApprovedHoldRejectReason1" e-headertext="Hold / Reject Reason" e-width="250" style="height: 20px; padding-top:-15px;"></div>
+                                <div e-column e-template="#ApprovedByStatus1" e-headertext="Approved Status" e-width="150"></div>
+                                <div e-column e-field="CustomerCode" e-headertext="Customer Code" e-width="100"></div>
+                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="100"></div>
+                                <div e-column e-field="IssueDate" e-headertext="Sales Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                <div e-column e-field="Id" e-headertext="Sales No" e-width="100"></div>
+                                <div e-column e-field="Qty" e-headertext="Qty" e-width="170" e-type="date"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount" e-width="170" e-type="date"></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
+                                <div e-column e-field="issuetype" e-headertext="issuetype" e-width="150"></div>
+                                <div e-column e-field="MaterialStorage" e-headertext="Material Storage" e-width="170" e-type="date"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="170" e-type="date"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="170" e-type="date"></div>
+                                <div e-column e-field="CheckedByName" e-headertext="Checked By " e-width="170" e-type="date"></div>
+                                <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="170" e-type="date"></div>
+                                <div e-column e-field="ApprovedByName" e-headertext="Approved By " e-width="170" e-type="date"></div>
+                                <div e-column e-field="ApprovedByStatus" e-headertext="Approved Status" e-width="170" e-type="date"></div>
+                                @*<div e-column e-template="#ToBeSecurityApprovedBy1" e-headertext="To Be Security Approved By" e-width="250"></div>*@
 
 
 
 
 
-							</div>
+                            </div>
 
 						</div>
 						<script id="tabGridContents" type="text/x-jsrender">
@@ -230,28 +234,30 @@
 						 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
 						 e-detailstemplate="detailTemp"
 						 e-detailsdatabound="detailgrid">
-						<div e-columns>
-							<div e-column e-headertext="Actions" e-width="70">
-								<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GatePassCheckedList');" style="margin: -6px;"></i></button>
-							</div>
-							<div e-column e-field="Id" e-headertext="Sales No" e-width="100"></div>
-							<div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
-							<div e-column e-field="issuetype" e-headertext="issuetype" e-width="150"></div>
-							<div e-column e-field="IssueDate" e-headertext="Sales Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-							<div e-column e-field="MaterialStorage" e-headertext="Material Storage" e-width="170" e-type="date"></div>
-							<div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="170" e-type="date"></div>
-							<div e-column e-field="Qty" e-headertext="Qty" e-width="170" e-type="date"></div>
-							<div e-column e-field="Amount" e-headertext="Amount" e-width="170" e-type="date"></div>
-							<div e-column e-field="Remarks" e-headertext="Remarks" e-width="170" e-type="date"></div>
-							<div e-column e-field="CheckedByName" e-headertext="Checked By " e-width="170" e-type="date"></div>
-							<div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="170" e-type="date"></div>
-							<div e-column e-field="ApprovedByName" e-headertext="Approved By " e-width="170" e-type="date"></div>
-							<div e-column e-field="ApprovedByStatus" e-headertext="Approved Status" e-width="170" e-type="date"></div>
+                        <div e-columns>
+                            <div e-column e-headertext="Actions" e-width="70">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GatePassCheckedList');" style="margin: -6px;"></i></button>
+                            </div>
+                            <div e-column e-field="CustomerCode" e-headertext="Customer Code" e-width="100"></div>
+                            <div e-column e-field="CustomerName" e-headertext="Customer" e-width="100"></div>
+                            <div e-column e-field="IssueDate" e-headertext="Sales Date" e-width="150" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="Id" e-headertext="Sales No" e-width="100"></div>
+                            <div e-column e-field="Qty" e-headertext="Qty" e-width="170" e-type="date"></div>
+                            <div e-column e-field="Amount" e-headertext="Amount" e-width="170" e-type="date"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="150"></div>
+                            <div e-column e-field="issuetype" e-headertext="issuetype" e-width="150"></div>
+                            <div e-column e-field="MaterialStorage" e-headertext="Material Storage" e-width="170" e-type="date"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="170" e-type="date"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="170" e-type="date"></div>
+                            <div e-column e-field="CheckedByName" e-headertext="Checked By " e-width="170" e-type="date"></div>
+                            <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="170" e-type="date"></div>
+                            <div e-column e-field="ApprovedByName" e-headertext="Approved By " e-width="170" e-type="date"></div>
+                            <div e-column e-field="ApprovedByStatus" e-headertext="Approved Status" e-width="170" e-type="date"></div>
 
 
 
 
-						</div>
+                        </div>
 
 					</div>
 					<script id="tabGridContents" type="text/x-jsrender">

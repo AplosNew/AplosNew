@@ -398,11 +398,11 @@
                         <div class="col-sm-8">
                             <div class="radio">
                                 <label>
-                                    <input type="radio" name="POType" ng-model="productNew.POType" value="OSTransformationPO" ng-change="SetPOType();" ng-disabled="productNew.Id.length>0">
+                                    <input type="radio" name="POType" ng-model="productNew.POType" value="OSTransformationPO" ng-change="SetPOType();" ng-disabled="PoChildList.length>0">
                                     <span class="cr"><i class="cr-icon"></i></span>Transformation
                                 </label>
                                 <label>
-                                    <input type="radio" name="POType" ng-model="productNew.POType" value="OSValueAddedPO" ng-change="SetPOType();" ng-disabled="productNew.Id.length>0">
+                                    <input type="radio" name="POType" ng-model="productNew.POType" value="OSValueAddedPO" ng-change="SetPOType();" ng-disabled="PoChildList.length>0">
                                     <span class="cr"><i class="cr-icon"></i></span>ValueAdded
                                 </label>
 
@@ -526,7 +526,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Process Start Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Process Start Date" ng-model="productNew.ProcessStartDate" ng-change="ValidateProcessStartDate();" datepicker class="form-control" required tabindex="4">
+                            <input type="text" name="Process Start Date" ng-model="productNew.ProcessStartDate" ng-change="ValidateProcessStartDate();" datepicker class="form-control" required tabindex="4" placeholder="dd-Mmm-yyyy">
                         </div>
                     </div>
                 </div>
@@ -534,7 +534,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Process End Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Process End Date" ng-model="productNew.ProcessEndDate" ng-change="ValidateProcessEndDate();" datepicker class="form-control" required tabindex="5">
+                            <input type="text" name="Process End Date" ng-model="productNew.ProcessEndDate" ng-change="ValidateProcessEndDate();" datepicker class="form-control" required tabindex="5" placeholder="dd-Mmm-yyyy">
                         </div>
                     </div>
                 </div>
@@ -670,7 +670,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Contract Closing Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Contract Closing Date" ng-model="productNew.ContractClosingDate" ng-change="ValidateContractClosingDate();" datepicker class="form-control" required tabindex="13">
+                            <input type="text" name="Contract Closing Date" ng-model="productNew.ContractClosingDate" ng-change="ValidateContractClosingDate();" datepicker class="form-control" required tabindex="13" placeholder="dd-Mmm-yyyy">
                         </div>
                     </div>
                 </div>
@@ -873,11 +873,11 @@
                                 <td>{{x.JWItemName}}</td>
                                 <td>{{x.MaterialMasterName}}</td>
                                 <td>{{x.ArticleName}}</td>
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>  @*ng-keyup="calculateAmount(x);"*@
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>  @*ng-keyup="calculateAmount(x);"*@
                                 <td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x);" ng-disabled="false"> </td>  @*{{x.TransactionRate| setDecimal:currencyPrecision| number}}*@
                                 <td class="text-right" style="width:50px;">{{x.CurrencyName}}</td>
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
                                 <td>{{x.MaterialSpecification}}</td>
                                 <td>{{x.MaterialReference}}</td>
                                 <td>{{x.MaterialStorage}}</td>
@@ -899,11 +899,11 @@
 
 
 
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.JWTaxAmount" ng-disabled="true"></td>*@ @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
         <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
                                 @*<td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number}}</td>*@
 
                                 <td>{{x.Rejection}}</td>
@@ -944,10 +944,10 @@
                             <tr>
                                 <td colspan="4" class="text-right"><strong>Total : </strong></td>
                                 <td class="text-right" ng-hide="sumORnot"></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionQty' | setDecimal:2 | number }}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionQty' | setDecimal:4 | number }}</strong></td>
                                 <td></td>
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:2 | number}}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:4 | number}}</strong></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -970,7 +970,7 @@
                                 @*<td></td>*@
                                 <td></td>
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:2 | number}}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:4 | number}}</strong></td>
 
 
                                 <td class="text-right"></td>
@@ -1018,11 +1018,11 @@
 
                                 <td>{{x.MaterialMasterName}}</td>
                                 <td>{{x.ArticleName}}</td>
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>  @*ng-keyup="calculateAmount(x);"*@
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-keyup="calculateAmount(x);" ng-model="x.TransactionQty" ng-disabled="productNew.OrderSpecific==='Yes'"></td>  @*ng-keyup="calculateAmount(x);"*@
                                 <td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x);" ng-disabled="false"> </td>  @*{{x.TransactionRate| setDecimal:currencyPrecision| number}}*@
                                 <td class="text-right" style="width:50px;">{{x.CurrencyName}}</td>
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
 
                                 <td>{{x.FirstCharacteristicsValue}}</td>
                                 <td>{{x.SecondCharacteristicsValue}}</td>
@@ -1040,11 +1040,11 @@
                                     </div>
                                 </td>
 
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.JWTaxAmount" ng-disabled="true"></td>*@ @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
         <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
                                 @*<td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number}}</td>*@
                                 <td>
                                     <div class="show-message">
@@ -1077,11 +1077,11 @@
                                 <td colspan="2" class="text-right"><strong>Total : </strong></td>
 
 
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionQty' | setDecimal:2 | number }}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionQty' | setDecimal:4 | number }}</strong></td>
                                 <td class="text-right" ng-hide="sumORnot"></td>
                                 <td></td>
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:2 | number}}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:4 | number}}</strong></td>
 
                                 <td></td>
 
@@ -1095,7 +1095,7 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:2 | number}}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:4 | number}}</strong></td>
 
 
                                 <td class="text-right"></td>
@@ -1412,7 +1412,7 @@
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Quantity<sup>*</sup></label>
                                 <div class="show-message">
-                                    <input type="text" ng-model="detailModel.TransactionQty" name="Quantity" ng-change="GetAmount();" onkeypress="return isNumber(event)" required class="form-control" tabindex="20" maxlength="50">
+                                    <input type="text" ng-model="detailModel.TransactionQty" n-decimals="4" name="Quantity" ng-change="GetAmount();" onkeypress="return isNumber(event)" required class="form-control" tabindex="20" maxlength="50">
                                 </div>
                             </div>
                         </div>
@@ -1792,11 +1792,11 @@
                                 <div class="col-sm-6">
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="TaxOptionService" ng-model="productNew.TaxOptionService" value="Yes" ng-click="TaxOptionService('Yes');"> @*ng-hide="HSNCode !=null"*@
+                                            <input type="radio" name="TaxOptionService" ng-model="productNewwww.TaxOptionService" value="Yes" ng-click="TaxOptionService('Yes');"> @*ng-hide="HSNCode !=null"*@
                                             <span class="cr"><i class="cr-icon"></i></span>Yes
                                         </label>
                                         <label>
-                                            <input type="radio" name="TaxOptionService" ng-model="productNew.TaxOptionService" value="No" ng-click="TaxOptionService('No');">@*ng-hide="HSNCode !=null"*@
+                                            <input type="radio" name="TaxOptionService" ng-model="productNewwww.TaxOptionService" value="No" ng-click="TaxOptionService('No');">@*ng-hide="HSNCode !=null"*@
                                             <span class="cr"><i class="cr-icon"></i></span>No
                                         </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     </div>

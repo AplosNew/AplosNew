@@ -1599,7 +1599,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.NewEmpAddValidate();
 
             //$scope.$broadcast('show-errors-check-validity');
-            //if ($scope.newEmpForm.$valid) {
+            //if ($scope.newEmpForm.$valid) { // 'WeekOff': $scope.WeekOffChild , 'OT' : $scope.NonEligibleOTChild
             $http({
                 method: 'POST',
                 url: $scope.saveNewUrl,
@@ -3827,5 +3827,57 @@ function employeeInformationController(addressService, fileReader, cboService, c
     $scope.closeEmployeePopUp = function () {
         angular.element(document.querySelector('#employeePopUp')).modal('hide');
     }
+
+
+
+
+    //Line no - 518 : GetGivenDesignationByLegalDesignaiton
+
+    /// The Additions of Week off and the Non Eligible OT
+
+    //var x = document.getElementById("OTCheck");
+    //x.disabled = true;
+
+    //$scope.WeekOffChild = {
+    //    Id: null,
+    //    EmpSystemId: null,
+    //    WOHeaderId: null,
+    //    EffectiveDate: null,
+    //}
+
+    //$scope.NonEligibleOTChild = {
+    //    Id: null,
+    //    EmpSystemId: null,
+    //    EffectiveDate: null,
+    //    Exclude: false,
+    //}
+
+    //$scope.weekOffList = [];
+    //$scope.fillWeekOff = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + 'getWeekOff'
+    //    }).then(function succ(res) {
+    //        $scope.weekOffList = [];
+    //        $scope.weekOffList = res.data;
+    //    })
+    //}
+
+    //$scope.fillNonEligible = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + 'getNonEligibleOT',
+    //        data: { 'DesgId': $scope.employeeNew.GivenDesignationId }
+    //    }).then(function succ(res) {
+    //        $scope.NonEligibleOTChild.Exclude = res.data[0].IsOTEntitled;
+    //        if ($scope.NonEligibleOTChild.Exclude == true) {
+    //            $scope.NonEligibleOTChild.Exclude = false;
+    //            x.disabled = false;
+    //        }
+    //        else {
+    //            x.disabled = true;
+    //        }
+    //    });
+    //}
 
 }
