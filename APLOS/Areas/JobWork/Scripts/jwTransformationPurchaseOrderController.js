@@ -138,12 +138,15 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         }   
     }
 
-    $http({
-        method: 'GET',
-        url: $scope.pathJWCBO + 'getmateriallocation/',
-    }).then(function successCallback(response) {
-        $scope.MaterialLocList = response.data;
+    $scope.GetJWLocation = function () {
+        $http({
+            method: 'GET',
+            url: $scope.pathJWCBO + 'getmateriallocation?EntityId=' + $scope.productNew.EntityId + '&JWActivityId=' + $scope.detailModel.JobActivityId,
+        }).then(function successCallback(response) {
+            $scope.MaterialLocList = response.data;
         });
+    }
+ 
 
     $scope.MStorageList = [];
     $scope.GetJWMaterialStorage = function () {
@@ -205,7 +208,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             var MinimumRate = parseFloat($scope.detailModel.RatePerUnit);
             var MaximumRate = parseFloat($scope.detailModel.MaxRate);
             if (MinimumRate > MaximumRate) {
-                $scope.detailModel.RatePerUnit = null;
+           //     $scope.detailModel.RatePerUnit = null;
                 throw 'Rate Per Unit cannot be greater than Maximum Rate ' + MaximumRate + ' ';
             }
         }
@@ -571,6 +574,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         , TaxOption: 'Yes'
         , TaxOptionMat: 'Yes'
         , TaxOptionService: "Yes"
+        , TaxOptionServiceTPO: "Yes"
         , TaxOptionServiceModify: 'Yes'
         , FileName: null
         , UserFilename: null
@@ -894,13 +898,15 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
   //  $scope.productNew.TaxOptionService = 'Yes';
 
     $scope.changeService = function (JWServiceId) {
-        $scope.productNew.TaxOptionService = "Yes";
+       
+        //productNewwww.TaxOptionService
 
         if (baseService.isUndefinedOrNull(JWServiceId))
             return $scope.taxCategoryList = [];
         var hsnCodeId = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCodeId;
         var HSNCode = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCode;
         getTaxCategoryList(hsnCodeId, HSNCode);
+        $scope.productNew.TaxOptionServiceTPO = "Yes";
   //      $scope.productNew.TaxOptionService = "Yes";
         
     };
@@ -1751,6 +1757,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         , Remarks: null
         , Tolerance: null
         , ServiceId: null
+        //, JWService: null
         , EmployeeCode: null
         , ResponsiblePerson: null
         , MaterialCode: null
@@ -1786,14 +1793,15 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                     $scope.detailModel.MaterialName = $scope.GetMatMstJW[0].Material;
                     $scope.detailModel.MaterialCode = $scope.GetMatMstJW[0].Code;
                     $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].UnitId;
-                //    $scope.detailModel.OutputMaterialUOM = $scope.GetMatMstJW[0].UOM;
+                    $scope.detailModel.AlternateUoM = $scope.GetMatMstJW[0].AlternateUoM;
                 }
                 else {
                     $scope.detailModel.MaterialMasterId = null;
                     $scope.detailModel.MaterialName = null;
                     $scope.detailModel.MaterialCode = null;
+                    $scope.detailModel.AlternateUoM = null;
                     $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].UnitId;
-                //    $scope.detailModel.OutputMaterialUOM = $scope.GetMatMstJW[0].UOM;
+                 
                 }
                 
             }
@@ -1814,7 +1822,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             $scope.GetJWitemDataFromTrans();
             $scope.GetRate();
             $scope.GetCurrencyyy();
-            //$scope.detailModel.Rejection = $scope.detailModel.Rejection;
+            $scope.GetJWLocation();
+       //   $scope.detailModel.ServiceId = $scope.detailModel.ServiceId;
             //$scope.detailModel.ValueLoss = $scope.detailModel.ValueLoss;
 
             $scope.rmchar1 = {};
@@ -1996,6 +2005,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                 ShowResult('Please select Responsible Person', 'failure', 'detailPopUp');
                 return false;
             }
+                $scope.ValidateRate();
 
 
             $scope.detailModel.JWTransformationPurchaseOrderId = $scope.productNew.Id;
@@ -2721,7 +2731,10 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             //}
             $scope.TransactionAmount = $scope.detailModel.TransactionQty * $scope.detailModel.RatePerUnit;
             if ($scope.taxCategoryList[i].Id === x.Id) {
-                $scope.taxCategoryList[i].Percentage = (parseFloat(x.TaxAmount / $scope.TransactionAmount).toFixed(4) * 100);
+            //    $scope.taxCategoryList[i].Percentage = (parseFloat(x.TaxAmount / $scope.TransactionAmount).toFixed(4) * 100);
+                var Per = (parseFloat(x.TaxAmount / $scope.TransactionAmount) * 100);
+                $scope.taxCategoryList[i].Percentage = Per.toFixed(4);
+
             }
 
         }
@@ -4223,7 +4236,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             var Amt = parseFloat($scope.detailModel.TransactionQty) * parseFloat($scope.detailModel.RatePerUnit)
             //var RoundRes = Math.round(Amt * 10000) / 10000;
             //$scope.detailModel.TransactionAmount = parseFloat(RoundRes);
-            var TAmt = Amt.toFixed(4);
+            var TAmt = Amt.toFixed(2);
             $scope.detailModel.TransactionAmount = TAmt;
         }
     }

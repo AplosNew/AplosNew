@@ -58,11 +58,13 @@ namespace Aplos.Areas.JobWork.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
-        public JsonResult getmateriallocation()
+        public JsonResult getmateriallocation(string EntityId, string JWActivityId)
         {
             string sql = "";
             sql = @"select jl.Id as Value, jl.LocationName as Text, StoreLocationId,ms.UserName as MaterialStorage
-                    from HKP.JobWorkLocation jl left join HKP.MaterialStorage ms on ms.Id=jl.StoreLocationId order by LocationName";
+                    from HKP.JobWorkLocation jl left join HKP.MaterialStorage ms on ms.Id=jl.StoreLocationId
+					left join HKP.JobWorkLocationChild JLC on JLC.JobWorkLocationId=jl.Id
+					where jl.EntityId='"+ EntityId + @"' and JLC.JobWorkActivityId='"+ JWActivityId + @"' order by jl.LocationName";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
