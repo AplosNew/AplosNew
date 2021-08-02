@@ -1597,7 +1597,42 @@ namespace Aplos.HumanResource
             }
         }
 
-
+        public IEnumerable<object> GetEmpDocumentDataList(string companyGroupId, string pId, string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT  DISTINCT ED.*,
+									CD.UserName DocumentName
+									,CD.DocumentType
+									,CD.IsSkillBased
+									,CDSD.OptionalOrMandatory
+									,CD.EmpType
+									,CD.ProfileType,CD.DocNumberRequired,CD.DocDateRequired
+									,E.UserName AS EmployeeCategory
+									,CD.DependateDate
+								FROM dbo.EmployeeDocument ED
+								LEFT JOIN hkp.ComplianceDocument CD ON ED.ComplianceDocumentId = CD.Id
+								LEFT JOIN HKP.ComplianceDocumentSetDetail AS CDSD ON CD.Id = CDSD.ComplianceDocumentId
+								LEFT JOIN (SELECT  * FROM HKP.DocumentConfigurationDesignationGroup
+								Where PlantId='" + plantId + @"' and EmployeeCategoryId = (
+										SELECT D.EmployeeCategoryId
+										FROM (SELECT * FROM MST.DesignationMaster WHERE CompanyGroupId = '" + companyGroupId + @"'
+											) AS D
+										LEFT JOIN EmployeeInformation EI ON D.DesignationId = EI.GivenDesignationId
+										WHERE EI.SystemId = '" + pId + @"'
+										)
+								)DD ON CDSD.ComplianceDocumentSetId = DD.ComplianceDocumentSetId
+								LEFT JOIN HKP.EmployeeCategory AS E ON DD.EmployeeCategoryId = E.Id
+								WHERE ED.EmpSystemID = '" + pId + @"' 
+									--AND ISNULL(CD.ProfileType,'') NOT IN ('Qualification','Training','Experience','Photo')
+									AND E.UserName IS NOT NULL ORDER BY CDSD.OptionalOrMandatory,DocumentName";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
 
         #region  EmployeeOperation

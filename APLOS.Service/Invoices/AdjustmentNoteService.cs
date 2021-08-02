@@ -349,8 +349,17 @@ namespace Library.Service.Invoices
                     GLGeneralInfoId = gl.LiabilityGLId,
                     BudgetMasterId = gl.LiabilityBudgetMasterId,
                     ActivityId = gl.LiabilityActivityId,
-                    Amount = adjustmentNote.Amount - totalwithholdCrAmount + totalBaseCurrencyDrAmount
                 };
+                if (voucherVM.PartyType == "Customer")
+                {
+                    adjustmentNoteDetail.Amount = adjustmentNote.Amount  + totalBaseCurrencyDrAmount;
+
+                }
+                else
+                {
+                    adjustmentNoteDetail.Amount = adjustmentNote.Amount - totalwithholdCrAmount + totalBaseCurrencyDrAmount;
+
+                }
                 InsertAdjustmentNoteDetail(adjustmentNote, adjustmentNoteDetail, 1);
 
 
@@ -367,7 +376,7 @@ namespace Library.Service.Invoices
                     PartyPlantId = adjustmentNote.PartyPlantId,
                     TrnNature = TransactionNature.CreditNote.ToString(),
                     AdjustmentNoteDetailId = adjustmentNoteDetail.Id,
-                    CrAmount = voucherVM.Amount - totalwithholdCrAmount + totalBaseCurrencyDrAmount
+                    CrAmount = adjustmentNoteDetail.Amount
                 };
                 totalAmountCr += voucherDetail.CrAmount;
                 currentVoucherDetailId++;

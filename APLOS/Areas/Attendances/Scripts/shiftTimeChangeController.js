@@ -61,6 +61,13 @@ function shiftTimeChangeController(cboService, commonMessage, $scope, $rootScope
         RawINDefinitionTo: null,
         RawOUTDefinitionTo: null,
         //INAfterOUTAsOTStart: false,
+        HalfDayDuration: null,
+        ShortDuration: null,
+        MaxOutDuration: null,
+        FullDayDuration: null,
+        ShiftDuration: null,
+        HoursWithoutOT: null,
+
     };
     $scope.ShiftTimeChangeModel = Object.assign({}, $scope.ShiftTimeChange);
 
@@ -113,6 +120,12 @@ function shiftTimeChangeController(cboService, commonMessage, $scope, $rootScope
         $scope.ShiftTimeChangeModel.RawINDefinitionTo = shi.RawINDefinitionTo;
         $scope.ShiftTimeChangeModel.RawOUTDefinitionTo = shi.RawOUTDefinitionTo;
         //$scope.ShiftTimeChangeModel.INAfterOUTAsOTStart = shi.INAfterOUTAsOTStart;
+        $scope.ShiftTimeChangeModel.HalfDayDuration = shi.HalfDayDuration;
+        $scope.ShiftTimeChangeModel.ShortDuration = shi.ShortDuration;
+        $scope.ShiftTimeChangeModel.FullDayDuration = shi.FullDayDuration;
+        $scope.ShiftTimeChangeModel.MaxOutDuration = shi.MaxOutDuration;
+        $scope.ShiftTimeChangeModel.ShiftDuration = shi.ShiftDuration;
+        $scope.ShiftTimeChangeModel.HoursWithoutOT = shi.HoursWithoutOT;
 
         angular.element(document.querySelector('#ShiftPopUp')).modal('hide');
     };
@@ -228,7 +241,13 @@ function shiftTimeChangeController(cboService, commonMessage, $scope, $rootScope
             CheckField("Out Time", $scope.ShiftTimeChangeModel.OutTime);
             CheckField("OT Start Time", $scope.ShiftTimeChangeModel.OTStartTime);
             CheckField("Out Time End Margin", $scope.ShiftTimeChangeModel.OutTimeEndMargin);
-           
+            CheckField("Shift Duration", $scope.ShiftTimeChangeModel.ShiftDuration);
+            CheckField("HalfDay Duration", $scope.ShiftTimeChangeModel.HalfDayDuration);
+            CheckField("FullDay Duration", $scope.ShiftTimeChangeModel.FullDayDuration);
+            CheckField("ShortDay Duration", $scope.ShiftTimeChangeModel.ShortDuration);
+            CheckField("MaxOut Duration", $scope.ShiftTimeChangeModel.MaxOutDuration);
+            CheckField("Hours Without OT", $scope.ShiftTimeChangeModel.HoursWithoutOT);
+
         } catch (ex) {
             throw ex;
         }

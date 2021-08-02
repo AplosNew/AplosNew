@@ -196,55 +196,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 }
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                try
-                {
-                    string inDates = "";
-                    string inEmployeeIds = "";
-                    foreach (AttendanceProcessNewProcess item in DataToBeSaved)
-                    {
-                        if (inDates == "")
-                            inDates = "'" + item.WorkDate + "'";
-                        else
-                            inDates += ",'" + item.WorkDate + "'";
-
-
-                        if (inEmployeeIds == "")
-                            inEmployeeIds = "'" + item.Id + "'";
-                        else
-                            inEmployeeIds += ",'" + item.Id + "'";
-                    }
-
-                    if (inDates != "")
-                    {
-                        DataTable dtLock = _sqlRepository.GetDataTable("SELECT * FROM PlantWiseAttendanceLock AS pwal WHERE  isActive=1 AND pwal.LockedDate IN (" + inDates + ") AND pwal.PlantId='" + identity.PlantId + "'");
-                        DataTable dtLockEmployee = _sqlRepository.GetDataTable("SELECT * FROM ExceptionEmployeeAttendanceUnlock WHERE EmpSystemId IN (" + inEmployeeIds + @")");
-                        for (int i = 0; i < dtLock.Rows.Count; i++)
-                        {
-                            var k = DataToBeSaved.Where(ee => ee.WorkDate.ToUpper() == Convert.ToDateTime(dtLock.Rows[i]["LockedDate"].ToString()).ToString("dd-MMM-yyyy").ToUpper());
-                            foreach (var item in k)
-                            {
-                                dtLockEmployee.DefaultView.RowFilter = "EmpSystemId='" + item.Id + "' AND WorkDate=#" + item.WorkDate + "#";
-                                if (dtLockEmployee.DefaultView.Count == 0)
-                                {
-                                    item.IsError = true;
-                                    item.ErrorMessage = "Day locked";
-                                }
-                            }
-                        }
-
-                        if (DataToBeSaved.Where(ee => ee.IsError == true).ToList().Count > 0)
-                        {
-
-                            return Json(new { Error = true, Message = "Error occured", Data = DataToBeSaved }, JsonRequestBehavior.AllowGet);
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-
-
-                }
-
+                
                 DataTable NewShiftStandardTime = getDateWiseShift(DataToBeSaved);
                 //validations
                 foreach (AttendanceProcessNewProcess item in DataToBeSaved)
@@ -272,6 +224,12 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 {
                                     item.IsError = true;
                                     item.ErrorMessage = "Out time is earlier than In time";
+                                }
+
+                                if (Convert.ToDateTime(item.OutDate + " " + item.OutTime) > DateTime.Now)
+                                {
+                                    item.IsError = true;
+                                    item.ErrorMessage = "Out time is greater than Now";
                                 }
 
                                 TimeSpan ts = Convert.ToDateTime(item.OutDate + " " + item.OutTime).Subtract(Convert.ToDateTime(item.InDate + " " + item.InTime));
@@ -526,7 +484,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             format(KK.OutTime,'hh:mm tt') AS  OutTime, format(KK.OutTime,'hh:mm tt') AS  OutTimeOriginal, 
 
 
-                            KK.IsManualOutTime,KK.DayStatusCode,
+                            KK.IsManualOutTime,KK.DayStatusCode,KK.IsLock,
 
                             format(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt') AS PunchInTime,
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
@@ -544,7 +502,7 @@ namespace Aplos.Areas.HumanResource.Controllers
        
 		                            O.PunchInTime,O.PunchOutTime,
 		                            O.DayStatus, O.OTHr, O.IsOTComfirm,O.DayStatusCode,
-		                            O.IsOTEntitled,O.IsManualDayStatus
+		                            O.IsOTEntitled,O.IsManualDayStatus,O.IsLock
 
 		                            FROM EmployeeInformation EMP
 		                            LEFT JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
