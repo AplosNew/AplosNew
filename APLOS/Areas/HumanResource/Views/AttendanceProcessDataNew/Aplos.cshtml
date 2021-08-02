@@ -287,20 +287,13 @@
 </script>
 
 <script type="text/template" id="indate">
-    <input type="text" name="Date" ng-model="data.InDate" datepicker class="form-control" 
+    <input type="text" name="Date" ng-model="data.InDate" datepicker class="form-control"
            ng-disabled="data.IsLock==true">
 </script>
 <script type="text/template" id="intime">
 
-    @*<div class="form-group">
-            <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
-                <input id="StartTime" type="text" class="form-control input-small" ng-model="data.InTime"
-                       style="width:100%" ng-disabled="data.IsLock==true">
-            </div>
-        </div>*@
-    
-    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%"
-           e-enable="{​​​​​​​{​​​​​​​data.IsLock==true?false:true}​​​​​​​}​​​​​​​" />
+    <input style="display:{{data.IsLock==true?'none':'inherit'}};" type="text" ej-timepicker e-value="data.InTime" e-width="100%" />
+    <span style="display:{{data.IsLock==true?'inherit':'none'}};">{{data.InTime}}</span>
 
 </script>
 
@@ -314,10 +307,10 @@
     <div class="form-group">
         <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
             <input id="Timeeee" type="text" class="form-control input-small" ng-model="data.OutTime"
-                   ng-disabled="data.IsLock==true" style="width:100%">           
+                   ng-disabled="data.IsLock==true" style="width:100%">
         </div>
     </div>
-  
+
 </script>
 
 <div class="row">
@@ -355,78 +348,78 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Shift Desc</label>
                     <label class="col-sm-8 control-label">{{shiftinfo.ShiftName}}</label>
-    </div>
-    <div class="form-group">
-        <label class="col-sm-4 control-label">Shift in Time</label>
-        <label class="col-sm-8 control-label">{{shiftinfo.ShiftInTime}}</label>
-    </div>
-    <div class="form-group">
-        <label class="col-sm-4 control-label">Shift Out Time</label>
-        <label class="col-sm-8 control-label">{{shiftinfo.ShiftOutTime}}</label>
-    </div>
-
-    </div>
-
-    </ej-dialog>
-    </div>
-    </div>
-
-    <div class="row">
-        <ej-dialog id="ViewAttendanceInfo" title=" Attendance Info" e-enablemodal="true" e-position-y="0" e-showoninit="false"
-                   e-target="#Tab" e-width="500px" e-height="500px" e-open="enableBtn">
-            <div class="form-elements">
-                <div id="GridAttendance" ng-init="chkinit()" ej-grid e-datasource="attendanceinfo"
-                     e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="true" e-filtersettings-filterType="excel">
-                    <div e-columns>
-                        <div e-column e-field="PDate" e-headertext="Date" e-width="120"></div>
-                        <div e-column e-field="PTime" e-headertext="Time" e-width="120"></div>
-                        <div e-column e-field="PType" e-headertext="Type" e-width="80"></div>
-                    </div>
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Shift in Time</label>
+                    <label class="col-sm-8 control-label">{{shiftinfo.ShiftInTime}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Shift Out Time</label>
+                    <label class="col-sm-8 control-label">{{shiftinfo.ShiftOutTime}}</label>
+                </div>
+
             </div>
+
         </ej-dialog>
     </div>
-    <div class="modal fade site-modal in" id="recipeMaterialPopUp" role="dialog" data-backdrop="static">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header"> Select Employees<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+</div>
 
-                <div class="col-xs-12 col-sm-12 col-sm-12">
-                    <div class="content-container-fluid">
-
-                        <div id="Gridemployee" ng-init="chkinit()" ej-grid e-datasource="employeeAttendanceBySingleDateSelection" @*e-actioncomplete="actionCompleteSelected"*@
-                             e-templaterefresh="refreshTemplateemployee"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                             e-allowselection="true" e-filtersettings-filterType="excel">
-                            <div e-columns>
-                                <div e-column e-headertext="" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>
-                                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50" e-primarykey="true"></div>
-                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                                <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
-                                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
-                            </div>
-                        </div>
-
-
-                    </div>
-                    <script type="text/x-jsrender" id="checkboxTemplate">
-                        <input type="checkbox" ng-model="{{:Id}}" class="rowCheckbox" value="{{:Id}}" />
-                    </script>
-                    <script type="text/x-jsrender" id="headerTemplate">
-                        <input type="checkbox" id="headchk" />
-                    </script>
+<div class="row">
+    <ej-dialog id="ViewAttendanceInfo" title=" Attendance Info" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+               e-target="#Tab" e-width="500px" e-height="500px" e-open="enableBtn">
+        <div class="form-elements">
+            <div id="GridAttendance" ng-init="chkinit()" ej-grid e-datasource="attendanceinfo"
+                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="PDate" e-headertext="Date" e-width="120"></div>
+                    <div e-column e-field="PTime" e-headertext="Time" e-width="120"></div>
+                    <div e-column e-field="PType" e-headertext="Type" e-width="80"></div>
                 </div>
-                <ul class="common-btn list-inline text-right" style="padding: 20px;">
-                    <li><button ng-click="saveemployeedata();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Submit</button></li>
-                    <li><button ng-click="Back();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Back</button></li>
-                </ul>
-
             </div>
         </div>
+    </ej-dialog>
+</div>
+<div class="modal fade site-modal in" id="recipeMaterialPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Select Employees<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="content-container-fluid">
+
+                    <div id="Gridemployee" ng-init="chkinit()" ej-grid e-datasource="employeeAttendanceBySingleDateSelection" @*e-actioncomplete="actionCompleteSelected"*@
+                         e-templaterefresh="refreshTemplateemployee"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50" e-primarykey="true"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <script type="text/x-jsrender" id="checkboxTemplate">
+                    <input type="checkbox" ng-model="{{:Id}}" class="rowCheckbox" value="{{:Id}}" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
+            </div>
+            <ul class="common-btn list-inline text-right" style="padding: 20px;">
+                <li><button ng-click="saveemployeedata();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Submit</button></li>
+                <li><button ng-click="Back();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Back</button></li>
+            </ul>
+
+        </div>
     </div>
+</div>
 
 
-    
+

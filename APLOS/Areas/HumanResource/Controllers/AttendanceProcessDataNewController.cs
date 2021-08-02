@@ -221,7 +221,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
 
                             KK.DayStatus, KK.OTHr,
-                            KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus,KK.IsLock
+                            KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus,convert(bit,isnull(KK.IsLock,0)) AS IsLock
 
                              FROM (
 								
