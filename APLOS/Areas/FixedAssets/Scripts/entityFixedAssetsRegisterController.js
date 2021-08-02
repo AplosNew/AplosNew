@@ -46,6 +46,41 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
         DepartmentId: null
     };
 
+    //for elastic search
+    $scope.EntityFixedAssetRegisterElasticSearchList = [];
+    $scope.GetEntityFixedAssetRegisterElasticSearchData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetEntityFixedAssetRegisterElasticSearchDataList",
+                //data: { FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate },
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+
+                //if (response.data.Error == false) {
+                //    for (var i = 0; i < response.data.DATA.length; i++) {
+                //      response.data.DATA[i].MasterLCDate = new Date(response.data.DATA[i].MasterLCDate);
+                //    }
+                //    $scope.EntityFixedAssetRegister = response.data.DATA;
+                //}
+                //else {
+                //    ShowResult(response.data.Message, 'failure');
+                //}
+                $scope.EntityFixedAssetRegisterElasticSearchList = response.data.DATA;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+        catch (e) {
+
+        }
+    }
+    $scope.GetEntityFixedAssetRegisterElasticSearchData();
+
+
+
 
     $scope.EntityFixedAssetRegisterList = [];
     $scope.GetEntityFixedAssetRegisterData = function () {
@@ -78,6 +113,7 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
         }
     }
     $scope.GetEntityFixedAssetRegisterData();
+
 
     $scope.entityList = [];
     cboService.getCboEntityByPlant(null, null, "", function (result) {

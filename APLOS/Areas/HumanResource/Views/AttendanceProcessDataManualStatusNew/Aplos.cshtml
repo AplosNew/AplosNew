@@ -242,7 +242,7 @@
 @**@
 <script type="text/template" id="daystatus">
     <div class="col-sm-10" style="padding:0px;">
-        <input type="text" name="NewStatus" ng-model="changestatus" ng-click="$parent.getDayStatus(this)" class="form-control" maxlength="200" tabindex="5">
+        <input type="text" name="NewStatus" ng-model="data.DayStatusNew" ng-disabled="data.DayStatusChange!='True' || data.IsLock==true" ng-click="$parent.getDayStatus(this)" class="form-control" maxlength="200" tabindex="5">
 
     </div>
 
@@ -250,7 +250,7 @@
 
 <script type="text/template" id="daystatusx">
     <div class="col-sm-10" style="padding:0px;">
-        <input type="text" name="NewStatusx" ng-model="changestatusx" ng-click="$parent.getDayStatusx(this)" class="form-control" maxlength="200" tabindex="5">
+        <input type="text" name="NewStatusx" ng-model="data.DayStatusNew" ng-disabled="data.DayStatusChange!='True' || data.IsLock==true" ng-click="$parent.getDayStatusx(this)" class="form-control" maxlength="200" tabindex="5">
 
     </div>
 
@@ -364,7 +364,7 @@
                     Select The DayStatus by Double Clicking the Choice.
                 <p>
 
-                    <div id="getCustomers" ej-grid e-datasource="selectedStatusx" e-templaterefresh="refreshTemplate"
+                    <div id="getCustomersx" ej-grid e-datasource="selectedStatusx" e-templaterefresh="refreshTemplate"
                          e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                          e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"

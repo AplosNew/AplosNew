@@ -589,6 +589,14 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(_employeeProfileService.GetEmpDocumentDataList(identity.CompanyGroupId, pId, plantId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetEmpAllDocumentDataList(string companyGroupId, string pId, string plantId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(employeeProfile.GetEmpDocumentDataList(identity.CompanyGroupId, pId, plantId), JsonRequestBehavior.AllowGet);
+        }
+
+
         [HttpPost, Authorize]
         public ActionResult SaveEmployeeComplianceDocument(string empId, string plantId, string givenDesignationId, string budgetId, string empType)
         {

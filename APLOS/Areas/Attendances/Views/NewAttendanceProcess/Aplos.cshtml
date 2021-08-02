@@ -1,0 +1,45 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{FormTitle}}</h3>
+
+<div class="form-elements form-horizontal" ng-form name="AttndFromAppForm">
+    <div class="row" ng-form name="General">        
+
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="row">
+            <h2>This is just for Testing Purpose of the Attendance Process !!</h2>
+
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Date" ng-model="Attnd.Date" datepicker class="form-control" required tabindex="4">
+
+
+
+            </div>
+        </div>
+
+        <div class="common-btn" style="margin-top:30px;">
+            <ul class="list-inline text-left">
+                <li> <button ng-click="Run();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Run Shift Process </button></li>
+                <li> <button ng-click="RunAttnd();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Run Attendance Process </button></li>
+                <li> <button ng-click="RunDayStatus();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Run DayStatus Process </button></li>
+
+            </ul>
+        </div>
+        <div class="common-btn" style="margin-top:30px;">
+            <ul class="list-inline text-left">
+                <li> <button ng-click="RunManualScheduler();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Run Manual Scheduler </button></li>
+                <li> <button ng-click="RunMonthlySummary();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Run Monthly Summary </button></li>
+                <li> <button ng-click="RunRoster();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Run Roster Logic </button></li>
+
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+
+
