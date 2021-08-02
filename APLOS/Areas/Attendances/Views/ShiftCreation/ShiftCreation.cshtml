@@ -86,11 +86,11 @@
                         <div class="col-sm-2">
                             <input type="text" ng-model="ShiftDefinationModel.LateMargin" class="form-control" only-numbers maxlength="100" tabindex="2">
                         </div>
-                        <label class="col-sm-1 control-label"  style="left:-25px;">[min]</label>
+                        <label class="col-sm-1 control-label" style="left:-25px;">[min]</label>
                         <div class="col-sm-2">
                             <input type="text" ng-model="ShiftDefinationModel.LateMarginSeconds" class="form-control" only-numbers maxlength="100" tabindex="2">
                         </div>
-                        <label class="col-sm-1 control-label"  style="left:-25px;" >[sec]</label>
+                        <label class="col-sm-1 control-label" style="left:-25px;">[sec]</label>
                     </div>
 
                     <div class="form-group">
@@ -102,11 +102,11 @@
                                 </label>
                             </div>
                         </div>
-                        <label class="col-sm-1 control-label" >Margin</label>
+                        <label class="col-sm-1 control-label">Margin</label>
                         <div class="col-sm-2">
                             <input type="text" ng-model="ShiftDefinationModel.EarlyInMargin" ng-readonly="!ShiftDefinationModel.EarlyIn" only-numbers class="form-control" maxlength="100" tabindex="2">
                         </div>
-                        <label class="col-sm-1 control-label"  style="left:-25px;">[min]</label>
+                        <label class="col-sm-1 control-label" style="left:-25px;">[min]</label>
                     </div>
 
                     <div class="form-group">
@@ -115,7 +115,7 @@
                         <div class="col-sm-2">
                             <input type="text" ng-model="ShiftDefinationModel.LateInRoundMargin" ng-readonly="!ShiftDefinationModel.EarlyIn" only-numbers class="form-control" maxlength="30" tabindex="2">
                         </div>
-                        <label class="col-sm-1 control-label"  style="left:-25px;">[min]</label>
+                        <label class="col-sm-1 control-label" style="left:-25px;">[min]</label>
                         <div class="col-sm-2">
                             <div class="select-style">
                                 <select id="RoundMarginLateIn" class="form-control" ng-readonly="!ShiftDefinationModel.EarlyIn" ng-model="ShiftDefinationModel.EarlyInRoundMarginType" name="RoundMargin LateIn" required tabindex="1">
@@ -137,7 +137,7 @@
                         <div class="col-sm-3">
                             <input type="text" ng-model="ShiftDefinationModel.InTimeStartMargin" class="form-control" only-numbers maxlength="100" tabindex="2">
                         </div>
-                        <label class="col-sm-2 control-label"  style="left:-25px;">[min]</label>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
                     </div>
 
                     <div class="form-group">
@@ -145,7 +145,7 @@
                         <div class="col-sm-3">
                             <input type="text" ng-model="ShiftDefinationModel.AbsentEndMargin" class="form-control" only-numbers maxlength="100" tabindex="2">
                         </div>
-                        <label class="col-sm-2 control-label"  style="left:-25px;">[min]</label>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
                     </div>
 
                     <div class="form-group">
@@ -159,7 +159,7 @@
                         <div class="col-sm-2">
                             <input type="text" ng-model="ShiftDefinationModel.LateInMargin" ng-readonly="!ShiftDefinationModel.LateIn" only-numbers class="form-control" maxlength="100" tabindex="2">
                         </div>
-                        <label class="col-sm-1 control-label"  style="left:-25px;">[min]</label>
+                        <label class="col-sm-1 control-label" style="left:-25px;">[min]</label>
                     </div>
 
                     <div class="form-group">
@@ -338,7 +338,7 @@
                         <div class="col-sm-3">
                             <input type="text" ng-model="ShiftDefinationModel.BreakPeriod" only-numbers readonly class="form-control" maxlength="100" tabindex="2">
                         </div>
-                        <label class="col-sm-2 control-label"  style="left:-25px;">[min]</label>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
                     </div>
                     <hr />
                     <div class="form-group">
@@ -366,7 +366,7 @@
                         <div class="col-sm-2">
                             <input type="text" ng-model="ShiftDefinationModel.LateInMaxLimit" ng-disabled="!ShiftDefinationModel.IsLateInApplicable" only-numbers class="form-control" maxlength="100" tabindex="2">
                         </div>
-                        <label class="col-sm-1 control-label"  style="left:-25px;">[min]</label>
+                        <label class="col-sm-1 control-label" style="left:-25px;">[min]</label>
                     </div>
 
                     <div class="form-group">
@@ -437,6 +437,116 @@
 
         <div class="col-xs-12">
             <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Duration</legend>
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Shift Duration</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.ShiftDuration" only-numbers class="form-control" maxlength="100" tabindex="1">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Full Day Duration</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.FullDayDuration" only-numbers class="form-control" maxlength="100" tabindex="3">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Max Out Duration</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.MaxOutDuration" only-numbers class="form-control" maxlength="100" tabindex="5">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Half Day Duration</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.HalfDayDuration" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Short Day Duration</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.ShortDuration" only-numbers class="form-control" maxlength="100" tabindex="4">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Work Hours Without OT</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.HoursWithoutOT" only-numbers class="form-control" maxlength="100" tabindex="4">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+                </div>
+
+            </fieldset>
+        </div>
+
+        <div class="col-xs-12">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Shift Margin</legend>
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Shift EarlyIN Margin</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.ShiftEarlyInMargin" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Shift EarlyOUT Margin</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.ShiftEarlyOutMargin" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Shift LateIn Margin</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.ShiftLateInMargin" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Shift LateOUT Margin</label>
+                        <div class="col-sm-3">
+                            <input type="text" ng-model="ShiftDefinationModel.ShiftLateOutMargin" only-numbers class="form-control" maxlength="100" tabindex="2">
+                        </div>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                    </div>
+
+                </div>
+
+            </fieldset>
+        </div>
+
+
+
+        <div class="col-xs-12">
+            <fieldset class="scheduler-border">
                 <legend class="scheduler-border">Raw Punch Definition</legend>
                 <div class="col-xs-12 col-sm-6 col-md-6 ">
 
@@ -445,7 +555,7 @@
                         <div class="col-sm-3">
                             <input type="text" ng-model="ShiftDefinationModel.RawINDefinitionFrom" only-numbers class="form-control" maxlength="100" tabindex="2">
                         </div>
-                        <label class="col-sm-2 control-label"  style="left:-25px;">[min]</label>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
                     </div>
 
                     <div class="form-group">
@@ -453,7 +563,7 @@
                         <div class="col-sm-3">
                             <input type="text" ng-model="ShiftDefinationModel.RawOUTDefinitionFrom" only-numbers class="form-control" maxlength="100" tabindex="2">
                         </div>
-                        <label class="col-sm-2 control-label"  style="left:-25px;">[min]</label>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
                     </div>
 
                 </div>
@@ -465,7 +575,7 @@
                         <div class="col-sm-3">
                             <input type="text" ng-model="ShiftDefinationModel.RawINDefinitionTo" only-numbers class="form-control" maxlength="100" tabindex="2">
                         </div>
-                        <label class="col-sm-2 control-label"  style="left:-25px;">[min]</label>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
                     </div>
 
                     <div class="form-group">
@@ -473,7 +583,7 @@
                         <div class="col-sm-3">
                             <input type="text" ng-model="ShiftDefinationModel.RawOUTDefinitionTo" only-numbers class="form-control" maxlength="100" tabindex="2">
                         </div>
-                        <label class="col-sm-2 control-label"  style="left:-25px;">[min]</label>
+                        <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
                     </div>
 
                 </div>

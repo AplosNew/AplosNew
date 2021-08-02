@@ -3011,18 +3011,18 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                             if (JWPOIsNonCreditable == "False")
                             {
-                                decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                            //    decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
                                 decimal Amt = Convert.ToDecimal(data[i]["TransactionAmount"]);
-                                decimal BAmt = Convert.ToDecimal(Amt * PORate);
+                                decimal BAmt = Convert.ToDecimal(Amt);
                                 data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
                                 data[i]["BaseAmount"] = BAmt;
                             }
 
                             if (JWPOIsNonCreditable == "True")
                             {
-                                decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                             //   decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
                                 decimal Amt = Convert.ToDecimal(data[i]["TransactionAmount"]);
-                                decimal BAmt = Convert.ToDecimal((Amt + SumTax) * PORate);
+                                decimal BAmt = Convert.ToDecimal(Amt + SumTax);
                                 data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
                                 data[i]["BaseAmount"] = BAmt;
                             }

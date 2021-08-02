@@ -367,5 +367,9 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/PurchaseOrder/PORollBack',
             controller: 'PORollBackController'
         })
+        .when('/inventory-sales-return', {
+            templateUrl: 'Products/InventorySalesReturn/Aplos',
+            controller: 'InventorySalesReturnController'
+        })
         ;
 }
