@@ -158,19 +158,19 @@
                                  e-detailstemplate="detailTemp" @*e-actioncomplete="actionCompleteSelected2"*@
                                  e-detailsdatabound="detailgrid">
                                 <div e-columns>
-                                    <div e-column e-field="Id" e-headertext="Req No" e-width="120"></div>
+                                    <div e-column e-headertext="Actions" e-width="80">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved/H/R" ng-click="$parent.onClickSPOApproved('GridPOAPp');" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPOAPp');" style="margin: -6px;"></i></button>
+                                    </div>
+                                    <div e-column e-template="#RejectApprovedReason" e-headertext="Hold / Reject Reason" e-width="300" style="height: 20px;"></div>
+                                    <div e-column e-template="#ApprovedStatus" e-headertext="Approved Status" e-width="180"></div>
                                     <div e-column e-field="RequisitionDate" e-headertext="Requisition Date" e-width="120"></div>
+                                    <div e-column e-field="Id" e-headertext="Req No" e-width="120"></div>
                                     <div e-column e-field="Reason" e-headertext="Reason" e-width="120"></div>
                                     <div e-column e-field="TotalAmount" e-headertext="Total Amount" textAlign='Right' e-width="120"></div>
                                     <div e-column e-field="TotalAmountBC" e-headertext="Total Amount BC" textAlign='Right' e-width="120"></div>
                                     <div e-column e-field="AuthorizedByEmp" e-headertext="Prepared By" e-width="120"></div>
                                     <div e-column e-field="CheckedByEmp" e-headertext="Checked By" e-width="120"></div>
-                                    <div e-column e-template="#RejectApprovedReason" e-headertext="Hold / Reject Reason" e-width="300" style="height: 20px;"></div>
-                                    <div e-column e-template="#ApprovedStatus" e-headertext="Approved Status" e-width="180"></div>
-                                    <div e-column e-headertext="Actions" e-width="80">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved/H/R" ng-click="$parent.onClickSPOApproved('GridPOAPp');" style="margin: -6px;"></i></button>
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPOAPp');" style="margin: -6px;"></i></button>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -244,8 +244,14 @@
                                  e-detailstemplate="detailTemp" @*e-actioncomplete="ApprovedReqHRScroll"*@
                                  e-detailsdatabound="detailgrid">
                                 <div e-columns>
-                                    <div e-column e-field="Id" e-headertext="Req No" e-width="120"></div>
+                                    <div e-column e-headertext="Actions" e-width="80">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Hold/Reject" ng-click="$parent.onClickServiceReqA('GridReqAHR');" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridReqAHR');" style="margin: -6px;"></i></button>
+                                    </div>
+                                    <div e-column e-template="#RejectApprovedReason1" e-headertext="Hold / Reject Reason" e-width="300" style="height: 20px;"></div>
+                                    <div e-column e-template="#ApprovedStatus3" e-headertext="Approved Status" e-width="180"></div>
                                     <div e-column e-field="RequisitionDate" e-headertext="Requisition Date" e-width="120"></div>
+                                    <div e-column e-field="Id" e-headertext="Req No" e-width="120"></div>
                                     <div e-column e-field="Reason" e-headertext="Reason" e-width="120"></div>
                                     <div e-column e-field="TotalAmount" e-headertext="Total Amount" textAlign='Right' e-width="120"></div>
                                     <div e-column e-field="TotalAmountBC" e-headertext="Total Amount BC" textAlign='Right' e-width="120"></div>
@@ -253,12 +259,6 @@
                                     <div e-column e-field="CheckedByEmp" e-headertext="Checked By" e-width="120"></div>
                                     <div e-column e-field="CheckedByStatus" e-headertext="CheckedBy Status" e-width="120"></div>
                                     <div e-column e-field="ReasonAHR" e-headertext="Hold / Reject Reason" e-width="120"></div>
-                                    <div e-column e-template="#RejectApprovedReason1" e-headertext="Hold / Reject Reason" e-width="300" style="height: 20px;"></div>
-                                    <div e-column e-template="#ApprovedStatus3" e-headertext="Approved Status" e-width="180"></div>
-                                    <div e-column e-headertext="Actions" e-width="80">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Hold/Reject" ng-click="$parent.onClickServiceReqA('GridReqAHR');" style="margin: -6px;"></i></button>
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridReqAHR');" style="margin: -6px;"></i></button>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -310,17 +310,18 @@
                                  e-detailstemplate="detailTemp" @*e-actioncomplete="actionCompleteSelected3"*@
                                  e-detailsdatabound="detailgrid">
                                 <div e-columns>
-                                    <div e-column e-field="Id" e-headertext="Requisition No" e-width="60"></div>
+                                    <div e-column e-headertext="Actions" e-width="30">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO12');" style="margin: -6px;"></i></button>
+                                    </div>
                                     <div e-column e-field="RequisitionDate" e-headertext="Requisition Date" e-width="60"></div>
+                                    <div e-column e-field="Id" e-headertext="Requisition No" e-width="60"></div>
                                     <div e-column e-field="RequisitionType" e-headertext="Requisition Type" e-width="60"></div>
                                     <div e-column e-field="Reason" e-headertext="Reason" e-width="120"></div>
                                     <div e-column e-field="TotalAmount" e-headertext="Total Amount" textAlign='Right' e-width="60"></div>
                                     <div e-column e-field="TotalAmountBC" e-headertext="Total Amount BC" textAlign='Right' e-width="120"></div>
                                     <div e-column e-field="AuthorizedByEmp" e-headertext="Prepared By" e-width="120"></div>
                                     <div e-column e-field="CheckedByEmp" e-headertext="Checked By" e-width="120"></div>
-                                    <div e-column e-headertext="Actions" e-width="30">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO12');" style="margin: -6px;"></i></button>
-                                    </div>
+
                                 </div>
                             </div>
                         </div>
