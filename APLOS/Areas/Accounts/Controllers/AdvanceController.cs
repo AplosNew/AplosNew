@@ -584,6 +584,13 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_advanceService.GetPartyWiseOutstandingAdvance(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyId, SourceType.VendorAdvance), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetCustomerWiseOutstandingAdvance(string partyId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_advanceService.GetPartyWiseOutstandingAdvance(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyId, SourceType.CustomerAdvance), JsonRequestBehavior.AllowGet);
+        }
+
 
 
         [Authorize, HttpGet]
