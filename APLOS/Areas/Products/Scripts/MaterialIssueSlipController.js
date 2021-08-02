@@ -1,5 +1,5 @@
 ﻿'use strict';
-MaterialIssueSlipController.$inject = ['addressService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller','$location'];
+MaterialIssueSlipController.$inject = ['addressService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller', '$location'];
 function MaterialIssueSlipController(addressService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $location) {
 
 
@@ -234,8 +234,14 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 			var Material = "''";
 			var Article = "''";
 			var id1 = "''";
+			var queryString = "";
+			
+			var count = 0;
 			for (var i = 0; i < $scope.MaterialColorList.length; i++) {
 				if ($scope.MaterialColorList[i].Active === true) {
+					var getRowlength = $filter("filter")($scope.MaterialColorList, { "Active": true });
+					count++;
+					var queryString1 = getRowlength.length;
 					Material += ",'" + $scope.MaterialColorList[i].MaterialMasterId + "'";
 					Article += ",'" + $scope.MaterialColorList[i].ArticleId + "'";
 					Skuvalue1 += ",'" + $scope.MaterialColorList[i].FirstCharacteristicsValueId + "'";
@@ -243,47 +249,70 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 					Skuvalue3 += ",'" + $scope.MaterialColorList[i].ThirdCharacteristicsValueId + "'";
 					id1 += ",'" + $scope.MaterialColorList[i].SalesOrderId + "'";
 					SOMATART += ",'" + $scope.MaterialColorList[i].SOMATART + "'";
+					//queryString += ",'" + SOMATART+"'+" + " " + ID + "," + '" + $scope.MaterialColorList[i].RequisitionForQty + "'" + " " + Qty"";
+					if (queryString1 > count) {
+						queryString += " Select  '" + $scope.MaterialColorList[i].SOMATART + "'" + ' ID ' + '' + ",'" + $scope.MaterialColorList[i].RequisitionForQty + "'" + ' Qty  UNION ALL ';
+
+					}
+					else {
+						queryString += " Select '" + $scope.MaterialColorList[i].SOMATART + "'" + ' ID ' + '' + ",'" + $scope.MaterialColorList[i].RequisitionForQty + "'" + ' Qty ';
+
+					}
 				}
 			}
 			$scope.FilterList123 = [];
 			$http({
 				method: 'GET',
-				url: $scope.path + 'GetMaterialListForProductionReq?Material=' + Material + '&Article=' + Article + '&Skuvalue1=' + Skuvalue1 + '&Skuvalue2=' + Skuvalue2 + '&Skuvalue3=' + Skuvalue3 + '&ProcessId=' + $scope.productNew.ProcessId + '&parameters=' + id1 + '&SOMATART=' + SOMATART 
+				url: $scope.path + 'GetMaterialListForProductionReq?Material=' + Material + '&Article=' + Article + '&Skuvalue1=' + Skuvalue1 + '&Skuvalue2=' + Skuvalue2 + '&Skuvalue3=' + Skuvalue3 + '&ProcessId=' + $scope.productNew.ProcessId + '&parameters=' + id1 + '&SOMATART=' + SOMATART + '&queryString=' + queryString
 			}).then(function successCallback(response) {
 				$scope.FilterList123 = response.data;
-				for (var i = 0; i < $scope.FilterList123.length; i++) {
-					var getRow = $filter("filter")($scope.MaterialColorList, { "FirstCharacteristicsValueId": $scope.FilterList123[i].FirstCharacteristicsValueId, "SecondCharacteristicsValueId": $scope.FilterList123[i].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": $scope.FilterList123[i].ThirdCharacteristicsValueId, "SalesOrderId": $scope.FilterList123[i].SalesOrderId, "Active": true });
-					var resConPlQrt = 0;
-					//for (var j = 0; j < getRow.length; j++) {
-						//var RequisitionForQty = 0;
-						if (getRow[0] != null) {
-							//if (getRow.RequisitionForQty == 'NaN') {
-							//	getRow.RequisitionForQty = 0;
-							//}
-							if (getRow[0].RequisitionForQty == 'NaN' || baseService.isUndefinedOrNull(getRow[0].RequisitionForQty)) {
-								getRow[0].RequisitionForQty = 0;
-							}
-							var resConPlQrt = $scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty;
-							var Wastage = (resConPlQrt * $scope.FilterList123[i].WastagePer) / 100;
-							$scope.FilterList123[i].RequisitionQty = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
-							$scope.FilterList123[i].RequisitionQtyOrginal = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
-							$scope.FilterList123[i].RequestedQtyOrginal = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
-							//$scope.FilterList123[i].RequestedQty = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
-							
-						//}
-					}
-					
 
-				}
-				
-				
+				//for (var i = 0; i < $scope.FilterList123.length; i++) {
+
+				//	if (baseService.isUndefinedOrNull($scope.FilterList123[i].RwFirstCharacteristicsValueId))
+				//		var getRow = $filter("filter")($scope.MaterialColorList, { "SalesOrderId": $scope.FilterList123[i].SalesOrderId, "Active": true });
+				//	else
+				//		var getRow = $filter("filter")($scope.MaterialColorList, { "SOMATART": $scope.FilterList123[i].SOFSTId, "Active": true });
+
+
+
+				//	if (getRow[0] != null) {
+				//		var RequisitionForQty = 0;
+				//		var resConPlQrt = 0;
+				//		for (var j = 0; j < getRow.length; j++) {
+				//			//if (getRow.RequisitionForQty == 'NaN') {
+				//			//	getRow.RequisitionForQty = 0;
+				//			//}
+				//			RequisitionForQty += Math.round((getRow[j].RequisitionForQty) * 100 + Number.EPSILON) / 100;//getRow[j].RequisitionForQty;
+
+
+
+
+				//		}
+				//		if (RequisitionForQty == 'NaN' || baseService.isUndefinedOrNull(RequisitionForQty)) {
+				//			RequisitionForQty = 0;
+				//		}
+				//		var resConPlQrt = $scope.FilterList123[i].Consumption * RequisitionForQty;
+				//		var Wastage = (resConPlQrt * $scope.FilterList123[i].WastagePer) / 100;
+				//		$scope.FilterList123[i].RequisitionQty = ($scope.FilterList123[i].Consumption * RequisitionForQty) + Wastage;
+				//		$scope.FilterList123[i].RequisitionQtyOrginal = ($scope.FilterList123[i].Consumption * RequisitionForQty) + Wastage;
+				//		$scope.FilterList123[i].RequestedQtyOrginal = ($scope.FilterList123[i].Consumption * RequisitionForQty) + Wastage;
+				//		//$scope.FilterList123[i].RequestedQty = ($scope.FilterList123[i].Consumption * getRow[0].RequisitionForQty) + Wastage;
+
+
+				//	}
+
+
+				//}
+
+
 			});
 
-			
+
 		}
 	}
 	$scope.ShowStock = [];
-	$scope.GetSOWiseMaterialStock = function (x,$index) {
+	$scope.GetSOWiseMaterialStock = function (x, $index) {
 		$scope.GetDetailGridIndex = $index;
 		$http({
 			method: 'GET',
@@ -294,9 +323,9 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		});
 
 	}
-	
+
 	$scope.SetTheData = function (x, $index) {
-		
+
 		var gridObj = $("#ShowStock1").data("ejGrid");
 		//getting corresponding record 
 		$scope.data = gridObj.getSelectedRecords()[0];
@@ -311,9 +340,9 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 			angular.element(document.querySelector('#POPopUp')).modal('hide');
 		}
-		
-		
-		
+
+
+
 	}
 
 
@@ -1248,7 +1277,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	$scope.FilterList1234 = [];
 	$scope.detailSaveIssue = function () {
 
-		
+
 		$scope.FilterList123New = [];
 		$scope.FilterList1234 = [];
 		//debugger;
@@ -1275,7 +1304,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 						return false;
 					}
 
-					
+
 
 
 					//else if ($scope.FilterList123[i].RejectedQty === 0) {
@@ -1320,11 +1349,11 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 			for (var i2 = 0; i2 < $scope.FilterList123.length; i2++) {
 				if ($scope.FilterList123[i2].check === true) {
 					$scope.FilterList123[i2].RequestedQtyNew = Math.round($scope.FilterList123[i2].RequestedQty * 100 + Number.EPSILON) / 100;
-					var getRow1 = $filter("filter")($scope.FilterList1234, { "MaterialMasterId": $scope.FilterList123[i2].MaterialMasterId, "ArticleId": $scope.FilterList123[i2].ArticleId, "BOQDFirstCharacteristicsValueId": $scope.FilterList123[i2].BOQDFirstCharacteristicsValueId, "BOQDSecondCharacteristicsValueId": $scope.FilterList123[i2].BOQDSecondCharacteristicsValueId, "BOQDThirdCharacteristicsValueId": $scope.FilterList123[i2].BOQDThirdCharacteristicsValueId,"TransactionUoMId": $scope.FilterList123[i2].TransactionUoMId, "check": true });
+					var getRow1 = $filter("filter")($scope.FilterList1234, { "MaterialMasterId": $scope.FilterList123[i2].MaterialMasterId, "ArticleId": $scope.FilterList123[i2].ArticleId, "BOQDFirstCharacteristicsValueId": $scope.FilterList123[i2].BOQDFirstCharacteristicsValueId, "BOQDSecondCharacteristicsValueId": $scope.FilterList123[i2].BOQDSecondCharacteristicsValueId, "BOQDThirdCharacteristicsValueId": $scope.FilterList123[i2].BOQDThirdCharacteristicsValueId, "TransactionUoMId": $scope.FilterList123[i2].TransactionUoMId, "check": true });
 
 
 					if (getRow1.length === 0) {
-						
+
 						$scope.FilterList1234.push($scope.FilterList123[i2])
 						$scope.FilterList1234.RequestedQtyNew = Math.round($scope.FilterList123[i2].RequestedQtyNew * 100 + Number.EPSILON) / 100;
 					}
@@ -1338,8 +1367,8 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 								&& $scope.FilterList1234[i1].BOQDsThirdCharacteristicsValueId === $scope.FilterList123[i2].BOQDsThirdCharacteristicsValueId
 								&& $scope.FilterList1234[i1].TransactionUoMId === $scope.FilterList123[i2].TransactionUoMId) {
 								$scope.FilterList1234[i1].RequestedQtyNew += Math.round($scope.FilterList123[i2].RequestedQtyNew * 100 + Number.EPSILON) / 100;;
-								
-								
+
+
 							}
 
 						}
@@ -1362,7 +1391,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 							url: 'Products/GoodsReceiveNote/IssueSlipCreate',
 							data: {
 								entity: JSON.stringify($scope.FilterList123New)
-								,entityGroupData: JSON.stringify($scope.FilterList1234)
+								, entityGroupData: JSON.stringify($scope.FilterList1234)
 								, CheckedBy: $scope.productNew.CheckedBy
 								, IssueSlipType: $scope.IssueSlipType
 								, AssetIssueTypeStatus: $scope.AssetIssueTypeStatus
@@ -1372,7 +1401,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 								, 'MaterialColorListNew': JSON.stringify($scope.MaterialColorListNew)
 								, 'ProcessId': $scope.productNew.ProcessId
 								, 'OrderSpecific': $scope.productNew.OrderSpecific
-								
+
 							},
 							dataType: 'JSON'
 						}).then(function successCallback(response) {
@@ -1564,15 +1593,15 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	function getSalesOrderInfobyIssueSlipId(inveReveiveId) {
 		$scope.masterId = inveReveiveId;
 		//debugger;
-		
+
 		$http.get($scope.path + 'GetSalesOrderInfobyIssueSlipId?IssueSlipId=' + inveReveiveId)
 			.then(function (response) {
 				$scope.SOListSelected = response.data;
 				$scope.ProductionOrderId = response.data[0].ProductionOrderId;
-				
+
 
 			});
-		
+
 		GetProductionOrderBYSalesOrder($scope.ProductionOrderId);
 	}
 	$scope.modelList = [];
@@ -1598,7 +1627,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 			});
 
 	}
-	
+
 	$scope.recorddoubleclickIssueSlip = function ($event) {//sk
 		//debugger;
 		var x = $event;
@@ -1608,16 +1637,16 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		$scope.IssueSlipType = 'InventorySlip';
 		$scope.Id = $scope.productNew.Id;
 		if (!baseService.isUndefinedOrNull(x.data.SalesOrderId)) {
-			
+
 			$scope.productNew.OrderSpecific = 'Yes';
-			getSalesOrderInfobyIssueSlipId(Id);			
-			
+			getSalesOrderInfobyIssueSlipId(Id);
+
 			GetIssueWiseSKU(Id);
 			/*GetProductionOrderBYSalesOrder($scope.ProductionOrderId);*/
 			$scope.model.Id = $scope.ProductionOrderId;
 			GetProcessByProductionOrder();
-			
-			
+
+
 		}
 		getInventoryMaterialList($scope.productNew.Id);
 		if (baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
@@ -2559,7 +2588,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		$scope.FilterList123 = [];
 	}
 
-	$scope.showMaterialWiseStockModal = function (x,index) {
+	$scope.showMaterialWiseStockModal = function (x, index) {
 		//$scope.getalldata();
 		//debugger
 		//$scope.status = 'PO';
@@ -2574,7 +2603,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 		//	$scope.productNew.PO = 'Acceptance';
 		//	$scope.getalldata();
 		//}
-		$scope.GetSOWiseMaterialStock(x,index);
+		$scope.GetSOWiseMaterialStock(x, index);
 		angular.element(document.querySelector('#POPopUp')).modal('show');
 
 	};
@@ -2607,8 +2636,8 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 					$scope.FilterList123[i].IssuedQty = $scope.ConvertedDataRowList.data.IssuedQty;
 					$scope.FilterList123[i].TransactionUoMName = $scope.ConvertedDataRowList.data.TransactionUoMName;
 					$scope.FilterList123[i].TransactionUoMId = $scope.ConvertedDataRowList.data.TransactionUoMId;
-					
-					
+
+
 
 				}
 			}
@@ -2623,4 +2652,3 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 	};
 
 }
-	

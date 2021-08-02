@@ -11,6 +11,13 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
     $scope.FromDate = '';
     $scope.ToDate = '';
 
+    function nullrecorder(val) {
+        if (baseService.isUndefinedOrNull(val))
+            return "";
+
+        return val;
+    }
+
     $scope.queryCellInfo = function (args) {
         if (args.data.IsManualDayStatus == true) {
             if (args.column.field == "IsManualDayStatus" || args.column.field == "DayStatus") {
@@ -42,8 +49,9 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
     $scope.getDayStatus = function (data) {
 
         angular.element(document.querySelector('#StatusModal')).modal('show');
-        for (var i = 0; i < data.length; i++) {
-            if (data.Id == $scope.employeeAttendance[i].Id) {
+        for (var i = 0; i < $scope.employeeAttendance.length; i++) {
+            if (data.data.Id == $scope.employeeAttendance[i].Id &&
+                data.data.WorkDate == $scope.employeeAttendance[i].WorkDate) {
 
                 $scope.EmpCatId = data.data.EmployeeCategoryId;
                 $scope.A = i;
@@ -271,7 +279,10 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
         var DataToBeSaved = [];
         for (var i = 0; i < $scope.employeeAttendance.length; i++) {
             $scope.employeeAttendance[i].ErrorMessage = "";
-            try {
+            var m = $scope.employeeAttendance[i].DayStatus;
+            var n = $scope.employeeAttendance[i].DayStatusNew;
+            var jj = m +" "+ n;
+         
                 if (
                     nullrecorder($scope.employeeAttendance[i].DayStatus) !=
                     nullrecorder($scope.employeeAttendance[i].DayStatusNew)
@@ -280,9 +291,7 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
                     DataToBeSaved.push($scope.employeeAttendance[i]);
 
                 }
-            } catch (e) {
-
-            }
+           
 
         }
 

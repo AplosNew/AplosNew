@@ -241,8 +241,15 @@
 
 <script type="text/template" id="shift">
 
-    <div class="col-sm-10" style="padding:0px;">
-        <input ej-dropdownlist e-datasource="$parent.allShift" e-value="data.ShiftSystemID" e-fields-value="SystemID" e-fields-text="UserName" e-width="100%" />
+    <div class="col-sm-10" style="padding:0px; ">
+
+        <div class="select-style">
+            <select class="form-control" ng-model="data.ShiftSystemID" name="" required ng-disabled="data.IsLock==true"
+                    ng-options="item.SystemID as item.UserName for item in $parent.allShift">
+                <option value="">--Select--</option>
+            </select>
+
+        </div>
     </div>
     <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
         <button ng-click="$parent.selectedShiftInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
@@ -252,9 +259,17 @@
 </script>
 <script type="text/template" id="allShiftSingleDay">
 
-    <div class="col-sm-10" style="padding:0px;">
-        <input ej-dropdownlist e-datasource="$parent.allShiftSingleDay" e-value="data.ShiftSystemID" e-fields-value="SystemID" e-fields-text="UserName" e-width="100%" />
+    <div class="col-sm-10" style="padding:0px; ">
+
+        <div class="select-style">
+            <select class="form-control" ng-model="data.ShiftSystemID" name="" required ng-disabled="data.IsLock==true"
+                    ng-options="item.SystemID as item.UserName for item in $parent.allShiftSingleDay">
+                <option value="">--Select--</option>
+            </select>
+
+        </div>
     </div>
+
     <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
         <button ng-click="$parent.selectedShiftInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
             <i class="glyphicon glyphicon-list-alt"></i>
@@ -270,19 +285,28 @@
 </script>
 
 <script type="text/template" id="indate">
-    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-width="100%" />
+    <input type="text" name="Date" ng-model="data.InDate" datepicker class="form-control" ng-disabled="data.IsLock==true">
 </script>
 <script type="text/template" id="intime">
 
-    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%" />
-
+    <div class="form-group">
+        <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
+            <input id="StartTime" type="text" class="form-control input-small" ng-model="data.InTime"
+                   style="width:100%" ng-disabled="data.IsLock==true">
+        </div>
+    </div>
 </script>
 <script type="text/template" id="outdate">
-    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.OutDate" e-width="100%" />
+    <input type="text" name="Date" ng-model="data.OutDate" datepicker class="form-control" ng-disabled="data.IsLock==true">
 </script>
 <script type="text/template" id="outtime">
 
-    <input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" />
+    <div class="form-group">
+        <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
+            <input id="Timeeee" type="text" class="form-control input-small" ng-model="data.OutTime"
+                   ng-disabled="data.IsLock==true" style="width:100%">
+        </div>
+    </div>
 
 </script>
 <div class="row">

@@ -1418,6 +1418,19 @@ namespace Library.Accounting.FixedAssets
         }
 
         #region Entity Fixed Assets Register
+        public List<Dictionary<string, object>> GetEntityFixedAssetRegisterElasticSearchDataList(string companyGroupId, string companyId, string plantId)
+        {
+            var sql = @"select distinct MM.UserName MaterialMaster,MMA.StandardName Article,FA.UserName AssetMaster,P.UserName Party
+                        , FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId
+                        from TRN.FixedAssetRegister FAR 
+                        JOIN MST.MaterialMaster MM ON MM.Id=FAR.MaterialMasterId
+                        JOIN MST.MaterialMasterArticle MMA ON MMA.Id=FAR.MaterialMasterArticleId
+                        JOIN MST.FixedAssetMaster FA ON FA.Id=FAR.FixedAssetMasterId
+                        LEFT JOIN HKP.Party P ON P.Id=FAR.VendorId";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
+
         public List<Dictionary<string, object>> GetEntityFixedAssetRegisterDataList(string companyGroupId, string companyId, string plantId)
         {
             var sql = @"SELECT top 2500  convert(bit,0) AS isSelected, E.UserName Entity, D.UserName Department, FR.Id,FR.Id AS FixedAssetRegisterId,V.VoucherNo, FR.MaterialMasterArticleId, FR.MaterialMasterId
@@ -1479,7 +1492,7 @@ namespace Library.Accounting.FixedAssets
 
 		                            left join ORG.Entity E on E.Id= FR.EntityId
 									left join ORG.Department D on D.Id = FR.DepartmentId
-                                    WHERE FR.CompanyId='" + companyId+@"' 
+                                    WHERE FR.CompanyId='" + companyId + @"' 
                                     --and FR.IsOpeningBalance=0 
                                     and FR.Archive=0 and FR.IsAUC=0
                                     AND FR.Id NOT IN(' ')";

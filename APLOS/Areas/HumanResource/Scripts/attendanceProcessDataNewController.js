@@ -48,9 +48,6 @@ function attendanceProcessDataNewController(fileReader, cboService, commonMessag
 
         });
     }
-
-
-
     $scope.employeeAttendanceBySingleDateSelection = [];
     function checkChangeemployee(e) {
 

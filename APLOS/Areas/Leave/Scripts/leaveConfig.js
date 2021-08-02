@@ -92,5 +92,10 @@ function leaveConfig($routeProvider) {
             templateUrl: 'Leave/LeaveBalanceReport/Aplos',
             controller: "LeaveBalanceReportController"
         })
+
+        .when('/leave-register-todate-report', {
+            templateUrl: 'Leave/LeaveBalanceToDateReport/Aplos',
+            controller: "LeaveBalanceToDateReportController"
+        })
         ;
 }

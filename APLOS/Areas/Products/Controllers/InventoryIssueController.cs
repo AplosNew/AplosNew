@@ -456,10 +456,10 @@ namespace Aplos.Areas.Products.Controllers
 
 
 		[Authorize, HttpGet]
-		public JsonResult GetApprovedIssueSlipDetails(string Id, string StorageLocationId)
+		public JsonResult GetApprovedIssueSlipDetails(string Id, string StorageLocationId,string OrderSpecific)
 		{
 
-			return Json(_inventoryIssueService.GetApprovedIssueSlipDetails(Id, StorageLocationId), JsonRequestBehavior.AllowGet);
+			return Json(_inventoryIssueService.GetApprovedIssueSlipDetails(Id, StorageLocationId, OrderSpecific), JsonRequestBehavior.AllowGet);
 		}
 
 		#endregion
@@ -1361,13 +1361,13 @@ namespace Aplos.Areas.Products.Controllers
 		}
 
 		[HttpPost]
-		public JsonResult InventorySalesCreate(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventorySales inventoryIssue, string IssueTypeStatus, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<InventorySalesTax> taxCategoryList, string productNewId)
+		public JsonResult InventorySalesCreate(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventorySales inventoryIssue, string IssueTypeStatus, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<InventorySalesTax> taxCategoryList, string productNewId,decimal ToCurrencyRate)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
 			inventoryIssue.CompanyId = identity.CompanyId;
 			inventoryIssue.PlantId = identity.PlantId;
-			_inventoryIssueService.InsertGraphInventorySales(entities, specificStockList, inventoryIssue, IssueTypeStatus, CheckedByStatusForNoti, ApprovedByStatusForNoti, taxCategoryList, productNewId);
+			_inventoryIssueService.InsertGraphInventorySales(entities, specificStockList, inventoryIssue, IssueTypeStatus, CheckedByStatusForNoti, ApprovedByStatusForNoti, taxCategoryList, productNewId,ToCurrencyRate);
 			return Json(new { inventoryIssue, Message = AplosMessage.Success + "Sales No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpPost]
