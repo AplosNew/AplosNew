@@ -1184,6 +1184,7 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
         data.VoucherTypeId = null;
         data.VoucherDate = new Date();
         $scope.otherVoucher = data;
+        $scope.otherVoucher.DocRefNo = data.Id;
         $scope.OtherInvoiceJournalId = data.OtherInvoiceId;
         $http({
             method: 'GET',
