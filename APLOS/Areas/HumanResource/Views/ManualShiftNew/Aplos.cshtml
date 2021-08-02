@@ -230,8 +230,15 @@
 
 <script type="text/template" id="shift">
 
-    <div class="col-sm-10" style="padding:0px;">
-        <input ej-dropdownlist e-datasource="$parent.allShift" e-value="data.ShiftSystemID" e-fields-value="SystemID" e-fields-text="UserName" e-width="100%" />
+    <div class="col-sm-10" style="padding:0px; ">
+
+        <div class="select-style">
+            <select class="form-control" ng-model="data.ShiftSystemID" name="" required ng-disabled="data.IsLock==true"
+                    ng-options="item.SystemID as item.UserName for item in $parent.allShift">
+                <option value="">--Select--</option>
+            </select>
+
+        </div>
     </div>
     <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
         <button ng-click="$parent.selectedShiftInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
@@ -239,10 +246,18 @@
         </button>
     </div>
 </script>
+
 <script type="text/template" id="allShiftSingleDay">
 
-    <div class="col-sm-10" style="padding:0px;">
-        <input ej-dropdownlist e-datasource="$parent.allShiftSingleDay" e-value="data.ShiftSystemID" e-fields-value="SystemID" e-fields-text="UserName" e-width="100%" />
+    <div class="col-sm-10" style="padding:0px; ">
+
+        <div class="select-style">
+            <select class="form-control" ng-model="data.ShiftSystemID" name="" required ng-disabled="data.IsLock==true"
+                    ng-options="item.SystemID as item.UserName for item in $parent.allShiftSingleDay" >
+                <option value="">--Select--</option>
+            </select>
+
+        </div>
     </div>
     <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
         <button ng-click="$parent.selectedShiftInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
@@ -250,6 +265,7 @@
         </button>
     </div>
 </script>
+
 <script type="text/template" id="showAttendance">
     <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
         <button ng-click="$parent.showAttendanceInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">

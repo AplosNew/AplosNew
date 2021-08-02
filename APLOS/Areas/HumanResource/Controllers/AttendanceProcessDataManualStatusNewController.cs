@@ -180,92 +180,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     }
                 }
 
-
-
-                string inDates = "";
-                string inEmployeeIds = "";
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                try
-                {
-                    foreach (AttendanceProcessNewProcess item in DataToBeSaved)
-                    {
-                        if (inDates == "")
-                            inDates = "'" + item.WorkDate + "'";
-                        else
-                            inDates += ",'" + item.WorkDate + "'";
-
-                        if (inEmployeeIds == "")
-                            inEmployeeIds = "'" + item.Id + "'";
-                        else
-                            inEmployeeIds += ",'" + item.Id + "'";
-                    }
-
-                    if (inDates != "")
-                    {
-                        DataTable dtLock = _sqlRepository.GetDataTable("SELECT * FROM PlantWiseAttendanceLock AS pwal WHERE  isActive=1 AND pwal.LockedDate IN (" + inDates + ") AND pwal.PlantId='" + identity.PlantId + "'");
-                        DataTable dtLockEmployee = _sqlRepository.GetDataTable("SELECT * FROM ExceptionEmployeeAttendanceUnlock WHERE EmpSystemId IN (" + inEmployeeIds + @")");
-                        for (int i = 0; i < dtLock.Rows.Count; i++)
-                        {
-                            var k = DataToBeSaved.Where(ee => ee.WorkDate.ToUpper() == Convert.ToDateTime(dtLock.Rows[i]["LockedDate"].ToString()).ToString("dd-MMM-yyyy").ToUpper());
-                            foreach (var item in k)
-                            {
-                                dtLockEmployee.DefaultView.RowFilter = "EmpSystemId='" + item.Id + "' AND WorkDate=#" + item.WorkDate + "#";
-                                if (dtLockEmployee.DefaultView.Count == 0)
-                                {
-                                    item.IsError = true;
-                                    item.ErrorMessage = "Day locked";
-                                }
-                            }
-                        }
-
-                        if (DataToBeSaved.Where(ee => ee.IsError == true).ToList().Count > 0)
-                        {
-
-                            return Json(new { Error = true, Message = "Error occured", Data = DataToBeSaved }, JsonRequestBehavior.AllowGet);
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-
-
-                }
-
-
-                #region Leave validation
-                string _sql_leave = @"select e.EmployeeCode,format(d.workdate,'dd-MMM-yyyy')wd from LeaveTransactionDetails d
-                                                left join LeaveTransaction t on t.SystemID=d.LvTrnsSystemID
-                                                inner join EmployeeInformation e on e.systemid=t.EmpSystemID where 
-                                                t.EmpSystemID in (" + inEmployeeIds + @") and 
-                                                d.WorkDate in (" + inDates + @") and d.LeaveDuration>=1";
-                DataTable dtLeave = _sqlRepository.GetDataTable(_sql_leave);
-                if(dtLeave.Rows.Count>0)
-                {
-                    string msg = string.Empty;
-                    foreach (DataRow item in dtLeave.Rows)
-                    {
-                        if (msg == "")
-                            msg = "'" + item["EmployeeCode"].ToString() + "' on ("+ item["wd"].ToString() + @")";
-                        else
-                            msg += ", '" + item["EmployeeCode"].ToString() + "' on (" + item["wd"].ToString() + @")";
-                    }
-
-                    throw new Exception("Leave  entry for the following employees must be deleted...");
-                }
-                #endregion
-
-
-
-                if (DataToBeSaved.Where(ee => ee.IsError == true).ToList().Count > 0)
-                {
-
-                    return Json(new { Error = true, Message = "Error occured", Data = DataToBeSaved }, JsonRequestBehavior.AllowGet);
-                }
-             
                 saveData(DataToBeSaved);
-
-
                 return Json(new { Error = false, Message = "Manual DayStatus Updated Successfully", Data = data }, JsonRequestBehavior.AllowGet);
 
             }
@@ -383,8 +298,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                             format(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt') AS PunchInTime,
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
 
-                            KK.DayStatus,KK.DayStatus AS DayStatusNew, KK.OTHr,
-                            KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus
+                            KK.DayStatus,KK.DayStatus AS DayStatusNew, KK.OTHr,KK.IsLock,
+                            KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus,dt.DayStatusChange
 
                              FROM (
 								
@@ -396,7 +311,7 @@ namespace Aplos.Areas.HumanResource.Controllers
        
 		                            O.PunchInTime,O.PunchOutTime,
 		                            O.DayStatus, O.OTHr, O.IsOTComfirm,
-		                            O.IsOTEntitled
+		                            O.IsOTEntitled,O.IsLock
 
 		                            FROM EmployeeInformation EMP
 		                            LEFT JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
@@ -418,6 +333,11 @@ namespace Aplos.Areas.HumanResource.Controllers
                             left join mst.DesignationMasterLegalDesignation ddm on 
                             ddm.LegalDesignationId = emp.LegalDesignationId
 							left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+                            left join DayStatusPlantChild dc on dc.PlantId=emp.PlantId 
+							and dm.EmployeeCategoryId=dc.EmpTypeId
+							left join DayStatusHeader dh on dh.Id=dc.HeaderId
+							left join DayTypeWithValues dt on dt.HeaderId=dh.Id and dt.DayType=kk.DayStatus
+                        
                         WHERE EMP.PlantID='" + identity.PlantId + @"'
                         ORDER BY kk.EmployeeCode,CONVERT(DATE, WorkDate) ASC ";
 

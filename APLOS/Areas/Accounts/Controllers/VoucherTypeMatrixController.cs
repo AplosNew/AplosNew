@@ -129,6 +129,21 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetCboVoucherTypeReceivableFromOthersList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.ReceivableFromOthers), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetCboVoucherTypePackingJournalList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.PackingJournal), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpGet]
         public JsonResult GetCboVoucherTypeInvoiceOverheadList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

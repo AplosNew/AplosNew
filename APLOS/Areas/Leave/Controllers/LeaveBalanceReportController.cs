@@ -98,7 +98,7 @@ namespace Aplos.Areas.Leave.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 clsLeaveBalance ep = new clsLeaveBalance();
                 var reportFileName = "Leave Register Report";
-                var workbook = ep.XlsLeaveBalanceRpt(identity.PlantId, identity.CompanyId ,Year);
+                var workbook = ep.XlsLeaveBalanceRpt(identity.PlantId, identity.CompanyId, Year);
                 switch (reportFormat)
                 {
                     case ReportFormat.Pdf:

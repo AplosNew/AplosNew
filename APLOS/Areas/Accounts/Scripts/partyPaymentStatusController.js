@@ -868,7 +868,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.GetDateRangeWisePaymentData();
+   // $scope.GetDateRangeWisePaymentData();
 
 
     $scope.DateRangeWisePaymentReport = function () {

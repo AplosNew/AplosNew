@@ -12,6 +12,7 @@ var upanelApp = angular
     .controller("accessControllerEmployeeTagController", accessControllerEmployeeTagController)
     .controller("accountDashboardController", accountDashboardController)
     .controller("advanceJournalController", advanceJournalController)
+    .controller("NewAttendanceProcessController", NewAttendanceProcessController)
     .controller("advanceJournalOpeningBalanceController", advanceJournalOpeningBalanceController)
     .controller("allowanceDailyController", allowanceDailyController)
     .controller("annualBudgetController", annualBudgetController)
