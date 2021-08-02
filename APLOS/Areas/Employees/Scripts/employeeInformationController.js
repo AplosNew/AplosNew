@@ -199,8 +199,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
         })
     };
 
-
-
     $scope.nomineeInfo = {
         Id: null,
         EmpSystemId: null,
@@ -300,7 +298,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
         }
     }
 
-
     $scope.ShowEmpDOCIsDayInPut = function () {
         if ($scope.employeeInformation.DOCIsDay === true) {
             $scope.employeeInformation.DOCIsMonth = false;
@@ -328,7 +325,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.employeeInformation.DOC = $filter('dateFiltering')(new Date($scope.DOC), 'dd-MM-yyyy');
         }
     }
-
 
     //#region BudgetCode
 
@@ -712,8 +708,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.payrollGroupList = result;
     });
 
-
-
     $scope.showEntity = function () {
         $http.get('employees/employeeprobationalperiod/getentitybyemployee')
             .then(function (response) {
@@ -754,7 +748,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
             ShowResult(e, 'failure');
         }
     };
-
 
     $scope.OperationList = [];
     $scope.showOperationPopUp = function (name) {
@@ -872,7 +865,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
     };
 
     // #endregion checkbox all
-
 
     $scope.empReferenceInformation = {
         SystemID: null,
@@ -1084,7 +1076,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $rootScope.toggle();
         }
     };
-
 
     $scope.employeeInformation.ApplyingAsFresher = false;
 
@@ -3029,7 +3020,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     // #region Document
 
     $scope.Loaddocumentdatalist = function () {
-        $http.get('employees/employeeinformation/getempdocumentdatalist?companyGroupId=' + $scope.CompanyGroupID + '&pId=' + $scope.user + '&plantId=' + $scope.PlantId)
+        $http.get('employees/employeeinformation/GetEmpAllDocumentDataList?companyGroupId=' + $scope.CompanyGroupID + '&pId=' + $scope.user + '&plantId=' + $scope.PlantId)
             .then(function (response) {
                 $scope.documentdataList = response.data;
                 //$scope.getColor($scope.documentdataList.FileName);

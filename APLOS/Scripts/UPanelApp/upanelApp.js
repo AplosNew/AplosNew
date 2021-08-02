@@ -900,6 +900,7 @@ var upanelApp = angular
     .controller("CompanyWiseExternalDataUploadFromExcelController", CompanyWiseExternalDataUploadFromExcelController)
     .controller("CompanyWiseBankSheetController", CompanyWiseBankSheetController)
     .controller("PayrollManagementDashboardController", PayrollManagementDashboardController)
+    .controller("InventorySalesReturnController", InventorySalesReturnController)
 
 
     .config(AccessControllerConfig)

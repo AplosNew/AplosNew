@@ -1,7 +1,7 @@
 ﻿'use strict';
-inventorySalesController.$inject = ['accountService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
-function inventorySalesController(accountService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
-	$rootScope.title = "Inventory Sales";
+InventorySalesReturnController.$inject = ['accountService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
+function InventorySalesReturnController(accountService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
+	$rootScope.title = "Inventory Sales Return";
 	$scope.Action = 'Save';
 	$scope.index = -1;
 	$scope.products = [];
@@ -12,7 +12,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	$scope.ApprovedStockBeyondIssueDateList = [];
 	$scope.UnApprovedStockList = [];
 	$scope.ApprovedStockList = [];
-	
+
 	$scope.partyType = "Customer";
 	$scope.path1 = 'Products/PurchaseOrder/';
 	$scope.path = 'Products/InventoryIssue/';
@@ -28,6 +28,70 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	$controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 	$controller("employeeBaseController", { $scope: $scope, $http: $http });
 	$scope.tab = 1;
+
+	$scope.approvedSalesList = [];
+	$scope.getPopUpData = function () {
+		$http({
+			method: 'GET',
+			url: 'Accounts/InventorySale/GetListForInvReceivable',
+		}).then(function successCallback(response) {
+			$scope.approvedSalesList = response.data;
+			for (var i = 0; i < $scope.approvedSalesList.length; i++) {
+				response.data[i].SalesDate = new Date($scope.approvedSalesList[i].SalesDate);
+				//response.data[i].DocDate = new Date($scope.approvedSalesList[i].DocDate);
+			}
+		});
+	};
+	$scope.popUp = function () {
+		$scope.getPopUpData();
+		angular.element(document.querySelector('#GRNpopUp')).modal('show');
+	};
+
+	$scope.selectDoubleClick = function (data) {
+		
+		$scope.productNew = data.data;
+		//$scope.productNew.VoucherTypeId = voucherTypeId;
+		$scope.productNew.EmployeeTransactionTypeId = null;
+		$scope.TempEmployeeId = data.data.EmployeeId;
+		$scope.productNew.PostingDate = data.data.SalesDateNew;
+		$scope.productNew.DocDate = data.data.SalesDateNew;
+		$scope.productNew.DocRefNo = data.data.Id;
+		$scope.productNew.TaxApplicable = data.data.TaxApplicable;
+		$scope.productNew.IsPaymentTermChangeable = data.data.IsPaymentTermChangeable;
+		$scope.productNew.PaymentTermId = data.data.PaymentTermId;
+		$scope.productNew.SalesDateNewGetBudgetActivityInSalesMaterial = data.data.SalesDateNew;
+		if (!baseService.isUndefinedOrNull(data.data.EmployeeId) && $scope.employeeTransactionTypeList.length === 1) {
+			$scope.productNew.EmployeeTransactionTypeId = $scope.employeeTransactionTypeList[0].EmployeeTransactionTypeId;
+		}
+
+		if ($scope.productNew.IsPaymentTermChangeable) {
+			$scope.changePaymentTerm($scope.productNew.PaymentTermId)
+
+		}
+		else {
+			if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
+				var paymentTerm = $.grep($scope.paymentTermList, function (item) {
+					return item.Value === $scope.productNew.PaymentTermId;
+				})[0];
+				if (paymentTerm.BaseLineDate === "documentdate") {
+					$scope.IsBaseOnDueDateEnable = false;
+				}
+			}
+
+		}
+		getRecievedList();
+		getInventoryMaterialList(data.data.Id, data.data.EmployeeId, data.data.PartyId, $scope.productNew.TaxApplicable);
+		//getInventoryTaxList(data.data.Id);
+		factoryService.getCurrencyPrecision(data.data.BaseCurrencyId);
+		GetCurrencyExchangeRateList();
+		$scope.closeGRNPopUp();
+	};
+
+
+	$scope.closeGRNPopUp = function () {
+		$scope.valueData = '';
+		angular.element(document.querySelector('#GRNpopUp')).modal('hide');
+	};
 
 	$http({
 		method: 'GET',
@@ -57,7 +121,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		});
 
 	};
-	//$scope.getdataInventorySales();
+	////$scope.getdataInventorySales();
 	//#region Index Tab
 	$scope.tab = 1;
 	$scope.tabType = 1;
@@ -788,7 +852,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 				ShowResult('Select To Date', 'failure');
 				return false;
 			}
-		
+
 
 		}
 
@@ -1147,7 +1211,6 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	$scope.Save = function () {
 		//debugger;
 		// $scope.SavePOPUpConfirm();
-		$scope.productNew.ToCurrencyRate = $scope.productNew.ToCurrencyRate;
 		if ($scope.detailList.length === 0) {
 			ShowResult('Please select Atlest one material');
 			return false;
@@ -1166,7 +1229,6 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		}
 		var UIStatus = $("#SlipAssetIssueUI").val();
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;
-	
 		$scope.productNew.CustomerId = $scope.productNew.PartyId;
 		if ($scope.Action === "Save") {
 			$http({
@@ -1224,8 +1286,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 					'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
 					'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
 					'taxCategoryList': $scope.materialtaxCategoryListRes,
-					'productNewId': $scope.productNew.Id,
-					'ToCurrencyRate': $scope.productNew.ToCurrencyRate
+					'productNewId': $scope.productNew.Id
 				}
 				, dataType: 'JSON'
 			}).then(function (response) {
@@ -2131,7 +2192,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 			FromDate: $filter('dateFiltering')(new Date(firstDay.getFullYear(), firstDay.getMonth(), 1)),
 				//$scope.report.FromDate = $filter("dateFiltering")(Date.now());
 
-		    $scope.report.FromDate = $filter('dateFiltering')(new Date(firstDay.getFullYear(), firstDay.getMonth(), 1));
+				$scope.report.FromDate = $filter('dateFiltering')(new Date(firstDay.getFullYear(), firstDay.getMonth(), 1));
 			$scope.report.ToDate = $filter("dateFiltering")(Date.now());
 			$scope.productNew.ForThePeriod = 'ForThePeriod';
 			//$scope.productNew.Qty = true;
@@ -2163,7 +2224,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 			//$scope.report.ToDate = $filter("dateFiltering")(Date.now());
 			$scope.productNew.Details = 'Details';
 			$scope.productNew.Summery = 'Details';
-		} 
+		}
 		if ($scope.statusSumOrDel === 'Summery') {
 
 			//$scope.productNew.RcptIssue = '';
@@ -2174,5 +2235,5 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 
 	}
 
-	
+
 }

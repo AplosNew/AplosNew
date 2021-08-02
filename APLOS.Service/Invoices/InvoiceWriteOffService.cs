@@ -375,7 +375,6 @@ namespace Library.Service.Invoices
                 voucherVM.IsPark = false;
                 voucherVM.PartyPlantId = voucherVM.InvoicingPartyPlantId;
                 voucherVM.Amount = otherInvoice.Amount;
-                voucherVM.Narration = "Subsidy of " + voucherVM.PartyName;
                 var invoiceWriteOff = InsertInvoiceWriteOff(voucherVM);
 
                 // INSERT INTO Voucher
