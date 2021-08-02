@@ -29,6 +29,12 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             rep = new NewAttendanceProcessService();
         }
+
+        public ActionResult Aplos()
+        {
+            return View();
+        }
+
         [HttpGet, Authorize]
         public ActionResult RunShiftProcess(string Date)
         {
@@ -182,8 +188,36 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunRoster()
         {
-            rep.RosterProcess();
-            return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
+            string CGId = "CG20181";
+
+            NewAttendanceProcessService repo = new NewAttendanceProcessService();
+            DataSet PlantList;
+            repo.GetPlant(CGId, out PlantList);
+
+            if (PlantList.Tables[0].Rows.Count > 0)
+            {
+                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
+                {
+                    try
+                    {
+                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
+                        rep.RosterProcess(PlantValue);
+                    }
+                    catch (Exception ex)
+                    {
+                        string ErrorlineNo, Errormsg, extype, ErrorLocation;
+
+                        ErrorlineNo = ex.StackTrace.Substring(ex.StackTrace.Length - 7, 7);
+                        Errormsg = ex.GetType().Name.ToString();
+                        extype = ex.GetType().ToString();
+                        ErrorLocation = ex.Message.ToString();
+                        string error = "Error Line No :" + " " + ErrorlineNo + "Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
+
+                        NewAttendanceProcessService.SaveLog(error, true);
+                    }
+                }
+            }
+                    return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
         }
     }
 }
