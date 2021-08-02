@@ -571,6 +571,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         , TaxOption: 'Yes'
         , TaxOptionMat: 'Yes'
         , TaxOptionService: "Yes"
+        , TaxOptionServiceTPO: "Yes"
         , TaxOptionServiceModify: 'Yes'
         , FileName: null
         , UserFilename: null
@@ -894,13 +895,15 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
   //  $scope.productNew.TaxOptionService = 'Yes';
 
     $scope.changeService = function (JWServiceId) {
-        $scope.productNew.TaxOptionService = "Yes";
+       
+        //productNewwww.TaxOptionService
 
         if (baseService.isUndefinedOrNull(JWServiceId))
             return $scope.taxCategoryList = [];
         var hsnCodeId = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCodeId;
         var HSNCode = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCode;
         getTaxCategoryList(hsnCodeId, HSNCode);
+        $scope.productNew.TaxOptionServiceTPO = "Yes";
   //      $scope.productNew.TaxOptionService = "Yes";
         
     };
