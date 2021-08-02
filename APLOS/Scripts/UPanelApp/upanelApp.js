@@ -12,6 +12,7 @@ var upanelApp = angular
     .controller("accessControllerEmployeeTagController", accessControllerEmployeeTagController)
     .controller("accountDashboardController", accountDashboardController)
     .controller("advanceJournalController", advanceJournalController)
+    .controller("NewAttendanceProcessController", NewAttendanceProcessController)
     .controller("advanceJournalOpeningBalanceController", advanceJournalOpeningBalanceController)
     .controller("allowanceDailyController", allowanceDailyController)
     .controller("annualBudgetController", annualBudgetController)
@@ -899,6 +900,7 @@ var upanelApp = angular
     .controller("CompanyWiseExternalDataUploadFromExcelController", CompanyWiseExternalDataUploadFromExcelController)
     .controller("CompanyWiseBankSheetController", CompanyWiseBankSheetController)
     .controller("PayrollManagementDashboardController", PayrollManagementDashboardController)
+    .controller("InventorySalesReturnController", InventorySalesReturnController)
 
 
     .config(AccessControllerConfig)

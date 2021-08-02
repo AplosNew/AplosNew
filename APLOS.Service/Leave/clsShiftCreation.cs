@@ -369,6 +369,16 @@ namespace Library.Service.Leave
         public int RawOUTDefinitionFrom { get; set; }
         public int RawOUTDefinitionTo { get; set; }
         public bool INAfterOUTAsOTStart { get; set; }
+        public decimal FullDayDuration { get; set; }
+        public decimal HalfDayDuration { get; set; }
+        public decimal ShortDuration { get; set; }
+        public decimal MaxOutDuration { get; set; }
+        public decimal ShiftDuration { get; set; }
+        public decimal ShiftEarlyInMargin { get; set; }
+        public decimal ShiftEarlyOutMargin { get; set; }
+        public decimal ShiftLateInMargin { get; set; }
+        public decimal ShiftLateOutMargin { get; set; }
+        public decimal HoursWithoutOT { get; set; }
 
     }
 

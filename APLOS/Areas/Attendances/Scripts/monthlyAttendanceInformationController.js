@@ -260,12 +260,17 @@ function monthlyAttendanceInformationController(commonMessage, $scope, $rootScop
     $scope.EmployeeListTemp = [];
     $scope.GetEmployeeInformation = function () {
         try {
+            var PlantId = "";
             var DropDownListObj = $("#CWPlant").data("ejDropDownList");
-            var PlantId = DropDownListObj.getSelectedValue();
+            if (!baseService.isUndefinedOrNull(DropDownListObj)) {
+                PlantId = DropDownListObj.getSelectedValue();
 
-            if (baseService.isUndefinedOrNull(PlantId)) {
-                throw "Select Plant..";
+                if (baseService.isUndefinedOrNull(PlantId)) {
+                    throw "Select Plant..";
+                }
             }
+           
+            
 
             var monthName = $scope.monthList.filter(function (mnth) {
                 return mnth.Value == $scope.month;

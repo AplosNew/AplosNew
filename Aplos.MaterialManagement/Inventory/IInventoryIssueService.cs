@@ -19,7 +19,7 @@ namespace Library.MaterialManagement.Inventory
        
         
 
-        void InsertGraphInventorySales(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventorySales inventoryIssue, string IssueTypeStatus,  string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<InventorySalesTax> taxCategoryList,string productNewId); 
+        void InsertGraphInventorySales(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventorySales inventoryIssue, string IssueTypeStatus,  string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<InventorySalesTax> taxCategoryList,string productNewId, decimal ToCurrencyRate); 
 
         void InsertGraphIssueReturn(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssueReturn inventoryIssue, string IssueTypeStatus);
 
@@ -60,7 +60,7 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> GetAssetIssueSlip();
 
 
-        IEnumerable<object> GetApprovedIssueSlipDetails(string Id,string StorageLocationId);
+        IEnumerable<object> GetApprovedIssueSlipDetails(string Id,string StorageLocationId, string OrderSpecific);
 
         IEnumerable<object> MaterialIssueDetailsData(string inveReveiveId, string POID);
         IEnumerable<object> MaterialIssueDetailsData1(string inveReveiveId, string POID); 

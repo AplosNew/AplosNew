@@ -3072,6 +3072,7 @@ namespace Library.Service.SalesManagements
                     }
                 }
 
+                
                 if (selectedPackingList != null)
                 {
                     foreach (var item in selectedPackingList)
@@ -3082,6 +3083,9 @@ namespace Library.Service.SalesManagements
                             Id = _pkGeneratorService.MakePK(sales.Id, currentSalesOrderItemId, 2),
 
                             PackingId = item.PackingId,
+                            Qty = item.Qty,
+                            Amount = item.Amount,
+                            ProductLibraryId = item.ProductLibraryId,
                             SalesId = sales.Id,
                             ModelState = ModelState.Added,
                             AddedBy = sales.AddedBy,
@@ -3471,6 +3475,9 @@ namespace Library.Service.SalesManagements
                                 Id = _pkGeneratorService.MakePK(sales.Id, currentSalesOrderItemId, 2),
 
                                 PackingId = item.PackingId,
+                                Qty = item.Qty,
+                                Amount = item.Amount,
+                                ProductLibraryId = item.ProductLibraryId,
                                 SalesId = sales.Id,
                                 ModelState = ModelState.Added,
                                 AddedBy = sales.AddedBy,
@@ -3488,7 +3495,10 @@ namespace Library.Service.SalesManagements
                             {
                                 Id = item.Id,
                                 PackingId = item.PackingId,
+                                Qty = item.Qty,
+                                Amount = item.Amount,
                                 SalesId = sales.Id,
+                                ProductLibraryId = item.ProductLibraryId,
                                 AddedBy = sales.AddedBy,
                                 AddedDate = sales.AddedDate,
                                 AddedFromIP = sales.AddedFromIP,

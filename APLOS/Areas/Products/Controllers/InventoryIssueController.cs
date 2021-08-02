@@ -72,9 +72,6 @@ namespace Aplos.Areas.Products.Controllers
 		{
 			return View();
 		}
-
-
-
 		public ActionResult SlipIssue()
 		{
 			return View();
@@ -459,10 +456,10 @@ namespace Aplos.Areas.Products.Controllers
 
 
 		[Authorize, HttpGet]
-		public JsonResult GetApprovedIssueSlipDetails(string Id, string StorageLocationId)
+		public JsonResult GetApprovedIssueSlipDetails(string Id, string StorageLocationId,string OrderSpecific)
 		{
 
-			return Json(_inventoryIssueService.GetApprovedIssueSlipDetails(Id, StorageLocationId), JsonRequestBehavior.AllowGet);
+			return Json(_inventoryIssueService.GetApprovedIssueSlipDetails(Id, StorageLocationId, OrderSpecific), JsonRequestBehavior.AllowGet);
 		}
 
 		#endregion
@@ -1364,13 +1361,13 @@ namespace Aplos.Areas.Products.Controllers
 		}
 
 		[HttpPost]
-		public JsonResult InventorySalesCreate(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventorySales inventoryIssue, string IssueTypeStatus, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<InventorySalesTax> taxCategoryList, string productNewId)
+		public JsonResult InventorySalesCreate(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventorySales inventoryIssue, string IssueTypeStatus, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<InventorySalesTax> taxCategoryList, string productNewId,decimal ToCurrencyRate)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
 			inventoryIssue.CompanyId = identity.CompanyId;
 			inventoryIssue.PlantId = identity.PlantId;
-			_inventoryIssueService.InsertGraphInventorySales(entities, specificStockList, inventoryIssue, IssueTypeStatus, CheckedByStatusForNoti, ApprovedByStatusForNoti, taxCategoryList, productNewId);
+			_inventoryIssueService.InsertGraphInventorySales(entities, specificStockList, inventoryIssue, IssueTypeStatus, CheckedByStatusForNoti, ApprovedByStatusForNoti, taxCategoryList, productNewId,ToCurrencyRate);
 			return Json(new { inventoryIssue, Message = AplosMessage.Success + "Sales No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
 		}
 		[Authorize, HttpPost]
@@ -4808,6 +4805,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                         ,II.CheckedByStatus
                         ,EI2.EmployeeName ApprovedByName
                         ,II.ApprovedByStatus
+						,P.UserName CustomerName
+						,P.Code CustomerCode
                         FROM[TRN].[InventorySales] AS II
                          left JOIN (select InventorySalesId ,IsAsset,TransactionQty  Qty
 										,ROUND(SalesRate, 2) SalesRate--,(sum(TransactionQty) * ROUND(sum(SalesRate), 4)) /sum(TransactionQty) TotalAmount 
@@ -4819,6 +4818,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                         Left JOIN [ORG].[Entity] E On E.id= II.EntityId
                         left join dbo.EmployeeInformation AS EI1 ON EI1.SystemId = II.CheckedBy
                         left join dbo.EmployeeInformation AS EI2 ON EI2.SystemId = II.ApprovedBy
+						left join hkp.Party P on P.Id=II.CustomerId
+
                         WHERE II.CheckedBy='" + identity.EmployeeId + @"' AND II.CheckedByStatus ='For Checking' 
                         AND II.ApprovedByStatus IS NULL
                         
@@ -4829,7 +4830,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                             ,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo,EI1.EmployeeName 
 							,II.CheckedByStatus
 							,EI2.EmployeeName 
-							,II.ApprovedByStatus";
+							,II.ApprovedByStatus
+	,P.UserName,P.Code";
 				}
 				else if (tabType == "HoldRejectCheckedList")
 				{
@@ -4849,6 +4851,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                             ,II.CheckedByStatus
                             ,EI2.EmployeeName ApprovedByName
                             ,II.ApprovedByStatus
+							,P.UserName CustomerName
+						    ,P.Code CustomerCode
                             FROM[TRN].[InventorySales] AS II
                             left JOIN (select InventorySalesId ,IsAsset,TransactionQty  Qty
 										,ROUND(SalesRate, 2) SalesRate--,(sum(TransactionQty) * ROUND(sum(SalesRate), 4)) /sum(TransactionQty) TotalAmount 
@@ -4860,6 +4864,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                             Left JOIN [ORG].[Entity] E On E.id= II.EntityId
                             left join dbo.EmployeeInformation AS EI1 ON EI1.SystemId = II.CheckedBy
                             left join dbo.EmployeeInformation AS EI2 ON EI2.SystemId = II.ApprovedBy
+						left join hkp.Party P on P.Id=II.CustomerId
+
                             WHERE II.CheckedByStatus ='Hold' OR II.CheckedByStatus ='Reject' 
                             AND II.ApprovedByStatus IS NULL
                             AND II.CheckedBy='" + identity.EmployeeId + @"'
@@ -4870,6 +4876,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							,II.CheckedByStatus
 							,EI2.EmployeeName 
 							,II.ApprovedByStatus 
+							,P.UserName,P.Code
 							";
 				}
 				else if (tabType == "CheckedList")
@@ -4890,6 +4897,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                             ,II.CheckedByStatus
                             ,EI2.EmployeeName ApprovedByName
                             ,II.ApprovedByStatus
+,P.UserName CustomerName
+						    ,P.Code CustomerCode
                             FROM[TRN].[InventorySales] AS II
                             left JOIN (select InventorySalesId ,IsAsset,TransactionQty  Qty
 										,ROUND(SalesRate, 2) SalesRate--,(sum(TransactionQty) * ROUND(sum(SalesRate), 4)) /sum(TransactionQty) TotalAmount 
@@ -4901,6 +4910,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                             Left JOIN [ORG].[Entity] E On E.id= II.EntityId
                             left join dbo.EmployeeInformation AS EI1 ON EI1.SystemId = II.CheckedBy
                             left join dbo.EmployeeInformation AS EI2 ON EI2.SystemId = II.ApprovedBy
+						left join hkp.Party P on P.Id=II.CustomerId
+
                             WHERE   II.CheckedBy= '" + identity.EmployeeId + @"'  
                             AND II.CheckedByStatus ='Checked' 
                             AND II.ApprovedByStatus= 'For Approval'                            
@@ -4911,6 +4922,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							,II.CheckedByStatus
 							,EI2.EmployeeName 
 							,II.ApprovedByStatus 
+,P.UserName,P.Code
 							";
 				}
 				else if (tabType == "UnApprovedList")
@@ -4932,6 +4944,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                                 ,II.CheckedByStatus
                                 ,EI2.EmployeeName ApprovedByName
                                 ,II.ApprovedByStatus
+,P.UserName CustomerName
+						    ,P.Code CustomerCode
                                 FROM[TRN].[InventorySales] AS II
                                 left JOIN (select InventorySalesId ,IsAsset,TransactionQty  Qty
 										,ROUND(SalesRate, 2) SalesRate--,(sum(TransactionQty) * ROUND(sum(SalesRate), 4)) /sum(TransactionQty) TotalAmount 
@@ -4943,6 +4957,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                                 Left JOIN [ORG].[Entity] E On E.id= II.EntityId
                                 left join dbo.EmployeeInformation AS EI1 ON EI1.SystemId = II.CheckedBy
                                 left join dbo.EmployeeInformation AS EI2 ON EI2.SystemId = II.ApprovedBy
+						left join hkp.Party P on P.Id=II.CustomerId
+
                                 WHERE   II.ApprovedBy= '" + identity.EmployeeId + @"' 
                                 AND II.CheckedByStatus ='Checked' 
                                 AND II.ApprovedByStatus ='For Approval'                                
@@ -4953,7 +4969,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							,II.CheckedByStatus
 							,EI2.EmployeeName 
 							,II.ApprovedByStatus
-							
+							,P.UserName,P.Code
 
 					UNION ALL
 
@@ -4973,6 +4989,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                                 ,II.CheckedByStatus
                                 ,EI2.EmployeeName ApprovedByName
                                 ,II.ApprovedByStatus
+,P.UserName CustomerName
+						    ,P.Code CustomerCode
                                 FROM[TRN].[InventorySales] AS II
                                 left JOIN (select InventorySalesId ,IsAsset,TransactionQty  Qty
 										,ROUND(SalesRate, 2) SalesRate--,(sum(TransactionQty) * ROUND(sum(SalesRate), 4)) /sum(TransactionQty) TotalAmount 
@@ -4984,6 +5002,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                                 Left JOIN [ORG].[Entity] E On E.id= II.EntityId
                                 left join dbo.EmployeeInformation AS EI1 ON EI1.SystemId = II.CheckedBy
                                 left join dbo.EmployeeInformation AS EI2 ON EI2.SystemId = II.ApprovedBy
+						left join hkp.Party P on P.Id=II.CustomerId
+
                                 WHERE  II.ApprovedBy= '" + identity.EmployeeId + @"' 
                                 AND II.CheckedByStatus IS NULL
                                 AND II.ApprovedByStatus ='For Approval'                               
@@ -4994,7 +5014,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							,II.CheckedByStatus
 							,EI2.EmployeeName 
 							,II.ApprovedByStatus
-							
+							,P.UserName,P.Code
                                 )X
                                 Order BY IssueDate DESC";
 				}
@@ -5016,6 +5036,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                             ,II.CheckedByStatus
                             ,EI2.EmployeeName ApprovedByName
                             ,II.ApprovedByStatus
+,P.UserName CustomerName
+						    ,P.Code CustomerCode
                             FROM[TRN].[InventorySales] AS II
                              left JOIN (select InventorySalesId ,IsAsset,TransactionQty  Qty
 										,ROUND(SalesRate, 2) SalesRate--,(sum(TransactionQty) * ROUND(sum(SalesRate), 4)) /sum(TransactionQty) TotalAmount 
@@ -5027,6 +5049,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                             Left JOIN [ORG].[Entity] E On E.id= II.EntityId
                             left join dbo.EmployeeInformation AS EI1 ON EI1.SystemId = II.CheckedBy
                             left join dbo.EmployeeInformation AS EI2 ON EI2.SystemId = II.ApprovedBy
+						left join hkp.Party P on P.Id=II.CustomerId
+
                             WHERE  II.ApprovedBy= '" + identity.EmployeeId + @"' 
                             AND II.CheckedByStatus ='Checked' 
                             AND (II.ApprovedByStatus ='Hold' OR II.ApprovedByStatus ='Reject')                             
@@ -5036,7 +5060,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                             ,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo,EI1.EmployeeName 
 							,II.CheckedByStatus
 							,EI2.EmployeeName 
-							,II.ApprovedByStatus							";
+							,II.ApprovedByStatus,P.UserName,P.Code							";
 				}
 				else if (tabType == "ApprovedList")
 				{
@@ -5056,6 +5080,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                             ,II.CheckedByStatus
                             ,EI2.EmployeeName ApprovedByName
                             ,II.ApprovedByStatus
+,P.UserName CustomerName
+						    ,P.Code CustomerCode
                             FROM[TRN].[InventorySales] AS II
                               left JOIN (select InventorySalesId ,IsAsset,TransactionQty  Qty
 										,ROUND(SalesRate, 2) SalesRate--,(sum(TransactionQty) * ROUND(sum(SalesRate), 4)) /sum(TransactionQty) TotalAmount 
@@ -5067,6 +5093,8 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                             Left JOIN [ORG].[Entity] E On E.id= II.EntityId
                             left join dbo.EmployeeInformation AS EI1 ON EI1.SystemId = II.CheckedBy
                             left join dbo.EmployeeInformation AS EI2 ON EI2.SystemId = II.ApprovedBy
+						left join hkp.Party P on P.Id=II.CustomerId
+
                             WHERE  II.ApprovedBy= '" + identity.EmployeeId + @"' 
                             AND II.CheckedByStatus ='Checked' 
                             AND II.ApprovedByStatus= 'Approved'                            
@@ -5076,7 +5104,7 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
                             ,EI.EmployeeCode,EI.EmployeeName,II.IssueType,E.UserName,II.Remarks,II.Id,II.OrderRefNo,EI1.EmployeeName 
 							,II.CheckedByStatus
 							,EI2.EmployeeName 
-							,II.ApprovedByStatus
+							,II.ApprovedByStatus,P.UserName,P.Code
 							";//II.PlantId= '" + identity.PlantId + @"'  AND 
 				}
 

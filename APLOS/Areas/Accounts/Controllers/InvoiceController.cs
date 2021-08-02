@@ -158,6 +158,21 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsInvoiceService.GetOtherInvoiceJournal(identity.CompanyId, identity.PlantId, otherInvoieId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public JsonResult InsertOtherInvoiceJournal(string otherInvoiceId, VoucherViewModel voucherVM,IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.ToCurrencyRate = voucherVM.CompanyCurrencyRate;
+            voucherVM.SourceType = SourceType.CustomerReceipt.ToString();
+            voucherVM.PaymentSource = PaymentSource.Journal.ToString();
+            voucherVM.PartyType = "Customer";
+            _invoiceWriteOffService.InsertOtherInvicePost(voucherVM, otherInvoiceId, voucherDetailVMList);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
         #region Vendor Invoice
         [HttpGet, Authorize]
         public JsonResult GetVendorInvoiceList(GridParameter parameters)
@@ -181,6 +196,9 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountsInvoiceService.InvoiceQuery(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorInvoice), JsonRequestBehavior.AllowGet);
         }
+
+        
+
         [HttpGet, Authorize]
         public JsonResult GetInvoiceGLBudgetActivityDetail(string voucherId)
         {

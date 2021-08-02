@@ -223,10 +223,38 @@ namespace Aplos.Areas.JobWork.Controllers
         {
             try
             {
+                DataSet dsMaster;
+                DataSet CheckValMst;
+                DataSet CheckTransMst;
                 if (string.IsNullOrEmpty(Id.ToString()))
                     throw new Exception("Select entry first");
 
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                // ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                if (!string.IsNullOrEmpty(Id))
+                {
+                    con.OpenDataSetThroughAdapter("select * from HKP.JobWorkActivityChild where Id='" + Id + "' ", out dsMaster, false, "1");
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        string JWActivityId = Convert.ToString(dsMaster.Tables[0].Rows[0]["JobWorkActivityId"]);
+                        string JWItemId = Convert.ToString(dsMaster.Tables[0].Rows[0]["JobWorkItemId"]);
+
+                        con.OpenDataSetThroughAdapter("select * from MST.JobWorkValueAddedMaster where JobWorkActivityId='"+ JWActivityId + @"' and JobWorkActivityChildId='"+ JWItemId + @"' ", out CheckValMst, false, "1");
+                        if (CheckValMst.Tables[0].Rows.Count > 0)
+                        {
+                            throw new Exception("This Job Work Item cannot be deleted.");
+                        }
+
+                        con.OpenDataSetThroughAdapter("select * from MST.JobWorkTransformationMaster where JobWorkActivityId='" + JWActivityId + @"' and JobWorkActivityChildId='" + JWItemId + @"' ", out CheckTransMst, false, "1");
+                        if (CheckTransMst.Tables[0].Rows.Count > 0)
+                        {
+                            throw new Exception("This Job Work Item cannot be deleted.");
+                        }
+
+                    }
+                }
+
                 con.BeginTransaction();
                 con.executeQuery("DELETE FROM [HKP].[JobWorkActivityChild] WHERE Id='" + Id + "' ");
 

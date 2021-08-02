@@ -5,7 +5,6 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
-using Library.HumanResource.Leave;
 using Library.Model.Enums;
 using Library.Model.HumanResources;
 using Library.Service.Biometrics;
@@ -21,6 +20,8 @@ using System.Data;
 using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
+using Library.HumanResource.Leave;
+
 
 namespace Aplos.Areas.Leave.Controllers
 {

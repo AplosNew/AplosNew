@@ -6,6 +6,7 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
     $scope.Journal = 'Journal';
     $scope.index = -1;
     $scope.products = [];
+    $scope.partyType = 'Customer';
     $scope.path = 'Accounts/InventorySale/';
     $scope.getListUrl = 'Products/InventoryIssue/GetPostingInvReceivableList/';
     $scope.siglesaveUrl = $scope.path + 'InventorySalesSingleJournalPosting';
@@ -671,6 +672,7 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
                 , inventoryReceiveDetailVMList: $scope.inventoryPayableList
                 , inventoryJVList: $scope.inventoryJV
                 , IsInventorySalesBook: $scope.companyConfig.IsInventorySalesBook
+                , otherInvoiceVM: $scope.otherVoucher
             },
             dataType: 'JSON'
         }).then(function (response) {
@@ -724,6 +726,7 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
                 , inventoryReceiveDetailVMList: $scope.inventoryPayableList
                 , inventoryJVList: $scope.inventoryJV
                 , IsInventorySalesBook: $scope.companyConfig.IsInventorySalesBook
+                , otherInvoiceVM: $scope.otherVoucher
             },
             dataType: 'JSON'
         }).then(function (response) {
@@ -747,6 +750,7 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
         $scope.inventoryReceivedList = [];
         $scope.inventoryPayableList = [];
         $scope.inventoryReceiveDetailList = [];
+        $scope.otherVoucher = {};
         $scope.newList = [];
         if (baseService.arrayLength($scope.voucherTypeList) === 1)
             $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
@@ -927,5 +931,279 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
         $scope.GRN = 1;
 
     };
+
+    $scope.otherVoucher = {
+        Id: null,
+        CompanyGroupId: null,
+        CompanyId: null,
+        EntityId: null,
+        PlantId: null,
+        PartyId: null,
+        PartyName: null,
+        PartyType: null,
+        CurrencyId: null,
+        PaymentTermId: null,
+        SourceType: null,
+        VoucherNo: null,
+        VoucherDate: $filter("dateFiltering")(Date.now()),
+        PostingDate: null,
+        DocDate: null,
+        BaseOnDueDate: null,
+        BaseNoOfDays: null,
+        MatureDate: null,
+        DocRefNo: null,
+        FiscalYearId: null,
+        FiscalYearName: null,
+        FiscalYearPeriodId: null,
+        FiscalYearPeriodName: null,
+        TaxYearId: null,
+        TaxYearName: null,
+        TaxYearPeriodId: null,
+        TaxYearPeriodName: null,
+        IsExcludingTax: false,
+        IsSplit: false,
+        Amount: null,
+        Narration: null,
+        Remarks: null,
+        BankName: null,
+        BankMasterId: null,
+        BankCurrencyId: null,
+        BankAmount: 0,
+        BankAccountNumber: null,
+        SourceFrom: null,
+        SourceTo: null,
+
+        DrGLId: null,
+        DrGLName: null,
+        DrBudgetId: null,
+        DrBudgetName: null,
+        DrActivityId: null,
+        DrActivityName: null,
+
+        CrGLId: null,
+        CrGLName: null,
+        CrBudgetName: null,
+        CrBudgetId: null,
+        CrActivityId: null,
+        CrActivityName: null,
+
+        GLGeneralInfoId: null,
+        GLGeneralInfoName: null,
+        BudgetMasterId: null,
+        BudgetName: null,
+        ActivityId: null,
+        ActivityName: null,
+
+        EmployeeGLGeneralInfoId: null,
+        EmployeeGLGeneralInfoName: null,
+        EmployeeTransactionTypeId: null,
+        PartyPlantId: null,
+        DeliveryPartyPlantId: null,
+        IsGovtSubsidy: false
+    };
+    $scope.searchByParty = "UserName"; $scope.searchParty = "";
+    $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+    $scope.partyList = [];
+    $scope.otherPartyPlantList = [];
+    $scope.getOtherPartyPlantList = function (partyId) {
+        $scope.otherPartyPlantList = [];
+        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + partyId)
+            .then(function (response) {
+                angular.forEach(response.data, function (item, i) {
+                    $scope.otherPartyPlantList.push(item);
+                    if (item.IsDefault) {
+                        $scope.otherPartyPlantId = item.Value;
+                        $scope.otherVoucher.PartyPlantId = item.Value;
+                        $scope.otherVoucher.DeliveryPartyPlantId = item.Value;
+                        $scope.billToAddress = item.Address1;
+                        $scope.shipToAddress = item.Address1;
+                    }
+                });
+            });
+    };
+    $scope.showPartyOtherPopUpNew = function () {
+        if ($scope.OrderSpecific === 'Yes') {
+            if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+
+            }
+            $http({
+                method: 'POST',
+                url: 'Parties/party/GetCompanyPartyDataListByContract?ContractId=' + $scope.productNew.ContractId + '&partyType=' + $scope.partyType,
+                data: { column: $scope.searchByParty, value: $scope.searchParty },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.partyList = response.data;
+                if ($scope.partyList.length === 0) {
+                    if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+                        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
+                    }
+                    else if ($scope.partyType === 'Party') {
+                        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+                    }
+                    else if ($scope.partyType === 'Director') {
+                        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+                    }
+                    else if ($scope.partyType === 'Other') {
+                        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+                    }
+                    $http({
+                        method: 'POST',
+                        url: $scope.partyUrl,
+                        data: { column: $scope.searchByParty, value: $scope.searchParty },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        $scope.partyList = response.data;
+                    });
+                }
+            });
+
+        }
+        else {
+
+            if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+                $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
+            }
+            else if ($scope.partyType === 'Party') {
+                $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+            }
+            else if ($scope.partyType === 'Director') {
+                $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+            }
+            else if ($scope.partyType === 'Other') {
+                $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+            }
+            $http({
+                method: 'POST',
+                url: $scope.partyUrl,
+                data: { column: $scope.searchByParty, value: $scope.searchParty },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.partyList = response.data;
+            });
+        }
+        angular.element(document.querySelector('#partyOtherPopUp')).modal('show');
+    };
+
+    $scope.closeOtherPartyPopUp = function (x) {
+        var party = x.data;
+        if (baseService.isUndefinedOrNull(party.ReconciliationGLId)) {
+            ShowResult($scope.partyType + " GL not found!", "failure", "partyPopUp");
+            return;
+        }
+        else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(party.ReconciliationBudgetId)) {
+            ShowResult($scope.partyType + " Budget not found!", "failure", "partyPopUp");
+            return;
+        }
+        else {
+            $scope.otherVoucher.PartyId = party.Id;
+            $scope.otherVoucher.PartyCode = party.Code;
+            $scope.otherVoucher.PartyName = party.UserName;
+            $scope.otherVoucher.PartyType = $scope.partyType;
+            $scope.otherVoucher.GLGeneralInfoId = party.ReconciliationGLId;
+            $scope.otherVoucher.GLGeneralInfoCode = party.ReconciliationGLCode;
+            $scope.otherVoucher.GLGeneralInfoName = party.ReconciliationGLName;
+            $scope.otherVoucher.CurrencyId = party.CurrencyId;
+            $scope.otherVoucher.BudgetMasterId = party.ReconciliationBudgetId;
+            $scope.otherVoucher.BudgetCode = party.ReconciliationBudgetCode;
+            $scope.otherVoucher.BudgetName = party.ReconciliationBudgetName;
+            $scope.otherVoucher.ActivityId = party.ReconciliationActivityId;
+            $scope.otherVoucher.ActivityCode = party.ReconciliationActivityCode;
+            $scope.otherVoucher.ActivityName = party.ReconciliationActivityName;
+            $scope.getOtherPartyPlantList($scope.otherVoucher.PartyId);
+        }
+        $scope.hideOtherPartyPopUp();
+    };
+    $scope.hideOtherPartyPopUp = function () {
+        angular.element(document.querySelector('#partyOtherPopUp')).modal('hide');
+
+    }
+    $scope.clearOtherPartyData = function () {
+        $scope.otherVoucher.PartyId = null;
+        $scope.otherVoucher.PartyName = null;
+        $scope.otherVoucher.PartyPlantId = null;
+        $scope.otherPartyPlantList = [];
+    }
+
+    
+    $scope.closeJournalPopUp = function () {
+        angular.element(document.querySelector('#JournalPopUp')).modal('hide');
+    }
+
+    $scope.otherInvoicepost = function (id, data, otherInvoiceJVlist) {
+        $http({
+            method: "POST",
+            url: 'Accounts/Invoice/InsertOtherInvoiceJournal',
+            data: {
+                "otherInvoiceId": id,
+                "voucherVM": data,
+                "voucherDetailVMList": otherInvoiceJVlist
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                if (tdsId != null) {
+                }
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.invoiceId = null;
+    $scope.confirmotherInvoicePost = function (id, data, list) {
+        $scope.otherinvoiceId = id;
+        $scope.data = data;
+        $scope.otherInvoiceJVlist = list;
+        $scope.message_confirmation = "Are you sure to Post?";
+        angular.element(document.querySelector("#confirmotherInvoicePostPopUp")).modal("show");
+    };
+
+    $scope.OtherInvoiceVouchereReport = function () {
+        $window.open('Accounts/Invoice/CustomerInvoiceReceiptReport?reportFormat=' + 'Excel' + '&voucherId=' + $scope.otherVoucher.OtherInvoiceVoucherId, '_blank');
+    }
+
+    $scope.voucherTypeListnew = [];
+    $scope.otherInvoiceVoucherTypeId = null;
+    $scope.getReceivableFromOthersVoucherType = function () {
+        cboService.getCboVoucherTypeReceivableFromOthersList(function (result) {
+            $scope.voucherTypeListnew = result;
+            if (baseService.arrayLength($scope.voucherTypeListnew) === 1)
+                $scope.otherVoucher.VoucherTypeId = $scope.voucherTypeListnew[0].Value;
+        });
+    }
+
+    $scope.additionalTaxPostUrl = 'Accounts/InvoicePost/InsertAdditionalTaxPayable';
+    $scope.otherInvoiceDetailList = [];
+    $scope.onClickadditionalTaxPop = function (x) {
+        var data = x;
+        data.VoucherTypeId = null;
+        data.VoucherDate = new Date();
+        $scope.otherVoucher = data;
+        $scope.otherVoucher.DocRefNo = data.Id;
+        $scope.OtherInvoiceJournalId = data.OtherInvoiceId;
+        $http({
+            method: 'GET',
+            url: 'Accounts/Invoice/GetOtherInvoiceJournal?otherInvoieId=' + data.OtherInvoiceId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.otherInvoiceDetailList = response.data;
+        });
+        $scope.getReceivableFromOthersVoucherType();
+        angular.element(document.querySelector('#JournalPopUp')).modal('show');
+    };
+   
+    $scope.additionalTaxPop = [{
+        type: "details", buttonOptions: {
+            text: "TDS Post",
+            width: "80",
+            height: "20",
+            click: $scope.onClickadditionalTaxPop
+        }
+    }];
 
 }

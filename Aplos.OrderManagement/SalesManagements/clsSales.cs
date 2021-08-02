@@ -75,10 +75,10 @@ namespace Library.OrderManagement.Sales
                             , ExistSalesQty=ISNULL(case when SCH.CharacteristicsValueId<>''  then SCH.SalesQty
 										when FCH.CharacteristicsValueId<>'' then FCH.SalesQty end,
 										A.TransactionQty)
-							,Balance=ISNULL((case when SCH.CharacteristicsValueId<>''  then SCH.Qty
-										when FCH.CharacteristicsValueId<>'' then FCH.Qty else SO.Qty end)
-										-(ISNULL(case when SCH.CharacteristicsValueId<>''  then SCH.SalesQty
-										when FCH.CharacteristicsValueId<>'' then FCH.SalesQty end,A.TransactionQty)),0)
+							,Balance=(SELECT isnull(case when SCH.CharacteristicsValueId<>'' then SCH.Qty
+										when FCH.CharacteristicsValueId<>'' then FCH.Qty 
+										else SO.Qty end, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))-ISNULL(case when SCH.CharacteristicsValueId<>'' then SCH.SalesQty
+										when FCH.CharacteristicsValueId<>'' then FCH.SalesQty end,A.TransactionQty)
 
                     FROM [TRN].[SalesOrder] AS SO
                     JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
@@ -141,12 +141,9 @@ namespace Library.OrderManagement.Sales
             ,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName
 			, SO.SOType,SO.Rate
            ,0 SalesQty
-           ,Balance=ISNULL((case when SC.CharacteristicsValueId<>''  then SC.Qty
-										when FC.CharacteristicsValueId<>'' then FC.Qty 
-										else SO.Qty  
-							end)-(case when SC.CharacteristicsValueId<>''  then SC.SalesQty
+          ,Balance=SM.TransactionQty-ISNULL(case when SC.CharacteristicsValueId<>''  then SC.SalesQty
 										when FC.CharacteristicsValueId<>'' then FC.SalesQty else SO.Qty 
-							end),0)
+							end,0)
            ,ExistSalesQty=
 							ISNULL(case when SC.CharacteristicsValueId<>''  then SC.SalesQty
 										when FC.CharacteristicsValueId<>'' then FC.SalesQty else SO.Qty 
@@ -469,7 +466,7 @@ namespace Library.OrderManagement.Sales
 		{
 			try
 			{
-				var str = @"SELECT SP.Id,SP.PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
+				string str = @"SELECT SP.Id,SP.PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
                             ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,CP.CurrencyId,C.Code AS Currency 
                             FROM dbo.SalesPacking SP
 							LEFT JOIN TRN.Packing pk ON pk.PackingId=SP.PackingId
@@ -488,6 +485,30 @@ namespace Library.OrderManagement.Sales
 				throw e;
 			}
 		}
+
+		public Dictionary<string, object> GetQtyAmountByPackingId(string packingid)
+        {
+            try
+            {
+				string sql = @"Select PackingID,Sum(NetWeight) Qty,Sum(Amount) Amount,TembTbl.ProductLibraryId from
+							(
+							SELECT PK.PackingId,IsNull(ISC.NetWeight,0) NetWeight,IsNull(FGBD.Rate,0) Rate,IsNull(ISC.NetWeight,0) * IsNull(FGBD.Rate,0) Amount,PL.Id ProductLibraryId FROM
+							dbo.ItemScanChild ISC
+							LEFT JOIN TRN.POLotReference POR ON ISC.PackingId=POR.Id
+							LEFT JOIN TRN.PackingLineItem PLI ON POR.PackingLineItemId=PLI.PackingLineItemId
+							LEFT JOIN TRN.Packing PK ON PLI.PackingId=PK.PackingId
+							LEFT JOIN FinishGoodsBookingDetail FGBD ON ISC.FinishGoodsBookingDetailId=FGBD.Id
+							LEFT JOIN dbo.ProductLibrary PL ON PL.Code=ISC.ProductCode
+							Where PK.PackingId='"+ packingid + @"'
+							) TembTbl group by PackingId,ProductLibraryId";
+				return _sqlRepository.GetData(sql, null);
+			}
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
 
 

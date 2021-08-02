@@ -53,10 +53,10 @@
                 <label class="col-sm-3 control-label">Invoice No :</label>
                 <label class="col-sm-9 control-label">{{modelNew.Id}}</label>
             </div>
-            <div  class="form-group" show-errors>
+            <div class="form-group" show-errors>
                 <label class="col-sm-3 control-label">Posting Date<sup>*</sup></label>
                 <div class="col-sm-9 show-message">
-                    <input required datepicker="checkPostingDate();checkDocDate();"  id="postingDate" type="text" name="PostingDate" ng-model="modelNew.PostingDate" class="form-control" tabindex="1">
+                    <input required datepicker="checkPostingDate();checkDocDate();" id="postingDate" type="text" name="PostingDate" ng-model="modelNew.PostingDate" class="form-control" tabindex="1">
                 </div>
             </div>
         </div>
@@ -73,7 +73,7 @@
                 <label class="col-sm-3 control-label">Delivery Address :</label>
                 <label class="col-sm-9 control-label" style="white-space: pre-line;">{{modelNew.DeliveryByAddress}}</label>
             </div>
-            
+
             <div class="form-group" style="margin-bottom: 0px;">
                 <label class="col-sm-3 control-label">Currency :</label>
                 <label class="col-sm-9 control-label">{{modelNew.CurrencyCode}}</label>
@@ -209,6 +209,57 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="clearfix"></div>
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border">Receivable From Others</legend>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <div class="form-group">
+                            <label class="col-sm-8 control-label">Is Receivable From Others</label>
+                            <div class="checkbox-site">
+                                <label class="col-sm-4">
+                                    <input type="checkbox" id="IsGovtSubsidy" ng-model="otherVoucher.IsGovtSubsidy" tabindex="14">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4" ng-show="otherVoucher.IsGovtSubsidy">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Other Customer</label>
+                            <div class="col-sm-9 show-message">
+                                <div class="input-group">
+                                    <input type="text" name="PartyName" ng-model="otherVoucher.PartyName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showPartyOtherPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearOtherPartyData()" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-3 control-label">Other Bill To<sup>*</sup></label>
+                            <div class="col-sm-9 show-message">
+                                <div class="input-group">
+                                    <div class="select-style">
+                                        <select class="form-control" name="Other Bill To" ng-model="otherVoucher.PartyPlantId" ng-options="item.Value as item.Text for item in otherPartyPlantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(otherVoucher.PartyPlantId,'billTo')">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showPartyPlantPopUp(otherVoucher.PartyPlantId);" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Amount</label>
+                            <div class="col-sm-8 show-message">
+                                <input tabindex="6" ng-model="otherVoucher.Amount" name="Amount"
+                                       autocomplete="off" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }" ng-form="tabForm4" ng-keypress="materialConfigMassege()">
 
@@ -334,13 +385,26 @@
                             <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="60" textAlign='Right'></div>
                             <div e-column e-field="TransactionAmount" e-headertext="Tran Amount" e-width="100" textAlign='Right'></div>
                             <div e-column e-field="MaterialStorageName" e-headertext="Storage Location" e-width="130"></div>
+                            <div e-column e-field="OtherVoucherNo" e-headertext="Sub VoucherNo" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="OtherAmount" e-headertext=" TDS " e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="OtherIsPark" e-headertext="Status" e-width="100" textAlign='Right'></div>
+                            @*<div e-column e-headertext="AdditionalTax" e-commands="additionalTaxPop" e-isunbound=true e-textalign="center" e-width="100"></div>*@
+
+                            <div e-column e-headertext="Govt Subsidy" e-template="#AdditionalTaxTemplate" e-width="100"></div>
                             <div e-column e-headertext="PDF" e-commands="commandPDF" e-isunbound=true e-textalign="center" e-width="60"></div>
                             <div e-column e-headertext="Excel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="60"></div>
                             <div e-column e-headertext="Sales" e-commands="commandSales" e-isunbound=true e-textalign="left" e-width="60"></div>
                         </div>
+
                     </div>
-                    <i>**Showing top 300 Posted Sales  order by PostingDate</i>
+                    <script id="AdditionalTaxTemplate" type="text/template">
+                        <ul class="common-btn list-inline text-right">
+                            <li> <button type="button" class="btn" ng-disabled="data.OtherInvoiceId==null" ng-click="$parent.onClickadditionalTaxPop(data);">Govt Subsidy Post</button></li>
+                        </ul>
+
+                    </script>
                 </div>
+                <i>**Showing top 300 Posted Sales  order by PostingDate</i>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetSalesList(2), active: isSetSalesList(2) }">
                 <div class="row text-right">
@@ -393,4 +457,104 @@
     </div>
 </div>
 @Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_ApprovedSalesDetailPopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_PartyOtherPopUpNew.cshtml")
+
+<div class="modal fade site-modal in" id="JournalPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="PopUpForm1">
+            <div class="modal-content">
+                <div class="modal-header"> Journal</div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="VoucherDate" ng-model="otherVoucher.VoucherDate" datepicker class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Posting Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input datepicker id="DocDate" type="text" name="Doc Date" ng-model="otherVoucher.PostingDate" class="form-control" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Doc Ref<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" maxlength="50" name="Doc Ref No" ng-model="otherVoucher.DocRefNo" class="form-control" tabindex="4" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Voucher Type<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select id="VoucherType" class="form-control" name="VoucherType" ng-model="otherVoucher.VoucherTypeId" ng-disabled="voucherTypeListnew.length==1" tabindex="7">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in voucherTypeListnew" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="div_PostingDate" class="form-group" >
+                                <label class="col-sm-4 control-label">Doc Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input datepicker id="DocDate" type="text" name="Doc Date" ng-model="otherVoucher.DocDate" class="form-control" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group" >
+                                <label class="col-sm-4 control-label">Narration<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <textarea rows="1" type="text" ng-maxlength="250" name="Narration"  class="form-control" ng-model="otherVoucher.Narration"  capitalize></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Particulars</th>
+                                        <th>GL</th>
+                                        <th>Budget</th>
+                                        <th>Activity</th>
+                                        <th>Dr</th>
+                                        <th>Cr</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in otherInvoiceDetailList| orderBy:'Dr'">
+                                        <td>{{x.Customer}}</td>
+                                        <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                        <td>{{x.BudgetName}}</td>
+                                        <td>{{x.ActivityName}}</td>
+                                        <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
+                                        <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4"></td>
+                                        <td class="text-right"><strong>{{otherInvoiceDetailList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                                        <td class="text-right"><strong>{{otherInvoiceDetailList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button type="button" class="btn btn-default" ng-disabled="otherVoucher.OtherIsPark=='OtherInvoiceParked'" ng-click="OtherInvoiceVouchereReport();">Print</button></li>
+
+                                <li><button ng-click="confirmotherInvoicePost(OtherInvoiceJournalId,otherVoucher,otherInvoiceDetailList)" title="Post" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
+                                <li><button ng-click="closeJournalPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmotherInvoicePostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="otherInvoicepost(otherinvoiceId,data,otherInvoiceJVlist)"></confirm-archive-generic>
 
