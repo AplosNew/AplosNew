@@ -647,14 +647,14 @@ namespace Library.Accounting.Accounts
 								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDateNew
 			                    , CP.UserName AS PartyAccountGroupName
 			                    , IVS.EmployeeId, EI.EmployeeCode, EI.EmployeeName
-	                            , IVS.MaterialStorageId
-								, REPLACE(CONVERT(CHAR(11), IVS.AddedDate, 106),' ','-') AS EntryDate
+	                           , IVS.MaterialStorageId,MS.UserName MaterialStorage,E.UserName Entity,FORMAT(IVS.DocDate,'dd-MMM-yyyy')DocDate
+								, REPLACE(CONVERT(CHAR(11), IVS.AddedDate, 106),' ','-') AS EntryDate,IVS.Remarks,IVS.DocRefNo
 								, IVS.CurrencyId, CU.Code AS CurrencyCode
 	                            , IVS.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy,  IVS.DeliveryPartyPlantId
 								, DPP.UserName AS DeliveryBy
 	                            , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
                                 , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState
-								, CP.TaxApplicable,CP.IsPaymentTermChangeable,IVS.PaymentTermId
+								, CP.TaxApplicable,CP.IsPaymentTermChangeable,IVS.PaymentTermId,PT.UserName PaymentTerm
 								,REPLACE(CONVERT(CHAR(11), IVS.BaseOnDueDate, 106),' ','-') BaseOnDueDate,IVS.BaseNoOfDays,REPLACE(CONVERT(CHAR(11), IVS.MatureDate, 106),' ','-') MatureDate
 								,[Type]=CASE WHEN IVS.EmployeeId<>'' THEN 'Employee' Else 'Customer' END
                                 ,CO.BaseCurrencyId,IVS.ToCurrencyRate
@@ -677,6 +677,9 @@ namespace Library.Accounting.Accounts
                     LEFT JOIN (SELECT A.InventorySalesId, A.TransactionUoMId FROM [TRN].[InventorySalesDetail] AS A JOIN [TRN].[InventorySales] AS B ON A.InventorySalesId=B.Id
 		                        WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventorySalesId, A.TransactionUoMId HAVING COUNT(A.InventorySalesId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventorySalesId=IVS.Id
                     LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+					LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IVS.MaterialStorageId
+					LEFT JOIN ORG.Entity E ON E.Id=IVS.EntityId
+					LEFT JOIN MST.PaymentTerm PT ON PT.Id=IVS.PaymentTermId
                     WHERE IVS.PlantId='" + plantId + @"' AND ISNULL(IVS.[Status],'')<>'Posting'  
                     order by IVS.SalesDate desc";
 				return _sqlRepository.GetDataCollection(sql);

@@ -147,49 +147,30 @@
 								 e-filtersettings-filterType="excel" e-enabletouch="true"
 								 e-detailstemplate="detailTemp" e-actioncomplete="PurchaseOrderUnApprovedScrollbar"
 								 e-detailsdatabound="detailgrid">
-								<div e-columns>
-									@*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-									<div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
-									<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="100"></div>
-									<div e-column e-field="Id" e-headertext="PO No" e-width="100"></div>
-									<div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="100"></div>
-									<div e-column e-field="ContructNumber" e-headertext="Contruct Number" e-width="100"></div>
-									<div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
-									<div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="100"></div>
-									<div e-column e-field="PODate" e-headertext="PO Date" e-width="120"></div>
-									<div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="100"></div>
-									<div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="100"></div>
-									<div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="100"></div>
-									<div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="120"></div>
-									<div e-column e-field="CurrencyCode" e-headertext="Currency" textAlign='Right' e-width="100"></div>
-									<div e-column e-field="CtnId" e-headertext="Appr.No" e-width="120"></div>
-									@*<div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="120"></div>
-										<div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="120"></div>
-										<div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="120"></div>*@
-
-									@*<div e-column e-field="AuthorizedBy" e-headertext="Authorized By" e-width="120"></div>*@
-									<div e-column e-template="#RejectApprovedReason" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
-
-									@*<div e-column e-template="#showGraph1" e-headertext="Approved By" e-width="150"></div>*@
-									<div e-column e-template="#ApprovedStatus1" e-headertext="Approved Status" e-width="150"></div>
-
-
-									<div e-column e-headertext="Actions" e-width="80">
-										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approval/Hold/Reject" ng-click="$parent.onClickPOA('GridPOAPp');" style="margin: -6px;"></i></button>
-										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPOAPp');" style="margin: -6px;"></i></button>
-									</div>
-
-									@*<div e-column e-headertext="" e-commands="commandpo" e-isunbound=true e-textalign="center" e-width="50"></div>*@
-									@* <div e-column e-headertext="" e-commands="commandpoAuth" e-isunbound=true e-textalign="center" e-width="100"></div>*@
-
-									@*<div e-column e-headertext="Actions" e-width="80">
-										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-check" title="Approved/Hold/Reject" ng-click="$parent.onClickPOA('GridPOAPp');" style="margin: -6px;"></i></button>
-										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPOAPp');" style="margin: -6px;"></i></button>
-										</div>*@
-									@*<div e-column e-field="AuthorizedByStatus" e-headertext="Authorized Status" e-width="130"></div>*@
-
-
-								</div>
+                                <div e-columns>
+                                    @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                    <div e-column e-headertext="Actions" e-width="80">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approval/Hold/Reject" ng-click="$parent.onClickPOA('GridPOAPp');" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPOAPp');" style="margin: -6px;"></i></button>
+                                    </div>
+                                    <div e-column e-template="#RejectApprovedReason" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
+                                    <div e-column e-template="#ApprovedStatus1" e-headertext="Approved Status" e-width="150"></div>
+                                    <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                    <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
+                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="100"></div>
+                                    <div e-column e-field="PODate" e-headertext="PO Date" e-width="120"></div>
+                                    <div e-column e-field="Id" e-headertext="PO No" e-width="100"></div>
+                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="100"></div>
+                                    <div e-column e-field="ContructNumber" e-headertext="Contruct Number" e-width="100"></div>
+                                    <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                                    <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="100"></div>
+                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="100"></div>
+                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="120"></div>
+                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="CtnId" e-headertext="Appr.No" e-width="120"></div>
+                                </div>
 
 							</div>
 
@@ -253,39 +234,35 @@
 								 e-filtersettings-filterType="excel" e-enabletouch="true"
 								 e-detailstemplate="detailTemp" e-actioncomplete="PoApprovedHoldandRejectScroll"
 								 e-detailsdatabound="detailgrid">
-								<div e-columns>
-									@*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-									<div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
-									<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="100"></div>
-									<div e-column e-field="Id" e-headertext="PO No" e-width="100"></div>
-									<div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="100"></div>
-									<div e-column e-field="ContructNumber" e-headertext="Contruct Number" e-width="100"></div>
-									<div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
-									<div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="100"></div>
-									<div e-column e-field="PODate" e-headertext="PO Date" e-width="110"></div>
-									<div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="120"></div>
-									<div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="100"></div>
-									<div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="100"></div>
-									<div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="100"></div>
-									<div e-column e-field="CurrencyCode" e-headertext="Currency" textAlign='Right' e-width="100"></div>
-									<div e-column e-field="CtnId" e-headertext="Appr.No" e-width="100"></div>
-									@*<div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="120"></div>*@
-									@*<div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="120"></div>*@
-									@*<div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="120"></div>*@
-									@*<div e-column e-field="AuthorizedBy" e-headertext="Authorized By" e-width="120"></div>*@
-									<div e-column e-template="#RejectApprovedReason1" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
-
-									@*<div e-column e-template="#showGraph1" e-headertext="Approved By" e-width="150"></div>*@
-									<div e-column e-template="#ApprovedStatus" e-headertext="Approved Status" e-width="150"></div>
-
-									@*<div e-column e-headertext="" e-commands="commandpo" e-isunbound=true e-textalign="center" e-width="50"></div>*@
-									@* <div e-column e-headertext="" e-commands="commandpoAuth1" e-isunbound=true e-textalign="center" e-width="100"></div>*@
-									<div e-column e-headertext="Actions" e-width="80">
-										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Update For Hold / Reject" ng-click="$parent.onClickPOA('GridPOAHR');" style="margin: -6px;"></i></button>
-										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPOAHR');" style="margin: -6px;"></i></button>
-									</div>
-									@*<div e-column e-field="AuthorizedByStatus" e-headertext="Authorized Status" e-width="130"></div>*@
-								</div>
+                                <div e-columns>
+                                    @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                    <div e-column e-headertext="Actions" e-width="80">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Update For Hold / Reject" ng-click="$parent.onClickPOA('GridPOAHR');" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPOAHR');" style="margin: -6px;"></i></button>
+                                    </div>
+                                    <div e-column e-template="#RejectApprovedReason1" e-headertext="Hold / Reject Reason" e-width="200" style="height: 20px;"></div>
+                                    <div e-column e-template="#ApprovedStatus" e-headertext="Approved Status" e-width="150"></div>
+                                    <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                    <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
+                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="100"></div>
+                                    <div e-column e-field="PODate" e-headertext="PO Date" e-width="110"></div>
+                                    <div e-column e-field="Id" e-headertext="PO No" e-width="100"></div>
+                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="100"></div>
+                                    <div e-column e-field="ContructNumber" e-headertext="Contruct Number" e-width="100"></div>
+                                    <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                                    <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="100"></div>
+                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="120"></div>
+                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="CtnId" e-headertext="Appr.No" e-width="100"></div>
+                                    @*<div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="120"></div>*@
+                                    @*<div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="120"></div>*@
+                                    @*<div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="120"></div>*@
+                                    @*<div e-column e-field="AuthorizedBy" e-headertext="Authorized By" e-width="120"></div>*@
+                                    @*<div e-column e-field="AuthorizedByStatus" e-headertext="Authorized Status" e-width="130"></div>*@
+                                </div>
 							</div>
 						</div>
 						<script id="tabGridContents" type="text/x-jsrender">
@@ -350,37 +327,35 @@
 								 e-filtersettings-filterType="excel" e-enabletouch="true"
 								 e-detailstemplate="detailTemp" e-actioncomplete="PurchaseOrderApprovedScrollbar"
 								 e-detailsdatabound="detailgrid">
-								<div e-columns>
+                                <div e-columns>
 
-									@*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-									<div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
-									<div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="120"></div>
-									<div e-column e-field="Id" e-headertext="PO No" e-width="100"></div>
-									<div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="100"></div>
-									<div e-column e-field="ContructNumber" e-headertext="Contruct Number" e-width="100"></div>
-									<div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
-									<div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="100"></div>
-									<div e-column e-field="PODate" e-headertext="PO Date" e-width="120"></div>
-									<div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="120"></div>
-									<div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="100"></div>
-									<div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
-									<div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="120"></div>
-									<div e-column e-field="CurrencyCode" e-headertext="Currency" textAlign='Right' e-width="100"></div>
-									<div e-column e-field="CtnId" e-headertext="Appr.No" e-width="60"></div>
-									@*<div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="120"></div>
-										<div e-column e-field="CheckedBy" e-headertext="Checked  By" e-width="120"></div>
-										<div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="120"></div>
-										<div e-column e-field="AuthorizedBy" e-headertext="Authorized By" e-width="120"></div>
-										<div e-column e-field="AuthorizedByStatus" e-headertext="Authorized Status" e-width="130"></div>*@
+                                    @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                    <div e-column e-headertext="Actions" e-width="50">
+                                        @* <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-check" title="Checked/H/R" ng-click="$parent.onClickPOA('GridPOAPp');" style="margin: -6px;"></i></button>*@
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO1');" style="margin: -6px;"></i></button>
+                                    </div>
+                                    <div e-column e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                                    <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="100"></div>
 
-									<div e-column e-headertext="Actions" e-width="50">
-										@* <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-check" title="Checked/H/R" ng-click="$parent.onClickPOA('GridPOAPp');" style="margin: -6px;"></i></button>*@
-										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO1');" style="margin: -6px;"></i></button>
-									</div>
-									@*  <div e-column e-headertext="" e-commands="commandprint" e-isunbound=true e-textalign="center" e-width="50"></div>*@
+                                    <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="120"></div>
+                                    <div e-column e-field="PODate" e-headertext="PO Date" e-width="120"></div>
+                                    <div e-column e-field="Id" e-headertext="PO No" e-width="100"></div>
+                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
+                                    <div e-column e-field="PurchaseLC" e-headertext="Purchase LC" e-width="100"></div>
+                                    <div e-column e-field="ContructNumber" e-headertext="Contruct Number" e-width="100"></div>
+                                    <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                                    <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="100"></div>
+                                    <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="120"></div>
+                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="120"></div>
+                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" textAlign='Right' e-width="100"></div>
+                                    <div e-column e-field="CtnId" e-headertext="Appr.No" e-width="60"></div>
 
 
-								</div>
+                                    @*  <div e-column e-headertext="" e-commands="commandprint" e-isunbound=true e-textalign="center" e-width="50"></div>*@
+
+
+                                </div>
 
 							</div>
 

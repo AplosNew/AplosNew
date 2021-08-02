@@ -1,12 +1,21 @@
 ﻿<togglable name="{{FormTitle}}"></togglable>
 <div class="form-elements form-horizontal row" ng-form="productNewForm">
+    @*<div class="col-xs-6 col-sm-6-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Sales Id</label>
+            <div class="col-sm-8">
+                <label>{{productNew.Id}}</label>
+            </div>
+        </div>
+
+    </div>*@
     <div class="col-xs-6 col-sm-6-md-6">
         <div class="form-group">
-            <label class="col-sm-3 control-label">Doc Ref & Date<sup>*</sup></label>
-            <div class="col-sm-9 show-message">
+            <label class="col-sm-3 control-label">Sales No</label>
+            <div class="col-sm-9">
                 <div class="input-group">
-                    <span class="input-group-addon">{{modelNew.DocRefNo}}</span>
-                    <input type="text" ng-model="modelNew.DocDate" class="form-control" readonly>
+                    @*<span class="input-group-addon">{{productNew.Id}}</span>*@
+                    <input type="text" ng-model="productNew.Id" class="form-control" readonly>
                     <span class="input-group-btn">
                         <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
@@ -14,135 +23,116 @@
             </div>
         </div>
 
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 col-md-4 control-label">Storage Location<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select name="Storage" ng-model="productNew.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="1" required>
-                        <option value=""></option>
-                    </select>
-                </div>
+        <div class="form-group">
+            <label class="col-sm-4 col-md-4 control-label">Storage Location</label>
+            <div class="col-sm-8">
+                <label>{{productNew.MaterialStorage}}</label>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
+            <label class="col-sm-4 control-label">Customer</label>
+            <div class="col-sm-8">
                 <div class="input-group">
-                    <input type="text" name="PartyName" ng-model="productNew.PartyName" class="form-control" readonly>
-                    <span class="input-group-btn">
-                        @*showPartyPopUp()*@
-                        <button ng-click="showPartyPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
-                        <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
-                    </span>
+                    <label>{{productNew.PartyName}}</label>
                 </div>
             </div>
         </div>
 
         <div class="form-group" id="div_docDate">
-            <label class="col-sm-4 control-label">Doc Date<sup>*</sup></label>
-            <div class="col-sm-8 show-messages">
-                <input type="text" name="Date" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3" required>
+            <label class="col-sm-4 control-label">Doc Date</label>
+            <div class="col-sm-8">
+                <label>{{productNew.DocDate}}</label>
             </div>
         </div>
 
         <div class="form-group" id="div_rate">
-            <label class="col-sm-4 control-label">Rate<sup ng-hide="productNew.CurrencyId==productNew.BaseCurrencyId">*</sup></label>
-            <div class="col-sm-8 show-message ">
-                <input type="text" n-decimals="4" name="Rate" ng-model="productNew.ToCurrencyRate" ng-disabled="true" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9" required>
+            <label class="col-sm-4 control-label">Rate</label>
+            <div class="col-sm-8 ">
+                <label>{{productNew.ToCurrencyRate}}</label>
+                @*<input type="text" n-decimals="4" name="Rate" ng-model="productNew.ToCurrencyRate" ng-disabled="true" ng-keyup="manualValidationAddRemove('div_rate', 'productNew', 'ToCurrencyRate');" class="form-control text-right" tabindex="9" required>*@
             </div>
         </div>
 
 
-        <div class="form-group" show-errors>
+        <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8">
-                <textarea type="text" name="remarks" class="form-control" maxlength="350" rows="1" ng-model="productNew.Remarks" tabindex="4" capitalize></textarea>
+                <label>{{productNew.Remarks}}</label>
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
-            @*<label class="col-sm-4 control-label">To Be Checked By</label>*@
-            <div class="col-sm-8 show-message">
-                <div class="select-style" ng-show="checkedByList.length">
-                    <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
-                        <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
+            <div class="col-sm-8">
+                <label>{{productNew.CheckedBy}}</label>
+                @*<div class="select-style" ng-show="checkedByList.length">
+                        <select id="CheckedBy" class="form-control" name="Checked By" ng-model="productNew.CheckedBy" tabindex="12">
+                            <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>*@
             </div>
         </div>
 
     </div>
     <div class="col-xs-6 col-sm-6-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Sales Date<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Issue Date" ng-model="productNew.SalesDate" datepicker end-date="currentDate" class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
-            </div>
-        </div>
-        @*<div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="input-group">
-                        <input type="text" name="EmployeeName" ng-model="productNew.EmployeeName" class="form-control" readonly required>
-                        <span class="input-group-btn">
-                            <button ng-click="showEmployeeListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                            <button ng-click="clearEmployee()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                        </span>
-                    </div>
-                </div>
-            </div>*@
-    </div>
-    <div class="col-xs-6 col-sm-6-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select id="paymentTermId" ng-disabled="detailModel.CostCenterId!=null" class="form-control" name="Entity" ng-model="productNew.EntityId" tabindex="1" required>
-                        <option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Sales Date</label>
+            <div>
+                <label>{{productNew.SalesDateNew}}</label>
 
-                    </select>
-                </div>
             </div>
+            @*<div class="col-sm-8 show-message">
+                    <input type="text" name="Issue Date" ng-model="productNew.SalesDate" datepicker end-date="currentDate" class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
+                </div>*@
         </div>
 
     </div>
     <div class="col-xs-6 col-sm-6-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Sales Id</label>
-            <div class="col-sm-8 show-message">
-                <input type="text" ng-model="productNew.Id" disabled class="form-control text-left" />
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Entity</label>
+            <div class="col-sm-8">
+                <label>{{productNew.Entity}}</label>
+                @*<div class="select-style">
+                        <select id="paymentTermId" ng-disabled="detailModel.CostCenterId!=null" class="form-control" name="Entity" ng-model="productNew.EntityId" tabindex="1" required>
+                            <option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>*@
             </div>
         </div>
 
     </div>
+
     <div class="col-xs-6 col-sm-6 col-md-6">
         <div class="form-group" id="div_docNo">
-            <label class="col-sm-4 control-label">Customer Doc. RefNo<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="DocRefNo" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');" maxlength="20" tabindex="2" autocomplete="off" required>
+            <label class="col-sm-4 control-label">Customer Doc. RefNo</label>
+            <div class="col-sm-8">
+                @*<input type="text" name="DocRefNo" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');" maxlength="20" tabindex="2" autocomplete="off" required>*@
+                <label>{{productNew.DocRefNo}}</label>
             </div>
 
         </div>
     </div>
     <div class="col-xs-6 col-sm-6 col-md-6">
         <div class="form-group" id="div_currency">
-            <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
-            <div class="col-sm-8 show-message ">
-                <div class="select-style">
-                    <select class="form-control" id="currency" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
-                            ng-change="changeCurrency();getToCurrencyRate();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8" required>
-                        <option value=""></option>
-                    </select>
-                </div>
+            <label class="col-sm-4 control-label">Currency</label>
+            <div class="col-sm-8">
+                <label>{{productNew.CurrencyCode}}</label>
+                @*<div class="select-style">
+                        <select class="form-control" id="currency" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
+                                ng-change="changeCurrency();getToCurrencyRate();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8" required>
+                            <option value=""></option>
+                        </select>
+                    </div>*@
             </div>
         </div>
     </div>
     <div class="col-xs-6 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Note For Accounts<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <textarea name="Note For Accounts" class="form-control" rows="2" ng-model="productNew.NoteForAccounts" tabindex="7" required></textarea>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Note For Accounts</label>
+            <div class="col-sm-8">
+                <label>{{productNew.NoteForAccounts}}</label>
+                @*<textarea name="Note For Accounts" class="form-control" rows="2" ng-model="productNew.NoteForAccounts" tabindex="7" required></textarea>*@
             </div>
         </div>
     </div>
@@ -151,35 +141,41 @@
         <fieldset class="scheduler-border">
             <legend class="scheduler-border">Payment Term</legend>
             <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Payment Term<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select id="paymentTermId" ng-disabled="productNew.IsPaymentTermChangeable===false && productNew.PaymentTermId!=null" class="form-control" name="Payment Term" ng-model="productNew.PaymentTermId" ng-change="changePaymentTerm();" tabindex="12" required>
-                                <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
-                        </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Payment Term</label>
+                    <div class="col-sm-8">
+                        <label>{{productNew.PaymentTerm}}</label>
+
+                        @*<div class="select-style">
+                                <select id="paymentTermId" ng-disabled="productNew.IsPaymentTermChangeable===false && productNew.PaymentTermId!=null" class="form-control" name="Payment Term" ng-model="productNew.PaymentTermId" ng-change="changePaymentTerm();" tabindex="12" required>
+                                    <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>*@
                     </div>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-5 control-label">Due Date BaseOn<sup>*</sup></label>
-                    <div class="col-sm-7 show-message">
-                        <input type="text" name="BaseOnDueDate" ng-model="productNew.BaseOnDueDate" ng-disabled="IsBaseOnDueDateEnable"
-                               datepicker="getMatureDate(productNew.BaseOnDueDate, productNew.BaseNoOfDays);" class="form-control datepicker" tabindex="13">
+                <div class="form-group">
+                    <label class="col-sm-5 control-label">Due Date BaseOn</label>
+                    <div class="col-sm-7">
+                        <label>{{productNew.BaseOnDueDate}}</label>
+                        @*<input type="text" name="BaseOnDueDate" ng-model="productNew.BaseOnDueDate" ng-disabled="IsBaseOnDueDateEnable"
+                            datepicker="getMatureDate(productNew.BaseOnDueDate, productNew.BaseNoOfDays);" class="form-control datepicker" tabindex="13">*@
                     </div>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
+                <div class="form-group">
                     <label class="col-sm-3 control-label">No Of Days</label>
-                    <div class="col-sm-2 pdr3 show-message">
-                        <input id="baseNoOfday" type="text" ng-disabled="inventoryMaterialList.length>0" only-numbers name="baseNoOfday" ng-model="productNew.BaseNoOfDays" ng-keyup="getMatureDate(productNew.BaseOnDueDate, productNew.BaseNoOfDays)" class="form-control text-right" tabindex="14">
+                    <div class="col-sm-2 pdr3">
+                        <label>{{productNew.BaseNoOfDays}}</label>
+                        @*<input id="baseNoOfday" type="text" ng-disabled="inventoryMaterialList.length>0" only-numbers name="baseNoOfday" ng-model="productNew.BaseNoOfDays" ng-keyup="getMatureDate(productNew.BaseOnDueDate, productNew.BaseNoOfDays)" class="form-control text-right" tabindex="14">*@
                     </div>
                     <label class="col-sm-3 control-label">Mature Date</label>
-                    <div class="col-sm-4 show-message">
-                        <input type="text" name="DueDate" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.MatureDate" class="form-control" readonly>
+                    <div class="col-sm-4">
+                        <label>{{productNew.MatureDate}}</label>
+
+                        @*<input type="text" name="DueDate" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.MatureDate" class="form-control" readonly>*@
                     </div>
                 </div>
             </div>
@@ -233,11 +229,7 @@
                     </tbody>
                 </table>
                 <div class="clearfix"></div>
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <ul class="common-btn list-inline text-left">
-                        <li><button ng-click="detailPopUp();" class="btn"><i class="glyphicon glyphicon-plus"></i>Add Sales Material</button></li>  @*ng-disabled="productNew.Id!=null"*@
-                    </ul>
-                </div>
+                
 
                 <div class="row">
                     <div class="table-responsive modal-table col-md-12">
@@ -256,12 +248,12 @@
                                     <th>Sales Rate</th>
                                     <th>Total Amount</th>
                                     <th>Total Tax Amount</th>
+                                    <th>Return Qty</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr ng-repeat="x in detailList">
-                                    @*<td>{{x.index}}</td>*@
                                     <td>{{x.MaterialMasterName}}</td>
                                     <td>{{x.ArticleName}}</td>
                                     <td>{{x.FirstCharacteristicText}}</td>
@@ -272,13 +264,14 @@
                                     <td class="text-right">{{x.SalesRate}} </td>
                                     <td class="text-right">{{x.TotalAmount}}</td>
                                     <td class="text-right">{{x.TaxAmount}}</td>
+                                    <td class="text-right">
+                                        <input type="text" n-decimals="2" ng-model=" x.ReturnQty" ng-change="returnAmountCalculation(x);" class="form-control text-right">
+                                    </td>
                                     <td class="text-right table-td">
                                         <ul class="list-inline">
                                             <li><button ng-click="getReceiveTaxList(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
                                             <li><button ng-click="getSpecificMaterialStock(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select GRN"><i class="glyphicon glyphicon-list"></i></button></li>
-                                            @*<li><button ng-show="x.Id!=null" ng-click="getRequisitionList(x.Id);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Specific GRN"><i class="glyphicon glyphicon-list"></i></button></li>*@
                                             <li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
-                                            @*<li><a class="btn btn-action" ng-click="IssueReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>*@
                                         </ul>
                                     </td>
                                 </tr>
@@ -397,9 +390,7 @@
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
             <div ng-form="tabForm2">
-                <ul class="common-btn list-inline text-left">
-                    <li><button ng-click="serviceChargePopUp();" class="btn" ng-disabled="productNew.Id==null"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li> @**@
-                </ul>
+                
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>

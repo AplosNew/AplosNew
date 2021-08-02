@@ -2514,11 +2514,18 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                 if (!string.IsNullOrEmpty(id))
                 {
+                    con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild2 where JobWorkTransformationContractChildMasterId='" + id + "' ", out dsMaster, false, "1");
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("First Delete Order Wise Data");
+                    }
+
                     con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + id + "' ", out dsMaster, false, "1");
                     if (dsMaster.Tables[0].Rows.Count > 0)
                     {
                         throw new Exception("First Delete Material Input Data");
                     }
+
                 }
 
                 
@@ -3044,18 +3051,18 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                             if (JWPOIsNonCreditable == "False")
                             {
-                                decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                             //   decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
                                 decimal Amt = Convert.ToDecimal(data[i]["TransactionAmount"]);
-                                decimal BAmt = Convert.ToDecimal(Amt * PORate);
+                                decimal BAmt = Convert.ToDecimal(Amt);
                                 data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
                                 data[i]["BaseAmount"] = BAmt;
                             }
 
                             if (JWPOIsNonCreditable == "True")
                             {
-                                decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                             //   decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
                                 decimal Amt = Convert.ToDecimal(data[i]["TransactionAmount"]);
-                                decimal BAmt = Convert.ToDecimal((Amt + SumTax) * PORate);
+                                decimal BAmt = Convert.ToDecimal(Amt + SumTax);
                                 data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
                                 data[i]["BaseAmount"] = BAmt;
                             }
@@ -3452,6 +3459,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             , JWTPD.ReferenceNo,((JWTPD.Quantity*JWTPD.RatePerUnit)*po.ToCurrencyRate) BaseAmount
                             , jwtax.TaxAmount,JWTPD.TransactionUoMId,TransactionUoM.Code TransactionUoM,JWTPD.BaseUOMId,BaseUOM.Code BaseUOM
                             ,MS.Id MaterialStorageId,MS.UserName MaterialStorage,EEI.EmployeeName ResponsiblePerson ,ISNULL(MM.UserName,'') MaterialName
+                            --,SerM.UserName as JWService
                             --,FORMAT(JWTPD.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate
                             FROM JobWorkTransformationContractChild JWTPD      
                             left JOIN [dbo].[JWTransformationPurchaseOrder] PO On PO.Id=JWTPD.JobWorkTransformationContractMasterId
@@ -3478,6 +3486,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             ON jwtax.JWTransformationPurchaseOrderId  = JWTPD.JobWorkTransformationContractMasterId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
                             left join HKP.JobWorkLocation JL on JL.Id=JWTPD.MaterialLocationId
 							left join hkp.MaterialStorage MS ON MS.Id=JL.StoreLocationId
+                           -- left join hkp.ServiceMaster SerM on SerM.Id=JWTPD.ServiceId
                             WHERE " + strkey + "  and JWTPD.JobWorkTransformationContractMasterId = '" + jwpoId + @"'";
             return sql;
 		}
@@ -4157,9 +4166,12 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 sql = @"select mm.Id, mm.Code, mm.UserName as Material,mm.BaseUOMId, mmuom.UserName as BaseUom,jwi.UOMId, uom.UserName as JWIUom
                      ,UnitId=case when jwi.MaterialMasterId is not null then mm.BaseUOMId else jwi.UOMId End
                      ,UOM=case when jwi.MaterialMasterId is not null then mmuom.UserName else uom.UserName End
+					 ,AlternateUoM=case when jwi.MaterialMasterId is not null then U.UserName End
                      from HKP.JobWorkItem jwi left join MST.MaterialMaster mm on mm.Id=jwi.MaterialMasterId
                      left join scs.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
 					 left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
+					 left join MST.MaterialMasterAlternativeUOM mauom on mauom.MaterialMasterId=mm.Id
+					 left join SCS.UnitOfMeasurement U on U.Id=mauom.AlternativeUOMId
                      where jwi.Id='" + JobWorkItemId + @"' ";
 
                 var Data = _sqlRepository.GetDataCollection(sql);
