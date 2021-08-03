@@ -15,11 +15,15 @@ namespace Aplos.Controllers
 
         ShiftChangeService app = new ShiftChangeService();
 
+        ManualOTFromAppService _app = new ManualOTFromAppService();
+
         public ManualAttndFromAppController()
         {
+            app = new ShiftChangeService();
+            _app = new ManualOTFromAppService();
+        }
 
-        }       
-       
+        #region ShiftChange
         [HttpGet]        
         public IHttpActionResult GetShiftData(string Plant, string Date)
         {
@@ -85,5 +89,44 @@ namespace Aplos.Controllers
 
             }
         }
+
+        #endregion
+
+        #region ManualOt
+        [HttpGet]
+        public IHttpActionResult GetOTConfig()
+        {
+            try
+            {
+                var result = _app.GetConfigurationDays();
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
+        [HttpPost]
+        public string Create([FromBody] IEnumerable<PhysicalVerifyModel> DataToSave)
+        {
+            try
+            {
+                string Id = _app.Create(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        #endregion
+
     }
 }
