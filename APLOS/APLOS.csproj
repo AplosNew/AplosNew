@@ -776,6 +776,7 @@
     <Compile Include="Areas\PerformanceManagement\Controllers\JobEvaluationReportController.cs" />
     <Compile Include="Areas\PerformanceManagement\PerformanceManagementAreaRegistration.cs" />
     <Compile Include="Areas\Productions\Controllers\CutPlanController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductionConversionParameterController.cs" />
     <Compile Include="Areas\Productions\Controllers\MarkerController.cs" />
     <Compile Include="Areas\Productions\Controllers\PackingInvoiceController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionTargetReportController.cs" />
@@ -2086,6 +2087,7 @@
     <Content Include="Areas\PerformanceManagement\Scripts\JobEvaluationMasterController.js" />
     <Content Include="Areas\PerformanceManagement\Scripts\JobEvaluationReportController.js" />
     <Content Include="Areas\PerformanceManagement\Scripts\PerformanceManagementConfig.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionConversionParameterController.js" />
     <Content Include="Areas\Productions\Scripts\FinishGoodsBookingPostController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerController.js" />
@@ -3604,6 +3606,7 @@
     <Content Include="Areas\Leave\Views\LeaveBalanceToDateReport\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\PayrollManagementDashboard\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\NewAttendanceProcess\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionConversionParameter\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
