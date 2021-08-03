@@ -219,7 +219,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             format(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt') AS PunchInTime,
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
 
-                            KK.DayStatus, KK.OTHr,
+                            KK.DayStatus, KK.OTHr,KK.IsLock,
                             KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus
 
                              FROM (
@@ -232,7 +232,7 @@ namespace Aplos.Areas.HumanResource.Controllers
        
 		                            O.PunchInTime,O.PunchOutTime,
 		                            O.DayStatus, O.OTHr, O.IsOTComfirm,O.DayStatusCode,
-		                            O.IsOTEntitled
+		                            O.IsOTEntitled,O.IsLock
 
 		                            FROM EmployeeInformation EMP
 		                            LEFT JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 

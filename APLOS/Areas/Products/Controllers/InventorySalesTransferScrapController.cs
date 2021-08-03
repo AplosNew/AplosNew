@@ -389,10 +389,10 @@ namespace Aplos.Areas.Products.Controllers
 
 
         [Authorize, HttpGet]
-		public JsonResult GetApprovedIssueSlipDetails(string Id,string StorageLocationId)
+		public JsonResult GetApprovedIssueSlipDetails(string Id,string StorageLocationId,string OrderSpecific)
 		{
 
-			return Json(_inventoryIssueService.GetApprovedIssueSlipDetails(Id, StorageLocationId), JsonRequestBehavior.AllowGet);
+			return Json(_inventoryIssueService.GetApprovedIssueSlipDetails(Id, StorageLocationId, OrderSpecific), JsonRequestBehavior.AllowGet);
 		}
 
 

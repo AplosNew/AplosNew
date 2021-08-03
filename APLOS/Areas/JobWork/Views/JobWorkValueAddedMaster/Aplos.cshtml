@@ -24,7 +24,7 @@
                 <div class="show-message">
                     <div class="select-style">
                         <div class="select-style">
-                            <select id="ddlType" name="Type" tabindex="3" class="form-control" submit-required="true" ng-model="ValueAdded.JobWorkActivityChildId" ng-options="item.Id as item.UserName for item in activityChildItemsList" required ng-change="getJobWorkItemUOM()"></select>
+                            <select id="ddlType" name="Activity Item" tabindex="3" class="form-control" submit-required="true" ng-model="ValueAdded.JobWorkActivityChildId" ng-options="item.Id as item.UserName for item in activityChildItemsList" required ng-change="getJobWorkItemUOM()"></select>
                         </div>
                     </div>
                 </div>
@@ -165,7 +165,7 @@
             <div class="form-group" show-errors>
                 <label class="control-label">Process<sup>*</sup></label>
                 @*<div class="col-sm-12">*@
-                <input id="ddlProcess" ej-dropdownlist e-create="create" e-headertemplate='<input class="temp" type="checkbox" id="checkBox" />' e-multiselectmode="visualmode" e-datasource="processList" e-fields-value="Id" e-fields-text="UserName" e-width="100%" e-showcheckbox="true" />
+                <input id="ddlProcess" ej-dropdownlist e-create="create" e-headertemplate='<input class="temp" type="checkbox" id="checkBox" />' e-multiselectmode="visualmode" e-datasource="processList" e-fields-value="Id" e-fields-text="UserName" e-width="210%" e-showcheckbox="true" />
                 @*</div>*@
             </div>
         </div>

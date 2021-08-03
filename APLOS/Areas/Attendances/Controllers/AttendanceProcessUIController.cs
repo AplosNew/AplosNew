@@ -796,8 +796,19 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpPost, Authorize]
         public ActionResult GetEmpInfo(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity,string PlantId)
         {
-            string Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
+            string Plant = string.Empty;
+            
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            if (PlantId == "")
+            {
+                Plant = identity.PlantId;
+            }
+            else
+            {
+                Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
+            }
+
             var month = Convert.ToDateTime(effectiveDate).AddMonths(1);
             var Ld = month.AddDays(-1);
             var wcPayrollGroup = "";

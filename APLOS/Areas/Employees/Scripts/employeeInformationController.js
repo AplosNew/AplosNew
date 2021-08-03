@@ -199,8 +199,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
         })
     };
 
-
-
     $scope.nomineeInfo = {
         Id: null,
         EmpSystemId: null,
@@ -300,7 +298,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
         }
     }
 
-
     $scope.ShowEmpDOCIsDayInPut = function () {
         if ($scope.employeeInformation.DOCIsDay === true) {
             $scope.employeeInformation.DOCIsMonth = false;
@@ -328,7 +325,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.employeeInformation.DOC = $filter('dateFiltering')(new Date($scope.DOC), 'dd-MM-yyyy');
         }
     }
-
 
     //#region BudgetCode
 
@@ -712,8 +708,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.payrollGroupList = result;
     });
 
-
-
     $scope.showEntity = function () {
         $http.get('employees/employeeprobationalperiod/getentitybyemployee')
             .then(function (response) {
@@ -754,7 +748,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
             ShowResult(e, 'failure');
         }
     };
-
 
     $scope.OperationList = [];
     $scope.showOperationPopUp = function (name) {
@@ -872,7 +865,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
     };
 
     // #endregion checkbox all
-
 
     $scope.empReferenceInformation = {
         SystemID: null,
@@ -1084,7 +1076,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $rootScope.toggle();
         }
     };
-
 
     $scope.employeeInformation.ApplyingAsFresher = false;
 
@@ -1599,7 +1590,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.NewEmpAddValidate();
 
             //$scope.$broadcast('show-errors-check-validity');
-            //if ($scope.newEmpForm.$valid) {
+            //if ($scope.newEmpForm.$valid) { // 'WeekOff': $scope.WeekOffChild , 'OT' : $scope.NonEligibleOTChild
             $http({
                 method: 'POST',
                 url: $scope.saveNewUrl,
@@ -3029,7 +3020,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     // #region Document
 
     $scope.Loaddocumentdatalist = function () {
-        $http.get('employees/employeeinformation/getempdocumentdatalist?companyGroupId=' + $scope.CompanyGroupID + '&pId=' + $scope.user + '&plantId=' + $scope.PlantId)
+        $http.get('employees/employeeinformation/GetEmpAllDocumentDataList?companyGroupId=' + $scope.CompanyGroupID + '&pId=' + $scope.user + '&plantId=' + $scope.PlantId)
             .then(function (response) {
                 $scope.documentdataList = response.data;
                 //$scope.getColor($scope.documentdataList.FileName);
@@ -3827,5 +3818,57 @@ function employeeInformationController(addressService, fileReader, cboService, c
     $scope.closeEmployeePopUp = function () {
         angular.element(document.querySelector('#employeePopUp')).modal('hide');
     }
+
+
+
+
+    //Line no - 518 : GetGivenDesignationByLegalDesignaiton
+
+    /// The Additions of Week off and the Non Eligible OT
+
+    //var x = document.getElementById("OTCheck");
+    //x.disabled = true;
+
+    //$scope.WeekOffChild = {
+    //    Id: null,
+    //    EmpSystemId: null,
+    //    WOHeaderId: null,
+    //    EffectiveDate: null,
+    //}
+
+    //$scope.NonEligibleOTChild = {
+    //    Id: null,
+    //    EmpSystemId: null,
+    //    EffectiveDate: null,
+    //    Exclude: false,
+    //}
+
+    //$scope.weekOffList = [];
+    //$scope.fillWeekOff = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + 'getWeekOff'
+    //    }).then(function succ(res) {
+    //        $scope.weekOffList = [];
+    //        $scope.weekOffList = res.data;
+    //    })
+    //}
+
+    //$scope.fillNonEligible = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + 'getNonEligibleOT',
+    //        data: { 'DesgId': $scope.employeeNew.GivenDesignationId }
+    //    }).then(function succ(res) {
+    //        $scope.NonEligibleOTChild.Exclude = res.data[0].IsOTEntitled;
+    //        if ($scope.NonEligibleOTChild.Exclude == true) {
+    //            $scope.NonEligibleOTChild.Exclude = false;
+    //            x.disabled = false;
+    //        }
+    //        else {
+    //            x.disabled = true;
+    //        }
+    //    });
+    //}
 
 }

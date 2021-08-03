@@ -750,6 +750,7 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
         $scope.inventoryReceivedList = [];
         $scope.inventoryPayableList = [];
         $scope.inventoryReceiveDetailList = [];
+        $scope.otherVoucher = {};
         $scope.newList = [];
         if (baseService.arrayLength($scope.voucherTypeList) === 1)
             $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
@@ -1168,8 +1169,8 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
 
     $scope.voucherTypeListnew = [];
     $scope.otherInvoiceVoucherTypeId = null;
-    $scope.getReceiptVoucherType = function () {
-        cboService.getCboVoucherTypeReceiptList(function (result) {
+    $scope.getReceivableFromOthersVoucherType = function () {
+        cboService.getCboVoucherTypeReceivableFromOthersList(function (result) {
             $scope.voucherTypeListnew = result;
             if (baseService.arrayLength($scope.voucherTypeListnew) === 1)
                 $scope.otherVoucher.VoucherTypeId = $scope.voucherTypeListnew[0].Value;
@@ -1183,6 +1184,7 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
         data.VoucherTypeId = null;
         data.VoucherDate = new Date();
         $scope.otherVoucher = data;
+        $scope.otherVoucher.DocRefNo = data.Id;
         $scope.OtherInvoiceJournalId = data.OtherInvoiceId;
         $http({
             method: 'GET',
@@ -1191,7 +1193,7 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
         }).then(function successCallback(response) {
             $scope.otherInvoiceDetailList = response.data;
         });
-        $scope.getReceiptVoucherType();
+        $scope.getReceivableFromOthersVoucherType();
         angular.element(document.querySelector('#JournalPopUp')).modal('show');
     };
    

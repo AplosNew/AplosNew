@@ -208,6 +208,8 @@ function cboService($http, $window, $rootScope, baseService) {
         , getCboVoucherTypeSuspensePayableList: getCboVoucherTypeSuspensePayableList
         , getCboVoucherTypeAccountPayableList: getCboVoucherTypeAccountPayableList
         , getCboVoucherTypeConsumptionBookList: getCboVoucherTypeConsumptionBookList
+        , getCboVoucherTypeReceivableFromOthersList: getCboVoucherTypeReceivableFromOthersList
+        , getCboVoucherTypePackingJournalList: getCboVoucherTypePackingJournalList
         , getCboVoucherTypePuechaseDocumentAcceptanceList: getCboVoucherTypePuechaseDocumentAcceptanceList
         , getCboVoucherTypePuechaseLCOpeningChargesList: getCboVoucherTypePuechaseLCOpeningChargesList
         , getCboVoucherTypeIssueJournalList: getCboVoucherTypeIssueJournalList
@@ -1412,6 +1414,12 @@ function cboService($http, $window, $rootScope, baseService) {
     }
     function getCboVoucherTypeConsumptionBookList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypeConsumptionBookList', callback);
+    }
+    function getCboVoucherTypeReceivableFromOthersList(callback) {
+        base('accounts/VoucherTypeMatrix/GetCboVoucherTypeReceivableFromOthersList', callback);
+    }
+    function getCboVoucherTypePackingJournalList(callback) {
+        base('accounts/VoucherTypeMatrix/GetCboVoucherTypePackingJournalList', callback);
     }
     function getCboVoucherTypePuechaseDocumentAcceptanceList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypePuechaseDocumentAcceptanceList', callback);

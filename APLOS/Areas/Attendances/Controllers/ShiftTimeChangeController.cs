@@ -61,7 +61,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             ,EarlyOutRoundMargin,EarlyInRoundMargin,LateOutRoundMarginType,LateInRoundMarginType,EarlyOutRoundMarginType,EarlyInRoundMarginType
                             ,IncludeBreakTimeInOT,HalfDayAbsentMaxLimit,LateInMargin,EarlyOutMaxLimit,IsLunchOutApplicable,IsEarlyOutApplicable,EarlyOutToleranceMargin
                             ,LateInMaxLimit ,IsLateInApplicable ,RawINDefinitionFrom ,RawINDefinitionTo ,RawOUTDefinitionFrom ,RawOUTDefinitionTo 
-                            ,RawINDefinitionFrom,RawOUTDefinitionFrom,RawINDefinitionTo,RawOUTDefinitionTo
+                            ,ShiftDuration,FullDayDuration,HalfDayDuration,ShortDuration,MaxOutDuration,HoursWithoutOT
                    FROM ShiftDefination WHERE GroupID = '" + identity.CompanyGroupId + "' AND PlantID = '" + identity.PlantId + "' and IsActive='1' Order By ShiftDefinationName";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
@@ -84,7 +84,7 @@ namespace Aplos.Areas.Attendances.Controllers
                                     ,stc.HalfDayAbsentMaxLimit,stc.IncludeBreakTimeInOT,stc.IsGapInclude
                                     ,stc.IsLateInApplicable,stc.IsEarlyOutApplicable,stc.LateInMaxLimit
                                     ,stc.EarlyOutMaxLimit,stc.EarlyOutToleranceMargin,stc.LateInToleranceMargin,stc.Remarks,stc.IsLunchOutApplicable
-                                    ,STC.RawINDefinitionFrom,STC.RawOUTDefinitionFrom,STC.RawINDefinitionTo,STC.RawOUTDefinitionTo--,STC.INAfterOUTAsOTStart
+                                    ,STC.RawINDefinitionFrom,STC.ShiftDuration,STC.FullDayDuration,STC.HalfDayDuration,STC.ShortDuration,STC.MaxOutDuration,STC.HoursWithoutOT,STC.RawOUTDefinitionFrom,STC.RawINDefinitionTo,STC.RawOUTDefinitionTo--,STC.INAfterOUTAsOTStart
                                      FROM ShiftTimeChgMaster STC
 	                                LEFT JOIN ShiftDefination S ON STC.ShiftDefinationID = S.SystemID) A
                                      WHERE GroupID = '" + identity.CompanyGroupId + "' AND PlantID = '" + identity.PlantId + @"'";
@@ -296,6 +296,12 @@ namespace Aplos.Areas.Attendances.Controllers
                     dr["RawINDefinitionTo"] = shifttimemaster.RawINDefinitionTo;
                     dr["RawOUTDefinitionTo"] = shifttimemaster.RawOUTDefinitionTo;
                     //dr["INAfterOUTAsOTStart"] = shifttimemaster.INAfterOUTAsOTStart;
+                    dr["FullDayDuration"] = shifttimemaster.FullDayDuration;
+                    dr["HalfDayDuration"] = shifttimemaster.HalfDayDuration;
+                    dr["HoursWithoutOT"] = shifttimemaster.HoursWithoutOT;
+                    dr["ShiftDuration"] = shifttimemaster.ShiftDuration;
+                    dr["MaxOutDuration"] = shifttimemaster.MaxOutDuration;
+                    dr["ShortDuration"] = shifttimemaster.ShortDuration;
 
                     dr["AddedBy"] = identity.Name;
                     dr["DateAdded"] = DateTime.Now;
@@ -341,6 +347,12 @@ namespace Aplos.Areas.Attendances.Controllers
                     dr["RawINDefinitionTo"] = shifttimemaster.RawINDefinitionTo;
                     dr["RawOUTDefinitionTo"] = shifttimemaster.RawOUTDefinitionTo;
                     //dr["INAfterOUTAsOTStart"] = shifttimemaster.INAfterOUTAsOTStart;
+                    dr["FullDayDuration"] = shifttimemaster.FullDayDuration;
+                    dr["HalfDayDuration"] = shifttimemaster.HalfDayDuration;
+                    dr["HoursWithoutOT"] = shifttimemaster.HoursWithoutOT;
+                    dr["ShiftDuration"] = shifttimemaster.ShiftDuration;
+                    dr["MaxOutDuration"] = shifttimemaster.MaxOutDuration;
+                    dr["ShortDuration"] = shifttimemaster.ShortDuration;
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["DateUpdated"] = System.DateTime.Now.ToString();
@@ -413,7 +425,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         dr["IsLock"] = "No";
 
                         dr["UpdatedBy"] = identity.Name;
-                        dr["DateUpdated"] = System.DateTime.Now.ToString();
+                        dr["DateUpdated"] = DateTime.Now.ToString();
 
                         dr.EndEdit();
                     }
@@ -515,7 +527,14 @@ namespace Aplos.Areas.Attendances.Controllers
             public int RawINDefinitionTo { get; set; }
             public int RawOUTDefinitionTo { get; set; }
             public bool INAfterOUTAsOTStart { get; set; }
-            
+
+            public decimal FullDayDuration { get; set; }
+            public decimal HalfDayDuration { get; set; }
+            public decimal ShortDuration { get; set; }
+            public decimal MaxOutDuration { get; set; }
+            public decimal ShiftDuration { get; set; }
+            public decimal HoursWithoutOT { get; set; }
+
             #endregion Scalar Properties
 
             #region Audit Properties

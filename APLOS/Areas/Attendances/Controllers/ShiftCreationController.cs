@@ -69,7 +69,8 @@ namespace Aplos.Areas.Attendances.Controllers
                     ,EarlyIn,LateIn,LateInMargin,EarlyOut,EarlyOutMargin,EarlyInMargin,LateOutMargin,LateOut,LateOutRoundMargin,LateInRoundMargin
                     ,EarlyOutRoundMargin,EarlyInRoundMargin,LateOutRoundMarginType,LateInRoundMarginType,EarlyOutRoundMarginType,EarlyInRoundMarginType
                     ,IncludeBreakTimeInOT,HalfDayAbsentMaxLimit,LateInMargin,EarlyOutMaxLimit,IsLunchOutApplicable,IsEarlyOutApplicable,EarlyOutToleranceMargin
-                        ,LateInMaxLimit ,IsLateInApplicable ,RawINDefinitionFrom ,RawINDefinitionTo ,RawOUTDefinitionFrom ,RawOUTDefinitionTo ,DateAdded,AddedBy
+                        ,LateInMaxLimit ,IsLateInApplicable ,RawINDefinitionFrom ,RawINDefinitionTo ,RawOUTDefinitionFrom ,RawOUTDefinitionTo ,ShiftLateOutMargin,ShiftLateInMargin,ShiftEarlyOutMargin,ShiftEarlyInMargin,
+        ShiftDuration,FullDayDuration,HalfDayDuration,ShortDuration,MaxOutDuration,HoursWithoutOT, DateAdded,AddedBy
                FROM ShiftDefination WHERE GroupID = '" + identity.CompanyGroupId + "' AND PlantID = '" + identity.PlantId + "' Order By ShiftDefinationName";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
@@ -91,8 +92,6 @@ namespace Aplos.Areas.Attendances.Controllers
             clsShiftCreation obj = new clsShiftCreation(_sqlRepository);
             ShiftCreationData.PlantID = identity.PlantId;
             ShiftCreationData.GroupID = identity.CompanyGroupId;
-            //ShiftCreationData.AddedBy = identity.Name;
-            //ShiftCreationData.DateAdded = DateTime.Now;
             ShiftCreationData.DateUpdated = DateTime.Now;
             ShiftCreationData.UpdatedBy = identity.Name;
             ShiftCreationData.UserName = ShiftCreationData.ShiftDefinationName;
@@ -125,7 +124,7 @@ namespace Aplos.Areas.Attendances.Controllers
         public JsonResult GetAutoSequence()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT max(SequenceNo)+1 SequenceNo FROM ShiftDefination ";
+            string sql = @"SELECT isnull(Max(SequenceNo),0)+1 SequenceNo FROM ShiftDefination ";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
