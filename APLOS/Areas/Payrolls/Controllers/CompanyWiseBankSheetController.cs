@@ -291,6 +291,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     inTotal = Convert.ToDouble(dvLocal[i]["Total"].ToString()) + inTotal;
                                 }
                                 sheet1.Range[xlsRow, iCount].Number = inTotal;
+                                sheet1.Range[xlsRow, iCount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
                             }
                             else
                             {
@@ -303,6 +305,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     sheet1.Range[xlsRow, iReportName].Text = dvLocal[0]["Bank"].ToString();
                                 }
                                 sheet1.Range[xlsRow, iCount].Number = Convert.ToDouble(dvLocal[0]["Total"].ToString());
+                                sheet1.Range[xlsRow, iCount].NumberFormat = clsStaticInfo.NumberFormat(2);
                             }
 
                             sheet1.Range[xlsRow, isl].Text = SL.ToString();
@@ -1042,7 +1045,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 DataSet dsRefs;
                 DataTable dtslProcId = null;
                 strSqlStruc = @"SELECT SystemID FROM SalaryProcMaster SPM
-                                      WHERE SPM.SystemID IN (SELECT SlrProcMstSystemID FROM SalaryProcChild
+                                      WHERE SPM.SystemID IN (SELECT SalaryProcessId FROM SalaryProcessLogDetail where PaymentMode in ('" + PaymentModeList.Trim() + @"')
                                                         ) AND SPM.MonthNo = '" + Month + @"' AND SPM.YearNo='" + Year + @"' ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSqlStruc, out dsRefs, false, "1");
@@ -1162,7 +1165,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 DataSet dsRefs;
                 DataTable dtslProcId = null;
                 strSqlStruc = @"SELECT SystemID FROM SalaryProcMaster SPM
-                                      WHERE SPM.SystemID IN (SELECT SlrProcMstSystemID FROM SalaryProcChild
+                                      WHERE SPM.SystemID IN (SELECT SalaryProcessId FROM SalaryProcessLogDetail where PaymentMode in ('" + PaymentModeList.Trim() + @"')
                                                         ) AND SPM.MonthNo = '" + Month + @"' AND SPM.YearNo='" + Year + @"' ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSqlStruc, out dsRefs, false, "1");
@@ -1299,7 +1302,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 DataSet dsRefs;
                 DataTable dtslProcId = null;
                 strSqlStruc = @"SELECT SystemID FROM SalaryProcMaster SPM
-                                      WHERE SPM.SystemID IN (SELECT SlrProcMstSystemID FROM SalaryProcChild
+                                      WHERE SPM.SystemID IN (SELECT SalaryProcessId FROM SalaryProcessLogDetail where PaymentMode in ('" + PaymentModeList.Trim() + @"')
                                                         ) AND SPM.MonthNo = '" + Month + @"' AND SPM.YearNo='" + Year + @"' ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSqlStruc, out dsRefs, false, "1");
