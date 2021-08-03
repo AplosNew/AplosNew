@@ -877,7 +877,7 @@
                                 <td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x);" ng-disabled="false"> </td>  @*{{x.TransactionRate| setDecimal:currencyPrecision| number}}*@
                                 <td class="text-right" style="width:50px;">{{x.CurrencyName}}</td>
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
                                 <td>{{x.MaterialSpecification}}</td>
                                 <td>{{x.MaterialReference}}</td>
                                 <td>{{x.MaterialStorage}}</td>
@@ -899,11 +899,11 @@
 
 
 
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.JWTaxAmount" ng-disabled="true"></td>*@ @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
         <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
                                 @*<td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number}}</td>*@
 
                                 <td>{{x.Rejection}}</td>
@@ -947,7 +947,7 @@
                                 <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionQty' | setDecimal:4 | number }}</strong></td>
                                 <td></td>
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:4 | number}}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:2 | number}}</strong></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -970,7 +970,7 @@
                                 @*<td></td>*@
                                 <td></td>
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:4 | number}}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:2 | number}}</strong></td>
 
 
                                 <td class="text-right"></td>
@@ -1022,7 +1022,7 @@
                                 <td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x);" ng-disabled="false"> </td>  @*{{x.TransactionRate| setDecimal:currencyPrecision| number}}*@
                                 <td class="text-right" style="width:50px;">{{x.CurrencyName}}</td>
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionAmount" ng-keyup="calculateRate(x);" ng-disabled="false"> </td> @*{{x.TrnAmount| setDecimal:currencyPrecision| number}}*@
 
                                 <td>{{x.FirstCharacteristicsValue}}</td>
                                 <td>{{x.SecondCharacteristicsValue}}</td>
@@ -1040,11 +1040,11 @@
                                     </div>
                                 </td>
 
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.JWTaxAmount" ng-disabled="true"></td>*@ @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
         <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
-                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="4" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
+                                <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
                                 @*<td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number}}</td>*@
                                 <td>
                                     <div class="show-message">
@@ -1081,7 +1081,7 @@
                                 <td class="text-right" ng-hide="sumORnot"></td>
                                 <td></td>
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:4 | number}}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'TransactionAmount'| setDecimal:2 | number}}</strong></td>
 
                                 <td></td>
 
@@ -1095,7 +1095,7 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:4 | number}}</strong></td>
+                                <td class="text-right"><strong>{{PoChildList | sumByKey : 'BaseAmount'| setDecimal:2 | number}}</strong></td>
 
 
                                 <td class="text-right"></td>
@@ -1333,7 +1333,7 @@
                                 </label>
                                 <div class="show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.JobActivityId" name="Job Work Activity" required ng-change="GetJWItems();"
+                                        <select class="form-control" ng-model="detailModel.JobActivityId" name="Job Work Activity" required ng-change="GetJWItems();GetJWLocation();"
                                                 ng-options="item.Value as item.Text for item in JobWorkActivityList" tabindex="16">
                                             <option value=""></option>
                                         </select>
@@ -1409,6 +1409,15 @@
                             </div>
                         </div>
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                            <div class="form-group">
+                                <label class=" control-label">Alternate UoM</label>
+                                <div>
+                                    <input type="text" ng-model="detailModel.AlternateUoM" class="form-control" readonly maxlength="50">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Quantity<sup>*</sup></label>
                                 <div class="show-message">
@@ -1416,8 +1425,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Currency<sup>*</sup></label>
                                 <div class=" show-message">
@@ -1431,16 +1440,16 @@
                             </div>
                         </div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class="control-label">Rate/ Unit<sup>*</sup></label>
                                 <div class="show-message">
-                                    <input type="text" ng-model="detailModel.RatePerUnit" n-decimals="4" name="Rate Per Unit" ng-change="ValidateRate();GetAmount();" onkeypress="return isNumber(event)" required class="form-control" tabindex="22" maxlength="50">
+                                    <input type="text" ng-model="detailModel.RatePerUnit" n-decimals="4" name="Rate Per Unit" ng-change="GetAmount();" onkeypress="return isNumber(event)" required class="form-control" tabindex="22" maxlength="50">
                                 </div>
                             </div>
                         </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                        <div class="clearfix"></div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px">
                             <div class="form-group" show-errors>
                                 <label class="control-label">Transaction Amount<sup>*</sup></label>
                                 <div class="show-message">
@@ -1448,8 +1457,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Job Work Location<sup>*</sup></label>
                                 <div class=" show-message">
@@ -1463,7 +1472,7 @@
                             </div>
                         </div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group">
                                 <label class=" control-label">Material Storage Location</label>
                                 @*<div class=" show-message">*@
@@ -1471,8 +1480,8 @@
                                 @*</div>*@
                             </div>
                         </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                        <div class="clearfix"></div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Input Material Category<sup>*</sup></label>
                                 <div class="show-message">
@@ -1487,8 +1496,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Output Material Category<sup>*</sup></label>
                                 <div class=" show-message">
@@ -1504,7 +1513,7 @@
                             </div>
                         </div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Material Specification<sup>*</sup></label>
                                 <div class=" show-message">
@@ -1512,8 +1521,8 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                        <div class="clearfix"></div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px">
                             <div class="form-group">
                                 <label class=" control-label">Material Reference</label>
                                 <div class="">
@@ -1522,9 +1531,7 @@
                             </div>
                         </div>
 
-
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Order Specific<sup>*</sup></label>
                                 <div class="show-message">
@@ -1540,7 +1547,7 @@
                             </div>
                         </div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Required Capacity<sup>*</sup></label>
                                 <div class="show-message">
@@ -1548,8 +1555,8 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                        <div class="clearfix"></div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px">
                             <div class="form-group">
                                 <label class=" control-label">By Product Applicable</label>
                                 @*<div class=" show-message">*@
@@ -1564,9 +1571,9 @@
                                 @*</div>*@
                             </div>
                         </div>
-                        <div class="clearfix"></div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class="control-label">Rate Apply<sup>*</sup></label>
                                 <div class=" show-message">
@@ -1580,7 +1587,7 @@
                             </div>
                         </div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Rejection<sup>*</sup></label>
                                 <div class=" show-message">
@@ -1588,8 +1595,8 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                        <div class="clearfix"></div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Value Loss<sup>*</sup></label>
                                 <div class=" show-message">
@@ -1598,17 +1605,17 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
-                                <label class=" control-label">Tolerance<sup></sup></label>
+                                <label class=" control-label">Tolerance(%)<sup></sup></label>
                                 <div class=" show-message">
                                     <input type="text" name="Cycle Time" tabindex="34" class="form-control" ng-model="detailModel.Tolerance" />
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Service<sup>*</sup></label>
                                 <div class=" show-message">
@@ -1618,9 +1625,9 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="clearfix"></div>
 
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px">
                             <div class="form-group" show-errors>
 
                                 <label class=" control-label">Responsible Person<sup>*</sup></label>
@@ -1638,7 +1645,6 @@
 
                             </div>
                         </div>
-                        <div class="clearfix"></div>
 
                         @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
             <div class="form-group">
@@ -1649,7 +1655,7 @@
             </div>
         </div>*@
                         @*<div class="clearfix"></div>*@
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group">
                                 <div class="inputBtnSection common-btn">
                                     <label class="fileUpload col-sm-4 ">
@@ -1666,8 +1672,8 @@
 
                             </div>
                         </div>
-  
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+
+                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group">
                                 <label class="control-label">Remarks</label>
                                 <div>
@@ -1792,11 +1798,11 @@
                                 <div class="col-sm-6">
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="TaxOptionService" ng-model="productNew.TaxOptionService" value="Yes" ng-click="TaxOptionService('Yes');"> @*ng-hide="HSNCode !=null"*@
+                                            <input type="radio" name="TaxOptionServiceTPO" ng-model="productNew.TaxOptionServiceTPO" value="Yes" ng-click="TaxOptionService('Yes');"> @*ng-hide="HSNCode !=null"*@
                                             <span class="cr"><i class="cr-icon"></i></span>Yes
                                         </label>
                                         <label>
-                                            <input type="radio" name="TaxOptionService" ng-model="productNew.TaxOptionService" value="No" ng-click="TaxOptionService('No');">@*ng-hide="HSNCode !=null"*@
+                                            <input type="radio" name="TaxOptionServiceTPO" ng-model="productNew.TaxOptionServiceTPO" value="No" ng-click="TaxOptionService('No');">@*ng-hide="HSNCode !=null"*@
                                             <span class="cr"><i class="cr-icon"></i></span>No
                                         </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     </div>
@@ -1819,10 +1825,10 @@
                                     <td>{{x.HSNCode}}</td>
                                     @*<td class="text-right">{{x.Percentage}}</td>*@
                                     <td class="text-right">
-                                        <input type="text" n-decimals="{{4}}" ng-model="x.Percentage" ng-keyup="calculateTaxAmountForServiceOutPut(x);" ng-disabled="productNew.TaxOptionService==='No'" class="form-control text-right" />
+                                        <input type="text" n-decimals="4" ng-model="x.Percentage" ng-keyup="calculateTaxAmountForServiceOutPut(x);" ng-disabled="productNew.TaxOptionService==='No'" class="form-control text-right" />
                                     </td>
                                     <td class="text-right">
-                                        <input type="text" n-decimals="{{2}}" ng-model="x.TaxAmount" ng-keyup="checkRowValidationServiceOutPut(x);" ng-disabled="productNew.TaxOptionService==='Yes'" class="form-control text-right" />
+                                        <input type="text" n-decimals="2" ng-model="x.TaxAmount" ng-keyup="checkRowValidationServiceOutPut(x);" ng-disabled="productNew.TaxOptionService==='Yes'" class="form-control text-right" />
                                     </td>
                                 </tr>
                                 <tr>
@@ -2087,7 +2093,7 @@
                 <div class="clearfix"></div>
 
                 <fieldset class="scheduler-border" ng-show="serviceModel.ServiceMasterId">
-                    <legend class="scheduler-border"> Service Tax</legend>
+                    <legend class="scheduler-border"> Service Tax 11</legend>
                     <div class="col-md-12 modal-table table-responsive" style="padding-top: 5px;" ng-show="taxCategoryList.length>0">
                         <div class="col-xs-12 col-sm-4 col-md-4" ng-show="serviceModel.ServiceMasterId">
                             <div class="form-group">

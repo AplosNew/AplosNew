@@ -276,6 +276,67 @@
         </fieldset>
     </div>
 
+    <div class="col-xs-12">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Duration</legend>
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Shift Duration</label>
+                    <div class="col-sm-3">
+                        <input type="text" ng-model="ShiftTimeChangeModel.ShiftDuration" only-numbers class="form-control" maxlength="100" tabindex="1">
+                    </div>
+                    <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Full Day Duration</label>
+                    <div class="col-sm-3">
+                        <input type="text" ng-model="ShiftTimeChangeModel.FullDayDuration" only-numbers class="form-control" maxlength="100" tabindex="3">
+                    </div>
+                    <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Max Out Duration</label>
+                    <div class="col-sm-3">
+                        <input type="text" ng-model="ShiftTimeChangeModel.MaxOutDuration" only-numbers class="form-control" maxlength="100" tabindex="5">
+                    </div>
+                    <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                </div>
+
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-md-6 ">
+
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Half Day Duration</label>
+                    <div class="col-sm-3">
+                        <input type="text" ng-model="ShiftTimeChangeModel.HalfDayDuration" only-numbers class="form-control" maxlength="100" tabindex="2">
+                    </div>
+                    <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                </div>
+
+
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Short Day Duration</label>
+                    <div class="col-sm-3">
+                        <input type="text" ng-model="ShiftTimeChangeModel.ShortDuration" only-numbers class="form-control" maxlength="100" tabindex="4">
+                    </div>
+                    <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Work Hours Without OT</label>
+                    <div class="col-sm-3">
+                        <input type="text" ng-model="ShiftTimeChangeModel.HoursWithoutOT" only-numbers class="form-control" maxlength="100" tabindex="4">
+                    </div>
+                    <label class="col-sm-2 control-label" style="left:-25px;">[min]</label>
+                </div>
+            </div>
+
+        </fieldset>
+    </div>
 
     <div class="col-xs-12">
         <fieldset class="scheduler-border">

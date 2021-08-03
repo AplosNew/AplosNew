@@ -75,10 +75,10 @@ namespace Library.OrderManagement.Sales
                             , ExistSalesQty=ISNULL(case when SCH.CharacteristicsValueId<>''  then SCH.SalesQty
 										when FCH.CharacteristicsValueId<>'' then FCH.SalesQty end,
 										A.TransactionQty)
-							,Balance=ISNULL((case when SCH.CharacteristicsValueId<>''  then SCH.Qty
-										when FCH.CharacteristicsValueId<>'' then FCH.Qty else SO.Qty end)
-										-(ISNULL(case when SCH.CharacteristicsValueId<>''  then SCH.SalesQty
-										when FCH.CharacteristicsValueId<>'' then FCH.SalesQty end,A.TransactionQty)),0)
+							,Balance=(SELECT isnull(case when SCH.CharacteristicsValueId<>'' then SCH.Qty
+										when FCH.CharacteristicsValueId<>'' then FCH.Qty 
+										else SO.Qty end, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))-ISNULL(case when SCH.CharacteristicsValueId<>'' then SCH.SalesQty
+										when FCH.CharacteristicsValueId<>'' then FCH.SalesQty end,A.TransactionQty)
 
                     FROM [TRN].[SalesOrder] AS SO
                     JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
@@ -141,12 +141,9 @@ namespace Library.OrderManagement.Sales
             ,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName
 			, SO.SOType,SO.Rate
            ,0 SalesQty
-           ,Balance=ISNULL((case when SC.CharacteristicsValueId<>''  then SC.Qty
-										when FC.CharacteristicsValueId<>'' then FC.Qty 
-										else SO.Qty  
-							end)-(case when SC.CharacteristicsValueId<>''  then SC.SalesQty
+          ,Balance=SM.TransactionQty-ISNULL(case when SC.CharacteristicsValueId<>''  then SC.SalesQty
 										when FC.CharacteristicsValueId<>'' then FC.SalesQty else SO.Qty 
-							end),0)
+							end,0)
            ,ExistSalesQty=
 							ISNULL(case when SC.CharacteristicsValueId<>''  then SC.SalesQty
 										when FC.CharacteristicsValueId<>'' then FC.SalesQty else SO.Qty 

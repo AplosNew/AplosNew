@@ -374,6 +374,7 @@
       <DependentUpon>AccountsDataSet.xsd</DependentUpon>
     </Compile>
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\NewAttendanceProcessController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceFromAppReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\PayrollManagementDashboardController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AuditReportSummeryController.cs" />
@@ -902,6 +903,7 @@
     <Compile Include="Areas\Products\Controllers\GatePassRegisterController.cs" />
     <Compile Include="Areas\Products\Controllers\InventoryPurchaseReturnController.cs" />
     <Compile Include="Areas\Products\Controllers\InventoryDashboardController.cs" />
+    <Compile Include="Areas\Products\Controllers\InventorySalesReturnController.cs" />
     <Compile Include="Areas\Products\Controllers\InventorySalesTransferScrapController.cs" />
     <Compile Include="Areas\Products\Controllers\PlantWiseGateController.cs" />
     <Compile Include="Areas\Products\Controllers\PurchaseDocumentsAcceptanceController.cs" />
@@ -1002,6 +1004,7 @@
     <Compile Include="Controllers\BookingSaudaController.cs" />
     <Compile Include="Controllers\DailyProductionsController.cs" />
     <Compile Include="Controllers\EmployeeDataController.cs" />
+    <Compile Include="Controllers\ManualAttndFromAppController.cs" />
     <Compile Include="Controllers\EmpUtilityController.cs" />
     <Compile Include="Controllers\ItemScanController.cs" />
     <Compile Include="Controllers\LeaveSystemController.cs" />
@@ -1558,6 +1561,7 @@
     <Content Include="Areas\Accounts\Scripts\vendorTranTypeController.js" />
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
+    <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessController.js" />
     <Content Include="Areas\Attendances\Scripts\PayrollManagementDashboardController.js" />
     <Content Include="Areas\Attendances\Scripts\AuditReportSummeryController.js" />
     <Content Include="Areas\Attendances\Scripts\ExceptionOTProcessController.js" />
@@ -2121,6 +2125,7 @@
     <Content Include="Areas\Products\Scripts\GatePassRegisterController.js" />
     <Content Include="Areas\Products\Scripts\InGatePassEntryController.js" />
     <Content Include="Areas\Products\Scripts\InGatePassController.js" />
+    <Content Include="Areas\Products\Scripts\InventorySalesReturnController.js" />
     <Content Include="Areas\Products\Scripts\PORollBackController.js" />
     <Content Include="Areas\Products\Scripts\PendingGateoutListController.js" />
     <Content Include="Areas\Products\Scripts\POUncheckedAndUnApprovedController.js" />
@@ -3598,6 +3603,7 @@
     <Content Include="Areas\Payrolls\Views\CompanyWiseBankSheet\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\LeaveBalanceToDateReport\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\PayrollManagementDashboard\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\NewAttendanceProcess\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -3646,6 +3652,7 @@
     <Content Include="Areas\Products\Views\PurchaseOrder\POUncheckedAndUnApproved.cshtml" />
     <Content Include="Areas\Products\Views\PurchaseOrder\ServicePOIndependent.cshtml" />
     <Content Include="Areas\Products\Views\PurchaseOrder\PORollBack.cshtml" />
+    <Content Include="Areas\Products\Views\InventorySalesReturn\Aplos.cshtml" />
     <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />
@@ -3672,6 +3679,7 @@
     <Content Include="Areas\Setups\Views\LabelList\Aplos.cshtml" />
     <Content Include="POPResources\Templates\JWIssue202026.docx" />
     <Content Include="POPResources\Templates\JWPurchaseOrder202026.docx" />
+    <Content Include="POPResources\Templates\InventorySalesReport202032.docx" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

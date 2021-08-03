@@ -100,7 +100,7 @@
                      e-allowscrolling="true" e-minheight="400" e-gridlines="vertical" @*e-showstackedheader="true"*@
                      e-actioncomplete="actionCompleteSingleEmployee" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
                      e-filtersettings-filterType="excel">
-                   
+
                     <div e-columns>
                         <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>
                         <div e-column e-field="DayName" e-headertext="Day" e-width="50"></div>
@@ -244,8 +244,15 @@
 
 <script type="text/template" id="shift">
 
-    <div class="col-sm-10" style="padding:0px;">
-        <input ej-dropdownlist e-datasource="$parent.allShift" e-value="data.ShiftSystemID" e-fields-value="SystemID" e-fields-text="UserName" e-width="100%" />
+    <div class="col-sm-10" style="padding:0px; ">
+
+        <div class="select-style">
+            <select class="form-control" ng-model="data.ShiftSystemID" name="" required ng-disabled="data.IsLock==true"
+                    ng-options="item.SystemID as item.UserName for item in $parent.allShift">
+                <option value="">--Select--</option>
+            </select>
+
+        </div>
     </div>
     <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
         <button ng-click="$parent.selectedShiftInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
@@ -255,8 +262,15 @@
 </script>
 <script type="text/template" id="allShiftSingleDay">
 
-    <div class="col-sm-10" style="padding:0px;">
-        <input ej-dropdownlist e-datasource="$parent.allShiftSingleDay" e-value="data.ShiftSystemID" e-fields-value="SystemID" e-fields-text="UserName" e-width="100%" />
+    <div class="col-sm-10" style="padding:0px; ">
+
+        <div class="select-style">
+            <select class="form-control" ng-model="data.ShiftSystemID" name="" required ng-disabled="data.IsLock==true"
+                    ng-options="item.SystemID as item.UserName for item in $parent.allShiftSingleDay">
+                <option value="">--Select--</option>
+            </select>
+
+        </div>
     </div>
     <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
         <button ng-click="$parent.selectedShiftInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
@@ -273,21 +287,28 @@
 </script>
 
 <script type="text/template" id="indate">
-    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-width="100%" />
+    <input type="text" name="Date" ng-model="data.InDate" datepicker class="form-control"
+           ng-disabled="data.IsLock==true">
 </script>
 <script type="text/template" id="intime">
 
-    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%" />
+    <input style="display:{{data.IsLock==true?'none':'inherit'}};" type="text" ej-timepicker e-value="data.InTime" e-width="100%" />
+    <span style="display:{{data.IsLock==true?'inherit':'none'}};">{{data.InTime}}</span>
 
 </script>
+
 <script type="text/template" id="outdate">
-    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.OutDate" e-width="100%" />
+    <input type="text" name="Date" ng-model="data.OutDate" datepicker class="form-control" ng-disabled="data.IsLock==true">
 </script>
+
+
 <script type="text/template" id="outtime">
-
-    <input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" />
+       
+    <input style="display:{{data.IsLock==true?'none':'inherit'}};" type="text" ej-timepicker e-value="data.OutTime" e-width="100%" />
+    <span style="display:{{data.IsLock==true?'inherit':'none'}};">{{data.OutTime}}</span>
 
 </script>
+
 <div class="row">
     <div class="form-group">
         <ej-dialog id="dialogEmployeeSelect" title=" Employees" e-enablemodal="true" e-position-y="0" e-showoninit="false"
@@ -395,5 +416,6 @@
         </div>
     </div>
 </div>
+
 
 

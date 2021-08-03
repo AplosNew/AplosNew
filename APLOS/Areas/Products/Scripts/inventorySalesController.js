@@ -1147,6 +1147,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	$scope.Save = function () {
 		//debugger;
 		// $scope.SavePOPUpConfirm();
+		$scope.productNew.ToCurrencyRate = $scope.productNew.ToCurrencyRate;
 		if ($scope.detailList.length === 0) {
 			ShowResult('Please select Atlest one material');
 			return false;
@@ -1164,7 +1165,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 			return false;
 		}
 		var UIStatus = $("#SlipAssetIssueUI").val();
-		$scope.productNew.IssueRequestMasterId = $scope.issueId;
+		$scope.productNew.IssueRequestMasterId = $scope.issueId;	
 		$scope.productNew.CustomerId = $scope.productNew.PartyId;
 		if ($scope.Action === "Save") {
 			$http({
@@ -1177,7 +1178,8 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 					, IssueTypeStatus: UIStatus,
 					'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
 					'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
-					'taxCategoryList': $scope.materialtaxCategoryListRes
+					'taxCategoryList': $scope.materialtaxCategoryListRes,
+					'ToCurrencyRate': $scope.productNew.ToCurrencyRate
 				}
 				, dataType: 'JSON'
 			}).then(function (response) {
@@ -1222,7 +1224,8 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 					'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
 					'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
 					'taxCategoryList': $scope.materialtaxCategoryListRes,
-					'productNewId': $scope.productNew.Id
+					'productNewId': $scope.productNew.Id,
+					'ToCurrencyRate': $scope.productNew.ToCurrencyRate
 				}
 				, dataType: 'JSON'
 			}).then(function (response) {
@@ -1634,6 +1637,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 				, IsSpecific: false
 				, Comments: null
 				, TaxAmount: null
+				, ToCurrencyRate : $scope.productNew.ToCurrencyRate
 			};
 			$scope.clearCharNames();
 			$scope.detailModel.CostCenterId = $scope.CostCenterIdTemp;

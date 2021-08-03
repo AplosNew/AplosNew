@@ -300,7 +300,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             if (IsInventorySalesBook)
             {
-                ;
+                
                 return Json(InventorySalesMultipleJournalPosting(receiveId, acceptanceId, voucherVM, voucherDetailVMList
                         , voucherDetailCurrencyVMList, inventoryPayableVMList, inventoryReceiveDetailVMList, inventoryJVList, otherInvoiceVM));
             }
