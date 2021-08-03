@@ -154,6 +154,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 string pYearNo = getData<string>("YearNo", _objects);
                 string pMonthNo = getData<string>("MonthNo", _objects);
 
+
                 if (file != null)
                 {
                     var extension = Path.GetExtension(file.FileName);
@@ -237,12 +238,8 @@ namespace Aplos.Areas.Payrolls.Controllers
                         objEmpExtAmt.LoadExternalUploadFromExcelOnGrid(identity.PlantId, pSalaryHeadId, YearNo, MonthNo, out dsEmpInfo);
                         dtEmpInfo = dsEmpInfo.Tables[0];
                         dvEmpInfo = new DataView();
+                        dvEmpInfo.Table = dtEmpInfo;
 
-                        //LoadDataSetFromDataGrid(ref dgEmpSalaryDefine, out dsGrd);
-                        //dtGrd = dsGrd.Tables[0];
-                        //dvGrd = new DataView();
-                        //dvGrd.Table = dtGrd;
-                        //dsGrd.Tables[0].DefaultView.RowFilter = "EmployeeCode='102841'";
                         if (dsExcel.Tables[0].Rows.Count > 0)
                         {
                             for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
@@ -256,62 +253,92 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 //strTempEntryAmt = dsExcel.Tables[0].Rows[i]["F2"].ToString().Trim();
                                 if (_empCode.Trim().Length > 0 && strTempDefineAmt.Trim().Length > 0)
                                 {
-                                    dvEmpInfo.Table = dtEmpInfo;
+
                                     dvEmpInfo.RowFilter = "EmployeeCode = '" + _empCode + "'";
                                     //if (dvEmpInfo.Count == 1)
                                     if (dvEmpInfo.Count > 0)
                                     {
-                                        if (dvEmpInfo[0]["EntryCurrencyID"].ToString().Trim() == dvEmpInfo[0]["DefinitionCurrencyID"].ToString().Trim())
+                                        if (bplib.clsWebLib.GetBoolData(dvEmpInfo[0]["isSalaryLocked"].ToString()) == false)
                                         {
-                                            strTempDefineAmt = strTempEntryAmt;
-                                        }
-                                        else
-                                        {
-                                            strTempDefineAmt = (Convert.ToDecimal(strTempEntryAmt) / Convert.ToDecimal(pForeignCurRate)).ToString("#,##0.0000;(#,##0.0000)");
-                                        }
-
-                                        ExternalDataUploadVM vm = new ExternalDataUploadVM();
-
-                                        vm.MWESAMasterSystemID = dvEmpInfo[0]["MWESAMasterSystemID"].ToString().Trim();
-                                        vm.MWESAChildSystemID = dvEmpInfo[0]["MWESAChildSystemID"].ToString().Trim();
-                                        vm.EmpInfoSystemID = dvEmpInfo[0]["EmpInfoSystemID"].ToString().Trim();
-                                        vm.EmployeeCode = dvEmpInfo[0]["EmployeeCode"].ToString().Trim();
-                                        vm.EmployeeName = dvEmpInfo[0]["EmployeeName"].ToString().Trim();
-                                        vm.CurrencyRuleSystemID = dvEmpInfo[0]["CurrencyRuleSystemID"].ToString().Trim();
-                                        vm.SalaryHeadID = dvEmpInfo[0]["SalaryHeadID"].ToString().Trim();
-                                        vm.SalaryHead = dvEmpInfo[0]["SalaryHead"].ToString().Trim();
-                                        vm.HeadType = dvEmpInfo[0]["HeadType"].ToString().Trim();
-                                        vm.ExistCurrencyID = dvEmpInfo[0]["ExistCurrencyID"].ToString().Trim();
-                                        vm.ExistCurrency = dvEmpInfo[0]["ExistCurrency"].ToString().Trim();
-                                        vm.ExistAmount = dvEmpInfo[0]["ExistAmount"].ToString().Trim();
-                                        vm.EntryCurrencyID = dvEmpInfo[0]["EntryCurrencyID"].ToString().Trim();
-                                        vm.EntryCurrency = dvEmpInfo[0]["EntryCurrency"].ToString().Trim();
-                                        vm.EntryAmount = strTempEntryAmt.Trim();
-                                        vm.DefinitionCurrencyID = dvEmpInfo[0]["DefinitionCurrencyID"].ToString().Trim();
-                                        vm.DefinitionCurrency = dvEmpInfo[0]["DefinitionCurrency"].ToString().Trim();
-                                        vm.DefineAmount = strTempDefineAmt.Trim();
-                                        vm.AmtDefinationCurrencyID = dvEmpInfo[0]["AmtDefinationCurrencyID"].ToString().Trim();
-                                        vm.AmtDefinationRate = dvEmpInfo[0]["AmtDefinationRate"].ToString().Trim();
-
-                                        bool IsDuplicate = false;
-                                        foreach (var item in duplicatedRowsExist)
-                                        {
-                                            if (item.Key.ToString() == _empCode)
+                                            if (dvEmpInfo[0]["EntryCurrencyID"].ToString().Trim() == dvEmpInfo[0]["DefinitionCurrencyID"].ToString().Trim())
                                             {
-                                                IsDuplicate = true;
+                                                strTempDefineAmt = strTempEntryAmt;
                                             }
-                                        }
-                                        if (IsDuplicate)
-                                        {
-                                            vm.Remarks = "This Employee is Found Multipule Times";
+                                            else
+                                            {
+                                                strTempDefineAmt = (Convert.ToDecimal(strTempEntryAmt) / Convert.ToDecimal(pForeignCurRate)).ToString("#,##0.0000;(#,##0.0000)");
+                                            }
+
+                                            ExternalDataUploadVM vm = new ExternalDataUploadVM();
+
+                                            vm.MWESAMasterSystemID = dvEmpInfo[0]["MWESAMasterSystemID"].ToString().Trim();
+                                            vm.MWESAChildSystemID = dvEmpInfo[0]["MWESAChildSystemID"].ToString().Trim();
+                                            vm.EmpInfoSystemID = dvEmpInfo[0]["EmpInfoSystemID"].ToString().Trim();
+                                            vm.EmployeeCode = dvEmpInfo[0]["EmployeeCode"].ToString().Trim();
+                                            vm.EmployeeName = dvEmpInfo[0]["EmployeeName"].ToString().Trim();
+                                            vm.CurrencyRuleSystemID = dvEmpInfo[0]["CurrencyRuleSystemID"].ToString().Trim();
+                                            vm.SalaryHeadID = dvEmpInfo[0]["SalaryHeadID"].ToString().Trim();
+                                            vm.SalaryHead = dvEmpInfo[0]["SalaryHead"].ToString().Trim();
+                                            vm.HeadType = dvEmpInfo[0]["HeadType"].ToString().Trim();
+                                            vm.ExistCurrencyID = dvEmpInfo[0]["ExistCurrencyID"].ToString().Trim();
+                                            vm.ExistCurrency = dvEmpInfo[0]["ExistCurrency"].ToString().Trim();
+                                            vm.ExistAmount = dvEmpInfo[0]["ExistAmount"].ToString().Trim();
+                                            vm.EntryCurrencyID = dvEmpInfo[0]["EntryCurrencyID"].ToString().Trim();
+                                            vm.EntryCurrency = dvEmpInfo[0]["EntryCurrency"].ToString().Trim();
+                                            vm.EntryAmount = strTempEntryAmt.Trim();
+                                            vm.DefinitionCurrencyID = dvEmpInfo[0]["DefinitionCurrencyID"].ToString().Trim();
+                                            vm.DefinitionCurrency = dvEmpInfo[0]["DefinitionCurrency"].ToString().Trim();
+                                            vm.DefineAmount = strTempDefineAmt.Trim();
+                                            vm.AmtDefinationCurrencyID = dvEmpInfo[0]["AmtDefinationCurrencyID"].ToString().Trim();
+                                            vm.AmtDefinationRate = dvEmpInfo[0]["AmtDefinationRate"].ToString().Trim();
+
+                                            bool IsDuplicate = false;
+                                            foreach (var item in duplicatedRowsExist)
+                                            {
+                                                if (item.Key.ToString() == _empCode)
+                                                {
+                                                    IsDuplicate = true;
+                                                }
+                                            }
+                                            if (IsDuplicate)
+                                            {
+                                                vm.Remarks = "This Employee is Found Multipule Times";
+                                            }
+                                            else
+                                            {
+                                                vm.Remarks = "";
+                                            }
+
+
+                                            data.Add(vm);
                                         }
                                         else
                                         {
-                                            vm.Remarks = "";
+                                            ExternalDataUploadVM vm = new ExternalDataUploadVM();
+                                            vm.MWESAMasterSystemID = dvEmpInfo[0]["MWESAMasterSystemID"].ToString().Trim();
+                                            vm.MWESAChildSystemID = dvEmpInfo[0]["MWESAChildSystemID"].ToString().Trim();
+                                            vm.EmpInfoSystemID = dvEmpInfo[0]["EmpInfoSystemID"].ToString().Trim();
+                                            vm.EmployeeCode = dvEmpInfo[0]["EmployeeCode"].ToString().Trim();
+                                            vm.EmployeeName = dvEmpInfo[0]["EmployeeName"].ToString().Trim();
+                                            vm.CurrencyRuleSystemID = dvEmpInfo[0]["CurrencyRuleSystemID"].ToString().Trim();
+                                            vm.SalaryHeadID = dvEmpInfo[0]["SalaryHeadID"].ToString().Trim();
+                                            vm.SalaryHead = dvEmpInfo[0]["SalaryHead"].ToString().Trim();
+                                            vm.HeadType = dvEmpInfo[0]["HeadType"].ToString().Trim();
+                                            vm.ExistCurrencyID = dvEmpInfo[0]["ExistCurrencyID"].ToString().Trim();
+                                            vm.ExistCurrency = dvEmpInfo[0]["ExistCurrency"].ToString().Trim();
+                                            vm.ExistAmount = dvEmpInfo[0]["ExistAmount"].ToString().Trim();
+                                            vm.EntryCurrencyID = dvEmpInfo[0]["EntryCurrencyID"].ToString().Trim();
+                                            vm.EntryCurrency = dvEmpInfo[0]["EntryCurrency"].ToString().Trim();
+                                            vm.EntryAmount = strTempEntryAmt.Trim();
+                                            vm.DefinitionCurrencyID = dvEmpInfo[0]["DefinitionCurrencyID"].ToString().Trim();
+                                            vm.DefinitionCurrency = dvEmpInfo[0]["DefinitionCurrency"].ToString().Trim();
+                                            vm.DefineAmount = strTempDefineAmt.Trim();
+                                            vm.AmtDefinationCurrencyID = dvEmpInfo[0]["AmtDefinationCurrencyID"].ToString().Trim();
+                                            vm.AmtDefinationRate = dvEmpInfo[0]["AmtDefinationRate"].ToString().Trim();
+                                            vm.Remarks = "Salary has been locked";
+                                            data.Add(vm);
+
                                         }
-
-
-                                        data.Add(vm);
                                     }
                                     else
                                     {
@@ -339,15 +366,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                         vm.Remarks = "Employee code has not matched with the system database.";
                                         data.Add(vm);
                                     }
-                                }//blank checking
-
-                                //dgEmpSalaryDefine.DataSource = dtGrd;
-                                //dgEmpSalaryDefine.DataBind();
-                                //PanEmpSalaryDefine.Visible = true;
-                                //Button_save.Visible = true;
-                                //Button_save.Enabled = true;
-                                //Session["VERIFICATION_STATE"] = 2;
-                                //lblInfo.Text = "The entry form is in Add Mode. A new data is going to create on press the [create] button below after finish the entry.";
+                                }
                             }
                         }
                         else
@@ -456,260 +475,6 @@ namespace Aplos.Areas.Payrolls.Controllers
 
 
 
-
-        //private void Import_Excel_File()
-        //{
-        //    FileInfo docFile;
-
-        //    DataSet dsEmpInfo = null;
-        //    DataTable dtEmpInfo = null;
-        //    DataView dvEmpInfo = null;
-
-        //    DataSet dsGrd = null;
-        //    DataTable dtGrd = null;
-        //    DataView dvGrd = null;
-        //    DataRow drGrd = null;
-
-        //    clsEmpExtraSalaryAmt objEmpExtAmt = null;
-        //    string exception = "\r\n";
-        //    try
-        //    {
-        //        #region CHECK EDIT/UPDATE ACCESS
-
-        //        if (lblAccessEdit.Text == "NO")
-        //        {
-        //            Exception ex = new Exception("Access Denied for EDIT/UPDATE ... !!!");
-        //            throw (ex);
-        //        }
-
-        //        #endregion //End CHECK EDIT/UPDATE ACCESS
-
-        //        objEmpExtAmt = new clsEmpExtraSalaryAmt();
-
-        //        #region Validation
-
-        //        if (string.IsNullOrEmpty(ddlPlant.SelectedValue.Trim()) == true)
-        //        {
-        //            ddlPlant.Focus();
-        //            Exception ex = new Exception("Please select Plant...");
-        //            throw (ex);
-        //        }
-        //        if (string.IsNullOrEmpty(ddlYearNo.SelectedValue.Trim()) == true)
-        //        {
-        //            ddlYearNo.Focus();
-        //            Exception ex = new Exception("Please select year No...");
-        //            throw (ex);
-        //        }
-        //        if (string.IsNullOrEmpty(ddlMonthName.SelectedValue.Trim()) == true)
-        //        {
-        //            ddlMonthName.Focus();
-        //            Exception ex = new Exception("Please select month name...");
-        //            throw (ex);
-        //        }
-        //        if (string.IsNullOrEmpty(ddExtraSlrHd.SelectedValue.Trim()) == true)
-        //        {
-        //            ddExtraSlrHd.Focus();
-        //            Exception ex = new Exception("Please select salary head...");
-        //            throw (ex);
-        //        }
-        //        if (string.IsNullOrEmpty(txtForeignCurRate.Text.Trim()) == true)
-        //        {
-        //            txtForeignCurRate.Text = "0.0";
-        //        }
-
-        //        if (txtForeignCurRate.Text.Trim().Length > 20 || bplib.clsWebLib.IsNumeric(txtForeignCurRate.Text.Trim()) == false)
-        //        {
-        //            txtForeignCurRate.Focus();
-        //            Exception ex = new Exception("Invalid / Blank Data not allowed for 'Amount Definition Currency Rate'. \n Please Enter Numeric data Only");
-        //            throw (ex);
-        //        }
-
-        //        #endregion Validation
-
-        //        int YearNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(ddlYearNo.Text));
-        //        int MonthNo = ddlMonthName.SelectedIndex;
-
-        //        if (FileUpload1.HasFile)
-        //        {
-        //            string path = Server.MapPath("TempExcelFile") + "/" + FileUpload1.FileName; exception += "\r\n" + path;
-        //            try
-        //            {
-
-        //                FileUpload1.PostedFile.SaveAs(path);
-
-        //                string ext = Path.GetExtension(FileUpload1.PostedFile.FileName); exception += "\r\n" + path;
-
-        //                if (ext.ToLower() == ".xls" || ext.ToLower() == ".xlsx")
-        //                {
-        //                    string connString = string.Empty;
-
-        //                    /
-        //                    ExcelEngine excelEngine = null;
-        //                    IApplication application = null;
-        //                    IWorkbook workbook = null;
-
-        //                    excelEngine = new ExcelEngine();
-        //                    application = excelEngine.Excel;
-        //                    workbook = excelEngine.Excel.Workbooks.Open(path);
-
-        //                    DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
-
-
-        //                    DataSet dsExcel = new DataSet();
-        //                    dsExcel.Tables.Add(dt);
-
-
-        //                    docFile = new FileInfo(path);
-        //                    if (docFile.Exists)
-        //                    {
-        //                        exception += "\r\nTrying to delete";
-        //                        docFile.Delete();
-        //                    }
-
-        //                    //by monir
-        //                    //Delete All Data
-        //                    //clsEmpExtraSalaryAmt objEmpExtAmt = new clsEmpExtraSalaryAmt();
-        //                    objEmpExtAmt.DeleteOldExtraData(YearNo, MonthNo, ddlPlant.SelectedValue.Trim(), ddExtraSlrHd.SelectedValue);
-
-        //                    objEmpExtAmt.LoadExternalUploadFromExcelOnGrid(ddlPlant.SelectedValue.Trim(), ddExtraSlrHd.SelectedValue.Trim(), YearNo, MonthNo, out dsEmpInfo);
-        //                    dtEmpInfo = dsEmpInfo.Tables[0];
-        //                    dvEmpInfo = new DataView();
-
-        //                    LoadDataSetFromDataGrid(ref dgEmpSalaryDefine, out dsGrd);
-        //                    dtGrd = dsGrd.Tables[0];
-        //                    dvGrd = new DataView();
-        //                    dvGrd.Table = dtGrd;
-        //                    //dsGrd.Tables[0].DefaultView.RowFilter = "EmployeeCode='102841'";
-        //                    if (dsExcel.Tables[0].Rows.Count > 0)
-        //                    {
-        //                        for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
-        //                        {
-        //                            string strTempEntryAmt = "0.0";
-        //                            string strTempDefineAmt = "0.0";
-        //                            string _empCode = Regex.Replace(dsExcel.Tables[0].Rows[i][0].ToString().Trim(), @"\s", "");
-        //                            //string _empCode = dsExcel.Tables[0].Rows[i]["EmployeeCode"].ToString().Trim();
-        //                            strTempEntryAmt = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
-        //                            //strTempEntryAmt = dsExcel.Tables[0].Rows[i]["Amount"].ToString().Trim();
-        //                            //strTempEntryAmt = dsExcel.Tables[0].Rows[i]["F2"].ToString().Trim();
-        //                            if (_empCode.Trim().Length > 0 && strTempDefineAmt.Trim().Length > 0)
-        //                            {
-        //                                dvEmpInfo.Table = dtEmpInfo;
-        //                                dvEmpInfo.RowFilter = "EmployeeCode = '" + _empCode + "'";
-        //                                //if (dvEmpInfo.Count == 1)
-        //                                if (dvEmpInfo.Count > 0)
-        //                                {
-        //                                    if (dvEmpInfo[0]["EntryCurrencyID"].ToString().Trim() == dvEmpInfo[0]["DefinitionCurrencyID"].ToString().Trim())
-        //                                    {
-        //                                        strTempDefineAmt = strTempEntryAmt;
-        //                                    }
-        //                                    else
-        //                                    {
-        //                                        strTempDefineAmt = (Convert.ToDecimal(strTempEntryAmt) / Convert.ToDecimal(txtForeignCurRate.Text)).ToString("#,##0.0000;(#,##0.0000)");
-        //                                    }
-
-        //                                    drGrd = dtGrd.NewRow();
-        //                                    drGrd["MWESAMasterSystemID"] = dvEmpInfo[0]["MWESAMasterSystemID"].ToString().Trim();
-        //                                    drGrd["MWESAChildSystemID"] = dvEmpInfo[0]["MWESAChildSystemID"].ToString().Trim();
-        //                                    drGrd["EmpInfoSystemID"] = dvEmpInfo[0]["EmpInfoSystemID"].ToString().Trim();
-        //                                    drGrd["EmployeeCode"] = dvEmpInfo[0]["EmployeeCode"].ToString().Trim();
-        //                                    drGrd["EmployeeName"] = dvEmpInfo[0]["EmpInfoSystemID"].ToString().Trim();
-        //                                    drGrd["CurrencyRuleSystemID"] = dvEmpInfo[0]["CurrencyRuleSystemID"].ToString().Trim();
-        //                                    drGrd["SalaryHeadID"] = dvEmpInfo[0]["SalaryHeadID"].ToString().Trim();
-        //                                    drGrd["SalaryHead"] = dvEmpInfo[0]["SalaryHead"].ToString().Trim();
-        //                                    drGrd["HeadType"] = dvEmpInfo[0]["HeadType"].ToString().Trim();
-        //                                    drGrd["ExistCurrencyID"] = dvEmpInfo[0]["ExistCurrencyID"].ToString().Trim();
-        //                                    drGrd["ExistCurrency"] = dvEmpInfo[0]["ExistCurrency"].ToString().Trim();
-        //                                    drGrd["ExistAmount"] = dvEmpInfo[0]["ExistAmount"].ToString().Trim();
-        //                                    drGrd["EntryCurrencyID"] = dvEmpInfo[0]["EntryCurrencyID"].ToString().Trim();
-        //                                    drGrd["EntryCurrency"] = dvEmpInfo[0]["EntryCurrency"].ToString().Trim();
-        //                                    drGrd["EntryAmount"] = strTempEntryAmt.Trim();
-        //                                    drGrd["DefinitionCurrencyID"] = dvEmpInfo[0]["DefinitionCurrencyID"].ToString().Trim();
-        //                                    drGrd["DefinitionCurrency"] = dvEmpInfo[0]["DefinitionCurrency"].ToString().Trim();
-        //                                    drGrd["DefineAmount"] = strTempDefineAmt.Trim();
-        //                                    drGrd["AmtDefinationCurrencyID"] = dvEmpInfo[0]["AmtDefinationCurrencyID"].ToString().Trim();
-        //                                    drGrd["AmtDefinationRate"] = dvEmpInfo[0]["AmtDefinationRate"].ToString().Trim();
-        //                                    drGrd["Remarks"] = "";
-        //                                    dtGrd.Rows.Add(drGrd);
-        //                                }
-        //                                else
-        //                                {
-        //                                    drGrd = dtGrd.NewRow();
-        //                                    drGrd["MWESAMasterSystemID"] = "";
-        //                                    drGrd["MWESAChildSystemID"] = "";
-        //                                    drGrd["EmpInfoSystemID"] = "";
-        //                                    drGrd["EmployeeCode"] = _empCode;
-        //                                    drGrd["EmployeeName"] = "";
-        //                                    drGrd["CurrencyRuleSystemID"] = "";
-        //                                    drGrd["SalaryHeadID"] = "";
-        //                                    drGrd["SalaryHead"] = "";
-        //                                    drGrd["HeadType"] = "";
-        //                                    drGrd["ExistCurrencyID"] = "";
-        //                                    drGrd["ExistCurrency"] = "";
-        //                                    drGrd["ExistAmount"] = "";
-        //                                    drGrd["EntryCurrencyID"] = "";
-        //                                    drGrd["EntryCurrency"] = "";
-        //                                    drGrd["EntryAmount"] = strTempEntryAmt.Trim();
-        //                                    drGrd["DefinitionCurrencyID"] = "";
-        //                                    drGrd["DefinitionCurrency"] = "";
-        //                                    drGrd["DefineAmount"] = "0";
-        //                                    drGrd["AmtDefinationCurrencyID"] = "";
-        //                                    drGrd["AmtDefinationRate"] = "";
-        //                                    drGrd["Remarks"] = "Employee code has not matched with the system database.";
-        //                                    dtGrd.Rows.Add(drGrd);
-        //                                }
-        //                            }//blank checking
-
-        //                            dgEmpSalaryDefine.DataSource = dtGrd;
-        //                            dgEmpSalaryDefine.DataBind();
-        //                            PanEmpSalaryDefine.Visible = true;
-        //                            Button_save.Visible = true;
-        //                            Button_save.Enabled = true;
-        //                            Session["VERIFICATION_STATE"] = 2;
-        //                            lblInfo.Text = "The entry form is in Add Mode. A new data is going to create on press the [create] button below after finish the entry.";
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        throw new Exception("Please Select File");
-        //                    }
-        //                }
-        //            }
-        //            catch (Exception ex)
-        //            {
-
-        //                docFile = new FileInfo(path);
-        //                if (docFile.Exists)
-        //                {
-        //                    docFile.Delete();
-        //                }
-        //                throw (ex);
-        //            }
-        //        }
-        //        //TxtMsgBox.Text += "\r\nGlobal.ExcelFilePath" + Global.ExcelFilePath;
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        //throw ex;
-        //        ShowLog(exception.ToString());
-
-        //        TxtMsgBox.Text += "\r\n1ERROR: With Inverted Comma Only: " + Server.MapPath("");
-        //        TxtMsgBox.Text += "\r\n2ERROR With ~" + Server.MapPath("~");
-        //        TxtMsgBox.Text += "\r\n3ERROR: With slash/" + Server.MapPath("/");
-        //        TxtMsgBox.Text += "\r\n4ERROR TempExcelFile" + Server.MapPath("TempExcelFile");
-        //        TxtMsgBox.Text += "\r\n5ERROR:/TempExcelFile" + Server.MapPath("/TempExcelFile");
-
-        //    }
-        //    finally
-        //    {
-        //    }
-        //}
-
-
-
-
-
-
         [HttpPost]
         public ActionResult SaveExternalData(List<ExternalDataUploadVM> data, string YearNo, string MonthNo, string SalaryHeadId)
         {
@@ -717,12 +482,15 @@ namespace Aplos.Areas.Payrolls.Controllers
             {
                 throw new Exception("No data found for upload !!!!!");
             }
+            string LockedempCodes = "";
+            _SalaryStructureUploadService.SaveData(YearNo, MonthNo, SalaryHeadId, data, (CustomIdentity)Thread.CurrentPrincipal.Identity, out LockedempCodes);
 
-            _SalaryStructureUploadService.SaveData(YearNo, MonthNo, SalaryHeadId, data, (CustomIdentity)Thread.CurrentPrincipal.Identity);
-
-
-
-            return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            if (LockedempCodes == "")
+                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            else
+            {
+                return Json(new { Error = true, Message = "Could not update following employees (Salary is locked):" + LockedempCodes }, JsonRequestBehavior.AllowGet);
+            }
         }
 
 
