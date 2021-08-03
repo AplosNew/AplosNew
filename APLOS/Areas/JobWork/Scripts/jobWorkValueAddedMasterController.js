@@ -272,8 +272,9 @@ function jobWorkValueAddedMasterController(addressService, $window, cboService, 
             method: 'GET',
             url: $scope.path + 'GetSelectedProcessData?Id=' + $scope.ValueAdded.Id
         }).then(function successCallback(response) {
-            var DropDownListObj = '';
-                DropDownListObj = $("#ddlProcess").data("ejDropDownList");
+             
+            var DropDownListObj = $("#ddlProcess").data("ejDropDownList");
+            DropDownListObj.uncheckAll();
             for (var j = 0; j < response.data.length; j++) {
 
                 DropDownListObj.selectItemByValue(response.data[j].ProcessId);
