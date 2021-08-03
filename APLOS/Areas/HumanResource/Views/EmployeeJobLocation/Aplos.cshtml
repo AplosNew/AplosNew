@@ -2,23 +2,21 @@
 <div class="form-elements form-horizontal" ng-form name="EmployeeJobLocationForm">
     <div class="col-xs-12 col-sm-6 col-md-6">
 
-
-        <div class="form-group">
-            <label class="col-sm-3 control-label">Employee Select<sup>*</sup></label>
-            <div class="input-group">
-                <div class="col-sm-4">
-                    <input type="text" style="left:-20px;" @*ng-enter="GetEnterEmployeeOutInfo()"*@ ng-model="modalNew.EmployeeCode" placeholder="Employee Code" class="form-control" maxlength="100" tabindex="2">
-                </div>
-                <div class="col-sm-6" style="left:-20px;">
-                    <input type="text" name="EmployeeName" ng-model="modalNew.EmployeeName" class="form-control" required readonly>
-                </div>
-                <div class="col-sm-2">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Employee Select<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <span class="input-group-addon">{{modalNew.EmployeeCode}}</span>
+                    <input type="text" name="Vendor" ng-model="modalNew.EmployeeName" class="form-control" required readonly>
                     <span class="input-group-btn">
                         <button name="submit" ng-click="getPopUpData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>
         </div>
+
+
+
 
         <div class="form-group">
             <label class="col-sm-4 control-label">Designation Group :</label>
@@ -44,32 +42,37 @@
                 <label>{{modalNew.DOJ}}</label>
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Job Location<sup>*</sup> </label>
-            <div class="col-sm-5">
-                <div class="select-style">
-                    <select id="Religion" class="form-control" name="Job Location" ng-model="modalNew.JobLocationID" tabindex="15" ng-change="GetShiftCbo();">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in JobLocationList" value="{{option.SystemID}}">{{option.JobLocation}}</option>
-                    </select>
+                <div class="col-sm-5 show-message">
+                    <div class="select-style">
+                        <select id="Religion" class="form-control" name="Job Location" ng-model="modalNew.JobLcSystemID" tabindex="15" required>
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in JobLocationList" value="{{option.SystemID}}">{{option.JobLocation}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-2" ng-show="Flag=='Load All'" style="margin-left:-5px;padding-left:0px;">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button ng-click="LoadAllJobLocation();" class="btn"><i class="glyphicon glyphicon-refresh"></i>Load All</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-2" ng-show="Flag=='Load Less'" style="margin-left:-17px;padding-left:0px;">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button ng-click="LoadPlantJobLocation();" class="btn"><i class="glyphicon glyphicon-refresh"></i>Load Less</button></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm-2" ng-show="Flag=='Load All'" style="margin-left:-5px;padding-left:0px;">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li><button ng-click="LoadAllJobLocation();" class="btn"><i class="glyphicon glyphicon-refresh"></i>Load All</button></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-sm-2" ng-show="Flag=='Load Less'" style="margin-left:-17px;padding-left:0px;">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li><button ng-click="LoadPlantJobLocation();" class="btn"><i class="glyphicon glyphicon-refresh"></i>Load Less</button></li>
-                    </ul>
-                </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Effective Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" ng-model="modalNew.EffectiveDate" name="Effective Date" datepicker class="form-control" placeholder="dd-MM-yyyy" required>
             </div>
         </div>
-
         @*<div class="form-group">
             <label class="col-sm-4 control-label">Shift(Fix)<sup>*</sup></label>
             <div class="col-sm-8">

@@ -4,12 +4,8 @@ function EmployeeJobLocationController(cboService, commonMessage, $scope, $rootS
     $rootScope.title = 'Employee Job Location';
     $scope.Action = 'Save';
     $scope.index = -1;
-    $scope.EmployeeShiftAssigns = [];
     $scope.path = 'humanresource/EmployeeJobLocation/';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'create';
-    baseService.init($scope.getListUrl, null, null, null, 'EmployeeCode', 'EmployeeCode');
-
+   
     $scope.modal = {
         EmployeeCode: null,
         EmpSystemID: null,
@@ -17,7 +13,10 @@ function EmployeeJobLocationController(cboService, commonMessage, $scope, $rootS
         DOJ: null,
         DOC: null,
         DesignationGroup:null,
-        LegalDesignation:null,
+        LegalDesignation: null,
+        SystemID: null,
+        JobLcSystemID: null,
+        EffectiveDate:null
     }
     $scope.modalNew = Object.assign({}, $scope.modal);
 
@@ -140,11 +139,18 @@ function EmployeeJobLocationController(cboService, commonMessage, $scope, $rootS
         $scope.modalNew.EmpSystemID = data.SystemID;
         $scope.modalNew.EmployeeName = data.EmployeeName;
         $scope.modalNew.DOJ = data.DOJ;
-        $scope.modalNew.DOC = data.DOC;
+       
         $scope.modalNew.DesignationGroup = data.DesignationGroup;
         $scope.modalNew.LegalDesignation = data.LegalDesignation;
         $scope.modalNew.Department = data.Department;
+       
+        $scope.modalNew.JobLcSystemID = data.JobLcSystemID;
         $scope.imageSrc = virtualPath.EmployeePic + data.EmpPicPath;
+
+        if (baseService.isUndefinedOrNull(data.EffectiveDate))
+            $scope.modalNew.EffectiveDate = data.DOJ;
+        else
+            $scope.modalNew.EffectiveDate = data.EffectiveDate;
 
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
@@ -191,27 +197,25 @@ function EmployeeJobLocationController(cboService, commonMessage, $scope, $rootS
     };
 
     $scope.Save = function () {
-        if ($scope.employeeShiftAssign.IsFix === false) {
-            $scope.employeeShiftAssign.IsRoster = true;
-        }
-        $scope.employeeWeekOffByDay.EffectiveDate = $scope.employeeShiftAssign.EffectiveDate;
-        if ($scope.Action === "Save") {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.EmployeeJobLocationForm.$valid) {
             $http({
                 method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'model': $scope.employeeShiftAssign, 'employeeWeekOffByDay': $scope.employeeWeekOffByDay },
+                url: 'HumanResource/EmployeeJobLocation/Create',
+                data: { 'data': $scope.modalNew },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure', 'ShiftPopUp');
+                    ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    ShowResult(response.data.Message, 'success', 'ShiftPopUp');
-                    $scope.getData();
+                    ShowResult(response.data.Message, 'success');
+                   
                 }
             }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure', 'ShiftPopUp');
-            };
+                ShowResult(response.data.Message, 'failure');
+            }
+
         }
     };
 }
