@@ -408,39 +408,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         }
     }
     $scope.indx = -1;
-    //$scope.CalculateBalance = function (data, indx) {
-    //    $scope.indx = indx;
-
-    //    var data = $scope.selectedMasterOrderItemList[$scope.indx];
-
-    //    $scope.selectedMasterOrderItemList[$scope.indx].TaxAmount = 0;
-    //    $scope.selectedMasterOrderItemList[$scope.indx].Balance = $scope.selectedMasterOrderItemList[$scope.indx].TransactionQty - ($scope.selectedMasterOrderItemList[$scope.indx].ExistSalesQty + $scope.selectedMasterOrderItemList[$scope.indx].SalesQty);
-    //    if ($scope.selectedMasterOrderItemList[$scope.indx].Balance >= 0) {
-    //        if (!baseService.isUndefinedOrNull($scope.selectedMasterOrderItemList[$scope.indx].Id)) {
-    //            $scope.selectedMasterOrderItemList[$scope.indx].Balance = $scope.selectedMasterOrderItemList[$scope.indx].TransactionQty - ($scope.selectedMasterOrderItemList[$scope.indx].ExistSalesQty + $scope.selectedMasterOrderItemList[$scope.indx].SalesQty);
-    //            $scope.selectedMasterOrderItemList[$scope.indx].TransactionAmount = parseFloat($scope.selectedMasterOrderItemList[$scope.indx].Rate * $scope.selectedMasterOrderItemList[$scope.indx].SalesQty).toFixed(2);
-    //        } else {
-    //            $scope.selectedMasterOrderItemList[$scope.indx].Balance = $scope.selectedMasterOrderItemList[$scope.indx].TransactionQty - ($scope.selectedMasterOrderItemList[$scope.indx].ExistSalesQty + $scope.selectedMasterOrderItemList[$scope.indx].SalesQty);
-    //            $scope.selectedMasterOrderItemList[$scope.indx].TransactionAmount = parseFloat($scope.selectedMasterOrderItemList[$scope.indx].Rate * $scope.selectedMasterOrderItemList[$scope.indx].SalesQty).toFixed(2);
-    //        }
-
-    //        if (baseService.arrayLength($scope.selectedMasterOrderItemList[$scope.indx].TaxList) > 0) {
-    //            angular.forEach($scope.selectedMasterOrderItemList[$scope.indx].TaxList, function (item) {
-    //                item.TotalAmount = $scope.selectedMasterOrderItemList[$scope.indx].TransactionAmount * item.Percentage / 100;
-    //                $scope.selectedMasterOrderItemList[$scope.indx].TaxAmount += item.TotalAmount;
-    //            });
-    //            $scope.selectedMasterOrderItemList[$scope.indx].NetAmount = parseFloat($scope.selectedMasterOrderItemList[$scope.indx].TransactionAmount) + parseFloat($scope.selectedMasterOrderItemList[$scope.indx].TaxAmount);
-    //        } else {
-    //            $scope.selectedMasterOrderItemList[$scope.indx].NetAmount = parseFloat($scope.selectedMasterOrderItemList[$scope.indx].TransactionAmount).toFixed(2);
-    //        }
-
-    //        $scope.indx = -1;
-
-    //    } else {
-    //        ShowResult("Balance cann't less than 0.");
-    //    }
-    //}
-
+    
 
     $scope.GetSalesServiceData = function (salesId) {
         $http({

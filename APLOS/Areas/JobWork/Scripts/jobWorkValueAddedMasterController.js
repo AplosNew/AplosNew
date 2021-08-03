@@ -234,6 +234,7 @@ function jobWorkValueAddedMasterController(addressService, $window, cboService, 
 
     $scope.processList = [];
     $scope.getAllProcessName = function () {
+        $scope.processList = [];
         $http({
             method: 'GET',
             url: $scope.path + 'GetAllProcessName'
@@ -266,13 +267,18 @@ function jobWorkValueAddedMasterController(addressService, $window, cboService, 
     };
 
     $scope.getSelectedProcessData = function () {
+   //     $scope.processList = [];
         $http({
             method: 'GET',
             url: $scope.path + 'GetSelectedProcessData?Id=' + $scope.ValueAdded.Id
         }).then(function successCallback(response) {
+             
             var DropDownListObj = $("#ddlProcess").data("ejDropDownList");
+            DropDownListObj.uncheckAll();
             for (var j = 0; j < response.data.length; j++) {
+
                 DropDownListObj.selectItemByValue(response.data[j].ProcessId);
+        //        $scope.processList.selectItemByValue(response.data[j].ProcessId);
             }
         });
     };

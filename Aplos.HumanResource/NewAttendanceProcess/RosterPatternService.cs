@@ -507,20 +507,20 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
 
-        public void run()
+        public void run(string PlantId)
         {
             try
             {
-
-                var sql1 = @"Select * from Org.Plant";
-                DataTable dt = new DataTable();
                 clsStaticInfo _info = new clsStaticInfo();
+                //var sql1 = @"Select * from Org.Plant";
+                //DataTable dt = new DataTable();
+                //
 
-                dt = _sqlRepository.GetDataTable(sql1);
-                //1st Loop which works Plant Wise and gets all the rosters of that particular plant
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    var sql2 = @"Select * from dbo.RosterPatternHeader where PlantId = '" + dt.Rows[i]["Id"].ToString() + "'";
+                //dt = _sqlRepository.GetDataTable(sql1);
+                ////1st Loop which works Plant Wise and gets all the rosters of that particular plant
+                //for (int i = 0; i < dt.Rows.Count; i++)
+                //{
+                var sql2 = @"Select * from dbo.RosterPatternHeader where PlantId = '" +PlantId + "'";
                     DataTable RosterTable = new DataTable();
                     RosterTable = _sqlRepository.GetDataTable(sql2);
                     if (RosterTable.Rows.Count > 0)
@@ -555,7 +555,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 EffectiveDateTable = _sqlRepository.GetDataTable(sql4);
 
                                 //Getting all the rows from the Process table
-                                var sql5 = @"Select top 1 * from dbo.RosterPatternProcess where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' and PlantId = '" + dt.Rows[i]["Id"].ToString() + "' order by WorkDate";
+                                var sql5 = @"Select top 1 * from dbo.RosterPatternProcess where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' and PlantId = '" +PlantId+"' order by WorkDate";
                                 DataTable ProcessTable = new DataTable();
                                 ProcessTable = _sqlRepository.GetDataTable(sql5);
 
@@ -580,7 +580,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     genid.GenID("dbo.RosterPatternProcess", out _Id);
                                     dict["Id"] = "RP" + _Id;
                                     dict["RPHeaderId"] = RosterTable.Rows[j]["Id"].ToString();
-                                    dict["PlantId"] = dt.Rows[i]["Id"].ToString();
+                                    dict["PlantId"] = PlantId;
                                     dict["WorkDate"] = Convert.ToDateTime(Today);
                                     dict["ShiftDefinationID"] = ShiftsTable.Rows[0]["ShiftDefinitionID"].ToString();
                                     dict["ShiftSequence"] = ShiftsTable.Rows[0]["ShiftSequence"].ToString();
@@ -599,7 +599,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         genid.GenID("dbo.RosterPatternProcess", out _Id);
                                         dict["Id"] = "RP" + _Id;
                                         dict["RPHeaderId"] = RosterTable.Rows[j]["Id"].ToString();
-                                        dict["PlantId"] = dt.Rows[i]["Id"].ToString();
+                                        dict["PlantId"] = PlantId;
                                         dict["WorkDate"] = Convert.ToDateTime(Today);
                                         dict["ShiftDefinationID"] = ShiftsTable.Rows[Seq]["ShiftDefinitionID"].ToString();
                                         dict["ShiftSequence"] = ShiftsTable.Rows[Seq]["ShiftSequence"].ToString();
@@ -620,7 +620,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         }
                     }
 
-                }
+                //}
 
             }
             catch (Exception e)
