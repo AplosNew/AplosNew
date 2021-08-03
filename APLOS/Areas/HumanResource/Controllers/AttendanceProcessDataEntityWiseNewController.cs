@@ -484,7 +484,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             format(KK.OutTime,'hh:mm tt') AS  OutTime, format(KK.OutTime,'hh:mm tt') AS  OutTimeOriginal, 
 
 
-                            KK.IsManualOutTime,KK.DayStatusCode,KK.IsLock,
+                            KK.IsManualOutTime,KK.DayStatusCode,convert(bit,isnull(KK.IsLock,0)) AS IsLock,
 
                             format(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt') AS PunchInTime,
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
