@@ -126,6 +126,20 @@ namespace Aplos.Controllers
             }
         }
 
+        [HttpPost]
+        public string SaveOT([FromBody] List<AttendanceProcessNewProcess> data)
+        {
+            try
+            {
+                string Id = _app.Save(data);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #endregion
 
     }
