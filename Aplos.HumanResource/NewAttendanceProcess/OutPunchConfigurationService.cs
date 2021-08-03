@@ -73,7 +73,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from dbo.OutpunchConfigurationHeader where PlantId='" + data["PlantId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Code already exists!!!");
+                    throw new Exception("Same Plant already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from dbo.OutpunchConfigurationHeader where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
@@ -98,7 +98,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     k["OutPunchLimit"]= Convert.ToDateTime(kOutt.ToString());
                 }
 
-                if(dtInT < dtOutT || (dtOutT-dtInT).TotalHours > 11)
+                if( (dtOutT-dtInT).TotalHours < 11)
                 {
                     dtOutT = dtOutT.AddDays(1);
                     data["LastPunchOutTime"] = dtOutT;

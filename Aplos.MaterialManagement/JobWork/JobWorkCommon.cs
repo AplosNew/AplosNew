@@ -334,7 +334,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         --AND IR.POType='OSTransformationPO'	--AND IR.AddedBy='Shashank'	
                         AND isnull(IR.IsClosed,0)=0 
 						) x
-						Order by PODate DESC";
+						--Order by PODate DESC
+                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.JWTransformationPurchaseOrder) BD ON BD.Id=x.Id 
+						ORDER BY CONVERT(int,Col) desc";
                 }
                 else if (POTypeStatus == "CheckedHoldRej")
                 {
@@ -406,9 +408,12 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
                         left join ORG.Entity E on E.Id=IR.EntityId
-                        WHERE  IR.PlantId='"+ plantId + @"' AND IR.CheckedBy IS NOT NULL AND IR.AuthorizedBy IS NOT NULL AND IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' 
+                        JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.JWTransformationPurchaseOrder) BD ON BD.Id=IR.Id 
+                        WHERE  IR.PlantId='" + plantId + @"' AND IR.CheckedBy IS NOT NULL AND IR.AuthorizedBy IS NOT NULL AND IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' 
                         --AND IR.POType='OSTransformationPO' 
-                        AND IR.PlantId='"+ plantId + @"'   AND isnull(IR.IsClosed,0)=0 Order by IR.PODate DESC";//IR.AddedBy='" + identity.Name + "' And
+                        AND IR.PlantId='"+ plantId + @"'   AND isnull(IR.IsClosed,0)=0 
+                        --Order by IR.PODate DESC
+                         ORDER BY CONVERT(int,Col) desc";//IR.AddedBy='" + identity.Name + "' And
 
                 }
                 else if (POTypeStatus == "Checked")
@@ -483,13 +488,16 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
                         left join ORG.Entity E on E.Id=IR.EntityId
+                         JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.JWTransformationPurchaseOrder) BD ON BD.Id=IR.Id
                          WHERE IR.PlantId='" + plantId + @"' 
                          AND IR.CheckedBy IS NOT NULL 
                          AND IR.AuthorizedBy IS NOT NULL  
                          AND IR.CheckedByStatus='Checked' 
                          AND IR.AuthorizedByStatus='For Approval'  
                          --AND IR.POType='OSTransformationPO'  		
-                         AND ISNULL(IR.IsClosed,0)=0 Order by IR.PODate DESC";
+                         AND ISNULL(IR.IsClosed,0)=0 
+                         --Order by IR.PODate DESC
+                           ORDER BY CONVERT(int,Col) desc ";
 
 
                 }
