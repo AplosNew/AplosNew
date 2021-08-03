@@ -178,8 +178,13 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
 
 
     $scope.onrowdatabound = function (e) {
-        if (e.data.Remarks !== '')
-            e.row.css("background-color", "red");
+        if (e.data.Remarks !== '') {
+            if (e.data.Remarks == 'Salary has been locked')
+                e.row.css("background-color", "yellow");
+            else
+                e.row.css("background-color", "red");
+        }
+
     };
 
 
@@ -190,7 +195,8 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
             for (var i = 0; i < $scope.AttdnRawData.length; i++) {
 
                 if ($scope.AttdnRawData[i].Remarks !== '') {
-                    throw "Please Upload valied data";
+                    if ($scope.AttdnRawData[i].Remarks !== 'Salary has been locked')
+                        throw "Please Upload valid data";
                 }
 
             }
@@ -414,7 +420,7 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
     };
     $scope.ShowDiv = false;
     $scope.edit = {
-        Id:null,
+        Id: null,
         EmpCode: null,
         SalaryHead: null,
         EmpName: null,
@@ -449,12 +455,12 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
                     }
                 }
                 else {
-                   
+
                     /*if ($scope.IsSalaryLock == false) {*/
-                        $scope.ShowDiv = true;
-                        var eDialog = $("#Edit").data("ejDialog");
-                        $("#Edit").ejDialog("setTitle", " Edit");
-                        eDialog.open();
+                    $scope.ShowDiv = true;
+                    var eDialog = $("#Edit").data("ejDialog");
+                    $("#Edit").ejDialog("setTitle", " Edit");
+                    eDialog.open();
                     //}
                 }
             });
@@ -463,7 +469,7 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
         }
     };
     $scope.UpdateUpload = function () {
-        try {            
+        try {
             $http({
                 method: 'POST',
                 url: $scope.path + "UpdateUpload",
@@ -475,7 +481,7 @@ function ExternalDataUploadFromExcelController($scope, $http, $location, $rootSc
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    var eDialog = $("#Edit").data("ejDialog");                    
+                    var eDialog = $("#Edit").data("ejDialog");
                     eDialog.close();
                     $scope.LoadData();
                 }

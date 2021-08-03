@@ -146,7 +146,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpGet, Authorize]
         public ActionResult run()
         {
-            rs.run();
+            rs.run("202017");
             return Json(new { Date = "Hellow" }, JsonRequestBehavior.AllowGet);
         }
 
