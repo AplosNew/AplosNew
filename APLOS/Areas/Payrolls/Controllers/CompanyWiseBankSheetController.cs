@@ -191,7 +191,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
                 foreach (var PList in PaymentListSeperated)
                 {
-                    if (PList.ToString().ToUpper().Trim() != "CASH" )
+                    if (PList.ToString().ToUpper().Trim() != "CASH")
                     {
                         var Bank = BankList.Split(',');
                         foreach (var item in Bank)
@@ -209,7 +209,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                     BankListx.AddRange(Banks);
                                     ForBankListx.AddRange(Banks);
                                 }
-                                
+
 
                             }
                         }
@@ -265,6 +265,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 xlsRow++;
                 endXlsCol = xlsCol;
                 double inTotal = 0;
+                double SumOfAllTotal = 0;
                 for (int dsi = 0; dsi < PayMentListx.Count; dsi++)
                 {
                     if (PayMentListx[dsi].ToUpper().Trim() == "CASH")
@@ -306,17 +307,31 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 }
                                 sheet1.Range[xlsRow, iCount].Number = Convert.ToDouble(dvLocal[0]["Total"].ToString());
                                 sheet1.Range[xlsRow, iCount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                                inTotal = Convert.ToDouble(dvLocal[0]["Total"].ToString());
                             }
 
                             sheet1.Range[xlsRow, isl].Text = SL.ToString();
-
+                            SumOfAllTotal = inTotal + SumOfAllTotal;
                             xlsRow++;
                             SL++;
 
                         }
                     }
                 }
-
+                //xlsRow++;
+                xlsCol--;
+                if (clsStaticInfo.dbl(SumOfAllTotal) > 0)
+                {
+                    sheet1.Range[xlsRow, xlsCol].Text = "Total ";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                    xlsCol++;
+                    sheet1.Range[xlsRow, xlsCol].Number = Convert.ToDouble(SumOfAllTotal);
+                    sheet1.Range[xlsRow, xlsCol].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                }
 
                 #endregion
 
@@ -371,7 +386,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 sheet1 = workbook.Worksheets[count];
                                 if (dvAttn.Count > 0)
                                 {
-                                    xx = PayMentListx[dsi].Trim()+ "_" +dvAttn[0]["BankName"].ToString().Trim();
+                                    xx = PayMentListx[dsi].Trim() + "_" + dvAttn[0]["BankName"].ToString().Trim();
                                 }
                                 else
                                 {
@@ -682,7 +697,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 double AllTotal = 0;
                 #region DataSet
 
-                
+
 
                 objRpt.SelectedPlantWiseCompany(identity.PlantId.Trim(), out dsCmp);
 
@@ -1006,7 +1021,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 }
 
                 #endregion
-                
+
                 workbook.Version = ExcelVersion.Excel97to2003;
                 report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Portrait);
                 var filePath = "";
@@ -1108,7 +1123,9 @@ namespace Aplos.Areas.Payrolls.Controllers
                         left join ORG.Section SE on SE.Id=PR.SectionId
                         LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
 						left join ORG.Plant p on p.Id=ei.PlantId
-						where SPM.SystemID IN  (" + inSalaryProcParam + @") " + empStatus + @"
+						where SPM.SystemID IN  (SELECT SystemID FROM SalaryProcMaster SPM
+                                      WHERE SPM.SystemID IN (SELECT SalaryProcessId FROM SalaryProcessLogDetail where PaymentMode in ('" + PaymentModeList.Trim() + @"')
+                                                        ) AND SPM.MonthNo = '" + Month + @"' AND SPM.YearNo='" + Year + @"' ) " + empStatus + @"
                         and spcc.PaymentMode in ('" + PaymentModeList.Trim() + @"')   " + Check + @" 
 						and SH.HeadCategory = 'Net Payable'
 						and ei.SystemId in (
@@ -1217,7 +1234,9 @@ namespace Aplos.Areas.Payrolls.Controllers
 						LEFT JOIN EmployeeBankInfo EBI ON EI.SystemId = EBI.EmpSystemID
 						LEFT JOIN HKP.Bank Bank ON Bank.Id = EBI.BankSystemID
 						
-						where SPM.SystemID IN  (" + inSalaryProcParam + @") " + empStatus + @"
+						where SPM.SystemID IN  (SELECT SystemID FROM SalaryProcMaster SPM
+                                      WHERE SPM.SystemID IN (SELECT SalaryProcessId FROM SalaryProcessLogDetail where PaymentMode in ('" + PaymentModeList.Trim() + @"')
+                                                        ) AND SPM.MonthNo = '" + Month + @"' AND SPM.YearNo='" + Year + @"' ) " + empStatus + @"
                         and spcc.PaymentMode in ('" + PaymentModeList.Trim() + @"')   " + Check + @" 
 						and SH.HeadCategory = 'Net Payable'
 						and ei.SystemId in (
@@ -1273,7 +1292,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 var Payment = PaymentModeList.Split(',');
                 foreach (var item in Payment)
                 {
-                    if (xx =="")
+                    if (xx == "")
                     {
                         xx = "'" + item.Trim().Replace('"', ' ').Trim() + "'";
                     }
@@ -1281,7 +1300,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                     {
                         xx += ",'" + item.Trim() + "'";
                     }
-                    
+
                 }
 
                 var BankL = BankList.Split(',');
@@ -1365,7 +1384,9 @@ namespace Aplos.Areas.Payrolls.Controllers
                         left join ORG.Section SE on SE.Id=PR.SectionId
                         LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
 						left join ORG.Plant p on p.Id=ei.PlantId
-						where SPM.SystemID IN  (" + inSalaryProcParam + @") " + empStatus + @"
+						where SPM.SystemID IN  (SELECT SystemID FROM SalaryProcMaster SPM
+                                      WHERE SPM.SystemID IN (SELECT SalaryProcessId FROM SalaryProcessLogDetail where PaymentMode in ('" + PaymentModeList.Trim() + @"')
+                                                        ) AND SPM.MonthNo = '" + Month + @"' AND SPM.YearNo='" + Year + @"' ) " + empStatus + @"
                         and spcc.PaymentMode in (" + xx + @")   " + Check + @" 
 						and SH.HeadCategory = 'Net Payable'
 						and ei.SystemId in (

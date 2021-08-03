@@ -530,6 +530,7 @@
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataEntityWiseNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataManualStatusNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataNewController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\OTUpdateConfigurationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\DayStatusMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeAdditionDeductionProcessController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeJobLocationController.cs" />
@@ -1759,6 +1760,7 @@
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataEntityWiseNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataManualStatusNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataNewController.js" />
+    <Content Include="Areas\HumanResource\Scripts\OTUpdateConfigurationController.js" />
     <Content Include="Areas\HumanResource\Scripts\DayStatusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAdditionDeductionProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeJobLocationController.js" />
@@ -3607,6 +3609,7 @@
     <Content Include="Areas\Attendances\Views\PayrollManagementDashboard\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\NewAttendanceProcess\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployeeJobLocation\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\OTUpdateConfiguration\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
