@@ -7054,40 +7054,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
-        public IEnumerable<object> GetEmployeeList(string plantId, string companyId)
-        {
-            try
-            {
-                string CmdText = @"SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,DeM.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,SE.UserName Section,EMP.SectionId,SuS.UserName SubSection
-                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
-                                        EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
-                                        EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
-                                        FROM EmployeeInformation EMP
-                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
-                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        left join ORG.Section SE on SE.Id=PR.SectionId
-										LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
-                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
-                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
-                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-                                        LEFT JOIN MST.DesignationMasterLegalDesignation DML ON DML.LegalDesignationId = EMP.LegalDesignationId
-										Left join  MST.DesignationMaster DeM on DeM.Id = DML.DesignationMasterId
-										left join HKP.Designation DeG on DeG.Id=DeM.DesignationId
-                                        WHERE emp.PlantID='" + plantId + @"'  and EMP.CompanyId='" + companyId + @"' and EMP.EmployeeStatus='Active' 
-                                        ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";
-                return _sqlRepository.GetDataCollection(CmdText);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-            }
-        }
-
+       
         public IEnumerable<object> GetEmployeeCbo(string GroupId, string companyId, string plantId)
         {
             try
