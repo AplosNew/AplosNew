@@ -7055,22 +7055,8 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
             }
         }
        
-        public IEnumerable<object> GetEmployeeCbo(string GroupId, string companyId, string plantId)
-        {
-            try
-            {
-                var sql = @"SELECT SystemId AS Value, EmployeeName AS Text FROM EmployeeInformation WHERE GroupID='" + GroupId + @"' AND CompanyId='" + companyId + @"' AND PlantId='" + plantId + @"' AND EmployeeStatus='Active' ORDER BY EmployeeName";
-                return _sqlRepository.GetDataCollection(sql, null);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name,
-                                null, ErrorType.ServiceError, null,
-                                ex.Message, ex.GetType().Name, false, ModuleEnum.Addresse.ToString()));
-            }
-        }
 
+       
         public IWorkbook AttndReport(string companyGroupId, string employeeId, string plantId)
         {
             throw new NotImplementedException();

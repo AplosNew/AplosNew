@@ -1667,6 +1667,19 @@ namespace Aplos.HumanResource
             }
         }
 
+        public IEnumerable<object> GetEmployeeCbo(string GroupId, string companyId, string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT SystemId AS Value, EmployeeName AS Text FROM EmployeeInformation WHERE GroupID='" + GroupId + @"' AND CompanyId='" + companyId + @"' AND PlantId='" + plantId + @"' AND EmployeeStatus='Active' ORDER BY EmployeeName";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
 
         #region  EmployeeOperation

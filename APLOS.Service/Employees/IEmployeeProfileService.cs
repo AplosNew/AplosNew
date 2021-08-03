@@ -39,7 +39,7 @@ namespace Library.Service.Employees
 
         void InsertOrUpdate(EmployeeNomineeInfo entity);
         IEnumerable<ComboModel> GetRelationCbo();
-        
+       
         void UpdateLocalInfo(EmployeeInformation entity, string name);
         object GetLocalLanguageLabel(string plantId);
         IEnumerable<ComboModel> GetTemplateCbo(string plantId, string type);
@@ -53,7 +53,7 @@ namespace Library.Service.Employees
         //IWorkbook EmployeeConfirmationLetterLocal(string companyId, string plantId, string empId, string empType, string tempId);
         IEnumerable<ComboModel> GetCbo(string plantId);
 
-        IEnumerable<object> GetEmployeeCbo(string GroupId, string companyId, string plantId);
+       
 
         IEnumerable<object> GetSectionEmployeeList(string plantId, string companyId, string SectionId);
 
