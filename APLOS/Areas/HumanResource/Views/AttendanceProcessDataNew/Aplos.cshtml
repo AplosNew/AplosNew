@@ -303,13 +303,9 @@
 
 
 <script type="text/template" id="outtime">
-
-    <div class="form-group">
-        <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
-            <input id="Timeeee" type="text" class="form-control input-small" ng-model="data.OutTime"
-                   ng-disabled="data.IsLock==true" style="width:100%">
-        </div>
-    </div>
+       
+    <input style="display:{{data.IsLock==true?'none':'inherit'}};" type="text" ej-timepicker e-value="data.OutTime" e-width="100%" />
+    <span style="display:{{data.IsLock==true?'inherit':'none'}};">{{data.OutTime}}</span>
 
 </script>
 
