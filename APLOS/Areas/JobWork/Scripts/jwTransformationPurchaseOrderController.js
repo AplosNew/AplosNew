@@ -2721,7 +2721,9 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         }
        
         $scope.TransactionAmount = $scope.detailModel.TransactionQty * $scope.detailModel.RatePerUnit;
-        data.TaxAmount = Math.round($scope.TransactionAmount * data.Percentage) / 100;
+        //  data.TaxAmount = Math.round($scope.TransactionAmount * data.Percentage) / 100;
+        var TaxAmt = parseFloat($scope.TransactionAmount * data.Percentage) / 100;
+        data.TaxAmount = TaxAmt.toFixed(2);
     };
     $scope.checkRowValidationServiceOutPut = function (x) {
 
