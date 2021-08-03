@@ -567,5 +567,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/roster-pattern', {
             templateUrl: 'humanresource/RosterPattern/Aplos',
             controller: 'RosterPatternController'
-        });
+        })
+        .when('/emp-job-location', {
+            templateUrl: 'humanresource/EmployeeJobLocation/Aplos',
+            controller: 'EmployeeJobLocationController'
+        })
+        ;
 }

@@ -58,79 +58,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 
 	};
 	//$scope.getdataInventorySales();
-	//#region Index Tab
-	$scope.tab = 1;
-	$scope.tabType = 1;
-
-	$scope.getdataInventorySales($scope.tabType);
-	$scope.setTabFirst = function (newTab) {
-
-		$scope.tab = newTab;
-		$scope.tabType = '1';
-		$scope.getdataInventorySales($scope.tabType);
-
-	};
-	$scope.isSetFirst = function (tabNum) {
-		return $scope.tab === tabNum;
-	};
-
-
-	$scope.setTabSecond = function (newTab) {
-		//debugger;
-		$scope.tabType = '2';
-		$scope.tab = newTab;
-
-		$scope.getdataInventorySales($scope.tabType);
-
-	};
-	$scope.isSetSecond = function (tabNum) {
-		return $scope.tab === tabNum;
-	};
-
-	$scope.setTabThird = function (newTab) {
-		$scope.tab = newTab;
-		$scope.tabType = '3';
-		$scope.getdataInventorySales($scope.tabType);
-	};
-	$scope.isSetThird = function (tabNum) {
-		return $scope.tab === tabNum;
-	};
-
-	$scope.setTabFourth = function (newTab) {
-		$scope.tab = newTab;
-		$scope.tabType = '4';
-		$scope.getdataInventorySales($scope.tabType);
-
-	};
-	$scope.isSetFourth = function (tabNum) {
-		return $scope.tab === tabNum;
-	};
-
-	$scope.setTabFifth = function (newTab) {
-		$scope.tab = newTab;
-		$scope.tabType = '5';
-
-		$scope.getdataInventorySales($scope.tabType);
-
-	};
-	$scope.isSetFifth = function (tabNum) {
-		return $scope.tab === tabNum;
-	};
-
-	$scope.setTabSixth = function (newTab) {
-		$scope.tab = newTab;
-		$scope.tabType = '6';
-		$scope.getdataInventorySales($scope.tabType);
-
-	};
-	$scope.isSetSixth = function (tabNum) {
-		return $scope.tab === tabNum;
-	};
-
-
-
-
-	//#endregion
+	
 
 	$scope.product = {
 		Id: null
@@ -1165,8 +1093,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 			return false;
 		}
 		var UIStatus = $("#SlipAssetIssueUI").val();
-		$scope.productNew.IssueRequestMasterId = $scope.issueId;
-	
+		$scope.productNew.IssueRequestMasterId = $scope.issueId;	
 		$scope.productNew.CustomerId = $scope.productNew.PartyId;
 		if ($scope.Action === "Save") {
 			$http({
@@ -1179,7 +1106,8 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 					, IssueTypeStatus: UIStatus,
 					'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
 					'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
-					'taxCategoryList': $scope.materialtaxCategoryListRes
+					'taxCategoryList': $scope.materialtaxCategoryListRes,
+					'ToCurrencyRate': $scope.productNew.ToCurrencyRate
 				}
 				, dataType: 'JSON'
 			}).then(function (response) {
@@ -1637,6 +1565,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 				, IsSpecific: false
 				, Comments: null
 				, TaxAmount: null
+				, ToCurrencyRate : $scope.productNew.ToCurrencyRate
 			};
 			$scope.clearCharNames();
 			$scope.detailModel.CostCenterId = $scope.CostCenterIdTemp;

@@ -32,8 +32,15 @@
 							@*e-actioncomplete="ScrollForPendingRequisition"*@
                             <div e-columns>
                                 
+                                <div e-column e-headertext="Actions" e-width="80">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Checked/H/R" ng-click="$parent.onClickGatePassChecked('GatePassUnApprovedList');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassUnApprovedList');" style="margin: -6px;"></i></button>
+                                </div>
+                                <div e-column e-template="#ApprovedHoldRejectReason" e-headertext="Hold / Reject Reason" e-width="250" style="height: 20px; padding-top:-15px;"></div>
+                                <div e-column e-template="#ApprovedByStatus" e-headertext="Approved Status" e-width="150"></div>
                                 <div e-column e-field="Id" e-headertext="Ack Number" e-width="80"></div>
-                                <div e-column e-field="PartyName" e-headertext="Vendor Name" e-width="80"></div>
+                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="80"></div>
+                                <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="80"></div>
                                 <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="80"></div>
                                 <div e-column e-field="AcknowledgementDate" e-headertext="AckDate" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                                 <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="80"></div>
@@ -44,12 +51,6 @@
                                 <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="100"></div>
                                 @*<div e-column e-field="ApprovedByStatus" e-headertext="Approved Status" e-width="120"></div>
                                 <div e-column e-field="ApprovedHoldRejectReason" e-headertext="Hold / Reject Reason" e-width="100"></div>*@
-                                <div e-column e-template="#ApprovedHoldRejectReason" e-headertext="Hold / Reject Reason" e-width="250" style="height: 20px; padding-top:-15px;"></div>
-                                <div e-column e-template="#ApprovedByStatus" e-headertext="Approved Status" e-width="150"></div>
-                                <div e-column e-headertext="Actions" e-width="80">
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Checked/H/R" ng-click="$parent.onClickGatePassChecked('GatePassUnApprovedList');" style="margin: -6px;"></i></button>
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassUnApprovedList');" style="margin: -6px;"></i></button>
-                                </div>
                              
 
 
@@ -146,8 +147,16 @@
 						
                             <div e-columns>
 
+                                <div e-column e-headertext="Actions" e-width="80">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Checked/H/R" ng-click="$parent.onClickGatePassChecked('GatePassHoldRejectList');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassHoldRejectList');" style="margin: -6px;"></i></button>
+                                </div>
+                                <div e-column e-template="#ApprovedHoldRejectReason1" e-headertext="Hold / Reject Reason" e-width="250" style="height: 20px; padding-top:-15px;"></div>
+                                <div e-column e-template="#ApprovedByStatus1" e-headertext="Approved Status" e-width="150"></div>
                                 <div e-column e-field="Id" e-headertext="Ack Number" e-width="80"></div>
-                                <div e-column e-field="PartyName" e-headertext="Vendor Name" e-width="80"></div>
+                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="80"></div>
+                                <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="80"></div>
+                                
                                 <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="80"></div>
                                 <div e-column e-field="AcknowledgementDate" e-headertext="AckDate" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                                 <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="80"></div>
@@ -158,14 +167,8 @@
                                 <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="100"></div>
                                 <div e-column e-field="ApprovedByStatus" e-headertext="Approved Status" e-width="120"></div>
                                 <div e-column e-field="ApprovedHoldRejectReason" e-headertext="Hold / Reject Reason" e-width="100"></div>
-                                <div e-column e-template="#ApprovedHoldRejectReason1" e-headertext="Hold / Reject Reason" e-width="250" style="height: 20px; padding-top:-15px;"></div>
-                                <div e-column e-template="#ApprovedByStatus1" e-headertext="Approved Status" e-width="150"></div>
-                                <div e-column e-headertext="Actions" e-width="80">
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Checked/H/R" ng-click="$parent.onClickGatePassChecked('GatePassHoldRejectList');" style="margin: -6px;"></i></button>
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassHoldRejectList');" style="margin: -6px;"></i></button>
-                                </div>
 
-                        
+
 
                             </div>
 
@@ -252,9 +255,12 @@
 							 e-scrollsettings="scroll">
 							@*e-actioncomplete="ScrollForPendingRequisition"*@
                             <div e-columns>
-
+                                <div e-column e-headertext="Actions" e-width="70">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassCheckedList3');" style="margin: -6px;"></i></button>
+                                </div>
                                 <div e-column e-field="Id" e-headertext="Ack Number" e-width="80"></div>
-                                <div e-column e-field="PartyName" e-headertext="Vendor Name" e-width="80"></div>
+                                <div e-column e-field="PartyName" e-headertext="Vendor" e-width="80"></div>
+                                <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="80"></div>
                                 <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="80"></div>
                                 <div e-column e-field="AcknowledgementDate" e-headertext="AckDate" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                                 <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="80"></div>
@@ -266,10 +272,8 @@
                                 <div e-column e-field="ApprovedBy" e-headertext="Approved By" e-width="120"></div>
                                 @*<div e-column e-field="ApprovedHoldRejectReason" e-headertext="Hold / Reject Reason" e-width="100"></div>*@
                                 @*<div e-column e-field="CheckedByEmployee" e-headertext="To be Checked By" e-width="120"></div>
-                                <div e-column e-field="ApprovedByEmployee" e-headertext="To be Approved By" e-width="120"></div>*@
-                                <div e-column e-headertext="Actions" e-width="70">
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassCheckedList3');" style="margin: -6px;"></i></button>
-                                </div>
+        <div e-column e-field="ApprovedByEmployee" e-headertext="To be Approved By" e-width="120"></div>*@
+
                             </div>
 
 						</div>

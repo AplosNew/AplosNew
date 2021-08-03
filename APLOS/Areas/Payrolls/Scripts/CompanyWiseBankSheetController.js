@@ -1,7 +1,7 @@
 ﻿'use strict';
 CompanyWiseBankSheetController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function CompanyWiseBankSheetController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Company Wise Bank Sheet';
+    $rootScope.title = 'Company Wise Payment Sheet';
     $scope.path = 'Payrolls/CompanyWiseBankSheet/';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.GetList = [];
@@ -138,9 +138,29 @@ function CompanyWiseBankSheetController(cboService, commonMessage, $scope, $root
         return kk;
     };
 
+    var aa = function (data, column) {
+        var kk = "";
+        var ok = "OK";
+        var collection = [];
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) === false) {
+                if (kk === "" && ok=="OK") {
+                    kk += "" + data[i][column] + "";
+                    ok = "Done";
+                }
+                else {
+                    kk += ", " + data[i][column] + "";
+                }
+
+                collection.push(data[i][column]);
+            }
+        }
+        return kk;
+    };
+
     $scope.GetReport = function () {
         try {
-            $scope.fileName = "CompanyWiseBankReport.xls";
+            $scope.fileName = "CompanyWisePaymentReport.xls";
             var parameters = [];
             var gridObj = $("#empInfoGrid").data("ejGrid");
             var filteredRecords = gridObj.getFilteredRecords();
@@ -148,8 +168,8 @@ function CompanyWiseBankSheetController(cboService, commonMessage, $scope, $root
                 filteredRecords = $scope.GetList;
             }
 
-            parameters.push({ "Key": "PaymentMode", "Value": getString(filteredRecords, "PaymentMode") });
-            parameters.push({ "Key": "BankId", "Value": getString(filteredRecords, "BankId") });
+            parameters.push({ "Key": "PaymentMode", "Value": aa(filteredRecords, "PaymentMode") });
+            parameters.push({ "Key": "BankId", "Value": aa(filteredRecords, "BankId") });
             parameters.push({ "Key": "PlantId", "Value": getString(filteredRecords, "PlantId") });
             parameters.push({ "Key": "EntityId", "Value": getString(filteredRecords, "EntityId") });
             parameters.push({ "Key": "DepartmentId", "Value": getString(filteredRecords, "DepartmentId") });
