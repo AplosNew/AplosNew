@@ -214,8 +214,8 @@ namespace Library.Accounting.Accounts
         {
             try
             {
-                parameters.CmdText = @"SELECT GLGI.COAId, C.UserName AS COA, GLGI.AccountGroupId, AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
-                                    , BU.BudgetMasterId, BU.BudgetCode, BU.BudgetName,BU.RefNo, A.ActivityId, A.ActivityCode, A.ActivityName
+                parameters.CmdText = @"SELECT distinct GLGI.COAId, C.UserName AS COA, GLGI.AccountGroupId, AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                    , BU.BudgetMasterId, BU.BudgetCode, BU.BudgetName,BU.RefNo, A.ActivityId, A.ActivityCode, A.ActivityName,ACT.Id AccountType
                                     FROM [HKP].[GLGeneralInfo] AS GLGI
                                     LEFT JOIN HKP.[GLCompanyInfo]AS GLCI ON GLCI.GLGeneralInfoId = GLGI.Id
                                     LEFT JOIN HKP.[AccountGroup]  AS AG ON AG.Id = GLGI.AccountGroupId
