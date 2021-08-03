@@ -1,4 +1,5 @@
 ﻿using Aplos.Controllers;
+using Aplos.HumanResource;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -84,9 +85,10 @@ namespace Aplos.Areas.Employees.Controllers
         [HttpGet, Authorize]
         public ActionResult GetEmployeeList()
         {
+            EmployeeProfile employeeProfile = new EmployeeProfile();
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             //return Json(_employeeProfileService.GetEmployeeList(identity.PlantId, identity.CompanyId), JsonRequestBehavior.AllowGet);
-            JsonResult json = Json(_employeeProfileService.GetEmployeeList(identity.PlantId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(employeeProfile.GetEmployeeList(identity.PlantId, identity.CompanyId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }

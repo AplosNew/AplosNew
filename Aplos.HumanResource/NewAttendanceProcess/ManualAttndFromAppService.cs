@@ -492,6 +492,7 @@ namespace Library.HumanResource.NewAttendanceProcess
     public class AttendanceProcessNewProcess : BaseModel
     {
         public string Id { get; set; } = "";
+        public string ManualOt { get; set; } = "";
         public string RowId { get; set; } = "";
         public string AddedBy { get; set; } = "";
         public string DayStatusChange { get; set; } = "";
@@ -507,6 +508,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         public bool IsOD { get; set; } = false;
         public bool IsLock { get; set; } = false;
         public string AttendanceRestDetailId { get; set; } = "";
+        public string EmpSystemID { get; set; } = "";
         public string DayName { get; set; } = "";
         public string DayStatusCode { get; set; } = "";
         public string WorkDate { get; set; } = "";

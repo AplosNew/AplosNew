@@ -223,6 +223,9 @@ namespace OTSBD
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
+
+            string fromdate = new DateTime(YearNo, MonthNo, 1).ToString("dd-MMM-yyyy");
+            string todate = new DateTime(YearNo, MonthNo, DateTime.DaysInMonth(YearNo, MonthNo)).ToString("dd-MMM-yyyy");
             try
             {
                 string xstrSQL = @"SELECT MWESChd.MWESAMasterSystemID, MWESChd.SystemID MWESAChildSystemID, E.SystemID EmpInfoSystemID, E.EmployeeCode, 
@@ -262,8 +265,9 @@ namespace OTSBD
 									, '' ExistAmount,
 		                            CR.AmtEntryCurrency EntryCurrencyID, CrEn.Code EntryCurrency, '0' EntryAmount, CR.AmtDefinitionCurrency 
 		                            DefinitionCurrencyID, CrDe.Code DefinitionCurrency, '0' DefineAmount, CR.AmtDisbusmentCurrency 
-		                            AmtDefinationCurrencyID, '0' AmtDefinationRate, '' Remarks
+		                            AmtDefinationCurrencyID, '0' AmtDefinationRate, '' Remarks,CASE WHEN ISNULL(sl.IsLocked,0)=0 THEN 'False' ELSE 'True' END AS isSalaryLocked
                             FROM dbo.EmployeeInformation E
+                            LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=e.SystemId AND  sl.YearNo=YEAR('" + fromdate + @"') AND sl.MonthNo=MONTH('" + fromdate + @"')
 		                            INNER JOIN dbo.SalaryRuleMaster SR ON E.SalaryRuleMasterSystemID = SR.SystemID
 		                            INNER JOIN dbo.CurrencyRuleChild CR ON SR.CurrencyRuleSystemID = CR.MstSystemID AND CR.SalaryHeadID = '" + strSalaryHdID + @"'
 		                            LEFT JOIN dbo.SalaryHead SD ON CR.SalaryHeadID = SD.SalaryHeadID
@@ -276,8 +280,10 @@ namespace OTSBD
 		                            ---LEFT JOIN SCS.Currency MWESChdCr On MWESChd.EntryCurrencyID = MWESChdCr.ID
 		                            LEFT JOIN SCS.Currency CrEn ON CR.AmtEntryCurrency = CrEn.ID
 		                            LEFT JOIN SCS.Currency CrDe ON CR.AmtDefinitionCurrency = CrDe.ID
-                            WHERE E.PlantID = '" + sEntityID + @"' and E.EmployeeStatus ='Active'
-                                 
+                            WHERE E.PlantID = '" + sEntityID + @"'
+                                   AND E.DOJ <= '" + todate + @"'
+                                            --and E.EmployeeStatus='Active'
+			                              AND (E.DOS >= '" + fromdate + @"' OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901')
                             ORDER BY E.EmployeeCode";
 
 
@@ -476,7 +482,7 @@ namespace OTSBD
                 objCon = null;
             }
         }//End Function
-        public void GetMthWiseExtSalAmtMaster(string plantid,string empids, int YearNo, int MonthNo, out DataSet dsRef)
+        public void GetMthWiseExtSalAmtMaster(string plantid, string empids, int YearNo, int MonthNo, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -484,7 +490,7 @@ namespace OTSBD
             {
                 strSQL = @"SELECT *
                                     FROM MonthWiseExtraSalaryAmtMaster 
-                            WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and plantid='"+plantid+@"' and EmpInfoSystemID in (" + empids + @")";
+                            WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and plantid='" + plantid + @"' and EmpInfoSystemID in (" + empids + @")";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -521,7 +527,7 @@ namespace OTSBD
             }
         }//End Function
 
-        public void GetMthWiseExtSalAmtChild(string plantid,string empids, int YearNo, int MonthNo, string SalaryHeadId, out DataSet dsRef)
+        public void GetMthWiseExtSalAmtChild(string plantid, string empids, int YearNo, int MonthNo, string SalaryHeadId, out DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -576,9 +582,24 @@ namespace OTSBD
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strSQL = @"DELETE FROM MonthWiseExtraSalaryAmtChild 
-                          WHERE SalaryHeadID='" + SalaryHeadId + @"' and MWESAMasterSystemID IN (SELECT SystemID FROM MonthWiseExtraSalaryAmtMaster 
-                          WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" AND PlantID ='" + plantId + @"')";
+//                strSQL = @"DELETE FROM MonthWiseExtraSalaryAmtChild 
+//                          WHERE SalaryHeadID='" + SalaryHeadId + @"' 
+
+//and XXX NOT IN (  SELECT sl.EmpSystemId
+//                        FROM  SalaryLock AS sl where sl.YearNo="+ YearNo + @" AND sl.MonthNo=" + MonthNo + @"
+//                        )
+//and MWESAMasterSystemID IN (SELECT SystemID FROM MonthWiseExtraSalaryAmtMaster 
+//                          WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" AND PlantID ='" + plantId + @"')";
+
+
+
+                strSQL = @"DELETE FROM MonthWiseExtraSalaryAmtChild
+                           FROM MonthWiseExtraSalaryAmtChild C
+                           JOIN MonthWiseExtraSalaryAmtMaster M ON m.SystemID=c.MWESAMasterSystemID
+                           
+                           WHERE m.PlantID='" + plantId + @"' AND M.MonthNo= " + MonthNo + @" AND M.YearNo=" + YearNo + @" 
+                           AND M.EmpInfoSystemID NOT IN (SELECT sl.EmpSystemId
+                        FROM  SalaryLock AS sl where sl.YearNo=" + YearNo + @" AND sl.MonthNo=" + MonthNo + @")";
 
                 strSQL2 = @"DELETE FROM [MonthWiseExtraSalaryAmtMaster] 
                           WHERE SystemID not in (SELECT MWESAMasterSystemID FROM MonthWiseExtraSalaryAmtChild  ) AND PlantID ='" + plantId + @"'";
