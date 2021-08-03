@@ -10,6 +10,18 @@ function EmployeeJobLocationController(cboService, commonMessage, $scope, $rootS
     $scope.saveUrl = $scope.path + 'create';
     baseService.init($scope.getListUrl, null, null, null, 'EmployeeCode', 'EmployeeCode');
 
+    $scope.modal = {
+        EmployeeCode: null,
+        EmpSystemID: null,
+        EmployeeName: null,
+        DOJ: null,
+        DOC: null,
+        DesignationGroup:null,
+        LegalDesignation:null,
+    }
+    $scope.modalNew = Object.assign({}, $scope.modal);
+
+
     $scope.employeeShiftAssign = {
         SystemID: null,
         EmpSystemID: null,
@@ -109,130 +121,73 @@ function EmployeeJobLocationController(cboService, commonMessage, $scope, $rootS
         $scope.employeeWeekOffByDay.EffectiveDate = $scope.employeeShiftAssign.WorkDate;
     };
 
-    $scope.PlantList = [];
-    cboService.getCboPlantByCompany(null, function (result) {
-        $scope.PlantList = result;
-    });
+    $scope.employee = [];
+    $scope.getPopUpData = function () {
+        $scope.employee = [];
+        $http({
+            method: 'GET',
+            url: 'employees/leaveApplication/getemployeelist'
+        }).then(function successCallback(response) {
+            $scope.employee = response.data;
+        });
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
+    }
 
-    $scope.unitList = [];
-    cboService.getCboUnit(function (result) {
-        $scope.unitList = result;
-    });
+    $scope.setEmpData = function (obj) {
+      //  $scope.Clear();
+        var data = obj.data;
+        $scope.modalNew.EmployeeCode = data.EmployeeCode;
+        $scope.modalNew.EmpSystemID = data.SystemID;
+        $scope.modalNew.EmployeeName = data.EmployeeName;
+        $scope.modalNew.DOJ = data.DOJ;
+        $scope.modalNew.DOC = data.DOC;
+        $scope.modalNew.DesignationGroup = data.DesignationGroup;
+        $scope.modalNew.LegalDesignation = data.LegalDesignation;
+        $scope.modalNew.Department = data.Department;
+        $scope.imageSrc = virtualPath.EmployeePic + data.EmpPicPath;
 
-    $scope.divisionList = [];
-    cboService.getCboDivisionByCompany(null, function (result) {
-        $scope.divisionList = result;
-    });
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    };
 
-    $scope.departmentList = [];
-    cboService.getCboDepartmentByCompany(null, function (result) {
-        $scope.departmentList = result;
-    });
 
-    $scope.subSectionList = [];
-    cboService.getCboSubSectionByCompany(null, function (result) {
-        $scope.subSectionList = result;
-    });
+    $scope.JobLocationList = [];
+    $scope.LoadAllJobLocation = function () {
+        $scope.JobLocationList = [];
+        $scope.Flag = "Load All";
+        $scope.PlantId = null;
+        $http.get('employees/EmployeeInformation/GetJobLocationCbo?flag=' + $scope.Flag)
+            .then(function (response) {
+                $scope.JobLocationList = response.data;
+            });
 
-    $scope.employeeCategoryList = [];
-    cboService.getCboEmployeeCategoryGroupByCompanyGroup(null, function (result) {
-        $scope.employeeCategoryList = result;
-    });
+        $scope.Flag = "Load Less";
+    };
 
-    $scope.designationGroupList = [];
-    cboService.getCboDesignationGroupByCompanyGroup(null, function (result) {
-        $scope.designationGroupList = result;
-    });
-
-    $scope.sectionList = [];
-    cboService.getCboSectionByCompany(null, function (result) {
-        $scope.sectionList = result;
-    });
-
-    $scope.lineList = [];
-    cboService.getCboLineByCompany(null, function (result) {
-        $scope.lineList = result;
-    });
-
-    $scope.designationList = [];
-    cboService.getCboDesignationByCompanyGroup(null, function (result) {
-        $scope.designationList = result;
-    });
+    $scope.Flag = "Load Less";
+    $scope.LoadPlantJobLocation = function () {
+        $scope.JobLocationList = [];
+        $scope.PlantId = null;
+        $scope.Flag = "Load Less";
+        $http.get('employees/EmployeeInformation/GetJobLocationCbo?flag=' + $scope.Flag)
+            .then(function (response) {
+                $scope.JobLocationList = response.data;
+            });
+        $scope.Flag = "Load All";
+    };
+    $scope.LoadPlantJobLocation();
 
     $scope.fixedShitList = [];
-    $scope.Shift = function () {
-        cboService.getCboShiftDefinationByPlant($scope.employeeShiftAssign.PlantId, function (result) {
-            $scope.fixedShitList = result;
-        });
-    };
+    $scope.PlantId = null;
+    $scope.GetShiftCbo = function () {
+        $scope.fixedShitList = [];
+        $scope.PlantId = $.grep($scope.JobLocationList, function (item) {
+            return item.SystemID === $scope.employeeNew.JobLocationID;
+        })[0].PlantID;
 
-    $scope.RoasterShift = function () {
-        cboService.getRoasterCboByPlant($scope.employeeShiftAssign.PlantId, function (result) {
-            $scope.roasterShitList = result;
-        });
-    };
-
-    $scope.LoadRoasterShift = function (roasterId) {
-        cboService.getRosterWiseShiftCbo($scope.employeeShiftAssign.PlantId, roasterId, function (result) {
-            $scope.rosterStartShiftList = result;
-        });
-    };
-
-    $scope.ShiftPopUp = function () {
-        $scope.employeeShiftAssign.EffectiveDate = $scope.employeeShiftAssign.WorkDate;
-        angular.element(document.querySelector("#ShiftPopUp")).modal('show');
-    };
-
-    $scope.show = function () {
-        var x = document.getElementById("shift");
-        var y = document.getElementById("shift1");
-        var z = document.getElementById("shift2");
-        var w = document.getElementById("shift3");
-        var v = document.getElementById("shift4");
-        var a = document.getElementById("shift5");
-        if (x.style.display === "none" && y.style.display === "none" && z.style.display === "none"
-            && w.style.display === "none" && v.style.display === "none" && a.style.display === "none") {
-            x.style.display = "block";
-            y.style.display = "block";
-            z.style.display = "block";
-            w.style.display = "block";
-            v.style.display = "block";
-            a.style.display = "block";
-        }
-    };
-    $scope.Hide = function () {
-        var x = document.getElementById("shift");
-        var y = document.getElementById("shift1");
-        var z = document.getElementById("shift2");
-        var w = document.getElementById("shift3");
-        var v = document.getElementById("shift4");
-        var a = document.getElementById("shift5");
-        if (x.style.display === "none" && y.style.display === "none" && z.style.display === "none"
-            && w.style.display === "none" && v.style.display === "none" && a.style.display === "none") {
-            x.style.display = "none";
-        } else {
-            x.style.display = "none";
-            y.style.display = "none";
-            z.style.display = "none";
-            w.style.display = "none";
-            v.style.display = "none";
-            a.style.display = "none";
-        }
-    };
-
-    $scope.ShowShift = function () {
-        var x = document.getElementById("week");
-        if (x.style.display === "none") {
-            x.style.display = "block";
-        }
-    };
-    $scope.HideShift = function () {
-        var x = document.getElementById("week");
-        if (x.style.display === "none") {
-            x.style.display = "none";
-        } else {
-            x.style.display = "none";
-        }
+        $http.get('employees/EmployeeInformation/GetCboShiftDefinationByPlant?plantId=' + $scope.PlantId)
+            .then(function (response) {
+                $scope.fixedShitList = response.data;
+            });
     };
 
     $scope.Save = function () {
