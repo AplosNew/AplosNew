@@ -22,8 +22,7 @@ function OTUpdateConfigurationController(cboService, commonMessage, $scope, $roo
             dataType: 'JSON'
         }).then(function successCallback(response) {          
             $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
-            $scope.GetSequence();
+            ClearFields();           
         });
     }
     $scope.getData();
