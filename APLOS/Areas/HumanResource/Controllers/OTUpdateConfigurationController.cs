@@ -17,7 +17,7 @@ using System.Web.Mvc;
 
 #endregion Using
 
-namespace Aplos.Areas.Farming.Controllers
+namespace Aplos.Areas.HumanResource.Controllers
 {
     public class OTUpdateConfigurationController : BaseController
     {
@@ -40,28 +40,6 @@ namespace Aplos.Areas.Farming.Controllers
             return View();
         }
 
-        [Authorize, HttpGet]
-        public JsonResult GetCbo()
-        {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpPost]
-        public ActionResult Get(string Id)
-        {
-            try
-            {
-                var _master = _sqlRepository.GetDataCollection("select * from OTUpdateConfiguration wher Id = '" + Id + "' ");
-
-                return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-
-        }
 
         [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
@@ -71,7 +49,7 @@ namespace Aplos.Areas.Farming.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
+            string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey ;
 
 
 
@@ -91,16 +69,14 @@ namespace Aplos.Areas.Farming.Controllers
         {
             try
             {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+               
+                con.OpenDataSetThroughAdapter("select * from dbo.OTUpdateConfiguration where GroupID='" +identity.CompanyGroupId + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Code already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same User Name already exists!!!");
-
+                    throw new Exception("Same Company Group already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -112,7 +88,7 @@ namespace Aplos.Areas.Farming.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "CT" + GetPK();
+                    data["Id"] = "OT" + GetPK();
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -136,35 +112,6 @@ namespace Aplos.Areas.Farming.Controllers
             }
         }
 
-        //public ActionResult Delete(string id)
-        //{
-        //    string sql = @"select * from TableName where CostingGroupId = '" + id + "'";
-
-
-        //    try
-        //    {
-
-        //        if (string.IsNullOrEmpty(id))
-        //            throw new Exception("Select entry first");
-
-        //        ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-        //        con.BeginTransaction();
-        //        con.executeQuery("delete from " + TableName + " where id='" + id + "'");
-        //        con.CommitTransaction();
-
-        //        return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-
-        //    }
-
-
-        //}
-
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -180,6 +127,7 @@ namespace Aplos.Areas.Farming.Controllers
                 {
                 }
             }
+            dr["GroupID"] = identity.CompanyGroupId;
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
@@ -201,6 +149,7 @@ namespace Aplos.Areas.Farming.Controllers
                 {
                 }
             }
+            dr["GroupID"] = identity.CompanyGroupId;
             dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;

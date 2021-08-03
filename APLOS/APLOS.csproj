@@ -1759,7 +1759,7 @@
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataEntityWiseNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataManualStatusNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataNewController.js" />
-    <Content Include="Areas\HumanResource\Scripts\OTUpdateConfiguration.js" />
+    <Content Include="Areas\HumanResource\Scripts\OTUpdateConfigurationController.js" />
     <Content Include="Areas\HumanResource\Scripts\DayStatusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAdditionDeductionProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ManualShiftControllerController.js" />

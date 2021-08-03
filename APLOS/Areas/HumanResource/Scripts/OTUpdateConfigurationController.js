@@ -10,7 +10,7 @@ function OTUpdateConfigurationController(cboService, commonMessage, $scope, $roo
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'BackDays', name: "BackDays" }, { value: 'FutureDays', name: "FutureDays" },
+    $scope.searchByList = [{ value: 'BackDays', name: "BackDays" }, { value: 'FutureDays', name: "FutureDays" },
         { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }];
 
 
@@ -71,29 +71,7 @@ function OTUpdateConfigurationController(cboService, commonMessage, $scope, $roo
 
         }
     };
-
-    $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    ClearFields();
-                    $scope.getData();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-        }
-    };
-
+        
     $scope.Clear = function () {
         ClearFields();
         return true;

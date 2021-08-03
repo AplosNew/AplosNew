@@ -562,7 +562,7 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         })
         .when('/ot-update-configuration', {
             templateUrl: 'humanresource/OTUpdateConfiguration/Aplos',
-            controller: ' OTUpdateConfigurationController'
+            controller: 'OTUpdateConfigurationController'
         })
         .when('/roster-pattern', {
             templateUrl: 'humanresource/RosterPattern/Aplos',
