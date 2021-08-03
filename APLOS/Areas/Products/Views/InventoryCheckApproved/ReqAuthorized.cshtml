@@ -69,23 +69,23 @@
 								 e-detailstemplate="detailTemp" @*e-actioncomplete="actionCompleteSelected2"*@
 								 e-detailsdatabound="detailgrid">
 								<div e-columns>
-									<div e-column e-field="RequisitionDate" e-headertext=" Requisition Date" e-width="80"></div>
-									<div e-column e-field="Id" e-headertext="Requisition No" e-width="100"></div>
-									<div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="60"></div>
-									<div e-column e-field="Reason" e-headertext="Reason" e-width="120"></div>
-									<div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="60"></div>
-									<div e-column e-field="TotalAmount" e-headertext="Total Amount" textAlign='Right' e-width="120"></div>
-									<div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="120"></div>
-									@*<div e-column e-field="RequisitionType" e-headertext="Req Type" e-width="100"></div>
-									<div e-column e-field="RequirmentType" e-headertext="Requirment Type" e-width="120"></div>*@
-									<div e-column e-template="#RejectApprovedReason" e-headertext="Hold / Reject Reason" e-width="300" style="height: 20px;"></div>
-									<div e-column e-template="#ApprovedStatus" e-headertext="Approved Status" e-width="180"></div>
-									@*<div e-column e-headertext="" e-commands="commandpoAuth" e-isunbound=true e-textalign="center" e-width="100"></div>*@
-									@* <div e-column e-headertext="" e-commands="commandReqApprint" e-isunbound=true e-textalign="center" e-width="100"></div>*@
 									<div e-column e-headertext="Actions" e-width="80">
 										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved/H/R" ng-click="$parent.onClickPOA('GridPOAPp');" style="margin: -6px;"></i></button>
 										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPOAPp');" style="margin: -6px;"></i></button>
 									</div>
+									<div e-column e-template="#RejectApprovedReason" e-headertext="Hold / Reject Reason" e-width="300" style="height: 20px;"></div>
+									<div e-column e-template="#ApprovedStatus" e-headertext="Approved Status" e-width="180"></div>
+									@*<div e-column e-headertext="" e-commands="commandpoAuth" e-isunbound=true e-textalign="center" e-width="100"></div>*@
+									@* <div e-column e-headertext="" e-commands="commandReqApprint" e-isunbound=true e-textalign="center" e-width="100"></div>*@
+									<div e-column e-field="RequisitionDate" e-headertext=" Requisition Date" e-width="80"></div>
+									<div e-column e-field="Id" e-headertext="Requisition No" e-width="100"></div>
+									<div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="60"></div>
+									<div e-column e-field="TotalAmount" e-headertext="Total Amount" textAlign='Right' e-width="120"></div>
+									<div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="60"></div>
+									<div e-column e-field="Reason" e-headertext="Reason" e-width="120"></div>
+									<div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="120"></div>
+									@*<div e-column e-field="RequisitionType" e-headertext="Req Type" e-width="100"></div>
+									<div e-column e-field="RequirmentType" e-headertext="Requirment Type" e-width="120"></div>*@
 
 									@*<div e-column e-field="CheckedByEmp" e-headertext=" Checked By" e-width="120"></div>
 									<div e-column e-field="AuthorizedByEmp" e-headertext="To be Approved By" e-width="120"></div>
@@ -163,23 +163,23 @@
 								 e-detailstemplate="detailTemp" @*e-actioncomplete="ApprovedReqHRScroll"*@
 								 e-detailsdatabound="detailgrid">
 								<div e-columns>
-									<div e-column e-field="RequisitionDate" e-headertext=" Requisition Date" e-width="80"></div>
-									<div e-column e-field="Id" e-headertext="Requisition No" e-width="100"></div>
-									<div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="60"></div>
-									<div e-column e-field="Reason" e-headertext="Reason" e-width="120"></div>
-									<div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="60"></div>
-									<div e-column e-field="TotalAmount" e-headertext="Total Amount" textAlign='Right' e-width="120"></div>
-									<div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="120"></div>
-									@*<div e-column e-field="RequisitionType" e-headertext="Req Type" e-width="100"></div>
-									<div e-column e-field="RequirmentType" e-headertext="Requirment Type" e-width="120"></div>*@
-									<div e-column e-template="#RejectApprovedReason1" e-headertext="Hold / Reject Reason" e-width="300" style="height: 20px;"></div>
-									<div e-column e-template="#ApprovedStatus3" e-headertext="Approved Status" e-width="180"></div>
-									@*<div e-column e-headertext="" e-commands="commandReqAHRSave" e-isunbound=true e-textalign="center" e-width="100"></div>*@
-									@*  <div e-column e-headertext="" e-commands="commandAReqHRPrint" e-isunbound=true e-textalign="center" e-width="100"></div>*@
 									<div e-column e-headertext="Actions" e-width="80">
 										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Hold/Reject" ng-click="$parent.onClickPOA('GridReqAHR');" style="margin: -6px;"></i></button>
 										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridReqAHR');" style="margin: -6px;"></i></button>
 									</div>
+									<div e-column e-template="#RejectApprovedReason1" e-headertext="Hold / Reject Reason" e-width="300" style="height: 20px;"></div>
+									<div e-column e-template="#ApprovedStatus3" e-headertext="Approved Status" e-width="180"></div>
+									@*<div e-column e-headertext="" e-commands="commandReqAHRSave" e-isunbound=true e-textalign="center" e-width="100"></div>*@
+									@*  <div e-column e-headertext="" e-commands="commandAReqHRPrint" e-isunbound=true e-textalign="center" e-width="100"></div>*@
+									<div e-column e-field="RequisitionDate" e-headertext=" Requisition Date" e-width="80"></div>
+									<div e-column e-field="Id" e-headertext="Requisition No" e-width="100"></div>
+									<div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="60"></div>
+									<div e-column e-field="TotalAmount" e-headertext="Total Amount" textAlign='Right' e-width="120"></div>
+									<div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="60"></div>
+									<div e-column e-field="Reason" e-headertext="Reason" e-width="120"></div>
+									<div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="120"></div>
+									@*<div e-column e-field="RequisitionType" e-headertext="Req Type" e-width="100"></div>
+									<div e-column e-field="RequirmentType" e-headertext="Requirment Type" e-width="120"></div>*@
 
 
 									@*<div e-column e-field="CheckedByEmp" e-headertext=" Checked By" e-width="120"></div>
@@ -230,26 +230,27 @@
 								 e-filtersettings-filterType="excel" e-enabletouch="true" e-recorddoubleclick="recorddoubleclick1"
 								 e-detailstemplate="detailTemp" @*e-actioncomplete="actionCompleteSelected3"*@
 								 e-detailsdatabound="detailgrid">
-								<div e-columns>
-									<div e-column e-field="RequisitionDate" e-headertext="Requisition Date" e-width="60"></div>
-									<div e-column e-field="RequisitionType" e-headertext="Requisition Type" e-width="60"></div>
-									<div e-column e-field="RequirmentType" e-headertext="Requirment Type" e-width="60"></div>
-									<div e-column e-field="Id" e-headertext="Requisition No" e-width="60"></div>
-									<div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="60"></div>
-									<div e-column e-field="Reason" e-headertext="Reason" e-width="120"></div>
-									<div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="60"></div>
-									<div e-column e-field="TotalAmount" e-headertext="Total Amount" textAlign='Right' e-width="60"></div>
-									<div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="120"></div>
-									@*<div e-column e-field="CheckedByEmp" e-headertext="Checked By" e-width="120"></div>*@
-									@*<div e-column e-field="AuthorizedByEmp" e-headertext="Approved By" e-width="120"></div>
-									<div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="120"></div>
-									<div e-column e-field="AuthorizedByStatus" e-headertext="Authorized Status" e-width="130"></div>*@
-									@* <div e-column e-headertext="" e-commands="command" e-isunbound=true e-textalign="center" e-width="100"></div>*@
+                                <div e-columns>
+                                    <div e-column e-headertext="Actions" e-width="30">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO12');" style="margin: -6px;"></i></button>
+                                    </div>
+                                    <div e-column e-field="RequisitionDate" e-headertext="Requisition Date" e-width="60"></div>
+                                    <div e-column e-field="Id" e-headertext="Requisition No" e-width="60"></div>
+                                    <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="60"></div>
+                                    <div e-column e-field="TotalAmount" e-headertext="Total Amount" textAlign='Right' e-width="60"></div>
+                                    <div e-column e-field="RequisitionType" e-headertext="Requisition Type" e-width="60"></div>
+                                    <div e-column e-field="RequirmentType" e-headertext="Requirment Type" e-width="60"></div>
+                                    <div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="60"></div>
+                                    <div e-column e-field="Reason" e-headertext="Reason" e-width="120"></div>
+                                    <div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="120"></div>
+                                    @*<div e-column e-field="CheckedByEmp" e-headertext="Checked By" e-width="120"></div>*@
+                                    @*<div e-column e-field="AuthorizedByEmp" e-headertext="Approved By" e-width="120"></div>
+        <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="120"></div>
+        <div e-column e-field="AuthorizedByStatus" e-headertext="Authorized Status" e-width="130"></div>*@
+                                    @* <div e-column e-headertext="" e-commands="command" e-isunbound=true e-textalign="center" e-width="100"></div>*@
 
-									<div e-column e-headertext="Actions" e-width="30">
-										<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO12');" style="margin: -6px;"></i></button>
-									</div>
-								</div>
+
+                                </div>
 							</div>
 						</div>
 					</div>
