@@ -5247,5 +5247,146 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             }
         }
 
+        // DOCUMENT SAVE
+
+        private string JWPODocumentMap()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(JWPODocumentMap), out sID);
+            return sID;
+        }
+
+        public void InsertPODocMap(PODocumentMap entity, string POId, out string Id)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string sql = "SELECT * FROM [dbo].[JWPODocumentMap] WHERE Id='" + entity.Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out DataSet dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+
+                    dr["Id"] = entity.POId + "-" + JWPODocumentMap();
+                    var createdId = dr["Id"];
+                    dr["POId"] = entity.POId;
+
+                    dr["CompanyGroupId"] = entity.CompanyGroupId;
+
+                    dr["UserFilename"] = entity.UserFilename;
+                    dr["SystemFileName"] = createdId + Path.GetExtension(entity.UserFilename);
+                    dr["Description"] = entity.Description;
+                    dr["Remarks"] = entity.Remarks;
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+                //else
+                //{
+                //    //edit
+                //    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                //    dr.BeginEdit();
+
+                //    dr["FileName"] = data.FileName;
+                //    dr["Description"] = data.Description;
+                //    dr["IssueTransactionId"] = data.IssueTransactionId;
+
+                //    dr["UpdatedBy"] = identity.EmployeeId;
+                //    dr["UpdatedFromIP"] = identity.IPAddress;
+                //    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+                //    dr.EndEdit();
+                //}
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+                Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+        }
+
+        public IEnumerable<object> PODocumentMapData(string POID)
+        {
+            try
+            {
+                var _sql = @"SELECT
+								Id
+							  ,CompanyGroupId
+							  
+							  ,POId
+							  ,UserFilename 
+							  ,SystemFileName
+							  ,Description
+							  ,Remarks
+							  ,AddedBy
+							  ,AddedDate
+							  ,AddedFromIP
+							  ,UpdatedBy
+							  ,UpdatedDate
+							  ,UpdatedFromIP
+						  FROM [TRN].[PODocumentMap] 
+							where POId='" + POID + @"'
+							ORDER BY UserFilename";
+                return _sqlRepository.GetDataCollection(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        public IEnumerable<object> GRNImageDelete(string Id)
+        {
+            try
+            {
+                var _sql = @" Delete from [dbo].[JWPODocumentMap] where Id='" + Id + @"'";
+                return _sqlRepository.GetDataCollection(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        public IEnumerable<object> PODocumentMapDataAll(string POID)
+        {
+            try
+            {
+                var _sql = @"DECLARE @pathval varchar(200)='POPResources/PurchaseOrder'
+							SELECT POId,Remarks,'<a href='''  + @pathval+'/'+SystemFileName + ''' target=''_blank''>'+ UserFilename +'</a>' As UserFilename,Description
+							--stuff(
+							--(
+							--  SELECT '<a href=''' + SystemFileName + ''' target=''_blank''>'+ UserFilename +'</a>'
+							--  FROM [TRN].[GRNDocumentMap] 	 WHERE GRNId = t.GRNId FOR XML path('')
+							--),1,1,' ') UserFilename
+							FROM (select Id,CompanyGroupId	,POId,UserFilename ,SystemFileName,Description,Remarks,AddedBy,AddedDate,AddedFromIP,UpdatedBy,UpdatedDate,UpdatedFromIP 
+							FROM [dbo].[JWPODocumentMap] )t
+							ORDER BY t.UserFilename";
+                return _sqlRepository.GetDataCollection(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
     }
 }

@@ -19,7 +19,6 @@ namespace Library.Service.Productions
         ConnectionManager.clsConnectionManager ConManager;
 
         string TableName = "dbo.ProductionConversionParameter";
-     //   string TableName1 = "dbo.JobWorkReceiptValueAddedChild";
 
         public ProductionConversionParameter()
         {
@@ -81,6 +80,31 @@ namespace Library.Service.Productions
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string sql = @"select Id as Value, UserName as Text from SCS.UnitOfMeasurement order by UserName";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
+        public IEnumerable<object> GetList(string column, string value)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"select cp.*,P.UserName as Process, U.UserName as Unit, Uom.UserName as EntryUnit, OU.UserName as OutputUnit
+                       from dbo.ProductionConversionParameter cp left join HKP.Process P on P.Id=cp.ProcessId
+                       left join SCS.UnitOfMeasurement U on U.Id=cp.UoMId
+                       left join SCS.UnitOfMeasurement Uom on Uom.Id=cp.EntryUoMId
+                       left join SCS.UnitOfMeasurement OU on OU.Id=cp.OutputUoMId
+                       WHERE " + strkey + " order by cp.ItemName ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }

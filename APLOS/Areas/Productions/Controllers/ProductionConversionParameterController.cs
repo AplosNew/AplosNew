@@ -97,27 +97,22 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        [HttpPost, Authorize]
-		public ActionResult GetList(string column, string value, string Type)
-		{
-			string sql = "";
-			string strkey = "1=1";
-			if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-				strkey = column + " like '%" + value + "%'";
+        [Authorize, HttpPost]
+        public JsonResult GetList(string column, string value)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(PCP.GetList(column, value), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-				sql = @"select cp.*,P.UserName as Process, U.UserName as Unit, Uom.UserName as EntryUnit, OU.UserName as OutputUnit
-                       from dbo.ProductionConversionParameter cp left join HKP.Process P on P.Id=cp.ProcessId
-                       left join SCS.UnitOfMeasurement U on U.Id=cp.UoMId
-                       left join SCS.UnitOfMeasurement Uom on Uom.Id=cp.EntryUoMId
-                       left join SCS.UnitOfMeasurement OU on OU.Id=cp.OutputUoMId
-                       WHERE " + strkey + " order by cp.ItemName ";
-
-			return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-		}
-
-		[HttpPost]
+        [HttpPost]
 		public JsonResult Create(Dictionary<string, object> data)
 		{
 			try
