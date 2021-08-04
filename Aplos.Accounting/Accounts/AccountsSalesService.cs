@@ -639,11 +639,14 @@ namespace Library.Accounting.Accounts
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
-		public IEnumerable<object> GetSalesListForInvReveivable(string plantId)
+		public IEnumerable<object> GetSalesListForInvReveivable(string column, string value, string plantId)
 		{
 			try
 			{
-				var sql = @"SELECT top(2000) IVS.Id, REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDate, IVS.CompanyGroupId, IVS.CompanyId, IVS.PlantId, IVS.CustomerId PartyId, IVS.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode, P.Code AS Tracenent
+				string strkey = "1=1";
+				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+					strkey = column + " like '%" + value + "%'";
+				var sql = @"select top 300 * from (SELECT  IVS.Id, REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDate, IVS.CompanyGroupId, IVS.CompanyId, IVS.PlantId, IVS.CustomerId PartyId, IVS.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode, P.Code AS Tracenent
 								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDateNew
 			                    , CP.UserName AS PartyAccountGroupName
 			                    , IVS.EmployeeId, EI.EmployeeCode, EI.EmployeeName
@@ -681,7 +684,59 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN ORG.Entity E ON E.Id=IVS.EntityId
 					LEFT JOIN MST.PaymentTerm PT ON PT.Id=IVS.PaymentTermId
                     WHERE IVS.PlantId='" + plantId + @"' AND ISNULL(IVS.[Status],'')<>'Posting'  
-                    order by IVS.SalesDate desc";
+					) AS TEMP WHERE " + strkey + " order by SalesDate DESC";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
+		public IEnumerable<object> GetSalesListForInvReveivable(string plantId)
+		{
+			try
+			{
+				var sql = @"SELECT  IVS.Id, REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDate, IVS.CompanyGroupId, IVS.CompanyId, IVS.PlantId, IVS.CustomerId PartyId, IVS.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode, P.Code AS Tracenent
+								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDateNew
+			                    , CP.UserName AS PartyAccountGroupName
+			                    , IVS.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+	                           , IVS.MaterialStorageId,MS.UserName MaterialStorage,E.UserName Entity,FORMAT(IVS.DocDate,'dd-MMM-yyyy')DocDate
+								, REPLACE(CONVERT(CHAR(11), IVS.AddedDate, 106),' ','-') AS EntryDate,IVS.Remarks,IVS.DocRefNo
+								, IVS.CurrencyId, CU.Code AS CurrencyCode
+	                            , IVS.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy,  IVS.DeliveryPartyPlantId
+								, DPP.UserName AS DeliveryBy
+	                            , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
+                                , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState
+								, CP.TaxApplicable,CP.IsPaymentTermChangeable,IVS.PaymentTermId,PT.UserName PaymentTerm
+								,REPLACE(CONVERT(CHAR(11), IVS.BaseOnDueDate, 106),' ','-') BaseOnDueDate,IVS.BaseNoOfDays,REPLACE(CONVERT(CHAR(11), IVS.MatureDate, 106),' ','-') MatureDate
+								,[Type]=CASE WHEN IVS.EmployeeId<>'' THEN 'Employee' Else 'Customer' END
+                                ,CO.BaseCurrencyId,IVS.ToCurrencyRate
+                                ,IVS.NoteForAccounts
+                    FROM [TRN].[InventorySales] AS IVS LEFT JOIN [HKP].[Party] AS P ON IVS.CustomerId=P.Id
+                    LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable,C.IsPaymentTermChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                    ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Customer') AS CP ON CP.PartyId=IVS.CustomerId AND CP.PlantId=IVS.PlantId
+                    LEFT JOIN [EmployeeInformation] AS EI ON IVS.EmployeeId=EI.SystemId
+                    LEFT JOIN [SCS].[Currency] AS CU ON IVS.CurrencyId=CU.Id
+                    LEFT JOIN [HKP].[PartyPlant] AS IPP ON IVS.InvoicingPartyPlantId=IPP.Id
+                    LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                    LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                    LEFT JOIN [HKP].[PartyPlant] AS DPP ON IVS.DeliveryPartyPlantId=DPP.Id
+                    LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                    LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                    LEFT JOIN ORG.Company AS CO ON CO.Id=IVS.CompanyId
+                     LEFT JOIN (SELECT A.InventorySalesId, SUM(A.TransactionQty) AS TransactionQty, SUM(ROUND(A.AvgAmount,4)) AS TransactionAmount, SUM(ROUND(A.AvgAmount,0)) AS BaseAmount 
+					 FROM [TRN].[InventorySalesDetail] AS A
+		                        JOIN [TRN].[InventorySales] AS B ON A.InventorySalesId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventorySalesId) AS IRD ON IRD.InventorySalesId=IVS.Id
+                    LEFT JOIN (SELECT A.InventorySalesId, A.TransactionUoMId FROM [TRN].[InventorySalesDetail] AS A JOIN [TRN].[InventorySales] AS B ON A.InventorySalesId=B.Id
+		                        WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventorySalesId, A.TransactionUoMId HAVING COUNT(A.InventorySalesId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventorySalesId=IVS.Id
+                    LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+					LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IVS.MaterialStorageId
+					LEFT JOIN ORG.Entity E ON E.Id=IVS.EntityId
+					LEFT JOIN MST.PaymentTerm PT ON PT.Id=IVS.PaymentTermId
+                    WHERE IVS.PlantId='" + plantId + @"' AND ISNULL(IVS.[Status],'')<>'Posting' 
+					order by IVS.SalesDate DESC";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
