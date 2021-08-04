@@ -17,6 +17,18 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
+using Library.Core;
+using Library.Model.Parties;
+using Library.Security.Core;
+using Library.Service.Helpers;
+using Library.MaterialManagement.Reports;
+using Library.ViewModel.Inventory;
+using Library.ViewModel.Materials;
+using Library.ViewModel.OrderManagements;
+using Newtonsoft.Json;
+using System.Data;
+using System.IO;
+using System.Web.Script.Serialization;
 
 #endregion Using
 
@@ -563,6 +575,153 @@ namespace Aplos.Areas.JobWork.Controllers
             JobWorkCommon.GePurchaseOrderReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderId);
 
             return null;
+
+        }
+        #endregion
+
+        // DOCUMENT ATTACH
+
+        #region Documents Upload
+        [HttpPost, Authorize]
+        public JsonResult PODocCreate(FormCollection form, string POId)
+        {
+            var PODocumentMap = new JavaScriptSerializer().Deserialize<PODocumentMap>(form["PODocumentMap"]);
+
+            var directory = ResourcesPathReader.GetJobWorkPurchaseOrderPath();
+            var path = Path.Combine(directory);
+
+            if (PODocumentMap.UserFilename.IsNotNull())
+            {
+                ResourcesPathReader.IsValidFileExtention(Path.GetExtension(PODocumentMap.UserFilename));
+            }
+
+            var fileId = "";
+            var fileName = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            PODocumentMap.CompanyGroupId = identity.CompanyGroupId;
+
+
+            //_inventoryReveiveService.InsertPODocMap(PODocumentMap, POId, out string Id);
+            JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+            JobWorkCommon.InsertPODocMap(PODocumentMap, POId, out string Id);
+
+            var file = Request.Files["file"];
+
+            if (PODocumentMap.UserFilename.IsNotNull())
+            {
+
+                if (System.IO.File.Exists(path + PODocumentMap.POId))
+                    System.IO.File.Delete(path + Id + Path.GetExtension(PODocumentMap.UserFilename));
+                file.SaveAs(path + Id + Path.GetExtension(PODocumentMap.UserFilename));
+            }
+            return Json(new { PODocumentMap = PODocumentMap, Message = AplosMessage.Insert });
+        }
+
+        public JsonResult PODocumentMapData(string POID)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                return Json(JobWorkCommon.PODocumentMapData(POID), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        //public JsonResult PODocumentMapData(string POID)
+        //{
+        //    try
+        //    {
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //        Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+        //        return Json(obj.PODocumentMapData(POID), JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+
+
+        [Authorize, HttpPost]
+        public ActionResult POImageDelete(string Id)
+        {
+            var fileId = "";
+            var fileName = "";
+            try
+            {
+                //   Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+
+                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+
+                var directory = ResourcesPathReader.GetJobWorkPurchaseOrderPath();
+                var path = Path.Combine(directory);
+                var data = GetFile(Id);
+                if (data.Count > 0)
+                {
+                    if (!string.IsNullOrEmpty(data["Id"].ToString()) &&
+                    !string.IsNullOrEmpty(data["UserFilename"].ToString()))
+                        fileId = data["Id"].ToString();
+                    fileName = data["UserFilename"].ToString();
+                    if (System.IO.File.Exists(path + fileId + Path.GetExtension(fileName)))
+                        System.IO.File.Delete(path + fileId + Path.GetExtension(fileName));
+                }
+                JobWorkCommon.GRNImageDelete(Id);
+                return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
+        public Dictionary<string, object> GetFile(string systemId)
+        {
+            try
+            {
+                var sql = @"Select Id, UserFilename From dbo.JWPODocumentMap Where Id='" + systemId + "'";
+                return _sqlRepository.GetData(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        //[HttpGet, Authorize]
+        //public JsonResult PODocumentMapDataAll(string POID)
+        //{
+        //    try
+        //    {
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //        Library.MaterialManagement.InventoryManagements.PurchaseOrderService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderService();
+        //        return Json(obj.PODocumentMapDataAll(POID), JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+        [HttpGet, Authorize]
+        public JsonResult PODocumentMapDataAll(string POID)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                return Json(JobWorkCommon.PODocumentMapDataAll(POID), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
         }
         #endregion

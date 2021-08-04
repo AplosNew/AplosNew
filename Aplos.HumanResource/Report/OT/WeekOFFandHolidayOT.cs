@@ -4351,9 +4351,9 @@ left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
                                     FROM dbo.EmployeeInformation E                                                
 
 												left join mst.DesignationMaster dml on dml.DesignationId=e.GivenDesignationId
-												inner join (select DesignationMasterId,OverTimePmtPolicyMasterID,IsOTEntitled 
+												inner join (select DesignationMasterId,OverTimePmtPolicyMasterID,IsOTEntitled,PlantId
                                                             from scs.DesignationMasterConfiguration where PlantId in (" + sPlantID + @") and IsOTEntitled=1) dc 
-                                                            on dc.DesignationMasterId=dml.Id
+                                                            on dc.DesignationMasterId=dml.Id and e.PlantId = dc.PlantId
 												left join OverTimePmtPolicyMaster otpm on otpm.ID=dc.OverTimePmtPolicyMasterID and otpm.PlantID in (" + sPlantID + @")
 												left join OverTimePmtPolicyDetails oH on oh.OverTimePmtPolicyID=otpm.ID and oh.OverTimeDayType='Holiday'
 												left join OverTimePmtPolicyDetails oW on ow.OverTimePmtPolicyID=otpm.ID and ow.OverTimeDayType='Week Off'

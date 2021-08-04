@@ -692,57 +692,57 @@
                     </div>
                 </div>
                 @*<div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Time<sup>*</sup></label>
-                        <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
-                            <input id="Time" type="text" class="form-control input-small" ng-model="productNew.Time" style="margin-left:-36px; width:220px" tabindex="3">
-                            <span class="input-group-addon" style="float:left; width:37px"><i class="glyphicon glyphicon-time"></i></span>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Time<sup>*</sup></label>
+                            <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
+                                <input id="Time" type="text" class="form-control input-small" ng-model="productNew.Time" style="margin-left:-36px; width:220px" tabindex="3">
+                                <span class="input-group-addon" style="float:left; width:37px"><i class="glyphicon glyphicon-time"></i></span>
+                            </div>
                         </div>
-                    </div>
-                </div>*@
+                    </div>*@
                 @*<div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Process Start Date<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="Process Start Date" ng-model="productNew.ProcessStartDate" datepicker class="form-control" required tabindex="2">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Process Start Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Process Start Date" ng-model="productNew.ProcessStartDate" datepicker class="form-control" required tabindex="2">
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Process End Date<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="Process End Date" ng-model="productNew.ProcessEndDate" ng-change="ValidateProcessEndDate();" datepicker class="form-control" required tabindex="2">
+                    <div class="col-xs-4 col-sm-4 col-md-4">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Process End Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Process End Date" ng-model="productNew.ProcessEndDate" ng-change="ValidateProcessEndDate();" datepicker class="form-control" required tabindex="2">
+                            </div>
                         </div>
-                    </div>
-                </div>*@
+                    </div>*@
             </div>
             <div class="row">
 
                 @*<div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Contract Closing Date<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="Contract Closing Date" ng-model="productNew.ContractClosingDate" datepicker class="form-control" required tabindex="2">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Contract Status<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="productNew.ContractStatus" name="Contract Status"
-                                        required tabindex="5">
-                                    <option value=""></option>
-                                    <option value="Active">Active</option>
-                                    <option value="Pending">Pending</option>
-                                    <option value="Closed">Closed</option>
-                                </select>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Contract Closing Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Contract Closing Date" ng-model="productNew.ContractClosingDate" datepicker class="form-control" required tabindex="2">
                             </div>
                         </div>
                     </div>
-                </div>*@
+                    <div class="col-xs-4 col-sm-4 col-md-4">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Contract Status<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="productNew.ContractStatus" name="Contract Status"
+                                            required tabindex="5">
+                                        <option value=""></option>
+                                        <option value="Active">Active</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Closed">Closed</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
             </div>
 
             <div class="row">
@@ -852,8 +852,8 @@
 
                                 @*<th>UOM</th>*@
                                 @*<th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-        <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-        <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
+                                    <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                    <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
                                 <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                 <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TotalAmount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                 <th>Rejection</th>
@@ -903,7 +903,7 @@
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.JWTaxAmount" ng-disabled="true"></td>*@ @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
-        <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
+                                    <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
                                 @*<td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number}}</td>*@
 
@@ -1004,8 +1004,8 @@
 
                                 @*<th>UOM</th>*@
                                 @*<th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-        <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-        <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
+                                    <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                    <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
                                 <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                 <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TotalAmount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                 <th style="width:500px;">Description</th>
@@ -1044,7 +1044,7 @@
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.JWTaxAmount" ng-disabled="true"></td>*@ @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
-        <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
+                                    <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
                                 @*<td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number}}</td>*@
                                 <td>
@@ -1200,7 +1200,7 @@
                         <div class="col-sm-3">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
-                                <input type="text" id="Remarks" ng-model="productDocMap.Remarks" name="Remarks" class="form-control" />
+                                <input type="text" ng-model="productDocMap.Remarks" name="Remarks" class="form-control" />
                             </div>
                         </div>
                         <div class="col-sm-1" style="margin-left: -2%;">
@@ -1229,17 +1229,25 @@
                             </tr>
                         </thead>
                         <tbody>
+
                             <tr ng-repeat="x in Imagedata">
                                 <td ng-hide="true">{{x.Id}}</td>
                                 <td ng-hide="true">{{x.POId}}</td>
-                                <td>{{x.UserFilename}}</td>
+                                <td>
+                                    <a href="{{PurchaseOrderFileLocation+'/'+x.SystemFileName}}" target="_blank">
+                                        <span style="color:red;padding:4px;">  </span>
+                                        <span style="color:blue;">
+                                            {{x.UserFilename}}
+                                        </span>
+                                    </a>
+                                </td>
                                 @*<td>{{x.ServiceMasterName}}</td>*@
                                 <td>{{x.Description}}</td>
                                 <td>{{x.Remarks}}</td>
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
-                                        @*<li><button ng-click="getServiceTaxList(x, false,x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>*@
-                                        <li><button ng-click="DeletePOIgame(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                        <li><button ng-click="getViewImage(x, false,x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="View Image"><i class="glyphicon glyphicon-search"></i></button></li>
+                                        <li><button ng-click="removePopUpForDoc(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                     </ul>
                                 </td>
                             </tr>
@@ -1324,7 +1332,7 @@
             <div class="modal-body form-elements form-horizontal">
                 <div class="row" ng-form name="ByProdcutMaterialForm">
 
-					<input type="hidden" ng-model="ModelNewByProdcuct.Id">
+                    <input type="hidden" ng-model="ModelNewByProdcuct.Id">
                     <div ng-form name="GeneralForm">
                         <input type="hidden" ng-model="detailModel.Id">
                         <div class="col-sm-12 col-md-4 col-lg-4 " style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
@@ -1648,13 +1656,13 @@
                         </div>
 
                         @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-            <div class="form-group">
-                <label class="control-label">Remarks</label>
-                <div>
-                    <textarea type="text" ng-model="detailModel.Remarks" class="form-control" tabindex="16" maxlength="250"></textarea>
-                </div>
-            </div>
-        </div>*@
+                                <div class="form-group">
+                                    <label class="control-label">Remarks</label>
+                                    <div>
+                                        <textarea type="text" ng-model="detailModel.Remarks" class="form-control" tabindex="16" maxlength="250"></textarea>
+                                    </div>
+                                </div>
+                            </div>*@
                         @*<div class="clearfix"></div>*@
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group">
@@ -1684,11 +1692,11 @@
                         </div>
                         <div class="clearfix"></div>
                         @*<div class="common-btn">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="SaveMatPlanning()" ng-disabled="Transformation.Id==null" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></button></li>
-                <li> <button ng-click="detailClear()" class="btn" tabindex="7"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            </ul>
-        </div>*@
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="SaveMatPlanning()" ng-disabled="Transformation.Id==null" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></button></li>
+                                    <li> <button ng-click="detailClear()" class="btn" tabindex="7"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                </ul>
+                            </div>*@
                     </div>
                 </div>
 
@@ -4014,6 +4022,7 @@
 
 <confirm-archive-generic modalid="DelByProductTabPopUp" title="Confirmation" message="Are you sure want to Delete this file?" data-ng-click-right-button="DelByProduct();"></confirm-archive-generic>
 <confirm-archive-generic modalid="DelMaterialInputChildTabPopUp" title="Confirmation" message="Are you sure want to Delete this file?" data-ng-click-right-button="DelMaterialInput();"></confirm-archive-generic>
+<confirm-archive-generic modalid="removePopUpForDoc" title="Confirmation" message={{message}} data-ng-click-right-button="DeletePOIgame();"></confirm-archive-generic>
 
 
 

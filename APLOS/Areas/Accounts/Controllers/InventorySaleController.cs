@@ -39,12 +39,11 @@ namespace Aplos.Areas.Accounts.Controllers
             return View();
         }
 
-        [Authorize, HttpGet]
-        public JsonResult GetListForInvReceivable()
+        [Authorize, HttpPost]
+        public JsonResult GetListForInvReceivable(string column, string value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            return Json(_accountsSalesService.GetSalesListForInvReveivable(identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(_accountsSalesService.GetSalesListForInvReveivable(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialReceivableList(GridParameter parameters, string inveReveiveId)
