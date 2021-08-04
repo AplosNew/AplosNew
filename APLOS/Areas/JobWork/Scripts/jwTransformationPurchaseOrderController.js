@@ -1792,15 +1792,21 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                     $scope.detailModel.MaterialMasterId = $scope.GetMatMstJW[0].Id;
                     $scope.detailModel.MaterialName = $scope.GetMatMstJW[0].Material;
                     $scope.detailModel.MaterialCode = $scope.GetMatMstJW[0].Code;
-                    $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].UnitId;
-                    $scope.detailModel.AlternateUoM = $scope.GetMatMstJW[0].AlternateUoM;
+                      $scope.OMatUOMList = [];
+                        for (var i = 0; i < $scope.GetMatMstJW.length; i++) {
+                            if (!baseService.isUndefinedOrNull($scope.GetMatMstJW[i].Value)) {
+                                $scope.OMatUOMList[i] = $scope.GetMatMstJW[i];
+                                $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].Value;
+                                
+                            }
+                    }
                 }
                 else {
                     $scope.detailModel.MaterialMasterId = null;
                     $scope.detailModel.MaterialName = null;
                     $scope.detailModel.MaterialCode = null;
                     $scope.detailModel.AlternateUoM = null;
-                    $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].UnitId;
+                    $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].Value;
                  
                 }
                 
