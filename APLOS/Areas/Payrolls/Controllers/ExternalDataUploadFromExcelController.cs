@@ -71,21 +71,25 @@ namespace Aplos.Areas.Payrolls.Controllers
 
             if (string.IsNullOrEmpty(SalaryHeadId) || SalaryHeadId == "null" || SalaryHeadId == "undefined")
             {
-                Sql = @"SELECT EI.SystemId EmpSystemId,EI.EmployeeCode,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.* from dbo.MonthWiseExtraSalaryAmtChild d
+                Sql = @"SELECT EI.SystemId EmpSystemId,EI.PlantId,PLN.UserName AS PlantName,sl.isLocked,EI.EmployeeCode,FORMAT(EI.DOJ,'dd-MMM-yyyy') AS DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy') AS DOS,EI.EmployeeStatus,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.* from dbo.MonthWiseExtraSalaryAmtChild d
                         LEFT JOIN dbo.MonthWiseExtraSalaryAmtMaster m on m.SystemID=d.MWESAMasterSystemID
                         Left join EmployeeInformation EI on EI.SystemId=m.EmpInfoSystemID
+                        LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=ei.SystemId AND  sl.YearNo=" + YearNo + @" AND sl.MonthNo=" + MonthNo + @"
                         LEFT JOIN SalaryHead sh on sh.SalaryHeadID=d.SalaryHeadID
                         LEFT JOIN  SCS.Currency c on c.id=d.EntryCurrencyID
+                        left join org.Plant PLN ON PLN.Id=EI.PlantId
                         WHERE m.monthNo=" + MonthNo + @" and m.YearNo=" + YearNo + @" and m.PlantID='" + identity.PlantId + @"' and d.ExtDataUploadApp='XL'
                         ORDER BY EI.EmployeeCodePreFix,EI.EmployeeCodeNumeric ";
             }
             else
             {
-                Sql = @"SELECT EI.SystemId EmpSystemId,EI.EmployeeCode,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.* from dbo.MonthWiseExtraSalaryAmtChild d
+                Sql = @"SELECT EI.SystemId EmpSystemId,EI.PlantId,PLN.UserName AS PlantName,sl.isLocked,EI.EmployeeCode,FORMAT(EI.DOJ,'dd-MMM-yyyy') AS DOJ,FORMAT(EI.DOS,'dd-MMM-yyyy') AS DOS,EI.EmployeeStatus,EI.EmployeeName, sh.SalaryHead,sh.HeadType,c.Name Currency, d.* from dbo.MonthWiseExtraSalaryAmtChild d
                         LEFT JOIN dbo.MonthWiseExtraSalaryAmtMaster m on m.SystemID=d.MWESAMasterSystemID
                         Left join EmployeeInformation EI on EI.SystemId=m.EmpInfoSystemID
+                        LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=ei.SystemId AND  sl.YearNo=" + YearNo + @" AND sl.MonthNo=" + MonthNo + @"
                         LEFT JOIN SalaryHead sh on sh.SalaryHeadID=d.SalaryHeadID
                         LEFT JOIN  SCS.Currency c on c.id=d.EntryCurrencyID
+                        left join org.Plant PLN ON PLN.Id=EI.PlantId
                         WHERE m.monthNo=" + MonthNo + @" and m.YearNo=" + YearNo + @" and m.PlantID='" + identity.PlantId + @"'
                         and d.SalaryHeadID='" + SalaryHeadId + @"' and d.ExtDataUploadApp='XL'
                         ORDER BY EI.EmployeeCodePreFix,EI.EmployeeCodeNumeric ";
@@ -274,7 +278,12 @@ namespace Aplos.Areas.Payrolls.Controllers
                                             vm.MWESAMasterSystemID = dvEmpInfo[0]["MWESAMasterSystemID"].ToString().Trim();
                                             vm.MWESAChildSystemID = dvEmpInfo[0]["MWESAChildSystemID"].ToString().Trim();
                                             vm.EmpInfoSystemID = dvEmpInfo[0]["EmpInfoSystemID"].ToString().Trim();
+                                            vm.PlantId = dvEmpInfo[0]["PlantId"].ToString().Trim();
+                                            vm.PlantName = dvEmpInfo[0]["PlantName"].ToString().Trim();
                                             vm.EmployeeCode = dvEmpInfo[0]["EmployeeCode"].ToString().Trim();
+                                            vm.DOJ = dvEmpInfo[0]["DOJ"].ToString().Trim();
+                                            vm.DOS = dvEmpInfo[0]["DOS"].ToString().Trim();
+                                            vm.EmployeeStatus = dvEmpInfo[0]["EmployeeStatus"].ToString().Trim();
                                             vm.EmployeeName = dvEmpInfo[0]["EmployeeName"].ToString().Trim();
                                             vm.CurrencyRuleSystemID = dvEmpInfo[0]["CurrencyRuleSystemID"].ToString().Trim();
                                             vm.SalaryHeadID = dvEmpInfo[0]["SalaryHeadID"].ToString().Trim();
@@ -318,7 +327,12 @@ namespace Aplos.Areas.Payrolls.Controllers
                                             vm.MWESAMasterSystemID = dvEmpInfo[0]["MWESAMasterSystemID"].ToString().Trim();
                                             vm.MWESAChildSystemID = dvEmpInfo[0]["MWESAChildSystemID"].ToString().Trim();
                                             vm.EmpInfoSystemID = dvEmpInfo[0]["EmpInfoSystemID"].ToString().Trim();
+                                            vm.PlantId = dvEmpInfo[0]["PlantId"].ToString().Trim();
+                                            vm.PlantName = dvEmpInfo[0]["PlantName"].ToString().Trim();
                                             vm.EmployeeCode = dvEmpInfo[0]["EmployeeCode"].ToString().Trim();
+                                            vm.DOJ = dvEmpInfo[0]["DOJ"].ToString().Trim();
+                                            vm.DOS = dvEmpInfo[0]["DOS"].ToString().Trim();
+                                            vm.EmployeeStatus = dvEmpInfo[0]["EmployeeStatus"].ToString().Trim();
                                             vm.EmployeeName = dvEmpInfo[0]["EmployeeName"].ToString().Trim();
                                             vm.CurrencyRuleSystemID = dvEmpInfo[0]["CurrencyRuleSystemID"].ToString().Trim();
                                             vm.SalaryHeadID = dvEmpInfo[0]["SalaryHeadID"].ToString().Trim();

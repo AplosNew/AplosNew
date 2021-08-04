@@ -971,7 +971,7 @@ namespace Library.HumanResource.Report.OT
                 xlsCol = 1;
 
                 #region Column Variables
-                int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
+                int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, ColPlantName = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0, colBank = 0, colBankAccountNo = 0
                    , ColLWP = 0, cDMP = 0, ColExtraAbsent = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colBasic=0, colGross = 0, colCTC = 0;
                 int npstruct = 0;
@@ -982,6 +982,7 @@ namespace Library.HumanResource.Report.OT
                 SetCellValue("Sr. No.", sheet1, xlsRow, ref xlsCol, out ColSr);
                 SetCellValue("ID No.", sheet1, xlsRow, ref xlsCol, out ColIDNo, 12);
                 SetCellValue("Name", sheet1, xlsRow, ref xlsCol, out ColName, 17);
+                SetCellValue("Plant Name", sheet1, xlsRow, ref xlsCol, out ColPlantName, 17);
                 SetCellValue("DOJ", sheet1, xlsRow, ref xlsCol, out ColDOJ, 12);
                 SetCellValue("DOS", sheet1, xlsRow, ref xlsCol, out ColDOS, 12);
                 SetCellValue("EmployeeCurrentStatus", sheet1, xlsRow, ref xlsCol, out colEmpCurrentStat, 12);
@@ -1287,6 +1288,12 @@ namespace Library.HumanResource.Report.OT
                             sheet1.Range[xlsRow, ColName].Text = dtEmployees.Rows[i]["EmployeeName"].ToString();
                         sheet1.Range[xlsRow, ColName].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, ColName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                        if (string.IsNullOrEmpty(dtEmployees.Rows[i]["PlantName"].ToString()) == false)
+                            sheet1.Range[xlsRow, ColPlantName].Text = dtEmployees.Rows[i]["PlantName"].ToString();
+                        sheet1.Range[xlsRow, ColPlantName].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, ColPlantName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                         //4
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["DOJ"].ToString()) == false)
                             sheet1.Range[xlsRow, ColDOJ].Text = dtEmployees.Rows[i]["DOJ"].ToString();
@@ -3276,51 +3283,51 @@ namespace Library.HumanResource.Report.OT
                     #region deduction
                     if (dtSalaryHead.Rows[ci]["HeadType"].ToString().ToUpper() == "E" && dtSalaryHead.Rows[ci]["HeadCategory"].ToString().ToUpper() == "Net Payable".ToUpper())
                     {
-                        
-                            _total_head_count++;
-                            countDeductionPosition++;
 
-                            sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].Text = dtSalaryHead.Rows[ci]["SalaryHead"].ToString();
-                            sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].CellStyle.Font.Size = 10;
-                            sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].CellStyle.Font.FontName = "Arial Narrow";
-                            //sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition, xlsRow + 1, ColGrs + countDeductionPosition + 1].Merge();
-                            sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].CellStyle.ShrinkToFit = true;
+                        _total_head_count++;
+                        countDeductionPosition++;
 
-
-                            if (dtSalaryHead.Rows[ci]["Sequence"].ToString() == "99")
-                            {
-                                sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].CellStyle.Font.Color = ExcelKnownColors.Red;
-                            }
-                            xlsCol += 2;
-                            SalaryHeadSequence salaryHeadSequence = new SalaryHeadSequence();
-                            salaryHeadSequence.XLColIndex = ColGrs + countDeductionPosition;
-                            if (deductionFormula.Length == 0)
-                            {
-                                deductionFormula += salaryHeadSequence.XLColIndex.ToString();
-                            }
-                            else
-                            {
-                                deductionFormula += "," + salaryHeadSequence.XLColIndex.ToString();
-                            }
-
-                            //countDeductionPosition++;
-
-                            salaryHeadSequence.IsInt = bplib.clsWebLib.GetBoolData(dtSalaryHead.Rows[ci]["IntegerInDisb"].ToString());
-                            salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
-                            salaryHeadSequence.SalaryHead = dtSalaryHead.Rows[ci]["SalaryHead"].ToString();
-                            salaryHeadSequence.SalaryHeadId = dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString();
-                            salaryHeadSequence.HeadType = dtSalaryHead.Rows[ci]["HeadType"].ToString();
-
-                            salaryHeadSequence.Sequence = ci;
-                            salaryHeadSequence.XLColIndex = ColGrs + countDeductionPosition;
-
-                            salaryHeadSequence.HeadCategory = dtSalaryHead.Rows[ci]["HeadCategory"].ToString();
+                        sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].Text = dtSalaryHead.Rows[ci]["SalaryHead"].ToString();
+                        sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].CellStyle.Font.Size = 10;
+                        sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].CellStyle.Font.FontName = "Arial Narrow";
+                        //sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition, xlsRow + 1, ColGrs + countDeductionPosition + 1].Merge();
+                        sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].CellStyle.ShrinkToFit = true;
 
 
-                            list.Add(dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString(), salaryHeadSequence);
+                        if (dtSalaryHead.Rows[ci]["Sequence"].ToString() == "99")
+                        {
+                            sheet1.Range[xlsRow + 1, ColGrs + countDeductionPosition].CellStyle.Font.Color = ExcelKnownColors.Red;
+                        }
+                        xlsCol += 2;
+                        SalaryHeadSequence salaryHeadSequence = new SalaryHeadSequence();
+                        salaryHeadSequence.XLColIndex = ColGrs + countDeductionPosition;
+                        if (deductionFormula.Length == 0)
+                        {
+                            deductionFormula += salaryHeadSequence.XLColIndex.ToString();
+                        }
+                        else
+                        {
+                            deductionFormula += "," + salaryHeadSequence.XLColIndex.ToString();
+                        }
 
-                            _count_deducting_head++;
-                        
+                        //countDeductionPosition++;
+
+                        salaryHeadSequence.IsInt = bplib.clsWebLib.GetBoolData(dtSalaryHead.Rows[ci]["IntegerInDisb"].ToString());
+                        salaryHeadSequence.DecimalNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(dtSalaryHead.Rows[ci]["DecimalNo"].ToString()));
+                        salaryHeadSequence.SalaryHead = dtSalaryHead.Rows[ci]["SalaryHead"].ToString();
+                        salaryHeadSequence.SalaryHeadId = dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString();
+                        salaryHeadSequence.HeadType = dtSalaryHead.Rows[ci]["HeadType"].ToString();
+
+                        salaryHeadSequence.Sequence = ci;
+                        salaryHeadSequence.XLColIndex = ColGrs + countDeductionPosition;
+
+                        salaryHeadSequence.HeadCategory = dtSalaryHead.Rows[ci]["HeadCategory"].ToString();
+
+
+                        list.Add(dtSalaryHead.Rows[ci]["SalaryHeadID"].ToString(), salaryHeadSequence);
+
+                        _count_deducting_head++;
+
                         //}//CTC/Gross
                     }//SalaryHead 
                     #endregion
@@ -3442,11 +3449,11 @@ namespace Library.HumanResource.Report.OT
                                          LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EEI.SalaryRuleMasterSystemID
 
                                         LEFT JOIN SalaryRuleGeneral SRG ON SRG.SalaryRuleMasterSystemID = SRM.SystemID  AND SRG.SalaryHeadID = EmpSlr.SalaryHeadID
-                                        LEFT JOIN(SELECT* FROM [MST].[PlantSalaryHeadSequence] WHERE PlantId in (" + plantId + @")) PSH
+                                        LEFT JOIN(SELECT* FROM dbo.SalaryHead) PSH
                                                                        ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
                                         LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = EmpSlr.SalaryHeadID
 
-                                                WHERE EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId in (" + plantId + @")";
+                                                WHERE EEI.GroupID = '" + companyGroupId + @"' AND EEI.CompanyId = '" + companyId + @"'";
 
                 try
                 {
@@ -4335,7 +4342,7 @@ left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
             try
             {
                 strSQL = @"
-                                        SELECT e.SystemId,E.EmployeeCode,e.GivenDesignationId,dc.IsOTEntitled
+                                        SELECT distinct e.SystemId,E.EmployeeCode,e.GivenDesignationId,dc.IsOTEntitled
 											,onw.FormulaDesID FormulaDesIDN,onw.IsFixed IsFixedN,onw.IsFormula IsFormulaN,onw.FixedValue FixedValueN
 											,ow.FormulaDesID FormulaDesIDW,ow.IsFixed IsFixedW,ow.IsFormula IsFormulaW,ow.FixedValue FixedValueW
 											,oh.FormulaDesID FormulaDesIDH,oh.IsFixed IsFixedH,oh.IsFormula IsFormulaH,oh.FixedValue FixedValueH
