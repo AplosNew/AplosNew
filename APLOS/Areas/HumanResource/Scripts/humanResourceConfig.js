@@ -564,5 +564,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/RosterPattern/Aplos',
             controller: 'RosterPatternController'
         })
+            .when('/new-attdn-dashboard', {
+                templateUrl: 'humanresource/NewAttendanceDashboard/Aplos',
+                controller: 'NewAttendanceDashboardController'
+        })
         ;
 }

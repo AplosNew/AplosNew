@@ -155,11 +155,14 @@ function RosterPatternController(commonMessage, $scope, $rootScope, baseService,
                 Id: null,
                 RPHeaderId: null,
                 ShiftSequence: 0,
+                Days31: null,
+                Days30: null,
+                Days29: null,
+                Days28: null,
                 ShiftDefinitionID: null,
                 ShiftName: null,
             }
 
-            $scope.Sequences++;
             obj.RPHeaderId = $scope.Header.Id;
             obj.ShiftSequence = $scope.Sequences;
             obj.ShiftDefinitionID = e.data.ShiftDefinationID;
@@ -196,6 +199,10 @@ function RosterPatternController(commonMessage, $scope, $rootScope, baseService,
             Id: null,
             RPHeaderId: null,
             ShiftSequence: 0,
+            Days31: null,
+            Days30: null,
+            Days29: null,
+            Days28: null,
             ShiftDefinitionID: null,
             ShiftName : null,
         }
