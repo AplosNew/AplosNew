@@ -227,10 +227,10 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             $scope.CurrencyyyList = response.data;
             if ($scope.CurrencyyyList.length > 0) {
                 $scope.detailModel.CurrencyId = $scope.CurrencyyyList[0].Value;
-                if (!baseService.isUndefinedOrNull($scope.CurrencyyyList[0].StdRejection)) {
-                    $scope.detailModel.Rejection = $scope.CurrencyyyList[0].StdRejection;
-                    $scope.detailModel.ValueLoss = $scope.CurrencyyyList[0].StdValueLoss;
-                }
+                //if (!baseService.isUndefinedOrNull($scope.CurrencyyyList[0].StdRejection)) {
+                //    $scope.detailModel.Rejection = $scope.CurrencyyyList[0].StdRejection;
+                //    $scope.detailModel.ValueLoss = $scope.CurrencyyyList[0].StdValueLoss;
+                //}
             }
         });
     }
@@ -1820,9 +1820,10 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             $scope.GetJWActivityListByPOType();
             $scope.GetJWItemsToEdit();         
             $scope.GetJWitemDataFromTrans();
-            $scope.GetRate();
+            //$scope.GetRate();
             $scope.GetCurrencyyy();
             $scope.GetJWLocation();
+            $scope.productNew.TaxOptionServiceTPO = "Yes";
        //   $scope.detailModel.ServiceId = $scope.detailModel.ServiceId;
             //$scope.detailModel.ValueLoss = $scope.detailModel.ValueLoss;
 
@@ -4239,10 +4240,33 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.GetAmount = function () {
         if (!baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) && !baseService.isUndefinedOrNull($scope.detailModel.RatePerUnit)) {
             var Amt = parseFloat($scope.detailModel.TransactionQty) * parseFloat($scope.detailModel.RatePerUnit)
-            //var RoundRes = Math.round(Amt * 10000) / 10000;
-            //$scope.detailModel.TransactionAmount = parseFloat(RoundRes);
             var TAmt = Amt.toFixed(2);
             $scope.detailModel.TransactionAmount = TAmt;
+            if ($scope.productNew.TaxOptionServiceTPO == "Yes") {
+                if ($scope.taxCategoryList.length > 0) {
+                    for (var i = 0; i < $scope.taxCategoryList.length; i++) {
+                        if (baseService.isUndefinedOrNull($scope.taxCategoryList[i].Percentage)) {
+                            $scope.taxCategoryList[i].Percentage = 0;           
+                        }
+                        $scope.TransactionAmount = $scope.detailModel.TransactionQty * $scope.detailModel.RatePerUnit;
+                        var TaxAmt = parseFloat($scope.TransactionAmount * $scope.taxCategoryList[i].Percentage) / 100;
+                        $scope.taxCategoryList[i].TaxAmount = TaxAmt.toFixed(2);
+                    }
+                }
+            }
+            if ($scope.productNew.TaxOptionServiceTPO == "No") {
+                if ($scope.taxCategoryList.length > 0) {
+                    for (var i = 0; i < $scope.taxCategoryList.length; i++) {
+                        //if (baseService.isUndefinedOrNull($scope.taxCategoryList[0].Percentage)) {
+                        //    $scope.taxCategoryList[0].Percentage = 0;
+                        //}
+                        $scope.TransactionAmount = $scope.detailModel.TransactionQty * $scope.detailModel.RatePerUnit;
+                        var Per = (parseFloat($scope.taxCategoryList[i].TaxAmount / $scope.TransactionAmount) * 100);
+                        $scope.taxCategoryList[i].Percentage = Per.toFixed(4);
+                    }
+                }
+            }
+
         }
     }
 
