@@ -591,8 +591,8 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 		var tAmount = baseService.isUndefinedOrNull(data.TotalAmount) ? 0 : parseFloat(data.TotalAmount);
 		
 		for (var i = 0; i < baseService.arrayLength($scope.materialtaxCategoryList); i++) {
-			$scope.materialtaxCategoryList[i].TaxAmount = ((parseFloat($scope.materialtaxCategoryList[i].Percentage) * tAmount) / 100).toFixed($rootScope.currencyPrecision);
-			data.TaxAmount = (parseFloat(data.TotalTaxAmount) + parseFloat($scope.materialtaxCategoryList[i].TaxAmount)).toFixed($rootScope.currencyPrecision);
+			$scope.materialtaxCategoryList[i].TaxAmount = ((parseFloat($scope.materialtaxCategoryList[i].Percentage) * tAmount) / 100).toFixed(2);
+			data.TaxAmount = (parseFloat(data.TotalTaxAmount) + parseFloat($scope.materialtaxCategoryList[i].TaxAmount)).toFixed(2);
 		}
 		if (isNaN(data.TotalTaxAmount)) data.TotalTaxAmount = 0;
 	}

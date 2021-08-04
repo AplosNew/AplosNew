@@ -13,6 +13,9 @@ using System.Linq;
 using Library.Data.Sql;
 using Library.Accounting.Accounts;
 using Library.Core;
+using System;
+using System.Data;
+using Library.Security.Core;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -39,60 +42,7 @@ namespace Aplos.Areas.Products.Controllers
             return View();
         }
 
-        [Authorize, HttpGet]
-        public JsonResult GetListForInvReceivable()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            return Json(_accountsSalesService.GetSalesListForInvReveivable(identity.PlantId), JsonRequestBehavior.AllowGet);
-        }
-        [Authorize, HttpGet]
-        public JsonResult GetInventoryMaterialReceivableList(GridParameter parameters, string inveReveiveId)
-        {
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsSalesService.GetReceivableMaterial(parameters, identity.CompanyId,identity.PlantId,inveReveiveId), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public JsonResult GetBudgetActivityInSalesMaterial(string inventorysalesId, string customerId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsSalesService.GetBudgetActivityInSalesMaterial(identity.CompanyId, identity.PlantId, inventorysalesId, customerId), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public JsonResult GetInventorySalesBudgetActivityInSalesMaterial(string inventorysalesId, string customerId,string taxapplicable)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            return Json(_accountsSalesService.GetInventorySalesBudgetActivityInSalesMaterial(identity.CompanyId, identity.PlantId, inventorysalesId, customerId, taxapplicable), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public JsonResult GetPostingInvReceivableList(string column, string value)
-        {
-            AccountsInventorySalesService _accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsInventorySalesService.GetPostingInvReceivableData(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public JsonResult GetPostingInventorySalesList(string column, string value)
-        {
-            AccountsInventorySalesService _accountsInventorySalesService = new AccountsInventorySalesService(_sqlRepository);
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsInventorySalesService.GetPostingInventorySalesData(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public JsonResult GetInventoryMaterialReceivable(string inveReveiveId, string employeeId, string partyId,string taxapplicable)
-        {
-            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsInventoryPayableService.GetInventoryMaterialReceivableData(identity.CompanyId, identity.PlantId, inveReveiveId, partyId, taxapplicable), JsonRequestBehavior.AllowGet);
-        }
+      
         [Authorize, HttpGet]
         public JsonResult GetInventorySaleDetailGLList(string inventorySalesId, string customerId)
         {
@@ -102,25 +52,159 @@ namespace Aplos.Areas.Products.Controllers
         }
 
 
+        [HttpPost]
+        public JsonResult Create(Dictionary<string, object> entity, List<Dictionary<string, object>> attributes)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (entity != null)
+                {
 
-        [HttpGet, Authorize]
-        public ActionResult ReceivableJournal(ReportFormat reportFormat, string inventoryReceiveId, string employeeId, bool isReversCharge,bool isFoc)
+                    DataRow dr;
+
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductLibrary WHERE Id='" + entity["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("select * from dbo.ProductLibrary where Code='" + entity["Code"] + "' AND  Id<>'" + entity["Id"] + "'", out DataSet dsCodeMaster, false, "1");
+                    if (dsCodeMaster.Tables[0].Rows.Count > 0)
+                        throw new Exception("Same Code already exists!!!");
+
+                    con.OpenDataSetThroughAdapter("select * from dbo.ProductLibrary where UserName='" + entity["UserName"] + "' AND  Id<>'" + entity["Id"] + "'", out DataSet dsUserMaster, false, "1");
+                    if (dsUserMaster.Tables[0].Rows.Count > 0)
+                        throw new Exception("Same User Name already exists!!!");
+
+
+                    string _Id = "";
+                    string _DId = "";
+
+                    #region data update
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductLibrary", out _Id);
+
+                        entity["CompanyGroupId"] = identity.CompanyGroupId;
+
+                        entity["AddedBy"] = identity.Name;
+                        entity["AddedDate"] = System.DateTime.Now.ToString();
+                        entity["AddedFromIP"] = identity.IPAddress;
+
+                        entity["Id"] = "PL" + _Id;
+                        _Id = entity["Id"].ToString();
+                        AddNewRow(dsMaster.Tables[0], entity);
+                    }
+                    else
+                    {
+                        _Id = entity["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], entity);
+                    }
+
+                    #endregion data update
+
+                    #region Child 
+
+                    DataSet dsChild;
+
+
+                    con.OpenDataSetThroughAdapter("select * from  where  ProductLibraryId='" + _Id + "'", out dsChild, false, "1");
+                    #region data update
+
+
+                    if (attributes != null)
+                    {
+                        foreach (var item in attributes)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID("", out _DId);
+
+                            DataView dv = new DataView(dsChild.Tables[0]);
+                            dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                            if (dv.Count == 0)
+                            {
+                                item["Id"] = _DId;
+                                item["ProductLibraryId"] = _Id;
+                                AddNewRow(dsChild.Tables[0], item);
+                            }
+                            else
+                            {
+                                DataRow drmo = dv[0].Row;
+                                EditRow(drmo, item);
+
+                            }
+                        }
+                    }
+                    #endregion
+
+                    #endregion
+
+
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster, dsChild);
+
+
+
+                }
+                return Json(new { Error = false, Data = entity, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            AccountsInventoryPayableReportService accountsInventoryPayableReportService = new AccountsInventoryPayableReportService(_sqlRepository);
-            var reportFileName = "GRN";
-            var workbook = accountsInventoryPayableReportService.PabyableJournal(identity.CompanyId, identity.PlantId, inventoryReceiveId, employeeId, isReversCharge, isFoc, reportFileName);
-            switch (reportFormat)
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
             {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-
-                default:
-                    return View();
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
             }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
         }
 
         #endregion

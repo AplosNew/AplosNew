@@ -50,7 +50,7 @@ namespace Aplos.HumanResource
 	                         ,EC.UserName EmpCategoryName, U.UserName Unit,Dv.UserName Division,SD.UserName SubDivision,Se.UserName Section, SuS.UserName SubSection,Ln.UserName Line
 	                         , EBC.StandardName BudgetCategoryName--,ESHIFT.FixSystemID
 							 ,PT.UserName PartyName
-							-- , ESHIFT.ShiftDefination,
+							 ,ShiftDf.UserName ShiftDefination
 							 ,FORMAT(EI.DOJ,'dd-MMM-yyyy') DateOfJoin 
                              ,TenureDay=DATEDIFF(day, FORMAT(EI.DOJ,'dd-MMM-yyyy'),FORMAT(GetDate(),'dd-MMM-yyyy'))
                             FROM dbo.Employeeinformation EI
@@ -95,15 +95,9 @@ namespace Aplos.HumanResource
                             LEFT OUTER JOIN [ORG].Line AS Ln ON Ln.ID = PMB.LineID
                             LEFT OUTER JOIN [ORG].SubDivision AS SD ON SD.Id = PR.SubdivisionID
                             LEFT OUTER JOIN [HKP].[EmployeeBudgetCategory] EBC ON EI.BudgetCategoryID = EBC.ID
-        --                    LEFT JOIN(
-        --                     SELECT M.EmpSystemID,M.FixSystemID,ShiftDf.UserName ShiftDefination FROM EmployeeShiftAssign M
-        --                     JOIN (
-        --                     SELECT Max(EII.EffectiveDate)EffectiveDate,EII.EmpSystemID 
-        --                     FROM EmployeeShiftAssign EII 
-        --                     WHERE EII.EffectiveDate<=FORMAT(GETDATE(),'dd-MMM-yyyy')
-        --                     GROUP BY EII.EmpSystemID) S ON S.EmpSystemID=M.EmpSystemID AND S.EffectiveDate=M.EffectiveDate
-							 --JOIN ShiftDefination ShiftDf on ShiftDf.SystemID=M.FixSystemID
-        --                    ) ESHIFT ON ESHIFT.EmpSystemID=ei.SystemId
+                            LEFT JOIN EmployeeShiftAssign ESA ON ESA.EmpSystemID=EI.SystemId 
+							 AND ESA.SystemId=(Select top(1) SystemId from dbo.EmployeeShiftAssign ES Where ES.EmpSystemID=EI.SystemId Order by EffectiveDate desc)
+							 LEFT JOIN ShiftDefination ShiftDf on ShiftDf.SystemID=ESA.FixSystemID
                             WHERE EI.EmployeeStatus ='Active' AND EI.PlantId='" + plantId + "' AND  EI.GroupId='" + companyGroupId + "') AS TEMP WHERE " + strkey + " Order By ISNULL(EmployeeCodePreFix,''), EmployeeCodeNumeric DESC";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -1597,7 +1591,7 @@ namespace Aplos.HumanResource
             }
         }
 
-        public IEnumerable<object> GetEmpDocumentDataList(string companyGroupId, string pId, string plantId)
+        public IEnumerable<object> GetEmpAllDocumentDataList(string companyGroupId, string pId, string plantId)
         {
             try
             {
@@ -1672,6 +1666,144 @@ namespace Aplos.HumanResource
             try
             {
                 var sql = @"SELECT SystemId AS Value, EmployeeName AS Text FROM EmployeeInformation WHERE GroupID='" + GroupId + @"' AND CompanyId='" + companyId + @"' AND PlantId='" + plantId + @"' AND EmployeeStatus='Active' ORDER BY EmployeeName";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetEmployeeNomineeInfo(string empId)
+        {
+            try
+            {
+                var sql = @"select N.Name,Format(N.DOB,'dd-MMM-yyyy')DOB,N.NationalID,N.CellNo,N.LocalName
+                            , R.UserName Relativie,N.Id,N.AddressLocal,N.[Address],N.Relation
+                                    from EmployeeNomineeInfo N
+                          LEFT JOIN [SCS].[Relationship] R ON R.Id=N.Relation
+                          Where N.EmpSystemId='" + empId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetEmployeeDependantInfo(string empId)
+        {
+            try
+            {
+                var sql = @"select ed.Id,Name,ed.RelationId,ed.ProfessionId, ed.Remarks,ed.LocalName,FORMAT(ED.DOB,'dd-MMM-yyyy')DOB, r.UserName Relation,p.UserName  Profession
+                                from [dbo].[EmployeeDependantInfo] ed
+                                left join [SCS].[Relationship] r on r.Id=ed.RelationId
+                                left join [SCS].[Profession] p on p.Id=ed.ProfessionId
+                             where ED.EmpSystemId='" + empId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetEmployeeLandLoardInfo(string empId)
+        {
+            try
+            {
+                var sql = @"select * from [dbo].[EmployeeLandLordInfo] where EmpSystemId='" + empId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetEmpDocumentDataList(string companyGroupId, string pId, string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT  DISTINCT ED.*,
+									CD.UserName DocumentName
+									,CD.DocumentType
+									,CD.IsSkillBased
+									,CDSD.OptionalOrMandatory
+									,CD.EmpType
+									,CD.ProfileType,CD.DocNumberRequired,CD.DocDateRequired
+									,E.UserName AS EmployeeCategory
+									,CD.DependateDate
+								FROM dbo.EmployeeDocument ED
+								LEFT JOIN hkp.ComplianceDocument CD ON ED.ComplianceDocumentId = CD.Id
+								LEFT JOIN HKP.ComplianceDocumentSetDetail AS CDSD ON CD.Id = CDSD.ComplianceDocumentId
+								LEFT JOIN (SELECT  * FROM HKP.DocumentConfigurationDesignationGroup
+								Where PlantId='" + plantId + @"' and EmployeeCategoryId = (
+										SELECT D.EmployeeCategoryId
+										FROM (SELECT * FROM MST.DesignationMaster WHERE CompanyGroupId = '" + companyGroupId + @"'
+											) AS D
+										LEFT JOIN EmployeeInformation EI ON D.DesignationId = EI.GivenDesignationId
+										WHERE EI.SystemId = '" + pId + @"'
+										)
+								)DD ON CDSD.ComplianceDocumentSetId = DD.ComplianceDocumentSetId
+								LEFT JOIN HKP.EmployeeCategory AS E ON DD.EmployeeCategoryId = E.Id
+								WHERE ED.EmpSystemID = '" + pId + @"' AND DocumentationBy='Self'
+									--AND ISNULL(CD.ProfileType,'') NOT IN ('Qualification','Training','Experience','Photo')
+									AND E.UserName IS NOT NULL ORDER BY CDSD.OptionalOrMandatory,DocumentName";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public object GetData(string companyGroupId, string companyId, string plantId, string employeeId)
+        {
+            try
+            {
+                var sql = @"SELECT EI.*
+								  ,PO.UserName PresThanaName,ParmPO.UserName ParmThanaName,D.UserName PresDistrictName,ParmD.UserName ParmDistrictName
+								  ,C.UserName PresCountryName,ParmC.UserName ParmCountryName,ParmP.UserName ParmPostOfficeName, PerP.UserName PresPostOfficeName
+                                  ,PerCT.UserName PresCityName,ParCT.UserName ParmCityName,AM.CountryId
+								  ,CG.[Image] CompanyGroupLogo, CNT.PhoneLength, COM.IsTINRequiredForSalaryAbove
+								  ,CNT.TINCaption, CNT.NIDCaption, CNT.NIDLength, CNT.TINLength, COM.TINRequiredForSalaryAbove
+                              FROM dbo.Employeeinformation EI
+                              LEFT OUTER JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id
+							  LEFT OUTER JOIN scs.PoliceStation PO ON EI.PresThanaID=PO.Id
+							  LEFT OUTER JOIN scs.PoliceStation ParmPO ON EI.ParmThanaID=ParmPO.Id
+							  LEFT OUTER JOIN SCS.District D ON EI.PresDistrictID = D.Id
+							  LEFT OUTER JOIN SCS.District ParmD ON EI.ParmDistrictID = ParmD.Id
+		                      LEFT OUTER JOIN SCS.Country C ON EI.PresCountryID = C.ID
+		                      LEFT OUTER JOIN SCS.Country ParmC	ON EI.ParmCountryID = ParmC.ID
+		                      LEFT OUTER JOIN SCS.PostOffice ParmP ON EI.ParmPostOfficeID = ParmP.ID
+		                      LEFT OUTER JOIN SCS.PostOffice PerP ON EI.PresPostOfficeID = PerP.ID
+                              LEFT OUTER JOIN SCS.City PerCT ON EI.PresCityID = PerCT.ID
+		                      LEFT OUTER JOIN SCS.City ParCT ON EI.ParmCityID = ParCT.ID
+                              LEFT OUTER JOIN SCS.[State] ParmS ON EI.ParmStateId = ParmS.Id
+							  LEFT OUTER JOIN SCS.[State] PresS ON EI.PresStateId = PresS.Id
+							  LEFT OUTER JOIN ORG.Plant PL ON EI.PlantId = PL.Id
+							  LEFT OUTER JOIN MST.AddressMaster AM ON PL.AddressMasterId=AM.Id
+							  LEFT OUTER JOIN SCS.Country CNT ON AM.CountryId=CNT.Id
+							  LEFT OUTER JOIN ORG.Company COM ON EI.CompanyId=COM.Id
+                              WHERE EI.GroupId='" + companyGroupId + @"' AND EI.CompanyId='" + companyId + @"' AND EI.PlantId='" + plantId + "' AND EI.SystemId='" + employeeId + "'";
+                return _sqlRepository.GetData(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetJobData(string empid)
+        {
+            try
+            {
+                var sql = @"SELECT JDI.Id, JDI.UserName JobDescription from [MST].[ManpowerBudgetJobDescription] PMBJD
+                            LEFT OUTER JOIN [HKP].[JobDescription] JD ON PMBJD.JobDescriptionId=JD.Id
+                            LEFT OUTER JOIN [HKP].[JobDescriptionItem] JDI ON JD.JobDescriptionItemId=JDI.Id
+                             Where PMBJD.ManpowerBudgetId=(Select EI.BudgetCode From [dbo].[EmployeeInformation] EI Where EI.SystemId='" + empid + "') AND PMBJD.Archive=0";
+
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
