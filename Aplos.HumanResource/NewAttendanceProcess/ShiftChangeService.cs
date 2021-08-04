@@ -223,5 +223,177 @@ namespace Library.HumanResource.NewAttendanceProcess
 
     }
 
-   
+    public class ManualOTFromAppService
+    {
+        SqlRepository _sqlRepository;
+        ConnectionManager.clsConnectionManager ConManager;
+
+        public ManualOTFromAppService()
+        {
+            _sqlRepository = new SqlRepository();
+            ConManager = new ConnectionManager.clsConnectionManager();
+        }
+
+        public IEnumerable<object> GetConfigurationDays()
+        {
+            try
+            {
+                var sql = @"select BackDays,FutureDays,GroupId from dbo.Otupdateconfiguration";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string Create(IEnumerable<PhysicalVerifyModel> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.OTfromApp";
+
+                int i = 0;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                string EmpId = "''";
+                foreach (PhysicalVerifyModel item in DataToSave)
+                {
+                    EmpId += ",'" + item.EmpSystemId + "'";                   
+                }
+
+                var items = DataToSave.ToList();
+
+                var sqly = @"select * from dbo.OTfromApp where WorkDate='"+items[0].WorkDate+" ' and EmpSystemId IN("+EmpId+")";
+                con.OpenDataSetThroughAdapter(sqly, out dsMaster, false, "1");
+
+
+                foreach (PhysicalVerifyModel item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"EmpSystemId='" + item.EmpSystemId + "' ";
+
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        clsGenID genid = new clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["Id"] = "OT" + _Id;
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["Remarks"] = DBNull.Value;
+                        dr["OThour"] = item.OThour;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["WorkDate"] = item.WorkDate;
+                        dr["IsConfirmed"] = false;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                        i++;
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["Remarks"] = DBNull.Value;
+                        dr["OThour"] = item.OThour;
+                        dr["IsConfirmed"] = false;
+                        dr["UpdatedBy"] = item.AddedBy;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["WorkDate"] = item.WorkDate;
+
+                        dr.EndEdit();
+                        i++;
+                    }
+                  
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return i.ToString();
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        public string Save(List<AttendanceProcessNewProcess> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                int i = 0;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (data.Count() == 0)
+                    return "";
+
+                string EmpId = "''";
+                foreach (AttendanceProcessNewProcess item in data)
+                {
+                    EmpId += ",'" + item.EmpSystemID + "'";
+                }
+
+                string ReturnLockedEmp = "''";
+                var items = data.ToList();
+                string Date = items[0].WorkDate;
+                string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
+                var sqly = @"select * from dbo.AttdnProcessData where WorkDate='" + items[0].WorkDate + " ' and EmpSystemId IN(" + EmpId + ")";
+                con.OpenDataSetThroughAdapter(sqly, out dsMaster, false, "1");
+
+                foreach (AttendanceProcessNewProcess item in data)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + item.EmpSystemID + "'"; 
+
+                    if (dsMaster.Tables[0].DefaultView.Count > 0)
+                    {
+                        string Lock = clsWebLib.GetBoolData(dsMaster.Tables[0].DefaultView[0][@"IsLock"]).ToString();
+
+                        if (Lock == "False")
+                        {
+
+                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["ManualOt"] = item.ManualOt;
+                            dr["ManualByWhom"] = item.AddedBy;
+                            dr["ManualEntryTime"] = DateTime.Now.ToString();
+                            dr["ManualFlag"] = true;
+
+                            dr.EndEdit();
+                            i++;
+                        }
+                        else
+                        {
+                            ReturnLockedEmp += ",'" + item.EmpSystemID + "'";
+                        }
+                    }
+
+                }
+
+                clsStaticInfo info = new clsStaticInfo();
+                info.SaveDataSets(dsMaster);
+                if (data.Count().ToString() == i.ToString())
+                {
+                    return i.ToString();
+                }
+                else
+                {
+                    return "Attendance of :-"+ ReturnLockedEmp+ " is Locked";
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+    }
+
 }
+

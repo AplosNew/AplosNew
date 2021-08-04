@@ -901,7 +901,8 @@ var upanelApp = angular
     .controller("CompanyWiseBankSheetController", CompanyWiseBankSheetController)
     .controller("PayrollManagementDashboardController", PayrollManagementDashboardController)
     .controller("InventorySalesReturnController", InventorySalesReturnController)
-    .controller("EmployeeJobLocationController", EmployeeJobLocationController)
+    .controller("ProductionConversionParameterController", ProductionConversionParameterController)
+
 
 
     .config(AccessControllerConfig)
