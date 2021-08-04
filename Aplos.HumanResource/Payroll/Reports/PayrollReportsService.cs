@@ -11676,7 +11676,7 @@ INNER JOIN
 
                 strSQL += @"Order by EmpBasic.EmployeeCodePreFix,EmpBasic.EmployeeCodeNumeric ";
 
-                ConnectionManager.clsConnectionManager con = new clsConnectionManager(600);
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
                 con.getDataSet(strSQL, out dsRef);
 
 
@@ -12499,7 +12499,7 @@ INNER JOIN
                 }
                 strSQL += "ORDER BY EmpSystemId ";
 
-                ConnectionManager.clsConnectionManager con = new clsConnectionManager(600);
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
                 con.getDataSet(strSQL, out dsRef);
 
                 distinctSalaryHead = dsRef.Tables[0].DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "HeadType", "Sequence", "HeadCategory", "IntegerInDisb", "DecimalNo", "PartOfNetPay", "IsCTCComponent", "IsGrossComponent");

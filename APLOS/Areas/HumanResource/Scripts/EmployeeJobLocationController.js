@@ -21,104 +21,6 @@ function EmployeeJobLocationController(cboService, commonMessage, $scope, $rootS
     $scope.modalNew = Object.assign({}, $scope.modal);
 
 
-    $scope.employeeShiftAssign = {
-        SystemID: null,
-        EmpSystemID: null,
-        FixSystemID: null,
-        RosterSystemID: null,
-        IsFix: true,
-        IsRoster: false,
-        EffectiveDate: null,
-        RosterStartShiftID: null,
-        StartFromDay: null,
-        PlantId: null,
-        StartFromShift: null
-    };
-
-    $scope.employeeWeekOffByDay = {
-        SystemID: null,
-        EmpSystemID: null,
-        FixSystemID: null,
-        EffectiveDate: null,
-        AlignWithCC: 'True',
-        IndividualWeekOff: null,
-        FstOffDay: null,
-        FstDayLengthType: null,
-        SndOffDay: null,
-        SndDayLengthType: null,
-        FirstHalfRadio: 'Half',
-        FirstFullRadio: null,
-        SecondHalfRadio: 'Half',
-        SecondFullRadio: null
-    };
-
-    $scope.ShiftParameters = {
-        limit: 10,
-        offset: 0,
-        order: 'DESC',
-        sort: 'EmployeeCode',
-        searchBy: "EmployeeCode",
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
-
-    $scope.getData = function () {
-        try {
-            if (baseService.isUndefinedOrNull($scope.employeeShiftAssign.PlantId)) {
-                throw "Select Plant.";
-            }
-            if (baseService.isUndefinedOrNull($scope.employeeShiftAssign.WorkDate)) {
-                throw "Select Work Date.";
-            }
-            $scope.GLUrl = 'humanresource/employeeshiftassign/getlist?plantId=' + $scope.employeeShiftAssign.PlantId + '&date=' + $scope.employeeShiftAssign.WorkDate,
-                $scope.LoadDataList = function (pageno) {
-                    baseService.paginationBase($scope.GLUrl, pageno, $scope.ShiftParameters)
-                        .then(function (data) {
-                            $scope.EmployeeShiftAssigns = data.Rows;
-                            //console.log($scope.EmployeeShiftAssigns);
-                            $scope.ShiftParameters.total_count = data.Total;
-                        }, function () {
-                            ShowResult(commonMessage.NetworkError, 'failure');
-                        }).finally(function () {
-                        });
-                };
-            $scope.LoadDataList();
-        } catch (e) {
-            ShowResult(e, 'Error');
-        }
-    };
-
-    $scope.Get = function (id, index) {
-        $scope.index = index;
-        $scope.PlantId = $scope.employeeShiftAssign.PlantId;
-        $scope.employeeShiftAssign.WorkDate = $scope.employeeShiftAssign.WorkDate;
-        $scope.WorkDate = $scope.employeeShiftAssign.WorkDate;
-        $scope.employeeShiftAssign = $scope.EmployeeShiftAssigns[$scope.index];
-        $scope.employeeShiftAssign.PlantId = $scope.PlantId;
-        $scope.employeeShiftAssign.WorkDate = $scope.WorkDate;
-        if ($scope.employeeShiftAssign.IsFix === false) {
-            $scope.employeeShiftAssign.IsRoster = true;
-        } else {
-            $scope.employeeShiftAssign.IsRoster = false;
-        }
-        $scope.employeeShiftAssign.EffectiveDate = $scope.employeeShiftAssign.WorkDate;
-        $scope.employeeWeekOffByDay.EmpSystemID = $scope.employeeShiftAssign.EmpSystemID;
-        $scope.employeeWeekOffByDay.FstOffDay = $scope.employeeShiftAssign.FstOffDay;
-        $scope.employeeWeekOffByDay.FstDayLengthType = $scope.employeeShiftAssign.FstDayLengthType;
-        $scope.employeeWeekOffByDay.SndDayLengthType = $scope.employeeShiftAssign.SndDayLengthType;
-        $scope.employeeWeekOffByDay.SndOffDay = $scope.employeeShiftAssign.SndOffDay;
-        $scope.employeeWeekOffByDay.AlignWithCC = $scope.employeeShiftAssign.AlignWithCC;
-        $scope.employeeWeekOffByDay.IndividualWeekOff = $scope.employeeShiftAssign.IndividualWeekOff;
-        if ($scope.employeeWeekOffByDay.AlignWithCC === false) {
-            $scope.employeeShiftAssign.IndividualWeekOff = true;
-        } else {
-            $scope.employeeShiftAssign.IndividualWeekOff = false;
-        }
-        $scope.employeeWeekOffByDay.FixSystemID = $scope.employeeShiftAssign.FixSystemID;
-        $scope.employeeWeekOffByDay.EffectiveDate = $scope.employeeShiftAssign.WorkDate;
-    };
 
     $scope.employee = [];
     $scope.getPopUpData = function () {
@@ -133,7 +35,7 @@ function EmployeeJobLocationController(cboService, commonMessage, $scope, $rootS
     }
 
     $scope.setEmpData = function (obj) {
-      //  $scope.Clear();
+        $scope.Clear();
         var data = obj.data;
         $scope.modalNew.EmployeeCode = data.EmployeeCode;
         $scope.modalNew.EmpSystemID = data.SystemID;
@@ -218,4 +120,24 @@ function EmployeeJobLocationController(cboService, commonMessage, $scope, $rootS
 
         }
     };
+
+    $scope.Clear = function () {
+        $scope.modal = {
+            EmployeeCode: null,
+            EmpSystemID: null,
+            EmployeeName: null,
+            DOJ: null,
+            DOC: null,
+            DesignationGroup: null,
+            LegalDesignation: null,
+            SystemID: null,
+            JobLcSystemID: null,
+            EffectiveDate: null
+        }
+        $scope.modalNew = Object.assign({}, $scope.modal);
+
+        $scope.imageSrc = '';
+        document.getElementById("uploadImageSrc").setAttribute('src', null);
+    }
+
 }
