@@ -46,6 +46,7 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
         DepartmentId: null
     };
 
+
     //for elastic search
     $scope.EntityFixedAssetRegisterElasticSearchList = [];
     $scope.GetEntityFixedAssetRegisterElasticSearchData = function () {
@@ -53,20 +54,13 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
             $http({
                 method: 'POST',
                 url: $scope.path + "GetEntityFixedAssetRegisterElasticSearchDataList",
-                //data: { FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate },
+                data: { /*FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate*/
+            
+                },
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
 
-                //if (response.data.Error == false) {
-                //    for (var i = 0; i < response.data.DATA.length; i++) {
-                //      response.data.DATA[i].MasterLCDate = new Date(response.data.DATA[i].MasterLCDate);
-                //    }
-                //    $scope.EntityFixedAssetRegister = response.data.DATA;
-                //}
-                //else {
-                //    ShowResult(response.data.Message, 'failure');
-                //}
                 $scope.EntityFixedAssetRegisterElasticSearchList = response.data.DATA;
             }),
                 function errorCallBack(response) {
@@ -80,15 +74,103 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
     $scope.GetEntityFixedAssetRegisterElasticSearchData();
 
 
+    $scope.TotalEntityFARegisterSummaryAmount = [{
+        title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SubAssetAmount", dataMember: "SubAssetAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalAssetsBaseAmount", dataMember: "TotalAssetsBaseAmount", format: "{0:N2}" }
 
+        ],
+        showCaptionSummary: true
+    }];
+
+
+    //$scope.FilterModel = { ReportLevel: 'ALL', FromDate: new Date(), ToDate: _currentDate, ActiveStatus: 'All', DateSelection: "ASON" };
+    //$scope.QueryString = [];
+    //$scope.HideGrid = true;
+    //$scope.EntityFixedAssetRegisterElasticSearchList = [];
+    //$scope.GetTaskForGrid = function () {
+    //    var filtered = $("#GridEdit").data("ejGrid").getFilteredRecords();
+    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+    //        filtered = $scope.EntityFixedAssetRegisterElasticSearchList;
+    //    }
+    //    //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+    //    var materialMasterId = getString(filtered, "MaterialMasterId");
+    //    var materialMasterArticleId = getString(filtered, "MaterialMasterArticleId");
+    //    var fixedAssetMasterId = getString(filtered, "FixedAssetMasterId");
+    //    var vendorId = getString(filtered, "VendorId");
+    //    var isAsset = getString(filtered, "IsAsset");
+    //    var machine = getString(filtered, "Machine");
+
+    //    //var gridObj = $("#GridEdit").data("ejGrid");
+    //    //gridObj.clearFiltering();
+
+    //    //$scope.HideGrid = false;
+    //    $http({
+
+
+    //        method: 'POST',
+    //        url: $scope.path + 'GetTaskListResult',
+    //        data: { Filter: $scope.FilterModel, FilterFields: $scope.QueryString },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error == true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            $scope.EntityFixedAssetRegisterElasticSearchList = response.data.MAINDATA;
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    });
+
+
+    //}
+    //$scope.GetTaskForGrid();
+
+
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+
+        return string;
+    }
 
     $scope.EntityFixedAssetRegisterList = [];
     $scope.GetEntityFixedAssetRegisterData = function () {
         try {
+
+            var filtered = $("#GridEntityFixedAssetRegisterElasticSearch").data("ejGrid").getFilteredRecords();
+            if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+                filtered = $scope.EntityFixedAssetRegisterElasticSearchList;
+            }
+            //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+            var materialMasterId = getString(filtered, "MaterialMasterId");
+            var materialMasterArticleId = getString(filtered, "MaterialMasterArticleId");
+            var fixedAssetMasterId = getString(filtered, "FixedAssetMasterId");
+            var vendorId = getString(filtered, "VendorId");
+            var isAsset = getString(filtered, "IsAsset");
+            var machine = getString(filtered, "Machine");
+
             $http({
                 method: 'POST',
                 url: $scope.path + "GetEntityFixedAssetRegisterDataList",
-                //data: { FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate },
+                data: { /*FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate*/
+                    'materialMasterId': materialMasterId,
+                    'materialMasterArticleId': materialMasterArticleId,
+                    'fixedAssetMasterId': fixedAssetMasterId,
+                    'vendorId': vendorId
+
+                    //'isAsset': isAsset,
+                    //'machine': machine
+
+                },
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
@@ -103,6 +185,7 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
                 //    ShowResult(response.data.Message, 'failure');
                 //}
                 $scope.EntityFixedAssetRegisterList = response.data.DATA;
+                //$scope.GetEntityFixedAssetRegisterElasticSearchData();
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -112,7 +195,18 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
 
         }
     }
-    $scope.GetEntityFixedAssetRegisterData();
+
+    $scope.TotalEntityFARegisterDetailAmount = [{
+        title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "FABaseAmount", dataMember: "FABaseAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SubAssetAmount", dataMember: "SubAssetAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "ADBaseAmount", dataMember: "ADBaseAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" }
+            
+        ],
+        showCaptionSummary: true
+    }];
+
 
 
     $scope.entityList = [];

@@ -182,8 +182,13 @@ function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $locati
 
 
     $scope.onrowdatabound = function (e) {
-        if (e.data.Remarks !== '')
-            e.row.css("background-color", "red");
+        if (e.data.Remarks !== '') {
+            if (e.data.Remarks == 'Salary has been locked')
+                e.row.css("background-color", "yellow");
+            else
+                e.row.css("background-color", "red");
+        }
+
     };
 
 
@@ -194,9 +199,9 @@ function CompanyWiseExternalDataUploadFromExcelController($scope, $http, $locati
             for (var i = 0; i < $scope.AttdnRawData.length; i++) {
 
                 if ($scope.AttdnRawData[i].Remarks !== '') {
-                    throw "Please Upload valied data";
+                    if ($scope.AttdnRawData[i].Remarks !== 'Salary has been locked')
+                        throw "Please Upload valid data";
                 }
-
             }
 
             if (baseService.isUndefinedOrNull($scope.ModelNew.SalaryHeadId)) {

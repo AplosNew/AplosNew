@@ -167,7 +167,10 @@
                          e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="60"></div>
+                            <div e-column e-field="DOS" e-headertext="DOS" e-width="60"></div>
+                            <div e-column e-field="EmployeeStatus" e-headertext="Status" e-width="60"></div>
                             <div e-column e-field="SalaryHead" e-headertext="Salary Head" e-width="80"></div>
                             <div e-column e-field="HeadType" e-headertext="Head Type" e-width="80"></div>
                             @*<div e-column e-field="ExistCurrency" e-headertext="Exist Currency" e-width="80"></div>
@@ -235,11 +238,15 @@
                         <div e-columns>
                             <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
                             <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="60"></div>
+                            <div e-column e-field="DOS" e-headertext="DOS" e-width="60"></div>
+                            <div e-column e-field="EmployeeStatus" e-headertext="Status" e-width="60"></div>
                             <div e-column e-field="SalaryHead" e-headertext="Salary Head" e-width="80"></div>
                             <div e-column e-field="HeadType" e-headertext="Head Type" e-width="80"></div>
                             <div e-column e-field="Currency" e-headertext="Currency" e-width="100"></div>
                             <div e-column e-field="EntryAmount" e-headertext="Entry Amount" e-width="100"></div>
                             <div e-column e-headertext="Details" e-template="#DetailsButtons" e-width="40"></div>
+                            <div e-column e-field="isLocked" e-headertext="Locked Salary" e-width="40"></div>
 
                         </div>
                     </div>
@@ -275,17 +282,15 @@
            e-showoninit="false"
            e-target="#MainDivId"
            e-close="onDialogClose"
-           e-width="1080"
-           e-minheight="470"
+           @*e-width="1080"*@
+           @*e-minheight="470"*@
            e-open="enableBtn">
-
-    <fieldset class="scheduler-border form-group form-elements" style="width:990px;">
-
+    <div class="row">
 
         <div class="col-xs-6 col-sm-6 col-md-6 " style="margin-top: 6px;">
             <div class="form-group">
                 <label class="col-sm-6 control-label">Employee Code</label>
-                <label class="col-sm-6 control-label">{{edit.EmpCode}}</label>                
+                <label class="col-sm-6 control-label">{{edit.EmpCode}}</label>
             </div>
             <div class="form-group">
                 <label class="col-sm-6 control-label">Salary Head</label>
@@ -310,7 +315,7 @@
                 @*<li> <button ng-click="ConfirmDeleteTaxRebateDetails();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-trash"></i>Delete</button></li>*@
             </ul>
         </div>
-    </fieldset>
 
+    </div>
 
 </ej-dialog>
