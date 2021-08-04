@@ -600,20 +600,30 @@ namespace OTSBD
                           AND C.SalaryHeadID='" + SalaryHeadId + @"'  AND ISNULL(M.EmpInfoSystemID,'') NOT IN (SELECT isnull(sl.EmpSystemId,'')
                         FROM  SalaryLock AS sl where sl.YearNo=" + YearNo + @" AND sl.MonthNo=" + MonthNo + @")";
 
-                strSQL2 = @"DELETE FROM [MonthWiseExtraSalaryAmtMaster] 
-                          WHERE SystemID not in (SELECT MWESAMasterSystemID FROM MonthWiseExtraSalaryAmtChild  ) AND PlantID IN (SELECT p.Id FROM org.Plant AS p WHERE p.CompanyId='" + CompanyId + @"')";
+                //strSQL2 = @"DELETE FROM [MonthWiseExtraSalaryAmtMaster] 
+                //          WHERE SystemID not in (SELECT MWESAMasterSystemID FROM MonthWiseExtraSalaryAmtChild  ) AND PlantID IN (SELECT p.Id FROM org.Plant AS p WHERE p.CompanyId='" + CompanyId + @"')";
+                strSQL2 = @"  DELETE FROM [MonthWiseExtraSalaryAmtMaster]
+                          WHERE ISNULL(SystemID,'') IN (SELECT ISNULL(M.SystemID,'') FROM [MonthWiseExtraSalaryAmtMaster] M 
+                          LEFT JOIN MonthWiseExtraSalaryAmtChild C ON C.MWESAMasterSystemID=M.SystemID
+                          WHERE ISNULL(c.SystemID,'')='') ";
 
+                ConnectionManager.clsConnectionManager con = new ConnectionManager.clsConnectionManager(300);
+                con.BeginTransaction();
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenConnection("1");
-                objCon.BeginTransaction();
-                IsTransactionStarted = true;
+                con.executeQuery(strSQL);
+                con.executeQuery(strSQL2);
+                con.CommitTransaction();
 
-                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
-                objCon.ExecuteNonQueryWrapper(strSQL2, true, "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenConnection("1");
+                //objCon.BeginTransaction();
+                //IsTransactionStarted = true;
 
-                objCon.CommitTransaction();
-                IsTransactionStarted = false;
+                //objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                //objCon.ExecuteNonQueryWrapper(strSQL2, true, "1");
+
+                //objCon.CommitTransaction();
+                //IsTransactionStarted = false;
             }
             catch (Exception ex)
             {
