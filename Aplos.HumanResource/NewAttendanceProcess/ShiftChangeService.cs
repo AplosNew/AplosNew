@@ -6,6 +6,7 @@ using Library.Data.Sql;
 using OTSBD;
 using Library.Service.EmployeeServices;
 using bplib;
+using Newtonsoft.Json;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
@@ -234,12 +235,37 @@ namespace Library.HumanResource.NewAttendanceProcess
             ConManager = new ConnectionManager.clsConnectionManager();
         }
 
-        public IEnumerable<object> GetConfigurationDays()
+        public void BuildDataSet(out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = "";
+
+            try
+            {
+                strSql = @"select BackDays,FutureDays,GroupId from dbo.Otupdateconfiguration"; 
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        public string GetConfigurationDays()
         {
             try
             {
-                var sql = @"select BackDays,FutureDays,GroupId from dbo.Otupdateconfiguration";
-                return _sqlRepository.GetDataCollection(sql);
+                MyClass master = new MyClass();
+                DataSet dsref = null;
+                BuildDataSet(out dsref);
+                DataTable dtEmpInfo = dsref.Tables[0];
+                master.BackDays =Convert.ToInt32(clsWebLib.RetValidLen(dtEmpInfo.Rows[0]["BackDays"]).ToString());
+                master.FutureDays = Convert.ToInt32(clsWebLib.RetValidLen(dtEmpInfo.Rows[0]["FutureDays"]).ToString());
+                master.GroupId = clsWebLib.RetValidLen(dtEmpInfo.Rows[0]["GroupId"]).ToString();
+                return JsonConvert.SerializeObject(master, Formatting.Indented);
             }
             catch (Exception ex)
             {
@@ -394,6 +420,13 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+    }
+
+    public class MyClass
+    {
+        public int BackDays { get; set; }
+        public int FutureDays { get; set; }
+        public string GroupId { get; set; }
     }
 
 }
