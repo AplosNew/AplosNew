@@ -252,29 +252,7 @@ namespace Aplos.HumanResource
             }
 
         }
-
-        private double GetLeaveEmp(List<DataRow> drLeave, string LeaveCode)
-        {
-            double leaveValue = 0.00;
-            try
-            {
-                if (drLeave != null)
-                {
-                    var leave = drLeave.Where(row => row["code"].Equals(LeaveCode)).FirstOrDefault();
-
-                    if (leave != null)
-                    {
-                        leaveValue = clsStaticInfo.dbl(leave["AvailedLeave"].ToString());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-            return leaveValue;
-        }
-
+       
         public Dictionary<string, string> GetEmployeePFESIC(string profileType, string EmpId)
         {
             string strSQL;
