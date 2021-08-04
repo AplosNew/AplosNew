@@ -4171,16 +4171,43 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             try
             {
                 var sql = "";
-                sql = @"select mm.Id, mm.Code, mm.UserName as Material,mm.BaseUOMId, mmuom.UserName as BaseUom,jwi.UOMId, uom.UserName as JWIUom
-                     ,UnitId=case when jwi.MaterialMasterId is not null then mm.BaseUOMId else jwi.UOMId End
-                     ,UOM=case when jwi.MaterialMasterId is not null then mmuom.UserName else uom.UserName End
-					 ,AlternateUoM=case when jwi.MaterialMasterId is not null then U.UserName End
-                     from HKP.JobWorkItem jwi left join MST.MaterialMaster mm on mm.Id=jwi.MaterialMasterId
-                     left join scs.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
-					 left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
-					 left join MST.MaterialMasterAlternativeUOM mauom on mauom.MaterialMasterId=mm.Id
-					 left join SCS.UnitOfMeasurement U on U.Id=mauom.AlternativeUOMId
-                     where jwi.Id='" + JobWorkItemId + @"' ";
+                //          sql = @"select mm.Id, mm.Code, mm.UserName as Material,mm.BaseUOMId, mmuom.UserName as BaseUom,jwi.UOMId, uom.UserName as JWIUom
+                //               ,UnitId=case when jwi.MaterialMasterId is not null then mm.BaseUOMId else jwi.UOMId End
+                //               ,UOM=case when jwi.MaterialMasterId is not null then mmuom.UserName else uom.UserName End
+                //,AlternateUoM=case when jwi.MaterialMasterId is not null then U.UserName End
+                //               from HKP.JobWorkItem jwi left join MST.MaterialMaster mm on mm.Id=jwi.MaterialMasterId
+                //               left join scs.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
+                //left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
+                //left join MST.MaterialMasterAlternativeUOM mauom on mauom.MaterialMasterId=mm.Id
+                //left join SCS.UnitOfMeasurement U on U.Id=mauom.AlternativeUOMId
+                //               where jwi.Id='" + JobWorkItemId + @"' ";
+
+                sql = @"select --mm.BaseUOMId UoMId,mmuom.UserName UoM
+                        mm.Id, mm.Code, mm.UserName as Material,jwi.UOMId, uom.UserName as JWIUom
+                         ,Value=case when jwi.MaterialMasterId is not null then mm.BaseUOMId else jwi.UOMId End
+                         ,Text=case when jwi.MaterialMasterId is not null then mmuom.UserName else uom.UserName End
+                        -- ,AlternateUoM=case when jwi.MaterialMasterId is not null then U.UserName End
+                        from HKP.JobWorkItem jwi left join MST.MaterialMaster mm on mm.Id=jwi.MaterialMasterId
+                        left join scs.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
+                        left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
+                        left join MST.MaterialMasterAlternativeUOM mauom on mauom.MaterialMasterId=mm.Id
+                        left join SCS.UnitOfMeasurement U on U.Id=mauom.AlternativeUOMId
+                        where jwi.Id='" + JobWorkItemId + @"'
+
+                         UNION ALL
+                        select
+                        --mauom.AlternativeUOMId UoMId,uom1.UserName UoM
+                        mm.Id, mm.Code, mm.UserName as Material,jwi.UOMId, uom.UserName as JWIUom
+                         ,Value=case when jwi.MaterialMasterId is not null then mauom.AlternativeUOMId else jwi.UOMId End
+                         ,Text=case when jwi.MaterialMasterId is not null then uom1.UserName else uom.UserName End
+                        -- -- ,AlternateUoM=case when jwi.MaterialMasterId is not null then uom1.UserName End
+                        from HKP.JobWorkItem jwi left join MST.MaterialMaster mm on mm.Id=jwi.MaterialMasterId
+                        left join scs.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
+                        left join SCS.UnitOfMeasurement uom on uom.Id=jwi.UOMId
+                        left join MST.MaterialMasterAlternativeUOM mauom on mauom.MaterialMasterId=mm.Id
+                        left join SCS.UnitOfMeasurement uom1 on uom1.Id=mauom.AlternativeUOMId
+                        left join SCS.UnitOfMeasurement U on U.Id=mauom.AlternativeUOMId
+                        where jwi.Id='" + JobWorkItemId + @"' ";
 
                 var Data = _sqlRepository.GetDataCollection(sql);
 
