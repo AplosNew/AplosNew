@@ -233,10 +233,10 @@
                                 </tr>
                                 <tr>
                                     <td colspan="6" class="text-right"><strong>Total : </strong></td>
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'TransactionQty'| setDecimal:currencyPrecision| number }}</strong></td>
+                                    <td class="text-right"><strong>{{detailList | sumByKey : 'TransactionQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"></td>
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'TotalAmount'| setDecimal:currencyPrecision| number }}</strong></td>
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'TaxAmount'| setDecimal:currencyPrecision| number }}</strong></td>
+                                    <td class="text-right"><strong>{{detailList | sumByKey : 'TotalAmount'| setDecimal:2| number }}</strong></td>
+                                    <td class="text-right"><strong>{{detailList | sumByKey : 'TaxAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"></td>
                                 </tr>
                             </tbody>
@@ -729,7 +729,7 @@
             <div class="modal-header"> Tax Information</div>   @*<button type="button" class="close" ng-click="closeReceiveTaxPopUp();">&times;</button>*@
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
-                    <p>Taxable amount : <b>{{taxAbleAmnt| number| setDecimal:currencyPrecision}}</b>&nbsp;<b>{{Currency}}</b></p>
+                    <p>Taxable amount : <b>{{taxAbleAmnt| number| setDecimal:2}}</b>&nbsp;<b>{{Currency}}</b></p>
                     <p>HSNCode : <b>{{HSNCode}}</b></p>
                     @*<p ng-disabled="true">index : <b>{{index}}</b></p>*@
 

@@ -98,7 +98,7 @@ namespace Library.MaterialManagement.Inventory
         GridModel Querywithoutpo(GridParameter parameters, string inveReveiveId);
         void JWInsertGraph(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus);
 
-
+        void InsertGraphInventorySalesReturn(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventorySalesReturn inventoryIssue, string IssueTypeStatus, IEnumerable<InventorySalesReturnTax> taxCategoryList, string productNewId, decimal ToCurrencyRate);
 
     }
 }
