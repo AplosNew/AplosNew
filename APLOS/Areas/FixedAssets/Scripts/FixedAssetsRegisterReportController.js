@@ -194,16 +194,47 @@ function FixedAssetsRegisterReportController(commonMessage, $scope, $rootScope, 
     };
 
 
-     
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+
+        return string;
+    }
+
     $scope.FixedAssetRegisterReportExcel = function () {
         $scope.FromDateValidation();
         $scope.ToDatevalidation()
         if ($scope.form0.$valid && !$scope.invalidFromDate && !$scope.invalidDocDate && !$scope.validation() ) {
 
 
+            var filtered = $("#GridFixedAssetRegisterReportElasticSearch").data("ejGrid").getFilteredRecords();
+            if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+                filtered = $scope.FixedAssetRegisterElasticSearchList;
+            }
+            //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+            var materialMasterId = getString(filtered, "MaterialMasterId");
+            var materialMasterArticleId = getString(filtered, "MaterialMasterArticleId");
+            var fixedAssetMasterId = getString(filtered, "FixedAssetMasterId");
+            var vendorId = getString(filtered, "VendorId");
+           // var isAsset = getString(filtered, "IsAsset");
+           // var machine = getString(filtered, "Machine");
+
+
             try {
-                var file_src = $scope.path + 'FixedAssetRegisterReportExcel?PartyType=' + $scope.report.PartyType + '&PartyId=' + $scope.report.PartyId + '&MaterialMasterId=' + $scope.report.MaterialMasterId +
-                    '&FixedAssetsId=' + $scope.report.FixedAssetMasterId + '&FromDate=' + $scope.report.FromDate + '&ToDate=' + $scope.report.ToDate;
+                //var file_src = $scope.path + 'FixedAssetRegisterReportExcel?PartyType=' + $scope.report.PartyType + '&PartyId=' + $scope.report.PartyId + '&MaterialMasterId=' + $scope.report.MaterialMasterId +
+                //    '&FixedAssetsId=' + $scope.report.FixedAssetMasterId + '&FromDate=' + $scope.report.FromDate + '&ToDate=' + $scope.report.ToDate;
+                //$rootScope.report(file_src);
+
+                var file_src = $scope.path + 'FixedAssetRegisterReportExcel?materialMasterId=' + materialMasterId + '&materialMasterArticleId=' +materialMasterArticleId + '&fixedAssetMasterId=' + fixedAssetMasterId +
+                    '&vendorId=' + vendorId 
+                    //'&FromDate=' + $scope.report.FromDate + '&ToDate=' + $scope.report.ToDate
+                    ;
                 $rootScope.report(file_src);
 
             } catch (e) {
@@ -212,9 +243,6 @@ function FixedAssetsRegisterReportController(commonMessage, $scope, $rootScope, 
             }
         }
     }
-
-   
-
 
     //GatenntryRegisterListPdf
     $scope.FixedAssetRegisterReportPdf = function () {
@@ -299,4 +327,89 @@ function FixedAssetsRegisterReportController(commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector("#assetmastermodal")).modal("hide");
 
     };
+
+
+    //for elastic search
+    $scope.FixedAssetRegisterElasticSearchList = [];
+    $scope.GetFixedAssetRegisterElasticSearchData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetFixedAssetRegisterElasticSearchDataList",
+                data: { /*FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate*/
+
+                },
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+
+                $scope.FixedAssetRegisterElasticSearchList = response.data.DATA;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+        catch (e) {
+
+        }
+    }
+    $scope.GetFixedAssetRegisterElasticSearchData();
+
+
+    $scope.TotalFARegisterSummaryAmount = [{
+        title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SubAssetAmount", dataMember: "SubAssetAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalAssetsBaseAmount", dataMember: "TotalAssetsBaseAmount", format: "{0:N2}" }
+
+        ],
+        showCaptionSummary: true
+    }];
+
+
+
+
+    //$scope.EntityFixedAssetRegisterList = [];
+    //$scope.GetEntityFixedAssetRegisterData = function () {
+    //    try {
+
+    //        var filtered = $("#GridEntityFixedAssetRegisterElasticSearch").data("ejGrid").getFilteredRecords();
+    //        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+    //            filtered = $scope.EntityFixedAssetRegisterElasticSearchList;
+    //        }
+    //        //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+    //        var materialMasterId = getString(filtered, "MaterialMasterId");
+    //        var materialMasterArticleId = getString(filtered, "MaterialMasterArticleId");
+    //        var fixedAssetMasterId = getString(filtered, "FixedAssetMasterId");
+    //        var vendorId = getString(filtered, "VendorId");
+    //        var isAsset = getString(filtered, "IsAsset");
+    //        var machine = getString(filtered, "Machine");
+
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.path + "GetEntityFixedAssetRegisterDataList",
+    //            data: { /*FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate*/
+    //                'materialMasterId': materialMasterId,
+    //                'materialMasterArticleId': materialMasterArticleId,
+    //                'fixedAssetMasterId': fixedAssetMasterId,
+    //                'vendorId': vendorId
+
+
+    //            },
+    //            dataType: 'JSON'
+
+    //        }).then(function successCallback(response) {
+
+    //            $scope.EntityFixedAssetRegisterList = response.data.DATA;
+    //        }),
+    //            function errorCallBack(response) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //    }
+    //    catch (e) {
+
+    //    }
+    //}
+
+
 }

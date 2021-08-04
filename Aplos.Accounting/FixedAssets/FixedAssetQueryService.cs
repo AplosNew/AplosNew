@@ -1490,8 +1490,8 @@ namespace Library.Accounting.FixedAssets
 										) sar on sar.FixedAssetRegisterId=FR.Id
 		                            left join ORG.Entity E on E.Id= FR.EntityId
 									left join ORG.Department D on D.Id = FR.DepartmentId
-                                    WHERE 
-                                    FR.CompanyGroupId='"+companyGroupId+"'and FR.CompanyId='"+companyId+"' AND FR.PlantId='"+plantId+@"'
+
+                                    WHERE FR.CompanyGroupId='"+companyGroupId+"'and FR.CompanyId='"+companyId+"' AND FR.PlantId='"+plantId+@"'
                                     and FR.Archive=0 and FR.IsAUC=0
                                     AND FR.Id NOT IN(' ')
 				                     and FR.MaterialMasterId in("+materialMasterId+") AND FR.MaterialMasterArticleId in ("+materialMasterArticleId+") AND FR.FixedAssetMasterId in ("+fixedAssetMasterId+@")
@@ -1502,6 +1502,52 @@ namespace Library.Accounting.FixedAssets
         }
 
         #endregion
+
+        #region  Fixed Assets Register Report for Elastis Search
+        public List<Dictionary<string, object>> GetFixedAssetRegisterElasticSearchDataList(string companyGroupId, string companyId, string plantId, string materialMasterId, string materialMasterArticleId, string fixedAssetMasterId, string vendorId, string isAsset, string machine)
+        {
+            var sql = @"select distinct MM.UserName MaterialMaster,MMA.StandardName Article,FA.UserName AssetMaster,P.UserName Party
+                , FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId
+
+                 ,IsAsset =case when MM.IsAsset =1 then 'Yes' else  'No'  end
+				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
+				 , count(FAR.FixedAssetMasterId) FACount
+				 ,sum( ISNULL(FAR.FABaseAmount,0))FABaseAmount
+				 ,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				 ,sum( ISNULL(FAR.FABaseAmount,0)- ISNULL(FAR.ADBaseAmount,0)) NetFixedAssetsAmount
+				  ,sum( isnull(sar.SubAssetAmount,0))SubAssetAmount
+				  ,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
+
+		        from TRN.FixedAssetRegister FAR 
+				JOIN MST.MaterialMaster MM ON MM.Id=FAR.MaterialMasterId
+				JOIN MST.MaterialMasterArticle MMA ON MMA.Id=FAR.MaterialMasterArticleId
+				JOIN MST.FixedAssetMaster FA ON FA.Id=FAR.FixedAssetMasterId
+				LEFT JOIN HKP.Party P ON P.Id=FAR.VendorId
+
+			    LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=MM.Id
+
+
+		        left join(select sum(Amount) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+				group by FixedAssetRegisterId
+				) sar on sar.FixedAssetRegisterId=FAR.Id
+
+
+		        WHERE FAR.CompanyGroupId='" + companyGroupId + "' AND FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"'  
+				  --and FAR.MaterialMasterId in (" + materialMasterId + ") AND FAR.MaterialMasterArticleId in (" + materialMasterArticleId + ") AND FAR.FixedAssetMasterId in (" + fixedAssetMasterId + @")
+					-- and FAR.VendorId in (" + vendorId + ") AND MM.IsAsset in (" + isAsset + ") AND MBP.BusinessProcessName in (" + machine + @")
+
+               GROUP BY FAR.MaterialMasterId ,MM.UserName ,MMA.StandardName ,FA.UserName,P.UserName 
+			   ,MM.IsAsset,MBP.BusinessProcessName,FAR.FixedAssetMasterId
+			    ,FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
+
+
+        #endregion Fixed Assets Register Report for Elastis Search
+
 
     }
 }

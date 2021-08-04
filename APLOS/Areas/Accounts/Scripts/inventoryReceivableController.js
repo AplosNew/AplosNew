@@ -178,16 +178,24 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
     //    $scope.employeeTransactionTypeList = result;
     //});
 
+    $scope.searchByPostedGRN = "Id"; $scope.searchGRN = "";
+    $scope.searchByPostedGRNList = [{ value: 'Id', name: "Sales No" }, { value: 'SalesDate', name: "Sales Date" }
+        , { value: 'Tracenent', name: "Tracenent" }
+        , { value: 'PartyName', name: "Party" }
+        , { value: 'GateEntryNo', name: "Gate EntryNo" }, { value: 'DocRefNo', name: "DocRef No" }
+        , { value: 'DocDate', name: "Doc Date" }];
+
+
     $scope.approvedSalesList = [];
     $scope.getPopUpData = function () {
         $http({
-            method: 'GET',
+            method: 'POST',
             url: 'Accounts/InventorySale/GetListForInvReceivable',
+            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
         }).then(function successCallback(response) {
             $scope.approvedSalesList = response.data;
             for (var i = 0; i < $scope.approvedSalesList.length; i++) {
                 response.data[i].SalesDate = new Date($scope.approvedSalesList[i].SalesDate);
-                //response.data[i].DocDate = new Date($scope.approvedSalesList[i].DocDate);
             }
         });
     };
