@@ -73,6 +73,18 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
     }
     $scope.GetEntityFixedAssetRegisterElasticSearchData();
 
+
+    $scope.TotalEntityFARegisterSummaryAmount = [{
+        title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SubAssetAmount", dataMember: "SubAssetAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalAssetsBaseAmount", dataMember: "TotalAssetsBaseAmount", format: "{0:N2}" }
+
+        ],
+        showCaptionSummary: true
+    }];
+
+
     //$scope.FilterModel = { ReportLevel: 'ALL', FromDate: new Date(), ToDate: _currentDate, ActiveStatus: 'All', DateSelection: "ASON" };
     //$scope.QueryString = [];
     //$scope.HideGrid = true;
@@ -183,6 +195,17 @@ function entityFixedAssetsRegisterController(cboService, commonMessage, $scope, 
 
         }
     }
+
+    $scope.TotalEntityFARegisterDetailAmount = [{
+        title: "Total", summaryColumns: [
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "FABaseAmount", dataMember: "FABaseAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SubAssetAmount", dataMember: "SubAssetAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "ADBaseAmount", dataMember: "ADBaseAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" }
+            
+        ],
+        showCaptionSummary: true
+    }];
 
 
 
