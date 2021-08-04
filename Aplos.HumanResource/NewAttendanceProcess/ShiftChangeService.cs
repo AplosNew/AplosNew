@@ -354,8 +354,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                     if (dsMaster.Tables[0].DefaultView.Count > 0)
                     {
                         string Lock = clsWebLib.GetBoolData(dsMaster.Tables[0].DefaultView[0][@"IsLock"]).ToString();
+                        string OTEntitled = clsWebLib.GetBoolData(dsMaster.Tables[0].DefaultView[0][@"IsOTEntitled"]).ToString();
 
-                        if (Lock == "False")
+                        if (Lock == "False" && OTEntitled=="True")
                         {
 
                             DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
@@ -384,7 +385,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 else
                 {
-                    return "Attendance of :-"+ ReturnLockedEmp+ " is Locked";
+                    return "OT Entry of :-"+ ReturnLockedEmp+ " isn't Allowed";
                 }
             }
             catch (Exception ex)

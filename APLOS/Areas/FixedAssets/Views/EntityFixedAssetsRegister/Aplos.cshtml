@@ -60,7 +60,7 @@
         <div class="table-responsive modal-table aplos-grid-toggle">
             <div class="content-container-fluid" style="color:black;overflow:scroll">
                 <div style="color:black;" id="GridEntityFixedAssetRegisterElasticSearch" ej-grid e-datasource="EntityFixedAssetRegisterElasticSearchList" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplateEntityandDepartment"
-                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-summaryrows="TotalEntityFARegisterSummaryAmount"
                      e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
                     <div e-columns>
 
@@ -81,9 +81,9 @@
                         <div e-column e-type="text" e-field="IsAsset" e-headertext="Asset" e-width="20" style="height: 20px;"></div>
                         <div e-column e-type="text" e-field="Machine" e-headertext="Machine" e-width="20" style="height: 20px;"></div>
                         <div e-column e-type="text" e-field="FACount" e-headertext="FA Count" e-width="20" e-textalign="right" style="height: 20px;"></div>
-                        <div e-column e-type="text" e-field="NetFixedAssetsAmount" e-headertext="Net Amount" e-width="50" e-textalign="right" style="height: 20px;"></div>
-                        <div e-column e-type="text" e-field="SubAssetAmount" e-headertext="Sub Amount" e-width="50" e-textalign="right" style="height: 20px;"></div>
-                        <div e-column e-type="text" e-field="TotalAssetsBaseAmount" e-headertext="Total Base Amount" e-width="50" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="NetFixedAssetsAmount" e-headertext="Net Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="SubAssetAmount" e-headertext="Net Sub Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="TotalAssetsBaseAmount" e-headertext="Net Total Base Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
 
                     </div>
                 </div>
@@ -127,7 +127,7 @@
         <div class="table-responsive modal-table aplos-grid-toggle">
             <div class="content-container-fluid" style="color:black;overflow:scroll">
                 <div style="color:black;" id="GridEntityFixedAssetRegister" ej-grid e-datasource="EntityFixedAssetRegisterList" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplateEntityandDepartment"
-                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-summaryrows="TotalEntityFARegisterDetailAmount"
                      e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
                     <div e-columns>
                         <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkEntityAndDepartment" e-textalign="center" e-width="30"></div>

@@ -1466,22 +1466,13 @@ namespace Library.Accounting.FixedAssets
                                     , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                                     , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
                                     , FAM.FixedAssetSubCategoryId, FAM.AssetType
-									
-									
-									--, FR.Price PurchasePrice,FR.FABaseAmount
-									, ISNULL(FA.FABaseAmount,0)FABaseAmount
-									, ISNULL(FA.SubAssetAmount,0) SubAssetAmount
-
-									, ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-
-									,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
-
-
+									, ISNULL(FR.FABaseAmount,0)FABaseAmount
+									, ISNULL(sar.SubAssetAmount,0) SubAssetAmount
+									, ISNULL(FR.ADBaseAmount,0) ADBaseAmount
+									,ISNULL(FR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) NetFixedAssetsAmount
 									, MMA.StandardName Article
 									, FR.IsFinancial,IID.InventoryIssueId IssueNo,IRD.InventoryReceiveId GRNNo,FR.CapitalizeRegisterNo
                                     FROM [TRN].[FixedAssetRegister] FR
-
-
 					                LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId=MM.Id
 					                LEFT JOIN MST.MaterialMasterArticle MMA ON FR.MaterialMasterArticleId= MMA.Id
                                     LEFT JOIN MST.BudgetMaster BM ON MM.BudgetMasterId = BM.Id
@@ -1494,41 +1485,18 @@ namespace Library.Accounting.FixedAssets
 									LEFT JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
 									LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
 									LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId 
-
-									
-									     LEFT JOIN (
-										SELECT COUNT(FAR.FixedAssetMasterId) FACount
-				
-										,SUM(isnull( FAR.FABaseAmount,0)) FABaseAmount
-										,sum( isnull( sar.SubAssetAmount,0)) SubAssetAmount
-				
-										--COUNT(FAR.FixedAssetMasterId) FACount,SUM(isnull( FAR.FABaseAmount,0) + isnull( sar.SubAssetAmount,0)) FABaseAmount
-				
-										,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
-										,FAR.MaterialMasterId,FAR.MaterialMasterArticleId	
-
-										--LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount,SUM(FAR.FABaseAmount+sar.SubAssetAmount) FABaseAmount,SUM(FAR.ADBaseAmount) ADBaseAmount
-										--,FAR.MaterialMasterId
-
-										FROM TRN.FixedAssetRegister FAR
-										left join(select sum(isnull( Amount,0)) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+									left join(select sum(isnull( Amount,0)) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 										group by FixedAssetRegisterId
-										) sar on sar.FixedAssetRegisterId=FAR.Id
-
-										GROUP BY FAR.FixedAssetMasterId,FAR.MaterialMasterId,FAR.MaterialMasterArticleId
-										)FA ON FA.MaterialMasterId=MMA.MaterialMasterId AND FA.MaterialMasterArticleId=MMA.Id
-
+										) sar on sar.FixedAssetRegisterId=FR.Id
 		                            left join ORG.Entity E on E.Id= FR.EntityId
 									left join ORG.Department D on D.Id = FR.DepartmentId
                                     WHERE 
-                                    FR.CompanyGroupId='" + companyGroupId + "'and FR.CompanyId='" + companyId + "' AND FR.PlantId='" + plantId + @"'
-                                    --and FR.IsOpeningBalance=0 
+                                    FR.CompanyGroupId='"+companyGroupId+"'and FR.CompanyId='"+companyId+"' AND FR.PlantId='"+plantId+@"'
                                     and FR.Archive=0 and FR.IsAUC=0
                                     AND FR.Id NOT IN(' ')
-                      
-				                     and FR.MaterialMasterId in(" + materialMasterId + ") AND FR.MaterialMasterArticleId in (" + materialMasterArticleId + ") AND FR.FixedAssetMasterId in (" + fixedAssetMasterId + @")
-					                 and FR.VendorId in (" + vendorId + @") 
-                                     --AND MM.IsAsset in (" + isAsset + @") ";
+				                     and FR.MaterialMasterId in("+materialMasterId+") AND FR.MaterialMasterArticleId in ("+materialMasterArticleId+") AND FR.FixedAssetMasterId in ("+fixedAssetMasterId+@")
+					                 and FR.VendorId in ("+vendorId+@") 
+                                     --AND MM.IsAsset in () ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
