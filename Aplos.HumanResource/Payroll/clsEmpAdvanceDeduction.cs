@@ -86,7 +86,7 @@ namespace Library.HumanResource.Payroll
                 dtEmpInfo = dsEmpInfo.Tables[0];
                 dvEmpInfo = new DataView();
 
-                objEmpExtAmt.GetMthWiseExtSalAmtMaster(identity.PlantId, empids, Convert.ToInt32(Year), Convert.ToInt32(Month), out dsMWESAMst);
+                objEmpExtAmt.GetMthWiseExtSalAmtMaster(empids, Convert.ToInt32(Year), Convert.ToInt32(Month), out dsMWESAMst);
 
                 dtMWESAMst = dsMWESAMst.Tables[0];
                 dvMWESAMst = new DataView();
