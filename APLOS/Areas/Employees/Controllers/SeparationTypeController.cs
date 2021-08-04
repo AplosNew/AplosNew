@@ -119,8 +119,12 @@ namespace Aplos.Areas.Employees.Controllers
                 if (dvSeparationTypeDataList.Count == 0)
                 {
                     string sID = string.Empty;
-                    bplib.clsGenID objGenID = new bplib.clsGenID();
-                    objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "SeparationType", out sID);
+                    //bplib.clsGenID objGenID = new bplib.clsGenID();
+                    //objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "SeparationType", out sID);
+
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(DateTime.Now.ToShortDateString().ToString(), "SeparationType", out sID);
+
                     DataRow dr = dsSeparationTypeDataList.Tables[0].NewRow();
                     dr["Id"] = "ST" + sID;
                     dr["Sequence"] = SeparationTypeData.Sequence.ToString();
@@ -233,8 +237,11 @@ namespace Aplos.Areas.Employees.Controllers
                         {
                             count++;
                             string sIDdetails = string.Empty;
-                            bplib.clsGenID objGenID = new bplib.clsGenID();
-                            objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "SeparationTypeDetails", out sIDdetails);
+                            //bplib.clsGenID objGenID = new bplib.clsGenID();
+                            //objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "SeparationTypeDetails", out sIDdetails);
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(DateTime.Now.ToShortDateString().ToString(), "SeparationTypeDetails", out sIDdetails);
+
                             DataRow dr = dsSeparationTypeDetailsDataList.Tables[0].NewRow();
                             dr["Id"] = "STD" + sIDdetails+ count;
                             dr["SeparationTypeId"] = masterepk;
