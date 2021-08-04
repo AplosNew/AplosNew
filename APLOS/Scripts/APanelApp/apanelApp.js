@@ -416,6 +416,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('OrderControlTypesController', OrderControlTypesController)
 
     .controller('otSlabController', otSlabController)
+    .controller('OTUpdateConfigurationController', OTUpdateConfigurationController)
     .controller('PFPolicyController', PFPolicyController)
     .controller('OTPolicyController', OTPolicyController)
     .controller('gratuityPolicyController', gratuityPolicyController)

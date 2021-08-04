@@ -98,7 +98,8 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         EmployeeName: null,
         EmployeeId: null,
         BeneficiaryType: null,
-        EmployeeTransactionTypeId: null
+        EmployeeTransactionTypeId: null,
+        AccountType: null
     };
 
     $scope.voucherDetail = {
@@ -197,6 +198,18 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     cboService.getCboEntityByPlant(null, null, "", function (result) {
         $scope.entityList = result;
     });
+
+    $scope.costCenterCboList = [];
+    $scope.GetCboCostCenterIdByEntity = function (entityId) {
+        $http({
+            method: "GET",
+            url: "accounts/expenseBooking/GetCboCostCenterIdByEntity?entityId=" + entityId
+        }).then(function successCallback(response) {
+            $scope.costCenterCboList = response.data;
+
+        });
+    };
+
     $scope.GetCurrencyExchangeRateList = function () {
         if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
             $http({
@@ -456,6 +469,12 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
             $scope.voucherDetail.Narration = $scope.voucher.Narration;
             $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
             $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
+            //if ($scope.voucher.AccountType = 'Expense') {
+            //    $scope.voucherDetail.IsCostCenter = false;
+            //}
+            //else {
+            //    $scope.voucherDetail.IsCostCenter = true;
+            //}
             $scope.voucherDetail.Amount = null;
             $scope.voucherDetail.TotalTax = null;
             $scope.voucherDetail.TotalAmount = null;
@@ -1016,6 +1035,8 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         $scope.voucherDetail.ActivityId = data.ActivityId;
         $scope.voucherDetail.ActivityName = data.ActivityName;
         $scope.voucherDetail.ActivityCode = data.ActivityCode;
+        $scope.voucherDetail.ActivityCode = data.ActivityCode;
+        $scope.voucherDetail.AccountType = data.AccountType;
         $scope.addRow();
         $scope.closeGLPopUp();
     };

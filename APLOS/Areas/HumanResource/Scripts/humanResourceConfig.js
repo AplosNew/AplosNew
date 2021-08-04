@@ -560,9 +560,17 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/OutPunchConfiguration/Aplos',
             controller: 'OutPunchConfigurationController'
         })
+        .when('/ot-update-configuration', {
+            templateUrl: 'humanresource/OTUpdateConfiguration/Aplos',
+            controller: 'OTUpdateConfigurationController'
+        })
         .when('/roster-pattern', {
             templateUrl: 'humanresource/RosterPattern/Aplos',
             controller: 'RosterPatternController'
+        })
+        .when('/emp-job-location', {
+            templateUrl: 'humanresource/EmployeeJobLocation/Aplos',
+            controller: 'EmployeeJobLocationController'
         })
             .when('/new-attdn-dashboard', {
                 templateUrl: 'humanresource/NewAttendanceDashboard/Aplos',
