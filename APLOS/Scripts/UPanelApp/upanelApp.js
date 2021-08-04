@@ -904,6 +904,7 @@ var upanelApp = angular
     .controller("ProductionConversionParameterController", ProductionConversionParameterController)
     .controller("EmployeeJobLocationController", EmployeeJobLocationController)
 
+    .controller("NewAttendanceDashboardController", NewAttendanceDashboardController)
 
 
     .config(AccessControllerConfig)

@@ -540,6 +540,7 @@
     <Compile Include="Areas\HumanResource\Controllers\BlackListController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeAdditionDeductionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManualShiftNewController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\NewAttendanceDashboardController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OutPunchConfigurationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ProfessionalTaxReportsController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTPlanningController.cs" />
@@ -1774,6 +1775,7 @@
     <Content Include="Areas\HumanResource\Scripts\BlackListController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAdditionDeductionController.js" />
     <Content Include="Areas\HumanResource\Scripts\ManualShiftNewController.js" />
+    <Content Include="Areas\HumanResource\Scripts\NewAttendanceDashboardController.js" />
     <Content Include="Areas\HumanResource\Scripts\OutPunchConfigurationController.js" />
     <Content Include="Areas\HumanResource\Scripts\payRegisterBDReportContractorController.js" />
     <Content Include="Areas\HumanResource\Scripts\professionalTaxReportsController.js" />
@@ -3613,6 +3615,7 @@
     <Content Include="Areas\HumanResource\Views\EmployeeJobLocation\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTUpdateConfiguration\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionConversionParameter\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\NewAttendanceDashboard\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
