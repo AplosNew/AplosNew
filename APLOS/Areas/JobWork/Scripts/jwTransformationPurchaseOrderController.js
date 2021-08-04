@@ -4376,6 +4376,20 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
     };
 
+    $scope.PODocumentMapDataAll = function () {
+        //debugger;
+        $http({
+            method: 'GET',
+            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
+            url: 'JobWork/JWTransformationPurchaseOrder/PODocumentMapDataAll'
+        }).then(function successCallback(response) {
+            $scope.lst = response.data;
+            //$scope.detailgrid($scope.lst);
+            window.Img = response.data;
+
+        });
+    }
+    $scope.PODocumentMapDataAll();
 
 
 	//#endregion 

@@ -5336,7 +5336,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 							  ,UpdatedBy
 							  ,UpdatedDate
 							  ,UpdatedFromIP
-						  FROM [TRN].[PODocumentMap] 
+						  FROM dbo.JWPODocumentMap 
 							where POId='" + POID + @"'
 							ORDER BY UserFilename";
                 return _sqlRepository.GetDataCollection(_sql);
