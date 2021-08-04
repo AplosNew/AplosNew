@@ -1326,7 +1326,7 @@ namespace Aplos.Areas.Employees.Controllers
         public JsonResult GetEmployeeCbo()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_employeeProfileService.GetEmployeeCbo(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(employeeProfile.GetEmployeeCbo(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

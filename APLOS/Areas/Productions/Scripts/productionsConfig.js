@@ -179,5 +179,11 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/PackingInvoice/Aplos',
             controller: 'PackingInvoiceController'
         })
+
+        .when('/conversion-parameter', {
+            templateUrl: 'Productions/ProductionConversionParameter/Aplos',
+            controller: 'ProductionConversionParameterController'
+        })
+
         ;
 }
