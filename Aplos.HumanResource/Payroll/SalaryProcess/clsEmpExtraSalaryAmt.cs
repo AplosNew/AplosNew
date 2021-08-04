@@ -614,16 +614,7 @@ namespace OTSBD
                 con.executeQuery(strSQL2);
                 con.CommitTransaction();
 
-                //objCon = new ConnectionManager.DAL.ConManager("1");
-                //objCon.OpenConnection("1");
-                //objCon.BeginTransaction();
-                //IsTransactionStarted = true;
-
-                //objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
-                //objCon.ExecuteNonQueryWrapper(strSQL2, true, "1");
-
-                //objCon.CommitTransaction();
-                //IsTransactionStarted = false;
+              
             }
             catch (Exception ex)
             {
@@ -631,12 +622,7 @@ namespace OTSBD
             }
             finally
             {
-                if (IsTransactionStarted)
-                {
-                    objCon.RollBack();
-                }
-                objCon.CloseConnection();
-                objCon = null;
+               
             }
         }//End Function
 
