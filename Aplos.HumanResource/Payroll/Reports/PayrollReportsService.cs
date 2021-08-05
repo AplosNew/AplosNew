@@ -9926,32 +9926,20 @@ ELSE CONVERT(BIT,0) END  ---No
                 }
                 else
                 {
-                    string inPayrollGroup = "";
-                    DataTable dtPayRollGrpEmpId = _sqlRepository.GetDataTable("SELECT employeeid FROM MST.PayrollGroupMaster WHERE PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"') AND PlantID = '" + plantId + @"'");
+                    string inPayrollGroup = "''";
+                    DataTable dtPayRollGrpEmpId = _sqlRepository.GetDataTable("SELECT employeeid FROM MST.PayrollGroupMaster WHERE PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"') AND PlantID IN (" + plantId + @")");
                     DataTable dtNotPayRollGrpEmpId = _sqlRepository.GetDataTable(@"SELECT SystemId FROM EmployeeInformation E 
-                    WHERE SystemId NOT IN (SELECT employeeid from MST.PayrollGroupMaster where PlantID in('" + plantId + @"')  AND E.PlantID in('" + plantId + @"'))");
+                    WHERE SystemId NOT IN (SELECT employeeid from MST.PayrollGroupMaster where PlantID in(" + plantId + @")  AND E.PlantID in(" + plantId + @"))");
 
-                    if (dtPayRollGrpEmpId.Rows.Count > 0)
-                    {
-                        for (int i = 0; i < dtPayRollGrpEmpId.Rows.Count; i++)
-                        {
-                            inPayrollGroup += ",'" + dtPayRollGrpEmpId.Rows[i]["employeeid"].ToString() + "'";
-                        }
-                        if (dtNotPayRollGrpEmpId.Rows.Count > 0)
-                        {
-                            for (int i = 0; i < dtNotPayRollGrpEmpId.Rows.Count; i++)
-                            {
-                                inPayrollGroup += ",'" + dtNotPayRollGrpEmpId.Rows[i]["SystemId"].ToString() + "'";
-                            }
-                        }
-                        wcPayrollGroup = @"AND E.SystemId  IN (" + inPayrollGroup + @")";
-                    }
-                    else
-                    {
-                        wcPayrollGroup = @"";
-                    }
 
-                    //wcPayrollGroup = @"AND E.SystemId  IN (SELECT employeeid from MST.PayrollGroupMaster where PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"'))";
+                    for (int i = 0; i < dtPayRollGrpEmpId.Rows.Count; i++)
+                        inPayrollGroup += ",'" + dtPayRollGrpEmpId.Rows[i]["employeeid"].ToString() + "'";
+
+
+                    for (int i = 0; i < dtNotPayRollGrpEmpId.Rows.Count; i++)
+                        inPayrollGroup += ",'" + dtNotPayRollGrpEmpId.Rows[i]["SystemId"].ToString() + "'";
+
+                    wcPayrollGroup = @" AND E.SystemId  IN (" + inPayrollGroup + @")";
                 }
                 if (salaryProcessId == "STRUCTURE")
                 {
