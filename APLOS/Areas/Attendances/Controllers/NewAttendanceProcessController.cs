@@ -186,7 +186,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult RunRoster()
+        public ActionResult RunRoster(string Date)
         {
             string CGId = "CG20181";
 
@@ -201,7 +201,8 @@ namespace Aplos.Areas.Attendances.Controllers
                     try
                     {
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
-                        rep.RosterProcess(PlantValue);
+                        //rep.RosterProcess(PlantValue)
+                        rep.RosterProcessTry(PlantValue , Date);
                     }
                     catch (Exception ex)
                     {

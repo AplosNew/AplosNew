@@ -107,6 +107,7 @@ function OutPunchConfigurationController(cboService, commonMessage, $scope, $roo
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
+        $scope.refreshSequence();
         if ($scope.ModelNewForm.$valid) {
 
             if ($scope.ShiftChildList.length > 0) {
