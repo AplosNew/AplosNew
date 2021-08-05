@@ -358,9 +358,11 @@ function FixedAssetsRegisterReportController(commonMessage, $scope, $rootScope, 
 
     $scope.TotalFARegisterSummaryAmount = [{
         title: "Total", summaryColumns: [
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "FABaseAmount", dataMember: "FABaseAmount", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SubAssetAmount", dataMember: "SubAssetAmount", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalAssetsBaseAmount", dataMember: "TotalAssetsBaseAmount", format: "{0:N2}" }
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalBaseAmount", dataMember: "TotalBaseAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "ADBaseAmount", dataMember: "ADBaseAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" }
 
         ],
         showCaptionSummary: true
