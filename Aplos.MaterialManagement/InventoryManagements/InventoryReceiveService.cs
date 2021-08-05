@@ -981,7 +981,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					
 						,ISNULL(GRNALLO.TransactionQty,0) TransactionQty
 						,Isnull(MMAU.BaseUOMFactor,0) BaseUOMFactor
-						,ISNULL(GRNALLO.TransactionQty,0)  TotalQty--* Isnull(MMAU.BaseUOMFactor,0)						
+						,(ISNULL(GRNALLO.TransactionQty,0))	  TotalQty--* Isnull(MMAU.BaseUOMFactor,0)						
 					
 					
 						FROM BOQDetail BOQD

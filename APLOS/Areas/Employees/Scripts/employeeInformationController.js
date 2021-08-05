@@ -514,7 +514,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.budgetCodeChangeNew.LegalDesignationId = null;
         $scope.budgetCodeChangeNew.LegalDesignation = null;
     };
-
+    
     $scope.GetGivenDesignationByLegalDesignaiton = function (legalDesignationId) {
         $http({
             method: 'GET',
@@ -707,7 +707,14 @@ function employeeInformationController(addressService, fileReader, cboService, c
     cboService.getCboPayRollGroupCbo(null, function (result) {
         $scope.payrollGroupList = result;
     });
-
+    $scope.givenDesignationList = [];
+    cboService.getCboGivenDesignation(function (result) {
+        $scope.givenDesignationList = result;
+    });
+    $scope.attendanceGroupList = [];
+    cboService.getAttendanceGroupCbo(function (result) {
+        $scope.attendanceGroupList = result;
+    });
     $scope.showEntity = function () {
         $http.get('employees/employeeprobationalperiod/getentitybyemployee')
             .then(function (response) {
