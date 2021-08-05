@@ -247,6 +247,10 @@
     <Compile Include="Configurations\IE\SubsectionStructureDetailConfiguration.cs" />
     <Compile Include="Configurations\IE\SubsectionStructureMasterConfiguration.cs" />
     <Compile Include="Configurations\Inventory\GRNAcceptanceMapConfiguration.cs" />
+    <Compile Include="Configurations\Inventory\InventorySalesReturnDetailConfiguration.cs" />
+    <Compile Include="Configurations\Inventory\InventorySalesReturnConfiguration.cs" />
+    <Compile Include="Configurations\Inventory\InventorySalesReturnTaxConfiguration.cs" />
+    <Compile Include="Configurations\Inventory\InventorySalesReturnServiceConfiguration.cs" />
     <Compile Include="Configurations\Inventory\IssueDetailAndIssueRequestMapConfiguration.cs" />
     <Compile Include="Configurations\Inventory\IssueRequestBOQMapConfiguration.cs" />
     <Compile Include="Configurations\Inventory\IssueRequestMasterSalesOrderMapConfiguration.cs" />
@@ -650,6 +654,10 @@
     <Compile Include="IE\SizeGroup.cs" />
     <Compile Include="Inventory\FGInventoryReceive.cs" />
     <Compile Include="Inventory\GRNAcceptanceMap.cs" />
+    <Compile Include="Inventory\InventorySalesReturnDetail.cs" />
+    <Compile Include="Inventory\InventorySalesReturn.cs" />
+    <Compile Include="Inventory\InventorySalesReturnTax.cs" />
+    <Compile Include="Inventory\InventorySalesReturnService.cs" />
     <Compile Include="Inventory\IssueDetailAndIssueRequestMap.cs" />
     <Compile Include="Inventory\IssueRequestBOQMap.cs" />
     <Compile Include="Inventory\IssueRequestMasterSalesOrderMap.cs" />

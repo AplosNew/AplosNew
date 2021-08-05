@@ -2993,11 +2993,16 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 else
                 {
                     decimal SumTax = 0;
-                    for(int a = 0; a < taxCategoryList.Count; a++)
+                    if (taxCategoryList != null)
                     {
-                        decimal T1 = Convert.ToDecimal(taxCategoryList[a]["TaxAmount"]);
+                        
+                        for (int a = 0; a < taxCategoryList.Count; a++)
+                        {
+                            decimal T1 = Convert.ToDecimal(taxCategoryList[a]["TaxAmount"]);
                             SumTax = T1 + SumTax;
+                        }
                     }
+                       
 
                     for (int i = 0; i < data.Count; i++)
                     {
@@ -3079,6 +3084,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
                         }
                         string DetailIdid = dsMaster.Tables[0].Rows[i]["Id"].ToString();
+
+                        if (taxCategoryList != null)
+                        {
                         for (int i1 = 0; i1 < taxCategoryList.Count; i1++)
                         {
 
@@ -3155,9 +3163,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                 
                             }
                         }
+                        }
 
                     }
-
+                 
                 }
 
                 if (data != null)
@@ -3205,12 +3214,20 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
         public List<Dictionary<string, object>> SaveTaxList(List<Dictionary<string, object>> data, List<Dictionary<string, object>> TaxList, string userName, string IPAddress)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             DataSet dsTax = null;
+            DataSet OutputMat = null;
             string sql = "";
+            string sql2 = "";
+
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-            sql = "SELECT * FROM JWTransformationPurchaseOrderTax WHERE JWTransformationPurchaseOrderId='" + data[0]["JWTransformationPurchaseOrderId"] + "'";
+            //sql = "SELECT * FROM JWTransformationPurchaseOrderTax WHERE JWTransformationPurchaseOrderId='" + data[0]["JWTransformationPurchaseOrderId"] + "'";
+            sql = "SELECT * FROM JWTransformationPurchaseOrderTax WHERE JWTransformationPurchaseOrderDetailId='" + data[0]["Id"] + "'";
+            sql2 = "SELECT * FROM dbo.JobWorkTransformationContractChild WHERE Id='" + data[0]["Id"] + "'";
+
             con = new ConnectionManager.DAL.ConManager("1");
             con.OpenDataSetThroughAdapter(sql, out dsTax, false, "1");
+            con.OpenDataSetThroughAdapter(sql2, out OutputMat, false, "1");
 
             try
             {
@@ -3250,7 +3267,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
 
                         dsTax.Tables[0].DefaultView.RowFilter = "JWTransformationPurchaseOrderDetailId='" + TaxList[t]["JWTransformationPurchaseOrderDetailId"] + "' and Id = '" + TaxList[t]["Id"] + "'  ";
-
+                        OutputMat.Tables[0].DefaultView.RowFilter = "Id='" + data[0]["Id"] + "' ";
 
                         if (dsTax.Tables[0].DefaultView.Count == 0)
                         {
@@ -3264,7 +3281,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             DataRow dr = dsTax.Tables[0].NewRow();
                             dr["Id"] = _taxId + "-" + (t + 1).ToString();
 
-                            dr["JWTransformationPurchaseOrderId"] = data[0]["JWTransformationPurchaseOrderId"];
+                            dr["JWTransformationPurchaseOrderId"] = data[0]["JobWorkTransformationContractMasterId"];
                             dr["JWTransformationPurchaseOrderDetailId"] = data[0]["Id"];
                             dr["TaxCategoryId"] = TaxList[t]["TaxCategoryId"];
                             if (TaxList[t].ContainsKey("HSNCodeId"))
@@ -3341,10 +3358,38 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             dr["UpdatedFromIP"] = IPAddress;
                             dr.EndEdit();
                         }
+
+                        decimal SumTax = 0;
+                        if (TaxList != null)
+                        {
+
+                            for (int a = 0; a < TaxList.Count; a++)
+                            {
+                                decimal T1 = Convert.ToDecimal(TaxList[a]["TaxAmount"]);
+                                SumTax = T1 + SumTax;
+                            }
+                        }
+
+                        if (OutputMat.Tables[0].DefaultView.Count > 0)
+                        {
+                            DataRow dr = OutputMat.Tables[0].DefaultView[0].Row;
+
+                            dr.BeginEdit();
+                            dr["TaxAmount"] = SumTax;
+
+                            //dr["AddedBy"] = identity.Name;
+                            //dr["AddedDate"] = DateTime.Now.ToString();
+                            //dr["AddedFromIP"] = identity.IPAddress;
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = DateTime.Now.ToString();
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+
+                            dr.EndEdit();
+                        }
                     }
                 }
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsTax);
+                _info.SaveDataSets(dsTax, OutputMat);
                 return TaxList;
             }
             catch (Exception ex)
