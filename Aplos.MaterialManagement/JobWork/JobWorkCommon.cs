@@ -3005,6 +3005,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                         dsMaster.Tables[0].DefaultView.RowFilter = "Id='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
                         dsTax.Tables[0].DefaultView.RowFilter = "JWTransformationPurchaseOrderDetailId='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
+                       // dsTax.Tables[0].DefaultView.RowFilter = "Id='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
 
                         string _Id = "";
 
@@ -3091,7 +3092,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                 taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
                                 //JWPODId = taxCategoryList[i1]["Id"].ToString();
                                 //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
-                                taxCategoryList[i1]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
+                                taxCategoryList[i1]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
                                 taxCategoryList[i1]["JWTransformationPurchaseOrderDetailId"] = DetailIdid;
                                 //data[i]["Quantity"] = data[i]["TransactionQty"];
 
@@ -3105,11 +3106,53 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             else
                             {
 
+
+
                                 //data[i]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
-                                taxCategoryList[i1]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
-                                taxCategoryList[i1]["JWTransformationPurchaseOrderDetailId"] = DetailIdid;
-                                taxCategoryList[i1]["Quantity"] = data[i]["TransactionQty"];
-                                EditRow(dsTax.Tables[0].DefaultView[0].Row, taxCategoryList[i1]);
+                                //taxCategoryList[i1]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                                //taxCategoryList[i1]["JWTransformationPurchaseOrderDetailId"] = DetailIdid;
+
+                                //taxCategoryList[i1]["TaxCategoryId"] = dsTax.Tables[0].Rows[i1][""];
+                                //taxCategoryList[i1]["Percentage"] = DetailIdid;
+                                //taxCategoryList[i1]["TaxAmount"] = JWPurchaseOrderId;
+                                // taxCategoryList[i1]["Quantity"] = data[i]["TransactionQty"];
+                                // EditRow(dsTax.Tables[0].DefaultView[0].Row, taxCategoryList[i1]);
+
+                                // edit
+
+                                dsTax.Tables[0].DefaultView.RowFilter = "Id ='" + taxCategoryList[i1]["Id"] + "' ";
+                                if(dsTax.Tables[0].DefaultView.Count == 0)
+                                {
+                                    bplib.clsGenID genid = new bplib.clsGenID();
+                                    genid.GenID("JWTransformationPurchaseOrderTax", out _Id);
+                                    taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
+                                    taxCategoryList[i1]["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                                    taxCategoryList[i1]["JWTransformationPurchaseOrderDetailId"] = DetailIdid;
+
+                                    AddNewRow(dsTax.Tables[0], taxCategoryList[i1]);
+                                }
+                                else
+                                {
+                                    DataRow dr = dsTax.Tables[0].DefaultView[0].Row;
+
+                                    dr.BeginEdit();
+                                    dr["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+                                    dr["JWTransformationPurchaseOrderDetailId"] = DetailIdid;
+                                    dr["TaxCategoryId"] = taxCategoryList[i1]["TaxCategoryId"];
+                                    dr["Percentage"] = taxCategoryList[i1]["Percentage"];
+                                    dr["TaxAmount"] = taxCategoryList[i1]["TaxAmount"];
+                                    dr["HSNCodeId"] = taxCategoryList[i1]["HSNCodeId"];
+
+                                    dr["AddedBy"] = identity.Name;
+                                    dr["AddedDate"] = DateTime.Now.ToString();
+                                    dr["AddedFromIP"] = identity.IPAddress;
+                                    dr["UpdatedBy"] = identity.Name;
+                                    dr["UpdatedDate"] = DateTime.Now.ToString();
+                                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+                                    dr.EndEdit();
+                                }
+                                
                             }
                         }
 
