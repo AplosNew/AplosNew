@@ -215,7 +215,7 @@ namespace Aplos.Areas.Products.Controllers
 
 
         [HttpPost]
-        public JsonResult Create(InventorySalesReturn inventoryIssue,IEnumerable<InventorySalesReturnDetailViewModel> entities,  IEnumerable<InventorySalesReturnService> salesServiceVMList)
+        public JsonResult Create(InventorySalesReturn inventoryIssue,IEnumerable<InventorySalesReturnDetailViewModel> entities,  IEnumerable<InventorySalesReturnServiceViewModel> salesServiceVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             inventoryIssue.CompanyGroupId = identity.CompanyGroupId;

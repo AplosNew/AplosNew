@@ -77,7 +77,7 @@ namespace Library.MaterialManagement.Inventory
 		
 		private readonly IRepositoryAsync<InventorySalesReturnTax> _InventorySalesReturnTaxRepository;
 		private readonly IRepositoryAsync<InventorySalesReturnService> _InventorySalesReturnServiceRepository;
-
+		private readonly IPKGeneratorService _pkGeneratorService;
 		public InventoryIssueService(
 			IRepositoryAsync<InventoryIssue> issueRepository
 			, IRepositoryAsync<Company> companyRepository
@@ -157,7 +157,7 @@ namespace Library.MaterialManagement.Inventory
 			_InventorySalesReturnDetailRepository = InventorySalesReturnDetailRepository;
 			_InventorySalesReturnServiceRepository = InventorySalesReturnServiceRepository;
 			_InventorySalesReturnTaxRepository = InventorySalesReturnTaxRepository;
-
+			_pkGeneratorService = pkGeneratorService;
 		}
 
 		#endregion Constructor
@@ -9633,10 +9633,12 @@ namespace Library.MaterialManagement.Inventory
 
 		#region InventorySalesReturn
 
-		public void SalesReturnInsert(InventorySalesReturn inventoryIssue, IEnumerable<InventorySalesReturnDetailViewModel> entities, IEnumerable<InventorySalesReturnService> salesServiceVMList)
+		public void SalesReturnInsert(InventorySalesReturn inventoryIssue, IEnumerable<InventorySalesReturnDetailViewModel> entities, IEnumerable<InventorySalesReturnServiceViewModel> salesServiceVMList)
 		{
 			var flag = false;
 			bool FlagIsAsset = false;
+			int currentSalesTaxId = 0;
+			int currentSalesServiceId = 0;
 			try
 			{
 
@@ -9681,100 +9683,99 @@ namespace Library.MaterialManagement.Inventory
 						_InventorySalesReturnDetailRepository.Insert(detail);
 
 
-						//if (entities.TaxList != null && entities.TaxList.Count > 0)
-						//{
-						//	foreach (var taxVM in entities.TaxList)
-						//	{
-						//		if (taxVM.TaxCategoryId == null)
-						//			throw new CustomException("Please Select Tax Category !");
+                        if (issue.TaxList != null && issue.TaxList.Count > 0)
+                        {
+                            foreach (var taxVM in issue.TaxList)
+                            {
+                                if (taxVM.TaxCategoryId == null)
+                                    throw new CustomException("Please Select Tax Category !");
 
-						//		currentSalesTaxId++;
-						//		var salesTax = new SalesTax
-						//		{
-						//			Id = _pkGeneratorService.MakePK(salesMaterial.Id, currentSalesTaxId, 2),
-						//			AddedBy = salesMaterial.AddedBy,
-						//			AddedDate = salesMaterial.AddedDate,
-						//			AddedFromIP = salesMaterial.AddedFromIP,
-						//			Amount = taxVM.TotalAmount,
-						//			BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * voucherVM.CompanyCurrencyRate, 2),
-						//			HSNCodeId = taxVM.HSNCodeId,
-						//			Percentage = taxVM.Percentage,
-						//			SalesId = sales.Id,
-						//			SalesMaterialId = salesMaterial.Id,
-						//			TaxCategoryId = taxVM.TaxCategoryId,
-						//			SalesServiceId = null,
-						//			ModelState = ModelState.Added,
-						//			UpdatedBy = null,
-						//			UpdatedDate = null,
-						//			UpdatedFromIP = null
-						//		};
-						//		_salesTaxRepository.Insert(salesTax);
-						//	}
-						//}
-					}
-				}
+                                currentSalesTaxId++;
+                                var salesTax = new InventorySalesReturnTax
+                                {
+                                    Id = _pkGeneratorService.MakePK(detail.Id, currentSalesTaxId, 2),
+                                    AddedBy = detail.AddedBy,
+                                    AddedDate = detail.AddedDate,
+                                    AddedFromIP = detail.AddedFromIP,
+                                    TaxAmount = taxVM.TaxAmount,
+                                    BooksCurrencyTaxAmount = Math.Round(taxVM.TaxAmount * inventoryIssue.ToCurrencyRate, 2),
+                                    HSNCodeId = taxVM.HSNCodeId,
+                                    Percentage = taxVM.Percentage,
+                                    InventorySalesReturnId = inventoryIssue.Id,
+                                    //SalesMaterialId = detail.Id,
+                                    TaxCategoryId = taxVM.TaxCategoryId,
+                                    InventorySalesReturnServiceId = null,
+                                    ModelState = ModelState.Added,
+                                    UpdatedBy = null,
+                                    UpdatedDate = null,
+                                    UpdatedFromIP = null
+                                };
+                                _InventorySalesReturnTaxRepository.Insert(salesTax);
+                            }
+                        }
+                    }
+                }
 
-			
 
-				//if (salesServiceVMList != null)
-				//{
-				//	foreach (var salesServiceVM in salesServiceVMList)
-				//	{
 
-				//		currentSalesServiceId++;
-				//		var salesService = new Model.SalesManagements.SalesService
-				//		{
-				//			AddedBy = sales.AddedBy,
-				//			AddedDate = sales.AddedDate,
-				//			AddedFromIP = sales.AddedFromIP,
-				//			Amount = salesServiceVM.Amount,
-				//			BooksCurrencyTransactionAmount = Math.Round(salesServiceVM.Amount * voucherVM.CompanyCurrencyRate, 2),
-				//			Id = _pkGeneratorService.MakePK(sales.Id, currentSalesServiceId, 2),
-				//			ModelState = ModelState.Added,
-				//			NetAmount = salesServiceVM.NetAmount,
-				//			SalesId = sales.Id,
-				//			ServiceMasterId = salesServiceVM.ServiceMasterId,
-				//			TaxAmount = salesServiceVM.TaxAmount,
-				//			UpdatedBy = null,
-				//			UpdatedDate = null,
-				//			UpdatedFromIP = null
-				//		};
-				//		_salesServiceRepository.Insert(salesService);
+                if (salesServiceVMList != null)
+                {
+                    foreach (var salesServiceVM in salesServiceVMList)
+                    {
 
-				//		if (salesServiceVM.ServiceTaxList != null && salesServiceVM.ServiceTaxList.Count > 0)
-				//		{
-				//			foreach (var taxVM in salesServiceVM.ServiceTaxList)
-				//			{
-				//				if (taxVM.TaxCategoryId == null)
-				//					throw new CustomException("Please Select Tax Category !");
+                        currentSalesServiceId++;
+                        var salesService = new InventorySalesReturnService
+						{
+                            AddedBy = inventoryIssue.AddedBy,
+                            AddedDate = inventoryIssue.AddedDate,
+                            AddedFromIP = inventoryIssue.AddedFromIP,
+                            Amount = salesServiceVM.Amount,
+                            BooksCurrencyTransactionAmount = Math.Round(salesServiceVM.Amount * inventoryIssue.ToCurrencyRate, 2),
+                            Id = _pkGeneratorService.MakePK(inventoryIssue.Id, currentSalesServiceId, 2),
+                            ModelState = ModelState.Added,
+							InventorySalesReturnId = inventoryIssue.Id,
+                            ServiceMasterId = salesServiceVM.ServiceMasterId,
+							TotalTaxAmount = salesServiceVM.TotalTaxAmount,
+                            UpdatedBy = null,
+                            UpdatedDate = null,
+                            UpdatedFromIP = null
+                        };
+						_InventorySalesReturnServiceRepository.Insert(salesService);
 
-				//				currentSalesTaxId++;
-				//				var salesTax = new SalesTax
-				//				{
-				//					Id = _pkGeneratorService.MakePK(salesService.Id, currentSalesTaxId, 2),
-				//					AddedBy = salesService.AddedBy,
-				//					AddedDate = salesService.AddedDate,
-				//					AddedFromIP = salesService.AddedFromIP,
-				//					Amount = taxVM.Amount,
-				//					BooksCurrencyTransactionAmount = Math.Round(taxVM.Amount * voucherVM.CompanyCurrencyRate, 2),
-				//					HSNCodeId = taxVM.HSNCodeId,
-				//					Percentage = taxVM.Percentage,
-				//					SalesId = sales.Id,
-				//					SalesMaterialId = null,
-				//					SalesServiceId = salesService.Id,
-				//					TaxCategoryId = taxVM.TaxCategoryId,
-				//					ModelState = ModelState.Added,
-				//					UpdatedBy = null,
-				//					UpdatedDate = null,
-				//					UpdatedFromIP = null
-				//				};
-				//				_salesTaxRepository.Insert(salesTax);
-				//			}
-				//		}
-				//	}
-				//}
+                        if (salesServiceVM.ChargeTaxList != null && salesServiceVM.ChargeTaxList.Count > 0)
+                        {
+                            foreach (var taxVM in salesServiceVM.ChargeTaxList)
+                            {
+                                if (taxVM.TaxCategoryId == null)
+                                    throw new CustomException("Please Select Tax Category !");
 
-				_unitOfWork.SaveChanges();
+                                currentSalesTaxId++;
+                                var salesTax = new InventorySalesReturnTax
+								{
+                                    Id = _pkGeneratorService.MakePK(salesService.Id, currentSalesTaxId, 2),
+                                    AddedBy = salesService.AddedBy,
+                                    AddedDate = salesService.AddedDate,
+                                    AddedFromIP = salesService.AddedFromIP,
+									TaxAmount = taxVM.TaxAmount,
+									BooksCurrencyTaxAmount = Math.Round(taxVM.TaxAmount * inventoryIssue.ToCurrencyRate, 2),
+                                    HSNCodeId = taxVM.HSNCodeId,
+                                    Percentage = taxVM.Percentage,
+									InventorySalesReturnId = inventoryIssue.Id,
+
+									InventorySalesReturnServiceId = salesService.Id,
+                                    TaxCategoryId = taxVM.TaxCategoryId,
+                                    ModelState = ModelState.Added,
+                                    UpdatedBy = null,
+                                    UpdatedDate = null,
+                                    UpdatedFromIP = null
+                                };
+								_InventorySalesReturnTaxRepository.Insert(salesTax);
+                            }
+                        }
+                    }
+                }
+
+                _unitOfWork.SaveChanges();
 				flag = false;
 				_unitOfWork.Commit();
 			}
