@@ -36,6 +36,17 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 		, { value: 'GateEntryNo', name: "Gate EntryNo" }, { value: 'DocRefNo', name: "DocRef No" }
 		, { value: 'DocDate', name: "Doc Date" }];
 
+	$scope.SalesdataList = [];
+	$scope.getData = function () {
+		$http({
+			method: "GET",
+			dataType: 'JSON',
+			url: 'Products/InventorySalesReturn/GetList',
+		}).then(function successCallback(response) {
+			$scope.SalesdataList = response.data;
+		});
+	};
+	$scope.getData();
 
 	$scope.approvedSalesList = [];
 	$scope.getPopUpData = function () {
@@ -57,39 +68,17 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 
 	$scope.selectDoubleClick = function (data) {
 		$scope.product = data.data;
-		$scope.product.IssueType = data.data.issuetype;
-		$scope.product.SalesDate = data.data.IssueDate;
+		$scope.product.InventorySalesId = data.data.Id;
+		$scope.product.Id = null;
+		$scope.product.SalesDate = data.data.SalesDateNew;
 		$scope.product.InvoicingPartyPlantId = data.data.InvoicingPartyPlantId;
 		$scope.productNew = Object.assign({}, $scope.product);
 		$scope.materialStockList = [];
 		$scope.specificStockList = [];
 		getIssueDetailList();
-		$scope.GettaxAfterSave(data.data.Id);
-		getServiceChargeList(data.data.Id);
-		if (baseService.isUndefinedOrNull(data.data.CheckedBy) && !baseService.isUndefinedOrNull(data.data.ApprovedBy)) {
-			$scope.CheckedByStatusForNoti = false;
-			$scope.ApprovedByStatusForNoti = true;
-			$scope.productNew.CheckedBy = data.data.ApprovedBy;
-		}
-		else if (!baseService.isUndefinedOrNull(data.data.CheckedBy) && !baseService.isUndefinedOrNull(data.data.ApprovedBy)) {
-			$scope.CheckedByStatusForNoti = true;
-			$scope.ApprovedByStatusForNoti = true;
-			$scope.productNew.CheckedBy = data.data.CheckedBy;
-		}
-
-		$scope.GetCheckedByAndApprovedBy1();
-
-
-		if (baseService.isUndefinedOrNull(data.data.CheckedBy) && !baseService.isUndefinedOrNull(data.data.ApprovedBy)) {
-
-			$scope.productNew.CheckedBy = data.data.ApprovedBy;
-			$scope.productNew.labelCheckAndApproved = 'To be approved by';
-		}
-		else if (!baseService.isUndefinedOrNull(data.data.CheckedBy) && baseService.isUndefinedOrNull(data.data.ApprovedBy)) {
-
-			$scope.productNew.CheckedBy = data.data.CheckedBy;
-			$scope.productNew.labelCheckAndApproved = 'To be checked by';
-		}
+		$scope.GettaxAfterSave($scope.product.InventorySalesId);
+		getServiceChargeList($scope.product.InventorySalesId);
+		
 		$scope.productNew.TaxOption = 'Yes';
 		$scope.productNew.TaxOptionMat = 'Yes';
 		$scope.productNew.TaxOptionService = 'Yes';
@@ -647,7 +636,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 		$scope.taxCategoryList = [];
 		$http({
 			method: 'GET'
-			, url: $scope.path1 + 'GetTaxCategoryListForSalesService?receiveId=' + $scope.productNew.Id + '&hsnCodeId=' + hsnCodeId + '&InventorySalesDate=' + $scope.productNew.SalesDate
+			, url: $scope.path1 + 'GetTaxCategoryListForSalesService?receiveId=' + $scope.productNew.InventorySalesId + '&hsnCodeId=' + hsnCodeId + '&InventorySalesDate=' + $scope.productNew.SalesDate
 		}).then(function (response) {
 			$scope.taxCategoryList = response.data;
 		});
@@ -775,7 +764,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 		$scope.ChargeTaxList = [];
 		$http({
 			method: "GET",
-			url: 'Products/InventoryIssue/GetServiceTaxList?serviceId=' + $scope.productNew.Id
+			url: 'Products/InventoryIssue/GetServiceTaxList?serviceId=' + $scope.productNew.InventorySalesId
 		}).then(function (response) {
 			$scope.ChargeTaxList = response.data;
 
@@ -1270,7 +1259,13 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 		if ($scope.detailList.length === 0) {
 			ShowResult('Please select Atlest one material');
 			return false;
-		}
+		} 
+
+		if (baseService.arrayLength($scope.detailList)>0) {
+			for (var i = 0; i < $scope.detailList.length; i++) {
+				$scope.detailList[i].TransactionQty = $scope.detailList[i].ReturnQty;
+            }
+        }
 		
 		var UIStatus = $("#SlipAssetIssueUI").val();
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;
@@ -1280,11 +1275,9 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 				method: 'POST'
 				, url: $scope.saveUrl
 				, data: {
-					entities: $scope.detailList
-					, specificStockList: $scope.specificStockList
-					, inventoryIssue: $scope.productNew
-					, IssueTypeStatus: UIStatus,
-					'taxCategoryList': $scope.materialtaxCategoryListRes
+					 inventoryIssue: $scope.productNew
+					,entities: $scope.detailList
+					,'taxCategoryList': $scope.materialtaxCategoryListRes
 				}
 				, dataType: 'JSON'
 			}).then(function (response) {
@@ -1844,12 +1837,13 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 	};
 
 	function getIssueDetailList() {
-		$http.get('Products/InventoryIssue/GetSalesDetailByIssueId?issueId=' + $scope.productNew.Id)
+		$http.get('Products/InventorySalesReturn/GetSalesDetailByIssueId?issueId=' + $scope.productNew.InventorySalesId)
 			.then(function (response) {
 				$scope.detailList = response.data;
 				$scope.detailModel.IssueId = $scope.detailList[0].InventoryIssueId;
-				$scope.GetAdvanceTaxInfo($scope.productNew.Id);
-				$scope.TotalSumAfterTCS();
+
+				//$scope.GetAdvanceTaxInfo($scope.productNew.InventorySalesId);
+				//$scope.TotalSumAfterTCS();
 			});
 
 	}

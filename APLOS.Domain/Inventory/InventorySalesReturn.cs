@@ -13,10 +13,6 @@ namespace Library.Model.Inventory
         public string Id { get; set; }
         public string InventorySalesId { get; set; }
 
-
-
-        public string IssueRequestMasterId { get; set; }
-
         [NeverUpdate]
         public string CompanyGroupId { get; set; }
 
@@ -38,20 +34,12 @@ namespace Library.Model.Inventory
 
         public  Voucher Voucher { get; set; }
         public string VoucherId { get; set; }
-        public Voucher CapitalizeVoucher { get; set; }
 
-        public string CapitalizeVoucherId { get; set; }
-        public string EmployeeId { get; set; }
         public string CurrencyId { get; set; }
         public string Remarks { get; set; }
-        public string IssueType { get; set; }
-        public string OrderRefNo { get; set; }
+        
         public string CustomerId { get; set; }
-        public string CheckedBy { get; set; }
-
-        public string CheckedByStatus { get; set; }
-        public string ApprovedBy { get; set; }
-        public string ApprovedByStatus { get; set; }
+       
         public string InvoicingPartyPlantId { get; set; }
         public string DeliveryPartyPlantId { get; set; }
 
@@ -60,9 +48,6 @@ namespace Library.Model.Inventory
         public string DocRefNo { get; set; }
         public DateTime DocDate { get; set; }
         public string NoteForAccounts { get; set; }
-        public Voucher InventoryVoucher { get; set; }
-
-        public string InventoryVoucherId { get; set; }
 
         public string PaymentTermId { get; set; }
         public DateTime? BaseOnDueDate { get; set; } 

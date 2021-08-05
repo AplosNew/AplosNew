@@ -19,6 +19,7 @@ using Library.Security.Core;
 using Library.MaterialManagement.Inventory;
 using Library.ViewModel.Materials;
 using Library.Model.Inventory;
+using Library.ViewModel.SalesManagements;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -214,14 +215,85 @@ namespace Aplos.Areas.Products.Controllers
 
 
         [HttpPost]
-        public JsonResult Create(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventorySalesReturn inventoryIssue, string IssueTypeStatus, IEnumerable<InventorySalesReturnTax> taxCategoryList, string productNewId, decimal ToCurrencyRate)
+        public JsonResult Create(InventorySalesReturn inventoryIssue,IEnumerable<InventorySalesReturnDetailViewModel> entities,  IEnumerable<InventorySalesReturnService> salesServiceVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
             inventoryIssue.CompanyId = identity.CompanyId;
             inventoryIssue.PlantId = identity.PlantId;
-            _inventoryIssueService.InsertGraphInventorySalesReturn(entities, specificStockList, inventoryIssue, IssueTypeStatus, taxCategoryList, productNewId, ToCurrencyRate);
+            _inventoryIssueService.SalesReturnInsert(inventoryIssue,entities, salesServiceVMList);
             return Json(new { inventoryIssue, Message = AplosMessage.Success + "Sales No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalesDetailByIssueId(string issueId)
+        {
+            return Json(GetSalesDetailDataByIssueId(issueId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(Query(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+        public IEnumerable<object> Query(string plantId)
+        {
+            try
+            {
+                string CmdText = @"SELECT E.UserName AS Entity , II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
+                                , MS.UserName AS MaterialStorage,SUM(IID.TransactionQty) Qty,II.Remarks,II.InventorySalesId
+                                FROM [TRN].[InventorySalesReturn] AS II
+                                JOIN TRN.InventorySalesReturnDetail AS IID ON IID.InventorySalesReturnId=II.Id
+                                JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId=MS.Id
+                                Left JOIN [ORG].[Entity] E On E.id=II.EntityId
+                                WHERE II.PlantId='"+ plantId + @"' AND ISNULL(II.[Status],'') <>'Posting' 
+                                GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
+                                , MS.UserName,E.UserName,II.Remarks,II.Id,II.InventorySalesId";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetSalesDetailDataByIssueId(string issueId)
+        {
+            try
+            {
+                string sql = @"SELECT ISH.Id HistotyId,''Id, IID.InventorySalesId InventoryIssueId, IID.InventoryMaterialId, II.MaterialStorageId
+		                        , IM.MaterialMasterId, MM.UserName AS MaterialMasterName, IM.ArticleId, AR.StandardName AS ArticleName
+		                        , IM.FirstCharacteristicsId, CH1.UserName AS FirstCharacteristics, IM.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicText--FirstCharacteristicsValue
+		                        , IM.SecondCharacteristicsId, CH2.UserName AS SecondCharacteristics, IM.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicText--SecondCharacteristicsValue
+		                        , IM.ThirdCharacteristicsId, CH3.UserName AS ThirdCharacteristics, IM.ThirdCharacteristicsValueId, CHV3.UserName AS ThirdCharacteristicText--ThirdCharacteristicsValue
+		                        , IID.TransactionQty, IID.BaseUOMId, UoM.UserName AS TransactionUoM, IID.AvgRate, IID.AvgAmount, IID.PolicyRate, IID.PolicyAmount, IID.[Policy]
+                                ,CC.UserName CostCenter,C.UserName CountryName,c.Id CountryId,II.ToCurrencyRate, II.DocRefNo, II.DocDate , II.NoteForAccounts
+                                 ,ISD.SalesRate,ISD.TotalAmount,IST.TaxAmount,NULL TaxList
+                        FROM [TRN].[InventorySalesDetail] AS IID
+                        LEFT JOIN [TRN].[InventorySales] AS II ON IID.InventorySalesId=II.Id
+                        LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IID.InventoryMaterialId=IM.Id
+                        LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+                        LEFT JOIN [MST].[MaterialMasterArticle] AS AR ON IM.ArticleId=AR.Id
+                        LEFT JOIN [HKP].[Characteristics] AS CH1 ON IM.FirstCharacteristicsId=CH1.Id
+                        LEFT JOIN [HKP].[CharacteristicsValue] AS CHV1 ON IM.FirstCharacteristicsValueId=CHV1.Id
+                        LEFT JOIN [HKP].[Characteristics] AS CH2 ON IM.SecondCharacteristicsId=CH2.Id
+                        LEFT JOIN [HKP].[CharacteristicsValue] AS CHV2 ON IM.SecondCharacteristicsValueId=CHV2.Id
+                        LEFT JOIN [HKP].[Characteristics] AS CH3 ON IM.ThirdCharacteristicsId=CH3.Id
+                        LEFT JOIN [HKP].[CharacteristicsValue] AS CHV3 ON IM.ThirdCharacteristicsValueId=CHV3.Id
+						LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IID.CostCenterId
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON IID.BaseUOMId=UoM.Id
+                        LEFT JOIN scs.country C On C.Id=IM.CountryId
+                        LEFT JOIN TRN.InventorySalesHistory ISH ON ISH.InventorySalesDetailId=IID.Id
+                        JOIN (select InventorySalesHistoryId,Sum(TaxAmount) TaxAmount from trn.inventorySalesTax group by InventorySalesHistoryId) IST ON IST.InventorySalesHistoryId =ISH.Id
+                        LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 2) SalesRate,(ROUND(sum(TransactionQty), 2) * ROUND(sum(SalesRate), 2)) TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IID.Id
+
+                        WHERE IID.InventorySalesId='" + issueId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         #endregion

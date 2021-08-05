@@ -650,7 +650,7 @@ namespace Library.Accounting.Accounts
 								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDateNew
 			                    , CP.UserName AS PartyAccountGroupName
 			                    , IVS.EmployeeId, EI.EmployeeCode, EI.EmployeeName
-	                           , IVS.MaterialStorageId,MS.UserName MaterialStorage,E.UserName Entity,FORMAT(IVS.DocDate,'dd-MMM-yyyy')DocDate
+	                           , IVS.MaterialStorageId,MS.UserName MaterialStorage,IVS.EntityId,E.UserName Entity,FORMAT(IVS.DocDate,'dd-MMM-yyyy')DocDate
 								, REPLACE(CONVERT(CHAR(11), IVS.AddedDate, 106),' ','-') AS EntryDate,IVS.Remarks,IVS.DocRefNo
 								, IVS.CurrencyId, CU.Code AS CurrencyCode
 	                            , IVS.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy,  IVS.DeliveryPartyPlantId

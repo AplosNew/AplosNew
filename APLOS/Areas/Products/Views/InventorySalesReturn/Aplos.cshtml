@@ -5,7 +5,7 @@
             <label class="col-sm-3 control-label">Sales No</label>
             <div class="col-sm-9">
                 <div class="input-group">
-                    <input type="text" ng-model="productNew.Id" class="form-control" readonly>
+                    <input type="text" ng-model="productNew.InventorySalesId" class="form-control" readonly>
                     <span class="input-group-btn">
                         <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
@@ -319,8 +319,19 @@
 
 
 <div class="aplos-grid-toggle">
-
-
+    <div class="content-container-fluid" style="color:black;overflow:scroll">
+        <div style="color:black;" id="GridMaster" ej-grid e-datasource="SalesdataList" @*e-recorddoubleclick="Get"*@
+             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
+                <div e-column e-field="InventorySalesId" e-headertext="Inventory SalesId" e-width="30"></div>
+                <div e-column e-field="Entity" e-headertext="Entity" e-width="40"></div>
+                <div e-column e-field="MaterialStorage" e-headertext="Material Storage" e-width="20"></div>
+                <div e-column e-field="Qty" e-headertext="Qty" e-width="30"></div>
+            </div>
+        </div>
+    </div>
 
 </div>
 

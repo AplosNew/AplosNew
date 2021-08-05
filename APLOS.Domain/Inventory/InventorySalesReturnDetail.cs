@@ -1,7 +1,9 @@
 ﻿using Library.Core;
 using Library.Model.OrderManagements;
 using Library.Model.Vouchers;
+using Library.ViewModel.SalesManagements;
 using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace Library.Model.Inventory
@@ -15,9 +17,7 @@ namespace Library.Model.Inventory
         public decimal ?BaseQty { get; set; }
         public decimal AvgRate { get; set; }
         public decimal AvgAmount { get; set; }
-        public decimal PolicyRate { get; set; }
-        public decimal PolicyAmount { get; set; }
-        public string Policy { get; set; }
+       
         public string Remarks { get; set; }
 		public string CostCenterId { get; set; }
         public string Comments { get; set; } 
@@ -98,7 +98,7 @@ namespace Library.Model.Inventory
         public string PostCrBudgetMasterId { get; set; }
 
         public string PostCrActivityId { get; set; }
-       
+        
         #endregion Navigation Properties
     }
 }
