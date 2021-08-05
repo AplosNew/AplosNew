@@ -548,14 +548,14 @@ namespace Aplos.Areas.Employees.Controllers
         [HttpGet, Authorize]
         public ActionResult GetJobData(string empid)
         {
-            return Json(_employeeProfileService.GetJobData(empid), JsonRequestBehavior.AllowGet);
+            return Json(employeeProfile.GetJobData(empid), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public ActionResult GetEmpProfileData()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_employeeProfileService.GetData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.EmployeeId), JsonRequestBehavior.AllowGet);
+            return Json(employeeProfile.GetData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.EmployeeId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -586,14 +586,14 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetEmpDocumentDataList(string companyGroupId, string pId, string plantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_employeeProfileService.GetEmpDocumentDataList(identity.CompanyGroupId, pId, plantId), JsonRequestBehavior.AllowGet);
+            return Json(employeeProfile.GetEmpDocumentDataList(identity.CompanyGroupId, pId, plantId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public ActionResult GetEmpAllDocumentDataList(string companyGroupId, string pId, string plantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(employeeProfile.GetEmpDocumentDataList(identity.CompanyGroupId, pId, plantId), JsonRequestBehavior.AllowGet);
+            return Json(employeeProfile.GetEmpAllDocumentDataList(identity.CompanyGroupId, pId, plantId), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -608,20 +608,20 @@ namespace Aplos.Areas.Employees.Controllers
         [HttpGet, Authorize]
         public ActionResult GetEmployeeNomineeInfo(string empId)
         {
-            return Json(_employeeProfileService.GetEmployeeNomineeInfo(empId), JsonRequestBehavior.AllowGet);
+            return Json(employeeProfile.GetEmployeeNomineeInfo(empId), JsonRequestBehavior.AllowGet);
         }
 
 
         [HttpGet, Authorize]
         public ActionResult GetEmployeeDependantInfo(string empId)
         {
-            return Json(_employeeProfileService.GetEmployeeDependantInfo(empId), JsonRequestBehavior.AllowGet);
+            return Json(employeeProfile.GetEmployeeDependantInfo(empId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public ActionResult GetEmployeeLandLoardInfo(string empId)
         {
-            return Json(_employeeProfileService.GetEmployeeLandLoardInfo(empId), JsonRequestBehavior.AllowGet);
+            return Json(employeeProfile.GetEmployeeLandLoardInfo(empId), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -1326,7 +1326,7 @@ namespace Aplos.Areas.Employees.Controllers
         public JsonResult GetEmployeeCbo()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_employeeProfileService.GetEmployeeCbo(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(employeeProfile.GetEmployeeCbo(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

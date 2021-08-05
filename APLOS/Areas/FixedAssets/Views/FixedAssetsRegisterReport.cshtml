@@ -1,6 +1,7 @@
 ﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Fixed Assets Register Report</h3>
 <div class="form-elements form-horizontal" ng-form="form0">
-    <div class="col-xs-12 col-sm-5 col-md-5">
+
+    @*<div class="col-xs-12 col-sm-5 col-md-5">
         <div class="form-group" show-errors id="div_Bank">
             <label class="col-sm-4 control-label">Select<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -18,9 +19,7 @@
 
         </div>
 
-
-
-        <div class="form-group" id="div_FromDate" >
+        <div class="form-group" id="div_FromDate">
             <label class="col-sm-4 control-label">From Capitalization Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <input type="text" name="From Date" ng-model="report.FromDate" datepicker class="form-control" required>
@@ -33,17 +32,17 @@
             </div>
         </div>
 
-        @*<div style="display='All'" report.FromDate inherit  class="form-group">
-            <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-            <div class="col-sm-3">
-                <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="report.FromDate" />
+        <div style="display='All'" report.FromDate inherit  class="form-group">
+                <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-3">
+                    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="report.FromDate" />
+                </div>
+                <label class="col-sm-2 control-label"></label>
+                <label class="col-sm-1 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-3">
+                    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="report.ToDate" />
+                </div>
             </div>
-            <label class="col-sm-2 control-label"></label>
-            <label class="col-sm-1 control-label">To Date<sup>*</sup></label>
-            <div class="col-sm-3">
-                <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="report.ToDate" />
-            </div>
-        </div>*@
 
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Format<sup>*</sup></label>
@@ -58,8 +57,9 @@
                 </label>
             </div>
         </div>
-    </div>
-    <div class="col-xs-12 col-sm-5 col-md-5">
+    </div>*@
+
+    @*<div class="col-xs-12 col-sm-5 col-md-5">
         <div class="form-group" ng-show="report.partyType=='Vendor'">
             <label class="col-sm-3 control-label" title="Vendor">Vendor<sup>*</sup></label>
             <div class="col-sm-9 input-group" style="padding-left: 15px;padding-right: 14px;">
@@ -91,8 +91,48 @@
             </div>
         </div>
 
+    </div>*@
+
+
+    <div class="row">
+        @*<div class="clearfix"></div>*@
+        <div class="table-responsive modal-table aplos-grid-toggle">
+            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                <div style="color:black;" id="GridFixedAssetRegisterReportElasticSearch" ej-grid e-datasource="FixedAssetRegisterElasticSearchList" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplateEntityandDepartment"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-summaryrows="TotalFARegisterSummaryAmount"
+                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+                    <div e-columns>
+                        <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="90"></div>
+                        <div e-column e-type="text" e-field="Article" e-headertext="Article" e-width="90" style="height: 20px;"></div>
+
+                        <div e-column e-type="text" e-field="AssetMaster" e-headertext="Asset Master" e-width="90" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="Party" e-headertext="Party" e-width="90" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="IsAsset" e-headertext="Asset" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="Machine" e-headertext="Machine" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="FACount" e-headertext="FA Count" e-width="20" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="NetFixedAssetsAmount" e-headertext="Net Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="SubAssetAmount" e-headertext="Net Sub Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="TotalAssetsBaseAmount" e-headertext="Net Total Base Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+
+
+        @*<div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="InvoiceSummaryReport();" title="All active summary with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i> Summary</button></li>
+                </ul>
+            </div>*@
+
     </div>
+
 </div>
+
 <div class="common-btn">
     <ul class="list-inline text-left">
         @*<li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>*@

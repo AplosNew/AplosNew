@@ -33,13 +33,10 @@ namespace Library.Service.Employees
         void DeleteNominee(string id);
         void DeleteDependant(string id);
         void DeleteLandLoard(string id);
-        IEnumerable<object> GetEmployeeNomineeInfo(string empId);
-        IEnumerable<object> GetEmployeeDependantInfo(string empId);
-        IEnumerable<object> GetEmployeeLandLoardInfo(string empId);
 
         void InsertOrUpdate(EmployeeNomineeInfo entity);
         IEnumerable<ComboModel> GetRelationCbo();
-        IEnumerable<object> GetEmployeeList(string plantId, string companyId);
+       
         void UpdateLocalInfo(EmployeeInformation entity, string name);
         object GetLocalLanguageLabel(string plantId);
         IEnumerable<ComboModel> GetTemplateCbo(string plantId, string type);
@@ -53,19 +50,11 @@ namespace Library.Service.Employees
         //IWorkbook EmployeeConfirmationLetterLocal(string companyId, string plantId, string empId, string empType, string tempId);
         IEnumerable<ComboModel> GetCbo(string plantId);
 
-        IEnumerable<object> GetEmployeeCbo(string GroupId, string companyId, string plantId);
+       
 
         IEnumerable<object> GetSectionEmployeeList(string plantId, string companyId, string SectionId);
 
         void UpdateBudgetCode(EmployeeInformation entity);
-
-        object GetData(string companyGroupId, string companyId, string plantId, string employeeId);
-
-        IEnumerable<object> GetEmpDocumentDataList(string companyGroupId, string pId, string plantId);
-
-        IEnumerable<object> GetSelfDocumentDataList(string companyGroupId, string budgetId, string pId, string plantId);
-
-        IEnumerable<object> GetJobData(string empId);
 
         void UpdateMaster(EmployeeInformation entity, string name);
 

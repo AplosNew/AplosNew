@@ -322,6 +322,7 @@
     <Folder Include="POPResources\Expenses\" />
     <Folder Include="POPResources\GRN\" />
     <Folder Include="POPResources\JobDescriptions\" />
+    <Folder Include="POPResources\JobWorkPurchaseOrder\" />
     <Folder Include="POPResources\Materials\" />
     <Folder Include="POPResources\PreRecruitments\Documents\" />
     <Folder Include="POPResources\PreRecruitments\EmpPic\" />
@@ -539,6 +540,7 @@
     <Compile Include="Areas\HumanResource\Controllers\BlackListController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeAdditionDeductionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManualShiftNewController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\NewAttendanceDashboardController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OutPunchConfigurationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ProfessionalTaxReportsController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTPlanningController.cs" />
@@ -780,6 +782,7 @@
     <Compile Include="Areas\Productions\Controllers\CutPlanController.cs" />
     <Compile Include="Areas\Productions\Controllers\MarkerController.cs" />
     <Compile Include="Areas\Productions\Controllers\PackingInvoiceController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductionConversionParameterController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionTargetReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShadeController.cs" />
     <Compile Include="Areas\Productions\Controllers\FebricWidthController.cs" />
@@ -1772,6 +1775,7 @@
     <Content Include="Areas\HumanResource\Scripts\BlackListController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAdditionDeductionController.js" />
     <Content Include="Areas\HumanResource\Scripts\ManualShiftNewController.js" />
+    <Content Include="Areas\HumanResource\Scripts\NewAttendanceDashboardController.js" />
     <Content Include="Areas\HumanResource\Scripts\OutPunchConfigurationController.js" />
     <Content Include="Areas\HumanResource\Scripts\payRegisterBDReportContractorController.js" />
     <Content Include="Areas\HumanResource\Scripts\professionalTaxReportsController.js" />
@@ -2094,6 +2098,7 @@
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerController.js" />
     <Content Include="Areas\Productions\Scripts\PackingInvoiceController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionConversionParameterController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionTargetReportController.js" />
     <Content Include="Areas\Productions\Scripts\ShadeController.js" />
     <Content Include="Areas\Productions\Scripts\FebricWidthController.js" />
@@ -2214,6 +2219,7 @@
     <Content Include="Areas\QMS\Scripts\documentTypeController.js" />
     <Content Include="Areas\QMS\Scripts\qmsConfig.js" />
     <Content Include="Areas\QMS\Scripts\StockKeepingUnitController.js" />
+    <Content Include="Areas\SalesManagements\Scripts\salesPackingPostController.js" />
     <Content Include="Areas\SalesManagements\Scripts\masterOrderSalesPostController.js" />
     <Content Include="Areas\SalesManagements\Scripts\masterOrderSalesController.js" />
     <Content Include="Areas\SalesManagements\Scripts\salesInvoiceController.js" />
@@ -2439,7 +2445,6 @@
     <Content Include="POPResources\EmployeeProfiles\AuthorizedSignature\Zaman-Short-Signature.png" />
     <Content Include="POPResources\EmployeeProfiles\CardHolderSignature\1801630.jpg" />
     <Content Include="POPResources\EmployeeProfiles\EmpPic\1800004.jpg" />
-    <Content Include="POPResources\EmployeeProfiles\EmpPic\1800007.jpg" />
     <Content Include="POPResources\EmployeeProfiles\EmpPic\1800001.jpg" />
     <Content Include="POPResources\EmployeeProfiles\EmpPic\1801630.jpg" />
     <Content Include="POPResources\Organizations\C20181.jpg" />
@@ -3610,6 +3615,8 @@
     <Content Include="Areas\Attendances\Views\NewAttendanceProcess\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployeeJobLocation\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTUpdateConfiguration\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionConversionParameter\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\NewAttendanceDashboard\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -3659,6 +3666,7 @@
     <Content Include="Areas\Products\Views\PurchaseOrder\ServicePOIndependent.cshtml" />
     <Content Include="Areas\Products\Views\PurchaseOrder\PORollBack.cshtml" />
     <Content Include="Areas\Products\Views\InventorySalesReturn\Aplos.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\SalesPackingPost.cshtml" />
     <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />

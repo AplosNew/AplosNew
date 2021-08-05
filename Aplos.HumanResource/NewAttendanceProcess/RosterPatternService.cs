@@ -105,7 +105,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var str = @"Select Id ,RPHeaderId, ShiftDefinitionID, ShiftSequence from dbo.RosterPatternChild where RPHeaderId = '" + Id + "' ";
+                var str = @"Select Id ,RPHeaderId, ShiftDefinitionID, Days31 as ShiftSequence , sd.ShiftDefinationName as ShiftName from dbo.RosterPatternChild rpc
+left join dbo.ShiftDefination sd on sd.SystemID = rpc.ShiftDefinitionID
+where RPHeaderId = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)

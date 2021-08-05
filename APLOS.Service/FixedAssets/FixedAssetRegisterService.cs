@@ -3645,12 +3645,12 @@ namespace Library.Service.FixedAssets
 
             return GetCapitalizeAssetItemValueData(fixedAssetMasterId, assetGLId, assetBudgetId, assetActivityId, companyId, accDepGL.AccumulatedDepreciationGLId, accDepGL.AccumulatedDepreciationBudgetMasterId, accDepGL.AccumulatedDepreciationActivityId);
         }
-        private DataTable GetRegisterReportData(string companyGroupId, string companyId, string plantId, string PartyType, string PartyId, string MaterialMasterId, string FixedAssetsId, string FromDate, string ToDate)
+        private DataTable GetRegisterReportData(string companyGroupId, string companyId, string plantId, string MaterialMasterId, string MaterialMasterArticleId , string fixedAssetMasterId, string vendorId)
         {
             var sql = "";
 
-            if (PartyType == "All")
-            {
+            //if (PartyType == "All")
+            //{
                 sql = @"SELECT FR.SerialNo, FR.Id AssetNo,  e.UserName Entity, D.UserName Department, FR.Model
                 , FR.InvoiceNo, MM.UserName MaterialMasterName, MMA.StandardName Article,FR.[Description]
                 , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
@@ -3699,78 +3699,91 @@ namespace Library.Service.FixedAssets
 
                left join ORG.Entity E on E.Id= FR.EntityId
 			   left join ORG.Department D on D.Id = FR.DepartmentId
-                WHERE FR.CompanyId='" + companyId + @"' and FR.Archive=0 and FR.IsAUC=0
-                AND FR.Id NOT IN(' ')";
-            }
-            else
-            {
-                var paramter = "";
-                if (!string.IsNullOrEmpty(PartyId))
-                    paramter += "FR.VendorId =('" + PartyId + "')  AND CONVERT(VARCHAR, fr.CapitalizationDate, 23) BETWEEN '" + FromDate.ToDbDate() + "' AND '" + ToDate.ToDbDate() + "'";
-                else if (!string.IsNullOrEmpty(MaterialMasterId))
-                    paramter += "FR.MaterialMasterId =('" + MaterialMasterId + "') AND CONVERT(VARCHAR, fr.CapitalizationDate, 23) BETWEEN '" + FromDate.ToDbDate() + "' AND '" + ToDate.ToDbDate() + "'";
-                else if (FixedAssetsId != null)
-                    paramter += "FR.FixedAssetMasterId =('" + FixedAssetsId + "') AND CONVERT(VARCHAR, fr.CapitalizationDate, 23) BETWEEN '" + FromDate.ToDbDate() + "' AND '" + ToDate.ToDbDate() + "'";
+                --WHERE FR.CompanyId='" + companyId + @"' and FR.Archive=0 and FR.IsAUC=0
+               -- AND FR.Id NOT IN(' ')
 
-                sql = @"SELECT FR.SerialNo, FR.Id AssetNo ,  e.UserName Entity, D.UserName Department  ,FR.Model
-                    , FR.InvoiceNo, MM.UserName MaterialMasterName, MMA.StandardName Article,FR.[Description]
-                    , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
-                    --, FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
-                    --, FAM.FixedAssetSubCategoryId, FAM.AssetType
+                     WHERE FR.CompanyGroupId='" + companyGroupId + "'and FR.CompanyId='" + companyId + "' AND FR.PlantId='" + plantId + @"'
+                                    and FR.Archive=0 and FR.IsAUC=0
+                                    AND FR.Id NOT IN(' ')
+				                     and FR.MaterialMasterId in(" + MaterialMasterId + ") AND FR.MaterialMasterArticleId in (" + MaterialMasterArticleId + ") AND FR.FixedAssetMasterId in (" + fixedAssetMasterId + @")
+					                 and FR.VendorId in (" + vendorId + @") 
+                                     --AND MM.IsAsset in ()
 
-                    --, FR.Price PurchasePrice,ISNULL(SAR.SubAssetAmount,0) SubAssetAmount, (FR.Price + ISNULL(SAR.SubAssetAmount,0)) TotalAmount
-						,PC.Code PurchaseCurrency
-						,BC.Code BaseCurrency
-						,FR.Quantity
-						,isnull( FR.Price,0 )PurchasePrice
-						,isnull( FR.FABaseAmount,0)FABaseAmount
-						,ISNULL(SAR.SubAssetAmount,0) SubAssetBaseAmount
-
-						,isnull (FR.FABaseAmount,0) + (ISNULL(SAR.SubAssetAmount,0)) TotalBaseAmount
-						,ISNULL(FR.ADBaseAmount,0) ADBaseAmount
-						,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) NetFixedAssetsBaseAmount
-
-                    ,OpeningBalance = case when fr.IsOpeningBalance = 1 then 'YES' else 'NO' end
-                    ,format( fr.CapitalizationDate, 'dd-MMM-yyyy') CapitalizationDate
-                    --, FR.IsFinancial
-                    ,P.UserName VendorName
-                    ,FR.[LifeTime]
-                    ,C.UserName OriginName
-                    ,FR.YearOfInstallation,FR.Id,FR.Id AS FixedAssetRegisterId, FR.MaterialMasterArticleId, FR.MaterialMasterId
-                    ,IR.Id GRNNo,IR.POId PONo
-                    FROM [TRN].[FixedAssetRegister] FR
-                    LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId=MM.Id
-                    LEFT JOIN MST.MaterialMasterArticle MMA ON FR.MaterialMasterArticleId= MMA.Id
-                    LEFT JOIN MST.BudgetMaster BM ON MM.BudgetMasterId = BM.Id
-                    LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMT ON BM.Id=FAMT.BudgetMasterId AND MM.BudgetMasterId=FAMT.BudgetMasterId
-                    LEFT JOIN [MST].[FixedAssetMaster] FAM ON FR.FixedAssetMasterId= FAM.Id
-                    LEFT JOIN HKP.FixedAssetCategory FAC ON FAM.FixedAssetCategoryId=FAC.Id
-                    LEFT JOIN HKP.FixedAssetSubCategory FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
-                    LEFT JOIN HKP.Party P ON P.Id=FR.VendorId
-                    LEFT JOIN SCS.Country C ON C.Id=FR.CountryOfOriginId
-                    LEFT JOIN TRN.FixedAssetRegisterDetail FRD ON FRD.CapitalizeRegisterNo=FR.CapitalizeRegisterNo
-                    LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId
-                    LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
-                    LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-					left join scs.Currency PC on PC.Id= FR.CurrencyId
-				    left join scs.Currency BC on BC.Id= FR.FABaseCurrencyId
+                    ";
 
 
-					--LEFT JOIN(SELECT FixedAssetRegisterId,sum(Amount) SubAssetAmount FROM TRN.SubFixedAssetRegister 
-					--group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
+            //}
 
-			    LEFT JOIN(SELECT FixedAssetRegisterId,sum(isnull( Amount,0)) SubAssetAmount 
-				FROM TRN.SubFixedAssetRegister 
-				group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
+    //        else
+    //        {
+    //            var paramter = "";
+    //            if (!string.IsNullOrEmpty(PartyId))
+    //                paramter += "FR.VendorId =('" + PartyId + "')  AND CONVERT(VARCHAR, fr.CapitalizationDate, 23) BETWEEN '" + FromDate.ToDbDate() + "' AND '" + ToDate.ToDbDate() + "'";
+    //            else if (!string.IsNullOrEmpty(MaterialMasterId))
+    //                paramter += "FR.MaterialMasterId =('" + MaterialMasterId + "') AND CONVERT(VARCHAR, fr.CapitalizationDate, 23) BETWEEN '" + FromDate.ToDbDate() + "' AND '" + ToDate.ToDbDate() + "'";
+    //            else if (FixedAssetsId != null)
+    //                paramter += "FR.FixedAssetMasterId =('" + FixedAssetsId + "') AND CONVERT(VARCHAR, fr.CapitalizationDate, 23) BETWEEN '" + FromDate.ToDbDate() + "' AND '" + ToDate.ToDbDate() + "'";
 
-               left join ORG.Entity E on E.Id= FR.EntityId
-			   left join ORG.Department D on D.Id = FR.DepartmentId
-                    WHERE FR.CompanyId='" + companyId + @"' and FR.Archive=0 and FR.IsAUC=0
-                    --AND FR.Id NOT IN(' ')
-                    AND " + paramter + @"";
+    //            sql = @"SELECT FR.SerialNo, FR.Id AssetNo ,  e.UserName Entity, D.UserName Department  ,FR.Model
+    //                , FR.InvoiceNo, MM.UserName MaterialMasterName, MMA.StandardName Article,FR.[Description]
+    //                , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
+    //                --, FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
+    //                --, FAM.FixedAssetSubCategoryId, FAM.AssetType
+
+    //                --, FR.Price PurchasePrice,ISNULL(SAR.SubAssetAmount,0) SubAssetAmount, (FR.Price + ISNULL(SAR.SubAssetAmount,0)) TotalAmount
+				//		,PC.Code PurchaseCurrency
+				//		,BC.Code BaseCurrency
+				//		,FR.Quantity
+				//		,isnull( FR.Price,0 )PurchasePrice
+				//		,isnull( FR.FABaseAmount,0)FABaseAmount
+				//		,ISNULL(SAR.SubAssetAmount,0) SubAssetBaseAmount
+
+				//		,isnull (FR.FABaseAmount,0) + (ISNULL(SAR.SubAssetAmount,0)) TotalBaseAmount
+				//		,ISNULL(FR.ADBaseAmount,0) ADBaseAmount
+				//		,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) NetFixedAssetsBaseAmount
+
+    //                ,OpeningBalance = case when fr.IsOpeningBalance = 1 then 'YES' else 'NO' end
+    //                ,format( fr.CapitalizationDate, 'dd-MMM-yyyy') CapitalizationDate
+    //                --, FR.IsFinancial
+    //                ,P.UserName VendorName
+    //                ,FR.[LifeTime]
+    //                ,C.UserName OriginName
+    //                ,FR.YearOfInstallation,FR.Id,FR.Id AS FixedAssetRegisterId, FR.MaterialMasterArticleId, FR.MaterialMasterId
+    //                ,IR.Id GRNNo,IR.POId PONo
+    //                FROM [TRN].[FixedAssetRegister] FR
+    //                LEFT JOIN MST.MaterialMaster MM ON FR.MaterialMasterId=MM.Id
+    //                LEFT JOIN MST.MaterialMasterArticle MMA ON FR.MaterialMasterArticleId= MMA.Id
+    //                LEFT JOIN MST.BudgetMaster BM ON MM.BudgetMasterId = BM.Id
+    //                LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMT ON BM.Id=FAMT.BudgetMasterId AND MM.BudgetMasterId=FAMT.BudgetMasterId
+    //                LEFT JOIN [MST].[FixedAssetMaster] FAM ON FR.FixedAssetMasterId= FAM.Id
+    //                LEFT JOIN HKP.FixedAssetCategory FAC ON FAM.FixedAssetCategoryId=FAC.Id
+    //                LEFT JOIN HKP.FixedAssetSubCategory FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
+    //                LEFT JOIN HKP.Party P ON P.Id=FR.VendorId
+    //                LEFT JOIN SCS.Country C ON C.Id=FR.CountryOfOriginId
+    //                LEFT JOIN TRN.FixedAssetRegisterDetail FRD ON FRD.CapitalizeRegisterNo=FR.CapitalizeRegisterNo
+    //                LEFT JOIN TRN.InventoryIssueHistory IIH ON IIH.Id=FRD.InventoryIssueHistoryId
+    //                LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+    //                LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
+				//	left join scs.Currency PC on PC.Id= FR.CurrencyId
+				//    left join scs.Currency BC on BC.Id= FR.FABaseCurrencyId
 
 
-            }
+				//	--LEFT JOIN(SELECT FixedAssetRegisterId,sum(Amount) SubAssetAmount FROM TRN.SubFixedAssetRegister 
+				//	--group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
+
+			 //   LEFT JOIN(SELECT FixedAssetRegisterId,sum(isnull( Amount,0)) SubAssetAmount 
+				//FROM TRN.SubFixedAssetRegister 
+				//group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
+
+    //           left join ORG.Entity E on E.Id= FR.EntityId
+			 //  left join ORG.Department D on D.Id = FR.DepartmentId
+    //                WHERE FR.CompanyId='" + companyId + @"' and FR.Archive=0 and FR.IsAUC=0
+    //                --AND FR.Id NOT IN(' ')
+    //                AND " + paramter + @"";
+
+
+    //        }
+
             return _sqlRepository.GetDataTable(sql);
         }
 
@@ -3828,7 +3841,7 @@ namespace Library.Service.FixedAssets
                 throw;
             }
         }
-        public IWorkbook FixedAssetRegisterList(string companyGroupId, string companyId, string plantId, string PartyType, string PartyId, string MaterialMasterId, string FixedAssetsId, string FromDate, string ToDate)
+        public IWorkbook FixedAssetRegisterList(string companyGroupId, string companyId, string plantId, string MaterialMasterId, string MaterialMasterArticleId, string fixedAssetMasterId, string vendorId)
         {
 
             //Start EmployeeAdvanceDueList
@@ -3846,7 +3859,7 @@ namespace Library.Service.FixedAssets
 
             //Get the first worksheet in the workbook into IWorksheet
             IWorksheet worksheet = workbook.Worksheets[0];
-            DataTable dtGatenntryRegisterList = GetRegisterReportData(companyGroupId, companyId, plantId, PartyType, PartyId, MaterialMasterId, FixedAssetsId, FromDate, ToDate);
+            DataTable dtGatenntryRegisterList = GetRegisterReportData(companyGroupId, companyId, plantId, MaterialMasterId, MaterialMasterArticleId, fixedAssetMasterId, vendorId);
 
 
             if (dtGatenntryRegisterList.Rows.Count == 0)
