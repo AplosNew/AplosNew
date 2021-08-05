@@ -1418,7 +1418,7 @@ namespace Library.Accounting.FixedAssets
         }
 
         #region Entity Fixed Assets Register
-        public List<Dictionary<string, object>> GetEntityFixedAssetRegisterElasticSearchDataList(string companyGroupId, string companyId, string plantId, string materialMasterId, string materialMasterArticleId, string fixedAssetMasterId, string vendorId, string isAsset, string machine)
+        public List<Dictionary<string, object>> GetEntityFixedAssetRegisterElasticSearchDataList(string companyGroupId, string companyId, string plantId)
         {
             var sql = @"select distinct MM.UserName MaterialMaster,MMA.StandardName Article,FA.UserName AssetMaster,P.UserName Party
                 , FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId
@@ -1426,11 +1426,20 @@ namespace Library.Accounting.FixedAssets
                  ,IsAsset =case when MM.IsAsset =1 then 'Yes' else  'No'  end
 				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
 				 , count(FAR.FixedAssetMasterId) FACount
+
+				-- ,sum( ISNULL(FAR.FABaseAmount,0))FABaseAmount
+				-- ,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				-- ,sum( ISNULL(FAR.FABaseAmount,0)- ISNULL(FAR.ADBaseAmount,0)) NetFixedAssetsAmount
+				 -- ,sum( isnull(sar.SubAssetAmount,0))SubAssetAmount
+				  --,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
+
 				 ,sum( ISNULL(FAR.FABaseAmount,0))FABaseAmount
-				 ,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
-				 ,sum( ISNULL(FAR.FABaseAmount,0)- ISNULL(FAR.ADBaseAmount,0)) NetFixedAssetsAmount
 				  ,sum( isnull(sar.SubAssetAmount,0))SubAssetAmount
-				  ,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
+				  ,sum(ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) ) TotalBaseAmount
+				 ,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				 ,sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ) NetFixedAssetsAmount
+				  --,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
+
 
 		        from TRN.FixedAssetRegister FAR 
 				JOIN MST.MaterialMaster MM ON MM.Id=FAR.MaterialMasterId
@@ -1449,8 +1458,7 @@ namespace Library.Accounting.FixedAssets
 
 
 		        WHERE FAR.CompanyGroupId='" + companyGroupId + "' AND FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"'  
-				  --and FAR.MaterialMasterId in (" + materialMasterId + ") AND FAR.MaterialMasterArticleId in (" + materialMasterArticleId + ") AND FAR.FixedAssetMasterId in (" + fixedAssetMasterId + @")
-					-- and FAR.VendorId in (" + vendorId + ") AND MM.IsAsset in (" + isAsset + ") AND MBP.BusinessProcessName in (" + machine + @")
+			
 
                GROUP BY FAR.MaterialMasterId ,MM.UserName ,MMA.StandardName ,FA.UserName,P.UserName 
 			   ,MM.IsAsset,MBP.BusinessProcessName,FAR.FixedAssetMasterId
@@ -1466,10 +1474,21 @@ namespace Library.Accounting.FixedAssets
                                     , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                                     , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
                                     , FAM.FixedAssetSubCategoryId, FAM.AssetType
-									, ISNULL(FR.FABaseAmount,0)FABaseAmount
-									, ISNULL(sar.SubAssetAmount,0) SubAssetAmount
-									, ISNULL(FR.ADBaseAmount,0) ADBaseAmount
-									,ISNULL(FR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) NetFixedAssetsAmount
+
+									--, ISNULL(FR.FABaseAmount,0)FABaseAmount
+									--, ISNULL(sar.SubAssetAmount,0) SubAssetAmount
+									--, ISNULL(FR.ADBaseAmount,0) ADBaseAmount
+									--,ISNULL(FR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) NetFixedAssetsAmount
+
+
+				                 ,( ISNULL(FR.FABaseAmount,0))FABaseAmount
+				                  ,( isnull(sar.SubAssetAmount,0))SubAssetAmount
+				                  ,(ISNULL(FR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) ) TotalBaseAmount
+				                 ,( ISNULL(FR.ADBaseAmount,0)) ADBaseAmount
+				                 ,( ISNULL(FR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) ) NetFixedAssetsAmount
+				                  --,TotalAssetsBaseAmount= sum( ISNULL(FR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
+
+
 									, MMA.StandardName Article
 									, FR.IsFinancial,IID.InventoryIssueId IssueNo,IRD.InventoryReceiveId GRNNo,FR.CapitalizeRegisterNo
                                     FROM [TRN].[FixedAssetRegister] FR
@@ -1491,7 +1510,7 @@ namespace Library.Accounting.FixedAssets
 		                            left join ORG.Entity E on E.Id= FR.EntityId
 									left join ORG.Department D on D.Id = FR.DepartmentId
 
-                                    WHERE FR.CompanyGroupId='"+companyGroupId+"'and FR.CompanyId='"+companyId+"' AND FR.PlantId='"+plantId+@"'
+                                    WHERE FR.CompanyGroupId='" + companyGroupId+"'and FR.CompanyId='"+companyId+"' AND FR.PlantId='"+plantId+@"'
                                     and FR.Archive=0 and FR.IsAUC=0
                                     AND FR.Id NOT IN(' ')
 				                     and FR.MaterialMasterId in("+materialMasterId+") AND FR.MaterialMasterArticleId in ("+materialMasterArticleId+") AND FR.FixedAssetMasterId in ("+fixedAssetMasterId+@")
@@ -1512,11 +1531,19 @@ namespace Library.Accounting.FixedAssets
                  ,IsAsset =case when MM.IsAsset =1 then 'Yes' else  'No'  end
 				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
 				 , count(FAR.FixedAssetMasterId) FACount
+
+				-- ,sum( ISNULL(FAR.FABaseAmount,0))FABaseAmount
+				 --,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				-- ,sum( ISNULL(FAR.FABaseAmount,0)- ISNULL(FAR.ADBaseAmount,0)) NetFixedAssetsAmount
+				 -- ,sum( isnull(sar.SubAssetAmount,0))SubAssetAmount
+				 -- ,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
 				 ,sum( ISNULL(FAR.FABaseAmount,0))FABaseAmount
-				 ,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
-				 ,sum( ISNULL(FAR.FABaseAmount,0)- ISNULL(FAR.ADBaseAmount,0)) NetFixedAssetsAmount
 				  ,sum( isnull(sar.SubAssetAmount,0))SubAssetAmount
-				  ,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
+				  ,sum(ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) ) TotalBaseAmount
+				 ,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				 ,sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ) NetFixedAssetsAmount
+				  --,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
+
 
 		        from TRN.FixedAssetRegister FAR 
 				JOIN MST.MaterialMaster MM ON MM.Id=FAR.MaterialMasterId

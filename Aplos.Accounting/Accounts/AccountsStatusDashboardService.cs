@@ -7431,8 +7431,20 @@ group by Id) O60 ON O60.Id=IV.Id
 				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
                  ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
 				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
-				 ,ISNULL(FA.FACount,0) FACount, ISNULL(FA.FABaseAmount,0)FABaseAmount, ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-				 , ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
+
+				 ,ISNULL(FA.FACount,0) FACount
+
+               -- , ISNULL(FA.FABaseAmount,0)FABaseAmount
+               -- , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
+				-- , ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
+
+                , ISNULL(FA.FABaseAmount,0)FABaseAmount
+				  , isnull(FA.SubAssetAmount,0)SubAssetAmount
+				  ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0)  TotalBaseAmount
+				 , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
+				 ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0)  NetFixedAssetsAmount
+
+
                 ,isnull (S.UserName,'') Skill
                 ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
                 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
@@ -7454,7 +7466,8 @@ group by Id) O60 ON O60.Id=IV.Id
                 WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
 
             	LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount
-              	,SUM(isnull( FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) ) )FABaseAmount
+              	,SUM(isnull( FAR.FABaseAmount,0) )FABaseAmount
+				,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
 				,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
 				,FAR.MaterialMasterId
 				
@@ -7500,7 +7513,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
         }
 
-        private string MaterialMasterType(/*string MaterialTypeId*/)
+        private string MaterialMasterType(/*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
         {
 
             return @" 
@@ -7511,8 +7524,18 @@ group by Id) O60 ON O60.Id=IV.Id
                 ,uom.Id BaseUOMId, uom.UserName BaseUOM
                 ,IsAsset =case when M.IsAsset =1 then 'Yes' else 'No' end
                 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end
-                ,ISNULL(FA.FACount,0) FACount, ISNULL(FA.FABaseAmount,0)FABaseAmount, ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-                , ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
+                ,ISNULL(FA.FACount,0) FACount
+
+                --, ISNULL(FA.FABaseAmount,0)FABaseAmount, ISNULL(FA.ADBaseAmount,0) ADBaseAmount
+                --, ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
+
+			        ,( ISNULL(FA.FABaseAmount,0))FABaseAmount
+				  ,( isnull(FA.SubAssetAmount,0))SubAssetAmount
+				  ,(ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) ) TotalBaseAmount
+				 ,( ISNULL(FA.ADBaseAmount,0)) ADBaseAmount
+				 ,( ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0) ) NetFixedAssetsAmount
+				  --,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
+
                 ,S.UserName Skill
                 ,Process= STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
                 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
@@ -7536,7 +7559,11 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
-                LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount,SUM(FAR.FABaseAmount)+SUM(sar.SubAssetAmount) FABaseAmount,SUM(FAR.ADBaseAmount) ADBaseAmount
+                LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount
+		        ,SUM(FAR.FABaseAmount)FABaseAmount
+
+				,SUM(sar.SubAssetAmount) SubAssetAmount
+				,SUM(FAR.ADBaseAmount) ADBaseAmount
                 ,FAR.MaterialMasterId
 
                 FROM TRN.FixedAssetRegister FAR
@@ -7551,13 +7578,13 @@ group by Id) O60 ON O60.Id=IV.Id
                 -- and m.UserName='Speaker'
                 --and m.UserName='Multineedle'
                 --and t.UserName ='IT System'
-                ORDER BY M.UserName
 
-                ";
+	
+                ORDER BY M.UserName ";
 
         }
 
-        public void MaterialMasterReport2()
+        public void MaterialMasterReport2( /*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
         {
 
             //if (MaterialTypeId == null) MaterialTypeId = null;
@@ -7587,7 +7614,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 //    }
 
                 string sql = "";
-                sql = MaterialMasterType(/*MaterialTypeId*/);
+                sql = MaterialMasterType( /*MaterialTypeId,  materialMasterId,  materialGroupMasterId,  materialCategoryId,  materialSubCategoryId,  materialGroup1Id*/);
                 DataTable dtMaterialMaster = _sqlRepository.GetDataTable(sql);
 
                 ExcelEngine excelEngine = new ExcelEngine();
@@ -7660,9 +7687,20 @@ group by Id) O60 ON O60.Id=IV.Id
                 int colFACount = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Gross Amount";
+
+                sheet[ROW, COL].Text = "FA Base Amount";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colFABaseAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Sub Asset Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colSubAssetAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Base Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colTotalBaseAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Acc.Dep.Amount";
@@ -7784,11 +7822,16 @@ group by Id) O60 ON O60.Id=IV.Id
                     sheet[ROW, colMachine].Text = dtMaterialMaster.Rows[i]["Machine"].ToString();
 
 
+
                     sheet[ROW, colFABaseAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["FABaseAmount"].ToString());
                     sheet[ROW, colFABaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, colADBaseAmount].Number = clsStaticInfo.dbl (dtMaterialMaster.Rows[i]["ADBaseAmount"].ToString());
+                    sheet[ROW, colSubAssetAmount].Number = clsStaticInfo.dbl (dtMaterialMaster.Rows[i]["SubAssetAmount"].ToString());
+                    sheet[ROW, colSubAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, colTotalBaseAmount].Number =clsStaticInfo.dbl( dtMaterialMaster.Rows[i]["TotalBaseAmount"].ToString());
+                    sheet[ROW, colTotalBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, colADBaseAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["ADBaseAmount"].ToString());
                     sheet[ROW, colADBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, colNetFixedAssetsAmount].Number =clsStaticInfo.dbl( dtMaterialMaster.Rows[i]["NetFixedAssetsAmount"].ToString());
+                    sheet[ROW, colNetFixedAssetsAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["NetFixedAssetsAmount"].ToString());
                     sheet[ROW, colNetFixedAssetsAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
 
                     sheet[ROW, colSkill].Text = dtMaterialMaster.Rows[i]["Skill"].ToString();
