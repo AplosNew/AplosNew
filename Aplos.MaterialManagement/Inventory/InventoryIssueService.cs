@@ -17,6 +17,7 @@ using Library.Service.Systems;
 using Library.Service.Vouchers;
 using Library.ViewModel.Materials;
 using Library.ViewModel.OrderManagements;
+using Library.ViewModel.SalesManagements;
 using OTSBD;
 using Syncfusion.XlsIO;
 using System;
@@ -71,6 +72,12 @@ namespace Library.MaterialManagement.Inventory
 
 		private readonly IRepositoryAsync<IssueDetailAndIssueRequestMap> _IssueDetailAndIssueRequestMapRepository;
 
+		private readonly IRepositoryAsync<InventorySalesReturn> _InventorySalesReturnRepository;
+		private readonly IRepositoryAsync<InventorySalesReturnDetail> _InventorySalesReturnDetailRepository;
+		
+		private readonly IRepositoryAsync<InventorySalesReturnTax> _InventorySalesReturnTaxRepository;
+		private readonly IRepositoryAsync<InventorySalesReturnService> _InventorySalesReturnServiceRepository;
+		private readonly IPKGeneratorService _pkGeneratorService;
 		public InventoryIssueService(
 			IRepositoryAsync<InventoryIssue> issueRepository
 			, IRepositoryAsync<Company> companyRepository
@@ -106,6 +113,11 @@ namespace Library.MaterialManagement.Inventory
 			, IRepositoryAsync<InventoryTransferHistory> InventoryTransferHistoryRepository
 			, IRepositoryAsync<MaterialStorage> materialStorageRepository
 			, IRepositoryAsync<IssueDetailAndIssueRequestMap> IssueDetailAndIssueRequestMapRepository
+			, IRepositoryAsync<InventorySalesReturn> InventorySalesReturnRepository
+			, IRepositoryAsync<InventorySalesReturnDetail> InventorySalesReturnDetailRepository
+
+			, IRepositoryAsync<InventorySalesReturnTax> InventorySalesReturnTaxRepository
+			, IRepositoryAsync<InventorySalesReturnService> InventorySalesReturnServiceRepository
 			) : base(issueRepository, unitOfWork, pkGeneratorService)
 		{
 			_issueRepository = issueRepository;
@@ -140,6 +152,12 @@ namespace Library.MaterialManagement.Inventory
 			_InventoryTransferHistoryRepository = InventoryTransferHistoryRepository;
 			_materialStorageRepository = materialStorageRepository;
 			_IssueDetailAndIssueRequestMapRepository = IssueDetailAndIssueRequestMapRepository;
+
+			_InventorySalesReturnRepository = InventorySalesReturnRepository;
+			_InventorySalesReturnDetailRepository = InventorySalesReturnDetailRepository;
+			_InventorySalesReturnServiceRepository = InventorySalesReturnServiceRepository;
+			_InventorySalesReturnTaxRepository = InventorySalesReturnTaxRepository;
+			_pkGeneratorService = pkGeneratorService;
 		}
 
 		#endregion Constructor
@@ -167,6 +185,10 @@ namespace Library.MaterialManagement.Inventory
 		private string GetInventorySalesTaxPK()
 		{
 			return base.GetAutoNumber(nameof(InventorySalesTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
+		}
+		private string GetInventorySalesReturnPK()
+		{
+			return base.GetAutoNumber(nameof(InventoryIssueReturn), PKGeneratorEnum.Yearly, null, DateTime.Now);
 		}
 		private string GetIssueDetailAndIssueRequestMapPK()
 		{
@@ -9609,7 +9631,172 @@ namespace Library.MaterialManagement.Inventory
 			}
 		}
 
+		#region InventorySalesReturn
 
+		public void SalesReturnInsert(InventorySalesReturn inventoryIssue, IEnumerable<InventorySalesReturnDetailViewModel> entities, IEnumerable<InventorySalesReturnServiceViewModel> salesServiceVMList)
+		{
+			var flag = false;
+			bool FlagIsAsset = false;
+			int currentSalesTaxId = 0;
+			int currentSalesServiceId = 0;
+			try
+			{
+
+				_unitOfWork.BeginTransaction();
+				flag = true;
+
+				inventoryIssue.Id = GetInventorySalesReturnPK();
+				AuditService.AddedLog(inventoryIssue);
+				_InventorySalesReturnRepository.Insert(inventoryIssue);
+				var currentId = _InventorySalesReturnDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventorySalesReturnDetail] WHERE InventorySalesReturnId='{inventoryIssue.Id}'").First();
+				if (entities != null)
+				{
+					foreach (var issue in entities)
+					{
+						var detail = new InventorySalesReturnDetail
+						{
+							Id = MakePK(inventoryIssue.Id, currentId, 2),
+							InventorySalesReturnId = inventoryIssue.Id,
+							IsAsset = FlagIsAsset,//false,
+												  //InventoryIssue = inventoryIssue,
+							InventoryMaterialId = issue.InventoryMaterialId,
+							TransactionQty = issue.TransactionQty,
+							BaseQty = issue.TransactionQty,
+							BaseUOMId = issue.BaseUOMId,
+							TransactionUoMId = issue.TransactionUoMId,
+							AvgRate = issue.AvgRate,
+							AvgAmount = issue.TransactionQty * issue.AvgRate,
+
+							BudgetMasterId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.BudgetMasterId).FirstOrDefault(),
+							ActivityId = entities.Where(r => r.MaterialMasterId == issue.MaterialMasterId).Select(t => t.ActivityId).FirstOrDefault(),
+							Comments = issue.Comments,
+							CostCenterId = issue.CostCenterId,
+							SalesRate = issue.SalesRate,
+							TotalSalesAmount = Math.Round((issue.TransactionQty * issue.SalesRate), 2),
+							BooksCurrencyTransactionAmount = Math.Round((inventoryIssue.ToCurrencyRate * Math.Round((issue.TransactionQty * issue.SalesRate), 2)), 2),
+							ModelState = ModelState.Added,
+							AddedBy = inventoryIssue.AddedBy,
+							AddedDate = inventoryIssue.AddedDate,
+							AddedFromIP = inventoryIssue.AddedFromIP
+
+						};
+						_InventorySalesReturnDetailRepository.Insert(detail);
+
+
+                        if (issue.TaxList != null && issue.TaxList.Count > 0)
+                        {
+                            foreach (var taxVM in issue.TaxList)
+                            {
+                                if (taxVM.TaxCategoryId == null)
+                                    throw new CustomException("Please Select Tax Category !");
+
+                                currentSalesTaxId++;
+                                var salesTax = new InventorySalesReturnTax
+                                {
+                                    Id = _pkGeneratorService.MakePK(detail.Id, currentSalesTaxId, 2),
+                                    AddedBy = detail.AddedBy,
+                                    AddedDate = detail.AddedDate,
+                                    AddedFromIP = detail.AddedFromIP,
+                                    TaxAmount = taxVM.TaxAmount,
+                                    BooksCurrencyTaxAmount = Math.Round(taxVM.TaxAmount * inventoryIssue.ToCurrencyRate, 2),
+                                    HSNCodeId = taxVM.HSNCodeId,
+                                    Percentage = taxVM.Percentage,
+                                    InventorySalesReturnId = inventoryIssue.Id,
+                                    //SalesMaterialId = detail.Id,
+                                    TaxCategoryId = taxVM.TaxCategoryId,
+                                    InventorySalesReturnServiceId = null,
+                                    ModelState = ModelState.Added,
+                                    UpdatedBy = null,
+                                    UpdatedDate = null,
+                                    UpdatedFromIP = null
+                                };
+                                _InventorySalesReturnTaxRepository.Insert(salesTax);
+                            }
+                        }
+                    }
+                }
+
+
+
+                if (salesServiceVMList != null)
+                {
+                    foreach (var salesServiceVM in salesServiceVMList)
+                    {
+
+                        currentSalesServiceId++;
+                        var salesService = new InventorySalesReturnService
+						{
+                            AddedBy = inventoryIssue.AddedBy,
+                            AddedDate = inventoryIssue.AddedDate,
+                            AddedFromIP = inventoryIssue.AddedFromIP,
+                            Amount = salesServiceVM.Amount,
+                            BooksCurrencyTransactionAmount = Math.Round(salesServiceVM.Amount * inventoryIssue.ToCurrencyRate, 2),
+                            Id = _pkGeneratorService.MakePK(inventoryIssue.Id, currentSalesServiceId, 2),
+                            ModelState = ModelState.Added,
+							InventorySalesReturnId = inventoryIssue.Id,
+                            ServiceMasterId = salesServiceVM.ServiceMasterId,
+							TotalTaxAmount = salesServiceVM.TotalTaxAmount,
+                            UpdatedBy = null,
+                            UpdatedDate = null,
+                            UpdatedFromIP = null
+                        };
+						_InventorySalesReturnServiceRepository.Insert(salesService);
+
+                        if (salesServiceVM.ChargeTaxList != null && salesServiceVM.ChargeTaxList.Count > 0)
+                        {
+                            foreach (var taxVM in salesServiceVM.ChargeTaxList)
+                            {
+                                if (taxVM.TaxCategoryId == null)
+                                    throw new CustomException("Please Select Tax Category !");
+
+                                currentSalesTaxId++;
+                                var salesTax = new InventorySalesReturnTax
+								{
+                                    Id = _pkGeneratorService.MakePK(salesService.Id, currentSalesTaxId, 2),
+                                    AddedBy = salesService.AddedBy,
+                                    AddedDate = salesService.AddedDate,
+                                    AddedFromIP = salesService.AddedFromIP,
+									TaxAmount = taxVM.TaxAmount,
+									BooksCurrencyTaxAmount = Math.Round(taxVM.TaxAmount * inventoryIssue.ToCurrencyRate, 2),
+                                    HSNCodeId = taxVM.HSNCodeId,
+                                    Percentage = taxVM.Percentage,
+									InventorySalesReturnId = inventoryIssue.Id,
+
+									InventorySalesReturnServiceId = salesService.Id,
+                                    TaxCategoryId = taxVM.TaxCategoryId,
+                                    ModelState = ModelState.Added,
+                                    UpdatedBy = null,
+                                    UpdatedDate = null,
+                                    UpdatedFromIP = null
+                                };
+								_InventorySalesReturnTaxRepository.Insert(salesTax);
+                            }
+                        }
+                    }
+                }
+
+                _unitOfWork.SaveChanges();
+				flag = false;
+				_unitOfWork.Commit();
+			}
+			catch (CustomException)
+			{
+				throw;
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+			}
+			finally
+			{
+				if (flag)
+					_unitOfWork.Rollback();
+			}
+		}
+
+		#endregion
 
 	}
 }//end

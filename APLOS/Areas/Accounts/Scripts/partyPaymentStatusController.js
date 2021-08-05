@@ -1201,6 +1201,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     $scope.GetFixedAssetsList = function () {
         try {
 
+
             $http({
                 method: 'POST',
                 url: $scope.path + "GetFixedAssetsList",
@@ -1348,9 +1349,37 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector("#fixedAssetsRegisterPopUp")).modal("hide");
     };
 
+    //var getString = function (data, column) {
+    //    var string = "''";
+    //    var collection = [];
+    //    for (var i = 0; i < data.length; i++) {
+    //        if (collection.includes(data[i][column]) == false) {
+    //            string += ",'" + data[i][column] + "'";
+    //            collection.push(data[i][column]);
+    //        }
+    //    }
+
+    //    return string;
+    //}
+
     $scope.getMasterReport2 = function () {
         try {
-            //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + $scope.materialMasterReportNew.MaterialTypeId + '&Article=' + $scope.materialMasterReportNew.WithArticle;;
+            //var filtered = $("#gridTab").data("ejGrid").getFilteredRecords();
+            //if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            //    filtered = $scope.FixedAssetsList;
+            //}
+            ////filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+            //var MaterialTypeId = getString(filtered, "MaterialTypeId");
+            //var MaterialMasterId = getString(filtered, "MaterialMasterId");
+            //var MaterialGroupMasterId = getString(filtered, "MaterialGroupMasterId");
+            //var MaterialCategoryId = getString(filtered, "MaterialCategoryId");
+            //var MaterialSubCategoryId = getString(filtered, "MaterialSubCategoryId");
+            //var MaterialGroup1Id = getString(filtered, "MaterialGroup1Id");
+
+            //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + MaterialTypeId + '&materialMasterId=' + MaterialMasterId + '&materialGroupMasterId=' + MaterialGroupMasterId +
+            //    '&materialCategoryId=' + MaterialCategoryId +
+            //    '&materialSubCategoryId=' + MaterialSubCategoryId + '&materialGroup1Id=' + MaterialGroup1Id ;
+
             var file_src = $scope.path + 'MaterialMasterReport2';
             $rootScope.report(file_src);
 

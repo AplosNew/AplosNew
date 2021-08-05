@@ -353,14 +353,16 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult MaterialMasterReport2(/*string MaterialTypeId, bool Article*/)
+        public ActionResult MaterialMasterReport2(/*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
         {
+
+      
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
             try
             {
-                accountsStatusDashboardService.MaterialMasterReport2(/*MaterialTypeId, Article*/);
+                accountsStatusDashboardService.MaterialMasterReport2( /*MaterialTypeId,  materialMasterId,  materialGroupMasterId,  materialCategoryId,  materialSubCategoryId,  materialGroup1Id*/);
 
 
                 return null;
