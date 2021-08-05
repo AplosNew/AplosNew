@@ -455,7 +455,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
 
         [HttpPost, Authorize]
-        public ActionResult GetSalarySheetExtraOTCTCReport(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity,string PlantId)
+        public ActionResult GetSalarySheetExtraOTCTCReport(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, string PlantId)
         {
             try
             {
@@ -503,7 +503,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
 
 
         [HttpPost, Authorize]
-        public ActionResult GetEmpInfoSalaryPorcessed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity,string PlantId)
+        public ActionResult GetEmpInfoSalaryPorcessed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string Plant = string.Empty;
@@ -513,7 +513,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
             }
             else
             {
-                Plant = identity.PlantId;
+                Plant = "'" + identity.PlantId + "'";
             }
             var jsondata = Json(_payrollReportsService.GetEmpInfoSalaryPorcessed(identity.CompanyGroupId, Plant, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
