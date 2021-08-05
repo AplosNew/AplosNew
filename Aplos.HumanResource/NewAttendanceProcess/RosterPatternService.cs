@@ -105,7 +105,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var str = @"Select Id ,RPHeaderId, ShiftDefinitionID, Days31 as ShiftSequence , sd.ShiftDefinationName as ShiftName from dbo.RosterPatternChild rpc
+                var str = @"Select Id ,RPHeaderId, ShiftDefinitionID, Days31 as ShiftSequence, Days31, Days30,Days29,Days28 , sd.ShiftDefinationName as ShiftName from dbo.RosterPatternChild rpc
 left join dbo.ShiftDefination sd on sd.SystemID = rpc.ShiftDefinitionID
 where RPHeaderId = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
@@ -644,5 +644,127 @@ where RPHeaderId = '" + Id + "' ";
         };
             return ds;
         }
+
+
+        public void runTest(string PlantId)
+        {
+            try
+            {
+                clsStaticInfo _info = new clsStaticInfo();
+               
+                var sql2 = @"Select * from dbo.RosterPatternHeader where PlantId = '" + PlantId + "'";
+                DataTable RosterTable = new DataTable();
+                RosterTable = _sqlRepository.GetDataTable(sql2);
+                if (RosterTable.Rows.Count > 0)
+                {
+                    //Loop to go through all the Rosters in a Plant
+                    for (int j = 0; j < RosterTable.Rows.Count; j++)
+                    {
+                        string DaysCol = "Days"+DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month).ToString();
+
+                        //Getting all the Shifts Child 
+                        var sql3 = @"Select *, "+DaysCol+" as ShiftSequence from dbo.RosterPatternChild where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' order by ShiftSequence";
+                        DataTable ShiftsTable = new DataTable();
+                        ShiftsTable = _sqlRepository.GetDataTable(sql3);
+
+                        //Getting the Max Sequence through the Use of Dynamic Months
+                        var maxS = @"Select top 1 * from dbo.RosterPatternChild where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' order by "+DaysCol+@"";
+                        DataTable MaxSTable = new DataTable();
+                        MaxSTable = _sqlRepository.GetDataTable(maxS);
+
+                        
+                        if (MaxSTable.Rows.Count == 0)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            int maxSeq = int.Parse(MaxSTable.Rows[0][DaysCol].ToString());
+                            string _Id = "";
+                            //Get the top Nearest Effective Date
+                            DateTime Today = DateTime.Now;
+                            String noww = DateTime.Now.ToString("dd-MMM-yyyy");
+                            var sql4 = @"Select top 1 ed.*, rp.PlantId from dbo.RosterEffectiveDate ed
+                                                left join dbo.RosterPatternHeader rp on rp.Id = ed.RPHeaderId
+                                                 where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' and EffectiveDate <= '" + noww + "' order by EffectiveDate desc";
+
+                            DataTable EffectiveDateTable = new DataTable();
+                            EffectiveDateTable = _sqlRepository.GetDataTable(sql4);
+
+                            //Getting all the rows from the Process table
+                            var sql5 = @"Select top 1 * from dbo.RosterPatternProcess where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' and PlantId = '" + PlantId + "' order by WorkDate";
+                            DataTable ProcessTable = new DataTable();
+                            ProcessTable = _sqlRepository.GetDataTable(sql5);
+
+                            //Dictionary and DataSet Initialization
+                            DataSet ds;
+                            ConnectionManager.DAL.ConManager cona = new ConnectionManager.DAL.ConManager("1");
+                            cona.OpenDataSetThroughAdapter("select * from RosterPatternProcess where 1 = 2", out ds, false, "1");
+
+                            Dictionary<string, object> dict = InitializeMyDictionary();
+
+                            // Conditions...
+                            int DateDifference = -1;
+                            if (EffectiveDateTable.Rows.Count > 0)
+                            {
+                                DateTime EffecDate = Convert.ToDateTime(EffectiveDateTable.Rows[0]["EffectiveDate"].ToString());
+                                DateDifference = (int)(Today - EffecDate).Days;
+                            }
+
+                            if (DateDifference == 0)// If today is an Effective Date
+                            {
+                                bplib.clsGenID genid = new bplib.clsGenID();
+                                genid.GenID("dbo.RosterPatternProcess", out _Id);
+                                dict["Id"] = "RP" + _Id;
+                                dict["RPHeaderId"] = RosterTable.Rows[j]["Id"].ToString();
+                                dict["PlantId"] = PlantId;
+                                dict["WorkDate"] = Convert.ToDateTime(Today);
+                                dict["ShiftDefinationID"] = ShiftsTable.Rows[0]["ShiftDefinitionID"].ToString();
+                                dict["ShiftSequence"] = ShiftsTable.Rows[0]["ShiftSequence"].ToString();
+                                Add(ds.Tables[0], dict);
+                            }
+                            else
+                            {
+                                //Check for the nearest Previous Date;
+                                if (EffectiveDateTable.Rows.Count > 0)
+                                {
+                                    DateTime EffecDates = Convert.ToDateTime(EffectiveDateTable.Rows[0]["EffectiveDate"].ToString());
+                                    double DayDiffs = (Today - EffecDates).Days;
+                                    int Seq = (int)(DayDiffs % maxSeq); // The Sequence of Shift to be inserted Today
+
+                                    bplib.clsGenID genid = new bplib.clsGenID();
+                                    genid.GenID("dbo.RosterPatternProcess", out _Id);
+                                    dict["Id"] = "RP" + _Id;
+                                    dict["RPHeaderId"] = RosterTable.Rows[j]["Id"].ToString();
+                                    dict["PlantId"] = PlantId;
+                                    dict["WorkDate"] = Convert.ToDateTime(Today);
+                                    dict["ShiftDefinationID"] = ShiftsTable.Rows[Seq]["ShiftDefinitionID"].ToString();
+                                    dict["ShiftSequence"] = ShiftsTable.Rows[Seq]["ShiftSequence"].ToString();
+                                    //We will make the Row and insert into the Table.
+                                    Add(ds.Tables[0], dict);
+                                }
+                                else // In case there are no previous date Either, it will be an Exceptional Case.
+                                {
+                                    continue;
+                                }
+
+                            }
+
+
+                            _info.SaveDataSets(ds);
+                        }
+
+                    }
+                }
+
+                //}
+
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
     }
 }
