@@ -273,10 +273,114 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public string Create(IEnumerable<PhysicalVerifyModel> DataToSave)
+        private void PhysicalVerification(IEnumerable<PhysicalVerifyModel> Future)
         {
             try
             {
+                DataSet dsMaster;
+                string TableName = "dbo.PhysicalVerification";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");               
+
+                string EmpId = "''";
+                foreach (PhysicalVerifyModel item in Future)
+                {
+                    EmpId += ",'" + item.EmpSystemId + "'";
+                }
+
+                var items = Future.ToList();
+
+                var sqly = @"select * from dbo.PhysicalVerification where WorkDate='" + items[0].WorkDate + " ' and EmpSystemId IN(" + EmpId + ")";
+                con.OpenDataSetThroughAdapter(sqly, out dsMaster, false, "1");
+
+
+                foreach (PhysicalVerifyModel item in Future)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"EmpSystemId='" + item.EmpSystemId + "' ";
+
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        clsGenID genid = new clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        
+                        if(item.InOutParam=="In")
+                        {
+                            dr["Id"] = "PHY" + _Id;
+                            dr["EmpSystemID"] = item.EmpSystemId;
+                            dr["WorkDate"] = item.WorkDate;
+                            dr["InTime"] = DateTime.Now;
+                            dr["BudgetCode"] = clsWebLib.RetValidLen(item.BudgetCode);
+                            dr["AddedBy"] = item.AddedBy;
+                            dr["AddedDate"] = DateTime.Now;
+                            dr["AddedFromIP"] = item.AddedFromIP;
+
+                        }
+                        else
+                        {
+                            dr["Id"] = "PHY" + _Id;
+                            dr["EmpSystemID"] = item.EmpSystemId;
+                            dr["WorkDate"] = item.WorkDate;
+                            dr["OutTime"] = DateTime.Now;
+                            dr["OThour"] = clsWebLib.RetValidLen(item.OThour);
+                            dr["AddedBy"] = item.AddedBy;
+                            dr["AddedDate"] = DateTime.Now;
+                            dr["AddedFromIP"] = item.AddedFromIP;
+
+                        }
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                        
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                       
+                        if (item.InOutParam == "In")
+                        {                            
+                            dr["EmpSystemID"] = item.EmpSystemId;
+                            dr["WorkDate"] = item.WorkDate;
+                            dr["InTime"] = DateTime.Now;
+                            dr["BudgetCode"] = clsWebLib.RetValidLen(item.BudgetCode);
+                            dr["UpdatedBy"] = item.AddedBy;
+                            dr["UpdatedDate"] = DateTime.Now;
+                            dr["UpdatedFromIP"] = item.AddedFromIP;
+
+                        }
+                        else
+                        {
+                            dr["EmpSystemID"] = item.EmpSystemId;
+                            dr["WorkDate"] = item.WorkDate;
+                            dr["OutTime"] = DateTime.Now;
+                            dr["OThour"] = clsWebLib.RetValidLen(item.OThour);
+                            dr["UpdatedBy"] = item.AddedBy;
+                            dr["UpdatedDate"] = DateTime.Now;
+                            dr["UpdatedFromIP"] = item.AddedFromIP;
+
+                        }
+
+                        dr.EndEdit();                        
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);                
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public string Create(IEnumerable<PhysicalVerifyModel> DataToSave)
+        {
+            try
+            {               
                 DataSet dsMaster;
                 string TableName = "dbo.OTfromApp";
 
@@ -285,6 +389,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
+
+                #region Saving in Physical Verification               
+                PhysicalVerification(DataToSave);                
+                #endregion
 
                 string EmpId = "''";
                 foreach (PhysicalVerifyModel item in DataToSave)
@@ -422,12 +530,24 @@ namespace Library.HumanResource.NewAttendanceProcess
 
     }
 
+    public class AttendanceVerificationService
+    {
+        SqlRepository _sqlRepository;
+        ConnectionManager.clsConnectionManager ConManager;
+
+        public AttendanceVerificationService()
+        {
+            _sqlRepository = new SqlRepository();
+            ConManager = new ConnectionManager.clsConnectionManager();
+        }
+    }
+
     public class MyClass
     {
         public int BackDays { get; set; }
         public int FutureDays { get; set; }
         public string GroupId { get; set; }
     }
-
+      
 }
 
