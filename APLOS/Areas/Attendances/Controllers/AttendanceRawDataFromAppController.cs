@@ -51,11 +51,7 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = stringAttendanceData(employeeid, fromdate, todate);
-
-
-            
-
-            var jsondata = Json(new { data = _sqlRepository.GetModelCollection<AttendanceProcessData>(sql)}, JsonRequestBehavior.AllowGet);
+            var jsondata = Json(new { data = _sqlRepository.GetModelCollection<AttendanceRawDataFromApp>(sql)}, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -206,19 +202,6 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }//End Function
 
-        //[HttpPost]
-        //public JsonResult Create(string employeeInformation)
-        //{
-        //    var settings = new JsonSerializerSettings
-        //    {
-        //        NullValueHandling = NullValueHandling.Ignore,
-        //        MissingMemberHandling = MissingMemberHandling.Ignore
-        //    };
-        //    List<EmployeeInformation> employee = JsonConvert.DeserializeObject<List<EmployeeInformation>>(employeeInformation, settings);
-
-        //    _employeeDocumentAssignmentService.InsertORUpdateMaster(employee);
-        //    return Json(new { Message = AplosMessage.Insert });
-        //}
 
         [HttpPost]
         public ActionResult Save(string data)

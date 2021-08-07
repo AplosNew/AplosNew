@@ -1,4 +1,5 @@
-﻿using Library.Crosscutting.Security;
+﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using System;
 using System.Collections.Generic;
@@ -224,7 +225,7 @@ namespace Library.HumanResource.Attendance
                         DataRow dr = dsManualAttendance.Tables[0].NewRow();
 
                         count++;
-                        string pk = "A" + seed_detail + "_" + count;
+                        string pk = seed_detail + "_" + count;
                         //dr = dtMSave.NewRow();
                         dr["Id"] = pk;
 
@@ -364,10 +365,9 @@ public class AttendanceFromApp
     public string ErrorMessage { get; set; } = "";
 }
 
-public class AttendanceRawDataFromApp
+public class AttendanceRawDataFromApp : BaseModel
 {
     public string Id { get; set; } = "";
-    public string EmployeeId { get; set; } = "";
     public string WorkDate { get; set; } = "";
     public string InDate { get; set; } = "";
     public string InTime { get; set; } = "";
@@ -375,4 +375,10 @@ public class AttendanceRawDataFromApp
     public string OutTime { get; set; } = "";
     public bool isApprovedIN { get; set; }
     public bool isApprovedOUT { get; set; }
+    public string EmployeeCode { get; set; } = "";
+    public string EmployeeName { get; set; } = "";
+    public string Section { get; set; } = "";
+    public string SubSection { get; set; } = "";
+    public string Department { get; set; } = "";
+    public string Designation { get; set; } = "";
 }

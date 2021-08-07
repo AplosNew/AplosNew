@@ -97,9 +97,9 @@
                     <div e-columns>
                         <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>
                         <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
-                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>                        
+                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
                         <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
-                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>                                                
+                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
                         <div e-column e-field="ErrorMessage" e-headertext="Error Message" e-width="300"></div>
                     </div>
                 </div>
@@ -158,9 +158,9 @@
                         <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100" e-primarykey="true"></div>
                         <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="150"></div>
                         <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
-                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>                        
+                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
                         <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
-                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>                                                
+                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
                         <div e-column e-field="Department" e-headertext="Department" e-width="150"></div>
                         <div e-column e-field="Designation" e-headertext="Designation" e-width="150"></div>
                         <div e-column e-field="Section" e-headertext="Section" e-width="150"></div>
@@ -186,18 +186,18 @@
 </style>
 
 <script type="text/template" id="indate">
-    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" ng-disabled="isApprovedIN" e-width="100%" />
+    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-disabled="isApprovedIN" e-width="100%" />
 </script>
 <script type="text/template" id="intime">
 
-    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%" ng-disabled="isApprovedIN"/>
+    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%" e-disabled="isApprovedIN" />
 
 </script>
 <script type="text/template" id="outdate">
-    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.OutDate" ng-disabled="isApprovedOUT" e-width="100%" />
+    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.OutDate" e-disabled="isApprovedOUT" e-width="100%" />
 </script>
 <script type="text/template" id="outtime">
-    <input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" ng-disabled="isApprovedOUT" />
+    <input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" e-disabled="isApprovedOUT" />
 </script>
 <div class="row">
     <div class="form-group">

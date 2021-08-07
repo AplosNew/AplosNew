@@ -106,36 +106,6 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
         }
     }
 
-    //$scope.Save = function () {
-    //    try {
-    //        if ($scope.Action === "Save") {
-    //            $http({
-    //                method: 'POST',
-    //                url: $scope.saveUrl,
-    //                data: {
-    //                    'employeeInformation': JSON.stringify($scope.tempList)
-    //                },
-    //                dataType: 'JSON'
-    //                , contentType: "application/json charset=utf-8"
-    //            }).then(function successCallback(response) {
-    //                if (response.data.Error === true) {
-    //                    ShowResult(response.data.Message, "failure");
-    //                    $scope.tempList = [];
-    //                }
-    //                else {
-    //                    ShowResult(response.data.Message, "success");
-    //                    $scope.LoadData($scope.employeeInformation.PlantId);
-    //                    $scope.tempList = [];
-    //                }
-    //            }, function errorCallback(response) {
-    //                ShowResult(response.status.Message, "failure");
-    //            });
-    //            return true;
-    //        }
-    //    } catch (e) {
-    //        ShowResult(e, "failure");
-    //    }
-    //};
 
     $scope.SaveSingleEmployee = function () {
         var DataToBeSaved = [];
@@ -158,8 +128,8 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'data': JSON.stringify(DataToBeSaved) },
             url: $scope.path + 'Save',
+            data: { 'data': JSON.stringify(DataToBeSaved) },
             contentType: "application/json charset=utf-8"
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -179,6 +149,18 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             }
         });
     }
+
+//    public class AttendanceFromApp {
+//        public string Id { get; set; } = "";
+//    public string WorkDate { get; set; } = "";
+//    public string InDate { get; set; } = "";
+//    public string InTime { get; set; } = "";
+//    public string OutDate { get; set; } = "";
+//    public string OutTime { get; set; } = "";
+//    public bool IsError { get; set; } = false;
+//    public string ErrorMessage { get; set; } = "";
+//}
+
     $scope.SaveSingleDay = function () {
         var DataToBeSaved = [];
         for (var i = 0; i < $scope.employeeAttendanceBySingleDate.length; i++) {
@@ -201,11 +183,14 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
         for (var i = 0; i < DataToBeSaved.length; i++) {
             DataToBeSaved[i].WorkDate = $scope.FromDateSingleDate;
         }
+
+        var sorteddata = ej.DataManager(DataToBeSaved).executeLocal(ej.Query().select(["Id", "WorkDate", "InDate", "InTime", "OutDate","OutTime"]));
+
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'data': JSON.stringify(DataToBeSaved) },
             url: $scope.path + 'Save',
+            data: { 'data': JSON.stringify(sorteddata) },
             contentType: "application/json charset=utf-8"
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
