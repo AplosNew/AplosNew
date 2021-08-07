@@ -11,7 +11,7 @@ function salesPackingPostController(cboService, commonMessage, $window, $scope, 
     $scope.salesMaterialList = [];
     $scope.masterOrderDetailList = [];
     $scope.masterOrderServiceDetailList = [];
-    $scope.postUrl = 'SalesManagements/Sales/PostMasterOrderSales';
+    $scope.postUrl = 'SalesManagements/Sales/PostSalesPacking';
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
     $controller("partyBaseController", { $scope: $scope, $http: $http });
     $controller("baseMaterialAndArticleController", { $scope: $scope, $http: $http });
@@ -23,7 +23,7 @@ function salesPackingPostController(cboService, commonMessage, $window, $scope, 
     $scope.getMasterOrderSales = function () {
         $http({
             method: 'GET'
-            , url: 'SalesManagements/Sales/GetMasterOrderSalesList'
+            , url: 'SalesManagements/Sales/GetSalesPackingList'
             , dataType: 'JSON'
         }).then(function (response) {
             $scope.getMasterOrderSalesList = response.data;
@@ -163,6 +163,7 @@ function salesPackingPostController(cboService, commonMessage, $window, $scope, 
         $scope.masterOrderDetailList = [];
         $scope.masterOrderServiceDetailList = [];
         $scope.getCboVoucherTypeAccountReceivableList();
+        $scope.GetCboVoucherTypePackingJournalList();
     }
     $scope.Post = function () {
         $http({
@@ -172,7 +173,9 @@ function salesPackingPostController(cboService, commonMessage, $window, $scope, 
                 "sales": $scope.modelNew,
                 "salesDetailVMList": $scope.newList,
                 "salesMaterialDetailGLList": $scope.masterOrderDetailList,
-                "salesServiceDetailGLList": $scope.masterOrderServiceDetailList
+                "salesServiceDetailGLList": $scope.masterOrderServiceDetailList,
+                "packing": $scope.modelPacking,
+                "PackingDetailVMList": $scope.packingJournaldataList
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -350,7 +353,7 @@ function salesPackingPostController(cboService, commonMessage, $window, $scope, 
 
         //factoryService.getCurrencyPrecision(data.data.BaseCurrencyId);
         //GetCurrencyExchangeRateList();
-
+        $scope.packingJournal();
         $scope.modelNew.PaymentTermId = x.data.PaymentTermId;
         $scope.modelNew.BaseNoOfDays = x.data.BaseNoOfDays;
         $scope.modelNew.BaseOnDueDate = x.data.BaseOnDueDate;
@@ -371,6 +374,7 @@ function salesPackingPostController(cboService, commonMessage, $window, $scope, 
             
         }
         $scope.getCboVoucherTypeAccountReceivableList();
+        $scope.GetCboVoucherTypePackingJournalList();
         $scope.closeMOSlesPopUp();
     };
 
@@ -578,6 +582,14 @@ function salesPackingPostController(cboService, commonMessage, $window, $scope, 
             }
         }
     }
+    $scope.packingJournaldataList = [];
+    $scope.packingJournal = function () {
+        $scope.packingJournaldataList = [];
+        $http.get('SalesManagements/Sales/GetPackingJournal?salesId=' + $scope.modelNew.Id)
+            .then(function (response) {
+                $scope.packingJournaldataList = response.data;
+            });
+    }
 
     $scope.voucherTypeList = [];
     $scope.getCboVoucherTypeAccountReceivableList = function () {
@@ -585,6 +597,17 @@ function salesPackingPostController(cboService, commonMessage, $window, $scope, 
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.modelNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
+
+            }
+        });
+    };
+    $scope.modelPacking = {};
+    $scope.packingVoucherTypeList = [];
+    $scope.GetCboVoucherTypePackingJournalList = function () {
+        cboService.getCboVoucherTypePackingJournalList(function (result) {
+            $scope.packingVoucherTypeList = result;
+            if ($scope.packingVoucherTypeList.length === 1) {
+                $scope.modelPacking.VoucherTypeId = $scope.packingVoucherTypeList[0].Value;
 
             }
         });
