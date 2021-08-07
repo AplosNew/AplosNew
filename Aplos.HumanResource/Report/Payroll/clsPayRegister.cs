@@ -14506,8 +14506,8 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
 									,ISNULL(SubSection.UserName,'') SubSection 
 									,ISNULL(Unit.UserName,'') Unit 
                                     ,ISNULL(eL.UserName,'') Line
-                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOJ, 106), ' ', '-'),'') DOJ
-                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
+                                    ,FORMAT(E.DOJ,'dd-MMM-yyyy') DOJ
+                                    ,FORMAT(E.DOS,'dd-MMM-yyyy') DOS
 									,CASE WHEN MONTH(DOS) =  MONTH('" + effectiveDate + @"')  AND YEAR(DOS) = YEAR('" + effectiveDate + @"') THEN 'Separated' else 'Active' end CurrentMonthEmployeeStatus
                                     ,ISNULL(e.EmployeeStatus,'') EmployeeStatus
                                     " + salaryProcessColumn + @"

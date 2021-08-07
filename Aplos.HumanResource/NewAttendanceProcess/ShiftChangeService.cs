@@ -267,13 +267,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                 master.GroupId = clsWebLib.RetValidLen(dtEmpInfo.Rows[0]["GroupId"]).ToString();
                 return JsonConvert.SerializeObject(master, Formatting.Indented);
             }
-            catch (Exception ex)
+            catch (Exception ex) 
             {
                 throw ex;
             }
         }
 
-        private void PhysicalVerification(IEnumerable<PhysicalVerifyModel> Future)
+        private void PhysicalVerificationFuture(IEnumerable<PhysicalVerifyModel> Future)
         {
             try
             {
@@ -303,10 +303,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
                         clsGenID genid = new clsGenID();
-                        genid.GenID(TableName, out string _Id);
+                        genid.GenID(TableName, out string _Id);                      
+                      //  string ExistingIn = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0][@"InTime"]).ToString();
 
-                        
-                        if(item.InOutParam=="In")
+
+                        if (item.InOutParam=="In")
                         {
                             dr["Id"] = "PHY" + _Id;
                             dr["EmpSystemID"] = item.EmpSystemId;
@@ -324,7 +325,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dr["EmpSystemID"] = item.EmpSystemId;
                             dr["WorkDate"] = item.WorkDate;
                             dr["OutTime"] = DateTime.Now;
-                            dr["OThour"] = clsWebLib.RetValidLen(item.OThour);
+                            if (clsWebLib.RetValidLen(item.OThour).ToString() != "")
+                            {
+                                dr["OThour"] = item.OThour;
+                            }
+                            else
+                            {
+                                dr["OThour"] = DBNull.Value;
+                            }
                             dr["AddedBy"] = item.AddedBy;
                             dr["AddedDate"] = DateTime.Now;
                             dr["AddedFromIP"] = item.AddedFromIP;
@@ -336,6 +344,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
                     else
                     {
+                        //string ExistingIn = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0][@"InTime"]).ToString();
+
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
                        
@@ -355,7 +365,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dr["EmpSystemID"] = item.EmpSystemId;
                             dr["WorkDate"] = item.WorkDate;
                             dr["OutTime"] = DateTime.Now;
-                            dr["OThour"] = clsWebLib.RetValidLen(item.OThour);
+                            if (clsWebLib.RetValidLen(item.OThour).ToString() != "")
+                            {
+                                dr["OThour"] = item.OThour;
+                            }
+                            else
+                            {
+                                dr["OThour"] = DBNull.Value;
+                            }
                             dr["UpdatedBy"] = item.AddedBy;
                             dr["UpdatedDate"] = DateTime.Now;
                             dr["UpdatedFromIP"] = item.AddedFromIP;
@@ -376,7 +393,6 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-
         public string Create(IEnumerable<PhysicalVerifyModel> DataToSave)
         {
             try
@@ -384,14 +400,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                 DataSet dsMaster;
                 string TableName = "dbo.OTfromApp";
 
-                int i = 0;
-
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
 
                 #region Saving in Physical Verification               
-                PhysicalVerification(DataToSave);                
+                PhysicalVerificationFuture(DataToSave);                
                 #endregion
 
                 string EmpId = "''";
@@ -399,7 +413,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
                     EmpId += ",'" + item.EmpSystemId + "'";                   
                 }
-
+               
                 var items = DataToSave.ToList();
 
                 var sqly = @"select * from dbo.OTfromApp where WorkDate='"+items[0].WorkDate+" ' and EmpSystemId IN("+EmpId+")";
@@ -420,14 +434,20 @@ namespace Library.HumanResource.NewAttendanceProcess
                         dr["Id"] = "OT" + _Id;
                         dr["EmpSystemId"] = item.EmpSystemId;
                         dr["Remarks"] = DBNull.Value;
-                        dr["OThour"] = item.OThour;
+                        if (clsWebLib.RetValidLen(item.OThour).ToString() != "")
+                        {
+                            dr["OThour"] = item.OThour;
+                        }
+                        else
+                        {
+                            dr["OThour"] = DBNull.Value;
+                        }
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = DateTime.Now.ToString();
                         dr["WorkDate"] = item.WorkDate;
                         dr["IsConfirmed"] = false;
 
-                        dsMaster.Tables[0].Rows.Add(dr);
-                        i++;
+                        dsMaster.Tables[0].Rows.Add(dr);                       
                     }
                     else
                     {
@@ -435,20 +455,27 @@ namespace Library.HumanResource.NewAttendanceProcess
                         dr.BeginEdit();
                         dr["EmpSystemId"] = item.EmpSystemId;
                         dr["Remarks"] = DBNull.Value;
-                        dr["OThour"] = item.OThour;
+                        if (clsWebLib.RetValidLen(item.OThour).ToString() != "")
+                        {
+                            dr["OThour"] = item.OThour;
+                        }
+                        else
+                        {
+                            dr["OThour"] = DBNull.Value;
+                        }
                         dr["IsConfirmed"] = false;
                         dr["UpdatedBy"] = item.AddedBy;
                         dr["UpdatedDate"] = DateTime.Now.ToString();
                         dr["WorkDate"] = item.WorkDate;
 
                         dr.EndEdit();
-                        i++;
+                        
                     }
                   
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                return i.ToString();
+                return "true";
 
             }
             catch (Exception ex)
@@ -461,13 +488,13 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                DataSet dsMaster;
-                int i = 0;
+                DataSet dsMaster,dsref;
+                string TableName = "dbo.PhysicalVerification";
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (data.Count() == 0)
                     return "";
-
+                int i = 0;
                 string EmpId = "''";
                 foreach (AttendanceProcessNewProcess item in data)
                 {
@@ -478,8 +505,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var items = data.ToList();
                 string Date = items[0].WorkDate;
                 string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
+               
                 var sqly = @"select * from dbo.AttdnProcessData where WorkDate='" + items[0].WorkDate + " ' and EmpSystemId IN(" + EmpId + ")";
                 con.OpenDataSetThroughAdapter(sqly, out dsMaster, false, "1");
+
+                var sqlz = @"select * from dbo.PhysicalVerification where WorkDate='" + items[0].WorkDate + " ' and EmpSystemID IN(" + EmpId + ")";
+                con.OpenDataSetThroughAdapter(sqlz, out dsref, false, "1");
+
 
                 foreach (AttendanceProcessNewProcess item in data)
                 {
@@ -490,18 +522,101 @@ namespace Library.HumanResource.NewAttendanceProcess
                         string Lock = clsWebLib.GetBoolData(dsMaster.Tables[0].DefaultView[0][@"IsLock"]).ToString();
                         string OTEntitled = clsWebLib.GetBoolData(dsMaster.Tables[0].DefaultView[0][@"IsOTEntitled"]).ToString();
 
-                        if (Lock == "False" && OTEntitled=="True")
+                        if (Lock == "False")
                         {
+                            #region To Save in Physical Verification
 
-                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
-                            dr["ManualOt"] = item.ManualOt;
-                            dr["ManualByWhom"] = item.AddedBy;
-                            dr["ManualEntryTime"] = DateTime.Now.ToString();
-                            dr["ManualFlag"] = true;
+                            dsref.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + item.EmpSystemID + "' ";
+                            if (dsref.Tables[0].DefaultView.Count == 0)
+                            {
+                                DataRow dr = dsref.Tables[0].NewRow();
 
-                            dr.EndEdit();
-                            i++;
+                                clsGenID genid = new clsGenID();
+                                genid.GenID(TableName, out string _Id);
+
+
+                                if (item.InOutParam == "In")
+                                {
+                                    dr["Id"] = "PHY" + _Id;
+                                    dr["EmpSystemID"] = item.EmpSystemID;
+                                    dr["WorkDate"] = item.WorkDate;
+                                    dr["InTime"] = DateTime.Now;
+                                    dr["BudgetCode"] = clsWebLib.RetValidLen(item.BudgetCode);
+                                    dr["AddedBy"] = item.AddedBy;
+                                    dr["AddedDate"] = DateTime.Now;
+                                    dr["AddedFromIP"] = item.AddedFromIP;
+                                    i++;
+                                }
+                                else
+                                {
+                                    dr["Id"] = "PHY" + _Id;
+                                    dr["EmpSystemID"] = item.EmpSystemID;
+                                    dr["WorkDate"] = item.WorkDate;
+                                    dr["OutTime"] = DateTime.Now;
+                                    if (clsWebLib.RetValidLen(item.ManualOt).ToString() != "")
+                                    {
+                                        dr["OThour"] = item.ManualOt;
+                                    }
+                                    dr["AddedBy"] = item.AddedBy;
+                                    dr["AddedDate"] = DateTime.Now;
+                                    dr["AddedFromIP"] = item.AddedFromIP;
+                                    i++;
+                                }
+
+                                dsref.Tables[0].Rows.Add(dr);
+
+                            }
+                            else
+                            {
+                                DataRow dr = dsref.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+
+                                if (item.InOutParam == "In")
+                                {
+                                    dr["EmpSystemID"] = item.EmpSystemID;
+                                    dr["WorkDate"] = item.WorkDate;
+                                    dr["InTime"] = DateTime.Now;
+                                    dr["BudgetCode"] = clsWebLib.RetValidLen(item.BudgetCode);
+                                    dr["UpdatedBy"] = item.AddedBy;
+                                    dr["UpdatedDate"] = DateTime.Now;
+                                    dr["UpdatedFromIP"] = item.AddedFromIP;
+                                    i++;
+                                }
+                                else
+                                {
+                                    dr["EmpSystemID"] = item.EmpSystemID;
+                                    dr["WorkDate"] = item.WorkDate;
+                                    dr["OutTime"] = DateTime.Now;
+                                    if (clsWebLib.RetValidLen(item.ManualOt).ToString() != "")
+                                    {
+                                        dr["OThour"] = item.ManualOt;
+                                    }                                    
+                                    dr["UpdatedBy"] = item.AddedBy;
+                                    dr["UpdatedDate"] = DateTime.Now;
+                                    dr["UpdatedFromIP"] = item.AddedFromIP;
+                                    i++;
+                                }
+
+                                dr.EndEdit();
+                            }
+
+                            #endregion
+
+                            if (OTEntitled == "True") 
+                            {
+                                DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                                if (clsWebLib.RetValidLen(item.ManualOt).ToString() != "")
+                                {
+                                    dr.BeginEdit();
+                                    dr["ManualOt"] = item.ManualOt;
+                                    dr["ManualByWhom"] = item.AddedBy;
+                                    dr["ManualEntryTime"] = DateTime.Now.ToString();
+                                    dr["ManualFlag"] = true;
+
+                                    dr.EndEdit();
+                                }
+                            }                            
                         }
                         else
                         {
@@ -512,14 +627,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
 
                 clsStaticInfo info = new clsStaticInfo();
-                info.SaveDataSets(dsMaster);
+                info.SaveDataSets(dsMaster,dsref);
                 if (data.Count().ToString() == i.ToString())
                 {
-                    return i.ToString();
+                    return "true";
                 }
                 else
                 {
-                    return "OT Entry of :-"+ ReturnLockedEmp+ " isn't Allowed";
+                    return "Entry of :-"+ ReturnLockedEmp+ " isn't Allowed";
                 }
             }
             catch (Exception ex)
@@ -529,19 +644,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
     }
-
-    public class AttendanceVerificationService
-    {
-        SqlRepository _sqlRepository;
-        ConnectionManager.clsConnectionManager ConManager;
-
-        public AttendanceVerificationService()
-        {
-            _sqlRepository = new SqlRepository();
-            ConManager = new ConnectionManager.clsConnectionManager();
-        }
-    }
-
+   
     public class MyClass
     {
         public int BackDays { get; set; }

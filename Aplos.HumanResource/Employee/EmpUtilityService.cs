@@ -916,7 +916,7 @@ namespace Library.Service.EmployeeServices
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public string EmpSystemId { get; set; }      
-        public decimal OThour { get; set; }
+        public string OThour { get; set; }
         public string Remarks { get; set; }
         public string WorkDate { get; set; }
         public string Id { get; set; }
