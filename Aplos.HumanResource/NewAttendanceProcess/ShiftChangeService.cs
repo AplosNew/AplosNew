@@ -304,7 +304,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                         clsGenID genid = new clsGenID();
                         genid.GenID(TableName, out string _Id);                      
-                        string ExistingIn = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0][@"InTime"]).ToString();
+                      //  string ExistingIn = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0][@"InTime"]).ToString();
 
 
                         if (item.InOutParam=="In")
@@ -344,7 +344,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
                     else
                     {
-                        string ExistingIn = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0][@"InTime"]).ToString();
+                        //string ExistingIn = clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0][@"InTime"]).ToString();
 
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
