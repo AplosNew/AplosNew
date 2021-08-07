@@ -59,7 +59,79 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	};
 	//$scope.getdataInventorySales();
 	
+	//#region Index Tab
+	$scope.tab = 1;
+	$scope.tabType = 1;
 
+	$scope.getdataInventorySales($scope.tabType);
+	$scope.setTabFirst = function (newTab) {
+
+		$scope.tab = newTab;
+		$scope.tabType = '1';
+		$scope.getdataInventorySales($scope.tabType);
+
+	};
+	$scope.isSetFirst = function (tabNum) {
+		return $scope.tab === tabNum;
+	};
+
+
+	$scope.setTabSecond = function (newTab) {
+		//debugger;
+		$scope.tabType = '2';
+		$scope.tab = newTab;
+
+		$scope.getdataInventorySales($scope.tabType);
+
+	};
+	$scope.isSetSecond = function (tabNum) {
+		return $scope.tab === tabNum;
+	};
+
+	$scope.setTabThird = function (newTab) {
+		$scope.tab = newTab;
+		$scope.tabType = '3';
+		$scope.getdataInventorySales($scope.tabType);
+	};
+	$scope.isSetThird = function (tabNum) {
+		return $scope.tab === tabNum;
+	};
+
+	$scope.setTabFourth = function (newTab) {
+		$scope.tab = newTab;
+		$scope.tabType = '4';
+		$scope.getdataInventorySales($scope.tabType);
+
+	};
+	$scope.isSetFourth = function (tabNum) {
+		return $scope.tab === tabNum;
+	};
+
+	$scope.setTabFifth = function (newTab) {
+		$scope.tab = newTab;
+		$scope.tabType = '5';
+
+		$scope.getdataInventorySales($scope.tabType);
+
+	};
+	$scope.isSetFifth = function (tabNum) {
+		return $scope.tab === tabNum;
+	};
+
+	$scope.setTabSixth = function (newTab) {
+		$scope.tab = newTab;
+		$scope.tabType = '6';
+		$scope.getdataInventorySales($scope.tabType);
+
+	};
+	$scope.isSetSixth = function (tabNum) {
+		return $scope.tab === tabNum;
+	};
+
+
+
+
+	//#endregion
 	$scope.product = {
 		Id: null
 		, ComapnyGroupId: null
