@@ -1280,8 +1280,12 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 			for (var i = 0; i < $scope.detailList.length; i++) {
 				$scope.detailList[i].TransactionQty = $scope.detailList[i].ReturnQty;
             }
+		}
+		if (baseService.arrayLength($scope.chargesList)>0) {
+			for (var i = 0; i < $scope.chargesList.length; i++) {
+				$scope.chargesList[i].Amount = $scope.chargesList[i].ReturnAmount;
+            }
         }
-		
 		var UIStatus = $("#SlipAssetIssueUI").val();
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;
 		$scope.productNew.CustomerId = $scope.productNew.PartyId;

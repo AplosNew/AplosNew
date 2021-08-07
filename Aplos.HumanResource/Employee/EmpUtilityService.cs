@@ -908,12 +908,15 @@ namespace Library.Service.EmployeeServices
     public class PhysicalVerifyModel
     {
         public string AddedBy { get; set; }
+        public string BudgetCode { get; set; }
+        public string AddedFromIP { get; set; }
+        public string InOutParam { get; set; }
         public bool IsConfirmed { get; set; }
         public DateTime? AddedDate { get; set; }
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public string EmpSystemId { get; set; }      
-        public decimal OThour { get; set; }
+        public string OThour { get; set; }
         public string Remarks { get; set; }
         public string WorkDate { get; set; }
         public string Id { get; set; }
