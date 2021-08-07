@@ -7490,14 +7490,30 @@ group by Id) O60 ON O60.Id=IV.Id
         public List<Dictionary<string, object>> GetFixedArticalListData(string companyGroupId, string companyId, string plantId, string materialMasterId)
         {
                  var sql = @"SELECT MMA.MaterialMasterId, MMA.Id MaterialMasterAritcleId, MMA.Code, MMA.StandardName,MMA.MachineAllowance,MMA.RPM,SC.UserName StitchCode
-                ,ISNULL(FA.FACount,0) FACount, ISNULL(FA.FABaseAmount,0)FABaseAmount, ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-                ,ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
+                ,ISNULL(FA.FACount,0) FACount
+
+                --, ISNULL(FA.FABaseAmount,0)FABaseAmount
+                --, ISNULL(FA.ADBaseAmount,0) ADBaseAmount
+               -- ,ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
+
+	                     , ISNULL(FA.FABaseAmount,0)   FABaseAmount
+							, ISNULL(FA.SubAssetAmount,0) SubAssetAmount
+                            ,ISNULL(FA.FABaseAmount,0) + ISNULL(FA.SubAssetAmount,0) TotalAssetAmount
+                            , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
+                            ,ISNULL(FA.FABaseAmount,0)+ISNULL(FA.SubAssetAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
+
                 FROM MST.MaterialMasterArticle MMA
                 LEFT JOIN HKP.StitchCode SC ON SC.Id=MMA.StitchCodeId
                 LEFT JOIN (
-				SELECT COUNT(FAR.FixedAssetMasterId) FACount,SUM(isnull( FAR.FABaseAmount,0) + isnull( sar.SubAssetAmount,0)) FABaseAmount
-				
+				SELECT COUNT(FAR.FixedAssetMasterId) FACount
+
+                --,SUM(isnull( FAR.FABaseAmount,0) + isnull( sar.SubAssetAmount,0)) FABaseAmount
+				--,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
+
+				,SUM(isnull( FAR.FABaseAmount,0) ) FABaseAmount
+				,sum( isnull( sar.SubAssetAmount,0))SubAssetAmount
 				,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
+
 				,FAR.MaterialMasterId,FAR.MaterialMasterArticleId	
 
 		        --LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount,SUM(FAR.FABaseAmount+sar.SubAssetAmount) FABaseAmount,SUM(FAR.ADBaseAmount) ADBaseAmount
@@ -7684,32 +7700,38 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 sheet[ROW, COL].Text = "Total Quantity";
                 sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
                 int colFACount = COL;
                 COL++;
 
 
                 sheet[ROW, COL].Text = "FA Base Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
                 int colFABaseAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Sub Asset Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
                 int colSubAssetAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Total Base Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
                 int colTotalBaseAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Acc.Dep.Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
                 int colADBaseAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Net Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
                 int colNetFixedAssetsAmount = COL;
                 COL++;
 
@@ -7868,8 +7890,32 @@ group by Id) O60 ON O60.Id=IV.Id
                 }
 
 
-                sheet.IsGridLinesVisible = false;
+                sheet[ROW, colFABaseAmount - 1].Text = "Total";
+                sheet[ROW, colFABaseAmount - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
+                sheet[ROW, colFABaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colFABaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFABaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colFABaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colSubAssetAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colSubAssetAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colTotalBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colTotalBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                
+
+                sheet[ROW, colADBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colADBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colADBaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colADBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colNetFixedAssetsAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colNetFixedAssetsAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet.Range[ROW, colFACount, ROW, colNetFixedAssetsAmount].CellStyle.Font.Bold = true;
+
+                //formula = "SUM(" + clsStaticInfo.GetxlsCol(colFABaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFABaseAmount) + (ROW - 1) + ")";
+                //sheet[ROW, colFABaseAmount, ROW, colFABaseAmount].Formula = formula;
+                //sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+
+
+                sheet.IsGridLinesVisible = false;
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -7908,9 +7954,21 @@ group by Id) O60 ON O60.Id=IV.Id
         {
 
             return @" 
+	     	           
 	     	          SELECT MMA.MaterialMasterId ,MMA.Id MaterialMasterArticleId, MMA.Code, MMA.StandardName,MMA.MachineAllowance,MMA.RPM,SC.UserName StitchCode
-                    ,ISNULL(FA.FACount,0) FACount, ISNULL(FA.FABaseAmount,0)FABaseAmount, ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-                    ,ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
+                    ,ISNULL(FA.FACount,0) FACount
+
+					--, ISNULL(FA.FABaseAmount,0)FABaseAmount
+					--, ISNULL(FA.ADBaseAmount,0) ADBaseAmount
+     --               ,ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
+
+	 
+                , ISNULL(FA.FABaseAmount,0)FABaseAmount
+				  , isnull(FA.SubAssetAmount,0)SubAssetAmount
+				  ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0)  TotalBaseAmount
+				 , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
+				 ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0)  NetFixedAssetsAmount
+
 
                      ,Process= STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
                     where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
@@ -7925,7 +7983,6 @@ group by Id) O60 ON O60.Id=IV.Id
                     FROM MST.MaterialMasterArticle MMA
                     LEFT JOIN HKP.StitchCode SC ON SC.Id=MMA.StitchCodeId
                      LEFT JOIN MST.MaterialMaster M on m.iD=MMA.MaterialMasterId
-			
                                     LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
                                     LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
                                    LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
@@ -7936,7 +7993,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				                    left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
 
 				                    left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
-			                    left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
+			                       left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
 				                    left join HKP.Budget b on b.Id=bm.BudgetId
 				                    left join HKP.Activity a on a.Id=M.ActivityId
 			                        left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
@@ -7945,12 +8002,17 @@ group by Id) O60 ON O60.Id=IV.Id
                                     LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                     WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
                     LEFT JOIN (
-                    SELECT COUNT(FAR.FixedAssetMasterId) FACount,SUM(FAR.FABaseAmount)+SUM(sar.SubAssetAmount) FABaseAmount,SUM(FAR.ADBaseAmount) ADBaseAmount
+                    SELECT COUNT(FAR.FixedAssetMasterId) FACount
+					,SUM(FAR.FABaseAmount) FABaseAmount
+					,SUM(sar.SubAssetAmount) SubAssetAmount
+					,SUM(FAR.ADBaseAmount) ADBaseAmount
                     ,FAR.MaterialMasterId,FAR.MaterialMasterArticleId				
                     FROM TRN.FixedAssetRegister FAR
+
                     left join(select sum(Amount) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
                     group by FixedAssetRegisterId
                     ) sar on sar.FixedAssetRegisterId=FAR.Id
+
                     GROUP BY FAR.FixedAssetMasterId,FAR.MaterialMasterId,FAR.MaterialMasterArticleId
                     )FA ON FA.MaterialMasterId=MMA.MaterialMasterId AND FA.MaterialMasterArticleId=MMA.Id
 	 
@@ -8076,40 +8138,37 @@ group by Id) O60 ON O60.Id=IV.Id
                 int colFACount = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Gross Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
+                sheet[ROW, COL].Text = "FA Base Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colFABaseAmount = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Sub Asset Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSubAssetAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Base Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colTotalBaseAmount = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Acc.Dep.Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colADBaseAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Net Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colNetFixedAssetsAmount = COL;
                 COL++;
 
-
-                //sheet[ROW, COL].Text = "Material Type";
-                //sheet[ROW, COL].ColumnWidth = 20;
-                //int colMaterialType = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "Asset Master";
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //int colAssetMaster = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "Material Group";
-                //sheet[ROW, COL].ColumnWidth = 15;
-                //int colMaterialGroup = COL;
-                //COL++;
 
                 // int colArticleCode = 0;
                 // int colArticleName = 0;
@@ -8177,14 +8236,6 @@ group by Id) O60 ON O60.Id=IV.Id
                 int colAcitivtyName = COL;
                 // COL++;
 
-                //sheet[ROW, COL].Text = "Fixed Asset Master";
-                //sheet[ROW, COL].ColumnWidth = 20;
-                //int colFixedAssetMaster = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "Active";
-                //sheet[ROW, COL].ColumnWidth = 20;
-                //int colActive = COL;
 
 
                 int endCol = COL;
@@ -8220,6 +8271,13 @@ group by Id) O60 ON O60.Id=IV.Id
                     sheet[ROW, colADBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colNetFixedAssetsAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["NetFixedAssetsAmount"].ToString());
                     sheet[ROW, colNetFixedAssetsAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, colTotalBaseAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["TotalBaseAmount"].ToString());
+                    sheet[ROW, colTotalBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, colSubAssetAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["SubAssetAmount"].ToString());
+                    sheet[ROW, colSubAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
                     sheet[ROW, colRPM].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["RPM"].ToString());
                     sheet[ROW, colRPM].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colFACount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["FACount"].ToString());
@@ -8259,8 +8317,27 @@ group by Id) O60 ON O60.Id=IV.Id
                 }
 
 
-                sheet.IsGridLinesVisible = false;
+                sheet[ROW, colFABaseAmount - 1].Text = "Total";
+                sheet[ROW, colFABaseAmount - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
+                sheet[ROW, colFABaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colFABaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFABaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colFABaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colSubAssetAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colSubAssetAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colTotalBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colTotalBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                sheet[ROW, colADBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colADBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colADBaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colADBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colNetFixedAssetsAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colNetFixedAssetsAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet.Range[ROW, colFACount, ROW, colNetFixedAssetsAmount].CellStyle.Font.Bold = true;
+
+                sheet.IsGridLinesVisible = false;
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -8473,27 +8550,41 @@ group by Id) O60 ON O60.Id=IV.Id
                 int colFixedAssetMaster = COL;
                 COL++;
 
-
                 sheet[ROW, COL].Text = "Vendor";
                 sheet[ROW, COL].ColumnWidth = 25;
                 int colVendor = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Total Amount";
+                sheet[ROW, COL].Text = "FA Base Amount";
                 sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colTotalAssetAmount = COL;
+                int colFABaseAmount = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Accu.Dep.Amount";
-                sheet[ROW, COL].ColumnWidth = 20;
+                sheet[ROW, COL].Text = "Sub Asset Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSubAssetAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Base Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colTotalBaseAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Acc.Dep.Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colADBaseAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Net Amount";
                 sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colNetFixedAssetsAmount = COL;
                 COL++;
+
 
                 sheet[ROW, COL].Text = "Capitalization Date";
                 sheet[ROW, COL].ColumnWidth = 20;
@@ -8573,17 +8664,18 @@ group by Id) O60 ON O60.Id=IV.Id
                     sheet[ROW, colFixedAssetMaster].Text = dtFixedAssetRegister.Rows[i]["FixedAssetMasterName"].ToString();
                     sheet[ROW, colVendor].Text = dtFixedAssetRegister.Rows[i]["Vendor"].ToString();
 
-                    
-
-
-                    sheet[ROW, colTotalAssetAmount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["TotalAssetAmount"].ToString());
-                    sheet[ROW, colTotalAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, colFABaseAmount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["FABaseAmount"].ToString());
+                    sheet[ROW, colFABaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colADBaseAmount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["ADBaseAmount"].ToString());
                     sheet[ROW, colADBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, colTotalBaseAmount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["TotalAssetAmount"].ToString());
+                    sheet[ROW, colTotalBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, colSubAssetAmount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["SubAssetAmount"].ToString());
+                    sheet[ROW, colSubAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colNetFixedAssetsAmount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["NetFixedAssetsAmount"].ToString());
                     sheet[ROW, colNetFixedAssetsAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
 
-                    
+
                     sheet[ROW, colCapitalizationDate].DateTime = Convert.ToDateTime(dtFixedAssetRegister.Rows[i]["CapitalizationDate"].ToString());
                     sheet[ROW, colCapitalizationDate].NumberFormat = "dd-MMM-yyyy";
                     //sheet[ROW, colFACount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["FACount"].ToString());
@@ -8609,6 +8701,26 @@ group by Id) O60 ON O60.Id=IV.Id
                     ROW++;
 
                 }
+
+                sheet[ROW, colFABaseAmount - 1].Text = "Total";
+                sheet[ROW, colFABaseAmount - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, colFABaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colFABaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFABaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colFABaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colSubAssetAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colSubAssetAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colTotalBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colTotalBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                sheet[ROW, colADBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colADBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colADBaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colADBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colNetFixedAssetsAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colNetFixedAssetsAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet.Range[ROW, colVendor, ROW, colNetFixedAssetsAmount].CellStyle.Font.Bold = true;
 
                 sheet.IsGridLinesVisible = false;
                 sheet.UsedRange.WrapText = true;
