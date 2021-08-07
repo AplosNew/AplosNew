@@ -484,7 +484,7 @@ namespace Library.Service.Payrolls.SalaryProcess
                                 drMWESAMst["AddedBy"] = Identity.Name;
                                 drMWESAMst["DateAdded"] = DateTime.Now;
 
-                                drMWESAMst["PlantID"] = Identity.PlantId;
+                                
                                 drMWESAMst["MonthNo"] = pMonthNo;
                                 drMWESAMst["YearNo"] = bplib.clsWebLib.GetNumData(pYearNo);
 

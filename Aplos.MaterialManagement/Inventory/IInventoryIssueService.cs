@@ -3,6 +3,7 @@ using Library.Model.Inventory;
 using Library.Service.Core;
 using Library.ViewModel.Materials;
 using Library.ViewModel.OrderManagements;
+using Library.ViewModel.SalesManagements;
 using Syncfusion.XlsIO;
 using System.Collections.Generic;
 
@@ -98,7 +99,6 @@ namespace Library.MaterialManagement.Inventory
         GridModel Querywithoutpo(GridParameter parameters, string inveReveiveId);
         void JWInsertGraph(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus);
 
-
-
+        void SalesReturnInsert(InventorySalesReturn inventoryIssue, IEnumerable<InventorySalesReturnDetailViewModel> entities, IEnumerable<InventorySalesReturnServiceViewModel> salesServiceVMList);
     }
 }

@@ -492,6 +492,7 @@ namespace Library.HumanResource.NewAttendanceProcess
     public class AttendanceProcessNewProcess : BaseModel
     {
         public string Id { get; set; } = "";
+        public string InOutParam { get; set; } 
         public string ManualOt { get; set; } = "";
         public string RowId { get; set; } = "";
         public string AddedBy { get; set; } = "";
@@ -543,6 +544,8 @@ namespace Library.HumanResource.NewAttendanceProcess
         public bool IsOTEntitled { get; set; } = false;
         public bool IsError { get; set; } = false;
         public string ErrorMessage { get; set; } = "";
+        public string AddedFromIP { get; set; }
+        public string BudgetCode { get; set; }
     }
 
     public class RTx

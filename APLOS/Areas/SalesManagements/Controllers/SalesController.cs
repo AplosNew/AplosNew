@@ -603,6 +603,22 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return View("~/Areas/SalesManagements/Views/SalesPackingPost.cshtml");
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetSalesPackingList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsSalesService _accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(_accountsSalesService.GetSalesPackingList(identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetPackingJournal(string salesId)
+        {
+            AccountsSalesService _accountsSalesService = new AccountsSalesService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsSalesService.GetPackingJournal(identity.CompanyId,identity.PlantId, salesId), JsonRequestBehavior.AllowGet);
+
+        }
+
         //[HttpGet, Authorize]
         //public ActionResult GetMasterOrderSalesList()
         //{
@@ -645,7 +661,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
         [HttpPost]
         public JsonResult PostSalesPacking(VoucherViewModel sales, IEnumerable<SalesMaterialViewModel> salesDetailVMList
-            , IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList, IEnumerable<SalesServiceViewModel> salesServiceDetailGLList)
+            , IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList, IEnumerable<SalesServiceViewModel> salesServiceDetailGLList
+            , VoucherViewModel packing, IEnumerable<SalesMaterialViewModel> PackingDetailVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sales.CompanyGroupId = identity.CompanyGroupId;
@@ -662,7 +679,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 if (item.ActivityId == null)
                     throw new CustomException("Activity is not found");
             }
-            _salesService.MasterOrderSalesPost(sales, salesDetailVMList, salesMaterialDetailGLList, salesServiceDetailGLList);
+            _salesService.PackingSalesPost(sales, salesDetailVMList, salesMaterialDetailGLList, salesServiceDetailGLList, packing, PackingDetailVMList);
 
             return Json(new { Message = AplosMessage.Posted });
         }

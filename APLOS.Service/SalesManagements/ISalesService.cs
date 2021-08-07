@@ -33,6 +33,9 @@ namespace Library.Service.SalesManagements
 
         void PackingInvoiceInsert(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedMasterOrderList, IEnumerable<SalesServiceViewModel> salesServiceVMList);
         void PackingInvoiceUpdate(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedMasterOrderList, IEnumerable<SalesServiceViewModel> salesServiceVMList);
-
+        void PackingSalesPost(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList
+           , IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList
+            , IEnumerable<SalesServiceViewModel> salesServiceDetailGLList
+            , VoucherViewModel packing, IEnumerable<SalesMaterialViewModel> PackingDetailVMList);
     }
 }

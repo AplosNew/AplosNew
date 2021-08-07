@@ -2239,11 +2239,11 @@
                         <div class="col-sm-6">
                             <div class="radio">
                                 <label>
-                                    <input type="radio" name="TaxOption" ng-model="productNew.TaxOptionMat" value="Yes" ng-click="TaxOptionMat('Yes');" ng-hide="HSNCode !=null">
+                                    <input type="radio" name="TaxOption" ng-model="productNew.TaxOptionMatJWTax" value="Yes" ng-click="TaxOptionMat('Yes');" ng-hide="HSNCode !=null">
                                     <span class="cr"><i class="cr-icon"></i></span>Yes
                                 </label>
                                 <label>
-                                    <input type="radio" name="TaxOption" ng-model="productNew.TaxOptionMat" value="No" ng-click="TaxOptionMat('No');" ng-hide="HSNCode !=null">
+                                    <input type="radio" name="TaxOption" ng-model="productNew.TaxOptionMatJWTax" value="No" ng-click="TaxOptionMat('No');" ng-hide="HSNCode !=null">
                                     <span class="cr"><i class="cr-icon"></i></span>No
                                 </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             </div>
@@ -2286,12 +2286,12 @@
                                 </td>
                                 <td>
                                     <div class="show-message">
-                                        <input type="text" n-decimals="4" class="form-control text-right" ng-model="x.Percentage" ng-keyup="calculateTaxAmount(x);" ng-disabled="productNew.TaxOption ==='No' || HSNCode !=null">
+                                        <input type="text" n-decimals="4" class="form-control text-right" ng-model="x.Percentage" ng-keyup="calculateTaxAmount(x);" ng-disabled="productNew.TaxOptionMatJWTax ==='No' || HSNCode !=null">
                                     </div>
                                 </td>
                                 <td class="text-right">
                                     <div class="show-message">
-                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.TaxAmount" ng-keyup="checkRowValidation(x, $index)" ng-disabled="productNew.TaxOption ==='Yes'">
+                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.TaxAmount" ng-keyup="checkRowValidation(x, $index)" ng-disabled="productNew.TaxOptionMatJWTax ==='Yes'">
                                     </div>
                                 </td>
                                 <td class="text-right">
