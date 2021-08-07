@@ -801,7 +801,7 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
 
     $scope.showBankPopUp = function () {
         $scope.getBankList = function (pageno) {
-            $scope.url = "Banks/BankMaster/GetAllBankMasterList";
+            $scope.url = "Banks/BankMaster/GetBankMasterList?bankACType=HouseBank&&entityId=" + $scope.voucher.EntityId;
             baseService.paginationBase($scope.url, pageno, $scope.bankParameters)
                 .then(function (result) {
                     $scope.bankList = result.Rows;
