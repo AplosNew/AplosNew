@@ -600,8 +600,14 @@ namespace OTSBD
                           AND C.SalaryHeadID='" + SalaryHeadId + @"'  AND ISNULL(M.EmpInfoSystemID,'') NOT IN (SELECT isnull(sl.EmpSystemId,'')
                         FROM  SalaryLock AS sl where sl.YearNo=" + YearNo + @" AND sl.MonthNo=" + MonthNo + @")";
 
-                //strSQL2 = @"DELETE FROM [MonthWiseExtraSalaryAmtMaster] 
-                //          WHERE SystemID not in (SELECT MWESAMasterSystemID FROM MonthWiseExtraSalaryAmtChild  ) AND PlantID IN (SELECT p.Id FROM org.Plant AS p WHERE p.CompanyId='" + CompanyId + @"')";
+                //strSQL = @"DELETE FROM MonthWiseExtraSalaryAmtChild
+                //     FROM MonthWiseExtraSalaryAmtChild C
+                //           JOIN MonthWiseExtraSalaryAmtMaster M ON m.SystemID=c.MWESAMasterSystemID
+                //           LEFT JOIN SalaryLock SL ON SL.EmpSystemId=M.EmpInfoSystemID AND sl.YearNo=M.YearNo AND SL.MonthNo=M.MonthNo
+                //           WHERE m.PlantID IN (SELECT p.Id FROM org.Plant AS p WHERE p.CompanyId='C20201') AND M.MonthNo= 5 AND M.YearNo=2021 
+                //          AND C.SalaryHeadID='SHD202055'  AND ISNULL(sl.IsLocked,0)=0";
+
+
                 strSQL2 = @"  DELETE FROM [MonthWiseExtraSalaryAmtMaster]
                           WHERE ISNULL(SystemID,'') IN (SELECT ISNULL(M.SystemID,'') FROM [MonthWiseExtraSalaryAmtMaster] M 
                           LEFT JOIN MonthWiseExtraSalaryAmtChild C ON C.MWESAMasterSystemID=M.SystemID

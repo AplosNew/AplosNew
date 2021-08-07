@@ -1062,17 +1062,17 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetsRegisterReport.cshtml");
         }
-        
+
         [Authorize]
-        public ActionResult FixedAssetRegisterReportExcel(string PartyType, string PartyId, string MaterialMasterId, string FixedAssetsId, string FromDate, string ToDate)  
+        public ActionResult FixedAssetRegisterReportExcel(string MaterialMasterId, string MaterialMasterArticleId, string fixedAssetMasterId, string vendorId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-               
+
                 ExcelEngine excelEngine = new ExcelEngine();
 
-                IWorkbook workbook = _fixedAssetRegisterService.FixedAssetRegisterList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,PartyType,PartyId, MaterialMasterId, FixedAssetsId, FromDate, ToDate);
+                IWorkbook workbook = _fixedAssetRegisterService.FixedAssetRegisterList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, MaterialMasterId, MaterialMasterArticleId, fixedAssetMasterId, vendorId);
 
                 string strFileName = "Fixed Assets Register Report.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
@@ -1086,35 +1086,48 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return null;
         }
 
-        
-        [HttpGet, Authorize]
-        public ActionResult FixedAssetRegisterReportPdf(string PartyType, string PartyId, string MaterialMasterId, string FixedAssetsId, string FromDate, string ToDate)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            try
-            {
-                // if (string.IsNullOrEmpty(MasterLCList))
-                //   throw new Exception("Please select at least one master Order");
 
-                ExcelEngine excelEngine = new ExcelEngine();
+       // [HttpGet, Authorize]
+        //public ActionResult FixedAssetRegisterReportPdf( string MaterialMasterId,string MaterialMasterArticleId,string fixedAssetMasterId, string vendorId)
+        //{
+        //    //string PartyType, string PartyId, string MaterialMasterId, string FixedAssetsId, string FromDate, string ToDate
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    try
+        //    {
+        //        // if (string.IsNullOrEmpty(MasterLCList))
+        //        //   throw new Exception("Please select at least one master Order");
 
-                IWorkbook workbook =_fixedAssetRegisterService.FixedAssetRegisterList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, PartyType, PartyId, MaterialMasterId, FixedAssetsId, FromDate, ToDate);
-                string strFileName = "Fixed Assets Register Report.pdf";
-                ExcelToPdfConverter convert = new ExcelToPdfConverter(workbook);
-                PdfDocument pdfDoc = convert.Convert();
-                workbook.Close();
-                pdfDoc.Save(strFileName, System.Web.HttpContext.Current.Response, HttpReadType.Save);
-                //workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+        //        ExcelEngine excelEngine = new ExcelEngine();
 
-            }
-            catch (Exception ex)
-            {
-                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+        //        IWorkbook workbook =_fixedAssetRegisterService.FixedAssetRegisterList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, MaterialMasterId, MaterialMasterArticleId, fixedAssetMasterId, vendorId);
+        //       // string strFileName = "Fixed Assets Register Report.pdf";
+        //        string strFileName = "Fixed Assets Register Report.xlsx";
+        //        ExcelToPdfConverter convert = new ExcelToPdfConverter(workbook);
+        //        PdfDocument pdfDoc = convert.Convert();
+        //        workbook.Close();
+        //        pdfDoc.Save(strFileName, System.Web.HttpContext.Current.Response, HttpReadType.Save);
+        //        //workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
 
-            }
-            return null;
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+        //    }
+        //    return null;
+        //}
         #endregion
+
+        #region Elastis Search
+        
+        [HttpPost, Authorize]
+        public ActionResult GetFixedAssetRegisterElasticSearchDataList(string materialMasterId, string materialMasterArticleId, string fixedAssetMasterId, string vendorId, string isAsset, string machine)
+        {
+            FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(new { DATA = fixedAssetQueryService.GetFixedAssetRegisterElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialMasterArticleId, fixedAssetMasterId, vendorId, isAsset, machine), Error = false }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion Elastis Search
 
     }
 }

@@ -52,12 +52,15 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult GetAllMaterialInput(string Id)
         {
             string sql = "";
-            sql = @"SELECT M.Id,M.JobWorkTransformationMasterId,I.Id JobWorkItemId,M.ItemSpecification,M.NetConsumption,U.UserName UOM,
+            sql = @"SELECT M.Id,M.JobWorkTransformationMasterId,I.Id JobWorkItemId,M.ItemSpecification,M.NetConsumption,
                     M.Rejection,M.ValueLoss,M.GrossConsumption,M.ResponsiblePersonId,E.EmployeeName ResponsiblePerson,M.Remarks
+					,UOM=case when I.MaterialMasterId is not null then mmuom.UserName else U.UserName End
                     FROM [MST].[JobWorkTransformationMasterMaterialInput] M
                     LEFT JOIN dbo.EmployeeInformation E ON E.SystemId = M.ResponsiblePersonId
                     LEFT JOIN [HKP].[JobWorkItem] I ON I.Id = M.JobWorkItemId
 					LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = I.UOMId
+					left join MST.MaterialMaster mm on mm.Id=I.MaterialMasterId
+					left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mm.BaseUOMId
                     WHERE M.JobWorkTransformationMasterId='" + Id + "' ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

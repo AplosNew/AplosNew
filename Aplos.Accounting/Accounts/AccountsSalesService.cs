@@ -63,8 +63,47 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+		public List<Dictionary<string, object>> GetSalesPackingList(string companyGroupId, string companyId)
+		{
+			try
+			{
+				var cmdText = @"SELECT S.Id,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName,P.Code Tracenent, S.CurrencyId, C.Code AS CurrencyCode,'MSS-'+ S.DocRefNo DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
+									Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') InvoiceDate,Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') DocDate,
+									Replace(CONVERT(VARCHAR(11), S.EntryDate, 106), ' ', '-') VoucherDate, Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') PostingDate
+                                    , S.RowState, S.DeliveryPartyPlantId, S.InvoicingPartyPlantId AS PartyPlantId, S.InvoicingPartyPlantId, S.EntityId, S.PaymentTermId
+									, Replace(CONVERT(VARCHAR(11), S.MatureDate, 106), ' ', '-')  MatureDate, Replace(CONVERT(VARCHAR(11), S.BaseOnDueDate, 106), ' ', '-') BaseOnDueDate,S.BaseNoOfDays
+									,InvoiceNo=case when S.SourceType='MasterOrderSales' then 'MS-'+ S.InvoiceNo else 'S-'+ S.InvoiceNo end
+									, PPI.UserName AS BillTo, AM.StateId AS InvoicingStateId, ST.UserName AS InvoicingState, PPI.GSTIN AS InvoicingGSTIN
+									, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.ToCurrencyRate
+									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId
+                                    , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark, CP.TaxApplicable,CP.PartyAccountGroupId,CP.IsPaymentTermChangeable
+									FROM [TRN].[Sales] AS S
+                                    JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
+                                    LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND S.PlantId=CP.PlantId AND CP.PartyType='Customer'
+									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=S.InvoicingPartyPlantId
+									LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
+									LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
+									LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=S.DeliveryPartyPlantId
+									LEFT JOIN [MST].[AddressMaster] AS AMD ON AMD.Id=PPD.AddressMasterId
+									LEFT JOIN [SCS].[State] AS STD ON STD.Id=AMD.StateId
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=S.CurrencyId
+									LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=S.PlantId
+									LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
+									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
+									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
+                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' AND ISNULL(S.VoucherId,'')='' and S.SourceType='Packing'";
+				return _sqlRepository.GetDataCollection(cmdText);
 
-        public List<Dictionary<string, object>> GetMasterOrderSalesDetailList(string companyGroupId, string companyId, string salesId, string partyAccountGroup)
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+			}
+		}
+
+		public List<Dictionary<string, object>> GetMasterOrderSalesDetailList(string companyGroupId, string companyId, string salesId, string partyAccountGroup)
         {
             try
             {
@@ -639,11 +678,66 @@ namespace Library.Accounting.Accounts
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+		public IEnumerable<object> GetSalesListForInvReveivable(string column, string value, string plantId)
+		{
+			try
+			{
+				string strkey = "1=1";
+				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+					strkey = column + " like '%" + value + "%'";
+				var sql = @"select top 300 * from (SELECT  IVS.Id, REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDate, IVS.CompanyGroupId, IVS.CompanyId, IVS.PlantId, IVS.CustomerId PartyId, IVS.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode, P.Code AS Tracenent
+								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDateNew
+			                    , CP.UserName AS PartyAccountGroupName
+			                    , IVS.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+	                           , IVS.MaterialStorageId,MS.UserName MaterialStorage,IVS.EntityId,E.UserName Entity,FORMAT(IVS.DocDate,'dd-MMM-yyyy')DocDate
+								, REPLACE(CONVERT(CHAR(11), IVS.AddedDate, 106),' ','-') AS EntryDate,IVS.Remarks,IVS.DocRefNo
+								, IVS.CurrencyId, CU.Code AS CurrencyCode
+	                            , IVS.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy,  IVS.DeliveryPartyPlantId
+								, DPP.UserName AS DeliveryBy
+	                            , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
+                                , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState
+								, CP.TaxApplicable,CP.IsPaymentTermChangeable,IVS.PaymentTermId,PT.UserName PaymentTerm
+								,REPLACE(CONVERT(CHAR(11), IVS.BaseOnDueDate, 106),' ','-') BaseOnDueDate,IVS.BaseNoOfDays,REPLACE(CONVERT(CHAR(11), IVS.MatureDate, 106),' ','-') MatureDate
+								,[Type]=CASE WHEN IVS.EmployeeId<>'' THEN 'Employee' Else 'Customer' END
+                                ,CO.BaseCurrencyId,IVS.ToCurrencyRate
+                                ,IVS.NoteForAccounts
+                    FROM [TRN].[InventorySales] AS IVS LEFT JOIN [HKP].[Party] AS P ON IVS.CustomerId=P.Id
+                    LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable,C.IsPaymentTermChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                    ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Customer') AS CP ON CP.PartyId=IVS.CustomerId AND CP.PlantId=IVS.PlantId
+                    LEFT JOIN [EmployeeInformation] AS EI ON IVS.EmployeeId=EI.SystemId
+                    LEFT JOIN [SCS].[Currency] AS CU ON IVS.CurrencyId=CU.Id
+                    LEFT JOIN [HKP].[PartyPlant] AS IPP ON IVS.InvoicingPartyPlantId=IPP.Id
+                    LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                    LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                    LEFT JOIN [HKP].[PartyPlant] AS DPP ON IVS.DeliveryPartyPlantId=DPP.Id
+                    LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                    LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                    LEFT JOIN ORG.Company AS CO ON CO.Id=IVS.CompanyId
+                     LEFT JOIN (SELECT A.InventorySalesId, SUM(A.TransactionQty) AS TransactionQty, SUM(ROUND(A.AvgAmount,4)) AS TransactionAmount, SUM(ROUND(A.AvgAmount,0)) AS BaseAmount 
+					 FROM [TRN].[InventorySalesDetail] AS A
+		                        JOIN [TRN].[InventorySales] AS B ON A.InventorySalesId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventorySalesId) AS IRD ON IRD.InventorySalesId=IVS.Id
+                    LEFT JOIN (SELECT A.InventorySalesId, A.TransactionUoMId FROM [TRN].[InventorySalesDetail] AS A JOIN [TRN].[InventorySales] AS B ON A.InventorySalesId=B.Id
+		                        WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventorySalesId, A.TransactionUoMId HAVING COUNT(A.InventorySalesId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventorySalesId=IVS.Id
+                    LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+					LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IVS.MaterialStorageId
+					LEFT JOIN ORG.Entity E ON E.Id=IVS.EntityId
+					LEFT JOIN MST.PaymentTerm PT ON PT.Id=IVS.PaymentTermId
+                    WHERE IVS.PlantId='" + plantId + @"' AND ISNULL(IVS.[Status],'')<>'Posting'  
+					) AS TEMP WHERE " + strkey + " order by SalesDate DESC";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
 		public IEnumerable<object> GetSalesListForInvReveivable(string plantId)
 		{
 			try
 			{
-				var sql = @"SELECT top(2000) IVS.Id, REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDate, IVS.CompanyGroupId, IVS.CompanyId, IVS.PlantId, IVS.CustomerId PartyId, IVS.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode, P.Code AS Tracenent
+				var sql = @"SELECT  IVS.Id, REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDate, IVS.CompanyGroupId, IVS.CompanyId, IVS.PlantId, IVS.CustomerId PartyId, IVS.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode, P.Code AS Tracenent
 								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IVS.SalesDate, 106),' ','-') AS SalesDateNew
 			                    , CP.UserName AS PartyAccountGroupName
 			                    , IVS.EmployeeId, EI.EmployeeCode, EI.EmployeeName
@@ -680,8 +774,8 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IVS.MaterialStorageId
 					LEFT JOIN ORG.Entity E ON E.Id=IVS.EntityId
 					LEFT JOIN MST.PaymentTerm PT ON PT.Id=IVS.PaymentTermId
-                    WHERE IVS.PlantId='" + plantId + @"' AND ISNULL(IVS.[Status],'')<>'Posting'  
-                    order by IVS.SalesDate desc";
+                    WHERE IVS.PlantId='" + plantId + @"' AND ISNULL(IVS.[Status],'')<>'Posting' 
+					order by IVS.SalesDate DESC";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
@@ -1238,5 +1332,73 @@ namespace Library.Accounting.Accounts
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+
+		public IEnumerable<object> GetPackingJournal(string companyId,string plantId, string salesId)
+		{
+			var sql = @"DECLARE @salesId varchar(10)='" + salesId + @"',  @companyId varchar(10)='" + companyId + @"'
+					
+						SELECT  'PackingInventory' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId
+							,GLGeneralInfoId=MGGL.ExpenseGLId
+							,GLGeneralInfoCode = GL.AccountCode
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId = MGGL.ExpenseBudgetMasterId
+							,BudgetCode =B.Code 
+							,BudgetName = B.UserName
+							,ActivityId =MGGL.ExpenseActivityId 
+							,ActivityCode =A.Code 
+							,ActivityName =A.UserName
+							, SUM(SP.Amount) AS Dr, NULL Cr
+							, SUM(SP.Amount) AS Amount
+                            ,SP.Id AS  SalesPackingId
+						FROM dbo.SalesPacking SP
+						LEFT JOIN TRN.[Sales] AS IR ON IR.Id=SP.SalesId
+						LEFT JOIN dbo.[ProductLibrary] AS IM ON SP.ProductLibraryId=IM.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON MGGL.ExpenseGLId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.ExpenseBudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGGL.ExpenseActivityId= A.Id
+						
+						WHERE SP.SalesId=@salesId
+						GROUP BY MM.MaterialGroupMasterId, MGGL.ExpenseGLId, GL.AccountCode, GL.UserName, MGGL.ExpenseBudgetMasterId, B.Code, B.UserName, MGGL.ExpenseActivityId, A.Code, A.UserName
+					    ,SP.Id
+                   union
+				   SELECT  'WIPPacking' AS OtherName, 'Cr' AS TrnType, MM.MaterialGroupMasterId
+							,GLGeneralInfoId=MGGL.InventoryGLId
+							,GLGeneralInfoCode = GL.AccountCode
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId = MGGL.InventoryBudgetMasterId
+							,BudgetCode =B.Code 
+							,BudgetName = B.UserName
+							,ActivityId =MGGL.InventoryActivityId 
+							,ActivityCode =A.Code 
+							,ActivityName =A.UserName
+							,  NULL Dr, SUM(SP.Amount) AS Cr
+							, SUM(SP.Amount) AS Amount
+                            ,SP.Id AS  SalesPackingId
+						FROM dbo.SalesPacking SP
+						LEFT JOIN TRN.[Sales] AS IR ON IR.Id=SP.SalesId
+						LEFT JOIN dbo.[ProductLibrary] AS IM ON SP.ProductLibraryId=IM.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON MGGL.InventoryGLId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.InventoryBudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGGL.InventoryActivityId= A.Id
+						
+						WHERE SP.SalesId=@salesId
+						GROUP BY MM.MaterialGroupMasterId, MGGL.InventoryGLId, GL.AccountCode, GL.UserName, MGGL.InventoryBudgetMasterId, B.Code, B.UserName, MGGL.InventoryActivityId, A.Code, A.UserName
+					    ,SP.Id
+				   
+				  
+					ORDER BY TrnType DESC 
+";
+			return _sqlRepository.GetDataCollection(sql);
+
+		}
+
 	}
 }

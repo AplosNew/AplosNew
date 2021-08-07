@@ -244,6 +244,7 @@ function jobWorkTransformationMasterController(addressService, $window, cboServi
             url: $scope.path + 'GetSelectedProcessData?Id=' + $scope.Transformation.Id
         }).then(function successCallback(response) {
             var DropDownListObj = $("#ddlProcess").data("ejDropDownList");
+            DropDownListObj.uncheckAll();
             for (var j = 0; j < response.data.length; j++) {
                 DropDownListObj.selectItemByValue(response.data[j].ProcessId);
             }

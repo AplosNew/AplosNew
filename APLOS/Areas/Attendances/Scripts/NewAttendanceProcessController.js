@@ -59,7 +59,7 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
     $scope.RunRoster = function () {
         $http({
             method: 'GET',
-            url: $scope.path + 'RunRoster',
+            url: $scope.path + 'RunRoster?Date=' + $scope.Attnd.Date,
         }).then(function success(response) {
             console.log("Done!!");
         });
