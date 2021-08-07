@@ -606,7 +606,7 @@
                                     <td>{{x.HSNCode}}</td>
                                     @*<td class="text-right">{{x.Percentage}}</td>*@
                                     <td class="text-right">
-                                        <input type="text" n-decimals="4" ng-model="x.Percentage" ng-keyup="calculateTaxAmountForMat(x);" class="form-control text-right" ng-disabled="productNew.TaxOptionMat==='No'" />
+                                        <input type="text" n-decimals="4" ng-model="x.Percentage" ng-keyup="calculateTaxAmountForMat(x);" class="form-control text-right" disabled />
                                     </td>
                                     <td class="text-right">
                                         <input type="text" n-decimals="2" ng-keyup="checkRowValidationMat(x);" @*ng-disabled="x.Percentage<=0"*@ ng-model="x.TaxAmount" @*ng-keyup="sumTaxAmount();"*@ class="form-control text-right" ng-disabled="productNew.TaxOptionMat==='Yes'" />
@@ -801,7 +801,7 @@
                                 <td>
 
                                     <div class="show-message">
-                                        <input type="text" n-decimals="4" class="form-control text-right"  ng-model="x.Percentage" ng-keyup="calculateTaxAmount(x);">
+                                        <input type="text" n-decimals="4" class="form-control text-right" disabled ng-model="x.Percentage" ng-keyup="calculateTaxAmount(x);">
                                     </div>
                                 </td>
 
@@ -916,7 +916,7 @@
                                         <input type="text" n-decimals="{{currencyPrecision}}" ng-model="x.TaxAmount" ng-keyup="sumSvcTaxAmount();" class="form-control text-right" />
                                     </td>*@
                                 <td class="text-right">
-                                    <input type="text" n-decimals="4" ng-model="x.Percentage" ng-keyup="calculateTaxAmountForService(x);" class="form-control text-right" ng-disabled="productNew.TaxOptionService==='No'" />
+                                    <input type="text" n-decimals="4" ng-model="x.Percentage" ng-keyup="calculateTaxAmountForService(x);" class="form-control text-right" disabled />
                                 </td>
                                 <td class="text-right">
                                     <input type="text" n-decimals="2" ng-model="x.TaxAmount" ng-keyup="checkRowValidationService(x);" class="form-control text-right" ng-disabled="productNew.TaxOptionService==='Yes'" />
