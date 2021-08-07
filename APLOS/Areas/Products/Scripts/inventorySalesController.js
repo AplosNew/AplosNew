@@ -128,7 +128,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		return $scope.tab === tabNum;
 	};
 
-
+	//Test Control
 
 
 	//#endregion
