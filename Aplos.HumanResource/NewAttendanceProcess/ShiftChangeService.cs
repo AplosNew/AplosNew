@@ -325,7 +325,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dr["EmpSystemID"] = item.EmpSystemId;
                             dr["WorkDate"] = item.WorkDate;
                             dr["OutTime"] = DateTime.Now;
-                            if(item.OThour.ToString() !="")
+                            if (clsWebLib.RetValidLen(item.OThour).ToString() != "")
                             {
                                 dr["OThour"] = item.OThour;
                             }
@@ -365,7 +365,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dr["EmpSystemID"] = item.EmpSystemId;
                             dr["WorkDate"] = item.WorkDate;
                             dr["OutTime"] = DateTime.Now;
-                            if (item.OThour.ToString() != "")
+                            if (clsWebLib.RetValidLen(item.OThour).ToString() != "")
                             {
                                 dr["OThour"] = item.OThour;
                             }
@@ -434,7 +434,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         dr["Id"] = "OT" + _Id;
                         dr["EmpSystemId"] = item.EmpSystemId;
                         dr["Remarks"] = DBNull.Value;
-                        if (item.OThour.ToString() != "")
+                        if (clsWebLib.RetValidLen(item.OThour).ToString() != "")
                         {
                             dr["OThour"] = item.OThour;
                         }
@@ -455,7 +455,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         dr.BeginEdit();
                         dr["EmpSystemId"] = item.EmpSystemId;
                         dr["Remarks"] = DBNull.Value;
-                        if (item.OThour.ToString() != "")
+                        if (clsWebLib.RetValidLen(item.OThour).ToString() != "")
                         {
                             dr["OThour"] = item.OThour;
                         }
@@ -553,13 +553,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["EmpSystemID"] = item.EmpSystemID;
                                     dr["WorkDate"] = item.WorkDate;
                                     dr["OutTime"] = DateTime.Now;
-                                    if (item.ManualOt.ToString() != "")
+                                    if (clsWebLib.RetValidLen(item.ManualOt).ToString() != "")
                                     {
                                         dr["OThour"] = item.ManualOt;
-                                    }
-                                    else
-                                    {
-                                        dr["OThour"] = DBNull.Value;
                                     }
                                     dr["AddedBy"] = item.AddedBy;
                                     dr["AddedDate"] = DateTime.Now;
@@ -591,14 +587,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["EmpSystemID"] = item.EmpSystemID;
                                     dr["WorkDate"] = item.WorkDate;
                                     dr["OutTime"] = DateTime.Now;
-                                    if (item.ManualOt.ToString() != "")
+                                    if (clsWebLib.RetValidLen(item.ManualOt).ToString() != "")
                                     {
                                         dr["OThour"] = item.ManualOt;
-                                    }
-                                    else
-                                    {
-                                        dr["OThour"] = DBNull.Value;
-                                    }
+                                    }                                    
                                     dr["UpdatedBy"] = item.AddedBy;
                                     dr["UpdatedDate"] = DateTime.Now;
                                     dr["UpdatedFromIP"] = item.AddedFromIP;
@@ -613,21 +605,17 @@ namespace Library.HumanResource.NewAttendanceProcess
                             if (OTEntitled == "True") 
                             {
                                 DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                if (item.ManualOt.ToString() != "")
-                                {
-                                    dr["ManualOt"] = item.ManualOt;
-                                }
-                                else
-                                {
-                                    dr["ManualOt"] = DBNull.Value;
-                                }
-                                  
-                                dr["ManualByWhom"] = item.AddedBy;
-                                dr["ManualEntryTime"] = DateTime.Now.ToString();
-                                dr["ManualFlag"] = true;
 
-                                dr.EndEdit();
+                                if (clsWebLib.RetValidLen(item.ManualOt).ToString() != "")
+                                {
+                                    dr.BeginEdit();
+                                    dr["ManualOt"] = item.ManualOt;
+                                    dr["ManualByWhom"] = item.AddedBy;
+                                    dr["ManualEntryTime"] = DateTime.Now.ToString();
+                                    dr["ManualFlag"] = true;
+
+                                    dr.EndEdit();
+                                }
                             }                            
                         }
                         else
