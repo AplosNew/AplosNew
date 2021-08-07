@@ -46,7 +46,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         #region -- Operations
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public ActionResult getAttendanceData(string employeeid, string fromdate, string todate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
