@@ -1655,7 +1655,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
             DataTable sales, materialTax;         
 
-            int LasColumnIndex = 9;
+            int LasColumnIndex =7;
 
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
@@ -1677,56 +1677,56 @@ namespace Aplos.Areas.Commercial.Controllers
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 110;
+            wTable.Rows[ROW].Cells[colArticle].Width = 150;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Del. Date");
             range.ApplyCharacterFormat(FontBold);
             int colDeliveryDate = COL; COL++;
-            wTable.Rows[ROW].Cells[colDeliveryDate].Width = 55;
+            wTable.Rows[ROW].Cells[colDeliveryDate].Width = 60;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SO#");
             range.ApplyCharacterFormat(FontBold);
             int colSONo = COL; COL++;
-            wTable.Rows[ROW].Cells[colSONo].Width = 70;
+            wTable.Rows[ROW].Cells[colSONo].Width = 80;
 
             //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description of Material");
             //range.ApplyCharacterFormat(FontBold);
             //int colDescriptionOfMaterial = COL; COL++;
             //wTable.Rows[ROW].Cells[colDescriptionOfMaterial].Width = 80;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Destination");
-            range.ApplyCharacterFormat(FontBold);
-            int colDestination = COL; COL++;
-            wTable.Rows[ROW].Cells[colDestination].Width = 60;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Destination");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colDestination = COL; COL++;
+            //wTable.Rows[ROW].Cells[colDestination].Width = 60;
 
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
             range.ApplyCharacterFormat(FontBold);
             int colHSN = COL; COL++;
-            wTable.Rows[ROW].Cells[colHSN].Width = 35;          
+            wTable.Rows[ROW].Cells[colHSN].Width = 48;          
 
             
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty" + "(" + "" + dsOrderMaster.Rows[0]["UoM"].ToString() + "" + ")" + " ");
             range.ApplyCharacterFormat(FontBold);
             int colQty = COL; COL++;
-            wTable.Rows[ROW].Cells[colQty].Width = 55;
+            wTable.Rows[ROW].Cells[colQty].Width = 65;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL; COL++;
-            wTable.Rows[ROW].Cells[colRate].Width = 45;
+            wTable.Rows[ROW].Cells[colRate].Width = 48;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UpCharge");
-            range.ApplyCharacterFormat(FontBold);
-            int colUpCharge = COL; COL++;
-            wTable.Rows[ROW].Cells[colUpCharge].Width = 45;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UpCharge");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colUpCharge = COL; COL++;
+            //wTable.Rows[ROW].Cells[colUpCharge].Width = 45;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Amount" + "(" + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + " " + ")" + " ");
             range.ApplyCharacterFormat(FontBold);
             int colAmount = COL;
-            wTable.Rows[ROW].Cells[colAmount].Width = 80;
+            wTable.Rows[ROW].Cells[colAmount].Width = 90;
 
 
 
@@ -1756,10 +1756,10 @@ namespace Aplos.Areas.Commercial.Controllers
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());            
                 TROW.Cells[colSONo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SONo"].ToString());            
                 TROW.Cells[colDeliveryDate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["DeliveryDate"].ToString());            
-                TROW.Cells[colDestination].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Destination"].ToString());            
+                //TROW.Cells[colDestination].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Destination"].ToString());            
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["Qty"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["Rate"].ToString()).ToString("#,##0.00"));
-                TROW.Cells[colUpCharge].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["UpCharge"].ToString()).ToString("#,##0.00"));
+                //TROW.Cells[colUpCharge].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["UpCharge"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["Amount"].ToString()).ToString("#,##0.00"));
 
 
@@ -1774,11 +1774,11 @@ namespace Aplos.Areas.Commercial.Controllers
             _TROW.Cells[0].AddParagraph().AppendText("Total").ApplyCharacterFormat(FontBold);
 
             range.ApplyCharacterFormat(FontBold);
-
+            double total=0;
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
                 //|| dicTaxes.ContainsValue(C)
-                if (C == colArticle  || C == colRate ||/* C == colQty ||*/ C == colDestination || C == colHSN || C == colDeliveryDate || C == colSONo)
+                if (C == colArticle  || C == colRate ||/* C == colQty ||*//* C == colDestination ||*/ C == colHSN || C == colDeliveryDate || C == colSONo)
                     continue;
 
                 double value = 0;
@@ -1790,12 +1790,13 @@ namespace Aplos.Areas.Commercial.Controllers
                         value += clsStdLib.dbl(item.Text);
                     }
                 }
+                total = value;
                 _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
             }
             #endregion Total
             ROW++;
             #region Sub Total
-            double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(Amount)", "").ToString());
+            
             #endregion Total
             ROW++;
             #region Total Payable
@@ -1813,23 +1814,7 @@ namespace Aplos.Areas.Commercial.Controllers
             myStyle.CharacterFormat.TextColor = Color.Black;
             myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
 
-            //for (int R = 0; R < wTable.Rows.Count; R++)
-            //{
-            //    WTableRow TROW = wTable.Rows[R];
-            //    TROW.Cells[0].Width = 30;
-            //    if (dv.Count < 3)
-            //        TROW.Cells[0].Width = 30 + ((3 - dv.Count) * 40);//for each tax group missing, adjust width with 0 cell
-
-            //    for (int CE = 0; CE < TROW.Cells.Count; CE++)
-            //    {
-            //        foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
-            //        {
-            //            item.ApplyStyle("MyStyle");
-            //        }
-            //    }
-            //}
-
-
+         
             #endregion paragrpath formats
 
 
@@ -1959,7 +1944,10 @@ namespace Aplos.Areas.Commercial.Controllers
             try
             {
                 strSQL = @"select  moi.Id MasterOrderItemID,c.Id as ContractId
-                                ,so.Rate,So.UpCharge,so.Qty,(so.Rate+So.UpCharge)*so.Qty as Amount,mm.UserName MaterialDescription,mma.StandardName as Article,h.Code as HSNCode
+                                ,so.Rate,So.UpCharge
+								,so.Qty
+								,(so.Rate+So.UpCharge)*so.Qty as Amount
+,mm.UserName MaterialDescription,mma.StandardName as Article,h.Code as HSNCode
                                 ,c.description as Reference,
                                 pc.UserName as CustomerName,u.UserName as UoM,
                                 pbt.UserName as ConsigneeBilltoName,

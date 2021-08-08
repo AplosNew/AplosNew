@@ -906,6 +906,7 @@ var upanelApp = angular
     .controller("salesPackingPostController", salesPackingPostController)
 
     .controller("NewAttendanceDashboardController", NewAttendanceDashboardController)
+    .controller("AttendanceRawDataFromAppController", AttendanceRawDataFromAppController)
 
 
     .config(AccessControllerConfig)

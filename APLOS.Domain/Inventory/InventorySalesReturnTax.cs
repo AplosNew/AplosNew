@@ -19,7 +19,6 @@ namespace Library.Model.Inventory
         public decimal TaxAmount { get; set; }
 
         public string InventorySalesReturnId { get; set; }
-        public InventorySalesService InventorySalesService { get; set; }
 
         public string InventorySalesReturnServiceId { get; set; }
         public decimal BooksCurrencyTaxAmount { get; set; } 

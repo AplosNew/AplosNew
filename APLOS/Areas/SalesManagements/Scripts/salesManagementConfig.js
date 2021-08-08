@@ -23,8 +23,8 @@ function salesManagementConfig($routeProvider) {
             controller: "masterOrderSalesPostController"
         })
         .when("/sales-packing-post", {
-            templateUrl: "SalesManagements/Sales/MasterOrderSalesPost",
-            controller: "masterOrderSalesPostController"
+            templateUrl: "SalesManagements/Sales/SalesPackingPost",
+            controller: "salesPackingPostController"
         })
         ;
 }

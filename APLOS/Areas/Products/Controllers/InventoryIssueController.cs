@@ -5635,7 +5635,12 @@ LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,A.Perc
 							Order BY II.ScrapDate DESC";
 				}
 				//return _sqlRepository.GetDataCollection(sql);
-				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+				//var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+				jsondata.MaxJsonLength = int.MaxValue;
+				return jsondata;
+				//return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
 			{

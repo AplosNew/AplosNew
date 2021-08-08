@@ -1672,7 +1672,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,B1.UserName AS CBUdget
                         ,EI1.EmployeeName CheckedBY
 						,EI2.EmployeeName AuthorizedBy
-                        ,IR.POId
+                        ,IRD.POId
 						,IRD.PODetailsId AS PORowId
                         ,MS.UserName as StorageLocation--,V.VoucherNo
 
@@ -1777,6 +1777,7 @@ namespace Library.MaterialManagement.InventoryManagements
 	               
 						LEFT JOIN trn.GateEntry  GE ON GE.Id=Ir.GateEntryNo					
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=GE.PlantWiseGateId
+						--left join  trn.POGGRNMap POGGRNMap ON POGGRNMap.GRNId=IR.Id
 						--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
 						 --where  IR.PlantId='20181'  AND convert(Date,IR.GRNDate) BETWEEN  '01-OCT-2020' AND '31-OCT-2020' --ORDER BY IR.GRNDate ASC
 						 where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'

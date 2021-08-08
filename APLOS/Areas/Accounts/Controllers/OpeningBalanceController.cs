@@ -305,7 +305,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             AccountsOpeningBalanceService _accountsOpeningBalanceService = new AccountsOpeningBalanceService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsOpeningBalanceService.GetOBAdvanceJournalDetail(parameters,identity.CompanyGroupId, identity.CompanyId, identity.PlantId, openingBalanceId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_accountsOpeningBalanceService.GetOBAdvanceJournalDetail(parameters,identity.CompanyGroupId, identity.CompanyId, identity.PlantId, openingBalanceId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
         }
 
         [HttpPost]

@@ -573,6 +573,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         , DiscountAmount: 0
         , TaxOption: 'Yes'
         , TaxOptionMat: 'Yes'
+        , TaxOptionMatJWTax:'Yes'
         , TaxOptionService: "Yes"
         , TaxOptionServiceTPO: "Yes"
         , TaxOptionServiceModify: 'Yes'
@@ -2183,6 +2184,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
         $scope.taxAbleAmnt = x.TransactionAmount;
 
+        $scope.productNew.TaxOptionMatJWTax = "Yes";
         angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
     };
 
