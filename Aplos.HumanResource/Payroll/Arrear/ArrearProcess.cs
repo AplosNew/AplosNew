@@ -166,9 +166,11 @@ namespace Library.HumanResource.Payroll.Arrear
 			                                                from (
 							                                                SELECT sdm.EmpInfoSystemID,SDM.SalaryRuleMasterSystemID ,sdm.EffectiveDate,sdm.IsApproved
 							                                                   from SalaryInfoDefineMaster SDM
+                                                                                WHERE SDM.IsApproved=1
 								                                                union ALL
 								                                                select sdm.EmpInfoSystemID,SDM.SalaryRuleMasterSystemID ,sdm.EffectiveDate,sdm.IsApproved
-								                                            from SalaryInfoBackMaster SDM
+								                                                from SalaryInfoBackMaster SDM
+                                                                                WHERE SDM.IsApproved=1
 			                                                ) AS SDM
 			
 			                                        ) AS SDM 

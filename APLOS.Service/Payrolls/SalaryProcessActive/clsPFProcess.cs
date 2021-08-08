@@ -1249,13 +1249,13 @@ namespace OTSBD
 								                    SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, AmtDefinitionCurrencyID, AmtDefinitionRate  
 								                    from SalaryInfoDefineMaster SDM
 								                    JOIN SalaryInfoDefine AS SD ON sdm.SystemID=SD.SalaryID 
-                                                    WHERE (" + sEmpInfo + @")
+                                                    WHERE (" + sEmpInfo + @") AND SDM.IsApproved=1
 								                    union ALL
 								                    select SD.SystemID,SDM.PlantID,EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, EffectiveDate,IsApproved, DateApproved,
 								                    SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, AmtDefinitionCurrencyID, AmtDefinitionRate  
 								                     from SalaryInfoBackMaster SDM
-								                    JOIN SalaryInfoDefine AS SD ON sdm.SystemID=SD.SalaryID 
-                                                    WHERE (" + sEmpInfo + @")
+								                    JOIN SalaryInfoBack AS SD ON sdm.SystemID=SD.SalaryID 
+                                                    WHERE (" + sEmpInfo + @") AND SDM.IsApproved=1
 							
 			                    ) AS SDM
 			
@@ -1444,13 +1444,13 @@ namespace OTSBD
 								                    SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, AmtDefinitionCurrencyID, AmtDefinitionRate  
 								                    from SalaryInfoDefineMaster SDM
 								                    JOIN SalaryInfoDefine AS SD ON sdm.SystemID=SD.SalaryID 
-                                                    WHERE (" + sEmpInfo + @")
+                                                    WHERE (" + sEmpInfo + @") AND SDM.IsApproved=1
 								                    union ALL
 								                    select SD.SystemID,SDM.PlantID,EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, EffectiveDate,IsApproved, DateApproved,
 								                    SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, AmtDefinitionCurrencyID, AmtDefinitionRate  
 								                     from SalaryInfoBackMaster SDM
-								                    JOIN SalaryInfoDefine AS SD ON sdm.SystemID=SD.SalaryID 
-                                                    WHERE (" + sEmpInfo + @")
+								                    JOIN SalaryInfoBack AS SD ON sdm.SystemID=SD.SalaryID 
+                                                    WHERE (" + sEmpInfo + @") AND SDM.IsApproved=1
 							
 			                    ) AS SDM
 			
