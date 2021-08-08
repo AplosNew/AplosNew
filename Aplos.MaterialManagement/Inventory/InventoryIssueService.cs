@@ -77,6 +77,8 @@ namespace Library.MaterialManagement.Inventory
 		
 		private readonly IRepositoryAsync<InventorySalesReturnTax> _InventorySalesReturnTaxRepository;
 		private readonly IRepositoryAsync<InventorySalesReturnService> _InventorySalesReturnServiceRepository;
+		private readonly IInventoryReceiveService _inventoryReveiveService;
+
 		private readonly IPKGeneratorService _pkGeneratorService;
 		public InventoryIssueService(
 			IRepositoryAsync<InventoryIssue> issueRepository
@@ -118,6 +120,7 @@ namespace Library.MaterialManagement.Inventory
 
 			, IRepositoryAsync<InventorySalesReturnTax> InventorySalesReturnTaxRepository
 			, IRepositoryAsync<InventorySalesReturnService> InventorySalesReturnServiceRepository
+			, IInventoryReceiveService inventoryReveiveService
 			) : base(issueRepository, unitOfWork, pkGeneratorService)
 		{
 			_issueRepository = issueRepository;
@@ -157,6 +160,7 @@ namespace Library.MaterialManagement.Inventory
 			_InventorySalesReturnDetailRepository = InventorySalesReturnDetailRepository;
 			_InventorySalesReturnServiceRepository = InventorySalesReturnServiceRepository;
 			_InventorySalesReturnTaxRepository = InventorySalesReturnTaxRepository;
+			_inventoryReveiveService = inventoryReveiveService;
 			_pkGeneratorService = pkGeneratorService;
 		}
 
@@ -9647,6 +9651,76 @@ namespace Library.MaterialManagement.Inventory
 				inventoryIssue.Id = GetInventorySalesReturnPK();
 				AuditService.AddedLog(inventoryIssue);
 				_InventorySalesReturnRepository.Insert(inventoryIssue);
+
+				InventoryReceive inventoryReceive = new InventoryReceive
+				{
+					Id = _pkGeneratorService.GetAutoNumber(nameof(InventoryReceive), PKGeneratorEnum.Yearly, null, DateTime.Now),
+					CompanyGroupId = inventoryIssue.CompanyGroupId,
+					CompanyId = inventoryIssue.CompanyId,
+					PlantId = inventoryIssue.PlantId,
+					MaterialStorageId = inventoryIssue.MaterialStorageId,
+					CurrencyId = inventoryIssue.CurrencyId,
+					PartyId = inventoryIssue.CustomerId,
+					DocRefNo = inventoryIssue.DocRefNo,
+					DocDate = inventoryIssue.DocDate,
+					GateEntryNo = null,
+					EntryDate = DateTime.Now,
+					FixedAssetOrInventory = "Inventory",
+					PODepended = false,
+					AlongwithInvoice = true,
+					InvoiceNo = null,
+					InvoiceDate = null,
+					AddedBy = inventoryIssue.AddedBy,
+					AddedDate = inventoryIssue.AddedDate,
+					AddedFromIP = inventoryIssue.AddedFromIP,
+					UpdatedBy = null,
+					UpdatedDate = null,
+					UpdatedFromIP = null,
+					PaymentTermId = inventoryIssue.PaymentTermId,
+					BaseOnDueDate = inventoryIssue.BaseOnDueDate,
+					BaseNoOfDays = inventoryIssue.BaseNoOfDays,
+					MatureDate = inventoryIssue.MatureDate,
+					Status = null,
+					BaseCurrencyId = inventoryIssue.CurrencyId,
+					InvoicingPartyPlantId = inventoryIssue.InvoicingPartyPlantId,
+					DeliveryPartyPlantId = inventoryIssue.DeliveryPartyPlantId,
+					EntityId = inventoryIssue.EntityId,
+					GRNDate = DateTime.Now,
+					IsNonCreditable = false,
+					InvoicingByAddress = null,
+					DeliveryByAddress = null,
+					OpeningBalanceId = null,
+					ToCurrencyRate = inventoryIssue.ToCurrencyRate,
+					IsTaxApplicable = false,
+					PartyType = "Vendor",
+					EmployeeId = null,
+					IsApproved = false,
+					IsPaymentHold = false,
+					POId = null,
+					CheckedBy = null,
+					CheckedByStatus = null,
+					AuthorizedBy = null,
+					AuthorizedByStatus = null,
+					GRNType = "InventorySalesReturn",
+					IsNonVendor = false,
+					Reason = null,
+					ApprovedHoldRejectReason = null,
+					CheckedHoldRejectReason = null,
+					NoteForAccounts = inventoryIssue.NoteForAccounts,
+					VoucherId = null,
+					PurchaseDocumentAcceptanceId = null,
+					IsFOC = false,
+					IsInvoice = true,
+					ByWhomEmployeeId = null,
+					ToPlantId = null,
+					ToVoucherId = null,
+					TransformationContractId = null,
+					JWWIPVoucherId = null,
+					JWChangeInInvVoucherId = null,
+					JWGRIRVoucherId = null
+				};
+				_inventoryReveiveService.InsertGraph(inventoryReceive);
+
 				var currentId = _InventorySalesReturnDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventorySalesReturnDetail] WHERE InventorySalesReturnId='{inventoryIssue.Id}'").First();
 				if (entities != null)
 				{
@@ -9721,8 +9795,7 @@ namespace Library.MaterialManagement.Inventory
 						}
 					}
 				}
-
-
+               
 
 				if (salesServiceVMList != null)
 				{
@@ -9803,11 +9876,6 @@ namespace Library.MaterialManagement.Inventory
 
 		}
 
-
-		//public void SalesReturnInsert(InventorySalesReturn inventoryIssue, IEnumerable<InventorySalesReturnDetailViewModel> entities, IEnumerable<InventorySalesReturnServiceViewModel> salesServiceVMList)
-		//{
-
-		//}
 
 		#endregion
 
