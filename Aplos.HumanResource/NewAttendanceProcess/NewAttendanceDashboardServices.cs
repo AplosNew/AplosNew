@@ -52,6 +52,32 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
-       
+
+        public IEnumerable<object> getGridData(string Date)
+        {
+            try
+            {
+                DateTime date = Convert.ToDateTime(Date);
+                var str = @"Select BudgetId , Count( distinct EmpSystemID) as OnRoll,
+                            Sum(Case When InStatus = 'IN' then 1 else 0 end) as InStat,
+                            Sum(Case When EarlyLateIn ='EI' then 1 else 0 end) as EarlyIn,
+                            Sum(Case When EarlyLateIn='LI'then 1 else 0 end) as LateIn,
+                            Sum(Case When InStatus ='IM' then 1 else 0 end) as InMissing,
+                            Sum(Case When IsOD=1 then 1 else 0 end) as OD,
+                            Sum(Case when DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW' then 1 else 0 end) as DayStatus,
+                            Sum(Case when LeaveStatus is not null then 1 else 0 end) as Leave,
+                            Sum(Case When InStatus ='O' then 1 else 0 end) as Other
+                            from dbo.AttdnProcessData
+                            where WorkDate = '"+date+@"'
+                            group by BudgetId";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+        }
+
+
     }
 }

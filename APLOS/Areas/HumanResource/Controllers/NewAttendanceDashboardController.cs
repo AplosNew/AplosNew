@@ -56,7 +56,11 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(na.getFilters(), JsonRequestBehavior.AllowGet);
         }
 
-
+        [HttpGet, Authorize]
+        public ActionResult getGridData(string Date , List<Dictionary<string,object>> param)
+        {
+            return Json(na.getGridData(Date), JsonRequestBehavior.AllowGet);
+        }
     }
 
 }
