@@ -12600,7 +12600,7 @@ ORDER BY tg.[Sequence]";
 						,B1.UserName AS CBUdget
                         ,EI1.EmployeeName CheckedBY
 						,EI2.EmployeeName AuthorizedBy
-                        ,IR.POId
+                        ,IRD.POId
 						,IRD.PODetailsId AS PORowId
                         ,MS.UserName as StorageLocation--,V.VoucherNo
 
@@ -12703,6 +12703,7 @@ ORDER BY tg.[Sequence]";
 	               
 						LEFT JOIN trn.GateEntry  GE ON GE.Id=Ir.GateEntryNo					
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=GE.PlantWiseGateId
+							--left join  trn.POGGRNMap POGGRNMap ON POGGRNMap.GRNId=IR.Id
 						--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
 						 where  IR.PlantId='" + identity.PlantId + "'  AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
 
