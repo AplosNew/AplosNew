@@ -12,6 +12,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
     $scope.deleteUrl = $scope.path + 'DeleteDetails/';
 
     $scope.employeeAttendance = [];
+    $scope.allShiftSingleDay = [];
     $scope.employeeAttendanceBySingleDate = [];
 
     $scope.selectSigleDate = function () {
@@ -25,12 +26,48 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
         }).then(function successCallback(response) {
             $scope.employeeAttendanceBySingleDate = response.data.data;
             $scope.employeeAttendanceBySingleDateSelection = response.data.data;
-
+            $scope.allShiftSingleDay = response.data.shift;
             var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
             gridObj.refreshContent();
 
         });
     }
+
+    $scope.shiftinfo = {};
+    $scope.selectedShiftInfo = function (args) {
+        var eDialog = $("#ViewShiftInfo").data("ejDialog");
+        eDialog.open();
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            data: { 'systemid': args.data.ShiftSystemIDOriginal, 'WorkDate': args.data.WorkDate },
+            url: $scope.path + 'getShift'
+
+        }).then(function successCallback(response) {
+            $scope.shiftinfo = response.data[0];
+        });
+
+
+    }
+
+    $scope.attendanceinfo = [];
+    $scope.showAttendanceInfo = function (args) {
+        var eDialog = $("#ViewAttendanceInfo").data("ejDialog");
+        eDialog.open();
+
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            data: { 'empsystemid': args.data.Id, 'WorkDate': args.data.WorkDate },
+            url: $scope.path + 'getAttendance'
+
+        }).then(function successCallback(response) {
+            $scope.attendanceinfo = response.data;
+        });
+
+
+    }
+
     $scope.selectemployee = [];
     $scope.selectedSinglemployee = {};
     $scope.getAllEmployee = function () {
@@ -49,6 +86,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
 
         });
     }
+    $scope.allShift = [];
     $scope.selectSignleEmployee = function (args) {
         var eDialog = $("#dialogEmployeeSelect").data("ejDialog");
         eDialog.close();
@@ -59,10 +97,12 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             method: "POST",
             dataType: 'JSON',
             data: { 'employeeid': $scope.selectedSinglemployee.Id, 'fromdate': $scope.FromDate, 'todate': $scope.ToDate },
-            url: $scope.path + 'getAttendanceDataxD'
+            url: $scope.path + 'getAttendanceData'
 
         }).then(function successCallback(response) {
             $scope.employeeAttendance = response.data.data;
+            $scope.allShift = response.data.shift;
+
             var gridObj = $("#GridChangeAttendance").data("ejGrid");
             gridObj.refreshContent();
         });
