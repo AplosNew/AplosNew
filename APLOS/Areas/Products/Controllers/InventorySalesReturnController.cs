@@ -221,7 +221,7 @@ namespace Aplos.Areas.Products.Controllers
             inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
             inventoryIssue.CompanyId = identity.CompanyId;
             inventoryIssue.PlantId = identity.PlantId;
-            _inventoryIssueService.SalesReturnInsert(inventoryIssue,entities, salesServiceVMList);
+          _inventoryIssueService.SalesReturnInsert(inventoryIssue,entities, salesServiceVMList);
             return Json(new { inventoryIssue, Message = AplosMessage.Success + "Sales No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
         }
 
