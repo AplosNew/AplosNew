@@ -74,7 +74,9 @@ namespace Aplos.Areas.Attendances.Controllers
 							,InDate,InTime,OutDate,OutTime
                              FROM (
 								
-		                            SELECT Emp.SystemID AS Id,emp.EmployeeCode,O.PDate,O.isApprovedIN,O.isApprovedOUT
+		                            SELECT Emp.SystemID AS Id,emp.EmployeeCode,O.PDate
+                                    ,isApprovedIN = case when o.isApprovedIN=1 then 0 else 1 end
+									,isApprovedOUT= case when o.isApprovedOUT=1 then 0 else 1 end
 									,FORMAT(o.InTime,'dd-MMM-yyyy')InDate
 									,FORMAT(o.InTime,'hh:mm tt')InTime
 									,FORMAT(o.OutTime,'dd-MMM-yyyy')OutDate
@@ -142,19 +144,19 @@ namespace Aplos.Areas.Attendances.Controllers
             DataSet dsEmp = null;
             stringAttendanceData(employeeid, fromdate, todate, out dsEmp);
 
-            var _EmpList = new List<AttendanceRawDataFromApp>();
+            var _EmpList = new List<AttendanceRawFromApp>();
 
             if (dsEmp.Tables[0].Rows.Count > 0)
             {
-                _EmpList = dsEmp.Tables[0].ToList<AttendanceRawDataFromApp>();
+                _EmpList = dsEmp.Tables[0].ToList<AttendanceRawFromApp>();
             }
 
-            List<AttendanceRawDataFromApp> _list = new List<AttendanceRawDataFromApp>();
+            List<AttendanceRawFromApp> _list = new List<AttendanceRawFromApp>();
 
             while (Fromdat <= ToDat)
             {
                 var manualData = _EmpList.Where(r => r.WorkDate == Fromdat.ToString("dd-MMM-yyyy")).FirstOrDefault();
-                AttendanceRawDataFromApp _obj = new AttendanceRawDataFromApp();
+                AttendanceRawFromApp _obj = new AttendanceRawFromApp();
                 _obj.WorkDate = Fromdat.ToString("dd-MMM-yyyy");
                 _obj.Id = employeeid;
                 if (manualData != null)
@@ -170,9 +172,8 @@ namespace Aplos.Areas.Attendances.Controllers
                 _list.Add(_obj);
                 Fromdat = Fromdat.AddDays(1);
             }
-            string shiftSQL = @" SELECT * FROM ShiftDefination AS sd WHERE sd.PlantID='" + identity.PlantId + @"'";
 
-            var jsondata = Json(new { data = _list, shift = _sqlRepository.GetDataCollection(shiftSQL) }, JsonRequestBehavior.AllowGet);
+            var jsondata = Json(new { data = _list}, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -186,7 +187,8 @@ namespace Aplos.Areas.Attendances.Controllers
                                 FORMAT (InTime,'hh:mm tt')InTime
                                 ,FORMAT(OutTime,'dd-MMM-yyyy')OutDate
                                 ,FORMAT(OutTime,'hh:mm tt')OutTime
-                                ,isApprovedIN,isApprovedOUT
+                                ,isApprovedIN = case when isApprovedIN=1 then  Convert(bit, 'False')  else Convert(bit, 'True')  end
+								,isApprovedOUT= case when isApprovedOUT=1 then  Convert(bit, 'False')  else Convert(bit, 'True')  end
                                 from AttdnRawDataFromApp where EmployeeId='" + employeeid + "' and PDate between '" + fromdate + "' and '" + todate + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
