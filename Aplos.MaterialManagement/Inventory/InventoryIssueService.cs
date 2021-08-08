@@ -9633,6 +9633,7 @@ namespace Library.MaterialManagement.Inventory
 
 		#region InventorySalesReturn
 
+
 		public void SalesReturnInsert(InventorySalesReturn inventoryIssue, IEnumerable<InventorySalesReturnDetailViewModel> entities, IEnumerable<InventorySalesReturnServiceViewModel> salesServiceVMList)
 		{
 			var flag = false;
@@ -9689,6 +9690,9 @@ namespace Library.MaterialManagement.Inventory
 							inventoryMaterial.ModelState = ModelState.Modified;
 							_inventoryMaterialService.UpdateGraph(inventoryMaterial);
 						}
+
+
+
 
 						if (issue.TaxList != null && issue.TaxList.Count > 0)
                         {
