@@ -9682,8 +9682,15 @@ namespace Library.MaterialManagement.Inventory
 						};
 						_InventorySalesReturnDetailRepository.Insert(detail);
 
+						var inventoryMaterial = _inventoryMaterialService.Find(issue.InventoryMaterialId);
+                        if (inventoryMaterial!=null)
+                        {
+							inventoryMaterial.TotalQty = inventoryMaterial.TotalQty + issue.Qty;
+							inventoryMaterial.ModelState = ModelState.Modified;
+							_inventoryMaterialService.UpdateGraph(inventoryMaterial);
+						}
 
-                        if (issue.TaxList != null && issue.TaxList.Count > 0)
+						if (issue.TaxList != null && issue.TaxList.Count > 0)
                         {
                             foreach (var taxVM in issue.TaxList)
                             {

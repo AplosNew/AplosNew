@@ -1288,8 +1288,10 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 { field: "StitchCode", headerText: "Stitch Code", width: 30 },
                 { field: "FACount", headerText: "Total Qty", width: 30 },
 
-                { field: "FABaseAmount", headerText: "Gross Amount", width: 30 },
-                { field: "ADBaseAmount", headerText: "Acc.Dep.Amount", width: 30 },
+                { field: "FABaseAmount", headerText: "FA Base Amount", width: 30 },
+                { field: "SubAssetAmount", headerText: "Sub Asset Amount", width: 30 },
+                { field: "TotalAssetAmount", headerText: "Total Asset Amount", width: 30 },
+                { field: "ADBaseAmount", headerText: "AD Base Amount", width: 30 },
                 { field: "NetFixedAssetsAmount", headerText: "Net Amount", width: 30 },
 
   
