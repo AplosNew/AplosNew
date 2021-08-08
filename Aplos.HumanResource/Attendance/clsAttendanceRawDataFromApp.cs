@@ -363,16 +363,18 @@ public class AttendanceFromApp
     public string OutTime { get; set; } = "";
     public bool IsError { get; set; } = false;
     public string ErrorMessage { get; set; } = "";
+    public bool isApprovedIN { get; set; }
+    public bool isApprovedOUT { get; set; }
 }
 
 public class AttendanceRawDataFromApp : BaseModel
 {
     public string Id { get; set; } = "";
     public string WorkDate { get; set; } = "";
-    public string InDate { get; set; } = "";
-    public string InTime { get; set; } = "";
-    public string OutDate { get; set; } = "";
-    public string OutTime { get; set; } = "";
+    public string InDateApp { get; set; } = "";
+    public string InTimeApp { get; set; } = "";
+    public string OutDateApp { get; set; } = "";
+    public string OutTimeApp { get; set; } = "";
     public bool isApprovedIN { get; set; }
     public bool isApprovedOUT { get; set; }
     public string EmployeeCode { get; set; } = "";
@@ -381,4 +383,37 @@ public class AttendanceRawDataFromApp : BaseModel
     public string SubSection { get; set; } = "";
     public string Department { get; set; } = "";
     public string Designation { get; set; } = "";
+
+    public string DayName { get; set; } = "";
+    public string ShiftSystemIDOriginal { get; set; } = "";
+    public string ShiftName { get; set; } = "";
+    public string ShiftInTime { get; set; } = "";
+    public string ShiftOutTime { get; set; } = "";
+    public string InDateOriginal { get; set; } = "";
+    public string InTimeOriginal { get; set; } = "";
+    public bool IsManualInTime { get; set; } = false;
+    public string OutDateOriginal { get; set; } = "";
+    public string OutTimeOriginal { get; set; } = "";
+    public bool IsManualOutTime { get; set; } = false;
+    public string PunchInTime { get; set; } = "";
+    public string PunchOutTime { get; set; } = "";
+    public string DayStatus { get; set; } = "";
+    public string OTHr { get; set; } = "";
+    public bool IsOTComfirm { get; set; } = false;
+    public bool IsOTEntitled { get; set; } = false;
+    public bool IsManualDayStatus { get; set; } = false;
+
+
+}
+
+public class AttendanceRawFromApp
+{
+    public string Id { get; set; } = "";
+    public string WorkDate { get; set; } = "";
+    public string InDate { get; set; } = "";
+    public string InTime { get; set; } = "";
+    public string OutDate { get; set; } = "";
+    public string OutTime { get; set; } = "";
+    public bool isApprovedIN { get; set; } = true;
+    public bool isApprovedOUT { get; set; } = true;
 }
