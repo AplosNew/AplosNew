@@ -14,6 +14,9 @@ using OTSBD;
 using clsAttendance;
 using System.Collections.Generic;
 using Library.HumanResource.Attendance.Manual;
+using System.Linq;
+using Library.HumanResource.Attendance;
+using Newtonsoft.Json;
 
 #endregion
 
@@ -43,19 +46,67 @@ namespace Aplos.Areas.Attendances.Controllers
 
         #region -- Operations
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public ActionResult getAttendanceData(string employeeid, string fromdate, string todate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = stringAttendanceData(employeeid, fromdate, todate);
-
-
             string shiftSQL = @" SELECT * FROM ShiftDefination AS sd WHERE sd.PlantID='" + identity.PlantId + @"'";
-
-            var jsondata = Json(new { data = _sqlRepository.GetModelCollection<AttendanceProcessData>(sql), shift = _sqlRepository.GetDataCollection(shiftSQL) }, JsonRequestBehavior.AllowGet);
+            var jsondata = Json(new { data = _sqlRepository.GetModelCollection<AttendanceRawDataFromApp>(sql), shift = _sqlRepository.GetDataCollection(shiftSQL) }, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+
+        [HttpPost, Authorize]
+        public ActionResult getShift(string systemid, string WorkDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"SELECT 
+                            sd.SystemID,
+                            sd.InTimeStartMargin, sd.IsActive, sd.DefaultShift, sd.SequenceNo, 
+                            sd.UserName AS ShiftName,
+                            format(kk.ShiftInTime,'dd-MMM-yyyy hh:mm tt') AS ShiftInTime,
+                            format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt') ShiftOutTime
+
+						
+                            FROM (
+                            SELECT 
+                            sd.SystemID,
+                            DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),'" + WorkDate + @"'))  AS ShiftInTime,
+                            DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),'" + WorkDate + @"'))  AS ShiftOutTime
+
+		
+                            FROM ShiftDefination sd
+                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '" + WorkDate + @"' BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
+                            ) AS KK
+                            INNER JOIN   ShiftDefination sd ON sd.SystemID=kk.SystemID
+                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON '" + WorkDate + @"' BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
+                            WHERE sd.systemid='" + systemid + @"'
+                            ORDER BY sd.SequenceNo ASC";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult getAttendance(string empsystemid, string WorkDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+            string sql = @"SELECT 
+                            FORMAT(pdate,'dd-MMM-yyyy') AS PDate,FORMAT(ptime,'hh:mm:ss tt') AS PTime,PType
+
+                             FROM AttdnRawData WHERE LogDownLoadNum='" + empsystemid + @"' AND PDate BETWEEN DATEADD(DAY,-1,'" + WorkDate + @"') AND DATEADD(DAY,1,'" + WorkDate + @"')
+
+                            ORDER BY AttdnRawData.PDate,AttdnRawData.PTime ASC";
+
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         private string stringAttendanceData(string employeeid, string fromdate, string todate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -71,46 +122,38 @@ namespace Aplos.Areas.Attendances.Controllers
                             emp.EmployeeName,isnull(s.UserName,'') AS Section,isnull(ss.UserName,'') AS SubSection,isnull(d.UserName,'') AS Designation,isnull(dept.UserName,'') AS Department,
                             format(KK.WorkDate,'ddd') AS DayName, 
                             format(KK.WorkDate,'dd-MMM-yyyy') AS WorkDate, 
-
-                            KK.ShiftSystemID,kk.ShiftName,KK.ShiftSystemID AS ShiftSystemIDOriginal,
+                            kk.ShiftName,KK.ShiftSystemID AS ShiftSystemIDOriginal,
                             format(ShiftInTime,'dd-MMM-yyyy hh:mm tt') AS ShiftInTime,
                      	    format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt') ShiftOutTime,
-
-
-                            format(isnull(KK.InTime,ShiftInTime),'dd-MMM-yyyy') AS  InDate,format(isnull(KK.InTime,ShiftInTime),'dd-MMM-yyyy') AS  InDateOriginal,
-                            format(KK.InTime,'hh:mm tt') AS  InTime, format(KK.InTime,'hh:mm tt') AS  InTimeOriginal, 
-
-                            KK.IsManualInTime, 
-
-
-						
-                            format(isnull(KK.OutTime,format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt')),'dd-MMM-yyyy') AS  OutDate,
+                            format(isnull(KK.InTime,ShiftInTime),'dd-MMM-yyyy') AS  InDateOriginal,
+                            format(KK.InTime,'hh:mm tt') AS  InTimeOriginal, 
+                            KK.IsManualInTime,
                             format(isnull(KK.OutTime,format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt')),'dd-MMM-yyyy') AS  OutDateOriginal,
-                            format(KK.OutTime,'hh:mm tt') AS  OutTime, format(KK.OutTime,'hh:mm tt') AS  OutTimeOriginal, 
-
-
+                            format(KK.OutTime,'hh:mm tt') AS  OutTimeOriginal, 
                             KK.IsManualOutTime,
-
                             format(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt') AS PunchInTime,
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
-
                             KK.DayStatus, KK.OTHr,
                             KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus
-
-                             FROM (
-								
+							,kk.isApprovedIN,kk.isApprovedOUT,kk.InDateApp,kk.InTimeApp,kk.OutDateApp,kk.OutTimeApp
+                             FROM (								
 		                            SELECT Emp.SystemID AS Id,emp.EmployeeCode,O.WorkDate, O.ShiftSystemID,sd.UserName AS ShiftName,
 								    DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),O.WorkDate))  AS ShiftInTime,
 		                            DATEADD(minute,DATEPART(minute, isnull(stcm.OutTime, sd.OutTime)), DATEADD(hour,DATEPART(hour, isnull(stcm.OutTime, sd.OutTime)),o.WorkDate))  AS ShiftOutTime,
 		                            O.InTime, O.IsManualInTime,
-		                            O.OutTime, O.IsManualOutTime, O.IsManualDayStatus,
-       
+		                            O.OutTime, O.IsManualOutTime, O.IsManualDayStatus,       
 		                            O.PunchInTime,O.PunchOutTime,
-		                            O.DayStatus, O.OTHr, O.IsOTComfirm,
-		                            O.IsOTEntitled
+		                            O.DayStatus, O.OTHr, O.IsOTComfirm,O.IsOTEntitled
+                                    ,isApprovedIN = case when app.isApprovedIN=1 then 0 else 1 end
+									,isApprovedOUT= case when app.isApprovedOUT=1 then 0 else 1 end
+									,FORMAT(app.InTime,'dd-MMM-yyyy')InDateApp
+									,FORMAT(app.InTime,'hh:mm tt')InTimeApp
+									,FORMAT(app.OutTime,'dd-MMM-yyyy')OutDateApp
+									,FORMAT(app.OutTime,'hh:mm tt')OutTimeApp
 
 		                            FROM EmployeeInformation EMP
 		                            LEFT JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
+                                    LEFT JOIN AttdnRawDataFromApp app ON o.EmpSystemID=app.EmployeeId and app.PDate = o.WorkDate
 		                            LEFT OUTER JOIN ShiftDefination AS sd ON sd.SystemID=o.ShiftSystemID
 		                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON o.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
                        
@@ -138,8 +181,7 @@ namespace Aplos.Areas.Attendances.Controllers
             if (Math.Abs(ts.TotalDays) > 31)
                 return Json(new { Error = true, Message = "Timespan between from and to date cannot be greater than 31 days" }, JsonRequestBehavior.AllowGet);
 
-            string sql = @"
-                        SELECT distinct Emp.SystemID AS Id,
+            string sql = @"SELECT distinct Emp.SystemID AS Id,
                         EMP.EmployeeName
                         ,EMP.EmployeeCode,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric
                         ,EMP.EmpPicPath,
@@ -149,7 +191,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             EMP.SectionId,SS.UserName SubSection
                             ,PL.UserName Plant
                             FROM EmployeeInformation EMP
-                            INNER JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
+                            INNER JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                             LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
@@ -166,6 +208,100 @@ namespace Aplos.Areas.Attendances.Controllers
             var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
+        }
+
+        //[HttpPost, Authorize]
+        //public ActionResult getAttendanceDataxD(string employeeid, string fromdate, string todate)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+        //    var Fromdat = Convert.ToDateTime(fromdate);
+        //    var ToDat = Convert.ToDateTime(todate);
+        //    DataSet dsEmp = null;
+        //    stringAttendanceData(employeeid, fromdate, todate, out dsEmp);
+
+        //    var _EmpList = new List<AttendanceRawFromApp>();
+
+        //    if (dsEmp.Tables[0].Rows.Count > 0)
+        //    {
+        //        _EmpList = dsEmp.Tables[0].ToList<AttendanceRawFromApp>();
+        //    }
+
+        //    List<AttendanceRawFromApp> _list = new List<AttendanceRawFromApp>();
+
+        //    while (Fromdat <= ToDat)
+        //    {
+        //        var manualData = _EmpList.Where(r => r.WorkDate == Fromdat.ToString("dd-MMM-yyyy")).FirstOrDefault();
+        //        AttendanceRawFromApp _obj = new AttendanceRawFromApp();
+        //        _obj.WorkDate = Fromdat.ToString("dd-MMM-yyyy");
+        //        _obj.Id = employeeid;
+        //        if (manualData != null)
+        //        {
+        //            _obj.InDate = manualData.InDate;
+        //            _obj.InTime = manualData.InTime;
+        //            _obj.OutDate = manualData.OutDate;
+        //            _obj.OutTime = manualData.OutTime;
+        //            _obj.isApprovedIN = manualData.isApprovedIN;
+        //            _obj.isApprovedOUT = manualData.isApprovedOUT;
+        //        }
+
+        //        _list.Add(_obj);
+        //        Fromdat = Fromdat.AddDays(1);
+        //    }
+
+        //    var jsondata = Json(new { data = _list}, JsonRequestBehavior.AllowGet);
+        //    jsondata.MaxJsonLength = int.MaxValue;
+        //    return jsondata;
+        //}
+        //public void stringAttendanceData(string employeeid, string fromdate, string todate, out System.Data.DataSet dsRef)
+        //{
+        //    string strSQL;
+        //    ConnectionManager.DAL.ConManager objCon;
+        //    try
+        //    {
+        //        strSQL = @"select EmployeeId Id,FORMAT( PDate,'dd-MMM-yyyy')WorkDate,FORMAT( InTime,'dd-MMM-yyyy')InDate,
+        //                        FORMAT (InTime,'hh:mm tt')InTime
+        //                        ,FORMAT(OutTime,'dd-MMM-yyyy')OutDate
+        //                        ,FORMAT(OutTime,'hh:mm tt')OutTime
+        //                        ,isApprovedIN = case when isApprovedIN=1 then  Convert(bit, 'False')  else Convert(bit, 'True')  end
+								//,isApprovedOUT= case when isApprovedOUT=1 then  Convert(bit, 'False')  else Convert(bit, 'True')  end
+        //                        from AttdnRawDataFromApp where EmployeeId='" + employeeid + "' and PDate between '" + fromdate + "' and '" + todate + "'";
+
+        //        objCon = new ConnectionManager.DAL.ConManager("1");
+        //        objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw (ex);
+        //    }
+        //    finally
+        //    {
+        //        objCon = null;
+        //    }
+        //}//End Function
+
+
+        [HttpPost]
+        public ActionResult Save(string data)
+        {
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            List<AttendanceFromApp> employee = JsonConvert.DeserializeObject<List<AttendanceFromApp>>(data, settings);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            clsAttendanceRawDataFromApp a = new clsAttendanceRawDataFromApp();
+            ARFA _rt = a.Save(employee);
+
+            if (_rt.IsError)
+            {
+                return Json(new { Message = _rt.msg, Error = true, Data = _rt.data }, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                return Json(new { Error = false, Message = _rt.msg, Data = _rt.data }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         #endregion
