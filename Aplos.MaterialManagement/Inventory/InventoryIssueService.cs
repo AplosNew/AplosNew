@@ -9691,9 +9691,6 @@ namespace Library.MaterialManagement.Inventory
 							_inventoryMaterialService.UpdateGraph(inventoryMaterial);
 						}
 
-
-
-
 						if (issue.TaxList != null && issue.TaxList.Count > 0)
                         {
                             foreach (var taxVM in issue.TaxList)
