@@ -186,15 +186,15 @@
 </style>
 
 <script type="text/template" id="indate">
-    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-disabled="isApprovedIN" e-width="100%" />
+    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-enabled="data.isApprovedIN" e-width="100%" />
 </script>
 <script type="text/template" id="intime">
 
-    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%" e-disabled="isApprovedIN" />
+    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%" e-enabled="data.isApprovedIN" />
 
 </script>
 <script type="text/template" id="outdate">
-    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.OutDate" e-disabled="isApprovedOUT" e-width="100%" />
+    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.OutDate" e-enabled="isApprovedOUT" e-width="100%" />
 </script>
 <script type="text/template" id="outtime">
     <input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" e-disabled="isApprovedOUT" />

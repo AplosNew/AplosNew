@@ -363,6 +363,8 @@ public class AttendanceFromApp
     public string OutTime { get; set; } = "";
     public bool IsError { get; set; } = false;
     public string ErrorMessage { get; set; } = "";
+    public bool isApprovedIN { get; set; }
+    public bool isApprovedOUT { get; set; }
 }
 
 public class AttendanceRawDataFromApp : BaseModel
@@ -381,4 +383,16 @@ public class AttendanceRawDataFromApp : BaseModel
     public string SubSection { get; set; } = "";
     public string Department { get; set; } = "";
     public string Designation { get; set; } = "";
+}
+
+public class AttendanceRawFromApp
+{
+    public string Id { get; set; } = "";
+    public string WorkDate { get; set; } = "";
+    public string InDate { get; set; } = "";
+    public string InTime { get; set; } = "";
+    public string OutDate { get; set; } = "";
+    public string OutTime { get; set; } = "";
+    public bool isApprovedIN { get; set; } = true;
+    public bool isApprovedOUT { get; set; } = true;
 }

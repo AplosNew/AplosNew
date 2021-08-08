@@ -79,7 +79,10 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
                 filteredRecords = $scope.employeeAttendanceBySingleDate
             }
             for (var i = 0; i < filteredRecords.length; i++) {
-                filteredRecords[i].InTime = $scope.Intime;
+                if (filteredRecords[i].isApprovedIN) {
+                    filteredRecords[i].InTime = $scope.Intime;
+                }
+                
             }
             $scope.employeeAttendanceBySingleDate = filteredRecords;
         } catch (e) {
@@ -98,7 +101,9 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
                 filteredRecords = $scope.employeeAttendanceBySingleDate
             }
             for (var i = 0; i < filteredRecords.length; i++) {
-                filteredRecords[i].OutTime = $scope.Intime;
+                if (filteredRecords[i].isApprovedOUT) {
+                    filteredRecords[i].InTime = $scope.Intime;
+                }
             }
             $scope.employeeAttendanceBySingleDate = filteredRecords;
         } catch (e) {
@@ -112,10 +117,9 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
         for (var i = 0; i < $scope.employeeAttendance.length; i++) {
             $scope.employeeAttendance[i].ErrorMessage = "";
             try {
-                if ($scope.employeeAttendance[i].InDate != null
-                    || $scope.employeeAttendance[i].InTime != null
-                    || $scope.employeeAttendance[i].OutDate != null
-                    || $scope.employeeAttendance[i].OutTime != null) {
+                if (baseService.isUndefinedOrNull($scope.employeeAttendance[i].InDate) || baseService.isUndefinedOrNull($scope.employeeAttendance[i].InTime)
+                    || baseService.isUndefinedOrNull($scope.employeeAttendance[i].OutDate) || baseService.isUndefinedOrNull($scope.employeeAttendance[i].OutTime))
+                {
                     DataToBeSaved.push($scope.employeeAttendance[i]);
                 }
                 else {
@@ -149,17 +153,6 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             }
         });
     }
-
-//    public class AttendanceFromApp {
-//        public string Id { get; set; } = "";
-//    public string WorkDate { get; set; } = "";
-//    public string InDate { get; set; } = "";
-//    public string InTime { get; set; } = "";
-//    public string OutDate { get; set; } = "";
-//    public string OutTime { get; set; } = "";
-//    public bool IsError { get; set; } = false;
-//    public string ErrorMessage { get; set; } = "";
-//}
 
     $scope.SaveSingleDay = function () {
         var DataToBeSaved = [];
