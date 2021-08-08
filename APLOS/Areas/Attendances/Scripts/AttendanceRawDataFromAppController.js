@@ -25,7 +25,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
         }).then(function successCallback(response) {
             $scope.employeeAttendanceBySingleDate = response.data.data;
             $scope.employeeAttendanceBySingleDateSelection = response.data.data;
-            
+
             var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
             gridObj.refreshContent();
 
@@ -62,7 +62,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             url: $scope.path + 'getAttendanceDataxD'
 
         }).then(function successCallback(response) {
-            $scope.employeeAttendance = response.data.data;            
+            $scope.employeeAttendance = response.data.data;
             var gridObj = $("#GridChangeAttendance").data("ejGrid");
             gridObj.refreshContent();
         });
@@ -79,7 +79,10 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
                 filteredRecords = $scope.employeeAttendanceBySingleDate
             }
             for (var i = 0; i < filteredRecords.length; i++) {
-                filteredRecords[i].InTime = $scope.Intime;
+                if (filteredRecords[i].isApprovedIN) {
+                    filteredRecords[i].InTime = $scope.Intime;
+                }
+
             }
             $scope.employeeAttendanceBySingleDate = filteredRecords;
         } catch (e) {
@@ -98,7 +101,9 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
                 filteredRecords = $scope.employeeAttendanceBySingleDate
             }
             for (var i = 0; i < filteredRecords.length; i++) {
-                filteredRecords[i].OutTime = $scope.Intime;
+                if (filteredRecords[i].isApprovedOUT) {
+                    filteredRecords[i].OutTime = $scope.Intime;
+                }
             }
             $scope.employeeAttendanceBySingleDate = filteredRecords;
         } catch (e) {
@@ -108,58 +113,57 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
 
 
     $scope.SaveSingleEmployee = function () {
-        var DataToBeSaved = [];
-        for (var i = 0; i < $scope.employeeAttendance.length; i++) {
-            $scope.employeeAttendance[i].ErrorMessage = "";
-            try {
-                if ($scope.employeeAttendance[i].InDate != null
-                    || $scope.employeeAttendance[i].InTime != null
-                    || $scope.employeeAttendance[i].OutDate != null
-                    || $scope.employeeAttendance[i].OutTime != null) {
-                    DataToBeSaved.push($scope.employeeAttendance[i]);
+        try {
+            var DataToBeSaved = [];
+            for (var i = 0; i < $scope.employeeAttendance.length; i++) {
+                $scope.employeeAttendance[i].ErrorMessage = "";
+                try {
+                    if (baseService.isUndefinedOrNull($scope.employeeAttendance[i].InDate) || baseService.isUndefinedOrNull($scope.employeeAttendance[i].InTime)
+                        || baseService.isUndefinedOrNull($scope.employeeAttendance[i].OutDate) || baseService.isUndefinedOrNull($scope.employeeAttendance[i].OutTime)) {
+                        DataToBeSaved.push($scope.employeeAttendance[i]);
+                    }
+                    else {
+
+                    }
+                } catch (e) {
+
+                }
+            }
+            for (var i = 0; i < DataToBeSaved.length; i++) {
+                if (DataToBeSaved[i].InTime == "" || DataToBeSaved[i].InTime == null) {
+                    throw "Insert InTime For Date: " + DataToBeSaved[i].WorkDate;
+                }
+                if (DataToBeSaved[i].OutTime == "" || DataToBeSaved[i].OutTime == null) {
+                    throw "Insert OutTimeFor Date: " + DataToBeSaved[i].WorkDate;
+                }
+            }
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                url: $scope.path + 'Save',
+                data: { 'data': JSON.stringify(DataToBeSaved) },
+                contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                    for (var i = 0; i < response.data.Data.length; i++) {
+                        var row = $filter('filter')($scope.employeeAttendance, { 'Id': response.data.Data[i].Id });
+                        if (!baseService.isUndefinedOrNull(row) && row.length > 0) {
+                            row[0].ErrorMessage = response.data.Data[i].ErrorMessage;
+                        }
+                    }
+                    var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
+                    gridObj.refreshContent();
                 }
                 else {
-
+                    ShowResult(response.data.Message, 'success');
+                    $scope.selectSignleEmployee();
                 }
-            } catch (e) {
-
-            }
+            });
+        } catch (e) {
+            ShowResult(e, 'info');
         }
-        $http({
-            method: "POST",
-            dataType: 'JSON',
-            url: $scope.path + 'Save',
-            data: { 'data': JSON.stringify(DataToBeSaved) },
-            contentType: "application/json charset=utf-8"
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
-                ShowResult(response.data.Message, 'failure');
-                for (var i = 0; i < response.data.Data.length; i++) {
-                    var row = $filter('filter')($scope.employeeAttendance, { 'Id': response.data.Data[i].Id });
-                    if (!baseService.isUndefinedOrNull(row) && row.length > 0) {
-                        row[0].ErrorMessage = response.data.Data[i].ErrorMessage;
-                    }
-                }
-                var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
-                gridObj.refreshContent();
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.selectSignleEmployee();
-            }
-        });
     }
-
-//    public class AttendanceFromApp {
-//        public string Id { get; set; } = "";
-//    public string WorkDate { get; set; } = "";
-//    public string InDate { get; set; } = "";
-//    public string InTime { get; set; } = "";
-//    public string OutDate { get; set; } = "";
-//    public string OutTime { get; set; } = "";
-//    public bool IsError { get; set; } = false;
-//    public string ErrorMessage { get; set; } = "";
-//}
 
     $scope.SaveSingleDay = function () {
         var DataToBeSaved = [];
@@ -169,8 +173,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
                 if ($scope.employeeAttendanceBySingleDate[i].InDate != null
                     || $scope.employeeAttendanceBySingleDate[i].InTime != null
                     || $scope.employeeAttendanceBySingleDate[i].OutDate != null
-                    || $scope.employeeAttendanceBySingleDate[i].OutTime != null)
-                {
+                    || $scope.employeeAttendanceBySingleDate[i].OutTime != null) {
                     DataToBeSaved.push($scope.employeeAttendanceBySingleDate[i]);
                 }
                 else {
@@ -184,7 +187,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             DataToBeSaved[i].WorkDate = $scope.FromDateSingleDate;
         }
 
-        var sorteddata = ej.DataManager(DataToBeSaved).executeLocal(ej.Query().select(["Id", "WorkDate", "InDate", "InTime", "OutDate","OutTime"]));
+        var sorteddata = ej.DataManager(DataToBeSaved).executeLocal(ej.Query().select(["Id", "WorkDate", "InDate", "InTime", "OutDate", "OutTime"]));
 
         $http({
             method: "POST",

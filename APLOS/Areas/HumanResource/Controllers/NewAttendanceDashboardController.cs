@@ -53,7 +53,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpGet, Authorize]
         public ActionResult getFilters()
         {
-            return Json(na.getMaster(), JsonRequestBehavior.AllowGet);
+            return Json(na.getFilters(), JsonRequestBehavior.AllowGet);
         }
 
 
