@@ -325,7 +325,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dr["EmpSystemID"] = item.EmpSystemId;
                             dr["WorkDate"] = item.WorkDate;
                             dr["OutTime"] = DateTime.Now;
-                            if(item.OThour.ToString() !="")
+                            if (clsWebLib.RetValidLen(item.OThour).ToString() != "")
                             {
                                 dr["OThour"] = item.OThour;
                             }
@@ -365,7 +365,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dr["EmpSystemID"] = item.EmpSystemId;
                             dr["WorkDate"] = item.WorkDate;
                             dr["OutTime"] = DateTime.Now;
-                            if (item.OThour.ToString() != "")
+                            if (clsWebLib.RetValidLen(item.OThour).ToString() != "")
                             {
                                 dr["OThour"] = item.OThour;
                             }
@@ -424,52 +424,55 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
                     dsMaster.Tables[0].DefaultView.RowFilter = @"EmpSystemId='" + item.EmpSystemId + "' ";
 
-                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    if (clsWebLib.RetValidLen(item.OThour).ToString() != "")
                     {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
-
-                        clsGenID genid = new clsGenID();
-                        genid.GenID(TableName, out string _Id);
-
-                        dr["Id"] = "OT" + _Id;
-                        dr["EmpSystemId"] = item.EmpSystemId;
-                        dr["Remarks"] = DBNull.Value;
-                        if (item.OThour.ToString() != "")
+                        if (dsMaster.Tables[0].DefaultView.Count == 0)
                         {
-                            dr["OThour"] = item.OThour;
+                            DataRow dr = dsMaster.Tables[0].NewRow();
+
+                            clsGenID genid = new clsGenID();
+                            genid.GenID(TableName, out string _Id);
+
+                            dr["Id"] = "OT" + _Id;
+                            dr["EmpSystemId"] = item.EmpSystemId;
+                            dr["Remarks"] = DBNull.Value;
+                            if (clsWebLib.RetValidLen(item.OThour).ToString() != "")
+                            {
+                                dr["OThour"] = item.OThour;
+                            }
+                            else
+                            {
+                                dr["OThour"] = DBNull.Value;
+                            }
+                            dr["AddedBy"] = item.AddedBy;
+                            dr["AddedDate"] = DateTime.Now.ToString();
+                            dr["WorkDate"] = item.WorkDate;
+                            dr["IsConfirmed"] = false;
+
+                            dsMaster.Tables[0].Rows.Add(dr);
                         }
                         else
                         {
-                            dr["OThour"] = DBNull.Value;
-                        }
-                        dr["AddedBy"] = item.AddedBy;
-                        dr["AddedDate"] = DateTime.Now.ToString();
-                        dr["WorkDate"] = item.WorkDate;
-                        dr["IsConfirmed"] = false;
+                            DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["EmpSystemId"] = item.EmpSystemId;
+                            dr["Remarks"] = DBNull.Value;
+                            if (clsWebLib.RetValidLen(item.OThour).ToString() != "")
+                            {
+                                dr["OThour"] = item.OThour;
+                            }
+                            else
+                            {
+                                dr["OThour"] = DBNull.Value;
+                            }
+                            dr["IsConfirmed"] = false;
+                            dr["UpdatedBy"] = item.AddedBy;
+                            dr["UpdatedDate"] = DateTime.Now.ToString();
+                            dr["WorkDate"] = item.WorkDate;
 
-                        dsMaster.Tables[0].Rows.Add(dr);                       
-                    }
-                    else
-                    {
-                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-                        dr["EmpSystemId"] = item.EmpSystemId;
-                        dr["Remarks"] = DBNull.Value;
-                        if (item.OThour.ToString() != "")
-                        {
-                            dr["OThour"] = item.OThour;
-                        }
-                        else
-                        {
-                            dr["OThour"] = DBNull.Value;
-                        }
-                        dr["IsConfirmed"] = false;
-                        dr["UpdatedBy"] = item.AddedBy;
-                        dr["UpdatedDate"] = DateTime.Now.ToString();
-                        dr["WorkDate"] = item.WorkDate;
+                            dr.EndEdit();
 
-                        dr.EndEdit();
-                        
+                        }
                     }
                   
                 }
@@ -553,13 +556,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["EmpSystemID"] = item.EmpSystemID;
                                     dr["WorkDate"] = item.WorkDate;
                                     dr["OutTime"] = DateTime.Now;
-                                    if (item.ManualOt.ToString() != "")
+                                    if (clsWebLib.RetValidLen(item.ManualOt).ToString() != "")
                                     {
                                         dr["OThour"] = item.ManualOt;
-                                    }
-                                    else
-                                    {
-                                        dr["OThour"] = DBNull.Value;
                                     }
                                     dr["AddedBy"] = item.AddedBy;
                                     dr["AddedDate"] = DateTime.Now;
@@ -591,14 +590,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     dr["EmpSystemID"] = item.EmpSystemID;
                                     dr["WorkDate"] = item.WorkDate;
                                     dr["OutTime"] = DateTime.Now;
-                                    if (item.ManualOt.ToString() != "")
+                                    if (clsWebLib.RetValidLen(item.ManualOt).ToString() != "")
                                     {
                                         dr["OThour"] = item.ManualOt;
-                                    }
-                                    else
-                                    {
-                                        dr["OThour"] = DBNull.Value;
-                                    }
+                                    }                                    
                                     dr["UpdatedBy"] = item.AddedBy;
                                     dr["UpdatedDate"] = DateTime.Now;
                                     dr["UpdatedFromIP"] = item.AddedFromIP;
@@ -613,21 +608,17 @@ namespace Library.HumanResource.NewAttendanceProcess
                             if (OTEntitled == "True") 
                             {
                                 DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
-                                if (item.ManualOt.ToString() != "")
-                                {
-                                    dr["ManualOt"] = item.ManualOt;
-                                }
-                                else
-                                {
-                                    dr["ManualOt"] = DBNull.Value;
-                                }
-                                  
-                                dr["ManualByWhom"] = item.AddedBy;
-                                dr["ManualEntryTime"] = DateTime.Now.ToString();
-                                dr["ManualFlag"] = true;
 
-                                dr.EndEdit();
+                                if (clsWebLib.RetValidLen(item.ManualOt).ToString() != "")
+                                {
+                                    dr.BeginEdit();
+                                    dr["ManualOt"] = item.ManualOt;
+                                    dr["ManualByWhom"] = item.AddedBy;
+                                    dr["ManualEntryTime"] = DateTime.Now.ToString();
+                                    dr["ManualFlag"] = true;
+
+                                    dr.EndEdit();
+                                }
                             }                            
                         }
                         else

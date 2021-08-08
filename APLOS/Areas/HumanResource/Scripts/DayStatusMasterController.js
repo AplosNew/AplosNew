@@ -100,13 +100,7 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
         }
     }
 
-    $scope.GetSequence = function () {
-        cboService.getSequence($scope.getSeqUrl, function (data) {
-            $scope.Master.Sequence = data;
-        });
-    };
-    $scope.GetSequence();
-
+    
     //For Deleting of A Master
     $scope.Delete = function () {
        //
@@ -726,7 +720,6 @@ function DayStatusMasterController(commonMessage, $scope, $rootScope, baseServic
     //Double Click the Day Type Child Grid
     $scope.getDayTypeChildDetails = function (e) {
         $scope.DayChild = e.data;
-        $scope.EmployeesList
         for (var i = 0; i < $scope.EmployeesList.length; i++)
         {
             if ($scope.EmployeesList[i].SystemId == $scope.DayChild.ResponsiblePersonId) {
