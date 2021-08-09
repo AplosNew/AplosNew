@@ -158,10 +158,10 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             for (var i = 0; i < $scope.employeeAttendance.length; i++) {
                 $scope.employeeAttendance[i].ErrorMessage = "";
                 try {
-                    if ($scope.employeeAttendanceBySingleDate[i].InDateApp != null
-                        || $scope.employeeAttendanceBySingleDate[i].InTimeApp != null
-                        || $scope.employeeAttendanceBySingleDate[i].OutDateApp != null
-                        || $scope.employeeAttendanceBySingleDate[i].OutTimeApp != null)
+                    if ($scope.employeeAttendance[i].InDateApp != null
+                        || $scope.employeeAttendance[i].InTimeApp != null
+                        || $scope.employeeAttendance[i].OutDateApp != null
+                        || $scope.employeeAttendance[i].OutTimeApp != null)
                     {
                         DataToBeSaved.push($scope.employeeAttendance[i]);
                     }
@@ -210,13 +210,13 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
 
     $scope.SaveSingleDay = function () {
         var DataToBeSaved = [];
-        for (var i = 0; i < $scope.employeeAttendance.length; i++) {
-            $scope.employeeAttendance[i].ErrorMessage = "";
+        for (var i = 0; i < $scope.employeeAttendanceBySingleDate.length; i++) {
+            $scope.employeeAttendanceBySingleDate[i].ErrorMessage = "";
             try {
-                if ($scope.employeeAttendance[i].InDateApp != null
-                    || $scope.employeeAttendance[i].InTimeApp != null
-                    || $scope.employeeAttendance[i].OutDateApp != null
-                    || $scope.employeeAttendance[i].OutTimeApp != null)
+                if ($scope.employeeAttendanceBySingleDate[i].InDateApp != null
+                    || $scope.employeeAttendanceBySingleDate[i].InTimeApp != null
+                    || $scope.employeeAttendanceBySingleDate[i].OutDateApp != null
+                    || $scope.employeeAttendanceBySingleDate[i].OutTimeApp != null)
                 {
                     DataToBeSaved.push($scope.employeeAttendanceBySingleDate[i]);
                 }

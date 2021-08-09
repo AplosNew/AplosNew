@@ -171,21 +171,21 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     $scope.AddNewEmpPopUp = function () {
         $scope.Clean();
-        //angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
+        angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('show');
 
-        $("#NewEmpEntryPopUp").ejDialog("setTitle", "Add Employee Information");
-        var eDialog = $("#NewEmpEntryPopUp").data("ejDialog");
-        eDialog.open();
+        //$("#NewEmpEntryPopUp").ejDialog("setTitle", "Add Employee Information");
+        //var eDialog = $("#NewEmpEntryPopUp").data("ejDialog");
+        //eDialog.open();
     }
 
     $scope.CloseNewEmpPopUp = function () {
         $scope.Clean();
-        //angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('hide');
+        angular.element(document.querySelector('#NewEmpEntryPopUp')).modal('hide');
         $scope.ShowVendor = false;
         $scope.ShowEVendor = false;
 
-        var eDialog = $("#NewEmpEntryPopUp").data("ejDialog");
-        eDialog.close();
+        //var eDialog = $("#NewEmpEntryPopUp").data("ejDialog");
+        //eDialog.close();
     }
 
     $scope.CheckDuplicateEmployeeCode = function () {

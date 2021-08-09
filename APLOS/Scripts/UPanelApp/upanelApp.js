@@ -902,7 +902,7 @@ var upanelApp = angular
     .controller("PayrollManagementDashboardController", PayrollManagementDashboardController)
     .controller("InventorySalesReturnController", InventorySalesReturnController)
     .controller("ProductionConversionParameterController", ProductionConversionParameterController)
-    //.controller("ProductionTransformationBookingController", ProductionTransformationBookingController)
+    .controller("ProductionTransformationBookingController", ProductionTransformationBookingController)
     .controller("EmployeeJobLocationController", EmployeeJobLocationController)
     .controller("salesPackingPostController", salesPackingPostController)
 

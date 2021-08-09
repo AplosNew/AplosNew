@@ -12,6 +12,7 @@ namespace Library.Model.Inventory
 
         public string Id { get; set; }
         public string InventorySalesId { get; set; }
+        public string InventoryReceiveId { get; set; }
 
         [NeverUpdate]
         public string CompanyGroupId { get; set; }
