@@ -39,22 +39,23 @@ namespace Library.Accounting.Accounts
 
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
-            
-            if (isActive == true && isSeperated == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
-            }
-            if (isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
-            }
-            if (isActive == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
-            }
+
+
             if (isActive == true && isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
+            }
+            else if (isActive == true && isSeperated == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
+            }
+            else if (isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            else if (isActive == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
             else
             {
@@ -152,22 +153,23 @@ namespace Library.Accounting.Accounts
         {
 
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
-            
-            if (isActive == true && isSeperated == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
-            }
-            if (isSeperated == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
-            }
-            if (isActive == true && isMaternity == true)
-            {
-                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
-            }
+
+
             if (isActive == true && isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
+            }
+            else if (isActive == true && isSeperated == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
+            }
+            else if (isSeperated == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
+            }
+            else if (isActive == true && isMaternity == true)
+            {
+                wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
             else
             {
@@ -215,15 +217,15 @@ namespace Library.Accounting.Accounts
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
-            if (isActive == true && isSeperated == true)
+            else if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
             }
-            if (isSeperated == true && isMaternity == true)
+            else if (isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
-            if (isActive == true && isMaternity == true)
+            else if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
@@ -321,19 +323,20 @@ namespace Library.Accounting.Accounts
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
 
+
             if (isActive == true && isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
-            if (isActive == true && isSeperated == true)
+            else if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
             }
-            if (isSeperated == true && isMaternity == true)
+            else if (isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
-            if (isActive == true && isMaternity == true)
+            else if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
@@ -434,19 +437,20 @@ namespace Library.Accounting.Accounts
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
 
+
             if (isActive == true && isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
-            if (isActive == true && isSeperated == true)
+            else if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
             }
-            if (isSeperated == true && isMaternity == true)
+            else if (isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
-            if (isActive == true && isMaternity == true)
+            else if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
@@ -493,19 +497,20 @@ namespace Library.Accounting.Accounts
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
 
+
             if (isActive == true && isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
-            if (isActive == true && isSeperated == true)
+            else if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
             }
-            if (isSeperated == true && isMaternity == true)
+            else if (isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
-            if (isActive == true && isMaternity == true)
+            else if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
@@ -602,19 +607,20 @@ namespace Library.Accounting.Accounts
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
 
+
             if (isActive == true && isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
-            if (isActive == true && isSeperated == true)
+            else if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
             }
-            if (isSeperated == true && isMaternity == true)
+            else if (isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
-            if (isActive == true && isMaternity == true)
+            else if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
@@ -665,19 +671,20 @@ namespace Library.Accounting.Accounts
         {
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
+
             if (isActive == true && isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
-            if (isActive == true && isSeperated == true)
+            else if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
             }
-            if (isSeperated == true && isMaternity == true)
+            else if (isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
-            if (isActive == true && isMaternity == true)
+            else if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
