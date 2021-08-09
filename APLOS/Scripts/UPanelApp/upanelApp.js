@@ -901,13 +901,15 @@ var upanelApp = angular
     .controller("CompanyWiseBankSheetController", CompanyWiseBankSheetController)
     .controller("PayrollManagementDashboardController", PayrollManagementDashboardController)
     .controller("InventorySalesReturnController", InventorySalesReturnController)
-    .controller("ProductionTransformationBookingController", ProductionTransformationBookingController)
     .controller("ProductionConversionParameterController", ProductionConversionParameterController)
+    //.controller("ProductionTransformationBookingController", ProductionTransformationBookingController)
     .controller("EmployeeJobLocationController", EmployeeJobLocationController)
     .controller("salesPackingPostController", salesPackingPostController)
 
     .controller("NewAttendanceDashboardController", NewAttendanceDashboardController)
     .controller("AttendanceRawDataFromAppController", AttendanceRawDataFromAppController)
+    .controller("WeekOffUpdatesController", WeekOffUpdatesController)
+    .controller("RosterUpdatesController", RosterUpdatesController)
 
 
     .config(AccessControllerConfig)
