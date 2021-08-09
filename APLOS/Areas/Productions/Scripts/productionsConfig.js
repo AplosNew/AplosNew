@@ -185,5 +185,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             controller: 'ProductionConversionParameterController'
         })
 
+        .when('/production-booking', {
+            templateUrl: 'Productions/ProductionTransformationBooking/Aplos',
+            controller: 'ProductionTransformationBookingController'
+        })
+
         ;
 }
