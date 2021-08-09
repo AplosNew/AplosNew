@@ -3620,6 +3620,10 @@
     <Content Include="Areas\Productions\Views\ProductionConversionParameter\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\NewAttendanceDashboard\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\AttendanceRawDataFromApp\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBGLJVPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBBankJVPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBCashJVPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBPartyJVPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
