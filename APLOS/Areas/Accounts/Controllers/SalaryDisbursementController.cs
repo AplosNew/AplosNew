@@ -264,19 +264,20 @@ namespace Aplos.Areas.Accounts.Controllers
 
             string wcEmpStatus = " AND spm.SalaryProcFlag=''";
 
+
             if (isActive == true && isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED','MLV_PRE')";
             }
-            if (isActive == true && isSeperated == true)
+            else if (isActive == true && isSeperated == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','SEPARATED')";
             }
-            if (isSeperated == true && isMaternity == true)
+            else if (isSeperated == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
-            if (isActive == true && isMaternity == true)
+            else if (isActive == true && isMaternity == true)
             {
                 wcEmpStatus = " AND spm.SalaryProcFlag IN ('','MLV_PRE')";
             }
