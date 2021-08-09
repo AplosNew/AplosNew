@@ -571,8 +571,8 @@ namespace Library.Service.Productions
             {
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select pbd.*,P.UserName as Process, p.Id as ProcessIdDisplay,wc.UserName as WorkCenter,Pr.UserName as DependantProcess,cp.ItemName as OutputItemName, uom.UserName as EntryUom
-                                ,U.UserName as OutputItemUom,inpU.UserName as InputUom, cpp.ItemName as ByProductItem, bpU.UserName as ByProductUom, inpcp.ItemName as InputItemName
+                string sql = @"select pbd.*,P.UserName as Process, p.Id as ProcessIddisplay,wc.UserName as WorkCenter,Pr.UserName as DependantProcess,cp.ItemName as OutputItemName, uom.UserName as EntryUom
+                                ,U.UserName as OutputItemUom,inpU.UserName as UoMInput, cpp.ItemName as ByProductItem, bpU.UserName as ByProductUom, inpcp.ItemName as InputItemName
                                 from dbo.ProductionTransformationDetailBooking pbd left join HKP.Process P on P.Id=pbd.ProcessId
                                 left join HKP.WorkCenterSubCategory wc on wc.Id=pbd.WorkCentreCategoryGroupId
                                 left join HKP.Process Pr on Pr.Id=pbd.DependantProcessId
@@ -583,7 +583,8 @@ namespace Library.Service.Productions
                                 left join dbo.ProductionConversionParameter cpp on cpp.Id=pbd.ByProductItemNameId
                                 left join SCS.UnitOfMeasurement bpU on bpU.Id=pbd.ByProductUOMId
                                 left join dbo.ProductionConversionParameter inpcp on inpcp.Id=pbd.InputItemNameId
-                                where pbd.ProductionTransformationMasterId='"+ ProductionBookingId + @"' ";
+                                where pbd.ProductionTransformationMasterId='" + ProductionBookingId + @"'
+                                order by pbd.Sequence desc ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
