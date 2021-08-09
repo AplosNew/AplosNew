@@ -1,4 +1,5 @@
-﻿using Library.Crosscutting.Security;
+﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using System;
 using System.Collections.Generic;
@@ -85,24 +86,24 @@ namespace Library.HumanResource.Attendance
                 }
                 foreach (AttendanceFromApp item in DataToBeSaved)
                 {
-                    if (string.IsNullOrEmpty(item.InDate) == false)
-                        if (bplib.clsWebLib.IsDateOK(item.InDate) == false)
+                    if (string.IsNullOrEmpty(item.InDateApp) == false)
+                        if (bplib.clsWebLib.IsDateOK(item.InDateApp) == false)
                             item.ErrorMessage = "Invalid in date";
 
 
-                    if (string.IsNullOrEmpty(item.OutDate) == false)
-                        if (bplib.clsWebLib.IsDateOK(item.OutDate) == false)
+                    if (string.IsNullOrEmpty(item.OutDateApp) == false)
+                        if (bplib.clsWebLib.IsDateOK(item.OutDateApp) == false)
                             item.ErrorMessage = "Invalid out date";
 
-                    if (item.InTime != null && item.OutTime != null)
+                    if (item.InTimeApp != null && item.OutTimeApp != null)
                     {
-                        if (Convert.ToDateTime(item.InDate + " " + item.InTime) > Convert.ToDateTime(item.OutDate + " " + item.OutTime))
+                        if (Convert.ToDateTime(item.InDateApp + " " + item.InTimeApp) > Convert.ToDateTime(item.OutDateApp + " " + item.OutTimeApp))
                         {
                             item.IsError = true;
                             item.ErrorMessage = "Out time is earlier than In time";
                         }
 
-                        TimeSpan ts = Convert.ToDateTime(item.OutDate + " " + item.OutTime).Subtract(Convert.ToDateTime(item.InDate + " " + item.InTime));
+                        TimeSpan ts = Convert.ToDateTime(item.OutDateApp + " " + item.OutTimeApp).Subtract(Convert.ToDateTime(item.InDateApp + " " + item.InTimeApp));
                         if (Math.Abs(ts.TotalHours) > 24)
                         {
                             item.IsError = true;
@@ -178,35 +179,35 @@ namespace Library.HumanResource.Attendance
                         DataRow dr = dsManualAttendance.Tables[0].Rows[0];
 
                         dr.BeginEdit();
-                        if (data[i].InDate != null && data[i].InTime == null)
+                        if (data[i].InDateApp != null && data[i].InTimeApp == null)
                         {
-                            dr["InTime"] = data[i].InDate;
+                            dr["InTime"] = data[i].InDateApp;
                         }
                         else
                         {
-                            if (data[i].InDate == null && data[i].InTime == null)
+                            if (data[i].InDateApp == null && data[i].InTimeApp == null)
                             {
                                 dr["InTime"] = DBNull.Value;
                             }
                             else
                             {
-                                dr["InTime"] = data[i].InDate + " " + data[i].InTime;
+                                dr["InTime"] = data[i].InDateApp + " " + data[i].InTimeApp;
                             }
 
                         }
-                        if (data[i].OutDate != null && data[i].OutTime == null)
+                        if (data[i].OutDateApp != null && data[i].OutTimeApp == null)
                         {
-                            dr["OutTime"] = data[i].OutDate;
+                            dr["OutTime"] = data[i].OutDateApp;
                         }
                         else
                         {
-                            if (data[i].OutDate == null && data[i].OutTime == null)
+                            if (data[i].OutDateApp == null && data[i].OutTimeApp == null)
                             {
                                 dr["OutTime"] = DBNull.Value;
                             }
                             else
                             {
-                                dr["OutTime"] = data[i].OutDate + " " + data[i].OutTime;
+                                dr["OutTime"] = data[i].OutDateApp + " " + data[i].OutTimeApp;
                             }
 
                         }
@@ -224,14 +225,14 @@ namespace Library.HumanResource.Attendance
                         DataRow dr = dsManualAttendance.Tables[0].NewRow();
 
                         count++;
-                        string pk = "A" + seed_detail + "_" + count;
+                        string pk = seed_detail + "_" + count;
                         //dr = dtMSave.NewRow();
                         dr["Id"] = pk;
 
                         dr["EmployeeId"] = data[i].Id;
                         if (data[i].WorkDate == null)
                         {
-                            dr["PDate"] = data[i].InDate;
+                            dr["PDate"] = data[i].InDateApp;
                         }
                         else
                         {
@@ -240,35 +241,35 @@ namespace Library.HumanResource.Attendance
 
 
 
-                        if (data[i].InDate != null && data[i].InTime == null)
+                        if (data[i].InDateApp != null && data[i].InTimeApp == null)
                         {
-                            dr["InTime"] = data[i].InDate;
+                            dr["InTime"] = data[i].InDateApp;
                         }
                         else
                         {
-                            if (data[i].InDate == null && data[i].InTime == null)
+                            if (data[i].InDateApp == null && data[i].InTimeApp == null)
                             {
                                 dr["InTime"] = DBNull.Value;
                             }
                             else
                             {
-                                dr["InTime"] = data[i].InDate + " " + data[i].InTime;
+                                dr["InTime"] = data[i].InDateApp + " " + data[i].InTimeApp;
                             }
 
                         }
-                        if (data[i].OutDate != null && data[i].OutTime == null)
+                        if (data[i].OutDateApp != null && data[i].OutTimeApp == null)
                         {
-                            dr["OutTime"] = data[i].OutDate;
+                            dr["OutTime"] = data[i].OutDateApp;
                         }
                         else
                         {
-                            if (data[i].OutDate == null && data[i].OutTime == null)
+                            if (data[i].OutDateApp == null && data[i].OutTimeApp == null)
                             {
                                 dr["OutTime"] = DBNull.Value;
                             }
                             else
                             {
-                                dr["OutTime"] = data[i].OutDate + " " + data[i].OutTime;
+                                dr["OutTime"] = data[i].OutDateApp + " " + data[i].OutTimeApp;
                             }
 
                         }
@@ -356,23 +357,63 @@ public class AttendanceFromApp
 {
     public string Id { get; set; } = "";
     public string WorkDate { get; set; } = "";
-    public string InDate { get; set; } = "";
-    public string InTime { get; set; } = "";
-    public string OutDate { get; set; } = "";
-    public string OutTime { get; set; } = "";
+    public string InDateApp { get; set; } = "";
+    public string InTimeApp { get; set; } = "";
+    public string OutDateApp { get; set; } = "";
+    public string OutTimeApp { get; set; } = "";
     public bool IsError { get; set; } = false;
     public string ErrorMessage { get; set; } = "";
-}
-
-public class AttendanceRawDataFromApp
-{
-    public string Id { get; set; } = "";
-    public string EmployeeId { get; set; } = "";
-    public string WorkDate { get; set; } = "";
-    public string InDate { get; set; } = "";
-    public string InTime { get; set; } = "";
-    public string OutDate { get; set; } = "";
-    public string OutTime { get; set; } = "";
     public bool isApprovedIN { get; set; }
     public bool isApprovedOUT { get; set; }
+}
+
+public class AttendanceRawDataFromApp : BaseModel
+{
+    public string Id { get; set; } = "";
+    public string WorkDate { get; set; } = "";
+    public string InDateApp { get; set; } = "";
+    public string InTimeApp { get; set; } = "";
+    public string OutDateApp { get; set; } = "";
+    public string OutTimeApp { get; set; } = "";
+    public bool isApprovedIN { get; set; }
+    public bool isApprovedOUT { get; set; }
+    public string EmployeeCode { get; set; } = "";
+    public string EmployeeName { get; set; } = "";
+    public string Section { get; set; } = "";
+    public string SubSection { get; set; } = "";
+    public string Department { get; set; } = "";
+    public string Designation { get; set; } = "";
+
+    public string DayName { get; set; } = "";
+    public string ShiftSystemIDOriginal { get; set; } = "";
+    public string ShiftName { get; set; } = "";
+    public string ShiftInTime { get; set; } = "";
+    public string ShiftOutTime { get; set; } = "";
+    public string InDateOriginal { get; set; } = "";
+    public string InTimeOriginal { get; set; } = "";
+    public bool IsManualInTime { get; set; } = false;
+    public string OutDateOriginal { get; set; } = "";
+    public string OutTimeOriginal { get; set; } = "";
+    public bool IsManualOutTime { get; set; } = false;
+    public string PunchInTime { get; set; } = "";
+    public string PunchOutTime { get; set; } = "";
+    public string DayStatus { get; set; } = "";
+    public string OTHr { get; set; } = "";
+    public bool IsOTComfirm { get; set; } = false;
+    public bool IsOTEntitled { get; set; } = false;
+    public bool IsManualDayStatus { get; set; } = false;
+
+
+}
+
+public class AttendanceRawFromApp
+{
+    public string Id { get; set; } = "";
+    public string WorkDate { get; set; } = "";
+    public string InDateApp { get; set; } = "";
+    public string InTime { get; set; } = "";
+    public string OutDateApp { get; set; } = "";
+    public string OutTime { get; set; } = "";
+    public bool isApprovedIN { get; set; } = true;
+    public bool isApprovedOUT { get; set; } = true;
 }

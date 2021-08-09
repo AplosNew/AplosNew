@@ -12,6 +12,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
     $scope.deleteUrl = $scope.path + 'DeleteDetails/';
 
     $scope.employeeAttendance = [];
+    $scope.allShiftSingleDay = [];
     $scope.employeeAttendanceBySingleDate = [];
 
     $scope.selectSigleDate = function () {
@@ -25,12 +26,48 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
         }).then(function successCallback(response) {
             $scope.employeeAttendanceBySingleDate = response.data.data;
             $scope.employeeAttendanceBySingleDateSelection = response.data.data;
-            
+            $scope.allShiftSingleDay = response.data.shift;
             var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
             gridObj.refreshContent();
 
         });
     }
+
+    $scope.shiftinfo = {};
+    $scope.selectedShiftInfo = function (args) {
+        var eDialog = $("#ViewShiftInfo").data("ejDialog");
+        eDialog.open();
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            data: { 'systemid': args.data.ShiftSystemIDOriginal, 'WorkDate': args.data.WorkDate },
+            url: $scope.path + 'getShift'
+
+        }).then(function successCallback(response) {
+            $scope.shiftinfo = response.data[0];
+        });
+
+
+    }
+
+    $scope.attendanceinfo = [];
+    $scope.showAttendanceInfo = function (args) {
+        var eDialog = $("#ViewAttendanceInfo").data("ejDialog");
+        eDialog.open();
+
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            data: { 'empsystemid': args.data.Id, 'WorkDate': args.data.WorkDate },
+            url: $scope.path + 'getAttendance'
+
+        }).then(function successCallback(response) {
+            $scope.attendanceinfo = response.data;
+        });
+
+
+    }
+
     $scope.selectemployee = [];
     $scope.selectedSinglemployee = {};
     $scope.getAllEmployee = function () {
@@ -49,6 +86,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
 
         });
     }
+    $scope.allShift = [];
     $scope.selectSignleEmployee = function (args) {
         var eDialog = $("#dialogEmployeeSelect").data("ejDialog");
         eDialog.close();
@@ -59,18 +97,20 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             method: "POST",
             dataType: 'JSON',
             data: { 'employeeid': $scope.selectedSinglemployee.Id, 'fromdate': $scope.FromDate, 'todate': $scope.ToDate },
-            url: $scope.path + 'getAttendanceDataxD'
+            url: $scope.path + 'getAttendanceData'
 
         }).then(function successCallback(response) {
-            $scope.employeeAttendance = response.data.data;            
+            $scope.employeeAttendance = response.data.data;
+            $scope.allShift = response.data.shift;
+
             var gridObj = $("#GridChangeAttendance").data("ejGrid");
             gridObj.refreshContent();
         });
     }
-
+    $scope.SetTime = null;
     $scope.SetIn = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.Intime)) {
+            if (baseService.isUndefinedOrNull($scope.SetTime)) {
                 throw "Select Time..";
             }
             var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
@@ -79,7 +119,10 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
                 filteredRecords = $scope.employeeAttendanceBySingleDate
             }
             for (var i = 0; i < filteredRecords.length; i++) {
-                filteredRecords[i].InTime = $scope.Intime;
+                if (filteredRecords[i].isApprovedIN) {
+                    filteredRecords[i].InTimeApp = $scope.SetTime;
+                }
+
             }
             $scope.employeeAttendanceBySingleDate = filteredRecords;
         } catch (e) {
@@ -89,7 +132,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
 
     $scope.SetOut = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.Intime)) {
+            if (baseService.isUndefinedOrNull($scope.SetTime)) {
                 throw "Select Time..";
             }
             var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
@@ -98,7 +141,9 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
                 filteredRecords = $scope.employeeAttendanceBySingleDate
             }
             for (var i = 0; i < filteredRecords.length; i++) {
-                filteredRecords[i].OutTime = $scope.Intime;
+                if (filteredRecords[i].isApprovedOUT) {
+                    filteredRecords[i].OutTimeApp = $scope.SetTime;
+                }
             }
             $scope.employeeAttendanceBySingleDate = filteredRecords;
         } catch (e) {
@@ -106,88 +151,72 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
         }
     }
 
-    //$scope.Save = function () {
-    //    try {
-    //        if ($scope.Action === "Save") {
-    //            $http({
-    //                method: 'POST',
-    //                url: $scope.saveUrl,
-    //                data: {
-    //                    'employeeInformation': JSON.stringify($scope.tempList)
-    //                },
-    //                dataType: 'JSON'
-    //                , contentType: "application/json charset=utf-8"
-    //            }).then(function successCallback(response) {
-    //                if (response.data.Error === true) {
-    //                    ShowResult(response.data.Message, "failure");
-    //                    $scope.tempList = [];
-    //                }
-    //                else {
-    //                    ShowResult(response.data.Message, "success");
-    //                    $scope.LoadData($scope.employeeInformation.PlantId);
-    //                    $scope.tempList = [];
-    //                }
-    //            }, function errorCallback(response) {
-    //                ShowResult(response.status.Message, "failure");
-    //            });
-    //            return true;
-    //        }
-    //    } catch (e) {
-    //        ShowResult(e, "failure");
-    //    }
-    //};
 
     $scope.SaveSingleEmployee = function () {
+        try {
+            var DataToBeSaved = [];
+            for (var i = 0; i < $scope.employeeAttendance.length; i++) {
+                $scope.employeeAttendance[i].ErrorMessage = "";
+                try {
+                    if ($scope.employeeAttendanceBySingleDate[i].InDateApp != null
+                        || $scope.employeeAttendanceBySingleDate[i].InTimeApp != null
+                        || $scope.employeeAttendanceBySingleDate[i].OutDateApp != null
+                        || $scope.employeeAttendanceBySingleDate[i].OutTimeApp != null)
+                    {
+                        DataToBeSaved.push($scope.employeeAttendance[i]);
+                    }
+                    else {
+
+                    }
+                } catch (e) {
+
+                }
+            }
+            for (var i = 0; i < DataToBeSaved.length; i++) {
+                if (DataToBeSaved[i].InTimeApp == "" || DataToBeSaved[i].InTimeApp == null) {
+                    throw "Insert InTimeApp For Date: " + DataToBeSaved[i].WorkDate;
+                }
+                if (DataToBeSaved[i].OutTimeApp == "" || DataToBeSaved[i].OutTimeApp == null) {
+                    throw "Insert OutTimeFor Date: " + DataToBeSaved[i].WorkDate;
+                }
+            }
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                url: $scope.path + 'Save',
+                data: { 'data': JSON.stringify(DataToBeSaved) },
+                contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                    for (var i = 0; i < response.data.Data.length; i++) {
+                        var row = $filter('filter')($scope.employeeAttendance, { 'Id': response.data.Data[i].Id });
+                        if (!baseService.isUndefinedOrNull(row) && row.length > 0) {
+                            row[0].ErrorMessage = response.data.Data[i].ErrorMessage;
+                        }
+                    }
+                    var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
+                    gridObj.refreshContent();
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.selectSignleEmployee();
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    }
+
+    $scope.SaveSingleDay = function () {
         var DataToBeSaved = [];
         for (var i = 0; i < $scope.employeeAttendance.length; i++) {
             $scope.employeeAttendance[i].ErrorMessage = "";
             try {
-                if ($scope.employeeAttendance[i].InDate != null
-                    || $scope.employeeAttendance[i].InTime != null
-                    || $scope.employeeAttendance[i].OutDate != null
-                    || $scope.employeeAttendance[i].OutTime != null) {
-                    DataToBeSaved.push($scope.employeeAttendance[i]);
-                }
-                else {
-
-                }
-            } catch (e) {
-
-            }
-        }
-        $http({
-            method: "POST",
-            dataType: 'JSON',
-            data: { 'data': JSON.stringify(DataToBeSaved) },
-            url: $scope.path + 'Save',
-            contentType: "application/json charset=utf-8"
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
-                ShowResult(response.data.Message, 'failure');
-                for (var i = 0; i < response.data.Data.length; i++) {
-                    var row = $filter('filter')($scope.employeeAttendance, { 'Id': response.data.Data[i].Id });
-                    if (!baseService.isUndefinedOrNull(row) && row.length > 0) {
-                        row[0].ErrorMessage = response.data.Data[i].ErrorMessage;
-                    }
-                }
-                var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
-                gridObj.refreshContent();
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.selectSignleEmployee();
-            }
-        });
-    }
-    $scope.SaveSingleDay = function () {
-        var DataToBeSaved = [];
-        for (var i = 0; i < $scope.employeeAttendanceBySingleDate.length; i++) {
-            $scope.employeeAttendanceBySingleDate[i].ErrorMessage = "";
-            try {
-                if ($scope.employeeAttendanceBySingleDate[i].InDate != null
-                    || $scope.employeeAttendanceBySingleDate[i].InTime != null
-                    || $scope.employeeAttendanceBySingleDate[i].OutDate != null
-                    || $scope.employeeAttendanceBySingleDate[i].OutTime != null)
+                if ($scope.employeeAttendance[i].InDateApp != null
+                    || $scope.employeeAttendance[i].InTimeApp != null
+                    || $scope.employeeAttendance[i].OutDateApp != null
+                    || $scope.employeeAttendance[i].OutTimeApp != null)
                 {
                     DataToBeSaved.push($scope.employeeAttendanceBySingleDate[i]);
                 }
@@ -201,11 +230,14 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
         for (var i = 0; i < DataToBeSaved.length; i++) {
             DataToBeSaved[i].WorkDate = $scope.FromDateSingleDate;
         }
+
+        var sorteddata = ej.DataManager(DataToBeSaved).executeLocal(ej.Query().select(["Id", "WorkDate", "InDateApp", "InTimeApp", "OutDateApp", "OutTimeApp"]));
+
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'data': JSON.stringify(DataToBeSaved) },
             url: $scope.path + 'Save',
+            data: { 'data': JSON.stringify(sorteddata) },
             contentType: "application/json charset=utf-8"
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
