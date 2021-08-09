@@ -61,7 +61,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         Errormsg = ex.GetType().Name.ToString();
                         extype = ex.GetType().ToString();
                         ErrorLocation = ex.Message.ToString();
-                        string error = "Error Line No :" + " " + ErrorlineNo + "Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
+                        string error = "Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
 
                         NewAttendanceProcessService.SaveLog(error, true);
                     }
@@ -97,7 +97,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         Errormsg = ex.GetType().Name.ToString();
                         extype = ex.GetType().ToString();
                         ErrorLocation = ex.Message.ToString();
-                        string error = "Error Line No :" + " " + ErrorlineNo + "Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
+                        string error = "Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
 
                         NewAttendanceProcessService.SaveLog(error, true);
                     }
@@ -133,7 +133,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         Errormsg = ex.GetType().Name.ToString();
                         extype = ex.GetType().ToString();
                         ErrorLocation = ex.Message.ToString();
-                        string error = "Error Line No :" + " " + ErrorlineNo + "Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
+                        string error = "Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
 
                         NewAttendanceProcessService.SaveLog(error, true);
                     }
@@ -169,7 +169,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         Errormsg = ex.GetType().Name.ToString();
                         extype = ex.GetType().ToString();
                         ErrorLocation = ex.Message.ToString();
-                        string error = "Error Line No :" + " " + ErrorlineNo + "Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
+                        string error = "Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
 
                         NewAttendanceProcessService.SaveLog(error, true);
                     }
@@ -181,8 +181,24 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult MonthlySummary(string Date)
         {
-            rep.MonthlySummary(Date);
+            try
+            {
+               rep.MonthlySummary(Date);
+            }
+            catch (Exception ex)
+            {
+                string ErrorlineNo, Errormsg, extype, ErrorLocation;
+
+                ErrorlineNo = ex.StackTrace.Substring(ex.StackTrace.Length - 7, 7);
+                Errormsg = ex.GetType().Name.ToString();
+                extype = ex.GetType().ToString();
+                ErrorLocation = ex.Message.ToString();
+                string error = "Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
+
+                NewAttendanceProcessService.SaveLog(error, true);
+            }
             return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
+
         }
 
         [HttpGet, Authorize]
@@ -212,7 +228,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         Errormsg = ex.GetType().Name.ToString();
                         extype = ex.GetType().ToString();
                         ErrorLocation = ex.Message.ToString();
-                        string error = "Error Line No :" + " " + ErrorlineNo + "Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
+                        string error = "Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
 
                         NewAttendanceProcessService.SaveLog(error, true);
                     }
