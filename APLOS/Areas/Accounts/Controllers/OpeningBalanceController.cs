@@ -290,6 +290,39 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = string.Format(AplosMessage.VoucherUpdate, _openingBalanceService.UpdateAdvanceJournal(voucherVM, voucherDetailVM)) });
         }
 
+        [HttpPost]
+        public JsonResult ParkOBGLAdvanceJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            if (voucherDetailVMList == null)
+                throw new CustomException("Please Add Item.");
+
+
+            foreach (var item in voucherDetailVMList)
+            {
+
+                if (item.PartyType != "Equity" && item.PartyType != "LoanGiven")
+                {
+                    if (item.PartyId != null && item.PartyPlantId == null)
+                        throw new CustomException("Please select Location!");
+
+                }
+                if (item.PartyType == PartyType.Bank.ToString() && item.BankCurrencyId != voucherVM.CurrencyId && item.BankAmount < 0 ||
+                     item.PartyType == PartyType.Bank.ToString() && item.BankCurrencyId != voucherVM.CurrencyId && item.BankAmount == 0)
+                    throw new CustomException("Please Input Bank Currency Amount");
+                if (item.PartyType == PartyType.Cash.ToString() && item.CashCurrencyId != voucherVM.CurrencyId && item.BankAmount < 0 ||
+                    item.PartyType == PartyType.Cash.ToString() && item.CashCurrencyId != voucherVM.CurrencyId && item.BankAmount == 0)
+                    throw new CustomException("Please Input Cash Currency Amount");
+                if ((item.DrAmount + item.CrAmount == 0) || (item.DrAmount + item.CrAmount < 0))
+                    throw new CustomException("Please input amount !");
+            }
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _openingBalanceService.InsertGLAdvanceJournal(voucherVM, voucherDetailVMList)) });
+        }
+
 
         [HttpGet]
         public JsonResult GetOBAdvanceJournalList(GridParameter parameters)
@@ -305,7 +338,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             AccountsOpeningBalanceService _accountsOpeningBalanceService = new AccountsOpeningBalanceService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsOpeningBalanceService.GetOBAdvanceJournalDetail(parameters,identity.CompanyGroupId, identity.CompanyId, identity.PlantId, openingBalanceId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_accountsOpeningBalanceService.GetOBAdvanceJournalDetail(parameters,identity.CompanyGroupId, identity.CompanyId, identity.PlantId, openingBalanceId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
         }
 
         [HttpPost]

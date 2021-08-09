@@ -110,10 +110,15 @@
                         <div e-column e-type="text" e-field="IsAsset" e-headertext="Asset" e-width="20" style="height: 20px;"></div>
                         <div e-column e-type="text" e-field="Machine" e-headertext="Machine" e-width="20" style="height: 20px;"></div>
                         <div e-column e-type="text" e-field="FACount" e-headertext="FA Count" e-width="20" e-textalign="right" style="height: 20px;"></div>
-                        <div e-column e-type="text" e-field="NetFixedAssetsAmount" e-headertext="Net Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                        @*<div e-column e-type="text" e-field="NetFixedAssetsAmount" e-headertext="Net Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
                         <div e-column e-type="text" e-field="SubAssetAmount" e-headertext="Net Sub Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                        <div e-column e-type="text" e-field="TotalAssetsBaseAmount" e-headertext="Net Total Base Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="TotalAssetsBaseAmount" e-headertext="Net Total Base Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>*@
 
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="FABaseAmount" e-headertext="FA Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="SubAssetAmount" e-headertext="Sub Asset Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="TotalBaseAmount" e-headertext="Total Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ADBaseAmount" e-headertext="AD Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NetFixedAssetsAmount" e-headertext="Net Base Amount" e-width="65" e-textalign="right" style="height: 20px;"></div>
                     </div>
                 </div>
 

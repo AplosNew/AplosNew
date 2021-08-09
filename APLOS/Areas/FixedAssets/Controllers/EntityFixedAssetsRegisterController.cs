@@ -53,11 +53,11 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         //Elastic Search
         [HttpPost, Authorize]
-        public ActionResult GetEntityFixedAssetRegisterElasticSearchDataList(string materialMasterId, string materialMasterArticleId, string fixedAssetMasterId, string vendorId, string isAsset, string machine)
+        public ActionResult GetEntityFixedAssetRegisterElasticSearchDataList()
         {
             FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new { DATA = fixedAssetQueryService.GetEntityFixedAssetRegisterElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialMasterArticleId, fixedAssetMasterId, vendorId, isAsset, machine), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(new { DATA = fixedAssetQueryService.GetEntityFixedAssetRegisterElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
         //[HttpPost, Authorize]

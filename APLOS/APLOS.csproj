@@ -375,6 +375,7 @@
       <DependentUpon>AccountsDataSet.xsd</DependentUpon>
     </Compile>
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\AttendanceRawDataFromAppController.cs" />
     <Compile Include="Areas\Attendances\Controllers\NewAttendanceProcessController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceFromAppReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\PayrollManagementDashboardController.cs" />
@@ -782,7 +783,6 @@
     <Compile Include="Areas\Productions\Controllers\CutPlanController.cs" />
     <Compile Include="Areas\Productions\Controllers\MarkerController.cs" />
     <Compile Include="Areas\Productions\Controllers\PackingInvoiceController.cs" />
-    <Compile Include="Areas\Productions\Controllers\ProductionTransformationBookingController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionConversionParameterController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionTargetReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShadeController.cs" />
@@ -1567,6 +1567,7 @@
     <Content Include="Areas\Accounts\Scripts\vendorTranTypeController.js" />
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
+    <Content Include="Areas\Attendances\Scripts\AttendanceRawDataFromAppController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessController.js" />
     <Content Include="Areas\Attendances\Scripts\PayrollManagementDashboardController.js" />
     <Content Include="Areas\Attendances\Scripts\AuditReportSummeryController.js" />
@@ -2099,7 +2100,6 @@
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerController.js" />
     <Content Include="Areas\Productions\Scripts\PackingInvoiceController.js" />
-    <Content Include="Areas\Productions\Scripts\ProductionTransformationBookingController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionConversionParameterController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionTargetReportController.js" />
     <Content Include="Areas\Productions\Scripts\ShadeController.js" />
@@ -3619,7 +3619,11 @@
     <Content Include="Areas\HumanResource\Views\OTUpdateConfiguration\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionConversionParameter\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\NewAttendanceDashboard\Aplos.cshtml" />
-    <Content Include="Areas\Productions\Views\ProductionTransformationBooking\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\AttendanceRawDataFromApp\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBGLJVPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBBankJVPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBCashJVPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBPartyJVPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

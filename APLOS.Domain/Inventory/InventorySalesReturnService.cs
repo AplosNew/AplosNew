@@ -57,8 +57,7 @@ namespace Library.Model.Inventory
         #endregion Audit Properties
 
         #region Navigation Properties
-        public InventorySales InventorySales { get; set; } 
-        public string InventorySalesId { get; set; } 
+        public string InventorySalesReturnId { get; set; } 
         public string ServiceMasterId { get; set; }
 
         #endregion Navigation Properties

@@ -549,7 +549,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 }
                                 if (Type == "H")
                                 {
-                                    var sql = @"Update AttdnProcessData Set ManualDayStatus='CH',IsManualDayStatus=1  
+                                    var sql = @"Update AttdnProcessData Set ManualDayStatus='AH',IsManualDayStatus=1  
                               WHERE WorkDate='" + WkDate + "' AND HolidayStatus!='H' AND " +
                                       "isnull(EmpSystemID,'') IN" +
                                       " (SELECT isnull(ei.SystemId,'')   FROM EmployeeInformation AS " +
@@ -576,7 +576,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                         DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                         dr.BeginEdit();
                                         dr["UpdatedBy"] = "Schedule";
-                                        dr["ManualDayStatus"] = "CH";
+                                        dr["ManualDayStatus"] = "AH";
                                         dr["IsManualDayStatus"] = 1;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();

@@ -7431,8 +7431,20 @@ group by Id) O60 ON O60.Id=IV.Id
 				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
                  ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
 				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
-				 ,ISNULL(FA.FACount,0) FACount, ISNULL(FA.FABaseAmount,0)FABaseAmount, ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-				 , ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
+
+				 ,ISNULL(FA.FACount,0) FACount
+
+               -- , ISNULL(FA.FABaseAmount,0)FABaseAmount
+               -- , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
+				-- , ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
+
+                , ISNULL(FA.FABaseAmount,0)FABaseAmount
+				  , isnull(FA.SubAssetAmount,0)SubAssetAmount
+				  ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0)  TotalBaseAmount
+				 , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
+				 ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0)  NetFixedAssetsAmount
+
+
                 ,isnull (S.UserName,'') Skill
                 ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
                 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
@@ -7454,12 +7466,13 @@ group by Id) O60 ON O60.Id=IV.Id
                 WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
 
             	LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount
-              	,SUM(isnull( FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) ) )FABaseAmount
+              	,SUM(isnull( FAR.FABaseAmount,0) )FABaseAmount
+				,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
 				,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
 				,FAR.MaterialMasterId
 				
 			    FROM TRN.FixedAssetRegister FAR
-				left join(select sum(Amount) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 				group by FixedAssetRegisterId
 				) sar on sar.FixedAssetRegisterId=FAR.Id
                 GROUP BY FAR.MaterialMasterId
@@ -7476,31 +7489,55 @@ group by Id) O60 ON O60.Id=IV.Id
         }
         public List<Dictionary<string, object>> GetFixedArticalListData(string companyGroupId, string companyId, string plantId, string materialMasterId)
         {
-                 var sql = @"SELECT MMA.MaterialMasterId, MMA.Id MaterialMasterAritcleId, MMA.Code, MMA.StandardName,MMA.MachineAllowance,MMA.RPM,SC.UserName StitchCode
-                ,ISNULL(FA.FACount,0) FACount, ISNULL(FA.FABaseAmount,0)FABaseAmount, ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-                ,ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
-                FROM MST.MaterialMasterArticle MMA
-                LEFT JOIN HKP.StitchCode SC ON SC.Id=MMA.StitchCodeId
-                LEFT JOIN (
-				SELECT COUNT(FAR.FixedAssetMasterId) FACount,SUM(isnull( FAR.FABaseAmount,0) + isnull( sar.SubAssetAmount,0)) FABaseAmount
-				
-				,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
-				,FAR.MaterialMasterId,FAR.MaterialMasterArticleId	
+                 var sql = @"select distinct MM.UserName MaterialMaster,MMA.StandardName Article,FA.UserName AssetMaster
+                    --,P.UserName Party
+                , FAR.MaterialMasterId,FAR.MaterialMasterArticleId
+				--,FAR.VendorId
+				,FAR.FixedAssetMasterId
 
-		        --LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount,SUM(FAR.FABaseAmount+sar.SubAssetAmount) FABaseAmount,SUM(FAR.ADBaseAmount) ADBaseAmount
-				--,FAR.MaterialMasterId
+                 ,IsAsset =case when MM.IsAsset =1 then 'Yes' else  'No'  end
+				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
+				 , count(FAR.FixedAssetMasterId) FACount
 
-			    FROM TRN.FixedAssetRegister FAR
-				left join(select sum(isnull( Amount,0)) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+				 ,sum( ISNULL(FAR.FABaseAmount,0))FABaseAmount
+				  ,sum( isnull(sar.SubAssetAmount,0))SubAssetAmount
+				  ,sum(ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) ) TotalBaseAmount
+				 ,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				 ,sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ) NetFixedAssetsAmount
+
+				 ,MMA.Code, MMA.MachineAllowance,MMA.RPM,SC.UserName StitchCode
+              
+
+		        from TRN.FixedAssetRegister FAR 
+				JOIN MST.MaterialMaster MM ON MM.Id=FAR.MaterialMasterId
+				JOIN MST.MaterialMasterArticle MMA ON MMA.Id=FAR.MaterialMasterArticleId
+				JOIN MST.FixedAssetMaster FA ON FA.Id=FAR.FixedAssetMasterId
+				 LEFT JOIN HKP.StitchCode SC ON SC.Id=MMA.StitchCodeId
+				--LEFT JOIN HKP.Party P ON P.Id=FAR.VendorId
+
+			    LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=MM.Id
+
+
+		        left join(select sum(Amount *CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 				group by FixedAssetRegisterId
 				) sar on sar.FixedAssetRegisterId=FAR.Id
-			    GROUP BY FAR.FixedAssetMasterId,FAR.MaterialMasterId,FAR.MaterialMasterArticleId
-				)FA ON FA.MaterialMasterId=MMA.MaterialMasterId AND FA.MaterialMasterArticleId=MMA.Id";
+
+
+		        WHERE FAR.CompanyGroupId='CG20171' AND FAR.CompanyId='C20171' AND FAR.PlantId='20171'  
+               GROUP BY FAR.MaterialMasterId ,MM.UserName ,MMA.StandardName ,FA.UserName
+			   --,P.UserName 
+			   ,MM.IsAsset,MBP.BusinessProcessName,FAR.FixedAssetMasterId
+			    ,FAR.MaterialMasterId,FAR.MaterialMasterArticleId
+				--,FAR.VendorId
+				,FAR.FixedAssetMasterId
+			 ,MMA.Code, MMA.MachineAllowance,MMA.RPM,SC.UserName ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
 
-        private string MaterialMasterType(/*string MaterialTypeId*/)
+        private string MaterialMasterType(/*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
         {
 
             return @" 
@@ -7511,8 +7548,18 @@ group by Id) O60 ON O60.Id=IV.Id
                 ,uom.Id BaseUOMId, uom.UserName BaseUOM
                 ,IsAsset =case when M.IsAsset =1 then 'Yes' else 'No' end
                 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end
-                ,ISNULL(FA.FACount,0) FACount, ISNULL(FA.FABaseAmount,0)FABaseAmount, ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-                , ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
+                ,ISNULL(FA.FACount,0) FACount
+
+                --, ISNULL(FA.FABaseAmount,0)FABaseAmount, ISNULL(FA.ADBaseAmount,0) ADBaseAmount
+                --, ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
+
+			        ,( ISNULL(FA.FABaseAmount,0))FABaseAmount
+				  ,( isnull(FA.SubAssetAmount,0))SubAssetAmount
+				  ,(ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) ) TotalBaseAmount
+				 ,( ISNULL(FA.ADBaseAmount,0)) ADBaseAmount
+				 ,( ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0) ) NetFixedAssetsAmount
+				  --,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
+
                 ,S.UserName Skill
                 ,Process= STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
                 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
@@ -7536,7 +7583,11 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
-                LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount,SUM(FAR.FABaseAmount)+SUM(sar.SubAssetAmount) FABaseAmount,SUM(FAR.ADBaseAmount) ADBaseAmount
+                LEFT JOIN (SELECT COUNT(FAR.FixedAssetMasterId) FACount
+		        ,SUM(FAR.FABaseAmount)FABaseAmount
+
+				,SUM(sar.SubAssetAmount) SubAssetAmount
+				,SUM(FAR.ADBaseAmount) ADBaseAmount
                 ,FAR.MaterialMasterId
 
                 FROM TRN.FixedAssetRegister FAR
@@ -7551,13 +7602,13 @@ group by Id) O60 ON O60.Id=IV.Id
                 -- and m.UserName='Speaker'
                 --and m.UserName='Multineedle'
                 --and t.UserName ='IT System'
-                ORDER BY M.UserName
 
-                ";
+	
+                ORDER BY M.UserName ";
 
         }
 
-        public void MaterialMasterReport2()
+        public void MaterialMasterReport2( /*string MaterialTypeId, string materialMasterId, string materialGroupMasterId, string materialCategoryId, string materialSubCategoryId, string materialGroup1Id*/)
         {
 
             //if (MaterialTypeId == null) MaterialTypeId = null;
@@ -7587,7 +7638,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 //    }
 
                 string sql = "";
-                sql = MaterialMasterType(/*MaterialTypeId*/);
+                sql = MaterialMasterType( /*MaterialTypeId,  materialMasterId,  materialGroupMasterId,  materialCategoryId,  materialSubCategoryId,  materialGroup1Id*/);
                 DataTable dtMaterialMaster = _sqlRepository.GetDataTable(sql);
 
                 ExcelEngine excelEngine = new ExcelEngine();
@@ -7657,21 +7708,38 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 sheet[ROW, COL].Text = "Total Quantity";
                 sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
                 int colFACount = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Gross Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+
+                sheet[ROW, COL].Text = "FA Base Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
                 int colFABaseAmount = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Sub Asset Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
+                int colSubAssetAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Base Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
+                int colTotalBaseAmount = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Acc.Dep.Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
                 int colADBaseAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Net Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; 
                 int colNetFixedAssetsAmount = COL;
                 COL++;
 
@@ -7782,13 +7850,19 @@ group by Id) O60 ON O60.Id=IV.Id
                     sheet[ROW, colBaseUOM].Text = dtMaterialMaster.Rows[i]["BaseUOM"].ToString();
                     sheet[ROW, colIsAsset].Text = dtMaterialMaster.Rows[i]["IsAsset"].ToString();
                     sheet[ROW, colMachine].Text = dtMaterialMaster.Rows[i]["Machine"].ToString();
+                    sheet[ROW, colFACount].Text = dtMaterialMaster.Rows[i]["FACount"].ToString();
+                    
 
 
                     sheet[ROW, colFABaseAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["FABaseAmount"].ToString());
                     sheet[ROW, colFABaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, colADBaseAmount].Number = clsStaticInfo.dbl (dtMaterialMaster.Rows[i]["ADBaseAmount"].ToString());
+                    sheet[ROW, colSubAssetAmount].Number = clsStaticInfo.dbl (dtMaterialMaster.Rows[i]["SubAssetAmount"].ToString());
+                    sheet[ROW, colSubAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, colTotalBaseAmount].Number =clsStaticInfo.dbl( dtMaterialMaster.Rows[i]["TotalBaseAmount"].ToString());
+                    sheet[ROW, colTotalBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, colADBaseAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["ADBaseAmount"].ToString());
                     sheet[ROW, colADBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, colNetFixedAssetsAmount].Number =clsStaticInfo.dbl( dtMaterialMaster.Rows[i]["NetFixedAssetsAmount"].ToString());
+                    sheet[ROW, colNetFixedAssetsAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["NetFixedAssetsAmount"].ToString());
                     sheet[ROW, colNetFixedAssetsAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
 
                     sheet[ROW, colSkill].Text = dtMaterialMaster.Rows[i]["Skill"].ToString();
@@ -7825,8 +7899,32 @@ group by Id) O60 ON O60.Id=IV.Id
                 }
 
 
-                sheet.IsGridLinesVisible = false;
+                sheet[ROW, colFABaseAmount - 1].Text = "Total";
+                sheet[ROW, colFABaseAmount - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
+                sheet[ROW, colFABaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colFABaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFABaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colFABaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colSubAssetAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colSubAssetAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colTotalBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colTotalBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                
+
+                sheet[ROW, colADBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colADBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colADBaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colADBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colNetFixedAssetsAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colNetFixedAssetsAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet.Range[ROW, colFACount, ROW, colNetFixedAssetsAmount].CellStyle.Font.Bold = true;
+
+                //formula = "SUM(" + clsStaticInfo.GetxlsCol(colFABaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFABaseAmount) + (ROW - 1) + ")";
+                //sheet[ROW, colFABaseAmount, ROW, colFABaseAmount].Formula = formula;
+                //sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+
+
+                sheet.IsGridLinesVisible = false;
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -7865,53 +7963,79 @@ group by Id) O60 ON O60.Id=IV.Id
         {
 
             return @" 
-	     	          SELECT MMA.MaterialMasterId ,MMA.Id MaterialMasterArticleId, MMA.Code, MMA.StandardName,MMA.MachineAllowance,MMA.RPM,SC.UserName StitchCode
-                    ,ISNULL(FA.FACount,0) FACount, ISNULL(FA.FABaseAmount,0)FABaseAmount, ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-                    ,ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
+	     	           
+	     	          select distinct MM.UserName MaterialMaster,MMA.StandardName Article,FA.UserName AssetMaster
+--,P.UserName Party
+                , FAR.MaterialMasterId,FAR.MaterialMasterArticleId
+				--,FAR.VendorId
+				,FAR.FixedAssetMasterId
+                 ,IsAsset =case when MM.IsAsset =1 then 'Yes' else  'No'  end
+				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
+				 , count(FAR.FixedAssetMasterId) FACount
 
-                     ,Process= STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
-                    where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+				 ,sum( ISNULL(FAR.FABaseAmount,0))FABaseAmount
+				  ,sum( isnull(sar.SubAssetAmount,0))SubAssetAmount
+				  ,sum(ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) ) TotalBaseAmount
+				 ,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				 ,sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ) NetFixedAssetsAmount
+				 ,MMA.Code, MMA.MachineAllowance,MMA.RPM,SC.UserName StitchCode
+              
+                    --,Process= STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
+                    --where MMP.MaterialMasterId=MM.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
                                       ,MG.Id [MaterialGroup1Id],MG.UserName MaterialGroup1,uom.Id BaseUOMId, uom.UserName BaseUOM
-                                     ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
-				                     , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end -- ,BP.BusinessProcessName
-                                    ,S.UserName Skill,m.UserName MaterialMaster
+                                   --  ,IsAsset =case when MM.IsAsset =1 then 'Yes' else  'No'  end
+				                    -- , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end -- ,BP.BusinessProcessName
+                                    ,S.UserName Skill
+                                    --,MM.UserName MaterialMaster
 			                    ,gl.UserName GL,b.UserName Budget, a.UserName Activity
 
 
-                    FROM MST.MaterialMasterArticle MMA
-                    LEFT JOIN HKP.StitchCode SC ON SC.Id=MMA.StitchCodeId
-                     LEFT JOIN MST.MaterialMaster M on m.iD=MMA.MaterialMasterId
-			
-                                    LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
+		        from TRN.FixedAssetRegister FAR 
+				JOIN MST.MaterialMaster MM ON MM.Id=FAR.MaterialMasterId
+				JOIN MST.MaterialMasterArticle MMA ON MMA.Id=FAR.MaterialMasterArticleId
+				JOIN MST.FixedAssetMaster FA ON FA.Id=FAR.FixedAssetMasterId
+				 LEFT JOIN HKP.StitchCode SC ON SC.Id=MMA.StitchCodeId
+				--LEFT JOIN HKP.Party P ON P.Id=FAR.VendorId
+                                    LEFT JOIN [MST].[MaterialGroupMaster] MGM ON MM.MaterialGroupMasterid=MGM.id
                                     LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
-                                   LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
-                                    LEFT JOIN [HKP].[MaterialSubCategory] MSC ON MSC.Id=M.MaterialSubCategoryId
+                                   LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=MM.MaterialCategoryId
+                                    LEFT JOIN [HKP].[MaterialSubCategory] MSC ON MSC.Id=MM.MaterialSubCategoryId
                                     LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
-                                    LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
-		                            left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
+                                    LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=MM.BaseUOMId
+		                            left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=MM.BudgetMasterId
 				                    left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
 
-				                    left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
-			                    left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
+				                    left join mst.BudgetMaster bm on bm.Id=MM.BudgetMasterId
+			                       left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
 				                    left join HKP.Budget b on b.Id=bm.BudgetId
-				                    left join HKP.Activity a on a.Id=M.ActivityId
-			                        left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+				                    left join HKP.Activity a on a.Id=MM.ActivityId
+			                        left JOIN [HKP].[Skill] S ON S.Id=MM.SkillId
 
-                                  LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
-                                    LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-                                    WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
-                    LEFT JOIN (
-                    SELECT COUNT(FAR.FixedAssetMasterId) FACount,SUM(FAR.FABaseAmount)+SUM(sar.SubAssetAmount) FABaseAmount,SUM(FAR.ADBaseAmount) ADBaseAmount
-                    ,FAR.MaterialMasterId,FAR.MaterialMasterArticleId				
-                    FROM TRN.FixedAssetRegister FAR
-                    left join(select sum(Amount) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
-                    group by FixedAssetRegisterId
-                    ) sar on sar.FixedAssetRegisterId=FAR.Id
-                    GROUP BY FAR.FixedAssetMasterId,FAR.MaterialMasterId,FAR.MaterialMasterArticleId
-                    )FA ON FA.MaterialMasterId=MMA.MaterialMasterId AND FA.MaterialMasterArticleId=MMA.Id
-	 
-                    --WHERE MMA.MaterialMasterId='157'";
+
+
+			    LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition'
+				) AS MBP ON MBP.MaterialMasterId=MM.Id
+
+
+		        left join(select sum(Amount *CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+				group by FixedAssetRegisterId
+				) sar on sar.FixedAssetRegisterId=FAR.Id
+
+
+		        WHERE FAR.CompanyGroupId='CG20171' AND FAR.CompanyId='C20171' AND FAR.PlantId='20171'  
+               GROUP BY FAR.MaterialMasterId ,MM.UserName ,MMA.StandardName ,FA.UserName
+			   --,P.UserName 
+			   ,MM.IsAsset,MBP.BusinessProcessName,FAR.FixedAssetMasterId
+			    ,FAR.MaterialMasterId,FAR.MaterialMasterArticleId
+				--,FAR.VendorId
+				,FAR.FixedAssetMasterId
+			 ,MMA.Code, MMA.MachineAllowance,MMA.RPM,SC.UserName 
+                                      ,MG.Id ,MG.UserName ,uom.Id , uom.UserName 
+                                    ,S.UserName ,MM.UserName 
+			                    ,gl.UserName ,b.UserName , a.UserName  ";
 
         }
 
@@ -8033,40 +8157,37 @@ group by Id) O60 ON O60.Id=IV.Id
                 int colFACount = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Gross Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
+                sheet[ROW, COL].Text = "FA Base Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colFABaseAmount = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Sub Asset Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSubAssetAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Base Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colTotalBaseAmount = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Acc.Dep.Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colADBaseAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Net Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colNetFixedAssetsAmount = COL;
                 COL++;
 
-
-                //sheet[ROW, COL].Text = "Material Type";
-                //sheet[ROW, COL].ColumnWidth = 20;
-                //int colMaterialType = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "Asset Master";
-                //sheet[ROW, COL].ColumnWidth = 10;
-                //int colAssetMaster = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "Material Group";
-                //sheet[ROW, COL].ColumnWidth = 15;
-                //int colMaterialGroup = COL;
-                //COL++;
 
                 // int colArticleCode = 0;
                 // int colArticleName = 0;
@@ -8134,14 +8255,6 @@ group by Id) O60 ON O60.Id=IV.Id
                 int colAcitivtyName = COL;
                 // COL++;
 
-                //sheet[ROW, COL].Text = "Fixed Asset Master";
-                //sheet[ROW, COL].ColumnWidth = 20;
-                //int colFixedAssetMaster = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "Active";
-                //sheet[ROW, COL].ColumnWidth = 20;
-                //int colActive = COL;
 
 
                 int endCol = COL;
@@ -8161,7 +8274,7 @@ group by Id) O60 ON O60.Id=IV.Id
                    // sheet[ROW, colMaterialGroup].Text = dtMaterialMaster.Rows[i]["MaterialGroupMaster"].ToString();
                     sheet[ROW, colCode].Text = dtMaterialMaster.Rows[i]["Code"].ToString();
 
-                    sheet[ROW, colArticleName].Text = dtMaterialMaster.Rows[i]["StandardName"].ToString();
+                    sheet[ROW, colArticleName].Text = dtMaterialMaster.Rows[i]["Article"].ToString();
                     sheet[ROW, colMaterial].Text = dtMaterialMaster.Rows[i]["MaterialMaster"].ToString();
                     //sheet[ROW, colMaterialCategory].Text = dtMaterialMaster.Rows[i]["MaterialCategory"].ToString();
                     sheet[ROW, colBaseUOM].Text = dtMaterialMaster.Rows[i]["BaseUOM"].ToString();
@@ -8177,15 +8290,21 @@ group by Id) O60 ON O60.Id=IV.Id
                     sheet[ROW, colADBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colNetFixedAssetsAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["NetFixedAssetsAmount"].ToString());
                     sheet[ROW, colNetFixedAssetsAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, colTotalBaseAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["TotalBaseAmount"].ToString());
+                    sheet[ROW, colTotalBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, colSubAssetAmount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["SubAssetAmount"].ToString());
+                    sheet[ROW, colSubAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+
                     sheet[ROW, colRPM].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["RPM"].ToString());
                     sheet[ROW, colRPM].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colFACount].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["FACount"].ToString());
                     sheet[ROW, colFACount].NumberFormat = clsStaticInfo.NumberFormat(2);
 
                     sheet[ROW, colSkill].Text = dtMaterialMaster.Rows[i]["Skill"].ToString();
-                   sheet[ROW, colProcess].Text = dtMaterialMaster.Rows[i]["Process"].ToString();
-                                 //sheet[ROW, colAssetMaster].Text = dtMaterialMaster.Rows[i]["AssetMaster"].ToString();
-                                 //sheet[ROW, colGLCode].Text = dtMaterialMaster.Rows[i]["GLCode"].ToString();
+                    //sheet[ROW, colProcess].Text = dtMaterialMaster.Rows[i]["Process"].ToString();
+                                
                                  sheet[ROW, colGLName].Text = dtMaterialMaster.Rows[i]["GL"].ToString();
                     //sheet[ROW, colBudgetRefNo].Text = dtMaterialMaster.Rows[i]["BudgetRefNo"].ToString();
                     sheet[ROW, colBudgetName].Text = dtMaterialMaster.Rows[i]["Budget"].ToString();
@@ -8216,8 +8335,27 @@ group by Id) O60 ON O60.Id=IV.Id
                 }
 
 
-                sheet.IsGridLinesVisible = false;
+                sheet[ROW, colFABaseAmount - 1].Text = "Total";
+                sheet[ROW, colFABaseAmount - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
+                sheet[ROW, colFABaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colFABaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFABaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colFABaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colSubAssetAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colSubAssetAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colTotalBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colTotalBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                sheet[ROW, colADBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colADBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colADBaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colADBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colNetFixedAssetsAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colNetFixedAssetsAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet.Range[ROW, colFACount, ROW, colNetFixedAssetsAmount].CellStyle.Font.Bold = true;
+
+                sheet.IsGridLinesVisible = false;
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -8263,7 +8401,14 @@ group by Id) O60 ON O60.Id=IV.Id
 				,OpeningBalance = case when FAR.IsOpeningBalance= 1 then 'Yes' else 'No' end
 				, MMA.MachineAllowance,MMA.RPM,SC.UserName StitchCode
 				--,ISNULL(FAR.FACount,0) FACount
-				, ISNULL(FAR.FABaseAmount,0)   FABaseAmount, ISNULL(sar.SubAssetAmount,0) SubAssetAmount
+							,ISNULL(C.Code,'') TranCurrency
+						
+							,isnull( FAR.Price,0 )PurchasePrice
+							,isnull( FAR.Price ,0)TotalPrice
+							,ISNULL(CC.Code,'') BaseCurrency
+
+				, ISNULL(FAR.FABaseAmount,0)   FABaseAmount
+				, ISNULL(sar.SubAssetAmount,0) SubAssetAmount
             	,ISNULL(FAR.FABaseAmount,0) + ISNULL(sar.SubAssetAmount,0) TotalAssetAmount
 				, ISNULL(FAR.ADBaseAmount,0) ADBaseAmount
                 ,ISNULL(FAR.FABaseAmount,0)+ISNULL(sar.SubAssetAmount,0)- ISNULL(FAR.ADBaseAmount,0) NetFixedAssetsAmount
@@ -8271,10 +8416,14 @@ group by Id) O60 ON O60.Id=IV.Id
 
 				left join MST.MaterialMaster MM on MMA.MaterialMasterId=MM.Id
                 LEFT JOIN HKP.StitchCode SC ON SC.Id=MMA.StitchCodeId
-
+			
 
 			    left join TRN.FixedAssetRegister FAR on FAR.MaterialMasterId=MMA.MaterialMasterId AND FAR.MaterialMasterArticleId=MMA.Id
-				left join(select FixedAssetRegisterId,sum(Amount) SubAssetAmount 
+				LEFT JOIN [SCS].[Currency] AS C ON C.Id=FAR.CurrencyId
+				LEFT JOIN [SCS].[Currency] AS CC ON CC.Id=FAR.FABaseCurrencyId
+
+
+				left join(select FixedAssetRegisterId,sum(Amount * CapitalizationRate) SubAssetAmount 
 						from  trn.SubFixedAssetRegister group by FixedAssetRegisterId) sar on sar.FixedAssetRegisterId=FAR.Id
 				left join HKP.Party P on p.Id =FAR.VendorId
 				left join mst.FixedAssetMaster FAM ON FAR.FixedAssetMasterId = FAM.Id
@@ -8294,11 +8443,18 @@ group by Id) O60 ON O60.Id=IV.Id
 							, Isnull( FAM.UserName,'') FixedAssetMasterName
                             ,FR.RFId
                             , ISNULL(p.UserName,'')Vendor --,ISNULL(FR.FACount,0) FACount
+
+            			   ,ISNULL(C.Code,'') TranCurrency
+						
+							,isnull( FR.Price,0 )PurchasePrice
+							,isnull( FR.Price ,0)TotalPrice
+							,ISNULL(CC.Code,'') BaseCurrency
                             , ISNULL(FR.FABaseAmount,0)   FABaseAmount
 							, ISNULL(sar.SubAssetAmount,0) SubAssetAmount
                             ,ISNULL(FR.FABaseAmount,0) + ISNULL(sar.SubAssetAmount,0) TotalAssetAmount
                             , ISNULL(FR.ADBaseAmount,0) ADBaseAmount
                             ,ISNULL(FR.FABaseAmount,0)+ISNULL(sar.SubAssetAmount,0)- ISNULL(FR.ADBaseAmount,0) NetFixedAssetsAmount
+
                             ,isnull( replace(convert(varchar(11),FR.CapitalizationDate,106), '','-' ),'')CapitalizationDate
                             , OpeningBalance = isnull( case when FR.IsOpeningBalance= 1 then 'Yes' else 'No' end,'')
 
@@ -8309,7 +8465,7 @@ group by Id) O60 ON O60.Id=IV.Id
                                     ,ISNULL( FR.SerialNo,'')SerialNo
                                   , FAC.UserName FixedAssetCategory
                                     , FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
-                                    , FAM.FixedAssetSubCategoryId, FAM.AssetType, FR.Price PurchasePrice,FR.Price TotalPrice
+                                    , FAM.FixedAssetSubCategoryId, FAM.AssetType
 									, FR.IsFinancial,FR.FABudgetMasterId,FR.FAActivityId,FR.ADBudgetMasterId,FR.ADActivityId
 								
 
@@ -8332,14 +8488,16 @@ group by Id) O60 ON O60.Id=IV.Id
 									LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId
 									LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
                                     LEFT JOIN HKP.Activity A ON A.Id=FR.FAActivityId
+		                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=FR.CurrencyId
+									LEFT JOIN [SCS].[Currency] AS CC ON CC.Id=FR.FABaseCurrencyId
 
 								 LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
 								 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 								 WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=MM.Id
 
-								left join(select FixedAssetRegisterId,sum(Amount) SubAssetAmount 
+								left join(select FixedAssetRegisterId,sum(Amount * CapitalizationRate) SubAssetAmount 
 								from  trn.SubFixedAssetRegister group by FixedAssetRegisterId) sar on sar.FixedAssetRegisterId=FR.Id
-										left join HKP.Party P on p.Id =FR.VendorId
+								left join HKP.Party P on p.Id =FR.VendorId
 
 
 										--left join mst.FixedAssetMaster FAM ON FAR.FixedAssetMasterId = FAM.Id
@@ -8430,27 +8588,57 @@ group by Id) O60 ON O60.Id=IV.Id
                 int colFixedAssetMaster = COL;
                 COL++;
 
-
                 sheet[ROW, COL].Text = "Vendor";
                 sheet[ROW, COL].ColumnWidth = 25;
                 int colVendor = COL;
                 COL++;
-
-                sheet[ROW, COL].Text = "Total Amount";
-                sheet[ROW, COL].ColumnWidth = 15;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colTotalAssetAmount = COL;
+                
+                sheet[ROW, COL].Text = "Tran Currency";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colTranCurrency = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Accu.Dep.Amount";
-                sheet[ROW, COL].ColumnWidth = 20;
+                sheet[ROW, COL].Text = "Purchase Price";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colPurchasePrice = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Base Currency";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colBaseCurrency = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "FA Base Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colFABaseAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Sub Asset Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSubAssetAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Base Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colTotalBaseAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Acc.Dep.Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colADBaseAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Net Amount";
                 sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colNetFixedAssetsAmount = COL;
                 COL++;
+
 
                 sheet[ROW, COL].Text = "Capitalization Date";
                 sheet[ROW, COL].ColumnWidth = 20;
@@ -8530,17 +8718,23 @@ group by Id) O60 ON O60.Id=IV.Id
                     sheet[ROW, colFixedAssetMaster].Text = dtFixedAssetRegister.Rows[i]["FixedAssetMasterName"].ToString();
                     sheet[ROW, colVendor].Text = dtFixedAssetRegister.Rows[i]["Vendor"].ToString();
 
+                    sheet[ROW, colPurchasePrice].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["PurchasePrice"].ToString());
+                    sheet[ROW, colPurchasePrice].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, colBaseCurrency].Text = dtFixedAssetRegister.Rows[i]["BaseCurrency"].ToString();
+                    sheet[ROW, colTranCurrency].Text = dtFixedAssetRegister.Rows[i]["TranCurrency"].ToString();
                     
-
-
-                    sheet[ROW, colTotalAssetAmount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["TotalAssetAmount"].ToString());
-                    sheet[ROW, colTotalAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, colFABaseAmount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["FABaseAmount"].ToString());
+                    sheet[ROW, colFABaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colADBaseAmount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["ADBaseAmount"].ToString());
                     sheet[ROW, colADBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, colTotalBaseAmount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["TotalAssetAmount"].ToString());
+                    sheet[ROW, colTotalBaseAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, colSubAssetAmount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["SubAssetAmount"].ToString());
+                    sheet[ROW, colSubAssetAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet[ROW, colNetFixedAssetsAmount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["NetFixedAssetsAmount"].ToString());
                     sheet[ROW, colNetFixedAssetsAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
 
-                    
+
                     sheet[ROW, colCapitalizationDate].DateTime = Convert.ToDateTime(dtFixedAssetRegister.Rows[i]["CapitalizationDate"].ToString());
                     sheet[ROW, colCapitalizationDate].NumberFormat = "dd-MMM-yyyy";
                     //sheet[ROW, colFACount].Number = clsStaticInfo.dbl(dtFixedAssetRegister.Rows[i]["FACount"].ToString());
@@ -8566,6 +8760,26 @@ group by Id) O60 ON O60.Id=IV.Id
                     ROW++;
 
                 }
+
+                sheet[ROW, colFABaseAmount - 1].Text = "Total";
+                sheet[ROW, colFABaseAmount - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, colFABaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colFABaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colFABaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colFABaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colSubAssetAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colSubAssetAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colSubAssetAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colTotalBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colTotalBaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colTotalBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                sheet[ROW, colADBaseAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colADBaseAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colADBaseAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colADBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                sheet[ROW, colNetFixedAssetsAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + StartRow + ":" + clsStaticInfo.GetxlsCol(colNetFixedAssetsAmount) + (ROW - 1).ToString() + ")";
+                sheet[ROW, colNetFixedAssetsAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                sheet.Range[ROW, colVendor, ROW, colNetFixedAssetsAmount].CellStyle.Font.Bold = true;
 
                 sheet.IsGridLinesVisible = false;
                 sheet.UsedRange.WrapText = true;

@@ -718,7 +718,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 					$scope.taxCategoryList = [];
 					getServiceChargeList($scope.productNew.Id);
 					getInventoryMaterialList($scope.productNew.Id);
-					$scope.getDataList();
+					//$scope.getDataList();
 					$scope.getalldata();
 				}
 			}), function errorCallBack(response) {
@@ -796,7 +796,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 		$scope.LoadTaxButtonClick();
 		$scope.Currency = $("#currency option:selected").text();
 		$scope.ServiceId = ServiceId;
-		$scope.taxAbleAmnt = data.Amount;//+ data.TotalTaxAmount;
+		$scope.taxAbleAmnt = data.ReturnAmount;//+ data.TotalTaxAmount;
 		$scope.percentageColumn = flag;
 
 		$scope.currentMaterialRow = index;
@@ -827,6 +827,21 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 		angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('hide');
 	}
 
+	$scope.calculateServiceAmount = function (data) {
+		if (data.ReturnAmount == 'NaN')
+			data.ReturnAmount = 0;
+		data.TaxAmount = 0;
+		data.TotalTaxAmount = 0;
+		angular.forEach(data.ChargeTaxList, function (item) {
+			item.TotalAmount = data.ReturnAmount * item.Percentage / 100;
+			item.TaxAmount = data.ReturnAmount * item.Percentage / 100;
+			
+			data.TaxAmount += item.TotalAmount;
+			data.TotalTaxAmount += item.TotalAmount;
+		});
+		data.NetAmount = parseFloat(data.ReturnAmount) + parseFloat(data.TaxAmount);
+	};
+
 	$scope.delModal = function (id) {
 		$scope.id = id;
 		$scope.message = 'Are you sure want to permanently delete this?';
@@ -845,7 +860,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 					$scope.id = null;
 					getServiceChargeList($scope.productNew.Id);
 					getInventoryMaterialList($scope.productNew.Id);
-					$scope.getDataList();
+					//$scope.getDataList();
 				}
 			}), function errorCallBack(response) {
 				ShowResult(response.data.Message, 'failure');
@@ -1265,8 +1280,12 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 			for (var i = 0; i < $scope.detailList.length; i++) {
 				$scope.detailList[i].TransactionQty = $scope.detailList[i].ReturnQty;
             }
+		}
+		if (baseService.arrayLength($scope.chargesList)>0) {
+			for (var i = 0; i < $scope.chargesList.length; i++) {
+				$scope.chargesList[i].Amount = $scope.chargesList[i].ReturnAmount;
+            }
         }
-		
 		var UIStatus = $("#SlipAssetIssueUI").val();
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;
 		$scope.productNew.CustomerId = $scope.productNew.PartyId;
@@ -1277,7 +1296,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 				, data: {
 					 inventoryIssue: $scope.productNew
 					,entities: $scope.detailList
-					,'taxCategoryList': $scope.materialtaxCategoryListRes
+					, 'salesServiceVMList': $scope.chargesList
 				}
 				, dataType: 'JSON'
 			}).then(function (response) {
@@ -1291,7 +1310,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 					$scope.getdataInventorySales();
 					$scope.SalesDetails();
 					$scope.getData();
-					$scope.GetDataList();
+					//$scope.GetDataList();
 				}
 			}), function (response) {
 				ShowResult(response.data.Message, 'failure');
@@ -1840,13 +1859,35 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 		$http.get('Products/InventorySalesReturn/GetSalesDetailByIssueId?issueId=' + $scope.productNew.InventorySalesId)
 			.then(function (response) {
 				$scope.detailList = response.data;
-				$scope.detailModel.IssueId = $scope.detailList[0].InventoryIssueId;
-
-				//$scope.GetAdvanceTaxInfo($scope.productNew.InventorySalesId);
-				//$scope.TotalSumAfterTCS();
+				//$scope.detailModel.IssueId = $scope.detailList[0].InventoryIssueId;
+				for (var i = 0; i < $scope.detailList.length; i++) {
+					getInvTaxList($scope.detailList[i].InventoryIssueId,$scope.detailList[i].HistotyId);
+                }
+				
 			});
 
 	}
+
+	function getInvTaxList(InventoryIssueId, HistotyId) {
+		$http({
+			method: "GET",
+			dataType: 'JSON',
+			url: 'Products/InventoryIssue/GetTaxInfoRowWise?InventorySalesId=' + InventoryIssueId + ' &InventorySalesHistoryId=' + HistotyId
+		}).then(function successCallback(response) {
+			$scope.materialtaxCategoryListSavedData = response.data;
+			if (baseService.arrayLength($scope.materialtaxCategoryListSavedData) > 0) {
+				for (var i = 0; i < $scope.detailList.length; i++) {
+					if ($scope.detailList[i].InventoryIssueId = $scope.productNew.InventorySalesId) {
+						$scope.detailList[i].TaxList = $scope.materialtaxCategoryListSavedData;
+					}
+				}
+			}
+
+		});
+    }
+
+	
+
 
 	// #endregion Details
 
