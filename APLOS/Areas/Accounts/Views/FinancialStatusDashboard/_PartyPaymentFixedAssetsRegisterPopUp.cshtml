@@ -45,11 +45,13 @@
                     @*style="color:black;overflow:scroll"*@
                     <div style="color:black;" id="partyPaymentFixedAssetsRegisterPopUP" ej-grid e-datasource="PartyPaymentFixedAssetsRegisterPopUpList" e-recorddoubleclick="showSetOffDetailPopUP"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowresizing="true"
+                       
+                           e-summaryrows="TotalFARegisterPopUpAmount"
                          e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                         <div e-columns>
 
 
-                             @*<div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="100">
+                            @*<div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="100">
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
                                     <li> <button ng-click="$parent.printSetOffDetailVoucherReport(this);" tooltip="Voucher No" class="btn" style="top: 1px;">{{data.VoucherNo}}</button></li>
@@ -62,7 +64,10 @@
                             <div e-column e-field="MaterialMasterArtical" e-headertext="Artical" e-width="70"></div>
                             <div e-column e-field="AssetMaster" e-headertext="Asset Master" e-width="70"></div>
                             <div e-column e-field="Vendor" e-headertext="Vendor" e-width="70"></div>
+                            <div e-column e-field="TranCurrency" e-headertext="Tran Currency" e-width="25"></div>
 
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="PurchasePrice" e-headertext="Purchase Price" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                            <div e-column e-field="BaseCurrency" e-headertext="Base Currency" e-width="25"></div>
                             <div e-column e-type="number" e-format="{0:N2}" e-field="FABaseAmount" e-headertext="FA Base Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
                             <div e-column e-type="number" e-format="{0:N2}" e-field="SubAssetAmount" e-headertext="SubAsset Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
                             <div e-column e-type="number" e-format="{0:N2}" e-field="TotalAssetAmount" e-headertext="Total Amount" e-width="60" e-textalign="right" style="height: 20px;"></div>
@@ -89,8 +94,8 @@
                 </ul>
 
                 @*<script type="text/template" id="hLink">
-            <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
-        </script>*@
+                    <a href="{{$parent.bootPoint}}party-payment-status-detail/{{data.PartyId}}" class="btn btn-action">{{data.NoOfInvoice}} </a>
+                </script>*@
 
             </div>
         </div>

@@ -96,10 +96,27 @@
                      e-filtersettings-filterType="excel">
                     <div e-columns>
                         <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>
+                        <div e-column e-template="#shift" e-headertext="Shift" e-width="150"></div>
+                        <div e-column e-field="InDateOriginal" e-headertext="Processed In Date" e-width="130"></div>
+                        <div e-column e-field="InTimeOriginal" e-headertext="Processed In Time" e-width="120"></div>
+                        <div e-column e-field="IsManualInTime" e-headertext="Manual In" e-width="50"></div>
+                        <div e-column e-field="OutDateOriginal" e-headertext="Processed Out Date" e-width="130"></div>
+                        <div e-column e-field="OutTimeOriginal" e-headertext="Processed Out Time" e-width="120"></div>
+                        <div e-column e-field="IsManualOutTime" e-headertext="Manual Out" e-width="50"></div>
+
                         <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
                         <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
                         <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
                         <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
+
+                        <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="50"></div>
+                        <div e-column e-field="IsManualDayStatus" e-headertext="Manual DayStatus" e-width="40"></div>
+                        <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
+                        <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
+                        <div e-column e-field="PunchOutTime" e-headertext="Punch Out Time" e-width="150"></div>
+                        <div e-column e-field="OTHr" e-headertext="OT. Hr" e-width="50"></div>
+                        <div e-column e-field="IsOTEntitled" e-headertext="OT Entitled" e-width="50"></div>
+                        <div e-column e-field="IsOTComfirm" e-headertext="OT Confirm" e-width="50"></div>
                         <div e-column e-field="ErrorMessage" e-headertext="Error Message" e-width="300"></div>
                     </div>
                 </div>
@@ -127,7 +144,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Time<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" ej-timepicker e-value="Intime" e-width="100%" />
+                                <input type="text" ej-timepicker e-value="SetTime" e-width="100%" />
                             </div>
                         </div>
                     </div>
@@ -149,18 +166,36 @@
                 </div>
             </div>
             <div class="row">
-                <div id="GridChangeAttendanceBySingleDate" ng-init="chkinit()" ej-grid e-datasource="employeeAttendanceBySingleDate"
+                <div id="GridChangeAttendanceBySingleDate" ej-grid e-datasource="employeeAttendanceBySingleDate"
                      e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
-                     e-allowscrolling="true" e-minheight="400" e-gridlines="none" e-querycellinfo="queryCellInfo"
-                     e-actioncomplete="actionCompleteSingleDay" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
-                     e-filtersettings-filterType="excel">
+                     e-allowscrolling="true" e-minheight="400" e-gridlines="none" e-height="400px" e-filtersettings-filterType="excel">
                     <div e-columns>
                         <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100" e-primarykey="true"></div>
                         <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="150"></div>
+
+                        <div e-column e-template="#allShiftSingleDay" e-headertext="Shift" e-width="150"></div>
+                        <div e-column e-field="InDateOriginal" e-headertext="Processed In Date" e-width="130"></div>
+                        <div e-column e-field="InTimeOriginal" e-headertext="Processed In Time" e-width="120"></div>
+                        <div e-column e-field="IsManualInTime" e-headertext="Manual In" e-width="50"></div>
+                        <div e-column e-field="OutDateOriginal" e-headertext="Processed Out Date" e-width="130"></div>
+                        <div e-column e-field="OutTimeOriginal" e-headertext="Processed Out Time" e-width="120"></div>
+                        <div e-column e-field="IsManualOutTime" e-headertext="Manual Out" e-width="50"></div>
+
                         <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
                         <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
                         <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
                         <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
+
+                        <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="50"></div>
+                        <div e-column e-field="IsManualDayStatus" e-headertext="Manual DayStatus" e-width="40"></div>
+                        <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
+                        <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
+                        <div e-column e-field="PunchOutTime" e-headertext="Punch Out Time" e-width="150"></div>
+                        <div e-column e-field="OTHr" e-headertext="OT. Hr" e-width="50"></div>
+                        <div e-column e-field="IsOTEntitled" e-headertext="OT Entitled" e-width="50"></div>
+                        <div e-column e-field="IsOTComfirm" e-headertext="OT Confirm" e-width="50"></div>
+
+
                         <div e-column e-field="Department" e-headertext="Department" e-width="150"></div>
                         <div e-column e-field="Designation" e-headertext="Designation" e-width="150"></div>
                         <div e-column e-field="Section" e-headertext="Section" e-width="150"></div>
@@ -186,19 +221,49 @@
 </style>
 
 <script type="text/template" id="indate">
-    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDate" e-enabled="data.isApprovedIN" e-width="100%" />
+    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.InDateApp" e-enabled="data.isApprovedIN" e-width="100%" />
 </script>
 <script type="text/template" id="intime">
 
-    <input type="text" ej-timepicker e-value="data.InTime" e-width="100%" e-enabled="data.isApprovedIN" />
+    <input type="text" ej-timepicker e-value="data.InTimeApp" e-width="100%" e-enabled="data.isApprovedIN" />
 
 </script>
 <script type="text/template" id="outdate">
-    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.OutDate" e-enabled="data.isApprovedOUT" e-width="100%" />
+    <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="data.OutDateApp" e-enabled="data.isApprovedOUT" e-width="100%" />
 </script>
 <script type="text/template" id="outtime">
-    <input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" e-enabled="data.isApprovedOUT" />
+    <input type="text" ej-timepicker e-value="data.OutTimeApp" e-width="90%" e-enabled="data.isApprovedOUT" />
 </script>
+
+<script type="text/template" id="allShiftSingleDay">
+    <div class="col-sm-10" style="padding:0px;">
+        <input e-enabled="false" ej-dropdownlist e-datasource="$parent.allShiftSingleDay" e-value="data.ShiftSystemIDOriginal" e-fields-value="SystemID" e-fields-text="UserName" e-width="100%" />
+    </div>
+    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+        <button ng-click="$parent.selectedShiftInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
+            <i class="glyphicon glyphicon-list-alt"></i>
+        </button>
+    </div>
+</script>
+<script type="text/template" id="showAttendance">
+    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+        <button ng-click="$parent.showAttendanceInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
+            <i class="glyphicon glyphicon-list-alt"></i>
+        </button>
+    </div>
+</script>
+<script type="text/template" id="shift">
+
+    <div class="col-sm-10" style="padding:0px;">
+        <input e-enabled="false" ej-dropdownlist e-datasource="$parent.allShift" e-value="data.ShiftSystemIDOriginal" e-fields-value="SystemID" e-fields-text="UserName" e-width="100%" />
+    </div>
+    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+        <button ng-click="$parent.selectedShiftInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
+            <i class="glyphicon glyphicon-list-alt"></i>
+        </button>
+    </div>
+</script>
+
 <div class="row">
     <div class="form-group">
         <ej-dialog id="dialogEmployeeSelect" title=" Employees" e-enablemodal="true" e-position-y="0" e-showoninit="false"
@@ -224,4 +289,43 @@
         </ej-dialog>
     </div>
 </div>
+<div class="row">
+    <div class="form-group">
+        <ej-dialog id="ViewShiftInfo" title=" Shift Info" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+                   e-target="#Tab" e-minwidth="500" e-open="enableBtn">
+            <div class="row" style="padding-left:10px;">
 
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Shift Desc</label>
+                    <label class="col-sm-8 control-label">{{shiftinfo.ShiftName}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Shift in Time</label>
+                    <label class="col-sm-8 control-label">{{shiftinfo.ShiftInTime}}</label>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Shift Out Time</label>
+                    <label class="col-sm-8 control-label">{{shiftinfo.ShiftOutTime}}</label>
+                </div>
+
+            </div>
+
+        </ej-dialog>
+    </div>
+</div>
+<div class="row">
+    <ej-dialog id="ViewAttendanceInfo" title=" Attendance Info" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+               e-target="#Tab" e-width="500px" e-height="500px" e-open="enableBtn">
+        <div class="form-elements">
+            <div id="GridAttendance" ng-init="chkinit()" ej-grid e-datasource="attendanceinfo"
+                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="PDate" e-headertext="Date" e-width="120"></div>
+                    <div e-column e-field="PTime" e-headertext="Time" e-width="120"></div>
+                    <div e-column e-field="PType" e-headertext="Type" e-width="80"></div>
+                </div>
+            </div>
+        </div>
+    </ej-dialog>
+</div>
