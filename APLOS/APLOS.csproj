@@ -548,6 +548,7 @@
     <Compile Include="Areas\HumanResource\Controllers\DailyDayStatusReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManpowerBudgetDesignationReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\RosterPatternController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\RosterUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ShiftChangeSectionWiseController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PlantWiseHRMSSettingController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManpowerBudgetDashboardController.cs" />
@@ -561,6 +562,7 @@
     <Compile Include="Areas\HumanResource\Controllers\RestTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ShiftSummaryController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeeklyOffController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\WeekOffUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WelFareReportsController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataManualStatusController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\BulkLeaveEntryController.cs" />
@@ -1786,9 +1788,11 @@
     <Content Include="Areas\HumanResource\Scripts\manpowerBudgetDesignationReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\ArrearProcessedReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\RosterPatternController.js" />
+    <Content Include="Areas\HumanResource\Scripts\RosterUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCCompanyController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeeklyOffController.js" />
+    <Content Include="Areas\HumanResource\Scripts\WeekOffUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\yearlySalaryProcessedReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureReportPlantWiseController.js" />
@@ -3624,6 +3628,8 @@
     <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBBankJVPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBCashJVPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBPartyJVPopUp.cshtml" />
+    <Content Include="Areas\HumanResource\Views\RosterUpdates\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\WeekOffUpdates\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

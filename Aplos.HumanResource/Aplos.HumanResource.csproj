@@ -169,6 +169,7 @@
     <Compile Include="Leave\clsLeaveBalanceToDate.cs" />
     <Compile Include="NewAttendanceProcess\NewAttendanceDashboardServices.cs" />
     <Compile Include="NewAttendanceProcess\NewAttendanceProcessService.cs" />
+    <Compile Include="NewAttendanceProcess\RosterUpdatesService.cs" />
     <Compile Include="NewAttendanceProcess\ShiftChangeService.cs" />
     <Compile Include="NewAttendanceProcess\ManualAttndFromAppService.cs" />
     <Compile Include="Attendance\ExceptionOTProcess.cs" />
@@ -209,6 +210,7 @@
     <Compile Include="NewAttendanceProcess\OutPunchConfigurationService.cs" />
     <Compile Include="NewAttendanceProcess\RosterPatternService.cs" />
     <Compile Include="NewAttendanceProcess\WeeklyOffService.cs" />
+    <Compile Include="NewAttendanceProcess\WeekOffUpdatesService.cs" />
     <Compile Include="Payroll\Allowance\clsDiscreteAllowanceReport.cs" />
     <Compile Include="Payroll\Allowance\SalaryHeadWiseAmountTransaction.cs" />
     <Compile Include="Payroll\Allowance\SalaryHeadWiseDailyService.cs" />
