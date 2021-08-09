@@ -200,6 +200,7 @@
                                     <th>SKU2</th>
                                     <th>SKU3</th>
                                     <th>Country Name</th>
+                                    <th>GRN Qty</th>
                                     <th>Sales Qty</th>
                                     <th>Sales Rate</th>
                                     <th>Total Amount</th>
@@ -216,6 +217,7 @@
                                     <td>{{x.SecondCharacteristicText}}</td>
                                     <td>{{x.ThirdCharacteristicText}}</td>
                                     <td>{{x.CountryName}}</td>
+                                    <td class="text-right">{{x.GRNQty}} {{x.GRNUoM}}</td>
                                     <td class="text-right">{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
                                     <td class="text-right">{{x.SalesRate}} </td>
                                     <td class="text-right">{{x.TotalAmount}}</td>
@@ -233,6 +235,7 @@
                                 </tr>
                                 <tr>
                                     <td colspan="6" class="text-right"><strong>Total : </strong></td>
+                                    <td class="text-right"><strong>{{detailList | sumByKey : 'GRNQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'TransactionQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'TotalAmount'| setDecimal:2| number }}</strong></td>

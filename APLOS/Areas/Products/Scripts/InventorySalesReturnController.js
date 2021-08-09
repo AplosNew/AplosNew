@@ -582,6 +582,10 @@ function InventorySalesReturnController(accountService, $window, cboService, com
 	}
 
 	$scope.returnAmountCalculation = function (data) {
+		//if (data.ReturnQty data.ReturnQty) {
+
+  //      }
+
 		data.TotalAmount = (parseFloat(data.ReturnQty) * (data.SalesRate)).toFixed(2);
 		data.TotalTaxAmount = 0;
 		var tQty = baseService.isUndefinedOrNull(data.ReturnQty) ? 0 : parseFloat(data.ReturnQty);
