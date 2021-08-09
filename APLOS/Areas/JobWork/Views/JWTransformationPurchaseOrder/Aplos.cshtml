@@ -1234,7 +1234,7 @@
                                 <td ng-hide="true">{{x.Id}}</td>
                                 <td ng-hide="true">{{x.POId}}</td>
                                 <td>
-                                    <a href="{{PurchaseOrderFileLocation+'/'+x.SystemFileName}}" target="_blank">
+                                    <a href="{{JWPurchaseOrderFileLocation+'/'+x.SystemFileName}}" target="_blank">
                                         <span style="color:red;padding:4px;">  </span>
                                         <span style="color:blue;">
                                             {{x.UserFilename}}
@@ -1246,7 +1246,7 @@
                                 <td>{{x.Remarks}}</td>
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
-                                        <li><button ng-click="getViewImage(x, false,x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="View Image"><i class="glyphicon glyphicon-search"></i></button></li>
+                                        @*<li><button ng-click="getViewImage(x, false,x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="View Image"><i class="glyphicon glyphicon-search"></i></button></li>*@
                                         <li><button ng-click="removePopUpForDoc(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                     </ul>
                                 </td>
