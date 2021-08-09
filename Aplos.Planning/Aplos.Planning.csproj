@@ -105,6 +105,7 @@
     <Compile Include="LineDesign\GenerateLineDiagram.cs" />
     <Compile Include="OrderManagement\Bulletin.cs" />
     <Compile Include="OrderManagement\MasterOrder.cs" />
+    <Compile Include="OrderManagement\Order.cs" />
     <Compile Include="OrderManagement\OS3Dashboard.cs" />
     <Compile Include="PlanningType1\PlanningType1Scheduler.cs" />
     <Compile Include="PlanningType1\ProductionDashboard.cs" />
