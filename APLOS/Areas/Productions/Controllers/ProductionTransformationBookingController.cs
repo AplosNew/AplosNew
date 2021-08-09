@@ -327,7 +327,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         public JsonResult DelBookingDetails(string Id)
         {
             try

@@ -785,6 +785,7 @@
     <Compile Include="Areas\Productions\Controllers\PackingInvoiceController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionConversionParameterController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionTargetReportController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductionTransformationBookingController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShadeController.cs" />
     <Compile Include="Areas\Productions\Controllers\FebricWidthController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShrinkageGroupController.cs" />
@@ -2102,6 +2103,7 @@
     <Content Include="Areas\Productions\Scripts\PackingInvoiceController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionConversionParameterController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionTargetReportController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionTransformationBookingController.js" />
     <Content Include="Areas\Productions\Scripts\ShadeController.js" />
     <Content Include="Areas\Productions\Scripts\FebricWidthController.js" />
     <Content Include="Areas\Productions\Scripts\ShrinkageGroupController.js" />
@@ -3624,6 +3626,7 @@
     <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBBankJVPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBCashJVPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBPartyJVPopUp.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionTransformationBooking\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
