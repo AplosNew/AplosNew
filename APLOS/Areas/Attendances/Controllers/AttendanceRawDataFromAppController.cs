@@ -153,7 +153,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
 		                            FROM EmployeeInformation EMP
 		                            LEFT JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
-                                    LEFT JOIN AttdnRawDataFromApp app ON o.EmpSystemID=app.EmployeeId and app.PDate BETWEEN '" + fromdate + @"' and '" + todate + @"'
+                                    LEFT JOIN AttdnRawDataFromApp app ON o.EmpSystemID=app.EmployeeId and app.PDate = o.WorkDate
 		                            LEFT OUTER JOIN ShiftDefination AS sd ON sd.SystemID=o.ShiftSystemID
 		                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON o.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
                        
@@ -209,77 +209,6 @@ namespace Aplos.Areas.Attendances.Controllers
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
-
-        [HttpPost, Authorize]
-        public ActionResult getAttendanceDataxD(string employeeid, string fromdate, string todate)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            var Fromdat = Convert.ToDateTime(fromdate);
-            var ToDat = Convert.ToDateTime(todate);
-            DataSet dsEmp = null;
-            stringAttendanceData(employeeid, fromdate, todate, out dsEmp);
-
-            var _EmpList = new List<AttendanceRawFromApp>();
-
-            if (dsEmp.Tables[0].Rows.Count > 0)
-            {
-                _EmpList = dsEmp.Tables[0].ToList<AttendanceRawFromApp>();
-            }
-
-            List<AttendanceRawFromApp> _list = new List<AttendanceRawFromApp>();
-
-            while (Fromdat <= ToDat)
-            {
-                var manualData = _EmpList.Where(r => r.WorkDate == Fromdat.ToString("dd-MMM-yyyy")).FirstOrDefault();
-                AttendanceRawFromApp _obj = new AttendanceRawFromApp();
-                _obj.WorkDate = Fromdat.ToString("dd-MMM-yyyy");
-                _obj.Id = employeeid;
-                if (manualData != null)
-                {
-                    _obj.InDate = manualData.InDate;
-                    _obj.InTime = manualData.InTime;
-                    _obj.OutDate = manualData.OutDate;
-                    _obj.OutTime = manualData.OutTime;
-                    _obj.isApprovedIN = manualData.isApprovedIN;
-                    _obj.isApprovedOUT = manualData.isApprovedOUT;
-                }
-
-                _list.Add(_obj);
-                Fromdat = Fromdat.AddDays(1);
-            }
-
-            var jsondata = Json(new { data = _list}, JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
-        }
-        public void stringAttendanceData(string employeeid, string fromdate, string todate, out System.Data.DataSet dsRef)
-        {
-            string strSQL;
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                strSQL = @"select EmployeeId Id,FORMAT( PDate,'dd-MMM-yyyy')WorkDate,FORMAT( InTime,'dd-MMM-yyyy')InDate,
-                                FORMAT (InTime,'hh:mm tt')InTime
-                                ,FORMAT(OutTime,'dd-MMM-yyyy')OutDate
-                                ,FORMAT(OutTime,'hh:mm tt')OutTime
-                                ,isApprovedIN = case when isApprovedIN=1 then  Convert(bit, 'False')  else Convert(bit, 'True')  end
-								,isApprovedOUT= case when isApprovedOUT=1 then  Convert(bit, 'False')  else Convert(bit, 'True')  end
-                                from AttdnRawDataFromApp where EmployeeId='" + employeeid + "' and PDate between '" + fromdate + "' and '" + todate + "'";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }//End Function
-
 
         [HttpPost]
         public ActionResult Save(string data)

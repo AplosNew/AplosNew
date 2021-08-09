@@ -107,10 +107,10 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             gridObj.refreshContent();
         });
     }
-
+    $scope.SetTime = null;
     $scope.SetIn = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.Intime)) {
+            if (baseService.isUndefinedOrNull($scope.SetTime)) {
                 throw "Select Time..";
             }
             var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
@@ -120,7 +120,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             }
             for (var i = 0; i < filteredRecords.length; i++) {
                 if (filteredRecords[i].isApprovedIN) {
-                    filteredRecords[i].InTime = $scope.Intime;
+                    filteredRecords[i].InTimeApp = $scope.SetTime;
                 }
 
             }
@@ -132,7 +132,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
 
     $scope.SetOut = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.Intime)) {
+            if (baseService.isUndefinedOrNull($scope.SetTime)) {
                 throw "Select Time..";
             }
             var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
@@ -142,7 +142,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             }
             for (var i = 0; i < filteredRecords.length; i++) {
                 if (filteredRecords[i].isApprovedOUT) {
-                    filteredRecords[i].OutTime = $scope.Intime;
+                    filteredRecords[i].OutTimeApp = $scope.SetTime;
                 }
             }
             $scope.employeeAttendanceBySingleDate = filteredRecords;
@@ -158,8 +158,11 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             for (var i = 0; i < $scope.employeeAttendance.length; i++) {
                 $scope.employeeAttendance[i].ErrorMessage = "";
                 try {
-                    if (baseService.isUndefinedOrNull($scope.employeeAttendance[i].InDate) || baseService.isUndefinedOrNull($scope.employeeAttendance[i].InTime)
-                        || baseService.isUndefinedOrNull($scope.employeeAttendance[i].OutDate) || baseService.isUndefinedOrNull($scope.employeeAttendance[i].OutTime)) {
+                    if ($scope.employeeAttendance[i].InDateApp != null
+                        || $scope.employeeAttendance[i].InTimeApp != null
+                        || $scope.employeeAttendance[i].OutDateApp != null
+                        || $scope.employeeAttendance[i].OutTimeApp != null)
+                    {
                         DataToBeSaved.push($scope.employeeAttendance[i]);
                     }
                     else {
@@ -170,10 +173,10 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
                 }
             }
             for (var i = 0; i < DataToBeSaved.length; i++) {
-                if (DataToBeSaved[i].InTime == "" || DataToBeSaved[i].InTime == null) {
-                    throw "Insert InTime For Date: " + DataToBeSaved[i].WorkDate;
+                if (DataToBeSaved[i].InTimeApp == "" || DataToBeSaved[i].InTimeApp == null) {
+                    throw "Insert InTimeApp For Date: " + DataToBeSaved[i].WorkDate;
                 }
-                if (DataToBeSaved[i].OutTime == "" || DataToBeSaved[i].OutTime == null) {
+                if (DataToBeSaved[i].OutTimeApp == "" || DataToBeSaved[i].OutTimeApp == null) {
                     throw "Insert OutTimeFor Date: " + DataToBeSaved[i].WorkDate;
                 }
             }
@@ -210,10 +213,11 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
         for (var i = 0; i < $scope.employeeAttendanceBySingleDate.length; i++) {
             $scope.employeeAttendanceBySingleDate[i].ErrorMessage = "";
             try {
-                if ($scope.employeeAttendanceBySingleDate[i].InDate != null
-                    || $scope.employeeAttendanceBySingleDate[i].InTime != null
-                    || $scope.employeeAttendanceBySingleDate[i].OutDate != null
-                    || $scope.employeeAttendanceBySingleDate[i].OutTime != null) {
+                if ($scope.employeeAttendanceBySingleDate[i].InDateApp != null
+                    || $scope.employeeAttendanceBySingleDate[i].InTimeApp != null
+                    || $scope.employeeAttendanceBySingleDate[i].OutDateApp != null
+                    || $scope.employeeAttendanceBySingleDate[i].OutTimeApp != null)
+                {
                     DataToBeSaved.push($scope.employeeAttendanceBySingleDate[i]);
                 }
                 else {
@@ -227,7 +231,7 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             DataToBeSaved[i].WorkDate = $scope.FromDateSingleDate;
         }
 
-        var sorteddata = ej.DataManager(DataToBeSaved).executeLocal(ej.Query().select(["Id", "WorkDate", "InDate", "InTime", "OutDate", "OutTime"]));
+        var sorteddata = ej.DataManager(DataToBeSaved).executeLocal(ej.Query().select(["Id", "WorkDate", "InDateApp", "InTimeApp", "OutDateApp", "OutTimeApp"]));
 
         $http({
             method: "POST",

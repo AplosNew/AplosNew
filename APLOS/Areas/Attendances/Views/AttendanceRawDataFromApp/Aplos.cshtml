@@ -97,6 +97,13 @@
                     <div e-columns>
                         <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>
                         <div e-column e-template="#shift" e-headertext="Shift" e-width="150"></div>
+                        <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="50"></div>
+
+                        <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
+                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
+                        <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
+                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
+
                         <div e-column e-field="InDateOriginal" e-headertext="Processed In Date" e-width="130"></div>
                         <div e-column e-field="InTimeOriginal" e-headertext="Processed In Time" e-width="120"></div>
                         <div e-column e-field="IsManualInTime" e-headertext="Manual In" e-width="50"></div>
@@ -104,12 +111,8 @@
                         <div e-column e-field="OutTimeOriginal" e-headertext="Processed Out Time" e-width="120"></div>
                         <div e-column e-field="IsManualOutTime" e-headertext="Manual Out" e-width="50"></div>
 
-                        <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
-                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
-                        <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
-                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
 
-                        <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="50"></div>
+
                         <div e-column e-field="IsManualDayStatus" e-headertext="Manual DayStatus" e-width="40"></div>
                         <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
                         <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
@@ -144,7 +147,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Time<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" ej-timepicker e-value="Intime" e-width="100%" />
+                                <input type="text" ej-timepicker e-value="SetTime" e-width="100%" />
                             </div>
                         </div>
                     </div>
@@ -174,19 +177,22 @@
                         <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="150"></div>
 
                         <div e-column e-template="#allShiftSingleDay" e-headertext="Shift" e-width="150"></div>
-                        <div e-column e-field="InDateOriginal" e-headertext="Processed In Date" e-width="130"></div>
-                        <div e-column e-field="InTimeOriginal" e-headertext="Processed In Time" e-width="120"></div>
-                        <div e-column e-field="IsManualInTime" e-headertext="Manual In" e-width="50"></div>
-                        <div e-column e-field="OutDateOriginal" e-headertext="Processed Out Date" e-width="130"></div>
-                        <div e-column e-field="OutTimeOriginal" e-headertext="Processed Out Time" e-width="120"></div>
-                        <div e-column e-field="IsManualOutTime" e-headertext="Manual Out" e-width="50"></div>
+                        <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="50"></div>
 
                         <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
                         <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
                         <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
                         <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
 
-                        <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="50"></div>
+                        <div e-column e-field="InDateOriginal" e-headertext="Processed InDate" e-width="100"></div>
+                        <div e-column e-field="InTimeOriginal" e-headertext="Processed InTime" e-width="100"></div>
+                        <div e-column e-field="IsManualInTime" e-headertext="Manual In" e-width="50"></div>
+                        <div e-column e-field="OutDateOriginal" e-headertext="Processed Out Date" e-width="100"></div>
+                        <div e-column e-field="OutTimeOriginal" e-headertext="Processed Out Time" e-width="100"></div>
+                        <div e-column e-field="IsManualOutTime" e-headertext="Manual Out" e-width="50"></div>
+
+
+
                         <div e-column e-field="IsManualDayStatus" e-headertext="Manual DayStatus" e-width="40"></div>
                         <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
                         <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
@@ -275,8 +281,8 @@
                      e-allowscrolling="true" e-minwidth="1100" e-minheight="500"
                      e-allowselection="true" e-filtersettings-filterType="excel">
                     <div e-columns>
-                        <div e-column e-field="Id" e-headertext="Id" e-width="30" e-primarykey="true"></div>
-                        <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
+                        @*<div e-column e-field="Id" e-headertext="Id" e-width="30" e-primarykey="true"></div>*@
+                        <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="80"></div>
                         <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
                         <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
                         <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>

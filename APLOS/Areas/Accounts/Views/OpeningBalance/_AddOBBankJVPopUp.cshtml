@@ -1,0 +1,63 @@
+﻿<div class="modal fade site-modal in" id="AddOBBankJVPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="AddOBBankJVPopUpForm">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">GL </h4>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive modal-table ">
+                    <table class="table table-striped table-bordered">
+
+                        <thead>
+                            <tr>
+                                <th>Type </th>
+                                <th>GL </th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th>Particular</th>
+                                <th>Detail</th>
+                                <th class="text-center">Dr</th>
+                                <th class="text-center">Cr</th>
+                                <th class="text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in glvoucherDetailList">
+                                <td>{{x.PartyType}}</td>
+                                <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td>{{x.ParticularName}}</td>
+                                <td>
+                                    <input type="text" class="form-control text-right" id="BankCashAmount" ng-model="x.BankAmount " ng-disabled="x.BankCurrencyId==voucher.CurrencyId||x.CashCurrencyId==voucher.CurrencyId" n-decimals="4" tabindex="12" ng-show="x.BankMasterId||x.CashMasterId" placeholder="Input Currency Amount" autocomplete="off">
+                                    <select class="form-control" ng-disabled="x.PartyId==null||x.PartyType=='SecurityTaken'||x.PartyType=='SecurityGiven'||x.PartyType=='Equity'||x.PartyType=='InvestmentGiven'"
+                                            ng-hide="x.BankMasterId||x.CashMasterId" ng-model="x.PartyPlantId" ng-options="item.Value as item.Text for item in partyPlantList| filter:{ PartyId: x.PartyId }:true"></select>
+                                </td>
+                                <td><input type="text" class="form-control text-right" ng-disabled="x.DrDisable" id="vdDrAmount" ng-model="x.DrAmount " n-decimals="2" tabindex="11" ng-change="checkGLDrAmount($index)" autocomplete="off"></td>
+                                <td><input type="text" class="form-control text-right" ng-disabled="x.CrDisable" id="vdCrAmount" ng-model="x.CrAmount " n-decimals="2" tabindex="12" ng-change="checkGLCrAmount($index)" autocomplete="off"></td>
+                                <td class="text-right">
+                                    <button ng-click="removeglRow($index)" data-toggle="modal" ng-disabled="x.Id" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                        <i class="glyphicon glyphicon-remove"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="6" class="text-right">Total</td>
+                                <td class="text-right"><b>{{ (glvoucherDetailList ) | sumByKey:'DrAmount' }}</b></td>
+                                <td class="text-right"><b>{{ (glvoucherDetailList ) | sumByKey:'CrAmount' }}</b></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="SaveBank()">Add Bank</button>
+                <button type="button" class="btn btn-default" ng-click="closeOBBankPopUp()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

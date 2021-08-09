@@ -269,6 +269,7 @@
     <Compile Include="Payrolls\SalaryProcess\SalaryProcessDic.cs" />
     <Compile Include="Productions\IProductionBookingPeriodService.cs" />
     <Compile Include="Productions\IRecipeMaterialService.cs" />
+    <Compile Include="Productions\ProductionTransformationBookingService.cs" />
     <Compile Include="Productions\ProductionConversionParameterService.cs" />
     <Compile Include="Productions\ProductionBookingPeriodService.cs" />
     <Compile Include="Productions\IRecipeMaterialGroupingMasterService.cs" />
