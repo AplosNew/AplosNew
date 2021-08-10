@@ -1,4 +1,5 @@
-﻿using Library.Crosscutting.Security;
+﻿using ConnectionManager;
+using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Service.Enums;
 using Library.Service.Helpers;
@@ -461,7 +462,7 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
 
 
 
-select ORD.CM,
+select ORD.CM,wc.Id as WorkCenterMasterId,
   wc.UserName AS  [LineNo],  ps.ProcessId ,ps.ProductionOrderId ,ps.Quantity,''WorkHour ,dr.DaysRun,
   buyer=STUFF((select distinct ','+XB.UserName from 
 	                               trn.SalesOrder XSO 
@@ -538,67 +539,21 @@ order by wc.Sequence
 
 
 ";
-
-            return @"  
-
-select 
-  wc.UserName AS  [LineNo],  ps.ProcessId ,ps.ProductionOrderId ,ps.Quantity,''WorkHour ,
-  buyer=STUFF((select distinct ','+XB.UserName from 
-	                               trn.SalesOrder XSO 
-		                               JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                               left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                               left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                               left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-			                           where ps.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-Item=STUFF((select distinct ','+XMM.UserName from 
-	                               trn.SalesOrder XSO 
-		                               JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                               left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                               left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                               left outer join MST.MaterialMaster XMM on XMM.Id=XMOI.MaterialMasterId
-			                           where ps.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-									   
-									  p.UserName AS Process,bulletin.PlannedHoursPerDay,bulletin.WithMachine,bulletin.WithoutMachine,bulletin.TotalSPT as SPT,
-									   bulletin.AllotedManpower,bulletin.RequiredManPower,bulletin.AllotedWorkstation,bulletin.OperationTargetPerHr,
-									   bulletin.RequiredStdTarget
-from(
-select 
-p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId,sum(p.Quantity) Quantity
- from  TRN.ProductionSummary as p 
-where --p.ProcessId='20204' and
- p.ProductionDate='" + Date + @"' 
-and p.ProductionGrade='A'
-group by p.WorkCenterMasterId,p.ProcessId,p.ProductionOrderId
-) ps
-left join (
-			select
-			pbt.ProductionOrderId ,pbt.Id ProductionBulletinTemplateId,pbtm.ProcessId,
-			pbtm.PlannedHoursPerDay ,pbtm.RequiredStdTarget ,
-			WithMachine = SUM(case when  isnull(pbtd.MachineVarientId,'')<>'' then AllotedManpower else 0 end),
-			WithoutMachine = SUM(case when  isnull(pbtd.MachineVarientId,'')='' then AllotedManpower else 0 end),
-			sum (pbtd.TotalSPT) TotalSPT
-			,sum(pbtd.AllotedManpower)AllotedManpower,sum(pbtd.RequiredManPower) RequiredManPower,sum(pbtd.AllotedWorkstation) AllotedWorkstation
-			,sum(pbtd.OperationTargetPerHr) OperationTargetPerHr
-			from trn.ProductionBulletinTemplate as pbt
-			left join trn.ProductionBulletinTemplateMaster pbtm on pbtm.ProductionBulletinTemplateId=pbt.Id
-			left join trn.ProductionBulletinTemplateDetail pbtd on pbtd.ProductionBulletinTemplateMasterId=pbtm.Id
-			
-			group by pbt.Id,pbt.ProductionOrderId,pbtm.ProcessId ,pbtm.PlannedHoursPerDay,pbtm.RequiredStdTarget
-
-		) as bulletin on bulletin.ProductionOrderId=ps.ProductionOrderId AND bulletin.ProcessId=ps.ProcessId
-
-left join scs.WorkCenterMaster as wc on wc.id=ps.WorkCenterMasterId 
-left join hkp.Process p on p.id=ps.ProcessId
-where wc.EntityId IN (" + entityid + @") 
-order by wc.Sequence
-
-"
-;
         }
         public void ProductionEfficiencyReport(string PlantId, string entityid, string Date)
         {
             try
             {
+                DataSet dsHour;
+                DataSet dsProHour;
+                DataTable dtHour;
+                DataView dvHour;
+                Dictionary<string, int> Hour = new Dictionary<string, int>();
+
+                GetProductionBookingPeriod(out dsHour);
+                dtHour = dsHour.Tables[0];
+                dvHour = new DataView();
+                dvHour.Table = dsHour.Tables[0];
 
                 if (string.IsNullOrEmpty(entityid) || entityid.ToUpper() == "NULL")
                 {
@@ -617,10 +572,12 @@ order by wc.Sequence
 
                 string sql = ProductionInfoSql(entityid, Date);
 
+
                 //Instantiate the Excel application object
                 DataTable dtProductionInfo = _sqlRepository.GetDataTable(sql);
                 if (dtProductionInfo.Rows.Count == 0)
                     throw new Exception("No data found");
+                GetProductionHour(entityid, Date, out dsProHour);
                 ExcelEngine excelEngine = new ExcelEngine();
                 IApplication application = excelEngine.Excel;
 
@@ -712,6 +669,15 @@ order by wc.Sequence
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colTGTDAY = COL;
                 sheet.Range[ROW, colTGTDAY, ROW + 1, colTGTDAY].Merge();
+
+                for (int i = 0; i < dvHour.Count; i++)
+                {
+                    COL++;
+                    int colHour = COL;
+                    sheet[ROW + 1, COL].Text = dvHour[i]["UserName"].ToString();
+                    sheet[ROW + 1, COL].ColumnWidth = 10;
+                    Hour.Add(dvHour[i]["Id"].ToString(), colHour);
+                }
 
                 COL++;
                 sheet[ROW + 1, COL].Text = "Total";
@@ -829,6 +795,7 @@ order by wc.Sequence
                 int StartRow = ROW; //row 20
                 for (int i = 0; i < dtProductionInfo.Rows.Count; i++)
                 {
+
                     sheet[ROW, colLineNo].Text = dtProductionInfo.Rows[i]["LineNo"].ToString();
                     sheet[ROW, colProductionOrderID].Text = dtProductionInfo.Rows[i]["ProductionOrderId"].ToString();
                     sheet[ROW, colBuyer].Text = dtProductionInfo.Rows[i]["buyer"].ToString();
@@ -841,9 +808,9 @@ order by wc.Sequence
                     sheet[ROW, colDaysRun].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["DaysRun"].ToString());
 
                     sheet[ROW, colTGThr].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["RequiredStdTarget"].ToString());
-                    
 
-                    sheet[ROW, colTGTEFF].Formula = "if(and(" + clsStaticInfo.GetxlsCol(colTotalMP) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colSPT) + ROW.ToString() + @">0)," 
+
+                    sheet[ROW, colTGTEFF].Formula = "if(and(" + clsStaticInfo.GetxlsCol(colTotalMP) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colSPT) + ROW.ToString() + @">0),"
                         + clsStaticInfo.GetxlsCol(colTGTDAY) + ROW.ToString() + "/(" + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString()
                         + "*60*" + clsStaticInfo.GetxlsCol(colTotalMP) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colSPT) + ROW.ToString() + ")*100,0)";
 
@@ -874,7 +841,15 @@ order by wc.Sequence
                     // sheet[ROW, colAchievement].Text = dtProductionInfo.Rows[i]["FGZone"].ToString();
                     // sheet[ROW, colRemarks].Text = dtProductionInfo.Rows[i]["FGComponen"].ToString();
 
+                    dsProHour.Tables[0].DefaultView.RowFilter = "ProductionOrderId= '" + dtProductionInfo.Rows[i]["ProductionOrderId"].ToString() + "' and WorkCenterMasterId='" + dtProductionInfo.Rows[i]["WorkCenterMasterId"].ToString() + "'  ";
 
+                    for (int d = 0; d < dsProHour.Tables[0].DefaultView.Count; d++)
+                    {
+                        if (Hour.ContainsKey(dsProHour.Tables[0].DefaultView[d]["ProductionBookingPeriodId"].ToString()) == false)
+                            continue;
+
+                        sheet[ROW, Hour[dsProHour.Tables[0].DefaultView[d]["ProductionBookingPeriodId"].ToString()]].Number = clsStaticInfo.dbl(dsProHour.Tables[0].DefaultView[d]["Quantity"].ToString());
+                    }
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -928,7 +903,59 @@ order by wc.Sequence
                 throw;
             }
         }
+        public void GetProductionBookingPeriod(out DataSet dsRef)
+        {
+            ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
 
+            try
+            {
+                strSql = @"select * From HKP.ProductionBookingPeriod order by Sequence";
+
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
+        public void GetProductionHour(string entityid, string Date, out DataSet dsRef)
+        {
+            ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
+            string strSql = string.Empty;
+
+            try
+            {
+                strSql = @"select wc.Id as WorkCenterMasterId, ps.ProcessId ,ps.ProductionOrderId,ps.ProductionBookingPeriodId ,ps.Quantity
+                            from(
+                            select 
+                            p.ProcessId,p.ProductionBookingPeriodId,p.ProductionOrderId,p.WorkCenterMasterId,sum(p.Quantity) Quantity
+                             from  TRN.ProductionSummary as p 
+                            where --p.ProcessId='20204' and
+                             p.ProductionDate='" + Date + @"'
+                            and p.ProductionGrade='A'
+                            group by p.WorkCenterMasterId,p.ProductionBookingPeriodId,p.ProcessId,p.ProductionOrderId
+                            ) ps
+                            join scs.WorkCenterMaster as wc on wc.id=ps.WorkCenterMasterId 
+                            left join hkp.Process p on p.id=ps.ProcessId 
+                            where wc.EntityId IN (" + entityid + @")
+                            order by wc.Sequence";
+
+                con.getDataSet(strSql, out dsRef);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                con = null;
+            }
+        }//End Function
 
     }
 }

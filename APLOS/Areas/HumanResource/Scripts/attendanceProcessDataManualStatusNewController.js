@@ -380,9 +380,7 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
 
     }
 
-    // Select All Check Box 
-
-
+    //1st Tab
 
     $scope.refreshTemplateemployee = function () {
         $("#BPheadchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
@@ -438,5 +436,63 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
             }
         });
     }
+
+    // 2nd Tab
+
+    $scope.refreshTemplateemployeex = function () {
+        $("#APheadchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWisex });
+    };
+
+
+    function CheckBoxSelectAllEmolyeeWisex(e) {
+        var ChkOrUnchkx = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchkx = true;
+
+        }
+
+        var filteredx = $("#GridChangeAttendanceBySingleDate").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filteredx) || filteredx.length == 0) {
+            for (var i = 0; i < $scope.employeeAttendanceBySingleDate.length; i++) {
+                $scope.employeeAttendanceBySingleDate[i].isSelected = ChkOrUnchkx;
+            }
+        }
+        else {
+            for (var j = 0; j < filteredx.length; j++) {
+
+                filteredx[j].isSelected = ChkOrUnchkx;
+            }
+        }
+        var gridObj = $("#GridChangeAttendanceBySingleDate").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.FlagRowIdx = "''";
+    $scope.LockAttndx = function () {
+        for (var i = 0; i < $scope.employeeAttendanceBySingleDate.length; i++) {
+            if ($scope.employeeAttendanceBySingleDate[i].isSelected == true) {
+                $scope.FlagRowIdx += ",'" + $scope.employeeAttendanceBySingleDate[i].RowId + "'";
+
+            }
+        }
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            data: { 'RowId': $scope.FlagRowIdx },
+            url: $scope.path + 'LockAttnd'
+        }).then(function successCallback(response) {
+
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+
+
+            } else {
+                ShowResult(response.data.Message, 'success');
+                $scope.FlagRowIdx = "''";
+                $scope.selectSingleDate();
+            }
+        });
+    }
+
 
 }
