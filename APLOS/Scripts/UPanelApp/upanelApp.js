@@ -906,12 +906,13 @@ var upanelApp = angular
     .controller("EmployeeJobLocationController", EmployeeJobLocationController)
     .controller("salesPackingPostController", salesPackingPostController)
 
-    .controller("NewAttendanceDashboardController", NewAttendanceDashboardController)
+    //.controller("NewAttendanceDashboardController", NewAttendanceDashboardController)
     .controller("AttendanceRawDataFromAppController", AttendanceRawDataFromAppController)
     .controller("WeekOffUpdatesController", WeekOffUpdatesController)
     .controller("RosterUpdatesController", RosterUpdatesController)
     .controller("OrderController", OrderController)
 
+    .controller("NewAttdnDashboardController", NewAttdnDashboardController)
 
     .config(AccessControllerConfig)
     .config(accountConfig)
