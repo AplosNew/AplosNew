@@ -31,20 +31,60 @@ namespace Library.Planning.OrderManagement
         {
             try
             {
-                var sql = @"Select distinct isnull(p.id,'') as PlantId, isnull(p.username,'') as Plant, isnull(e.Id,'') as EntityId, isnull(e.Username,'') as Entity ,
-                            isnull(cus.Id,'') as CustomerId,isnull(cus.UserName,'') as Customer ,  isnull(mo.ResponsiblePersonId,'') as MResId , isnull(emp.EmployeeName,'') as MResP  ,
-                           so.OrderStatusId as Status,mo.OrderStatusId MoStatus,b.Id BuyerId,b.UserName Buyer
-                            from  Trn.SalesOrder so 
-                            left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
-                            left join trn.MasterOrder mo on mo.id = moi.MasterOrderId
-                            left join hkp.Party cus on cus.Id = mo.PartyId
-                            left join hkp.Party b on b.Id = mo.BuyerId
-                            left join org.entity e on e.Id = mo.EntityId
-                            left join org.Plant p on p.Id = e.PlantId
-                            left join dbo.EmployeeInformation emp on emp.SystemId = mo.ResponsiblePersonId 
-                            left join dbo.EmployeeInformation ee on ee.SystemId = e.EmployeeId
-                            where mo.OrderStatusId<>'Closed' and mo.OrderStatusId<>'Cancelled'
-                            and so.OrderStatusId not in ('Closed','Cancelled')";
+                var sql = @" SELECT * FROM (
+                                         SELECT DISTINCT 
+                                        isnull(e.Id,'') AS EntityId,isnull(e.UserName,'') Entity,
+										pln.Id PLantId,Pln.UserName Plant,
+                                        isnull(ps.Id,'') AS ProductionStatusId, isnull(ps.UserName,'') AS ProductionStatus
+										
+                                                   , Buyer=STUFF((select distinct ','+XB.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+													 BuyerId=STUFF((select distinct ','+XB.Id from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+																
+                                                    CustomerId=STUFF((select distinct ','+XP.Id from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),   
+                                                    Customer=STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')                                                 
+
+                                        from trn.ProductionOrder PO
+				                                inner join ProductionOrderSchedulingParametersType1 T1 on t1.ProductionOrderID=po.Id
+				                                INNER join ProductionPlanningType1 p1 on p1.ProductionOrderID=t1.ProductionOrderID and ProcessID=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
+				                                INNER JOIN trn.ProductionOrderDetail AS pod ON pod.ProductionOrderId=PO.Id
+				                                LEFT OUTER JOIN trn.SalesOrder SO ON so.Id=pod.SalesOrderId
+				                                left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+				                                left outer join trn.MasterOrder MO on mo.Id=moi.MasterOrderId
+				                                left outer join [HKP].Buyer B on B.Id=MO.BuyerId
+				                                left outer join [HKP].[Party] p on P.Id=MO.PartyId
+
+				                                left outer join org.Entity E on e.Id=p1.EntityID
+				                                LEFT OUTER JOIN org.Unit AS u ON u.Id=e.UnitId
+				                                left outer join org.Plant PLN on pln.Id=PO.PlantId
+				                                LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
+                                WHERE  mo.OrderStatusId<>'Closed' and mo.OrderStatusId<>'Cancelled'
+                                ) AS KK";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception e)
@@ -52,7 +92,7 @@ namespace Library.Planning.OrderManagement
                 throw e;
             }
         }
-        public void OrderReport()
+        public void OrderReport(Dictionary<string, string> parameters, string fromDate, string toDate, string dateType)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -406,7 +446,7 @@ namespace Library.Planning.OrderManagement
 
 
                 #region Sheet Report
-
+                workbook.Worksheets[1].Name = "Report";
                 sheet = workbook.Worksheets[1];
 
                 //DataTable dtOrder = _sqlRepository.GetDataTable(sql);
@@ -682,13 +722,6 @@ namespace Library.Planning.OrderManagement
                 string strFileName = "OrderReport.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
-
-
-
-
-
-
-
 
 
             }

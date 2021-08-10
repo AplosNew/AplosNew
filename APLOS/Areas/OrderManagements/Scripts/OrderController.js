@@ -23,11 +23,19 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
     }
 
     $scope.setAll = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetOrderReport",
+            data: { 'parameters': $scope.parameters, 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'dateType': $rootScope.dateCgroup },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
 
-        var file_src = $scope.path + 'GetOrderReport';
-        $rootScope.report(file_src);
-    /*    $scope.filterComplete();*/
-    }
+        })
+    };
+            
+        //var file_src = $scope.path + 'GetOrderReport?parameters=' + $scope.parameters + '&fromDate=' + $scope.fromDate + '&toDate=' + $scope.toDate + '&dateType=' + $rootScope.dateCgroup;
+        //$rootScope.report(file_src);
+
 
     //$scope.OrderReport = function () {
 
@@ -40,8 +48,7 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     //    }
     //}
-  
-
+ 
     //The Filters 
     $scope.filters=[];
     $scope.loadfilters = function () {
@@ -56,9 +63,11 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
                 { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
                 { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
                 { field: 'Buyer', width: 20, headerText: "Buyer", type: "string" },
-                { field: 'MResP', width: 20, headerText: "Responsible Person", type: "string" },
-                { field: 'MoStatus', width: 20, headerText: "MO Status", type: "string" },
-                { field: 'Status', width: 20, headerText: "SO Status", type: "string" },
+                { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
+
+                //{ field: 'MResP', width: 20, headerText: "Responsible Person", type: "string" },
+                //{ field: 'MoStatus', width: 20, headerText: "MO Status", type: "string" },
+         /*       { field: 'Status', width: 20, headerText: "SO Status", type: "string" },*/
             ];
             $("#filters").ejGrid({
                 dataSource: $scope.filters,
@@ -94,10 +103,8 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
         parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
         parameters.push({ "Key": "CustomerId", "Value": getString(fl, "CustomerId") });
         parameters.push({ "Key": "BuyerId", "Value": getString(fl, "BuyerId") });
-        parameters.push({ "Key": "MResId", "Value": getString(fl, "MResId") });
-        parameters.push({ "Key": "MoStatus", "Value": getString(fl, "MoStatus") });
-        parameters.push({ "Key": "Status", "Value": getString(fl, "Status") });
-
+        parameters.push({ "Key": "ProductionStatusId", "Value": getString(fl, "ProductionStatusId") });
+      
         $scope.parameters = parameters;
      
     }

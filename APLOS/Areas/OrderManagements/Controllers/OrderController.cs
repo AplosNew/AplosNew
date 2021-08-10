@@ -56,14 +56,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
 
-        [HttpGet, Authorize]
-        public ActionResult GetOrderReport()
+        [HttpPost, Authorize]
+        public ActionResult GetOrderReport(Dictionary<string, string> parameters, string fromDate, string toDate, string dateType)
         {
             try
             {
                 Library.Planning.OrderManagement.Order Report = new Library.Planning.OrderManagement.Order();
-
-                Report.OrderReport();
+                Report.OrderReport( parameters,  fromDate,  toDate,  dateType);
                 return null;
             }
             catch (Exception ex)
