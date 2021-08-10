@@ -902,7 +902,7 @@ var upanelApp = angular
     .controller("PayrollManagementDashboardController", PayrollManagementDashboardController)
     .controller("InventorySalesReturnController", InventorySalesReturnController)
     .controller("ProductionConversionParameterController", ProductionConversionParameterController)
-    //.controller("ProductionTransformationBookingController", ProductionTransformationBookingController)
+    .controller("ProductionTransformationBookingController", ProductionTransformationBookingController)
     .controller("EmployeeJobLocationController", EmployeeJobLocationController)
     .controller("salesPackingPostController", salesPackingPostController)
 
@@ -910,6 +910,8 @@ var upanelApp = angular
     .controller("AttendanceRawDataFromAppController", AttendanceRawDataFromAppController)
     .controller("WeekOffUpdatesController", WeekOffUpdatesController)
     .controller("RosterUpdatesController", RosterUpdatesController)
+    .controller("OrderController", OrderController)
+
     .controller("NewAttdnDashboardController", NewAttdnDashboardController)
 
     .config(AccessControllerConfig)

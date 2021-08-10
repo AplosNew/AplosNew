@@ -229,8 +229,7 @@
 					</th>
 					<th style="width:500px;">CostCenter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 					@*<th>Cost Center</th>*@
-					<th>Budget</th>
-					<th style="width:500px;">ExpenseActivityCode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+					
 
 					@*<th>Activity</th>*@
 					<th>Material</th>
@@ -239,16 +238,22 @@
 					<th>SKU2</th>
 					<th>SKU3</th>
 					<th>Country</th>
-					<th>UOM</th>
-					<th>ApprovedQty</th>
+                    <th>SalesOrder</th>
+					<th>Requested-UOM</th>
+					@*<th>ApprovedQty</th>
 					<th>UnApprovedQty</th>
-					<th>TotalQty</th>
+					<th>TotalQty</th>*@
 					<th>ReadyForIssue</th>
 
 					<th>RequestedQty</th>
 					<th ng-hide="false">IssuedQty</th>
-					<th ng-hide="false">BlanceQty</th>
+				
 					<th>IssueQty</th>
+                    	<th ng-hide="false">BlanceQty</th>
+                    <th ng-hide="false">BaseUoM</th>
+                    <th ng-hide="false">BaseUoMStock</th>
+                    <th>Budget</th>
+					<th style="width:500px;">ExpenseActivityCode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 					<th style="width:300px;">Comments&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 					<th>Action</th>
 					@*<th></th>*@
@@ -264,7 +269,7 @@
 						@*<input type="checkbox" ng-click="Change($index)" ng-model=x.chk>*@
 						<div class="checkbox-site">
 							<label>
-								<input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-disabled="x.TransactionQty===0 || x.TransactionQty==='' || x.TransactionQty===null">
+								<input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-disabled="x.BalanceQty===0">
 								<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
 							</label>
 						</div>
@@ -275,7 +280,28 @@
 						</div>
 					</td>
 					@*<td>{{x.CostCenterName}}</td>*@
-					<td>{{x.BudgetName}}</td>
+					
+					<td>{{x.Material}}</td>
+					<td>{{x.ArticleName}}</td>
+					<td>{{x.Sku1}}</td>
+					<td>{{x.Sku2}}</td>
+					<td>{{x.Sku3}}</td>
+					<td>{{x.CountryName}}</td>
+                    <td>{{x.SalesOrderId}}</td>
+					<td>{{x.TransactionUoM}}</td>
+					@*<td>{{x.ApprovedQty}}</td>
+					<td>{{x.UnApprovedQty}}</td>
+					<td>{{x.TotalStock}}</td>*@
+					<td>{{x.PostingQty}}</td>
+
+					<td>{{x.RequestedQty}}</td>
+					<td ng-hide="false">{{x.IssuedQty}}</td>
+				
+					<td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionQty" ng-change="qtyFunc(x, $index)" ;></td>
+                    <td ng-hide="false">{{x.BalanceQty}}</td>
+                    <td ng-hide="false">{{x.BaseUoM}}</td>
+                    <td ng-hide="false">{{x.BaseUoMStock}}</td>
+                    <td>{{x.BudgetName}}</td>
 
 					<td>
 						<button ng-click="popUp($index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax">
@@ -283,27 +309,12 @@
 						</button>
 						{{x.ActivityName}}
 					</td>
-					<td>{{x.Material}}</td>
-					<td>{{x.ArticleName}}</td>
-					<td>{{x.Sku1}}</td>
-					<td>{{x.Sku2}}</td>
-					<td>{{x.Sku3}}</td>
-					<td>{{x.CountryName}}</td>
-					<td>{{x.UOM}}</td>
-					<td>{{x.ApprovedQty}}</td>
-					<td>{{x.UnApprovedQty}}</td>
-					<td>{{x.TotalStock}}</td>
-					<td>{{x.PostingQty}}</td>
-
-					<td>{{x.RequestedQty}}</td>
-					<td ng-hide="false">{{x.IssuedQty}}</td>
-					<td ng-hide="false">{{x.BalanceQty}}</td>
-					<td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionQty" ng-change="qtyFunc(x, $index)" ;></td>
 					<td class="text-right" ng-hide="false"><input type="text" class="form-control text-right" width="400" ng-model="x.Comments"></td>
 					@*<td>{{x.char3.FreeText}}</td>*@
 					@*<td>{{x.TransactionQty}}  {{x.UOM}}</td>*@
 					<td class="text-right table-td">
 						<ul class="list-inline">
+                            <li><button ng-click="showMaterialWiseStockModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Requisition Qty"><i class="glyphicon glyphicon-info-sign"></i></button></li>
 							<li><button ng-show="x.Id==null" ng-click="getSpecificMaterialStockForSlipIssue(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Add Requisition List"><i class="glyphicon glyphicon-list"></i></button></li>
 							<li><button ng-show="x.Id!=null" ng-click="getRequisitionList(x.Id);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Get Requisition List"><i class="glyphicon glyphicon-list"></i></button></li>
 							<li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
@@ -517,7 +528,7 @@
                             <label class="col-sm-4 control-label">Cost Center<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" name="Cost Center" ng-model="detailModel.CostCenterId" ng-options="item.Value as item.Text for item in costCenterList" required></select>
+                                    <select class="form-control" name="Cost Center" ng-model="detailModel.CostCenterId" ng-options="item.Value as item.Text for item in costCenterList" ></select>
                                 </div>
                             </div>
                         </div>
@@ -735,4 +746,56 @@
             </div>
         </div>
     </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="POPopUp" role="dialog" data-backdrop="static">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">Material And SO Wise Stock List<button type="button" class="close" ng-click="showMaterialWiseStockModalClose();">&times;</button></div>
+			<div class="modal-body form-elements form-horizontal">
+				<div class="col-lg-12">
+					<div class="content-container-fluid" style="color:black;overflow:scroll">
+						<div style="color:black;" id="ShowStock1" ej-grid e-datasource="ShowStock"
+							 e-templaterefresh="refreshTemplateMasterOrderOperation"
+							 @*e-recorddoubleclick="SetTheData"*@
+							 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+							 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+							<div e-columns>
+								
+								<div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="150"></div>
+								<div e-column e-field="MaterialMasterName" e-headertext="MaterialMasterName" e-width="200"></div>
+								<div e-column e-field="ArticleName" e-headertext="ArticleName" e-width="200"></div>
+								<div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="50"></div>
+								<div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="50"></div>
+								<div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="50"></div>
+
+								<div e-column e-field="TransactionQty" e-headertext="TransactionQty" e-width="100"></div>
+								<div e-column e-field="TransactionUoMName" e-headertext="UoM" e-width="100"></div>
+								@*<div e-column e-template="#CurrentText123" e-field="RequestedQty" textAlign='right' e-headertext="SlipQty" e-width="100"></div>*@
+								@*<div e-column e-field="RequestedQty" e-headertext="RequestedQty" e-width="80"></div>*@
+
+
+							</div>
+
+						</div>
+						@*<script type="text/template" id="checkboxListPO">
+							<input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+						</script>*@
+						@*<script type="text/template" id="CurrentText123">
+							<input type="text" class="input ejinputtext form-control" ng-disabled="" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.RequestedQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
+
+						</script>*@
+					</div>
+				
+				</div>
+				<div class="clearfix"></div>
+				@*<div class="common-btn">
+					<ul class="list-inline text-right">
+						<li><button ng-click="recorddoubleclick();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Add</button></li>
+					</ul>
+				</div>*@
+			</div>
+		</div>
+	</div>
 </div>

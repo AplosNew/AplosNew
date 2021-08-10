@@ -1343,6 +1343,25 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
         move(index, index + 1);
     };
 
+
+    var movesku = function (origin, destination) {
+        var temp = $scope.dimensionList[destination];
+        var symbolIndex = null;
+        $scope.dimensionList[destination] = $scope.dimensionList[origin];
+        $scope.dimensionList[origin] = temp;
+        for (var i = 0; i < $scope.dimensionList.length; i++) {
+            $scope.dimensionList[i].Sequence = i + 1;
+        }
+    };
+
+    $scope.moveskuUp = function (index) {
+        movesku(index, index - 1);
+    };
+    $scope.moveskuDown = function (index) {
+        movesku(index, index + 1);
+    };
+
+
     $scope.reverseIsNotRevenue = function () {
         if (!$scope.materialMasterNew.IsRevenue) {
             $scope.materialMasterNew.IsInventory = $scope.materialMasterNew.IsRevenue;

@@ -211,6 +211,7 @@ namespace Library.HumanResource.Attendance
                             }
 
                         }
+                        dr["SourceFlag"] = "ManualAttendance";
                         dr["UpdatedBy"] = identity.Name;
 
 
@@ -274,6 +275,7 @@ namespace Library.HumanResource.Attendance
 
                         }
 
+                        dr["SourceFlag"] = "ManualAttendance";
                         dr["PlantId"] = identity.PlantId;
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = System.DateTime.Now;

@@ -757,7 +757,7 @@ left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='" 
 left join ShiftDefination sdz on sdz.SystemID=rp.ShiftDefinationID
 left join org.Plant pl on pl.Id=e.PlantId
 left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
-where e.EmployeeStatus='Active' and e.PlantId='" + PlantId + @"'
+where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantId + @"'
 and mb.ShiftDefinationId!=''
 ";
 
@@ -3318,7 +3318,7 @@ and mb.ShiftDefinationId!=''
             try
             {
                 var sql = @"select distinct p.EmpSystemID,Result=dt.DayType,p.ManualDayStatus,p.ProcessDayStatus, 
-                dt.SandwichStatusFlag,dt.OTApplicable,dt.GoodWorkApplicable,format(p.WorkDate,'yyyy-MMM-dd')WorkDate 
+                dt.SandwichStatusFlag,dt.OTApplicable,dt.AutoLock,dt.GoodWorkApplicable,format(p.WorkDate,'yyyy-MMM-dd')WorkDate 
                 from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
                         left join mst.DesignationMasterLegalDesignation ddm on 
@@ -3350,13 +3350,13 @@ and mb.ShiftDefinationId!=''
 				(
 				select SandwichFlag from AttdnProcessData where WorkDate=DATEADD(day,-1,p.WorkDate) 
 				and EmpSystemID=p.EmpSystemID
-				and PlantID='202016'
+				and PlantID='"+Plant+@"'
 				)PrevDayFlag,
 				(
 				select Format(WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData 
 				where WorkDate=DATEADD(day,-1,p.WorkDate) 
 				and EmpSystemID=p.EmpSystemID
-				and PlantID='202016'
+				and PlantID='"+Plant+@"'
 				)PrevWorkDate
 				from AttdnProcessData p
                 where ManualFlag=1 and PlantID='" + Plant + "'";
@@ -3753,6 +3753,7 @@ and mb.ShiftDefinationId!=''
                         string SandwichFlag = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"SandwichStatusFlag"]).ToString();
                         string OtApplicable = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"OTApplicable"]).ToString();
                         string Goodwork = clsWebLib.RetValidLen(ManualFinalDayStat.Tables[0].Rows[i][@"GoodWorkApplicable"]).ToString();
+                        string AutoLock = clsWebLib.GetBoolData(ManualFinalDayStat.Tables[0].Rows[i][@"AutoLock"]).ToString();
 
                         dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                         if (dsRef.Tables[0].DefaultView.Count > 0)
@@ -3764,6 +3765,12 @@ and mb.ShiftDefinationId!=''
                             dr["SandwichFlag"] = SandwichFlag;
                             dr["DayTypeOTApplicable"] = OtApplicable;
                             dr["DayTypeGoodWorkApplicable"] = Goodwork;
+                            if (AutoLock == "True")
+                            {
+                                dr["IsLock"] = true;
+                                dr["LockedDate"] = DateTime.Now;
+                                dr["LockedBy"] = "AutoLock";
+                            }
                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                             dr.EndEdit();
                             CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -3781,7 +3788,7 @@ and mb.ShiftDefinationId!=''
                 {
 
                     ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    var sqlx = @"select * from AttdnProcessData where IsLock=0 and ManualFlag=1 and PlantID='" + PlantValue + "'";
+                    var sqlx = @"select * from AttdnProcessData where ManualFlag=1 and PlantID='" + PlantValue + "'";
 
                     objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
@@ -3940,9 +3947,9 @@ and mb.ShiftDefinationId!=''
         {
             try
             {
-                string PreviousDay = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
+                string Day = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
                 DataSet MonthlyData;
-                MonthlySummarySource(PreviousDay, out MonthlyData);
+                MonthlySummarySource(Day, out MonthlyData);
                 if (MonthlyData.Tables[0].Rows.Count > 0)
                 {
                     var Year = MonthlyData.Tables[0].Rows[0][@"Year"].ToString();
