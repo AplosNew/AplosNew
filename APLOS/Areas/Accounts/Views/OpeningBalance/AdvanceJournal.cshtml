@@ -212,6 +212,27 @@
             <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
+    <div class="row text-right ">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="OBDetailListParameters.searchBy">
+                                <option ng-repeat="option in searchOBDetailList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="OBDetailListParameters.search" ng-enter="GetOBDetailList()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="GetOBDetailList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="table-responsive modal-table ">
         <table class="table table-striped table-bordered">
 
@@ -242,9 +263,14 @@
                     </td>
                     <td><input type="text" class="form-control text-right" ng-disabled="x.DrDisable" id="vdDrAmount" ng-model="x.DrAmount " n-decimals="2" tabindex="11" ng-change="checkDrAmount($index)" autocomplete="off"></td>
                     <td><input type="text" class="form-control text-right" ng-disabled="x.CrDisable" id="vdCrAmount" ng-model="x.CrAmount " n-decimals="2" tabindex="12" ng-change="checkCrAmount($index)" autocomplete="off"></td>
+                    @*<td class="text-right">
+                            <button ng-click="removeRow($index)" data-toggle="modal" ng-disabled="x.Id" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </button>
+                        </td>*@
                     <td class="text-right">
-                        <button ng-click="removeRow($index)" data-toggle="modal" ng-disabled="x.Id" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
-                            <i class="glyphicon glyphicon-remove"></i>
+                        <button ng-click="confirmRowDelete($index,x)" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                            <i class="glyphicon glyphicon-trash"> Delete</i>
                         </button>
                     </td>
                 </tr>
@@ -335,5 +361,5 @@
 @Html.Partial("~/Areas/Accounts/Views/OpeningBalance/_AddOBBankJVPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/OpeningBalance/_AddOBCashJVPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/OpeningBalance/_AddOBPartyJVPopUp.cshtml")
-
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="DeleteDetailRow(deleteRow,deleteRowIndex)"></confirm-archive-generic>

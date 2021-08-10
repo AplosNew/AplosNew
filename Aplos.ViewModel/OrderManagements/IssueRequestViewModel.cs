@@ -49,6 +49,7 @@ namespace Library.ViewModel.OrderManagements
         public string BOQDThirdCharacteristicsValueId { get; set; }
         public string BOQId { get; set; }
         public decimal RequestedQtyNew { get; set; }
+      
 
         public decimal IssueRequestBOQMapQty { get; set; }
         public decimal AllocatedIssueSlipQty { get; set; }

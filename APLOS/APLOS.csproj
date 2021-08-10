@@ -666,6 +666,7 @@
     <Compile Include="Areas\Materials\Controllers\RackController.cs" />
     <Compile Include="Areas\Modules\Controllers\NotificationURLController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\DispatchMasterController.cs" />
+    <Compile Include="Areas\OrderManagements\Controllers\OrderController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\OS3DashboardController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\ProductionPlanningReportController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\ReportCurrencyExchangeController.cs" />
@@ -1861,6 +1862,7 @@
     <Content Include="Areas\Leave\Scripts\SandWichLeaveOnHolidayController.js" />
     <Content Include="Areas\Materials\Scripts\RackController.js" />
     <Content Include="Areas\OrderManagements\Scripts\DispatchMasterController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\OrderController.js" />
     <Content Include="Areas\OrderManagements\Scripts\OS3DashboardController.js" />
     <Content Include="Areas\OrderManagements\Scripts\ProductionPlanningReportController.js" />
     <Content Include="Areas\OrderManagements\Scripts\ReportCurrencyExchangeController.js" />
@@ -3633,6 +3635,7 @@
     <Content Include="Areas\HumanResource\Views\RosterUpdates\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\WeekOffUpdates\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionTransformationBooking\Aplos.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\Order\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
