@@ -9638,14 +9638,13 @@ namespace Library.MaterialManagement.Inventory
         }
 
         #region InventorySalesReturn
-        public void GetAvgRate(string PlantId, out DataSet dsRef)
+        public void GetAvgRate(string InventorySalesId, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
             string strSql = "";
             try
             {
-                strSql = @"Select AvgRate=FORMAT(SUM(TotalBaseAmount)/SUM(Qty),'N4'),SUM(TotalBaseAmount) TotalBaseAmount,SUM(Qty)Qty FROM [TRN].[InventorySalesHistory] 
-where InventorySalesDetailId IN (Select Id FROM [TRN].[InventorySalesDetail]  where InventorySalesId='20214699')";
+                strSql = @"Select AvgRate=FORMAT(SUM(TotalBaseAmount)/SUM(Qty),'N4'),SUM(TotalBaseAmount) TotalBaseAmount,SUM(Qty)Qty FROM [TRN].[InventorySalesHistory] where InventorySalesDetailId IN (Select Id FROM [TRN].[InventorySalesDetail]  where InventorySalesId='"+ InventorySalesId + "')";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
@@ -9844,12 +9843,12 @@ where InventorySalesDetailId IN (Select Id FROM [TRN].[InventorySalesDetail]  wh
                         {
                             Id = inventoryReceive.Id + "-" + receiveDetailcurrentId,
                             InventoryReceiveId = inventoryReceive.Id,
-                            InventoryMaterialId = issue.InventoryMaterialId,
+                            InventoryMaterialId = detail.InventoryMaterialId,
                             MaterialStorageId = inventoryIssue.MaterialStorageId,
                             TransactionQty = totalReturnQty,
-                            TransactionUoMId = issue.TransactionUoMId,
+                            TransactionUoMId = detail.TransactionUoMId,
                             BaseQty = totalReturnQty,
-                            BaseUOMId = issue.TransactionUoMId,
+                            BaseUOMId = detail.TransactionUoMId,
                             BaseUoMFactor = 0,
                             MaterialTranRate = avgRate,
                             MaterialTranAmount = avgRate * totalReturnQty,
