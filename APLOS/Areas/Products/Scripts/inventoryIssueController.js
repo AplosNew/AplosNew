@@ -1449,19 +1449,25 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 
     //}
 
-    $scope.qtyFunc = function (x) {
+    $scope.qtyFunc = function (x, index) {
         //debugger;
         // alert('qtyalert');
-        for (var i = 0; i < $scope.slipdetailList.length; i++) {
+        for (var i = 0; i < $scope.detailList.length; i++) {
+            if ($scope.detailList[index].IssueRequest === $scope.detailList[i].IssueRequest) {
 
-            if (x.TransactionQty > $scope.slipdetailList[i].PostingQty) {
-                ShowResult("Issue qty must be less than or equal Ready for Issue Qty");
-                return false;
-                //throw 'Issue qty must be less than or equal Ready for Issue Qty.';
+                if ($scope.detailList[index].TransactionQty > $scope.detailList[i].PostingQty) {
+                    ShowResult("Issue qty must be less than or equal Ready for Issue Qty");
+                    return false;
+                    //throw 'Issue qty must be less than or equal Ready for Issue Qty.';
+                }
+                if ($scope.detailList[index].TransactionQty > $scope.detailList[i].BalanceQty) {
+                    ShowResult("Issue qty must be less than or equal BalanceQty Qty");
+                    return false;
+                    //throw 'Issue qty must be less than or equal Ready for Issue Qty.';
+                }
+                $scope.detailList[i].BalanceQty = $scope.detailList[i].BalanceQty - $scope.detailList[i].TransactionQty;
             }
-
-
-
+            
         }
 
     }
@@ -2101,4 +2107,61 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
         $scope.productNew.OrderRefNo = null;
 
     };
+
+
+    $scope.showMaterialWiseStockModalClose = function () {
+        //debugger;
+        angular.element(document.querySelector('#POPopUp')).modal('hide');
+
+    };
+    $scope.showMaterialWiseStockModal = function (x, index) {
+        
+        $scope.GetSOWiseMaterialStock(x, index);
+        angular.element(document.querySelector('#POPopUp')).modal('show');
+
+    }; 
+    $scope.ShowStock = [];
+    $scope.GetSOWiseMaterialStock = function (x, $index) {
+        $scope.GetDetailGridIndex = $index;
+        $http({
+            method: 'GET',
+            url: 'Products/GoodsReceiveNote/GetSOWiseMaterialStock?Material=' + x.MaterialMasterId + '&Article=' + x.ArticleId + '&Skuvalue1=' + x.FirstCharacteristicsValueId + '&Skuvalue2=' + x.SecondCharacteristicsValueId + '&Skuvalue3=' + x.ThirdCharacteristicsValueId + '&ProcessId=' + $scope.productNew.ProcessId + '&SalesOrderId=' + x.SalesOrderId
+        }).then(function successCallback(response) {
+            $scope.ShowStock = response.data;
+
+        });
+
+    }
+
+    $scope.Change = function (even,index,x) {
+
+        $scope.GetDetailGridIndex = index;
+        
+        $http({
+            method: 'GET',
+            url: 'Products/GoodsReceiveNote/GetSOWiseMaterialStock?Material=' + x.MaterialMasterId + '&Article=' + x.ArticleId + '&Skuvalue1=' + x.FirstCharacteristicsValueId + '&Skuvalue2=' + x.SecondCharacteristicsValueId + '&Skuvalue3=' + x.ThirdCharacteristicsValueId + '&ProcessId=' + $scope.productNew.ProcessId + '&SalesOrderId=' + x.SalesOrderId
+        }).then(function successCallback(response) {
+            $scope.ShowStock = response.data;
+            if (baseService.isUndefinedOrNull($scope.detailList[index].TransactionQty) || $scope.detailList[index].TransactionQty === 0) {
+                $scope.detailList[index].check = false;
+                ShowResult('Enter the Issue qty', 'failure');
+
+                return false;
+
+            }
+            else {
+                for (var i = 0; i < $scope.ShowStock.length; i++) {
+                    if ($scope.ShowStock[i].TransactionUoMId != $scope.detailList[index].TransactionUoMId && $scope.detailList[index].IssueByUoM === true) {
+                        ShowResult('Can not issue this material.Because Requition UoM is not equal to Stock UoM', 'failure');
+                        $scope.detailList[index].TransactionQty = '';
+                        $scope.detailList[index].check = false;
+                        return false;
+                    }
+
+                }
+			}
+            
+        });
+
+	}
 }
