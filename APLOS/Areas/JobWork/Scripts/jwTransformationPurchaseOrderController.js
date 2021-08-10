@@ -30,6 +30,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.paymentTermList = [];
     $scope.taxAbleAmnt = 0.00;
+    $scope.JWPurchaseOrderFileLocation = virtualPath.JWTransformationPurchaseOrder;
 
     $http({
         method: 'GET',
@@ -823,7 +824,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         getServiceChargeList($scope.productNew.Id);
 
         $scope.productNew.OrderSpecific = x.data.OrderSpecific;
-
+        $scope.ImagedataLoad();
 
         $scope.BOQItemDisabled = 'GridClick';
         if (baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
@@ -1328,6 +1329,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.NotificationSettingStatus();
         $scope.PoChildList = [];
         $scope.productNew.POType = "OSTransformationPO";
+        $scope.Imagedata = [];
         if (!$rootScope.isCollapsed) $rootScope.toggle();
         return true;
 

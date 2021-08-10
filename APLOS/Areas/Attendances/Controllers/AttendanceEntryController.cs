@@ -279,7 +279,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     dr["LongitudeOUT"] = AttendanceEntry.LongitudeOUT;
                     dr["RemarksOUT"] = AttendanceEntry.RemarksOUT;
                     dr["LocationDesc"] = AttendanceEntry.LocationDesc;
-
+                    dr["SourceFlag"] = "AttendanceEntry";
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
 
@@ -332,7 +332,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     dr["LongitudeOUT"] = AttendanceEntry.LongitudeOUT;
                     dr["RemarksOUT"] = AttendanceEntry.RemarksOUT;
                     dr["LocationDesc"] = AttendanceEntry.LocationDesc;
-
+                    dr["SourceFlag"] = "AttendanceEntry";
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = System.DateTime.Now.ToString();
 

@@ -595,9 +595,9 @@
                         <tbody>
                             <tr ng-repeat="x in dimensionList">
                                 <td ng-show="dimensionList.length>1">
-                                    <span ng-show="!$first&&materialAttributeMasterNew.Id==null" ng-click="moveUp($index,dimensionList,'Sequence')"><i class="glyphicon glyphicon-triangle-top"></i></span>
+                                    <span ng-show="!$first&&materialAttributeMasterNew.Id==null" ng-click="moveskuUp($index,dimensionList,'Sequence')"><i class="glyphicon glyphicon-triangle-top"></i></span>
                                     <div class="clearfix"></div>
-                                    <span ng-show="!$last&&materialAttributeMasterNew.Id==null" ng-click="moveDown($index,dimensionList,'Sequence')"><i class="glyphicon glyphicon-triangle-bottom"></i></span>
+                                    <span ng-show="!$last&&materialAttributeMasterNew.Id==null" ng-click="moveskuDown($index,dimensionList,'Sequence')"><i class="glyphicon glyphicon-triangle-bottom"></i></span>
                                 </td>
                                 <td>{{x.Sequence}}</td>
                                 <td>{{x.CharacteristicsName}}</td>

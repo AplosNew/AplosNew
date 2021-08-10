@@ -575,6 +575,14 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             .when('/new-attdn-dashboard', {
                 templateUrl: 'humanresource/NewAttendanceDashboard/Aplos',
                 controller: 'NewAttendanceDashboardController'
+            })
+        .when('/roster-updates', {
+            templateUrl: 'humanresource/RosterUpdates/Aplos',
+            controller: 'RosterUpdatesController'
+        })
+        .when('/weekoff-updates', {
+            templateUrl: 'humanresource/WeekOffUpdates/Aplos',
+            controller: 'WeekOffUpdatesController'
         })
         ;
 }
