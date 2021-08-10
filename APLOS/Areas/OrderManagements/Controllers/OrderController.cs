@@ -56,24 +56,31 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
 
+        [HttpGet, Authorize]
+        public ActionResult GetOrderReport()
+        {
+            try
+            {
+                Library.Planning.OrderManagement.Order Report = new Library.Planning.OrderManagement.Order();
+
+                Report.OrderReport();
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+
         [HttpPost , Authorize]
         public ActionResult getSlabData(Dictionary<string,string> parameters , string group , string value , string analysis, string type)
         {
             var data = Order.getSlabData(parameters, group, out List<Object> totalArr , out List<double[]> chart, value ,analysis , type );
             return Json(new { DATA = data , Total = totalArr , Chart = chart}, JsonRequestBehavior.AllowGet);
         }
-      
-        [HttpPost , Authorize]
-        public ActionResult getClickData(Dictionary<string,string> parameters , string group , string col , string range , string analysis , string type)
-        {
-            return Json(Order.getClickData(parameters, group, col , range , analysis, type), JsonRequestBehavior.AllowGet);
-        }
 
-        [HttpPost, Authorize]
-        public ActionResult getControlList(string pr)
-        {
-            return Json(Order.getControlList(pr), JsonRequestBehavior.AllowGet);
-        }
     }
 
 }
