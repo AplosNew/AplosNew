@@ -102,33 +102,34 @@
             </div>
             <div class="row">
                 <div class="col-xs-12">
-                    <div style="color:black;overflow:scroll" id="GridMaterialPlanningTab" ej-grid e-datasource="SelectedDetailDataList"
-                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="GetJWOutputDataToEdit"
+                    <div style="color:black;" id="GridMaterialPlanningTab" ej-grid e-datasource="SelectedDetailDataList"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="GetDetailDataToEdit"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowscrolling="true">
                         <div e-columns>
                             <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="100"></div>
                             <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="100"></div>
                             <div e-column e-type="string" e-field="WorkCenter" e-headertext="Work Center" e-width="100"></div>
-                            @*<div e-column e-type="string" e-field="DependantProcess" e-headertext="Dependant Process" e-width="100"></div>
+                            <div e-column e-type="string" e-field="DependantProcess" e-headertext="Dependant Process" e-width="100"></div>
                             <div e-column e-type="string" e-field="OutputItemName" e-headertext="Output Item Name" e-width="100"></div>
                             <div e-column e-type="string" e-field="EntryUom" e-headertext="Entry UoM" e-width="100"></div>
                             <div e-column e-type="string" e-field="OutputItemParameterId" e-headertext="Output Item Parameter" e-width="100"></div>
                             <div e-column e-type="string" e-field="ConversionFactorId" e-headertext="Conversion Factor" e-width="100"></div>
                             <div e-column e-type="string" e-field="OutputItemUom" e-headertext="Output Item UoM" e-width="100"></div>
                             <div e-column e-type="string" e-field="OutputQuantity" e-headertext="Output Quantity" e-width="100"></div>
-                            <div e-column e-type="string" e-field="InputUom" e-headertext="Input UoM" e-width="100"></div>
+                            <div e-column e-type="string" e-field="InputItemName" e-headertext="Input Item Name" e-width="100"></div>
+                            <div e-column e-type="string" e-field="UoMInput" e-headertext="Input UoM" e-width="100"></div>
+
                             <div e-column e-type="string" e-field="GrossConsumptionPerUnitQuantity" e-headertext="Gross Consumption PerUnit Quantity" e-width="100"></div>
                             <div e-column e-type="string" e-field="ByProductItem" e-headertext="By Product Item" e-width="100"></div>
                             <div e-column e-type="string" e-field="ByProductUom" e-headertext="By Product UoM" e-width="100"></div>
                             <div e-column e-type="string" e-field="ByProductQuantity" e-headertext="By Product Quantity" e-width="100"></div>
-                            <div e-column e-type="string" e-field="ByProductCategory" e-headertext="By Product Category" e-width="100"></div>*@
-
-                            @*<div e-column e-type="string" e-field="InvisibleLossPercentage" e-headertext="Invisible Loss Percentage" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ByProductCategory" e-headertext="By Product Category" e-width="100"></div>
+                            <div e-column e-type="string" e-field="InvisibleLossPercentage" e-headertext="Invisible Loss Percentage" e-width="100"></div>
                             <div e-column e-type="string" e-field="ProductionBookingLevel" e-headertext="Production Booking Level" e-width="100"></div>
                             <div e-column e-type="string" e-field="IssueConsumptionBooking" e-headertext="Issue Consumption Booking" e-width="100"></div>
-                            <div e-column e-type="string" e-field="InputItemName" e-headertext="Input Item Name" e-width="100"></div>
-                            <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="100"></div>
-                            <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>*@
+
+                            <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+
                             @*<div e-column e-template="#DownloadFileTab" e-headertext="Download" e-width="100"></div>*@
                             @*<div e-column e-template="#PopUpOrderWise" e-headertext="Order Wise" e-width="100"></div>*@
 
@@ -291,7 +292,7 @@
                                 </label>
                                 <div class="show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.WorkCentreCategoryGroupId" name="Work Centre Category Group" required ng-change="GetJWItems();GetJWLocation();"
+                                        <select class="form-control" ng-model="detailModel.WorkCentreCategoryGroupId" name="Work Centre Category Group" required
                                                 ng-options="item.Value as item.Text for item in WorkCentreCategoryGroupList" tabindex="16">
                                             <option value=""></option>
                                         </select>
@@ -306,7 +307,7 @@
                                 <div class="">
                                     @*<input type="text" ng-model="detailModel.OutputMaterialUOM" class="form-control" tabindex="2" readonly maxlength="50">*@
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.DependantProcessId"
+                                        <select class="form-control" ng-model="detailModel.DependantProcessId" ng-disabled="SelectedDetailDataList.length==0"
                                                 ng-options="item.Value as item.Text for item in DependantProcessList" tabindex="19">
                                             <option value=""></option>
                                         </select>
@@ -366,7 +367,7 @@
                                 <label class=" control-label">Output Item UoM<sup>*</sup></label>
                                 <div class=" show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.OutputItemUOMId" name="Output Item UoM" ng-change="GetJWMaterialStorage();"
+                                        <select class="form-control" ng-model="detailModel.OutputItemUOMId" name="Output Item UoM"
                                                 ng-options="item.Value as item.Text for item in OutputItemUOMList" required tabindex="23">
                                             <option value=""></option>
                                         </select>
@@ -403,7 +404,7 @@
                                 <label class=" control-label">Input UoM<sup>*</sup></label>
                                 <div class="show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.InputUOMId" name="Input UoM" ng-change="GetJWMaterialStorage();"
+                                        <select class="form-control" ng-model="detailModel.InputUOMId" name="Input UoM"
                                                 ng-options="item.Value as item.Text for item in InputUOMList" required tabindex="23">
                                             <option value=""></option>
                                         </select>
@@ -440,7 +441,7 @@
                                 <label class=" control-label">By Product UoM<sup>*</sup></label>
                                 <div class="show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.ByProductUOMId" name="By Product UoM" ng-change="GetJWMaterialStorage();"
+                                        <select class="form-control" ng-model="detailModel.ByProductUOMId" name="By Product UoM"
                                                 ng-options="item.Value as item.Text for item in ByProductUOMList" required tabindex="23">
                                             <option value=""></option>
                                         </select>

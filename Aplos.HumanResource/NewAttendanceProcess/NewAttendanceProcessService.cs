@@ -3940,9 +3940,9 @@ and mb.ShiftDefinationId!=''
         {
             try
             {
-                string PreviousDay = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
+                string Day = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
                 DataSet MonthlyData;
-                MonthlySummarySource(PreviousDay, out MonthlyData);
+                MonthlySummarySource(Day, out MonthlyData);
                 if (MonthlyData.Tables[0].Rows.Count > 0)
                 {
                     var Year = MonthlyData.Tables[0].Rows[0][@"Year"].ToString();

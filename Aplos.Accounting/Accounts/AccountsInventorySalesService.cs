@@ -489,7 +489,7 @@ namespace Library.Accounting.Accounts
 		                        , IM.FirstCharacteristicsId, CH1.UserName AS FirstCharacteristics, IM.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicText--FirstCharacteristicsValue
 		                        , IM.SecondCharacteristicsId, CH2.UserName AS SecondCharacteristics, IM.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicText--SecondCharacteristicsValue
 		                        , IM.ThirdCharacteristicsId, CH3.UserName AS ThirdCharacteristics, IM.ThirdCharacteristicsValueId, CHV3.UserName AS ThirdCharacteristicText--ThirdCharacteristicsValue
-		                        , IID.TransactionQty, IID.BaseUOMId, UoM.UserName AS TransactionUoM, IID.AvgRate, IID.AvgAmount, IID.PolicyRate, IID.PolicyAmount, IID.[Policy]
+		                        , IID.TransactionQty,IRD.TransactionQty GRNQty,IRDUM.UserName GRNUoM, IID.TransactionUoMId, IID.BaseUOMId, UoM.UserName AS TransactionUoM, IID.AvgRate, IID.AvgAmount, IID.PolicyRate, IID.PolicyAmount, IID.[Policy]
                                 ,CC.UserName CostCenter,C.UserName CountryName,c.Id CountryId,II.ToCurrencyRate, II.DocRefNo, II.DocDate , II.NoteForAccounts
                                  ,ISD.SalesRate,ISD.TotalAmount,IST.TaxAmount,NULL TaxList
                         FROM [TRN].[InventorySalesDetail] AS IID
@@ -507,6 +507,8 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON IID.BaseUOMId=UoM.Id
                         LEFT JOIN scs.country C On C.Id=IM.CountryId
                         LEFT JOIN TRN.InventorySalesHistory ISH ON ISH.InventorySalesDetailId=IID.Id
+						LEFT JOIN [TRN].[InventoryReceiveDetail] IRD ON IRD.Id=ISH.InventoryReceiveDetailId
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS IRDUM ON IRD.BaseUOMId=IRDUM.Id
                         JOIN (select InventorySalesHistoryId,Sum(TaxAmount) TaxAmount from trn.inventorySalesTax group by InventorySalesHistoryId) IST ON IST.InventorySalesHistoryId =ISH.Id
                         LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 2) SalesRate,(ROUND(sum(TransactionQty), 2) * ROUND(sum(SalesRate), 2)) TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IID.Id
 

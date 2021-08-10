@@ -157,7 +157,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     dr["EmpSystemID"] = employeeid;
                     dr["WorkDate"] = workdate;
                     dr["GroupID"] = identity.CompanyGroupId;
-                    dr["PlantID"] = identity.PlantId;
+                    //dr["PlantID"] = identity.PlantId;
 
 
                     if (dsAppAttendance.Tables[0].Rows[0]["InTime"].ToString() != "")

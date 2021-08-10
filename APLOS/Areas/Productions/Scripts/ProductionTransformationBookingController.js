@@ -167,6 +167,8 @@ function ProductionTransformationBookingController(cboService, commonMessage, $s
 
     $scope.closeDetaiPopUp = function () {
         angular.element(document.querySelector('#detailPopUp')).modal('hide');
+        $scope.detailClear();
+        $scope.GetDetailData();
     //    $scope.detailModel = Object.assign({}, $scope.detailTempModel);
     };
 
@@ -321,6 +323,7 @@ function ProductionTransformationBookingController(cboService, commonMessage, $s
         Remarks: null,
         InputItemNameId: null,
         Sequence: 0,
+        DependantProcess:null,
     };
     $scope.detailModel = Object.assign({}, $scope.ModelDetailTemp);
 
@@ -368,6 +371,7 @@ function ProductionTransformationBookingController(cboService, commonMessage, $s
         $scope.DetailAction = 'Save';
         $scope.detailModel = Object.assign({}, $scope.ModelDetailTemp);
         $scope.GetSequence();
+        $scope.GetDependentProcess();
     }
 
     $scope.SelectedDetailDataList = [];
@@ -383,7 +387,7 @@ function ProductionTransformationBookingController(cboService, commonMessage, $s
 
     $scope.DelBookingDetails = function () {
         $http({
-            method: 'GET',
+            method: 'POST',
             url: $scope.path + 'DelBookingDetails?Id=' + $scope.BookingDetailId
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -402,5 +406,18 @@ function ProductionTransformationBookingController(cboService, commonMessage, $s
     $scope.ConfirmDeleteDetail = function (Id) {
         $scope.BookingDetailId = Id;
         angular.element(document.querySelector("#DelBookingDetailsTabPopUp")).modal("show");
+    }
+
+    $scope.GetDetailDataToEdit = function (args) {
+        angular.element(document.querySelector('#detailPopUp')).modal('show');
+        $scope.detailModel = Object.assign({}, args.data);
+        $scope.detailModel.DependantProcessId = $scope.detailModel.DependantProcessId;
+    //    $scope.GetDependentProcess();
+        $scope.GetEntryQtyUom();
+        $scope.GetOutputItemUom();
+        $scope.InputUom();
+        $scope.GetByProductUom();
+        $scope.DetailAction = 'Update';
+
     }
 }

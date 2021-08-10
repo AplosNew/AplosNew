@@ -232,6 +232,10 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/OS3Dashboard/Aplos',
             controller: 'OS3DashboardController'
         })
+        .when('/order', {
+            templateUrl: 'OrderManagements/Order/Aplos',
+            controller: 'OrderController'
+        })
         .when('/terms-and-conditions', {
             templateUrl: 'OrderManagements/TermsAndConditions/Aplos',
             controller: 'TermsAndConditionsController'

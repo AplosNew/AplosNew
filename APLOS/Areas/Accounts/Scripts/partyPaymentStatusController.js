@@ -1322,12 +1322,27 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     function GetFixedAssetsRegisterPopUp(args) {
         //alert('dd');
         this.preventClick = true;
-        var obj = $("#detailGrid").ejGrid("instance");
+       // var obj = $("#detailGrid").ejGrid("instance");
+
+        //var obj1 = $("#detailGrid").data("ejGrid");
+        //var data1 = obj1.getSelectedRecords();
         //var index = this.element.closest("tr").index();
         //var record = obj.getCurrentViewData()[index];
-        var data = obj.model.dataSource;
-        $scope.tempMaterialMasterId = data[0].MaterialMasterId
-        $scope.tempMaterialMasterArticleId = data[0].MaterialMasterArticleId 
+
+       // var data = obj.model.dataSource;
+        //for (var i = 0; i < data.length; i++) {
+        //    $scope.tempMaterialMasterId = data[i].MaterialMasterId
+        //    $scope.tempMaterialMasterArticleId = data[i].MaterialMasterArticleId
+        //}
+        //$scope.tempMaterialMasterId = data[0].MaterialMasterId
+        //$scope.tempMaterialMasterArticleId = data[0].MaterialMasterAritcleId
+
+        $scope.tempMaterialMasterId = args.data.MaterialMasterId;
+        $scope.tempMaterialMasterArticleId = args.data.MaterialMasterArticleId;
+       
+        //var data = obj.model.dataSource;
+        //$scope.tempMaterialMasterId = data[0].MaterialMasterId
+        //$scope.tempMaterialMasterArticleId = data[0].MaterialMasterArticleId 
 
         $http({
             method: 'POST',
