@@ -235,6 +235,7 @@ function FixedAssetsRegisterReportController(commonMessage, $scope, $rootScope, 
                     '&vendorId=' + vendorId 
                     //'&FromDate=' + $scope.report.FromDate + '&ToDate=' + $scope.report.ToDate
                     ;
+                //var file_src = $scope.path + 'FixedAssetRegisterReportExcel' 
                 $rootScope.report(file_src);
 
             } catch (e) {
@@ -243,6 +244,51 @@ function FixedAssetsRegisterReportController(commonMessage, $scope, $rootScope, 
             }
         }
     }
+
+    //$scope.GetTrialBLAccountGroupReport = function () {
+    //    try {
+    //        var filtered = $("#GridSelectedTrialBalance").data("ejGrid").getFilteredRecords();
+    //        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+    //            filtered = $scope.TrialBalanceList;
+    //        }
+    //        //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+    //        var AccountGroupNames = getString(filtered, "AccountGroupName");
+    //        //var AccountGroupNames = getString(filtered, "GL");
+    //        //var AccountGroupNames = getString(filtered, "AccountGroupName");
+
+    //        $scope.fileName = $scope.report.AssetsLiability + ".xls";
+
+    //        $http({
+    //            method: 'POST',
+    //            // url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
+    //            url: 'Accounts/AccountStatusDashboard/AccountGroupWiseReport',
+    //            data: {
+    //                'allAccountGroupList': AccountGroupNames
+    //                //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
+    //                , 'toDate': $scope.report.ToDate
+    //                , 'reportName': $scope.report.AssetsLiability
+    //                , 'isDetailLevel': $scope.report.IsDetailLevel
+                 
+    //            },
+    //            dataType: 'JSON'
+    //            , contentType: "application/json charset=utf-8"
+
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error === true) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //            else {
+    //                //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+    //                $rootScope.report($scope.downloadgriddataUrlPath);//downloadgriddataUrlPath
+    //            }
+    //        });
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //};
+
+
+
 
     //GatenntryRegisterListPdf
     $scope.FixedAssetRegisterReportPdf = function () {
