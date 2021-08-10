@@ -1,0 +1,94 @@
+﻿
+<style type="text/css">
+    #myDIV {
+        width: 100%;
+        text-align: center;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        background: #a2f1ff;
+        color: #080076;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    .modal-table {
+        position: relative;
+        height: 300px;
+        overflow: auto;
+    }
+    .modal {
+        overflow-y: auto;
+    }
+    .table-responsive {
+        display: block;
+    }
+
+    td, th {
+        padding: 10px;
+    }
+</style>
+<div id="MainDiv">
+    <div class="form-elements form-horizontal">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="col-md-4"><span style="font-size: 19px;margin-left: -15%;margin-bottom:10px;"><span class="glyphicon glyphicon-stats"></span>&nbsp;{{title}}</span></div>
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div id="filters">
+
+                    </div>
+
+
+                    <div class="col-md-1 text-right">
+                        <button type="button" class="btn single-btn" ng-click="filterComplete()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i> Generate </button>
+                    </div>
+                    <div class="col-md-1  text-right" style="margin-left:20px;margin-top:10px;">
+                        <button type="button" class="btn single-btn" ng-click="clearFilters()"><i class="glyphicon glyphicon-repeat"></i> Clear Filters </button>
+                    </div>
+                
+                </div>
+
+
+            </div>
+
+
+
+            <div class="row" style="margin:10px; margin-top:20px;">
+                <div class="col-lg-12">
+                    <div class="col-lg-3" style="margin-top:20px;">
+                        <label class="col-sm-3 control-label">Dependent Date(Analysis)</label>
+                        <div class="col-sm-9" style="margin-left:10px;margin-top:5px;"><select id="dropdownDate" ej-dropdownlist e-datasource="Datelist" e-text="Shipment Date" e-value="ShipmentD" e-change="dateValueChange"></select></div>
+                    </div>
+                    <div class="col-lg-4" style="margin-top:20px;">
+                        <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                        <div class="col-sm-9 show-message">
+                            <input type="text" name="From Date" ng-model="fromDate" datepicker class="form-control" required tabindex="5">
+                        </div>
+
+                        @*<span style="margin-top:25px; margin-left:10px"><b>Selection Criteria </b></span>
+            <div class="row" style="margin-left:10px;margin-top:5px;"><select id="dropdown1" ej-dropdownlist e-datasource="list" e-text="Delivery Date" e-value="Delivery" e-change="change"></select></div>*@
+                    </div>
+                    <div class="col-lg-3" style="margin-top:20px;">
+                        <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                        <div class="col-sm-9 show-message">
+                            <input type="text" name="To Date" ng-model="toDate" datepicker class="form-control" required tabindex="6">
+                        </div>
+                        @*<span style="margin-top:25px; margin-left:10px"><b>Value Criteria </b></span>
+            <div class="row" style="margin-left:10px;margin-top:5px;"><select id="dropdown2" ej-dropdownlist e-datasource="list1" e-text="No Of SO" e-value="SO" e-change="change1"></select></div>*@
+                    </div>
+
+                    <div class="col-md-2 text-right" style="margin-top:20px;">
+                        <button type="button" class="btn single-btn" ng-click="setAll()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i></button>
+                    </div>
+                </div>
+
+            </div>
+        
+        </div>
+    </div>
+</div>

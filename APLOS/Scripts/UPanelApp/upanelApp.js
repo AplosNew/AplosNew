@@ -910,6 +910,7 @@ var upanelApp = angular
     .controller("AttendanceRawDataFromAppController", AttendanceRawDataFromAppController)
     .controller("WeekOffUpdatesController", WeekOffUpdatesController)
     .controller("RosterUpdatesController", RosterUpdatesController)
+    .controller("OrderController", OrderController)
 
 
     .config(AccessControllerConfig)

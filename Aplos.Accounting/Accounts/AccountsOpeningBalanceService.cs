@@ -89,13 +89,13 @@ namespace Library.Accounting.Accounts
         public GridModel GetOBAdvanceJournalDetail(GridParameter parameters, string companyGroupId, string companyId, string plantId, string openingBalanceId)
         {
             parameters.CmdText = @"SELECT OBD.Id, OBD.OpeningBalanceId, ODC.Id AS OpeningBalanceDetailCurrencyId, OBD.DocRefNo, REPLACE(CONVERT(CHAR(11), OBD.DocDate, 106),' ','-') AS DocDate, OBD.DrAmount, OBD.CrAmount, OBD.CrAmount AS Amount, OBD.GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode
-								, GLGI.UserName AS GLGeneralInfoName, OBD.BudgetMasterId,BM.RefNo+' - '+ B.UserName AS BudgetName, OBD.ActivityId, A.UserName AS ActivityName
+								, GLGI.UserName AS GLGeneralInfoName, OBD.BudgetMasterId,BM.RefNo,BM.RefNo+' - '+ B.UserName AS BudgetName, OBD.ActivityId, A.UserName AS ActivityName
 								, OBD.PartyId, OBD.PartyPlantId, OBD.EmployeeId, OBD.PartyType, OBD.BankMasterId, OBD.CashMasterId, OBD.CurrencyId, OBD.CompanyId, OBD.PlantId, OBD.TransactionTypeId
 								,[ParticularName]=CASE 
 								WHEN EI.EmployeeName<>'' THEN EI.EmployeeName
 								WHEN BA.AccountTitle<>'' THEN BA.AccountTitle
 								WHEN EI.EmployeeName<>'' THEN EI.EmployeeName
-								WHEN P.UserName<>'' THEN P.UserName
+								WHEN P.UserName<>'' THEN P.Code+' - '+P.UserName
 								WHEN CM.UserName<>'' THEN CM.UserName
 								WHEN FAM.UserName<>'' THEN FAM.UserName
 								WHEN MM.UserName<>'' THEN MM.UserName
@@ -131,7 +131,7 @@ namespace Library.Accounting.Accounts
 												 WHEN OBD.CashCurrencyId=OBD.CurrencyId AND OBD.PartyType='Cash' THEN 0
 												    ELSE OBD.BankAmount
 												 END
-								,OBD.BankCurrencyId,OBD.CashCurrencyId
+								,OBD.BankCurrencyId,OBD.CashCurrencyId,P.Code PartyCode
                                 FROM [TRN].[OpeningBalanceDetail] AS OBD
                                 LEFT JOIN [TRN].[OpeningBalanceDetailCurrency] AS ODC ON ODC.OpeningBalanceDetailId=OBD.Id
 								LEFT JOIN [TRN].[OpeningBalance] AS OB ON OB.Id=OBD.OpeningBalanceId
