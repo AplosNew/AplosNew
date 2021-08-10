@@ -99,10 +99,12 @@
                      e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-querycellinfo="queryCellInfo"
                      e-allowscrolling="true" e-minheight="400" e-gridlines="vertical" @*e-showstackedheader="true"*@
                      e-actioncomplete="actionCompleteSingleEmployee" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
+                     e-templaterefresh="refreshTemplateemployee"
                      e-filtersettings-filterType="excel">
 
                     <div e-columns>
-
+                        <div e-column e-headertext="" e-headertemplateid="#BPheaderTemplate" e-template="#BPcheckboxTemplate"
+                             e-textalign="center" e-width="20"></div>
                         <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>
                         <div e-column e-field="DayName" e-headertext="Day" e-width="50"></div>
                         <div e-column e-field="ShiftName" e-headertext="Shift" e-width="220"></div>
@@ -124,16 +126,31 @@
                         <div e-column e-field="ErrorMessage" e-headertext="Error Message" e-width="300"></div>
                     </div>
                 </div>
+               
+                <script type="text/template" id="BPcheckboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
+                </script>
+                <script type="text/x-jsrender" id="BPheaderTemplate">
+                    <input type="checkbox" id="BPheadchk" />
+                </script>
+            
             </div>
+
+            
+
             <div class="row">
                 <div class="common-btn">
                     <ul class="list-inline text-right">
+                        <li>  <button type="button" ng-click="LockAttnd()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Lock Attendance</button></li>
+
                         <li>  <button type="button" ng-click="SaveSingleEmployee()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+
                     </ul>
                 </div>
 
             </div>
         </div>
+
 
 
         <div id="TabDateRange">
@@ -150,14 +167,16 @@
                     </div>
                 </div>
             </div>
+
             <div class="row">
                 <div id="GridChangeAttendanceBySingleDate" ng-init="chkinit()" ej-grid e-datasource="employeeAttendanceBySingleDate"
                      e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                      e-allowscrolling="true" e-minheight="400" e-gridlines="none" e-querycellinfo="queryCellInfo"
                      e-actioncomplete="actionCompleteSingleDay" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
-                     e-filtersettings-filterType="excel">
+                     e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateemployeex">
                     <div e-columns>
-
+                        <div e-column e-headertext="" e-headertemplateid="#APheaderTemplate" e-template="#APcheckboxTemplate"
+                             e-textalign="center" e-width="20"></div>
                         <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100" e-primarykey="true"></div>
                         <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="150"></div>
                         <div e-column e-field="ShiftName" e-headertext="Shift" e-width="220"></div>
@@ -189,11 +208,19 @@
 
                     </div>
                 </div>
+                <script type="text/template" id="APcheckboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
+                </script>
+                <script type="text/x-jsrender" id="APheaderTemplate">
+                    <input type="checkbox" id="APheadchk" />
+                </script>
 
             </div>
             <div class="row">
                 <div class="common-btn">
                     <ul class="list-inline text-right">
+                        <li>  <button type="button" ng-click="LockAttndx()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Lock Attendance</button></li>
+
                         <li>  <button type="button" ng-click="SaveSingleDay()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                     </ul>
                 </div>
@@ -404,4 +431,7 @@
         </div>
     </ej-dialog>
 </div>
+
+
+
 

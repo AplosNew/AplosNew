@@ -1374,7 +1374,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
     function CheckField(fieldValue, fieldName) {
         try {
-            if (fieldValue === null || fieldValue === '') {
+            if (fieldValue === null || fieldValue === '' || fieldValue === 'undefined') {
                 throw '[' + fieldName + '] is required...';
             }
         } catch (e) {
