@@ -214,7 +214,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                DataTable dtData = _sqlRepository.GetDataTable(@" SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,CONCAT(ei.SystemId,'_',ei.EmployeeCode,'_',ei.EmployeeName)BarCodeId
+                DataTable dtData = _sqlRepository.GetDataTable(@" SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,CONCAT(ei.SystemId,'#',ei.EmployeeCode,'#',ei.EmployeeName)BarCodeId
                                                                   FROM EmployeeInformation AS ei
                                                                 WHERE ei.SystemId in (" + filter + @") AND ei.EmployeeStatus='Active' AND ei.PlantId='" + identity.PlantId + @"'");
 

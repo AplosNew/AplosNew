@@ -808,7 +808,7 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
                             $scope.voucherDetail.ActivityName = party.ActivityName;
                         }
 
-                        $scope.voucherDetail.ParticularName = party.Code + ' - ' + party.UserName;
+                        $scope.voucherDetail.ParticularName = party.ParticularName;
                         $scope.voucherDetail.PartyId = party.Id;
                         $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
                         $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
@@ -823,11 +823,11 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
                             || $scope.voucher.InvoiceAdvance == 'Advance' && $scope.voucher.PartyType == 'Customer'
                         ) {
                             $scope.voucherDetail.DrDisable = true;
-                            $scope.voucherDetail.CrDisable = false;
+                            $scope.voucherDetail.CrDisable = true;
                         }
                         if ($scope.voucher.InvoiceAdvance == 'Advance' && $scope.voucher.PartyType == 'Vendor'
                             || $scope.voucher.InvoiceAdvance == 'Invoice' && $scope.voucher.PartyType == 'Customer') {
-                            $scope.voucherDetail.DrDisable = false;
+                            $scope.voucherDetail.DrDisable = true;
                             $scope.voucherDetail.CrDisable = true;
                         }
 
@@ -841,7 +841,7 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
             }
             else {
                 $scope.getPartyPlantListWithCallBack(party.Id, function (result) {
-                    $scope.voucherDetail.ParticularName = party.Code + ' - ' + party.UserName;
+                    $scope.voucherDetail.ParticularName = party.ParticularName;
                     $scope.voucherDetail.PartyId = party.Id;
                     $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
                     $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
@@ -868,7 +868,7 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
                 return;
             } else {
                 $scope.getPartyPlantListWithCallBack(party.Id, function (result) {
-                    $scope.voucherDetail.ParticularName = party.Code + ' - ' + party.UserName;
+                    $scope.voucherDetail.ParticularName = party.ParticularName;
                     $scope.voucherDetail.PartyId = party.Id;
                     $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
                     $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
@@ -2762,5 +2762,103 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
             $scope.closeInvestmentGLListPopUp();
         }
 
+    };
+
+    $scope.deleteRow = {};
+    $scope.confirmRowDelete = function (index, data) {
+        $scope.deleteRowIndex = index;
+        $scope.deleteRow = {};
+        $scope.deleteRow = data;
+        if (baseService.isUndefinedOrNull($scope.deleteRow.Id)) {
+            $scope.voucherDetailList.splice(index, 1);
+        }
+        else {
+            $scope.message_delete_confirmation = "Are you sure to Delete?";
+            angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+        }
+        
+    };
+
+    $scope.DeleteDetailRow = function (detaildata, deleteRowIndex) {
+        $http({
+            method: "POST",
+            url: "Accounts/OpeningBalance/DeleteOBDetailRow",
+            data: {
+                "OBDetailVM": detaildata,
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.voucherDetailList.splice(deleteRowIndex, 1);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.searchOBDetailList = [];
+    $scope.searchOBDetailList = [
+        {
+            "name": "GLGeneralInfoCode",
+            "value": "GLGeneralInfoCode"
+        },
+        {
+            "name": "GLGeneralInfoName",
+            "value": "GLGeneralInfoName"
+        },
+        {
+            "name": "Budget Ref No",
+            "value": "RefNo"
+        },
+        {
+            "name": "BudgetName",
+            "value": "BudgetName"
+        },
+        {
+            "name": "ActivityName",
+            "value": "ActivityName"
+        }
+        ,
+        {
+            "name": "ParticularName",
+            "value": "ParticularName"
+        }
+        ,
+        {
+            "name": "Party Code",
+            "value": "PartyCode"
+        }
+    ];
+
+    $scope.OBDetailListParameters = {
+        limit: 10,
+        offset: 0,
+        order: "DESC",
+        sort: "GLGeneralInfoCode",
+        searchBy: "GLGeneralInfoCode",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.GetOBDetailList = function () {
+        $scope.obDetailUrl = "Accounts/OpeningBalance/GetOBAdvanceJournalDetail?openingBalanceId=" + $scope.voucher.Id;
+        $scope.GetOBDetailData = function (pageno) {
+            baseService.paginationBase($scope.obDetailUrl, pageno, $scope.OBDetailListParameters)
+                .then(function (result) {
+                    $scope.voucherDetailList = result.Rows;
+                    $scope.OBDetailListParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure");
+                }).finally(function () {
+                });
+        };
+        $scope.GetOBDetailData();
     };
 }

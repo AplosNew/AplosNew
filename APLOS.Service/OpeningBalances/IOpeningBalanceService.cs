@@ -32,6 +32,7 @@ namespace Library.Service.OpeningBalances
         string PostAdvanceJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
         string PostInsertAdvanceJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
         List<Dictionary<string, object>> GetMaterialMasterOBGL(string openingBalanceId, string companyGroupId, string companyId, string plantId);
+        string DeleteOBDetailRow(OpeningBalanceDetail OBDetailVM);
         #endregion
 
         #region FixedAsset

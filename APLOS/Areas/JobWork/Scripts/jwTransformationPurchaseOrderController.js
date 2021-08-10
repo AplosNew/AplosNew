@@ -3040,18 +3040,19 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.getalldataListForBOQListUpdate = function (x) {
         //debugger;
         var gridObj = $("#GridReq").data("ejGrid");
-        var DropDownActivityListObj = $("#ddlActivityList").data("ejDropDownList");
-        var activityList = DropDownActivityListObj.getSelectedValue().split(',');
+        //var DropDownActivityListObj = $("#ddlActivityList").data("ejDropDownList");
+        var activityList = null; //DropDownActivityListObj.getSelectedValue().split(',');
 
-        var activityListStr = "'" + activityList.join("','") + "'";
+        var activityListStr = "";  //"'" + activityList.join("','") + "'";
         $scope.GetListForMasterOrder = [];
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: $scope.path + 'GetBOQItemsForUpdate?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&JWPOId=' + $scope.productNew.Id + '&JWPODId=' + x.Id + '&jwActivityId=' + activityListStr
+            url: $scope.path + 'GetBOQItemsForUpdate?ContractId=' + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode + '&IsOwnVendor=' + $scope.IsOwnVendor + '&JWPOId=' + $scope.productNew.Id + '&JWPODId=' + x.Id + '&jwActivityId=' + activityListStr + '&MaterialId=' + x.MaterialMasterId + '&ArticleId=' + x.ArticleId
         }).then(function successCallback(response) { //datagatefun
             $scope.GetListForMasterOrder = [];
             $scope.GetListForMasterOrder = response.data;
+            $scope.ActionPOBOQ = 'Update';
             gridObj.clearFiltering();
             gridObj.refreshContent(true);
             gridObj.refreshTemplate();

@@ -2522,7 +2522,7 @@ namespace Library.Service.OpeningBalances
 								WHERE OBDC.GLType='FA' AND C.Id='" + companyId + @"'
                                 GROUP BY OBDC.OpeningBalanceId
 								) AS X ON X.OpeningBalanceId=OB.Id
-                                WHERE OB.Archive=0 AND OB.IsFinancial=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" + companyGroupId + "' AND OB.CompanyId='" + companyId + "' AND OB.PlantId='" + plantId + "'";
+                                WHERE OB.Archive=0 AND OB.IsFinancial=1  AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" + companyGroupId + "' AND OB.CompanyId='" + companyId + "' AND OB.PlantId='" + plantId + "'";
             return _sqlRepository.GetGridData(parameters);
         }
 
@@ -2574,6 +2574,46 @@ namespace Library.Service.OpeningBalances
 						--ORDER BY 1, 5, 8, 11, 2;
                         ";
             return _sqlRepository.GetDataCollection(CmdText);
+        }
+        public string DeleteOBDetailRow(OpeningBalanceDetail OBDetailVM)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var ob = _openingBalanceRepository.Find(OBDetailVM.OpeningBalanceId);
+                if (ob.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var obDetailAppen = new System.Text.StringBuilder();
+                var obDetailsql = "";
+                obDetailsql = @"DELETE FROM [TRN].[OpeningBalanceDetailCurrency] WHERE OpeningBalanceDetailId='"+ OBDetailVM.Id + "'";
+                obDetailAppen.Append(obDetailsql);
+                obDetailsql = @"DELETE FROM [TRN].[OpeningBalanceDetail] WHERE Id='"+ OBDetailVM.Id + "'";
+                obDetailAppen.Append(obDetailsql);
+                _sqlRepository.ExecuteSqlCommand(obDetailAppen.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+
+                return "Deleted";
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
         }
         #endregion
 
