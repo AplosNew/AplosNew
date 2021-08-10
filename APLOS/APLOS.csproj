@@ -548,6 +548,7 @@
     <Compile Include="Areas\HumanResource\Controllers\DailyDayStatusReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManpowerBudgetDesignationReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\RosterPatternController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\RosterUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ShiftChangeSectionWiseController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PlantWiseHRMSSettingController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManpowerBudgetDashboardController.cs" />
@@ -561,6 +562,7 @@
     <Compile Include="Areas\HumanResource\Controllers\RestTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ShiftSummaryController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeeklyOffController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\WeekOffUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WelFareReportsController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataManualStatusController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\BulkLeaveEntryController.cs" />
@@ -664,6 +666,7 @@
     <Compile Include="Areas\Materials\Controllers\RackController.cs" />
     <Compile Include="Areas\Modules\Controllers\NotificationURLController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\DispatchMasterController.cs" />
+    <Compile Include="Areas\OrderManagements\Controllers\OrderController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\OS3DashboardController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\ProductionPlanningReportController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\ReportCurrencyExchangeController.cs" />
@@ -785,6 +788,7 @@
     <Compile Include="Areas\Productions\Controllers\PackingInvoiceController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionConversionParameterController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionTargetReportController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductionTransformationBookingController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShadeController.cs" />
     <Compile Include="Areas\Productions\Controllers\FebricWidthController.cs" />
     <Compile Include="Areas\Productions\Controllers\ShrinkageGroupController.cs" />
@@ -1786,9 +1790,11 @@
     <Content Include="Areas\HumanResource\Scripts\manpowerBudgetDesignationReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\ArrearProcessedReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\RosterPatternController.js" />
+    <Content Include="Areas\HumanResource\Scripts\RosterUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCCompanyController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeeklyOffController.js" />
+    <Content Include="Areas\HumanResource\Scripts\WeekOffUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\yearlySalaryProcessedReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportExtraOTCTCController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureReportPlantWiseController.js" />
@@ -1856,6 +1862,7 @@
     <Content Include="Areas\Leave\Scripts\SandWichLeaveOnHolidayController.js" />
     <Content Include="Areas\Materials\Scripts\RackController.js" />
     <Content Include="Areas\OrderManagements\Scripts\DispatchMasterController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\OrderController.js" />
     <Content Include="Areas\OrderManagements\Scripts\OS3DashboardController.js" />
     <Content Include="Areas\OrderManagements\Scripts\ProductionPlanningReportController.js" />
     <Content Include="Areas\OrderManagements\Scripts\ReportCurrencyExchangeController.js" />
@@ -2102,6 +2109,7 @@
     <Content Include="Areas\Productions\Scripts\PackingInvoiceController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionConversionParameterController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionTargetReportController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionTransformationBookingController.js" />
     <Content Include="Areas\Productions\Scripts\ShadeController.js" />
     <Content Include="Areas\Productions\Scripts\FebricWidthController.js" />
     <Content Include="Areas\Productions\Scripts\ShrinkageGroupController.js" />
@@ -3620,6 +3628,14 @@
     <Content Include="Areas\Productions\Views\ProductionConversionParameter\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\NewAttendanceDashboard\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\AttendanceRawDataFromApp\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBGLJVPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBBankJVPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBCashJVPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBPartyJVPopUp.cshtml" />
+    <Content Include="Areas\HumanResource\Views\RosterUpdates\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\WeekOffUpdates\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionTransformationBooking\Aplos.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\Order\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

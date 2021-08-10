@@ -33,9 +33,19 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="col-md-4"><span style="font-size: 19px;margin-left: -15%;margin-bottom:10px;"><span class="glyphicon glyphicon-stats"></span>&nbsp;{{title}}</span></div>
                     </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Date" ng-model="Date" datepicker class="form-control" tabindex="4" style="max-height:50px;">
+
+                            </div>
+                        </div>
+                    </div>
+                   
                 </div>
                 <div class="row">
 
@@ -50,167 +60,33 @@
                     <div class="col-md-1  text-right" style="margin-left:20px;margin-top:10px;">
                         <button type="button" class="btn single-btn" ng-click="clearFilters()"><i class="glyphicon glyphicon-repeat"></i> Clear Filters </button>
                     </div>
-                    <div class="col-md-5" style="margin-left:50px;margin-top:10px;">
-                        <div class="row"><select id="dropdown4" ej-dropdownlist e-datasource="list3" e-text="Based On Production Date" e-value="ProductionD" e-change="change3" e-width="300px" e-height="30px"></select></div>
-                    </div>
+                   
                 </div>
 
+                <div class="row">
 
-            </div>
-
-
-
-            <div class="row" style="margin:10px; margin-top:20px;">
-                <div class="col-lg-3" style="margin-top:20px;">
-                    <span style="margin-top:25px; margin-left:10px"><b>Selection Criteria </b></span>
-                    <div class="row" style="margin-left:10px;margin-top:5px;"><select id="dropdown1" ej-dropdownlist e-datasource="list" e-text="Delivery Date" e-value="Delivery" e-change="change"></select></div>
-                </div>
-                <div class="col-lg-3" style="margin-top:20px;">
-                    <span style="margin-top:25px; margin-left:10px"><b>Value Criteria </b></span>
-                    <div class="row" style="margin-left:10px;margin-top:5px;"><select id="dropdown2" ej-dropdownlist e-datasource="list1" e-text="No Of SO" e-value="SO" e-change="change1"></select></div>
-                </div>
-                <div class="col-lg-3" style="margin-top:20px;">
-                    <span style="margin-top:25px; margin-left:10px"><b>Dependent Date(Analysis) </b></span>
-                    <div class="row" style="margin-left:10px;margin-top:5px;"><select id="dropdown3" ej-dropdownlist e-datasource="list2" e-text="Delivery Date" e-value="DeliveryD" e-change="change2"></select></div>
-                </div>
-                <div class="col-md-1  text-right" style="margin-top:20px;">
-                    <button type="button" class="btn single-btn" ng-click="setAll()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i></button>
-                </div>
-
-            </div>
-
-
-            <div class="row" style="margin:10px;">
-                <div id="slabGrid"></div>
-            </div>
-
-
-
-
-
-
-
-
-            <div class="row" style="margin:10px;">
-
-                <div class=" col-lg-12 " style="height:300px;border : solid; border-color:transparent;  box-shadow: 3px 7px 5px grey; position:relative">
-                    <div style="overflow:hidden">
-                        <canvas id="slabChart" height="300"></canvas>
-                    </div>
-
-                </div>
-            </div>
-
-
-
-
-
-
-        </div>
-
-
-
-
-
-
-    </div>
-
-
-</div>
-
-<div class="modal site-modal" id="clickModal">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button class="close" data-dismiss="modal">&times;</button>
-                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">SO Details</h1>
-            </div>
-            <div class="modal-body" style="min-height:300px; min-width:100%;">
-                <div class="row" style="margin: 20px; font-style:italic"> </div>
-                <p style="margin:10px;">
-                    The Selection that are made are :<b> {{Detail1}} : {{Detail2}} : {{Detail3}}</b>.
-                <p>
-
-                    @*<div id="slabClickGrid"></div>*@
-                    <div id="slabClickGrid" ej-grid e-datasource="DetailList" e-templaterefresh="refreshTemplate"
-                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-recordDoubleClick="orderControlShow">
+                    <div id="getGridData" ej-grid e-datasource="GridData"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
                         <div e-columns>
-                            <div e-column e-field='Id' e-width="80" e-headerText="So Id" e-type="string"></div>
-                            <div e-column e-field='Qty' e-width="80" e-headerText="SO Oty" e-type="number"></div>
-                            <div e-column e-field='Entity' e-width="80" e-headerText="Entity" e-type="string"></div>
-                            <div e-column e-field='customers' e-width="120" e-headerText="Customer" e-type="string"></div>
-                            <div e-column e-field='Remarks' e-width="150" e-headerText="Remarks" e-type="string"></div>
-                            <div e-column e-field='Buyer' e-width="120" e-headerText="Buyer" e-type="string"></div>
-                            <div e-column e-field='BuyerReferenceNo' e-width="120" e-headerText="Buyer Ref No" e-type="string"></div>
-                            <div e-column e-field='OwnReferenceNo' e-width="120" e-headerText="Own Ref No" e-type="string"></div>
-                            <div e-column e-field='IBuyerReferenceNo' e-width="120" e-headerText="Buyer Item Ref No" e-type="string"></div>
-                            <div e-column e-field='IOwnReferenceNo' e-width="120" e-headerText="Own Item Ref No" e-type="string"></div>
-                            <div e-column e-field='DeliveryDate' e-width="80" e-headerText="Delivery Date" e-type="string"></div>
-                            <div e-column e-field='CommitmentDate' e-width="120" e-headerText="Commitment Date" e-type="string"></div>
-                            <div e-column e-field='ProductionDate' e-width="120" e-headerText="Production Date" e-type="string"></div>
-                            <div e-column e-field='DDate' e-width="120" e-headerText="Ex Factory Date" e-type="string"></div>
-                            <div e-column e-field='OrderNo' e-width="120" e-headerText="Order No" e-type="string"></div>
-                            <div e-column e-field='ItemNo' e-width="120" e-headerText="Item No" e-type="string"></div>
-                            <div e-column e-field='PRNo' e-width="120" e-headerText="Production Order No" e-type="string"></div>
-                            <div e-column e-field='MResp' e-width="80" e-headerText="Marketing Responsible Person" e-type="string"></div>
-                            <div e-column e-field='EarlyOrLateBy' e-width="80" e-headerText="Early Or Late By" e-type="string"></div>
-                            <div e-column e-field='OrderStatusId' e-width="100" e-headerText="SO Status" e-type="string"></div>
-                            <div e-column e-field='POStatus' e-width="100" e-headerText="Production Order Status" e-type="string"></div>
-
+                            <div e-column e-field="BudgetId" e-type="number" e-headertext="Budget" e-width="50"></div>
+                            <div e-column e-field="OnRoll" e-type="number" e-headertext="On Roll" e-width="50"></div>
+                            <div e-column e-field="InStat" e-type="number" e-headertext="In" e-width="50"></div>
+                            <div e-column e-field="EarlyIn" e-type="number" e-headertext="Early In" e-width="50"></div>
+                            <div e-column e-field="LateIn" e-type="number" e-headertext="Late In" e-width="50"></div>
+                            <div e-column e-field="InMissing" e-type="number" e-headertext="In Missing" e-width="50"></div>
+                            <div e-column e-field="OD" e-type="number" e-headertext="OD" e-width="50"></div>
+                            <div e-column e-field="DayStatus" e-type="number" e-headertext="WO/H/CO" e-width="50"></div>
+                            <div e-column e-field="Leave" e-type="number" e-headertext="Leave" e-width="50"></div>
+                            <div e-column e-field="Other" e-type="number" e-headertext="Other" e-width="50"></div>
+                           
                         </div>
                     </div>
-
-
-            </div>
-            <div class="modal-footer">
-                @*ng-click="closeModal()"*@
-                <button class="btn btn-primary" data-dismiss="modal" ng-click="closePopup('clickModal')" >Close</button>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-
-<div class="modal site-modal" id="orderControl" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button class="close" data-dismiss="modal">&times;</button>
-                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Control Remarks</h1>
-            </div>
-            <div class="modal-body" style="min-height:300px; min-width:100%;">
-                <div class="row" style="margin: 20px; font-style:italic"> </div>
-
-
-                <div id="orderCtrl" ej-grid e-datasource="ControlList" e-templaterefresh="refreshTemplate"
-                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                     e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
-                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
-                    <div e-columns>
-                        <div e-column e-field="ProductionOrderId" e-headertext="Production Order" e-width="80"></div>
-                        <div e-column e-field="DateAdded" e-headertext="Employee Name" e-width="120"></div>
-                        <div e-column e-field="MainRMInHouse" e-headertext="Main RM InHouse" e-width="120"></div>
-                        <div e-column e-field="OtherRMInHouse" e-headertext="Other RM InHouse" e-width="120"></div>
-                        <div e-column e-field="MainRMShipment" e-headertext="Main RM Shipment" e-width="120"></div>
-                        <div e-column e-field="OtherRMShipment" e-headertext="Other RM Shipment" e-width="120"></div>
-                        <div e-column e-field="BaseProcessInput" e-headertext="Base Process Input" e-width="120"></div>
-                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="120"></div>
-
-
-                    </div>
                 </div>
 
-
-            </div>
-            <div class="modal-footer">
-
-                <button class="btn btn-primary " ng-click="closePopup('orderControl')" data-dismiss="modal">Close</button>
             </div>
         </div>
-
     </div>
-</div>
 
+
+</div>

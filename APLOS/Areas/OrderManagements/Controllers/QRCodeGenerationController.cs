@@ -214,7 +214,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                DataTable dtData = _sqlRepository.GetDataTable(@" SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName
+                DataTable dtData = _sqlRepository.GetDataTable(@" SELECT ei.SystemId,ei.EmployeeCode,ei.EmployeeName,CONCAT(ei.SystemId,'#',ei.EmployeeCode,'#',ei.EmployeeName)BarCodeId
                                                                   FROM EmployeeInformation AS ei
                                                                 WHERE ei.SystemId in (" + filter + @") AND ei.EmployeeStatus='Active' AND ei.PlantId='" + identity.PlantId + @"'");
 
@@ -254,7 +254,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     ROW++;
 
                     CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
-                    System.Drawing.Image barcodeImg = qrCode.Draw(dtData.Rows[i]["SystemId"].ToString(), 200, 2);
+                    System.Drawing.Image barcodeImg = qrCode.Draw(dtData.Rows[i]["BarCodeId"].ToString(), 200, 2);
 
                     pic = sheet.Pictures.AddPicture(ROW, 1, barcodeImg);
                     pic.Width = pic.Height;// (int)(2 * 96);//2 inch 96dpi

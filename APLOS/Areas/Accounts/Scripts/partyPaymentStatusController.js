@@ -1282,7 +1282,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             allowSelection: true,
             columns: [
                 { field: "Code", headerText: "Code", width: 50 },
-                { field: "StandardName", headerText: "Artical", width: 80 },
+                { field: "Article", headerText: "Artical", width: 80 },
                 { field: "MachineAllowance", headerText: "Machine Allowance", width: 30 },
                 { field: "RPM", headerText: "RPM", width: 30 },
                 { field: "StitchCode", headerText: "Stitch Code", width: 30 },
@@ -1290,7 +1290,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
                 { field: "FABaseAmount", headerText: "FA Base Amount", width: 30 },
                 { field: "SubAssetAmount", headerText: "Sub Asset Amount", width: 30 },
-                { field: "TotalAssetAmount", headerText: "Total Asset Amount", width: 30 },
+                { field: "TotalBaseAmount", headerText: "Total Base Amount ", width: 30 },
                 { field: "ADBaseAmount", headerText: "AD Base Amount", width: 30 },
                 { field: "NetFixedAssetsAmount", headerText: "Net Amount", width: 30 },
 
@@ -1322,12 +1322,27 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     function GetFixedAssetsRegisterPopUp(args) {
         //alert('dd');
         this.preventClick = true;
-        var obj = $("#detailGrid").ejGrid("instance");
+       // var obj = $("#detailGrid").ejGrid("instance");
+
+        //var obj1 = $("#detailGrid").data("ejGrid");
+        //var data1 = obj1.getSelectedRecords();
         //var index = this.element.closest("tr").index();
         //var record = obj.getCurrentViewData()[index];
-        var data = obj.model.dataSource;
-        $scope.tempMaterialMasterId = data[0].MaterialMasterId
-        $scope.tempMaterialMasterArticleId = data[0].MaterialMasterAritcleId
+
+       // var data = obj.model.dataSource;
+        //for (var i = 0; i < data.length; i++) {
+        //    $scope.tempMaterialMasterId = data[i].MaterialMasterId
+        //    $scope.tempMaterialMasterArticleId = data[i].MaterialMasterArticleId
+        //}
+        //$scope.tempMaterialMasterId = data[0].MaterialMasterId
+        //$scope.tempMaterialMasterArticleId = data[0].MaterialMasterAritcleId
+
+        $scope.tempMaterialMasterId = args.data.MaterialMasterId;
+        $scope.tempMaterialMasterArticleId = args.data.MaterialMasterArticleId;
+       
+        //var data = obj.model.dataSource;
+        //$scope.tempMaterialMasterId = data[0].MaterialMasterId
+        //$scope.tempMaterialMasterArticleId = data[0].MaterialMasterArticleId 
 
         $http({
             method: 'POST',
@@ -1350,6 +1365,18 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         //alert('hhh');
         angular.element(document.querySelector("#fixedAssetsRegisterPopUp")).modal("hide");
     };
+
+    $scope.TotalFARegisterPopUpAmount = [{
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "PurchasePrice", dataMember: "PurchasePrice", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "FABaseAmount", dataMember: "FABaseAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SubAssetAmount", dataMember: "SubAssetAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalAssetAmount", dataMember: "TotalAssetAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "ADBaseAmount", dataMember: "ADBaseAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" }
+        ],
+        showCaptionSummary: true
+    }];
+    
 
     //var getString = function (data, column) {
     //    var string = "''";

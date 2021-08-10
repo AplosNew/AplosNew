@@ -380,4 +380,63 @@ function attendanceProcessDataManualStatusNewController(fileReader, cboService, 
 
     }
 
+    // Select All Check Box 
+
+
+
+    $scope.refreshTemplateemployee = function () {
+        $("#BPheadchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#GridChangeAttendance").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.employeeAttendance.length; i++) {
+                $scope.employeeAttendance[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridChangeAttendance").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.FlagRowId = "''";
+    $scope.LockAttnd = function () {
+        for (var i = 0; i < $scope.employeeAttendance.length; i++) {
+            if ($scope.employeeAttendance[i].isSelected == true) {
+                $scope.FlagRowId += ",'" + $scope.employeeAttendance[i].RowId + "'";
+
+            }
+        }
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            data: { 'RowId': $scope.FlagRowId },
+            url: $scope.path + 'LockAttnd'
+        }).then(function successCallback(response) {
+
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+
+
+            } else {
+                ShowResult(response.data.Message, 'success');
+                $scope.FlagRowId = "''";
+                $scope.selectSingleEmployee();
+            }
+        });
+    }
+
 }

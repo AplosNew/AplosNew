@@ -1034,7 +1034,7 @@ namespace Library.Service.OpeningBalances
         #endregion Journal
 
         #region AdvanceJournal
-       
+
         public string InsertAdvanceJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
             var flag = false;
@@ -1363,6 +1363,150 @@ namespace Library.Service.OpeningBalances
                         };
                         _openingBalanceDetailCurrencyRepository.Insert(companyCurrency);
                     }
+                }
+
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                return openingBalance.DocRefNo;
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
+        public string InsertGLAdvanceJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            var flag = false;
+            try
+            {
+
+                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                voucherVM.SourceType = SourceType.OpeningBalance.ToString();
+                var openingBalance = new OpeningBalance
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    EntityId = voucherVM.EntityId,
+                    RefId = null,
+                    SourceType = voucherVM.SourceType,
+                    Narration = voucherVM.Narration,
+                    PartyType = voucherVM.PartyType,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    PostingDate = voucherVM.PostingDate,
+                    IsPark = true,
+                    IsPosted = false,
+                    VoucherId = null,
+                    Id = voucherVM.Id,
+                    AddedBy = voucherVM.AddedBy,
+                    AddedDate = voucherVM.AddedDate,
+                    AddedFromIP = voucherVM.AddedFromIP
+                };
+                AuditService.UpdatedLog(openingBalance);
+                if (voucherVM.Id == null)
+                {
+                    openingBalance.Id = GetOpeningBalancePK(openingBalance);
+                    Insert(openingBalance);
+                }
+                else
+                {
+
+                Update(openingBalance);
+                }
+
+                var currentRecord = _openingBalanceRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 4) AS INT)), 0) Id FROM TRN.OpeningBalanceDetail WHERE OpeningBalanceId='{openingBalance.Id}'").First();
+                foreach (var openingBalanceDetailVM in voucherDetailVMList)
+                {
+
+                    currentRecord++;
+                    var openingBalanceDetail = new OpeningBalanceDetail
+                    {
+                        Id = MakePK(openingBalance.Id, currentRecord, 4),
+                        OpeningBalanceId = openingBalance.Id,
+                        // OpeningBalanceId = openingBalanceDetailVM.OpeningBalanceId == null ? openingBalance.Id : openingBalanceDetailVM.OpeningBalanceId,
+                        DrAmount = openingBalanceDetailVM.DrAmount,
+                        CrAmount = openingBalanceDetailVM.CrAmount,
+                        CurrencyId = voucherVM.CurrencyId,
+                        DocDate = openingBalance.DocDate,
+                        DocRefNo = openingBalance.DocRefNo,
+                        Narration = openingBalance.Narration,
+                        EntityId = openingBalance.EntityId,
+                        BaseNoOfDays = openingBalanceDetailVM.BaseNoOfDays,
+                        BaseOnDueDate = openingBalanceDetailVM.BaseOnDueDate,
+                        GLGeneralInfoId = openingBalanceDetailVM.GLGeneralInfoId,
+                        BudgetMasterId = openingBalanceDetailVM.BudgetMasterId,
+                        ActivityId = openingBalanceDetailVM.ActivityId,
+                        BankMasterId = openingBalanceDetailVM.BankMasterId,
+                        CashMasterId = openingBalanceDetailVM.CashMasterId,
+                        CashCurrencyId = openingBalanceDetailVM.CashCurrencyId,
+                        BankCurrencyId = openingBalanceDetailVM.BankCurrencyId,
+                        BankAmount = 0,
+                        PartyType = openingBalanceDetailVM.PartyType,
+                        RefId = openingBalanceDetailVM.RefId,
+                        PartyId = openingBalanceDetailVM.PartyId,
+                        PartyPlantId = openingBalanceDetailVM.PartyPlantId,
+                        EmployeeId = openingBalanceDetailVM.EmployeeId,
+                        RepaymentStartDate = openingBalanceDetailVM.RepaymentStartDate,
+                        LifeOfYear = openingBalanceDetailVM.LifeOfYear,
+                        NoOfInstallmentPerYear = openingBalanceDetailVM.NoOfInstallmentPerYear,
+                        TotalNoOfInstallment = openingBalanceDetailVM.TotalNoOfInstallment,
+                        NoOfPaidInstallment = openingBalanceDetailVM.NoOfPaidInstallment,
+                        ProfitRate = openingBalanceDetailVM.ProfitRate,
+                        SanctionAmount = openingBalanceDetailVM.SanctionAmount,
+                        TransactionTypeId = openingBalanceDetailVM.TransactionTypeId,
+                        FAType = openingBalanceDetailVM.FAType,
+                        //FixedAssetMasterId= openingBalanceDetailVM.FixedAssetMasterId,
+                        MaterialMasterOpeningBalanceDetailId = openingBalanceDetailVM.MaterialMasterOpeningBalanceDetailId,
+                        LoanOpeningBalanceDetailId = openingBalanceDetailVM.LoanOpeningBalanceDetailId,
+                        SecurityOpeningBalanceDetailId = openingBalanceDetailVM.SecurityOpeningBalanceDetailId,
+                        EquityOpeningBalanceDetailId = openingBalanceDetailVM.EquityOpeningBalanceDetailId,
+                        InvestmentOpeningBalanceDetailId = openingBalanceDetailVM.InvestmentOpeningBalanceDetailId
+
+                    };
+                    if (openingBalanceDetailVM.BankMasterId != null)
+                    {
+                        openingBalanceDetail.BankAmount = openingBalanceDetailVM.BankCurrencyId == voucherVM.CurrencyId ? openingBalanceDetailVM.DrAmount : openingBalanceDetailVM.BankAmount;
+                    }
+                    if (openingBalanceDetailVM.CashMasterId != null)
+                    {
+                        openingBalanceDetail.BankAmount = openingBalanceDetailVM.CashCurrencyId == voucherVM.CurrencyId ? openingBalanceDetailVM.DrAmount : openingBalanceDetailVM.BankAmount;
+                    }
+                    AuditService.AddedLog(openingBalanceDetail);
+                    _openingBalanceDetailRepository.Insert(openingBalanceDetail);
+
+                    var companyCurrency = new OpeningBalanceDetailCurrency
+                    {
+                        Id = openingBalanceDetail.Id + 1,
+                        OpeningBalanceId = openingBalanceDetail.OpeningBalanceId,
+                        OpeningBalanceDetailId = openingBalanceDetail.Id,
+                        ParallelCurrencyId = openingBalanceDetail.CurrencyId,
+                        FromCurrencyId = openingBalanceDetail.CurrencyId,
+                        ToCurrencyId = openingBalanceDetail.CurrencyId,
+                        ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                        ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate,
+                        DrAmount = openingBalanceDetailVM.DrAmount,
+                        CrAmount = openingBalanceDetailVM.CrAmount,
+                        AddedBy = openingBalanceDetail.AddedBy,
+                        AddedDate = openingBalanceDetail.AddedDate,
+                        AddedFromIP = openingBalanceDetail.AddedFromIP
+                    };
+                    _openingBalanceDetailCurrencyRepository.Insert(companyCurrency);
                 }
 
                 _unitOfWork.SaveChanges();
@@ -2378,7 +2522,7 @@ namespace Library.Service.OpeningBalances
 								WHERE OBDC.GLType='FA' AND C.Id='" + companyId + @"'
                                 GROUP BY OBDC.OpeningBalanceId
 								) AS X ON X.OpeningBalanceId=OB.Id
-                                WHERE OB.Archive=0 AND OB.IsFinancial=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" + companyGroupId + "' AND OB.CompanyId='" + companyId + "' AND OB.PlantId='" + plantId + "'";
+                                WHERE OB.Archive=0 AND OB.IsFinancial=1  AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" + companyGroupId + "' AND OB.CompanyId='" + companyId + "' AND OB.PlantId='" + plantId + "'";
             return _sqlRepository.GetGridData(parameters);
         }
 
@@ -2430,6 +2574,46 @@ namespace Library.Service.OpeningBalances
 						--ORDER BY 1, 5, 8, 11, 2;
                         ";
             return _sqlRepository.GetDataCollection(CmdText);
+        }
+        public string DeleteOBDetailRow(OpeningBalanceDetail OBDetailVM)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var ob = _openingBalanceRepository.Find(OBDetailVM.OpeningBalanceId);
+                if (ob.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var obDetailAppen = new System.Text.StringBuilder();
+                var obDetailsql = "";
+                obDetailsql = @"DELETE FROM [TRN].[OpeningBalanceDetailCurrency] WHERE OpeningBalanceDetailId='"+ OBDetailVM.Id + "'";
+                obDetailAppen.Append(obDetailsql);
+                obDetailsql = @"DELETE FROM [TRN].[OpeningBalanceDetail] WHERE Id='"+ OBDetailVM.Id + "'";
+                obDetailAppen.Append(obDetailsql);
+                _sqlRepository.ExecuteSqlCommand(obDetailAppen.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+
+                return "Deleted";
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
         }
         #endregion
 
@@ -5024,10 +5208,10 @@ namespace Library.Service.OpeningBalances
             var inventoryMaterialPk = GetMaxNumber(nameof(InventoryMaterial), PKGeneratorEnum.Auto, null, openingBalance.PostingDate);
             var MaterialId = Convert.ToInt32(inventoryMaterialPk.MaxNumber) - 1;
             var InventoryRcvId = "";
-            
+
             try
             {
-               
+
                 Check(openingBalance);
                 _companyParallelCurrencyService.GetParallelCurrency(openingBalance.CompanyId, out string companyCurrencyId, out string companyCurrencyCode, out string companyGroupCurrencyId, out string companyGroupCurrencyCode, out string hardCurrencyId, out string hardCurrencyCode);
 
@@ -5056,7 +5240,7 @@ namespace Library.Service.OpeningBalances
                     //var MaterialId = Convert.ToInt32(inventoryMaterialPk.MaxNumber) - 1;
 
                     // Insert Inventory Receive
-                     inventoryReceive = new InventoryReceive
+                    inventoryReceive = new InventoryReceive
                     {
                         Id = invReceivePk,
                         OpeningBalanceId = openingBalance.Id,
@@ -5084,23 +5268,23 @@ namespace Library.Service.OpeningBalances
                         GRNType = "OpeningBalance"
 
                     };
-					
-                   
+
+
                     _inventoryReceiveRepository.Insert(inventoryReceive);
                     openingBalance.InventoryReceivedId = inventoryReceive.Id;
                     openingBalance.openingBalanceId = openingBalance.Id;
-                    openingBalance.MaterialStorageId = openingBalance.MaterialStorageId; 
+                    openingBalance.MaterialStorageId = openingBalance.MaterialStorageId;
 
                 }
-				else
-				{
-                    if (string.IsNullOrEmpty(openingBalance.openingBalanceId)) 
+                else
+                {
+                    if (string.IsNullOrEmpty(openingBalance.openingBalanceId))
                         openingBalance.openingBalanceId = openingBalance.Id;
                     var OpeningDataInfo = _openingBalanceRepository.Find(openingBalance.openingBalanceId);
                     openingBalance.AddedBy = OpeningDataInfo.AddedBy;
                     openingBalance.AddedDate = OpeningDataInfo.AddedDate;
                     openingBalance.AddedFromIP = OpeningDataInfo.AddedFromIP;
-                   
+
                 }
                 var fixedAssetOBDetailList = (from fd in _materialMasterOpeningBalanceDetailRepository.Query().Select()
                                               join f in _openingBalanceRepository.Query(r => r.CompanyGroupId == openingBalance.CompanyGroupId && r.CompanyId == openingBalance.CompanyId).Select() on fd.OpeningBalanceId equals f.Id
@@ -5118,10 +5302,10 @@ namespace Library.Service.OpeningBalances
                                  firstValueIds.Contains(t.FirstCharacteristicsValueId) && secondValueIds.Contains(t.SecondCharacteristicsValueId) &&
                                  thirdValueIds.Contains(t.ThirdCharacteristicsValueId) && t.CompanyId == openingBalance.CompanyId && t.PlantId == openingBalance.PlantId
                                  ).Select().ToList();
-                openingBalance.currentRecord=openingBalance.currentRecord+1;
+                openingBalance.currentRecord = openingBalance.currentRecord + 1;
                 foreach (var materialMasterOpeningBalanceDetailVM in materialMasterOpeningBalanceDetailVMList)
                 {
-                    
+
                     // INSERT INTO OPENING BALANCE DETAIL
                     var sql = @"SELECT TOP(1) FAGL.* FROM [HKP].MaterialGroupGL AS FAGL
                                 INNER JOIN [ORG].[Company] AS C ON C.COAId=FAGL.COAId
@@ -5964,9 +6148,9 @@ namespace Library.Service.OpeningBalances
                             AddedDate = openingBalance.AddedDate,
                             AddedFromIP = openingBalance.AddedFromIP,
                             MaterialMasterOpeningBalanceDetailId = materialMasterOpeningBalanceDetailVM.Id,
-                            LotNumber= materialMasterOpeningBalanceDetailVM.LotNumber,
-                            Diameter= materialMasterOpeningBalanceDetailVM.Diameter,
-                            Type= materialMasterOpeningBalanceDetailVM.Type
+                            LotNumber = materialMasterOpeningBalanceDetailVM.LotNumber,
+                            Diameter = materialMasterOpeningBalanceDetailVM.Diameter,
+                            Type = materialMasterOpeningBalanceDetailVM.Type
                         };
                         _inventoryReceiveDetailRepository.Update(inventoryReceiveDetails);
                         var Res = materialDbData.Where(r => r.MaterialMasterId == materialMasterOpeningBalanceDetailVM.MaterialMasterId && r.ArticleId == materialMasterOpeningBalanceDetailVM.ArticleId
@@ -6661,7 +6845,7 @@ namespace Library.Service.OpeningBalances
             return _sqlRepository.GetGridData(parameters);
         }
 
-       
+
 
         public GridModel GetInterLoanGivenList(GridParameter parameters, string companyGroupId, string companyId, string plantId)
         {
@@ -10202,7 +10386,7 @@ namespace Library.Service.OpeningBalances
                         _unitOfWork.Commit();
                     }
                 }
-               
+
                 return "Delete Successful";
             }
             catch (CustomException)
@@ -10832,7 +11016,7 @@ namespace Library.Service.OpeningBalances
 
 		(select Id from trn.Voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType= 'EmployeePayable' AND PostingDate < '" + fromDate + @"')))))
                             AND V.PostingDate >='" + fromDate + @"'ORDER BY V.PostingDate ASC";
-          //  where  IR.PlantId='" + plantId + "' AND convert(Date,IR.POReturnDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' ORDER BY IR.POReturnDate ASC";
+            //  where  IR.PlantId='" + plantId + "' AND convert(Date,IR.POReturnDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' ORDER BY IR.POReturnDate ASC";
 
             var inventoryMaterialList = _sqlRepository.GetDataTable(cmdText);
             var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
@@ -10863,7 +11047,7 @@ namespace Library.Service.OpeningBalances
             sheet1headreColIndex++;
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Paid");
             sheet1headreColIndex++;
-           
+
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Balance");
             sheet1headreColIndex++;
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Payment Voucher No");
@@ -10883,7 +11067,7 @@ namespace Library.Service.OpeningBalances
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Budget");
             sheet1headreColIndex++;
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Actiivty");
-         
+
 
 
             var Row_Total_Start = _rowL + 1;
@@ -10924,7 +11108,7 @@ namespace Library.Service.OpeningBalances
             sheet1.UsedRange.CellStyle.Font.Size = 8;
             report.PlantHeader(ref sheet1, sheet1headreColIndex, sheet1Name, plantId);
             report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Landscape);
-            
+
         }
         #endregion
 
@@ -10954,7 +11138,7 @@ namespace Library.Service.OpeningBalances
             }
         }
 
-       
+
 
 
 
@@ -11030,7 +11214,7 @@ namespace Library.Service.OpeningBalances
 
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Qty");
             sheet1headreColIndex++;
-           
+
 
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Amount");
             sheet1headreColIndex++;
@@ -11040,7 +11224,7 @@ namespace Library.Service.OpeningBalances
             sheet1headreColIndex++;
 
             report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity Name");
-            
+
 
 
             var Row_Total_Start = _rowL + 1;
@@ -11061,7 +11245,7 @@ namespace Library.Service.OpeningBalances
                 report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["GLName"].ToString());
                 report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["BudgetName"].ToString());
                 report.SetText(ref sheet1, _rowL, 14, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ActivityName"].ToString()));
-               
+
 
             }
 

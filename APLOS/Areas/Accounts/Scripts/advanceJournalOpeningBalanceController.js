@@ -264,10 +264,10 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
             $scope.voucherDetail.Narration = $scope.voucher.Narration;
             $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
             $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
-            $scope.voucherDetail.CrAmount = null;
-            $scope.voucherDetail.DrAmount = null;
-            $scope.voucherDetail.DrDisable = false;
-            $scope.voucherDetail.CrDisable = false;
+            $scope.voucherDetail.CrAmount = data.CrAmount;
+            $scope.voucherDetail.DrAmount = data.DrAmount;
+            $scope.voucherDetail.DrDisable = true;
+            $scope.voucherDetail.CrDisable = true;
             $scope.voucherDetail.PartyType = $scope.voucher.PartyType;
             $scope.voucherDetailList.splice(0, 0, $scope.voucherDetail);
             $scope.voucherDetail = {};
@@ -348,9 +348,14 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
     };
 
     $scope.setSelected = function (data) {
-        $scope.addRow(data);
-    };
+        $scope.addGLPopUpRow(data);
+        angular.element(document.querySelector("#AddOBGLJVPopUp")).modal("show");
+        angular.element(document.querySelector("#GLPopUp")).modal("hide");
 
+    };
+    $scope.closeOBGLPopUp = function () {
+        angular.element(document.querySelector("#AddOBGLJVPopUp")).modal("hide");
+    };
     $scope.checkDrAmount = function (index) {
         if ($scope.voucherDetailList[index].DrAmount > 0) {
             $scope.voucherDetailList[index].CrAmount = null;
@@ -362,6 +367,77 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
             $scope.voucherDetailList[index].DrAmount = null;
         }
     };
+    $scope.glvoucherDetailList = [];
+    $scope.addGLPopUpRow = function (data) {
+        $scope.glvoucherDetail = {};
+            $scope.glvoucherDetail.BudgetMasterId = data.BudgetMasterId;
+            $scope.glvoucherDetail.BudgetCode = data.BudgetCode;
+            $scope.glvoucherDetail.BudgetName = data.BudgetName;
+            $scope.glvoucherDetail.ActivityId = data.ActivityId;
+            $scope.glvoucherDetail.ActivityCode = data.ActivityCode;
+            $scope.glvoucherDetail.ActivityName = data.ActivityName;
+            $scope.glvoucherDetail.GLGeneralInfoId = data.GLGeneralInfoId;
+            $scope.glvoucherDetail.GLGeneralInfoCode = data.GLGeneralInfoCode;
+            $scope.glvoucherDetail.GLGeneralInfoName = data.GLGeneralInfoName;
+            $scope.glvoucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
+            $scope.glvoucherDetail.DocRefNo = $scope.voucher.DocRefNo;
+            $scope.glvoucherDetail.Narration = $scope.voucher.Narration;
+            $scope.glvoucherDetail.EntityId = $scope.voucher.EntityId;
+            $scope.glvoucherDetail.PlantId = $scope.voucher.PlantId;
+            $scope.glvoucherDetail.CrAmount = null;
+            $scope.glvoucherDetail.DrAmount = null;
+            $scope.glvoucherDetail.DrDisable = false;
+            $scope.glvoucherDetail.CrDisable = false;
+        $scope.glvoucherDetail.PartyType = $scope.voucher.PartyType;
+        $scope.glvoucherDetailList.splice(0, 0, $scope.glvoucherDetail);
+        $scope.glvoucherDetail = {};
+        angular.element(document.querySelector("#AddOBGLJVPopUp")).modal("hide");
+    };
+
+    $scope.removeglRow = function (index) {
+        $scope.glvoucherDetailList.splice(index, 1);
+    };
+
+    $scope.checkGLDrAmount = function (index) {
+        if ($scope.glvoucherDetailList[index].DrAmount > 0) {
+            $scope.glvoucherDetailList[index].CrAmount = null;
+        }
+    };
+
+    $scope.checkGLCrAmount = function (index) {
+        if ($scope.glvoucherDetailList[index].CrAmount > 0) {
+            $scope.glvoucherDetailList[index].DrAmount = null;
+        }
+    };
+
+    $scope.SaveGL = function () {
+        $scope.$broadcast("show-errors-check-validity");
+        if ($scope.form0.$valid) {
+            
+                $http({
+                    method: "POST",
+                    url: "accounts/OpeningBalance/ParkOBGLAdvanceJournal",
+                    data: {
+                        "voucherVM": $scope.voucher,
+                        "voucherDetailVMList": $scope.glvoucherDetailList
+                    },
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.addRow($scope.glvoucherDetailList[0]);
+                        $scope.glvoucherDetailList = [];
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+            return true;
+        }
+    };
+
 
     $scope.getEntityCboByCostCenter = function (costCenterId) {
         $scope.voucherDetail.CostCenterName = $("#costCenterId option:selected").text();
@@ -585,7 +661,7 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
     };
 
     $scope.closePartyPopUp = function (x) {
-        
+        $scope.glvoucherDetail = {};
         var party = x.data;
             if ($scope.voucher.PartyType == 'Vendor' || $scope.voucher.PartyType == 'Customer') {
                 if (baseService.isUndefinedOrNull($scope.voucher.FinancingTypeId)) {
@@ -596,79 +672,75 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
                     else {
                         $scope.getPartyPlantListWithCallBack(party.Id, function (result) {
                             if ($scope.voucher.InvoiceAdvance == 'Invoice') {
-                                $scope.voucherDetail.GLGeneralInfoId = party.ReconciliationGLId;
-                                $scope.voucherDetail.GLGeneralInfoCode = party.ReconciliationGLCode;
-                                $scope.voucherDetail.GLGeneralInfoName = party.ReconciliationGLName;
-                                $scope.voucherDetail.BudgetMasterId = party.ReconciliationBudgetId;
-                                $scope.voucherDetail.BudgetCode = party.ReconciliationBudgetCode;
-                                $scope.voucherDetail.BudgetName = party.ReconciliationBudgetName;
-                                $scope.voucherDetail.ActivityId = party.ReconciliationActivityId;
-                                $scope.voucherDetail.ActivityCode = party.ReconciliationActivityCode;
-                                $scope.voucherDetail.ActivityName = party.ReconciliationActivityName;
+                                $scope.glvoucherDetail.GLGeneralInfoId = party.ReconciliationGLId;
+                                $scope.glvoucherDetail.GLGeneralInfoCode = party.ReconciliationGLCode;
+                                $scope.glvoucherDetail.GLGeneralInfoName = party.ReconciliationGLName;
+                                $scope.glvoucherDetail.BudgetMasterId = party.ReconciliationBudgetId;
+                                $scope.glvoucherDetail.BudgetCode = party.ReconciliationBudgetCode;
+                                $scope.glvoucherDetail.BudgetName = party.ReconciliationBudgetName;
+                                $scope.glvoucherDetail.ActivityId = party.ReconciliationActivityId;
+                                $scope.glvoucherDetail.ActivityCode = party.ReconciliationActivityCode;
+                                $scope.glvoucherDetail.ActivityName = party.ReconciliationActivityName;
                             }
                             if ($scope.voucher.InvoiceAdvance == 'Advance') {
-                                $scope.voucherDetail.GLGeneralInfoId = party.DownPaymentGLId;
-                                $scope.voucherDetail.GLGeneralInfoCode = party.DownPaymentGLCode;
-                                $scope.voucherDetail.GLGeneralInfoName = party.DownPaymentGLName;
-                                $scope.voucherDetail.BudgetMasterId = party.DownPaymentBudgetId;
-                                $scope.voucherDetail.BudgetCode = party.DownPaymentBudgetCode;
-                                $scope.voucherDetail.BudgetName = party.DownPaymentBudgetName;
-                                $scope.voucherDetail.ActivityId = party.DownPaymentActivityId;
-                                $scope.voucherDetail.ActivityCode = party.DownPaymentBudgetCode;
-                                $scope.voucherDetail.ActivityName = party.DownPaymentActivityName;
+                                $scope.glvoucherDetail.GLGeneralInfoId = party.DownPaymentGLId;
+                                $scope.glvoucherDetail.GLGeneralInfoCode = party.DownPaymentGLCode;
+                                $scope.glvoucherDetail.GLGeneralInfoName = party.DownPaymentGLName;
+                                $scope.glvoucherDetail.BudgetMasterId = party.DownPaymentBudgetId;
+                                $scope.glvoucherDetail.BudgetCode = party.DownPaymentBudgetCode;
+                                $scope.glvoucherDetail.BudgetName = party.DownPaymentBudgetName;
+                                $scope.glvoucherDetail.ActivityId = party.DownPaymentActivityId;
+                                $scope.glvoucherDetail.ActivityCode = party.DownPaymentBudgetCode;
+                                $scope.glvoucherDetail.ActivityName = party.DownPaymentActivityName;
                             }
                            
-                            $scope.voucherDetail.ParticularName = party.Code + ' - ' + party.UserName;
-                            $scope.voucherDetail.PartyId = party.Id;
-                            $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
-                            $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
-                            $scope.voucherDetail.Narration = $scope.voucher.Narration;
-                            $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
-                            $scope.voucherDetail.PartyType = $scope.voucher.PartyType;
-                            $scope.voucherDetail.PartyPlantId = party.PartyPlantId;
-                            $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
-                            $scope.voucherDetail.CrAmount = null;
-                            $scope.voucherDetail.DrAmount = null;
+                            $scope.glvoucherDetail.ParticularName = party.Code + ' - ' + party.UserName;
+                            $scope.glvoucherDetail.PartyId = party.Id;
+                            $scope.glvoucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
+                            $scope.glvoucherDetail.DocRefNo = $scope.voucher.DocRefNo;
+                            $scope.glvoucherDetail.Narration = $scope.voucher.Narration;
+                            $scope.glvoucherDetail.EntityId = $scope.voucher.EntityId;
+                            $scope.glvoucherDetail.PartyType = $scope.voucher.PartyType;
+                            $scope.glvoucherDetail.PartyPlantId = party.PartyPlantId;
+                            $scope.glvoucherDetail.PlantId = $scope.voucher.PlantId;
+                            $scope.glvoucherDetail.CrAmount = null;
+                            $scope.glvoucherDetail.DrAmount = null;
                             if ($scope.voucher.InvoiceAdvance == 'Invoice' && $scope.voucher.PartyType == 'Vendor'
                                 || $scope.voucher.InvoiceAdvance == 'Advance' && $scope.voucher.PartyType == 'Customer'
                             ) {
-                                $scope.voucherDetail.DrDisable = true;
-                                $scope.voucherDetail.CrDisable = false;
+                                $scope.glvoucherDetail.DrDisable = true;
+                                $scope.glvoucherDetail.CrDisable = false;
                             }
                             if ($scope.voucher.InvoiceAdvance == 'Advance' && $scope.voucher.PartyType == 'Vendor'
                                 || $scope.voucher.InvoiceAdvance == 'Invoice' && $scope.voucher.PartyType == 'Customer') {
-                                $scope.voucherDetail.DrDisable = false;
-                                $scope.voucherDetail.CrDisable = true;
+                                $scope.glvoucherDetail.DrDisable = false;
+                                $scope.glvoucherDetail.CrDisable = true;
                             }
                             
-                            $scope.voucherDetailList.splice(0, 0, $scope.voucherDetail);
-                            $scope.voucherDetail = {};
-                            $scope.voucher.FinancingTypeId = null;
-                            $scope.partyType = null;
-                            $scope.voucher.InvoiceAdvance = null;
+                            $scope.glvoucherDetailList.splice(0, 0, $scope.glvoucherDetail);
+                            $scope.glvoucherDetail = {};
+                           
                         });
                     }
                 }
                 else {
                     $scope.getPartyPlantListWithCallBack(party.Id, function (result) {
-                        $scope.voucherDetail.ParticularName = party.Code + ' - ' + party.UserName;
-                        $scope.voucherDetail.PartyId = party.Id;
-                        $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
-                        $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
-                        $scope.voucherDetail.Narration = $scope.voucher.Narration;
-                        $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
-                        $scope.voucherDetail.PartyType = $scope.voucher.PartyType;
-                        $scope.voucherDetail.PartyPlantId = party.PartyPlantId;
-                        $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
-                        $scope.voucherDetail.CrAmount = null;
-                        $scope.voucherDetail.DrAmount = null;
-                        $scope.voucherDetail.DrDisable = false;
-                        $scope.voucherDetail.CrDisable = false;
-                        $scope.voucherDetailList.splice(0, 0, $scope.voucherDetail);
+                        $scope.glvoucherDetail.ParticularName = party.Code + ' - ' + party.UserName;
+                        $scope.glvoucherDetail.PartyId = party.Id;
+                        $scope.glvoucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
+                        $scope.glvoucherDetail.DocRefNo = $scope.voucher.DocRefNo;
+                        $scope.glvoucherDetail.Narration = $scope.voucher.Narration;
+                        $scope.glvoucherDetail.EntityId = $scope.voucher.EntityId;
+                        $scope.glvoucherDetail.PartyType = $scope.voucher.PartyType;
+                        $scope.glvoucherDetail.PartyPlantId = party.PartyPlantId;
+                        $scope.glvoucherDetail.PlantId = $scope.voucher.PlantId;
+                        $scope.glvoucherDetail.CrAmount = null;
+                        $scope.glvoucherDetail.DrAmount = null;
+                        $scope.glvoucherDetail.DrDisable = false;
+                        $scope.glvoucherDetail.CrDisable = false;
+                        $scope.glvoucherDetailList.splice(0, 0, $scope.glvoucherDetail);
                         $scope.voucherDetail = {};
-                        $scope.voucher.FinancingTypeId = null;
-                        $scope.partyType = null;
-                        $scope.voucher.TransactionTypeName = null;
+                      
                     });
                 }
             }
@@ -678,7 +750,65 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
                     return;
                 } else {
                     $scope.getPartyPlantListWithCallBack(party.Id, function (result) {
-                        $scope.voucherDetail.ParticularName = party.Code + ' - ' + party.UserName;
+                        $scope.glvoucherDetail.ParticularName = party.Code + ' - ' + party.UserName;
+                        $scope.glvoucherDetail.PartyId = party.Id;
+                        $scope.glvoucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
+                        $scope.glvoucherDetail.DocRefNo = $scope.voucher.DocRefNo;
+                        $scope.glvoucherDetail.Narration = $scope.voucher.Narration;
+                        $scope.glvoucherDetail.EntityId = $scope.voucher.EntityId;
+                        $scope.glvoucherDetail.PartyType = $scope.voucher.PartyType;
+                        $scope.glvoucherDetail.PartyPlantId = party.PartyPlantId;
+                        $scope.glvoucherDetail.PlantId = $scope.voucher.PlantId;
+                        $scope.glvoucherDetail.CrAmount = null;
+                        $scope.glvoucherDetail.DrAmount = null;
+                        $scope.glvoucherDetail.DrDisable = false;
+                        $scope.glvoucherDetail.CrDisable = false;
+                        $scope.glvoucherDetailList.splice(0, 0, $scope.glvoucherDetail);
+                        $scope.glvoucherDetail = {};
+                       
+                    });
+                }
+
+        }
+        angular.element(document.querySelector('#AddOBPartyJVPopUp')).modal('show');
+        $scope.hidePartyPopUp();
+    };
+
+    $scope.setOBParty = function (x) {
+
+        var party = x;
+        if ($scope.voucher.PartyType == 'Vendor' || $scope.voucher.PartyType == 'Customer') {
+            if (baseService.isUndefinedOrNull($scope.voucher.FinancingTypeId)) {
+                if (baseService.isUndefinedOrNull(party.GLGeneralInfoId)) {
+                    ShowResult($scope.partyType + " GL not found!", "failure", "AddOBPartyJVPopUp");
+                    return;
+                }
+                else {
+                    $scope.getPartyPlantListWithCallBack(party.Id, function (result) {
+                        if ($scope.voucher.InvoiceAdvance == 'Invoice') {
+                            $scope.voucherDetail.GLGeneralInfoId = party.GLGeneralInfoId;
+                            $scope.voucherDetail.GLGeneralInfoCode = party.GLGeneralInfoCode;
+                            $scope.voucherDetail.GLGeneralInfoName = party.GLGeneralInfoName;
+                            $scope.voucherDetail.BudgetMasterId = party.BudgetMasterId;
+                            $scope.voucherDetail.BudgetCode = party.BudgetCode;
+                            $scope.voucherDetail.BudgetName = party.BudgetName;
+                            $scope.voucherDetail.ActivityId = party.ActivityId;
+                            $scope.voucherDetail.ActivityCode = party.ActivityCode;
+                            $scope.voucherDetail.ActivityName = party.ActivityName;
+                        }
+                        if ($scope.voucher.InvoiceAdvance == 'Advance') {
+                            $scope.voucherDetail.GLGeneralInfoId = party.GLGeneralInfoId;
+                            $scope.voucherDetail.GLGeneralInfoCode = party.GLGeneralInfoCode;
+                            $scope.voucherDetail.GLGeneralInfoName = party.GLGeneralInfoName;
+                            $scope.voucherDetail.BudgetMasterId = party.BudgetMasterId;
+                            $scope.voucherDetail.BudgetCode = party.BudgetCode;
+                            $scope.voucherDetail.BudgetName = party.BudgetName;
+                            $scope.voucherDetail.ActivityId = party.ActivityId;
+                            $scope.voucherDetail.ActivityCode = party.ActivityCode;
+                            $scope.voucherDetail.ActivityName = party.ActivityName;
+                        }
+
+                        $scope.voucherDetail.ParticularName = party.ParticularName;
                         $scope.voucherDetail.PartyId = party.Id;
                         $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
                         $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
@@ -687,22 +817,113 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
                         $scope.voucherDetail.PartyType = $scope.voucher.PartyType;
                         $scope.voucherDetail.PartyPlantId = party.PartyPlantId;
                         $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
-                        $scope.voucherDetail.CrAmount = null;
-                        $scope.voucherDetail.DrAmount = null;
-                        $scope.voucherDetail.DrDisable = false;
-                        $scope.voucherDetail.CrDisable = false;
+                        $scope.voucherDetail.CrAmount = party.DrAmount;
+                        $scope.voucherDetail.DrAmount = party.CrAmount;
+                        if ($scope.voucher.InvoiceAdvance == 'Invoice' && $scope.voucher.PartyType == 'Vendor'
+                            || $scope.voucher.InvoiceAdvance == 'Advance' && $scope.voucher.PartyType == 'Customer'
+                        ) {
+                            $scope.voucherDetail.DrDisable = true;
+                            $scope.voucherDetail.CrDisable = true;
+                        }
+                        if ($scope.voucher.InvoiceAdvance == 'Advance' && $scope.voucher.PartyType == 'Vendor'
+                            || $scope.voucher.InvoiceAdvance == 'Invoice' && $scope.voucher.PartyType == 'Customer') {
+                            $scope.voucherDetail.DrDisable = true;
+                            $scope.voucherDetail.CrDisable = true;
+                        }
+
                         $scope.voucherDetailList.splice(0, 0, $scope.voucherDetail);
                         $scope.voucherDetail = {};
                         $scope.voucher.FinancingTypeId = null;
                         $scope.partyType = null;
-                        $scope.voucher.TransactionTypeName = null;
+                        $scope.voucher.InvoiceAdvance = null;
                     });
                 }
-
             }
-        $scope.hidePartyPopUp();
+            else {
+                $scope.getPartyPlantListWithCallBack(party.Id, function (result) {
+                    $scope.voucherDetail.ParticularName = party.ParticularName;
+                    $scope.voucherDetail.PartyId = party.Id;
+                    $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
+                    $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
+                    $scope.voucherDetail.Narration = $scope.voucher.Narration;
+                    $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
+                    $scope.voucherDetail.PartyType = $scope.voucher.PartyType;
+                    $scope.voucherDetail.PartyPlantId = party.PartyPlantId;
+                    $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
+                    $scope.voucherDetail.CrAmount = party.DrAmount;
+                    $scope.voucherDetail.DrAmount = party.CrAmount;
+                    $scope.voucherDetail.DrDisable = false;
+                    $scope.voucherDetail.CrDisable = false;
+                    $scope.voucherDetailList.splice(0, 0, $scope.voucherDetail);
+                    $scope.voucherDetail = {};
+                    $scope.voucher.FinancingTypeId = null;
+                    $scope.partyType = null;
+                    $scope.voucher.TransactionTypeName = null;
+                });
+            }
+        }
+        if ($scope.voucher.PartyType == 'InterTransaction') {
+            if (baseService.isUndefinedOrNull($scope.voucher.TransactionTypeName)) {
+                ShowResult("Please select Transaction Type!", "failure", "partyPopUp");
+                return;
+            } else {
+                $scope.getPartyPlantListWithCallBack(party.Id, function (result) {
+                    $scope.voucherDetail.ParticularName = party.ParticularName;
+                    $scope.voucherDetail.PartyId = party.Id;
+                    $scope.voucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
+                    $scope.voucherDetail.DocRefNo = $scope.voucher.DocRefNo;
+                    $scope.voucherDetail.Narration = $scope.voucher.Narration;
+                    $scope.voucherDetail.EntityId = $scope.voucher.EntityId;
+                    $scope.voucherDetail.PartyType = $scope.voucher.PartyType;
+                    $scope.voucherDetail.PartyPlantId = party.PartyPlantId;
+                    $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
+                    $scope.voucherDetail.CrAmount = null;
+                    $scope.voucherDetail.DrAmount = null;
+                    $scope.voucherDetail.DrDisable = false;
+                    $scope.voucherDetail.CrDisable = false;
+                    $scope.voucherDetailList.splice(0, 0, $scope.voucherDetail);
+                    $scope.voucherDetail = {};
+                    $scope.voucher.FinancingTypeId = null;
+                    $scope.partyType = null;
+                    $scope.voucher.TransactionTypeName = null;
+                });
+            }
+
+        }
+
+        angular.element(document.querySelector('#AddOBPartyJVPopUp')).modal('hide');
     };
 
+    $scope.closeOBPartyPopup = function () {
+        angular.element(document.querySelector('#AddOBPartyJVPopUp')).modal('hide');
+    }
+    $scope.SaveParty = function () {
+        $scope.$broadcast("show-errors-check-validity");
+        if ($scope.form0.$valid) {
+
+            $http({
+                method: "POST",
+                url: "accounts/OpeningBalance/ParkOBGLAdvanceJournal",
+                data: {
+                    "voucherVM": $scope.voucher,
+                    "voucherDetailVMList": $scope.glvoucherDetailList
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.setOBParty($scope.glvoucherDetailList[0]);
+                    $scope.glvoucherDetailList = [];
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+            return true;
+        }
+    };
     cboService.getCboCustomerTranTypeList(function (result) {
         $scope.customerTranTypeList = result;
     });
@@ -814,6 +1035,7 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
         $scope.getBankList();
         angular.element(document.querySelector("#bankPopUp")).modal("show");
     };
+
     $scope.closeBankPopUp = function () {
         if ($scope.bankIndex !== -1) {
             var bank = $scope.bankList[$scope.bankIndex];
@@ -834,14 +1056,67 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
                 return;
             }
             else {
-                $scope.voucherDetail.ParticularName = bank.AccountTitle;
-                $scope.voucherDetail.BankMasterId = bank.BankMasterId;
-                setBankGL(bank);
+               
+                OBBankPop(bank);
             }
         }
         $scope.hideBankPopUp();
     };
+    function OBBankPop(bank) {
+        $scope.glvoucherDetail = {};
+        $scope.glvoucherDetail.ParticularName = bank.AccountTitle;
+        $scope.glvoucherDetail.BankMasterId = bank.BankMasterId;
+        $scope.glvoucherDetail.BudgetMasterId = bank.BudgetMasterId;
+        $scope.glvoucherDetail.BudgetCode = bank.BudgetCode;
+        $scope.glvoucherDetail.BudgetName = bank.BudgetName;
+        $scope.glvoucherDetail.ActivityId = bank.ActivityId;
+        $scope.glvoucherDetail.ActivityCode = bank.ActivityCode;
+        $scope.glvoucherDetail.ActivityName = bank.ActivityName;
+        $scope.glvoucherDetail.GLGeneralInfoId = bank.GLGeneralInfoId;
+        $scope.glvoucherDetail.GLGeneralInfoCode = bank.GLGeneralInfoCode;
+        $scope.glvoucherDetail.GLGeneralInfoName = bank.GLGeneralInfoName;
+        $scope.glvoucherDetail.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
+        $scope.glvoucherDetail.DocRefNo = $scope.voucher.DocRefNo;
+        $scope.glvoucherDetail.Narration = $scope.voucher.Narration;
+        $scope.glvoucherDetail.EntityId = $scope.voucher.EntityId;
+        $scope.glvoucherDetail.PlantId = $scope.voucher.PlantId;
+        $scope.glvoucherDetail.CrAmount = null;
+        $scope.glvoucherDetail.DrAmount = null;
+        $scope.glvoucherDetail.DrDisable = false;
+        $scope.glvoucherDetail.CrDisable = true;
+        $scope.glvoucherDetail.PartyType = $scope.voucher.PartyType;
+        $scope.glvoucherDetailList.splice(0, 0, $scope.glvoucherDetail);
+        $scope.glvoucherDetail = {};
+        angular.element(document.querySelector("#AddOBBankJVPopUp")).modal("show");
+        angular.element(document.querySelector("#bankPopUp")).modal("hide");
+    }
+    $scope.SaveBank = function () {
+        $scope.$broadcast("show-errors-check-validity");
+        if ($scope.form0.$valid) {
 
+            $http({
+                method: "POST",
+                url: "accounts/OpeningBalance/ParkOBGLAdvanceJournal",
+                data: {
+                    "voucherVM": $scope.voucher,
+                    "voucherDetailVMList": $scope.glvoucherDetailList
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    setBankGL($scope.glvoucherDetailList[0]);
+                    $scope.glvoucherDetailList = [];
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+            return true;
+        }
+    };
     function setBankGL(bank) {
         $scope.voucherDetail.BankCurrencyId = bank.CurrencyId;
         $scope.voucherDetail.GLGeneralInfoId = bank.GLGeneralInfoId;
@@ -856,11 +1131,12 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
         $scope.voucherDetail.CrAmount = null;
         $scope.voucherDetail.DrAmount = null;
         $scope.voucherDetail.BankAmount = null;
-        $scope.voucherDetail.DrDisable = false;
+        $scope.voucherDetail.DrDisable = true;
         $scope.voucherDetail.CrDisable = true;
         $scope.voucherDetail.PartyType = $scope.voucher.PartyType;
         $scope.voucherDetailList.splice(0, 0, $scope.voucherDetail);
         $scope.voucherDetail = {};
+        angular.element(document.querySelector("#AddOBBankJVPopUp")).modal("hide");
     }
 
     $scope.closeCashPopUp = function () {
@@ -883,13 +1159,38 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
                 return;
             }
             else {
-                $scope.voucherDetail.CashMasterId = cash.Id;
-                $scope.voucherDetail.ParticularName = cash.CashName;
-                setCashGL(cash);
+               
+                OBCashPopUp(cash);
             }
         }
         $scope.hideCashPopUp();
     };
+
+    function OBCashPopUp(cash) {
+        $scope.glvoucherDetail = {};
+        $scope.glvoucherDetail.CashMasterId = cash.Id;
+        $scope.glvoucherDetail.ParticularName = cash.CashName;
+        $scope.glvoucherDetail.CashCurrencyId = cash.CurrencyId;
+        $scope.glvoucherDetail.GLGeneralInfoId = cash.GLGeneralInfoId;
+        $scope.glvoucherDetail.GLGeneralInfoCode = cash.GLGeneralInfoCode;
+        $scope.glvoucherDetail.GLGeneralInfoName = cash.GLGeneralInfoName;
+        $scope.glvoucherDetail.BudgetMasterId = cash.BudgetMasterId;
+        $scope.glvoucherDetail.BudgetCode = cash.BudgetCode;
+        $scope.glvoucherDetail.BudgetName = cash.BudgetName;
+        $scope.glvoucherDetail.ActivityId = cash.ActivityId;
+        $scope.glvoucherDetail.ActivityCode = cash.ActivityCode;
+        $scope.glvoucherDetail.ActivityName = cash.ActivityName;
+        $scope.glvoucherDetail.CrAmount = null;
+        $scope.glvoucherDetail.DrAmount = null;
+        $scope.glvoucherDetail.BankAmount = null;
+        $scope.glvoucherDetail.DrDisable = false;
+        $scope.glvoucherDetail.CrDisable = true;
+        $scope.glvoucherDetail.PartyType = $scope.voucher.PartyType;
+        $scope.glvoucherDetailList.splice(0, 0, $scope.glvoucherDetail);
+        $scope.glvoucherDetail = {};
+        angular.element(document.querySelector("#AddOBCashJVPopUp")).modal("show");
+        $scope.hideCashPopUp();
+    }
 
     function setCashGL(cash) {
         $scope.voucherDetail.CashCurrencyId = cash.CurrencyId;
@@ -902,15 +1203,44 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
         $scope.voucherDetail.ActivityId = cash.ActivityId;
         $scope.voucherDetail.ActivityCode = cash.ActivityCode;
         $scope.voucherDetail.ActivityName = cash.ActivityName;
-        $scope.voucherDetail.CrAmount = null;
-        $scope.voucherDetail.DrAmount = null;
-        $scope.voucherDetail.BankAmount = null;
-        $scope.voucherDetail.DrDisable = false;
+        $scope.voucherDetail.CrAmount = cash.CrAmount;
+        $scope.voucherDetail.DrAmount = cash.DrAmount;
+        $scope.voucherDetail.BankAmount = cash.BankAmount;
+        $scope.voucherDetail.DrDisable = true;
         $scope.voucherDetail.CrDisable = true;
         $scope.voucherDetail.PartyType = $scope.voucher.PartyType;
         $scope.voucherDetailList.splice(0, 0, $scope.voucherDetail);
         $scope.voucherDetail = {};
+        angular.element(document.querySelector("#AddOBCashJVPopUp")).modal("hide");
     }
+
+    $scope.SaveCash = function () {
+        $scope.$broadcast("show-errors-check-validity");
+        if ($scope.form0.$valid) {
+
+            $http({
+                method: "POST",
+                url: "accounts/OpeningBalance/ParkOBGLAdvanceJournal",
+                data: {
+                    "voucherVM": $scope.voucher,
+                    "voucherDetailVMList": $scope.glvoucherDetailList
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    setCashGL($scope.glvoucherDetailList[0]);
+                    $scope.glvoucherDetailList = [];
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+            return true;
+        }
+    };
 
     $scope.Save = function () {
         $scope.$broadcast("show-errors-check-validity");
@@ -2432,5 +2762,103 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
             $scope.closeInvestmentGLListPopUp();
         }
 
+    };
+
+    $scope.deleteRow = {};
+    $scope.confirmRowDelete = function (index, data) {
+        $scope.deleteRowIndex = index;
+        $scope.deleteRow = {};
+        $scope.deleteRow = data;
+        if (baseService.isUndefinedOrNull($scope.deleteRow.Id)) {
+            $scope.voucherDetailList.splice(index, 1);
+        }
+        else {
+            $scope.message_delete_confirmation = "Are you sure to Delete?";
+            angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+        }
+        
+    };
+
+    $scope.DeleteDetailRow = function (detaildata, deleteRowIndex) {
+        $http({
+            method: "POST",
+            url: "Accounts/OpeningBalance/DeleteOBDetailRow",
+            data: {
+                "OBDetailVM": detaildata,
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.voucherDetailList.splice(deleteRowIndex, 1);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.searchOBDetailList = [];
+    $scope.searchOBDetailList = [
+        {
+            "name": "GLGeneralInfoCode",
+            "value": "GLGeneralInfoCode"
+        },
+        {
+            "name": "GLGeneralInfoName",
+            "value": "GLGeneralInfoName"
+        },
+        {
+            "name": "Budget Ref No",
+            "value": "RefNo"
+        },
+        {
+            "name": "BudgetName",
+            "value": "BudgetName"
+        },
+        {
+            "name": "ActivityName",
+            "value": "ActivityName"
+        }
+        ,
+        {
+            "name": "ParticularName",
+            "value": "ParticularName"
+        }
+        ,
+        {
+            "name": "Party Code",
+            "value": "PartyCode"
+        }
+    ];
+
+    $scope.OBDetailListParameters = {
+        limit: 10,
+        offset: 0,
+        order: "DESC",
+        sort: "GLGeneralInfoCode",
+        searchBy: "GLGeneralInfoCode",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.GetOBDetailList = function () {
+        $scope.obDetailUrl = "Accounts/OpeningBalance/GetOBAdvanceJournalDetail?openingBalanceId=" + $scope.voucher.Id;
+        $scope.GetOBDetailData = function (pageno) {
+            baseService.paginationBase($scope.obDetailUrl, pageno, $scope.OBDetailListParameters)
+                .then(function (result) {
+                    $scope.voucherDetailList = result.Rows;
+                    $scope.OBDetailListParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure");
+                }).finally(function () {
+                });
+        };
+        $scope.GetOBDetailData();
     };
 }
