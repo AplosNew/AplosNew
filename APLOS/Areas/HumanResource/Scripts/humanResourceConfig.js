@@ -584,5 +584,8 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/WeekOffUpdates/Aplos',
             controller: 'WeekOffUpdatesController'
         })
-        ;
+        .when('/attnd-source-config', {
+            templateUrl: 'humanresource/AttendanceSourceConfig/Aplos',
+            controller: 'AttendanceSourceConfigController'
+        });
 }
