@@ -201,6 +201,7 @@
                                     <th>SKU3</th>
                                     <th>Country Name</th>
                                     <th>GRN Qty</th>
+                                    <th>Inventory Amount</th>
                                     <th>Sales Qty</th>
                                     <th>Sales Rate</th>
                                     <th>Total Amount</th>
@@ -218,6 +219,7 @@
                                     <td>{{x.ThirdCharacteristicText}}</td>
                                     <td>{{x.CountryName}}</td>
                                     <td class="text-right">{{x.GRNQty}} {{x.GRNUoM}}</td>
+                                    <td class="text-right">{{x.InventoryAmount}}</td>
                                     <td class="text-right">{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
                                     <td class="text-right">{{x.SalesRate}} </td>
                                     <td class="text-right">{{x.TotalAmount}}</td>
@@ -228,7 +230,7 @@
                                     <td class="text-right table-td">
                                         <ul class="list-inline">
                                             <li><button ng-click="getReceiveTaxList(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                            <li><button ng-click="getSpecificMaterialStock(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select GRN"><i class="glyphicon glyphicon-list"></i></button></li>
+                                            @*<li><button ng-click="getSpecificMaterialStock(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select GRN"><i class="glyphicon glyphicon-list"></i></button></li>*@
                                             <li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                         </ul>
                                     </td>
@@ -236,6 +238,7 @@
                                 <tr>
                                     <td colspan="6" class="text-right"><strong>Total : </strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'GRNQty'| setDecimal:2| number }}</strong></td>
+                                    <td class="text-right"><strong>{{detailList | sumByKey : 'InventoryAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'TransactionQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'TotalAmount'| setDecimal:2| number }}</strong></td>
@@ -740,7 +743,7 @@
 <div class="modal fade site-modal in" id="receiveTaxPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header"> Tax Information</div>   @*<button type="button" class="close" ng-click="closeReceiveTaxPopUp();">&times;</button>*@
+            <div class="modal-header"> Tax Information</div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
                     <p>Taxable amount : <b>{{taxAbleAmnt| number| setDecimal:2}}</b>&nbsp;<b>{{Currency}}</b></p>

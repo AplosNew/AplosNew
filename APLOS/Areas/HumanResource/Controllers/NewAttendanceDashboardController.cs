@@ -57,7 +57,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult getGridData(string Date , List<Dictionary<string,object>> param)
+        public ActionResult getGridData(string Date , Dictionary<string,string> param)
         {
             return Json(na.getGridData(Date), JsonRequestBehavior.AllowGet);
         }
