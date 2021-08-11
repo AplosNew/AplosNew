@@ -1,6 +1,8 @@
 ﻿'use strict';
 NewAttdnDashboardController.$inject = ['cboService', '$scope', '$rootScope', '$routeParams', 'baseService', '$http', '$filter'];
 function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParams, baseService, $http, $filter) {
+
+    $scope.Title = "Daily In Status";
     $scope.chartList = [];
     $scope.list = [];
     $scope.index = -1;
@@ -276,7 +278,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 method: 'POST',
                 url: 'NewAttdnDashboard/GetGroupWiseCompanyList/',
                 data: {
-                    'date': $scope.Date, 'status': $scope.hrStatus.pstatus
+                    'date': $scope.Date
                 },
 
                 dataType: 'JSON'
@@ -330,5 +332,9 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
 
         
     }
-    
+
+    // On Click on the Table
+    $scope.TableClick = function (data , column) {
+        console.log(data + ' , ' + column);
+    }
 }

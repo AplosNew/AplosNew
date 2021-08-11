@@ -584,7 +584,7 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/AttendanceSourceConfig/Aplos',
             controller: 'AttendanceSourceConfigController'
         })
-        .when('/newAttdn-Dashboard', {
+        .when('/daily-in-status', {
                templateUrl: 'humanresource/NewAttdnDashboard/Aplos',
                controller: 'NewAttdnDashboardController'
         });
