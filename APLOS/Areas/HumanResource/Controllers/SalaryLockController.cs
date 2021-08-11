@@ -51,12 +51,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpPost]
         public ActionResult GetEmpInfo(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
         {
-            JsonResult json = Json(_sqlRepository.GetDataCollection(new clsSalaryLock().GetEmpInfo((CustomIdentity)Thread.CurrentPrincipal.Identity, effectiveDate,salaryProcessId,isActive,isSeperated,isMaternity)), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(_sqlRepository.GetDataCollection(new clsSalaryLock().GetEmpInfo((CustomIdentity)Thread.CurrentPrincipal.Identity, effectiveDate, salaryProcessId, isActive, isSeperated, isMaternity)), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult xGetEmpInfo(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -98,7 +98,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 salaryProcessJoin = @" LEFT  JOIN (
 									  SELECT c.* FROM SalaryProcChild c 
 									  inner join SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID and MonthNo =  Month('" + effectiveDate + @"') AND YearNo =  Year('" + effectiveDate + @"')
-									  WHERE PlantID = '"+ plantId + @"'									  
+									  WHERE PlantID = '" + plantId + @"'									  
 									  ) SPC ON SPC.EmpInfoSystemID = E.SystemId
                                         LEFT  JOIN SalaryProcMaster SPM ON SPM.SystemID = spc.SlrProcMstSystemID and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
                                         left join salaryprocesslogdetail spd on spd.EmpSystemId=SPC.EmpInfoSystemID and spd.SalaryProcessId=spm.SystemID";
@@ -261,13 +261,15 @@ namespace Aplos.Areas.HumanResource.Controllers
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
-        
+
 
         [HttpPost]
-        public ActionResult Save(List<SalaryLock> EmployeeList, string Month, string Year, bool isActive,bool isSeperated,bool isMaternity)
+        public ActionResult Save(List<SalaryLock> EmployeeList, string Month, string Year, bool isActive, bool isSeperated, bool isMaternity)
         {
             try
             {
+                if (EmployeeList.Count == 0)
+                    throw new Exception("Nothing to Lock");
                 SaveSalaryLock(EmployeeList, Month, Year);
                 return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
@@ -277,7 +279,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        public void GetLoadSalaryLock(string EmpIdLoop,string Month,string Year,  out System.Data.DataSet dsRef)
+        public void GetLoadSalaryLock(string EmpIdLoop, string Month, string Year, out System.Data.DataSet dsRef)
         {
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
@@ -297,7 +299,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 objCon = null;
             }
         }//End Function
-        private void DetailRow(string OPN_FLAG, int pkCount, string pk_seed, SalaryLock sps,ref DataRow dr)
+        private void DetailRow(string OPN_FLAG, int pkCount, string pk_seed, SalaryLock sps, ref DataRow dr)
         {
             string systemID = "";
             try
@@ -386,7 +388,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                         SalaryLock sd = EmployeeList[i];
                         sd.YearNo = Year;
                         sd.MonthNo = Month;
-                        dvLocal.RowFilter = "EmpSystemId='"+sd.EmpSystemId+@"'";
+                        dvLocal.RowFilter = "EmpSystemId='" + sd.EmpSystemId + @"'";
 
                         if (dvLocal.Count == 0)
                         { // Add new block
@@ -403,7 +405,15 @@ namespace Aplos.Areas.HumanResource.Controllers
                             drLocal.EndEdit();
                         }
                         dvLocal.RowFilter = null;
-                    }                   
+                    }
+
+                    dsSaveSalaryLocked.Tables[0].DefaultView.RowFilter = "IsLocked = False";
+                    while (dsSaveSalaryLocked.Tables[0].DefaultView.Count>0)
+                    {
+                        dsSaveSalaryLocked.Tables[0].DefaultView[0].Delete();
+                    }
+
+
                     clsStaticInfo obj = new clsStaticInfo();
                     obj.SaveDataSets(dsSaveSalaryLocked);
                 }
@@ -419,7 +429,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 dtLocal = null;
             }
         }//end of function
-        
+
         public class SalaryLock : BaseModel
         {
             #region Scalar Properties            

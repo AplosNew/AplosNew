@@ -1,0 +1,162 @@
+﻿<style>
+    #wizard-container ul li {
+        display: inline;
+    }
+
+        #wizard-container ul li a {
+            display: block;
+            font-size: 12px;
+            font-family: 'open Sans';
+            float: left;
+            height: 40px;
+            background: #242841;
+            text-align: center;
+            padding: .5px 1px 0 18px;
+            position: relative;
+            margin: 0 5px 0px 0;
+            text-decoration: none;
+            color: #fff;
+            display: inline-block;
+        }
+
+            #wizard-container ul li a:after {
+                content: "";
+                border-top: 20px solid transparent;
+                border-bottom: 20px solid transparent;
+                border-left: 20px solid #242841;
+                position: absolute;
+                right: -20px;
+                top: 0;
+                z-index: 1;
+            }
+
+            #wizard-container ul li a:before {
+                content: "";
+                position: absolute;
+                border-top: 20px solid transparent;
+                border-bottom: 20px solid transparent;
+                border-left: 20px solid #FFFFFF;
+                left: 0;
+                top: 0;
+            }
+
+        #wizard-container ul li:first-child a:before {
+            display: none;
+        }
+
+    .exceess {
+        background-color: orangered;
+    }
+
+    .compare {
+        background-color: orangered;
+        color: white !important;
+    }
+
+    .short {
+        background-color: #f1c40f;
+    }
+
+    canvas #ManPowerbarChart {
+        width: 85% !important;
+        height: 50% !important;
+    }
+
+    canvas #salBarChart {
+        width: 85% !important;
+        height: 30% !important;
+    }
+
+    .sortorder {
+        content: '\25b3';
+        content: '\25BD';
+    }
+
+        .sortorder:after {
+            content: '\25b3';
+        }
+
+        .sortorder.reverse:after {
+            content: '\25BD';
+        }
+</style>
+<div class="col-md-11" id="MainDiv">
+    <h4 style="margin-top:-10px;margin-bottom:25px;"><span class="glyphicon glyphicon-stats"></span>&nbsp;{{Title}}</h4>
+</div>
+<div class="col-md-1 text-right">
+    <h4>&nbsp;&nbsp;&nbsp;   @*<i class="glyphicon glyphicon-repeat" style="cursor:pointer;" ng-click="refresh();" data-placement="top" title="Refresh" tooltip></i>*@</h4>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="container" id="headerNav" style="margin-left: -2.1%; margin-top:.5%; margin-bottom:.5%">
+            <div id="wizard-container">
+                <ul style="cursor:pointer; margin-bottom:-22px;">
+                    <li hidden ng-repeat="x in ColList" ng-click="headerNav(x)" ng-show="x.Sequence < index">
+                        <a>
+                            <b>{{x.ColumnName}}</b><br />{{x.Name}}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row" id="date" style="border:1px solid #d8d7d7; margin:-2px;">
+    <div class="col-md-3">
+        <div class="form-group form-element-ctrl">
+            <div class="show-message">
+                <p>
+                    <input type="text" name="Date" ng-model="Date" datepicker class="form-control datepicker" required tabindex="1" style="margin-top: 7px;margin-bottom: -4px;">
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-1"><button ng-click="dFunction()" class="btn" style="margin-top:4px;"><i class="glyphicon glyphicon-refresh"></i></button> </div>
+    
+</div>
+<br />
+<div class="row" id="overall" style="background-color:white;">
+    <div class="col-md-12">
+        <div id="Detail" class="col-lg-7" style="padding-left:0%">
+            <div class="row">
+                <div class="" style="margin-left:0%;  max-height:375px; max-width:100%;">
+                    <table class="table table-hover" style="overflow-y:scroll;border:1px solid black; box-shadow:1px 1px 1px 1px grey;">
+                        <thead>
+                            <tr>
+                                <th>{{ColList[index+2].ColumnName}}</th>
+                                <th>On Role</th>
+                                <th>Budgeted</th>
+                                <th>In</th>
+                                <th>Early In</th>
+                                <th>Late In</th>
+                                <th>In Missing</th>
+                                <th>OD</th>
+                                <th>WO/H/CO</th>
+                                <th>Leave</th>
+                                <th>Other</th>
+                                </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in list">
+                                <td style="padding:2px; cursor:pointer;" class="hoverItem" ng-click="setIndex(x);GetDetailDrillDownTableJS(x)">{{x.UserName}}</td>
+                                <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" ng-click="TableClick(x,'OnRoll')">{{x.OnRoll}}</td>
+                                <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem"  ng-click="TableClick(x,'BB')">{{x.BB}}</td>
+                                <td style="padding:2px; cursor:pointer;text-align:center"  class="hoverItem" ng-click="TableClick(x,'InStat')">{{x.InStat}}</td>
+                                <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'EarlyIn')">{{x.EarlyIn}}</td>
+                                <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'LateIn')">{{x.LateIn}}</td>
+                                <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'InMissing')">{{x.InMissing}}</td>
+                                <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'OD')">{{x.OD}}</td>
+                                <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'DayStatus')">{{x.DayStatus}}</td>
+                                <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'Leave')">{{x.Leave}}</td>
+                                <td style="padding:2px; cursor:pointer; text-align:center" class="hoverItem" ng-click="TableClick(x,'Other')">{{x.Other}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+</div>

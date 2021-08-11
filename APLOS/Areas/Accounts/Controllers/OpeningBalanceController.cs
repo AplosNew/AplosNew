@@ -369,6 +369,12 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = string.Format(AplosMessage.VoucherUpdate, _openingBalanceService.PostInsertAdvanceJournal(voucherVM, voucherDetailVM)) });
         }
 
+        [HttpPost]
+        public JsonResult DeleteOBDetailRow(OpeningBalanceDetail OBDetailVM)
+        {
+            return Json(new { Message = string.Format(AplosMessage.Deleted, _openingBalanceService.DeleteOBDetailRow(OBDetailVM)) });
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetJournalVoucherReport(ReportFormat reportFormat, string openingBalanceId)
         {

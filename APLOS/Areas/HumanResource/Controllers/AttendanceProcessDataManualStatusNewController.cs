@@ -19,6 +19,7 @@ using System.Linq;
 using clsAttendance;
 using Library.HumanResource.Attendance.Manual;
 using Library.HumanResource.NewAttendanceProcess;
+using bplib;
 //using clsAttendance;
 
 #endregion Using
@@ -298,8 +299,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                             format(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt') AS PunchInTime,
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
 
-                            KK.DayStatus,KK.DayStatus AS DayStatusNew, KK.OTHr,KK.IsLock,
-                            KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus,dt.DayStatusChange
+                            KK.DayStatus,KK.DayStatus AS DayStatusNew, KK.OTHr,convert(bit,isnull(KK.IsLock,0)) AS IsLock,
+                            KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus,dt.DayStatusChange,KK.RowId
 
                              FROM (
 								
@@ -311,7 +312,7 @@ namespace Aplos.Areas.HumanResource.Controllers
        
 		                            O.PunchInTime,O.PunchOutTime,
 		                            O.DayStatus, O.OTHr, O.IsOTComfirm,
-		                            O.IsOTEntitled,O.IsLock
+		                            O.IsOTEntitled,O.IsLock,O.RowId
 
 		                            FROM EmployeeInformation EMP
 		                            LEFT JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
@@ -345,7 +346,54 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
         }
-    
+
+        public ActionResult LockAttnd(string RowId)
+        {
+            try
+            {
+                DataSet dsRef;
+                clsStaticInfo objStatic = new clsStaticInfo();
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                var sqlx = @"select * from AttdnProcessData where RowId In(" + RowId + ")";
+
+                objCon.OpenDataSetThroughAdapter(sqlx, out dsRef, false, false, "", "1");
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    string IsLock = clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i][@"IsLock"]).ToString();
+                    string RowxId = clsWebLib.RetValidLen(dsRef.Tables[0].Rows[i][@"RowId"]).ToString();
+
+                    dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + RowxId + "' ";
+                    if (dsRef.Tables[0].DefaultView.Count > 0)
+                    {
+                        if (IsLock == "False")
+                        {
+                            DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+
+                            dr["IsLock"] = true;
+                            dr["LockedDate"] = DateTime.Now;
+                            dr["LockedBy"] = identity.Name;
+
+                            dr.EndEdit();
+                        }
+
+                    }
+                }
+                objStatic.SaveDataSets(dsRef);
+                return Json(new { Error = false, Message = "Attendance Locked Successfully" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new
+                {
+                    Error = true,
+                    Message = ex.Message                    
+                }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
     }
 
 }

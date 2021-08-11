@@ -142,7 +142,15 @@ namespace Library.OrderManagement.BOM
 										from BOQFGMapping AS XM	 
 										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
 										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.ThirdCharacteristicsValueId
-										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								POIds =STUFF((select distinct ','+XB2.InventoryReceiveId
+										from trn.POBOQMAP a	 
+										JOIN trn.PurchaseOrderDetail AS XB2 ON xb2.Id=a.PODetailId
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								GRNIds =STUFF((select distinct ','+XB2.InventoryReceiveId
+										from trn.POBOQMAP a	 
+										JOIN trn.InventoryReceiveDetail AS XB2 ON xb2.PODetailsId=a.PODetailId
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                   FROM BOQ AS b
                                 LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
                                 LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -174,7 +182,7 @@ namespace Library.OrderManagement.BOM
                 {
                     worksheet.Name = "BOM-Item Level";
                     string strsql = @"select B.Sequence, B.MasterOrderItemId, B.MasterOrderId, B.OwnReferenceNo,
-       B.BuyerReferenceNo, B.VendorId, B.Material, B.Article, B.Vendor, B.SKUDesc,
+       B.BuyerReferenceNo, B.VendorId, B.Material, B.Article, B.Vendor, B.SKUDesc,B.POIds, B.GRNIds,
        B.CharVal1, B.CharVal2, B.CharVal3, B.isParent, B.isChild, B.Process,
        B.Consumption, B.WastagePer, B.UOM, B.ParentUOM, B.POUOM, B.RMDescription,
        B.RMCustomerSpec, B.RMVendorSpec, B.SO1, B.SO2, B.SO3,
@@ -203,7 +211,15 @@ namespace Library.OrderManagement.BOM
 										from BOQFGMapping AS XM	 
 										JOIN BOQDetail AS XB2 ON xb2.Id=xm.BOQDetailId
 										JOIN [HKP].[CharacteristicsValue] XV1 ON xv1.Id=XM.ThirdCharacteristicsValueId
-										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										WHERE XB2.BOQId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								POIds =STUFF((select distinct ','+XB2.InventoryReceiveId
+										from trn.POBOQMAP a	 
+										JOIN trn.PurchaseOrderDetail AS XB2 ON xb2.Id=a.PODetailId
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+								GRNIds =STUFF((select distinct ','+XB2.InventoryReceiveId
+										from trn.POBOQMAP a	 
+										JOIN trn.InventoryReceiveDetail AS XB2 ON xb2.PODetailsId=a.PODetailId
+										WHERE a.BOQDetailId=b.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                   FROM BOQ AS b
                                 LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
                                 LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -230,7 +246,7 @@ namespace Library.OrderManagement.BOM
 
                                 WHERE b.MasterOrderItemId='" + MasterOrderItemId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' AND MasterOrderItemId='" + MasterOrderItemId + @"')
                         ) AS B
-                                GROUP BY B.Sequence, B.MasterOrderItemId, B.MasterOrderId, B.OwnReferenceNo,
+                                GROUP BY B.Sequence,B.POIds, B.GRNIds, B.MasterOrderItemId, B.MasterOrderId, B.OwnReferenceNo,
        B.BuyerReferenceNo, B.VendorId, B.Material, B.Article, B.Vendor, B.SKUDesc,
        B.CharVal1, B.CharVal2, B.CharVal3, B.isParent, B.isChild, B.Process,
        B.Consumption, B.WastagePer, B.UOM, B.ParentUOM, B.POUOM, B.RMDescription,
@@ -837,7 +853,15 @@ namespace Library.OrderManagement.BOM
             sheet[ROW, COL].Text = "Vendor";
             sheet[ROW, COL].ColumnWidth = 10;
             int colVendor = COL;
-           
+            COL++;
+            sheet[ROW, COL].Text = "PO NOs";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int colPOIds = COL;
+            COL++;
+            sheet[ROW, COL].Text = "GRN Nos";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int colGRNIds = COL;
+
 
             sheet.Range[ROW, 1, ROW, COL].CellStyle.Font.Bold = true; //row 19 of heading 
             sheet.Range[ROW, 1, ROW, COL].BorderAround(ExcelLineStyle.Hair);
@@ -871,6 +895,8 @@ namespace Library.OrderManagement.BOM
                 sheet[ROW, colUOM].Text = dtData.Rows[i]["UOM"].ToString();
                 sheet[ROW, colPOUOM].Text = dtData.Rows[i]["POUOM"].ToString();
                 sheet[ROW, colProcess].Text = dtData.Rows[i]["Process"].ToString();
+                sheet[ROW, colPOIds].Text = dtData.Rows[i]["POIds"].ToString();
+                sheet[ROW, colGRNIds].Text = dtData.Rows[i]["GRNIds"].ToString();
                
 
                 sheet[ROW, colBOMQty].Number = clsStaticInfo.dbl(dtData.Rows[i]["BOMQty"].ToString());

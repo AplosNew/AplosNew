@@ -196,7 +196,8 @@ namespace Library.MaterialManagement.Products
 				var SKU1 = "";
 				var SKU2 = "";
 				var SKU3 = "";
-				
+				var SalesOrderId = "";
+				var TransactionUoMId = "";
 				flag = true;
 			foreach (var itemDetail in entityGroupData)
 			{
@@ -262,6 +263,8 @@ namespace Library.MaterialManagement.Products
 							SKU1 = IssueRequstD.FirstCharacteristicsValueId;
 							SKU2 = IssueRequstD.SecondCharacteristicsValueId;
 							SKU3 = IssueRequstD.ThirdCharacteristicsValueId;
+							SalesOrderId = itemDetail.SalesOrderId;
+							TransactionUoMId = IssueRequstD.TransactionUoMId; 
 
 
 
@@ -275,7 +278,7 @@ namespace Library.MaterialManagement.Products
 
 						}
 					}
-					var FilterentityData = entity.Where(r => r.MaterialMasterId == Material && r.ArticleId == Article && r.BOQDFirstCharacteristicsValueId == SKU1 && r.BOQDSecondCharacteristicsValueId == SKU2 && r.BOQDThirdCharacteristicsValueId == SKU3).ToList();
+					var FilterentityData = entity.Where(r => r.MaterialMasterId == Material && r.ArticleId == Article && r.BOQDFirstCharacteristicsValueId == SKU1 && r.BOQDSecondCharacteristicsValueId == SKU2 && r.BOQDThirdCharacteristicsValueId == SKU3 && r.SalesOrderId == itemDetail.SalesOrderId && r.TransactionUoMId==TransactionUoMId).ToList();
 					foreach (var itemDetailentity in FilterentityData)
 					{
 

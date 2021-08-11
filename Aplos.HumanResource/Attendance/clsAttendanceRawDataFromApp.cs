@@ -97,18 +97,18 @@ namespace Library.HumanResource.Attendance
 
                     if (item.InTimeApp != null && item.OutTimeApp != null)
                     {
-                        if (Convert.ToDateTime(item.InDateApp + " " + item.InTimeApp) > Convert.ToDateTime(item.OutDateApp + " " + item.OutTimeApp))
-                        {
-                            item.IsError = true;
-                            item.ErrorMessage = "Out time is earlier than In time";
-                        }
+                        //if (Convert.ToDateTime(item.InDateApp + " " + item.InTimeApp) > Convert.ToDateTime(item.OutDateApp + " " + item.OutTimeApp))
+                        //{
+                        //    item.IsError = true;
+                        //    item.ErrorMessage = "Out time is earlier than In time";
+                        //}
 
-                        TimeSpan ts = Convert.ToDateTime(item.OutDateApp + " " + item.OutTimeApp).Subtract(Convert.ToDateTime(item.InDateApp + " " + item.InTimeApp));
-                        if (Math.Abs(ts.TotalHours) > 24)
-                        {
-                            item.IsError = true;
-                            item.ErrorMessage = "Time span cannot be greater than 24 hours between in and out time";
-                        }
+                        //TimeSpan ts = Convert.ToDateTime(item.OutDateApp + " " + item.OutTimeApp).Subtract(Convert.ToDateTime(item.InDateApp + " " + item.InTimeApp));
+                        //if (Math.Abs(ts.TotalHours) > 24)
+                        //{
+                        //    item.IsError = true;
+                        //    item.ErrorMessage = "Time span cannot be greater than 24 hours between in and out time";
+                        //}
 
                     }
                 }
@@ -185,7 +185,7 @@ namespace Library.HumanResource.Attendance
                         }
                         else
                         {
-                            if (data[i].InDateApp == null && data[i].InTimeApp == null)
+                            if (string.IsNullOrEmpty(data[i].InDateApp) && string.IsNullOrEmpty(data[i].InTimeApp))
                             {
                                 dr["InTime"] = DBNull.Value;
                             }
@@ -195,13 +195,13 @@ namespace Library.HumanResource.Attendance
                             }
 
                         }
-                        if (data[i].OutDateApp != null && data[i].OutTimeApp == null)
+                        if (!string.IsNullOrEmpty(data[i].OutDateApp) && string.IsNullOrEmpty(data[i].OutTimeApp))
                         {
                             dr["OutTime"] = data[i].OutDateApp;
                         }
                         else
                         {
-                            if (data[i].OutDateApp == null && data[i].OutTimeApp == null)
+                            if (string.IsNullOrEmpty(data[i].OutDateApp) && string.IsNullOrEmpty(data[i].OutTimeApp))
                             {
                                 dr["OutTime"] = DBNull.Value;
                             }
@@ -248,7 +248,7 @@ namespace Library.HumanResource.Attendance
                         }
                         else
                         {
-                            if (data[i].InDateApp == null && data[i].InTimeApp == null)
+                            if (string.IsNullOrEmpty(data[i].InDateApp) && string.IsNullOrEmpty(data[i].InTimeApp))
                             {
                                 dr["InTime"] = DBNull.Value;
                             }
@@ -258,13 +258,13 @@ namespace Library.HumanResource.Attendance
                             }
 
                         }
-                        if (data[i].OutDateApp != null && data[i].OutTimeApp == null)
+                        if (!string.IsNullOrEmpty(data[i].OutDateApp) && string.IsNullOrEmpty(data[i].OutTimeApp))
                         {
                             dr["OutTime"] = data[i].OutDateApp;
                         }
                         else
                         {
-                            if (data[i].OutDateApp == null && data[i].OutTimeApp == null)
+                            if (string.IsNullOrEmpty(data[i].OutDateApp) && string.IsNullOrEmpty(data[i].OutTimeApp))
                             {
                                 dr["OutTime"] = DBNull.Value;
                             }
