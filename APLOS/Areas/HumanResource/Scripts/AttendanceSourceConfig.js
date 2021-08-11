@@ -7,11 +7,9 @@ function AttendanceSourceConfigController(cboService, commonMessage, $scope, $ro
     $scope.path = 'humanresource/AttendanceSourceConfig/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
-    $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
-    $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'BackDays', name: "BackDays" }, { value: 'FutureDays', name: "FutureDays" },
-        { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }];
+    $scope.searchBy = "Company"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Company', name: "Company" },{ value: 'Plant', name: "Plant" }];
 
 
     $scope.Company = null;
@@ -32,7 +30,7 @@ function AttendanceSourceConfigController(cboService, commonMessage, $scope, $ro
         $http({
             method: 'GET',
             url: 'HumanResource/RosterPattern/getPlants',
-            params: { 'cmp': $scope.Company }
+            params: { 'cmp': $scope.ModelNew.CompanyId }
         }).then(function success(response) {
             $scope.PlantList = response.data;
         })
@@ -52,18 +50,21 @@ function AttendanceSourceConfigController(cboService, commonMessage, $scope, $ro
     $scope.getData();
 
     $scope.ModelTemp = {
-        Id: null,       
-        BackDays: null,
-        FutureDays: null,
-        UserName: null,
-        Description: null,       
+        Id: null,
+        CompanyName: null,
+        CompanyId: null,
+        PlantId: null,
+        ManualOTAllowed: false,
+        ManualInAllowed: false,
+        ManualOutAllowed: false       
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
      
 
     $scope.Get = function (args) {
-
+       
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.getPlants();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();

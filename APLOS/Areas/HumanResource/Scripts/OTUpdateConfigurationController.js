@@ -7,7 +7,6 @@ function OTUpdateConfigurationController(cboService, commonMessage, $scope, $roo
     $scope.path = 'humanresource/OTUpdateConfiguration/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
-    $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'BackDays', name: "BackDays" }, { value: 'FutureDays', name: "FutureDays" },
