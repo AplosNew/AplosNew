@@ -168,7 +168,6 @@
     <Compile Include="Attendance\DownloadApi.cs" />
     <Compile Include="Leave\clsLeaveBalanceToDate.cs" />
     <Compile Include="NewAttendanceProcess\NewAttdnDashboardService.cs" />
-    <Compile Include="NewAttendanceProcess\NewAttendanceDashboardServices.cs" />
     <Compile Include="NewAttendanceProcess\NewAttendanceProcessService.cs" />
     <Compile Include="NewAttendanceProcess\RosterUpdatesService.cs" />
     <Compile Include="NewAttendanceProcess\ShiftChangeService.cs" />

@@ -582,21 +582,25 @@ function InventorySalesReturnController(accountService, $window, cboService, com
     }
 
     $scope.returnAmountCalculation = function (data) {
-        //if (data.ReturnQty data.ReturnQty) {
+        try {
+            if (data.ReturnQty > data.TransactionQty) {
+                throw "Return Qty can't greater than Sales Qty";
+            }
 
-        //      }
+            data.TotalAmount = (parseFloat(data.ReturnQty) * (data.SalesRate)).toFixed(2);
+            data.TotalTaxAmount = 0;
+            var tQty = baseService.isUndefinedOrNull(data.ReturnQty) ? 0 : parseFloat(data.ReturnQty);
+            var tAmount = baseService.isUndefinedOrNull(data.TotalAmount) ? 0 : parseFloat(data.TotalAmount);
 
-        data.TotalAmount = (parseFloat(data.ReturnQty) * (data.SalesRate)).toFixed(2);
-        data.TotalTaxAmount = 0;
-        var tQty = baseService.isUndefinedOrNull(data.ReturnQty) ? 0 : parseFloat(data.ReturnQty);
-        var tAmount = baseService.isUndefinedOrNull(data.TotalAmount) ? 0 : parseFloat(data.TotalAmount);
-
-        for (var i = 0; i < baseService.arrayLength($scope.materialtaxCategoryList); i++) {
-            $scope.materialtaxCategoryList[i].TaxAmount = ((parseFloat($scope.materialtaxCategoryList[i].Percentage) * tAmount) / 100).toFixed(2);
-            data.TotalTaxAmount = ((parseFloat($scope.materialtaxCategoryList[i].Percentage) * tAmount) / 100).toFixed(2);
-            data.TaxAmount = (parseFloat(data.TotalTaxAmount) + parseFloat($scope.materialtaxCategoryList[i].TaxAmount)).toFixed(2);
+            for (var i = 0; i < baseService.arrayLength($scope.materialtaxCategoryList); i++) {
+                $scope.materialtaxCategoryList[i].TaxAmount = ((parseFloat($scope.materialtaxCategoryList[i].Percentage) * tAmount) / 100).toFixed(2);
+                data.TotalTaxAmount = ((parseFloat($scope.materialtaxCategoryList[i].Percentage) * tAmount) / 100).toFixed(2);
+                data.TaxAmount = (parseFloat(data.TotalTaxAmount) + parseFloat($scope.materialtaxCategoryList[i].TaxAmount)).toFixed(2);
+            }
+            if (isNaN(data.TotalTaxAmount)) data.TotalTaxAmount = 0;
+        } catch (e) {
+            ShowResult(e, "failure");
         }
-        if (isNaN(data.TotalTaxAmount)) data.TotalTaxAmount = 0;
     }
 
     $scope.AmountCalculation = function () {
@@ -804,18 +808,28 @@ function InventorySalesReturnController(accountService, $window, cboService, com
         $scope.percentageColumn = flag;
 
         $scope.currentMaterialRow = index;
-        //$scope.taxAbleAmnt = data.TransactionAmount;
-        //$scope.taxAmnt = data.TaxAmount;
+
+        data.TaxAmount = 0;
+        data.TotalTaxAmount = 0;
 
         $scope.receiveTaxList = [];
         if (data.ChargeTaxList.length > 0) {
             $scope.HSNCode = data.ChargeTaxList[0].HSNCode;
             $scope.receiveTaxList = data.ChargeTaxList;
         }
-        $scope.total = 0;
-        for (var j = 0; j < $scope.receiveTaxList.length; j++) {
-            $scope.total = $scope.total + $scope.receiveTaxList[j].TaxAmount;
-        }
+        //$scope.total = 0;
+        //for (var j = 0; j < $scope.receiveTaxList.length; j++) {
+        //    $scope.total = $scope.total + $scope.receiveTaxList[j].TaxAmount;
+        //}
+        angular.forEach($scope.receiveTaxList, function (item) {
+            item.TotalAmount = data.ReturnAmount * item.Percentage / 100;
+            item.TaxAmount = data.ReturnAmount * item.Percentage / 100;
+
+            data.TaxAmount += item.TotalAmount;
+            data.TotalTaxAmount += item.TotalAmount;
+        });
+
+
         angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('show');
         //$http({
         //    method: 'GET',
@@ -832,18 +846,25 @@ function InventorySalesReturnController(accountService, $window, cboService, com
     }
 
     $scope.calculateServiceAmount = function (data) {
-        if (data.ReturnAmount == 'NaN')
-            data.ReturnAmount = 0;
-        data.TaxAmount = 0;
-        data.TotalTaxAmount = 0;
-        angular.forEach(data.ChargeTaxList, function (item) {
-            item.TotalAmount = data.ReturnAmount * item.Percentage / 100;
-            item.TaxAmount = data.ReturnAmount * item.Percentage / 100;
+        try {
+            if (data.ReturnAmount > data.Amount) {
+                throw "Return Amount can't greater than original Amount";
+            }
+            if (data.ReturnAmount == 'NaN')
+                data.ReturnAmount = 0;
+            data.TaxAmount = 0;
+            data.TotalTaxAmount = 0;
+            angular.forEach(data.ChargeTaxList, function (item) {
+                item.TotalAmount = data.ReturnAmount * item.Percentage / 100;
+                item.TaxAmount = data.ReturnAmount * item.Percentage / 100;
 
-            data.TaxAmount += item.TotalAmount;
-            data.TotalTaxAmount += item.TotalAmount;
-        });
-        data.NetAmount = parseFloat(data.ReturnAmount) + parseFloat(data.TaxAmount);
+                data.TaxAmount += item.TotalAmount;
+                data.TotalTaxAmount += item.TotalAmount;
+            });
+            data.NetAmount = parseFloat(data.ReturnAmount) + parseFloat(data.TaxAmount);
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     $scope.delModal = function (id) {
@@ -1012,6 +1033,15 @@ function InventorySalesReturnController(accountService, $window, cboService, com
         $scope.index = index;
         $scope.HSNCode = getRownewData.HSNCode;
         $scope.total = $scope.total + getRownewData.TaxAmount;
+
+        for (var i = 0; i < baseService.arrayLength($scope.materialtaxCategoryListResFinal); i++) {
+            $scope.materialtaxCategoryListResFinal[i].TaxAmount = ((parseFloat($scope.materialtaxCategoryListResFinal[i].Percentage) * $scope.taxAbleAmnt) / 100).toFixed(2);
+            data.TotalTaxAmount = ((parseFloat($scope.materialtaxCategoryListResFinal[i].Percentage) * $scope.taxAbleAmnt) / 100).toFixed(2);
+            data.TaxAmount = (parseFloat(data.TotalTaxAmount) + parseFloat($scope.materialtaxCategoryListResFinal[i].TaxAmount)).toFixed(2);
+        }
+
+
+        
         angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
     };
 
@@ -1021,7 +1051,7 @@ function InventorySalesReturnController(accountService, $window, cboService, com
         });
     }
     $scope.closeReceiveTaxPopUpwindow = function () {
-        $scope.detailList[$scope.index].TaxAmount = parseFloat($filter('sumByKey')($scope.materialtaxCategoryListResFinal, 'TaxAmount', true));//$scope.materialtaxCategoryList.TaxAmount;
+        // $scope.detailList[$scope.index].TaxAmount = parseFloat($filter('sumByKey')($scope.materialtaxCategoryListResFinal, 'TaxAmount', true));//$scope.materialtaxCategoryList.TaxAmount;
 
 
         // getInventoryMaterialList($scope.productNew.Id);
@@ -1276,13 +1306,13 @@ function InventorySalesReturnController(accountService, $window, cboService, com
                 ShowResult(response.data.Message, 'failure');
             else {
                 ShowResult(response.data.Message, 'success');
-                //$scope.Clear();
+                
                 $scope.Action = 'Update';
                 $scope.productNew.Id = response.data.inventoryIssue.Id;
                 $scope.getdataInventorySales();
                 $scope.SalesDetails();
                 $scope.getData();
-                //$scope.GetDataList();
+                $scope.Clear();
             }
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
