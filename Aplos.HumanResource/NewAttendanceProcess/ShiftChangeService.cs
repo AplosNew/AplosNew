@@ -491,7 +491,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                DataSet dsMaster,dsref;
+                DataSet dsMaster,dsref,PlantMaster;
                 string TableName = "dbo.PhysicalVerification";
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -499,9 +499,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                     return "";
                 int i = 0;
                 string EmpId = "''";
+                string PlantData = "''";
+
                 foreach (AttendanceProcessNewProcess item in data)
                 {
                     EmpId += ",'" + item.EmpSystemID + "'";
+                    CheckerFunction(ref PlantData, item.PlantID);
                 }
 
                 string ReturnLockedEmp = "''";
@@ -509,11 +512,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string Date = items[0].WorkDate;
                 string newformat = Convert.ToDateTime(Date).ToString("yyyyMMdd");
                
-                var sqly = @"select * from dbo.AttdnProcessData where WorkDate='" + items[0].WorkDate + " ' and EmpSystemId IN(" + EmpId + ")";
+                var sqly = @"select * from dbo.AttdnProcessData where WorkDate='" + items[0].WorkDate + "' and " +
+                    "EmpSystemId IN(" + EmpId + ")";
                 con.OpenDataSetThroughAdapter(sqly, out dsMaster, false, "1");
 
                 var sqlz = @"select * from dbo.PhysicalVerification where WorkDate='" + items[0].WorkDate + " ' and EmpSystemID IN(" + EmpId + ")";
                 con.OpenDataSetThroughAdapter(sqlz, out dsref, false, "1");
+
+                var sqlx = @"select PlantId,ManualInAllowed,ManualOTAllowed,ManualOutAllowed from AttendanceSourceConfig 
+                where PlantId In(" + PlantData+")";
+                con.OpenDataSetThroughAdapter(sqlx, out PlantMaster, false, "1");
 
 
                 foreach (AttendanceProcessNewProcess item in data)
@@ -524,7 +532,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                     {
                         string Lock = clsWebLib.GetBoolData(dsMaster.Tables[0].DefaultView[0][@"IsLock"]).ToString();
                         string OTEntitled = clsWebLib.GetBoolData(dsMaster.Tables[0].DefaultView[0][@"IsOTEntitled"]).ToString();
-
+                        string PlantId= clsWebLib.RetValidLen(dsMaster.Tables[0].DefaultView[0][@"PlantID"]).ToString();
+                        
                         if (Lock == "False")
                         {
                             #region To Save in Physical Verification
@@ -605,21 +614,60 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             #endregion
 
-                            if (OTEntitled == "True") 
+                            PlantMaster.Tables[0].DefaultView.RowFilter = @"PlantId='" + PlantId + "'";
+                            if (PlantMaster.Tables[0].DefaultView.Count > 0)
                             {
-                                DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
 
-                                if (clsWebLib.RetValidLen(item.ManualOt).ToString() != "")
+                                string ManualInAllowed = clsWebLib.RetValidLen(PlantMaster.Tables[0].DefaultView[0][@"ManualInAllowed"]).ToString();
+                                string ManualOutAllowed = clsWebLib.RetValidLen(PlantMaster.Tables[0].DefaultView[0][@"ManualOutAllowed"]).ToString();
+                                string ManualOTAllowed = clsWebLib.RetValidLen(PlantMaster.Tables[0].DefaultView[0][@"ManualOTAllowed"]).ToString();
+
+                                DataRow drx = dsMaster.Tables[0].DefaultView[0].Row;
+                                if (item.InOutParam == "In")
                                 {
-                                    dr.BeginEdit();
-                                    dr["ManualOt"] = item.ManualOt;
-                                    dr["ManualByWhom"] = item.AddedBy;
-                                    dr["ManualEntryTime"] = DateTime.Now.ToString();
-                                    dr["ManualFlag"] = true;
+                                    if (ManualInAllowed != "" && ManualInAllowed == "True")
+                                    {
 
-                                    dr.EndEdit();
+                                        drx.BeginEdit();
+                                        drx["ManualInTime"] = DateTime.Now;
+                                        drx["IsManualInTime"] = true;
+                                        drx["ManualByWhom"] = item.AddedBy;
+                                        drx["ManualEntryTime"] = DateTime.Now.ToString();
+                                        drx["ManualFlag"] = true;
+                                        drx.EndEdit();
+
+                                    }
                                 }
-                            }                            
+
+                                else if (item.InOutParam == "Out")
+                                {
+                                    if (ManualOutAllowed != "" && ManualOutAllowed == "True")
+                                    {
+
+                                        drx.BeginEdit();
+                                        drx["ManualOutTime"] = DateTime.Now;
+                                        drx["IsManualOutTime"] = true;
+                                        drx["ManualByWhom"] = item.AddedBy;
+                                        drx["ManualEntryTime"] = DateTime.Now.ToString();
+                                        drx["ManualFlag"] = true;
+                                        drx.EndEdit();
+
+                                    }
+                                }
+                                if (OTEntitled == "True")
+                                {
+
+                                    if (clsWebLib.RetValidLen(item.ManualOt).ToString() != "")
+                                    {
+                                        if (ManualOTAllowed != "" && ManualOTAllowed == "True")
+                                        {
+                                            drx.BeginEdit();
+                                            drx["ManualOt"] = item.ManualOt;
+                                            drx.EndEdit();
+                                        }
+                                    }
+                                }
+                            }
                         }
                         else
                         {
@@ -646,6 +694,17 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public void CheckerFunction(ref string ManualFlagRowId, string Value)
+        {
+            if (ManualFlagRowId.Contains(Value))
+            {
+                return;
+            }
+            else
+            {
+                ManualFlagRowId += ",'" + Value + "'";
+            }
+        }
     }
    
     public class MyClass
