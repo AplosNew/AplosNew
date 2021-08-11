@@ -532,6 +532,7 @@
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataEntityWiseNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataManualStatusNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataNewController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\AttendanceSourceConfigController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\NewAttdnDashboardController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTUpdateConfigurationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\DayStatusMasterController.cs" />
@@ -542,7 +543,6 @@
     <Compile Include="Areas\HumanResource\Controllers\BlackListController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeAdditionDeductionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManualShiftNewController.cs" />
-    <Compile Include="Areas\HumanResource\Controllers\NewAttendanceDashboardController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OutPunchConfigurationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ProfessionalTaxReportsController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTPlanningController.cs" />
@@ -1770,6 +1770,7 @@
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataEntityWiseNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataManualStatusNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataNewController.js" />
+    <Content Include="Areas\HumanResource\Scripts\AttendanceSourceConfig.js" />
     <Content Include="Areas\HumanResource\Scripts\NewAttdnDashboardController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTUpdateConfigurationController.js" />
     <Content Include="Areas\HumanResource\Scripts\DayStatusMasterController.js" />
@@ -1783,7 +1784,6 @@
     <Content Include="Areas\HumanResource\Scripts\BlackListController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAdditionDeductionController.js" />
     <Content Include="Areas\HumanResource\Scripts\ManualShiftNewController.js" />
-    <Content Include="Areas\HumanResource\Scripts\NewAttendanceDashboardController.js" />
     <Content Include="Areas\HumanResource\Scripts\OutPunchConfigurationController.js" />
     <Content Include="Areas\HumanResource\Scripts\payRegisterBDReportContractorController.js" />
     <Content Include="Areas\HumanResource\Scripts\professionalTaxReportsController.js" />
@@ -3628,7 +3628,6 @@
     <Content Include="Areas\HumanResource\Views\EmployeeJobLocation\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTUpdateConfiguration\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionConversionParameter\Aplos.cshtml" />
-    <Content Include="Areas\HumanResource\Views\NewAttendanceDashboard\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\AttendanceRawDataFromApp\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBGLJVPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBBankJVPopUp.cshtml" />
@@ -3638,6 +3637,7 @@
     <Content Include="Areas\HumanResource\Views\WeekOffUpdates\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionTransformationBooking\Aplos.cshtml" />
     <Content Include="Areas\OrderManagements\Views\Order\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\AttendanceSourceConfig\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\NewAttdnDashboard\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
