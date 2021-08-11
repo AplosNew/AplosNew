@@ -22,22 +22,16 @@ namespace Aplos.Areas.HumanResource.Controllers
             
         }
 
-        //public ManpowerBudgetDashboardController(IManpowerBudgetDashboardService hrDashboardService)
-        //{
-        //    na = hrDashboardService;
-        //}
-            
-       
         public ActionResult Aplos()
         {
             return View();
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetGroupWiseCompanyList(string date)
+        public ActionResult GetGroupWiseCompanyList(string date, string stat, string EmpCat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date);
+            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date,  stat,  EmpCat);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
@@ -56,96 +50,19 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetDetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date ,  Dictionary<string,string> data)
+        public ActionResult GetDetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string stat , string EmpCat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            return Json(na.DetailDrillDownTable(ChartColumnList, seq, date, identity.CompanyGroupId , data), JsonRequestBehavior.AllowGet);
+            return Json(na.DetailDrillDownTable(ChartColumnList, seq, date, identity.CompanyGroupId, stat, EmpCat), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost, Authorize]
-        public ActionResult ModalEmployeeSummary(IEnumerable<ChartColumnList> ChartColumnList, int seq, string status, string EmplyeeTypeOrCategoryId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(na.ModalGroupWiseEmlpoyeeList(identity.CompanyGroupId, ChartColumnList, seq, status, EmplyeeTypeOrCategoryId), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult ModalEmployeeDetail(IEnumerable<ChartColumnList> chartColumnList, string companyId, int seq, string date, string status, string EmplyeeTypeOrCategoryId, GridParameter parameters)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(na.ModalEmlpoyeeListDetail(chartColumnList, identity.CompanyGroupId, companyId, seq, date, status, EmplyeeTypeOrCategoryId, parameters), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
-            //return Json(na.ModalEmlpoyeeListDetail(chartColumnList, identity.CompanyGroupId, companyId, seq, date, status, EmplyeeTypeOrCategoryId, parameters), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult ModalBudgetSummary(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string status, string EmplyeeTypeOrCategoryId, GridParameter parameters)
+        [HttpPost , Authorize]
+        public ActionResult DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data ,string stat , string EmpCat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-
-            JsonResult jsondata =  Json(na.ModalBudgetSummary(ChartColumnList, seq, date, status, EmplyeeTypeOrCategoryId, parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
-
-            //return Json(na.ModalBudgetSummary(ChartColumnList, seq, date, status, EmplyeeTypeOrCategoryId, parameters), JsonRequestBehavior.AllowGet);
+            return Json(na.DetailTableClick(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data , stat, EmpCat), JsonRequestBehavior.AllowGet);
         }
-
-        [HttpPost, Authorize]
-        public ActionResult ModalBudgetDetail(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string status, string EmplyeeTypeOrCategoryId, GridParameter parameters)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            var jsondata = Json(na.ModalBudgetDetail(ChartColumnList, seq, date, status, EmplyeeTypeOrCategoryId, parameters,identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
-            //return Json(na.ModalBudgetDetail(ChartColumnList, seq, date, status, EmplyeeTypeOrCategoryId, parameters), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult ModalExcessSummary(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string status,string EmplyeeTypeOrCategoryId, GridParameter parameters)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(na.ModalExcessSummary(ChartColumnList, identity.CompanyGroupId, seq, date, status, EmplyeeTypeOrCategoryId, parameters), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult ModalExcessDetail(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string status, GridParameter parameters)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(na.ModalExcessDetail(ChartColumnList, identity.CompanyGroupId, seq, date, status, parameters), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult ModalShortSummary(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string status, GridParameter parameters)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(na.ModalShortSummary(ChartColumnList, identity.CompanyGroupId, seq, date, status, parameters), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult ModalShortDetail(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string status, GridParameter parameters)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(na.ModalShortDetail(ChartColumnList, identity.CompanyGroupId, seq, date, status, parameters), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult BudgetCodeWiseEmpList(IEnumerable<ChartColumnList> ChartColumnList, string budgetCode, string EmplyeeTypeOrCategoryId, GridParameter parameters)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(na.BudgetCodeWiseEmpList(ChartColumnList, identity.CompanyGroupId, budgetCode, EmplyeeTypeOrCategoryId, parameters), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult WPBudgetCodeWiseEmpList(IEnumerable<ChartColumnList> ChartColumnList, string budgetCode)
-        {
-            return Json(na.WpBudgetCodeWiseEmpList(ChartColumnList, budgetCode), JsonRequestBehavior.AllowGet);
-        }
-
     }
 }

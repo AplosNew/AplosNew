@@ -541,6 +541,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         public bool IsManualDayStatus { get; set; } = false;
         public string OTHr { get; set; } = "";
         public bool IsOTComfirm { get; set; } = false;
+        public string PlantID { get; set; } = "";
         public bool IsOTEntitled { get; set; } = false;
         public bool IsError { get; set; } = false;
         public string ErrorMessage { get; set; } = "";

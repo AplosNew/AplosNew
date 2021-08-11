@@ -21,7 +21,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 {
     public class AttendanceSourceConfigController : BaseController
     {
-        string TableName = "OTUpdateConfiguration";
+        string TableName = "AttendanceSourceConfig";
      
         #region Constructor
 
@@ -48,9 +48,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
 
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey ;
-
+            string sql = @"select top 100 * from (SELECT p.UserName as Plant ,p.CompanyId,c.UserName as CompanyName, s.* FROM 
+            AttendanceSourceConfig s
+            LEFT JOIN Org.Plant p on s.PlantId=p.Id
+            left join org.Company c on c.Id=p.CompanyId) AS TEMP WHERE " + strkey ;
 
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -60,7 +61,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             string sID = string.Empty;
             bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "OTUpdateConfiguration", out sID);
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), TableName, out sID);
             return sID;
         }
 
@@ -74,9 +75,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                
-                con.OpenDataSetThroughAdapter("select * from dbo.OTUpdateConfiguration where GroupID='" +identity.CompanyGroupId + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.AttendanceSourceConfig where PlantId='" + data["PlantId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Company Group already exists!!!");
+                    throw new Exception("Same Plant already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -88,7 +89,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "OT" + GetPK();
+                    data["Id"] = "ASC" + GetPK();
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -127,7 +128,6 @@ namespace Aplos.Areas.HumanResource.Controllers
                 {
                 }
             }
-            dr["GroupID"] = identity.CompanyGroupId;
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
@@ -149,7 +149,6 @@ namespace Aplos.Areas.HumanResource.Controllers
                 {
                 }
             }
-            dr["GroupID"] = identity.CompanyGroupId;
             dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
