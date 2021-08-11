@@ -28,10 +28,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetGroupWiseCompanyList(string date)
+        public ActionResult GetGroupWiseCompanyList(string date, string stat, string EmpCat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date);
+            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date,  stat,  EmpCat);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
@@ -50,12 +50,19 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetDetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date ,  Dictionary<string,string> data)
+        public ActionResult GetDetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string stat , string EmpCat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            return Json(na.DetailDrillDownTable(ChartColumnList, seq, date, identity.CompanyGroupId , data), JsonRequestBehavior.AllowGet);
+            return Json(na.DetailDrillDownTable(ChartColumnList, seq, date, identity.CompanyGroupId, stat, EmpCat), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost , Authorize]
+        public ActionResult DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data ,string stat , string EmpCat)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            return Json(na.DetailTableClick(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data , stat, EmpCat), JsonRequestBehavior.AllowGet);
+        }
     }
 }

@@ -176,10 +176,10 @@ namespace Library.HumanResource.Attendance
                     if (dvMSave.Count > 0)
                     {
 
-                        DataRow dr = dsManualAttendance.Tables[0].Rows[0];
+                        DataRow dr = dvMSave[0].Row;
 
                         dr.BeginEdit();
-                        if (data[i].InDateApp != null && data[i].InTimeApp == null)
+                        if (!string.IsNullOrEmpty(data[i].InDateApp) && string.IsNullOrEmpty(data[i].InTimeApp))
                         {
                             dr["InTime"] = data[i].InDateApp;
                         }
@@ -207,11 +207,12 @@ namespace Library.HumanResource.Attendance
                             }
                             else
                             {
-                                dr["OutTime"] = data[i].OutDateApp + " " + data[i].OutTimeApp;
+                                dr["OutTime"] = Convert.ToDateTime(data[i].OutDateApp + " " + data[i].OutTimeApp);
                             }
 
                         }
                         dr["SourceFlag"] = "ManualAttendance";
+
                         dr["UpdatedBy"] = identity.Name;
 
 
@@ -231,7 +232,7 @@ namespace Library.HumanResource.Attendance
                         dr["Id"] = pk;
 
                         dr["EmployeeId"] = data[i].Id;
-                        if (data[i].WorkDate == null)
+                        if (string.IsNullOrEmpty(data[i].WorkDate))
                         {
                             dr["PDate"] = data[i].InDateApp;
                         }
@@ -242,7 +243,7 @@ namespace Library.HumanResource.Attendance
 
 
 
-                        if (data[i].InDateApp != null && data[i].InTimeApp == null)
+                        if (!string.IsNullOrEmpty(data[i].InDateApp) && string.IsNullOrEmpty(data[i].InTimeApp))
                         {
                             dr["InTime"] = data[i].InDateApp;
                         }
