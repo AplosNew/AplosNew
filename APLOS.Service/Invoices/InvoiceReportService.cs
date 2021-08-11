@@ -1610,17 +1610,18 @@ namespace Library.Service.Invoices
                             , [Park/Post]=CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END, REPLACE(CONVERT(VARCHAR(11), v.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo, V.VoucherNo, UPPER(V.Narration) AS Narration
                             , V.CurrencyId, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, CU1.Code AS TrnCurrency, V.AddedBy, V.PostedBy, VDC.ParallelCurrencyId, CU.Code AS CurrencyCode
                             , VDC.FromCurrencyId, VDC.ToCurrencyId, VDC.ToCurrencyRate, VD.DrAmount AS DrAmount, VD.CrAmount AS CrAmount, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount, [DRCR]=CASE WHEN VDC.DrAmount>0 THEN '1' ELSE '2' END
-                            , VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode, P.UserName AS Customer, PP.UserName AS CustomerPlant, VD.Narration AS DetailNarration, BUD.UserName AS Budget
+                            , VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,P.Code+' - '+ P.UserName AS Customer, PP.UserName AS CustomerPlant, VD.Narration AS DetailNarration, BUD.UserName AS Budget
 
                             ,Activity=CASE WHEN VD.CashMasterId<>'' THEN  CM.UserName  WHEN VD.BankMasterId<>'' THEN BNM.AccountTitle Else ACT.UserName end 
                             ,CM.UserName AS CashMasterName
+
                             FROM [TRN].[VoucherDetailCurrency] AS VDC
                             JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=VDC.VoucherDetailId
                             JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                             LEFT JOIN [TRN].[InvoiceWriteOffDetail] AS IVD ON IVD.Id=VD.InvoiceWriteOffDetailId
                             LEFT JOIN [TRN].[InvoiceWriteOff] AS IV ON IV.Id=IVD.InvoiceWriteOffId
-                            LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
-                            LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                            LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                            LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=VD.PartyPlantId
                             LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=VD.GLGeneralInfoId
                             LEFT JOIN [SCS].[Currency] AS CU ON CU.Id=VDC.ParallelCurrencyId
                             LEFT JOIN [SCS].[Currency] AS CU1 ON CU1.Id=V.CurrencyId
@@ -1632,7 +1633,7 @@ namespace Library.Service.Invoices
                             
                             LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
                             LEFT JOIN [MST].[BankMaster] AS BNM ON BNM.Id=VD.BankMasterId
-                            WHERE V.Archive=0 AND V.Id='" + voucherId + "' ORDER BY VD.DrAmount DESC";
+                            WHERE V.Archive=0 AND V.Id='"+voucherId+@"' ORDER BY VD.DrAmount DESC";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception)
@@ -1702,7 +1703,7 @@ namespace Library.Service.Invoices
             //sheet[row, 5].ColumnWidth = 15;
             row++;
 
-            colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
+            colLast = companyCurrencyId == transcationCurrency ? 6 : 8;
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
             reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString());
             sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
@@ -1712,21 +1713,21 @@ namespace Library.Service.Invoices
 
             if (companyCurrencyId == transcationCurrency)
             {
-                reportUtility.SetHeaderText(ref sheet, row, 4, companyCurrencyCode, ExcelHAlign.HAlignCenter);
-                sheet[row, 4, row, 5].Merge();
+                reportUtility.SetHeaderText(ref sheet, row, 5, companyCurrencyCode, ExcelHAlign.HAlignCenter);
+                sheet[row, 5, row, 6].Merge();
             }
             else
             {
-                reportUtility.SetHeaderText(ref sheet, row, 4, header["CurrencyCode"].ToString(), ExcelHAlign.HAlignCenter);
-                sheet[row, 4, row, 5].Merge();
+                reportUtility.SetHeaderText(ref sheet, row, 5, header["CurrencyCode"].ToString(), ExcelHAlign.HAlignCenter);
+                sheet[row, 5, row, 6].Merge();
 
-                reportUtility.SetHeaderText(ref sheet, row, 6, companyCurrencyCode, ExcelHAlign.HAlignCenter);
-                sheet[row, 6, row, 7].Merge();
+                reportUtility.SetHeaderText(ref sheet, row, 7, companyCurrencyCode, ExcelHAlign.HAlignCenter);
+                sheet[row, 7, row, 8].Merge();
             }
-            sheet[row, 6].ColumnWidth = 15;
             sheet[row, 7].ColumnWidth = 15;
-            sheet.Range[row, 4, row, colLast].BorderAround(ExcelLineStyle.Hair);
-            sheet.Range[row, 4, row, colLast].BorderInside(ExcelLineStyle.Hair);
+            sheet[row, 8].ColumnWidth = 15;
+            sheet.Range[row, 5, row, colLast].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[row, 5, row, colLast].BorderInside(ExcelLineStyle.Hair);
             row++;
 
 
@@ -1734,8 +1735,11 @@ namespace Library.Service.Invoices
             sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
             //sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Thin);
             //sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Thin);
-            xlsCol++; xlsCol++;
+            xlsCol++;
+            xlsCol++;
 
+            int colParticulas = xlsCol;
+            reportUtility.SetHeaderText(ref sheet, row, colParticulas, "Particulars"); colParticulas = xlsCol; xlsCol++;
 
             if (companyCurrencyId != transcationCurrency)
             {
@@ -1783,6 +1787,8 @@ namespace Library.Service.Invoices
                     reportUtility.SetText(ref sheet, row, colGl, dsLocal.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dsLocal.Rows[i]["Activity"]);
 
                     sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(colGl + 2) + row].Merge();
+                    reportUtility.SetText(ref sheet, row, colParticulas, dsLocal.Rows[i]["Customer"].ToString());
+
 
                     if (companyCurrencyId != transcationCurrency)
                     {
@@ -1909,7 +1915,7 @@ namespace Library.Service.Invoices
                 sheet.Range[row, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, 5, "Authorized By", true);
 
-                reportUtility.CompanyPlantHeader(ref sheet, colLast, header["VoucherTypeName"].ToString(), companyId, plantName, null);
+                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Govt. Subsidy", /*header["VoucherTypeName"].ToString(),*/ companyId, plantName, null);
                 reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
 
                 //    //else
