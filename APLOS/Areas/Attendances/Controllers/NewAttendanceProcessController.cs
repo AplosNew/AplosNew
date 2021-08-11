@@ -65,7 +65,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         ErrorLocation = ex.Message.ToString();
                         string error = "Plant:- "+ CatchPlant+ " Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
 
-                        NewAttendanceProcessService.SaveLog(error, true);
+                        NewAttendanceProcessService.SaveLog(error, "ShiftProcess", true);
                     }
                 }
             }
@@ -102,7 +102,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         ErrorLocation = ex.Message.ToString();
                         string error = "Plant:- " + CatchPlant + " Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
 
-                        NewAttendanceProcessService.SaveLog(error, true);
+                        NewAttendanceProcessService.SaveLog(error,"AttdnProcess", true);
                     }
                 }
             }
@@ -139,7 +139,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         ErrorLocation = ex.Message.ToString();
                         string error = "Plant:- " + CatchPlant + " Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
 
-                        NewAttendanceProcessService.SaveLog(error, true);
+                        NewAttendanceProcessService.SaveLog(error, "DayStatusProcess", true);
                     }
                 }
             }
@@ -176,7 +176,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         ErrorLocation = ex.Message.ToString();
                         string error = "Plant:- " + CatchPlant + " Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
 
-                        NewAttendanceProcessService.SaveLog(error, true);
+                        NewAttendanceProcessService.SaveLog(error,"ManualProcess", true);
                     }
                 }
             }
@@ -200,7 +200,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 ErrorLocation = ex.Message.ToString();
                 string error = "Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
 
-                NewAttendanceProcessService.SaveLog(error, true);
+                NewAttendanceProcessService.SaveLog(error,"MonthlySummary", true);
             }
             return Json(new { Date = "Hello" }, JsonRequestBehavior.AllowGet);
 
@@ -237,7 +237,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         ErrorLocation = ex.Message.ToString();
                         string error = "Plant:- " + CatchPlant + " Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
 
-                        NewAttendanceProcessService.SaveLog(error, true);
+                        NewAttendanceProcessService.SaveLog(error,"RosterProcess", true);
                     }
                 }
             }
