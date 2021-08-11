@@ -116,7 +116,9 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
 
         for (var i = 0; i < data.length; i++) {
             if (collection.includes(data[i][column]) == false) {
-                string += ",'" + data[i][column] + "'";
+
+                var replace = data[i][column].replace(",", "','");
+                string += ",'" + replace + "'";
                 collection.push(data[i][column]);
             }
         }

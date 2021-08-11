@@ -9793,8 +9793,6 @@ namespace Library.SchedulingServices.Setups
                     sheet1.Name = dayStatus[dsi].ToString().Trim();
 
 
-
-
                     xlsRow = 5;
                     #region variable
                     var cEmployeeCode = 0; var cBudgetCode = 0; var cCurrentMonthAbsent = 0; var cName = 0; var cDOJ = 0; var cDOB = 0;
