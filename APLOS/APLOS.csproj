@@ -3636,6 +3636,7 @@
     <Content Include="Areas\HumanResource\Views\WeekOffUpdates\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionTransformationBooking\Aplos.cshtml" />
     <Content Include="Areas\OrderManagements\Views\Order\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBMaterialJVPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
