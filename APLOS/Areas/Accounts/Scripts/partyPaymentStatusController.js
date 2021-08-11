@@ -1338,7 +1338,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         //$scope.tempMaterialMasterArticleId = data[0].MaterialMasterAritcleId
 
         $scope.tempMaterialMasterId = args.data.MaterialMasterId;
-        $scope.tempMaterialMasterArticleId = args.data.MaterialMasterArticleId;
+        $scope.tempMaterialMasterArticleId = args.data.MaterialMasterArticleId; MaterialMasterArticleId
        
         //var data = obj.model.dataSource;
         //$scope.tempMaterialMasterId = data[0].MaterialMasterId
