@@ -476,7 +476,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("WeeklyOffController", WeeklyOffController)
     .controller("OutPunchConfigurationController", OutPunchConfigurationController)
     .controller("RosterPatternController", RosterPatternController)
-
+    .controller("AttendanceSourceConfigController", AttendanceSourceConfigController)
 
 
     .config(accountConfig)

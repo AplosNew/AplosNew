@@ -3693,7 +3693,7 @@ namespace Library.Service.FixedAssets
 				left join scs.Currency BC on BC.Id= FR.FABaseCurrencyId
 
 	
-                LEFT JOIN(SELECT FixedAssetRegisterId,sum(isnull( Amount,0)) SubAssetAmount 
+                LEFT JOIN(SELECT FixedAssetRegisterId,sum(isnull( Amount * CapitalizationRate,0)) SubAssetAmount 
 				FROM TRN.SubFixedAssetRegister 
 				group by FixedAssetRegisterId)SAR ON SAR.FixedAssetRegisterId =FR.Id
 
