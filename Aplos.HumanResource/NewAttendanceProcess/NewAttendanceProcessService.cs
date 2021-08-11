@@ -4307,7 +4307,7 @@ and mb.ShiftDefinationId!=''
 
         #region Save Function
 
-        public static void SaveLog(string Message, bool isError = false)
+        public static void SaveLog(string Message, string UserName, bool isError = false)
         {
             if (Message.Length > 2000)
                 Message = Message.Substring(0, 2000);
@@ -4317,7 +4317,7 @@ and mb.ShiftDefinationId!=''
 
             DataRow dr = dsRef.Tables[0].NewRow();
             dr["ScheduleMessage"] = Message;
-            dr["UserName"] = "NewProcess";
+            dr["UserName"] = UserName;
             dr["isError"] = isError;
             dr["AddedDate"] = DateTime.Now.ToString();
             dsRef.Tables[0].Rows.Add(dr);

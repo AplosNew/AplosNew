@@ -623,33 +623,37 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 string ManualOTAllowed = clsWebLib.RetValidLen(PlantMaster.Tables[0].DefaultView[0][@"ManualOTAllowed"]).ToString();
 
                                 DataRow drx = dsMaster.Tables[0].DefaultView[0].Row;
-
-                                if (ManualInAllowed != "" && ManualInAllowed == "True")
+                                if (item.InOutParam == "In")
                                 {
+                                    if (ManualInAllowed != "" && ManualInAllowed == "True")
+                                    {
 
-                                    drx.BeginEdit();
-                                    drx["ManualInTime"] = DateTime.Now;
-                                    drx["IsManualInTime"] = true;
-                                    drx["ManualByWhom"] = item.AddedBy;
-                                    drx["ManualEntryTime"] = DateTime.Now.ToString();
-                                    drx["ManualFlag"] = true;
-                                    drx.EndEdit();
+                                        drx.BeginEdit();
+                                        drx["ManualInTime"] = DateTime.Now;
+                                        drx["IsManualInTime"] = true;
+                                        drx["ManualByWhom"] = item.AddedBy;
+                                        drx["ManualEntryTime"] = DateTime.Now.ToString();
+                                        drx["ManualFlag"] = true;
+                                        drx.EndEdit();
 
+                                    }
                                 }
 
-                                if (ManualOutAllowed != "" && ManualOutAllowed == "True")
+                                else if (item.InOutParam == "Out")
                                 {
+                                    if (ManualOutAllowed != "" && ManualOutAllowed == "True")
+                                    {
 
-                                    drx.BeginEdit();
-                                    drx["ManualOutTime"] = DateTime.Now;
-                                    drx["IsManualOutTime"] = true;
-                                    drx["ManualByWhom"] = item.AddedBy;
-                                    drx["ManualEntryTime"] = DateTime.Now.ToString();
-                                    drx["ManualFlag"] = true;
-                                    drx.EndEdit();
+                                        drx.BeginEdit();
+                                        drx["ManualOutTime"] = DateTime.Now;
+                                        drx["IsManualOutTime"] = true;
+                                        drx["ManualByWhom"] = item.AddedBy;
+                                        drx["ManualEntryTime"] = DateTime.Now.ToString();
+                                        drx["ManualFlag"] = true;
+                                        drx.EndEdit();
 
+                                    }
                                 }
-
                                 if (OTEntitled == "True")
                                 {
 

@@ -3031,7 +3031,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             gridObj.refreshTemplate();
         });
 
-
+        $scope.ActionPOBOQ = 'Save';
         $scope.Action1 = 'Save';
         $scope.processgroupList1();
     };

@@ -112,6 +112,7 @@ function ProductionTransformationBookingController(cboService, commonMessage, $s
     function ClearFields() {
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.detailClear();
     }
 
     // Prepared By
@@ -236,6 +237,9 @@ function ProductionTransformationBookingController(cboService, commonMessage, $s
             url: $scope.path + 'getEntryQuantityUOMList?OutputItenNameId=' + $scope.detailModel.OutputItemNameId,
         }).then(function successCallback(response) {
             $scope.EntryQuantityUOMList = response.data;
+            if ($scope.EntryQuantityUOMList.length > 0) {
+                $scope.detailModel.EntryQuantityUOMId = $scope.EntryQuantityUOMList[0].Value;
+            }
         });
     }
 
@@ -260,6 +264,9 @@ function ProductionTransformationBookingController(cboService, commonMessage, $s
             url: $scope.path + 'getOutputItemUOMList?OutputItenNameId=' + $scope.detailModel.OutputItemNameId,
         }).then(function successCallback(response) {
             $scope.OutputItemUOMList = response.data;
+            if ($scope.OutputItemUOMList.length > 0) {
+                $scope.detailModel.OutputItemUOMId = $scope.OutputItemUOMList[0].Value;
+            }
         });
     }
    
@@ -278,6 +285,9 @@ function ProductionTransformationBookingController(cboService, commonMessage, $s
             url: $scope.path + 'getInputUOMList?InputItenNameId=' + $scope.detailModel.InputItemNameId,
         }).then(function successCallback(response) {
             $scope.InputUOMList = response.data;
+            if ($scope.InputUOMList.length > 0) {
+                $scope.detailModel.InputUOMId = $scope.InputUOMList[0].Value;
+            }
         });
     }
   
@@ -296,6 +306,9 @@ function ProductionTransformationBookingController(cboService, commonMessage, $s
             url: $scope.path + 'getByProductUOMList?ByProductNameId=' + $scope.detailModel.ByProductItemNameId,
         }).then(function successCallback(response) {
             $scope.ByProductUOMList = response.data;
+            if ($scope.ByProductUOMList.length > 0) {
+                $scope.detailModel.ByProductUOMId = $scope.ByProductUOMList[0].Value;
+            }
         });
     }
 
@@ -371,6 +384,7 @@ function ProductionTransformationBookingController(cboService, commonMessage, $s
         $scope.DetailAction = 'Save';
         $scope.detailModel = Object.assign({}, $scope.ModelDetailTemp);
         $scope.GetSequence();
+        $scope.GetDetailData();
         $scope.GetDependentProcess();
     }
 
