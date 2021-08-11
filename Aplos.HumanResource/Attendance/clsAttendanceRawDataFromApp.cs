@@ -231,7 +231,7 @@ namespace Library.HumanResource.Attendance
                         dr["Id"] = pk;
 
                         dr["EmployeeId"] = data[i].Id;
-                        if (data[i].WorkDate == null)
+                        if (string.IsNullOrEmpty(data[i].WorkDate))
                         {
                             dr["PDate"] = data[i].InDateApp;
                         }
