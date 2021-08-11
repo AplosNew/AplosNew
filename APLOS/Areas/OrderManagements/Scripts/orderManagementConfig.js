@@ -188,10 +188,7 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/OrderReport/Aplos',
             controller: 'OrderReportController'
         })    
-        .when('/packing-content', {
-            templateUrl: 'OrderManagements/PackingContent/Aplos',
-            controller: 'PackingContentController'
-        })
+       
         .when('/boq-upload', {
             templateUrl: 'OrderManagements/BOQUpload/Aplos',
             controller: 'BOQUploadController'
@@ -199,10 +196,6 @@ function OrderManagementConfig($routeProvider, $locationProvider)
         .when('/bom-reports', {
             templateUrl: 'OrderManagements/BOMReports/Aplos',
             controller: 'BOMReportsController'
-        })    
-        .when('/packing-confirmation', {
-            templateUrl: 'OrderManagements/PackingConfirmation/Aplos',
-            controller: 'PackingConfirmationController'
         })   
         .when('/mixing', {
             templateUrl: 'OrderManagements/Mixing/Aplos',
@@ -224,10 +217,7 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/ProductionPlanningReport/Aplos',
             controller: 'ProductionPlanningReportController'
         })
-        .when('/dispatch', {
-            templateUrl: 'OrderManagements/DispatchMaster/Aplos',
-            controller: 'DispatchMasterController'
-        })
+       
         .when('/os3-dashboard', {
             templateUrl: 'OrderManagements/OS3Dashboard/Aplos',
             controller: 'OS3DashboardController'
@@ -239,6 +229,20 @@ function OrderManagementConfig($routeProvider, $locationProvider)
         .when('/terms-and-conditions', {
             templateUrl: 'OrderManagements/TermsAndConditions/Aplos',
             controller: 'TermsAndConditionsController'
+        })
+
+        //packing & Dispatch Ather sir
+        .when('/packing-content', {
+            templateUrl: 'OrderManagements/PackingContent/Aplos',
+            controller: 'PackingContentController'
+        })
+        .when('/packing-confirmation', {
+            templateUrl: 'OrderManagements/PackingConfirmation/Aplos',
+            controller: 'PackingConfirmationController'
+        }) 
+        .when('/dispatch', {
+            templateUrl: 'OrderManagements/DispatchMaster/Aplos',
+            controller: 'DispatchMasterController'
         })
 
         ;
