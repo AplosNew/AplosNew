@@ -179,7 +179,7 @@ namespace Library.HumanResource.Attendance
                         DataRow dr = dsManualAttendance.Tables[0].Rows[0];
 
                         dr.BeginEdit();
-                        if (data[i].InDateApp != null && data[i].InTimeApp == null)
+                        if (!string.IsNullOrEmpty(data[i].InDateApp) && string.IsNullOrEmpty(data[i].InTimeApp))
                         {
                             dr["InTime"] = data[i].InDateApp;
                         }
@@ -231,7 +231,7 @@ namespace Library.HumanResource.Attendance
                         dr["Id"] = pk;
 
                         dr["EmployeeId"] = data[i].Id;
-                        if (data[i].WorkDate == null)
+                        if (string.IsNullOrEmpty(data[i].WorkDate))
                         {
                             dr["PDate"] = data[i].InDateApp;
                         }
@@ -242,7 +242,7 @@ namespace Library.HumanResource.Attendance
 
 
 
-                        if (data[i].InDateApp != null && data[i].InTimeApp == null)
+                        if (!string.IsNullOrEmpty(data[i].InDateApp) && string.IsNullOrEmpty(data[i].InTimeApp))
                         {
                             dr["InTime"] = data[i].InDateApp;
                         }
