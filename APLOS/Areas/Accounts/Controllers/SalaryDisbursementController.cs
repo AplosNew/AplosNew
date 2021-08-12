@@ -180,7 +180,15 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
 
-       
+        [HttpPost]
+        public ActionResult DeleteSalaryPayable(string voucherId,string monthNo,string yearNo)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salaryDisbursementService.DeleteSalaryPayable(identity.PlantId, voucherId, monthNo, yearNo);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetSalaryPayableVoucherReport(ReportFormat reportFormat, string voucherId)
         {
