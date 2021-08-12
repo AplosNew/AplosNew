@@ -104,11 +104,11 @@ namespace Library.HumanResource.Attendance
                         }
 
                         TimeSpan ts = Convert.ToDateTime(item.OutDateApp + " " + item.OutTimeApp).Subtract(Convert.ToDateTime(item.InDateApp + " " + item.InTimeApp));
-                        if (Math.Abs(ts.TotalHours) > 24)
-                        {
-                            item.IsError = true;
-                            item.ErrorMessage = "Time span cannot be greater than 24 hours between in and out time";
-                        }
+                        //if (Math.Abs(ts.TotalHours) > 24)
+                        //{
+                        //    item.IsError = true;
+                        //    item.ErrorMessage = "Time span cannot be greater than 24 hours between in and out time";
+                        //}
 
                     }
                 }

@@ -83,6 +83,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                 con.OpenDataSetThroughAdapter("select * from dbo.OutpunchConfigurationHeader where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
 
+                // Updating the InPunchStart and LastOutPunch Times
+                DateTime hIn = Convert.ToDateTime(data["InPunchStartTime"].ToString());
+                DateTime hOut = Convert.ToDateTime(data["LastPunchOutTime"].ToString());
+                string hInn = hIn.ToString("h:mm tt");
+                string hOutt = hOut.ToString("h:mm tt");
+                data["InPunchLimit"] = Convert.ToDateTime(hInn.ToString());
+                data["OutPunchLimit"] = Convert.ToDateTime(hOutt.ToString());
+                //
+
                 DateTime dtInT = Convert.ToDateTime(data["InPunchStartTime"].ToString());
                 DateTime dtOutT = Convert.ToDateTime(data["LastPunchOutTime"].ToString());
 

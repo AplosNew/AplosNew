@@ -1685,6 +1685,13 @@ namespace Library.MaterialManagement.InventoryManagements
 						,IR.PartyId ,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
 						,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
 						,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount--,Isnull(C.ContractNo,'') ContractNo
+						,ISNULL(PID.RefferenceNo,'') RefferenceNo
+						--,isnull(PO.POId,'') POId
+						,isnull(PO.PurchaseLCId,'') PurchaseLCId
+						,isnull(PO.ContractId,'') ContractId						
+						,ISNull(po.ContractNo,'') ContractNo
+						,isnull(PO.LCANo,'') LCANo
+						,isnull(PO.LCDate,'') LCDate
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
@@ -1779,6 +1786,58 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=GE.PlantWiseGateId
 						--left join  trn.POGGRNMap POGGRNMap ON POGGRNMap.GRNId=IR.Id
 						--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
+						LEFT JOIN(
+							   SELECT distinct PDAMAP.GRNId, IR.IsClosed,IR.PartyId, IR.POType
+								,POId=STUFF((select distinct ','+xpo.Id from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,ContractId=STUFF((select distinct ','+xpo.ContractId from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								
+							    ,UDNo=STUFF((select distinct ','+C.UDNo from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,ContractNo=STUFF((select distinct ','+C.ContractNo from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								
+								,PurchaseLCId=STUFF((select distinct ','+PLC.Id from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+								,LCANo=STUFF((select distinct ','+PLC.LCANo from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								
+								,LCDate=STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), PLC.LCDate, 106),' ','-') from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								from  trn.POGGRNMap PDAMAP 
+							  LEFT JOIN [TRN].[PurchaseOrder] IR ON IR.Id = PDAMAP.POId
+							  LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
+							  left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate
+							)PO ON PO.GRNId = IR.Id
 						 --where  IR.PlantId='20181'  AND convert(Date,IR.GRNDate) BETWEEN  '01-OCT-2020' AND '31-OCT-2020' --ORDER BY IR.GRNDate ASC
 						 where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
 
@@ -1908,6 +1967,12 @@ namespace Library.MaterialManagement.InventoryManagements
 					,IR.PartyId ,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
 						,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
 						,Null LotNo , Null QualityStatus , Null GrossAmount ,Null DiscountAmount--,Isnull(C.ContractNo,'') ContractNo
+						,'' RefferenceNo
+					,'' PurchaseLCId
+					,'' ContractId						
+					,'' ContractNo
+					,'' LCANo
+					,'' LCDate
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
@@ -2923,15 +2988,33 @@ namespace Library.MaterialManagement.InventoryManagements
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;			
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "POREfference";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "LCANo";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "ContractNo";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 
 			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
 			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
 			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
 			//sheet1headreColIndex++;
-
-
-
 
 			var Row_Total_Start = _rowL + 1;
 			for (int n = 0; n < inventoryMaterialList.Rows.Count; n++)
@@ -3025,6 +3108,10 @@ namespace Library.MaterialManagement.InventoryManagements
 				report.SetText(ref sheet1, _rowL, 80, inventoryMaterialList.Rows[n]["CActivityId"].ToString());
 				report.SetText(ref sheet1, _rowL, 81, inventoryMaterialList.Rows[n]["CActivityCode"].ToString());
 				report.SetText(ref sheet1, _rowL, 82, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+
+				report.SetText(ref sheet1, _rowL, 83, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 84, inventoryMaterialList.Rows[n]["LCANo"].ToString());
+				report.SetText(ref sheet1, _rowL, 85, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
 
 			}
 			_rowL++;

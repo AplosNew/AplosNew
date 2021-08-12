@@ -1452,7 +1452,7 @@ namespace Library.Accounting.FixedAssets
                 WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=MM.Id
 
 
-		        left join(select sum(Amount) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+		        left join(select sum(Amount * CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 				group by FixedAssetRegisterId
 				) sar on sar.FixedAssetRegisterId=FAR.Id
 
@@ -1504,7 +1504,7 @@ namespace Library.Accounting.FixedAssets
 									LEFT JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
 									LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
 									LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId 
-									left join(select sum(isnull( Amount,0)) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+									left join(select sum(isnull( Amount * CapitalizationRate,0)) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 										group by FixedAssetRegisterId
 										) sar on sar.FixedAssetRegisterId=FR.Id
 		                            left join ORG.Entity E on E.Id= FR.EntityId
@@ -1556,7 +1556,7 @@ namespace Library.Accounting.FixedAssets
                 WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=MM.Id
 
 
-		        left join(select sum(Amount) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+		        left join(select sum(Amount * CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 				group by FixedAssetRegisterId
 				) sar on sar.FixedAssetRegisterId=FAR.Id
 

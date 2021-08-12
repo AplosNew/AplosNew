@@ -1172,7 +1172,7 @@ function inventoryReceivableController(cboService, commonMessage, $scope, $rootS
     };
 
     $scope.OtherInvoiceVouchereReport = function () {
-        $window.open('Accounts/Invoice/CustomerInvoiceReceiptReport?reportFormat=' + 'Excel' + '&voucherId=' + $scope.otherVoucher.OtherInvoiceVoucherId, '_blank');
+        $window.open('Accounts/Invoice/CustomerInvoiceReceiptGovtSubsidyReport?reportFormat=' + 'Excel' + '&voucherId=' + $scope.otherVoucher.OtherInvoiceVoucherId, '_blank');
     }
 
     $scope.voucherTypeListnew = [];

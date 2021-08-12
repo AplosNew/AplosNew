@@ -354,13 +354,13 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetBOQItemsForUpdate(string ContractId, string VendorId, string IsOwnVendor, string JWPOId, string JWPODId, string jwActivityId)
+        public JsonResult GetBOQItemsForUpdate(string ContractId, string VendorId, string IsOwnVendor, string JWPOId, string JWPODId, string jwActivityId, string MaterialId, string ArticleId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
-                return Json(JobWorkCommon.GetBOQItemsForUpdate(ContractId, VendorId, IsOwnVendor, JWPOId, JWPODId, jwActivityId), JsonRequestBehavior.AllowGet);
+                return Json(JobWorkCommon.GetBOQItemsForUpdate(ContractId, VendorId, IsOwnVendor, JWPOId, JWPODId, jwActivityId, MaterialId, ArticleId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

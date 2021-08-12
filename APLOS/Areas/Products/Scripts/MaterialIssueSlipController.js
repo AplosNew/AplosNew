@@ -1349,7 +1349,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 			for (var i2 = 0; i2 < $scope.FilterList123.length; i2++) {
 				if ($scope.FilterList123[i2].check === true) {
 					$scope.FilterList123[i2].RequestedQtyNew = Math.round($scope.FilterList123[i2].RequestedQty * 100 + Number.EPSILON) / 100;
-					var getRow1 = $filter("filter")($scope.FilterList1234, { "MaterialMasterId": $scope.FilterList123[i2].MaterialMasterId, "ArticleId": $scope.FilterList123[i2].ArticleId, "BOQDFirstCharacteristicsValueId": $scope.FilterList123[i2].BOQDFirstCharacteristicsValueId, "BOQDSecondCharacteristicsValueId": $scope.FilterList123[i2].BOQDSecondCharacteristicsValueId, "BOQDThirdCharacteristicsValueId": $scope.FilterList123[i2].BOQDThirdCharacteristicsValueId, "TransactionUoMId": $scope.FilterList123[i2].TransactionUoMId, "check": true });
+					var getRow1 = $filter("filter")($scope.FilterList1234, { "MaterialMasterId": $scope.FilterList123[i2].MaterialMasterId, "ArticleId": $scope.FilterList123[i2].ArticleId, "BOQDFirstCharacteristicsValueId": $scope.FilterList123[i2].BOQDFirstCharacteristicsValueId, "BOQDSecondCharacteristicsValueId": $scope.FilterList123[i2].BOQDSecondCharacteristicsValueId, "BOQDThirdCharacteristicsValueId": $scope.FilterList123[i2].BOQDThirdCharacteristicsValueId, "TransactionUoMId": $scope.FilterList123[i2].TransactionUoMId, "SalesOrderId": $scope.FilterList123[i2].SalesOrderId, "check": true });
 
 
 					if (getRow1.length === 0) {
