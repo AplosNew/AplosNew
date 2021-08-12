@@ -75,6 +75,23 @@ namespace Library.Service.Extension.Mail
             }
         }
 
+        public IEnumerable<OrgStructureListViewModel> GetOrgStructureList(string CompanyGroupId)
+        {
+            try
+            {
+                var strSQL = @"  SELECT DISTINCT u.StandardName ColumnName,IsNULL(e.RType,'position') as Rtype from (
+                           SELECT  DISTINCT StandardName from [ORG].[StructureRelationship] as ee where CompanyGroupId='" + CompanyGroupId + @"' and  RType = 'Entity'  union
+                           SELECT  DISTINCT StandardName from [ORG].[StructureRelationship] as pp where CompanyGroupId='" + CompanyGroupId + @"' and  RType = 'position' ) u
+                           LEFT OUTER JOIN(SELECT id,StandardName,RType,Sequence from [org].StructureRelationship where RType='Entity' ) e on e.StandardName = u.StandardName
+						   LEFT OUTER JOIN(SELECT id,StandardName,RType,Sequence from [org].StructureRelationship where RType='Position' ) p on p.StandardName = u.StandardName";
+                return _mailReceiverDetailRepository.SqlQuery<OrgStructureListViewModel>(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<OrgStructureListViewModel> OrgStructureListColList(string CompanyGroupId, string CompanyId)
         {
             try
@@ -512,7 +529,7 @@ namespace Library.Service.Extension.Mail
                 else if (!string.IsNullOrEmpty(companyGroupId) && string.IsNullOrEmpty(plantId))
                     param = "E.GroupID='" + companyGroupId + "'";
 
-                var OrgStrList = OrgStructureList(companyGroupId);
+                var OrgStrList = GetOrgStructureList(companyGroupId);
                 foreach (var item in OrgStrList)
                 {
                     if (item.RType == "Entity")

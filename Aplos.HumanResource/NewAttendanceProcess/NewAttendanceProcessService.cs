@@ -2697,6 +2697,8 @@ and mb.ShiftDefinationId!=''
                                 dr.BeginEdit();
 
                                 dr["Duration"] = CalDuration;
+                                dr["EarlyLateIn"] = DBNull.Value;
+                                dr["EarlyLateOut"] = DBNull.Value;
                                 if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
                                 {
                                     TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
@@ -2706,7 +2708,7 @@ and mb.ShiftDefinationId!=''
                                 else
                                 {
                                     dr["EarlyIn"] = 0;
-                                    dr["EarlyLateIn"] = DBNull.Value;
+                                   
                                 }
                                 if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                                 {
@@ -2717,7 +2719,7 @@ and mb.ShiftDefinationId!=''
                                 else
                                 {
                                     dr["LateIn"] = 0;
-                                    dr["EarlyLateIn"] = DBNull.Value;
+                                   
                                 }
                                 if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
                                 {
@@ -2729,13 +2731,13 @@ and mb.ShiftDefinationId!=''
                                 else
                                 {
                                     dr["EarlyOut"] = 0;
-                                    dr["EarlyLateOut"] = DBNull.Value;
+                                   
                                 }
 
                                 if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
                                 {
                                     dr["LateOut"] = 0;
-                                    dr["EarlyLateOut"] = DBNull.Value;
+                                   
                                 }
                                 else
                                 {
@@ -3499,6 +3501,8 @@ and mb.ShiftDefinationId!=''
                             dr.BeginEdit();
 
                             dr["Duration"] = CalDuration;
+                            dr["EarlyLateIn"] = DBNull.Value;
+                            dr["EarlyLateOut"] = DBNull.Value;
                             if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
                             {
                                 TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
@@ -3508,7 +3512,7 @@ and mb.ShiftDefinationId!=''
                             else
                             {
                                 dr["EarlyIn"] = 0;
-                                dr["EarlyLateIn"] = DBNull.Value;
+                                
                             }
                             if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                             {
@@ -3519,7 +3523,7 @@ and mb.ShiftDefinationId!=''
                             else
                             {
                                 dr["LateIn"] = 0;
-                                dr["EarlyLateIn"] = DBNull.Value;
+                               
                             }
                             if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
                             {
@@ -3531,13 +3535,13 @@ and mb.ShiftDefinationId!=''
                             else
                             {
                                 dr["EarlyOut"] = 0;
-                                dr["EarlyLateOut"] = DBNull.Value;
+                               
                             }
 
                             if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
                             {
                                 dr["LateOut"] = 0;
-                                dr["EarlyLateOut"] = DBNull.Value;
+                                
                             }
                             else
                             {
