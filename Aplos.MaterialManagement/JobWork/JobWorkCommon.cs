@@ -1146,16 +1146,22 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
-									FROM [TRN].[POBOQMAP] POBOQMAP1
-									LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
-									LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
+									--FROM [TRN].[POBOQMAP] POBOQMAP1
+                                    FROM JWPOBOQMAP POBOQMAP1
+									--LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
+									--LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
+                                    LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
 									where POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
-									FROM [TRN].[POBOQMAP] POBOQMAP1
-									LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
-									LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
+									--FROM [TRN].[POBOQMAP] POBOQMAP1
+                                    FROM JWPOBOQMAP POBOQMAP1
+									--LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
+									--LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
+                                    LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
 									where POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
@@ -1236,16 +1242,22 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
-									FROM [TRN].[POBOQMAP] POBOQMAP1
-									LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
-									LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
+									--FROM [TRN].[POBOQMAP] POBOQMAP1
+									--LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
+									--LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
+                                    FROM JWPOBOQMAP POBOQMAP1
+									LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
 									where POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
-									FROM [TRN].[POBOQMAP] POBOQMAP1
-									LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
-									LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
+									--FROM [TRN].[POBOQMAP] POBOQMAP1
+									--LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
+									--LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
+                                    FROM JWPOBOQMAP POBOQMAP1
+									LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
 									where POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
@@ -1379,7 +1391,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						--and ProcessId IN (Select ProcessId from JWActivity where Id IN ('')) 
 						) --and isChild=0
 						and b.MaterialMasterId='"+ MaterialId + @"' and b.ArticleId='"+ ArticleId + @"'
-                        and POMAP.Id='"+ JWPODId + @"'
+                        --and POMAP.Id='"+ JWPODId + @"'
 						ORDER BY JWPOBOQMAP.BOQDetailId DESC, b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
 
 
@@ -1504,16 +1516,22 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
-									FROM [TRN].[POBOQMAP] POBOQMAP1
-									LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
-									LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
+									--FROM [TRN].[POBOQMAP] POBOQMAP1
+									--LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
+									--LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
+                                    FROM JWPOBOQMAP POBOQMAP1
+									LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
 									where POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
-									FROM [TRN].[POBOQMAP] POBOQMAP1
-									LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
-									LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
+									--FROM [TRN].[POBOQMAP] POBOQMAP1
+									--LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
+									--LEFT JOIN TRN.PurchaseOrder POM ON POM.Id=POD.InventoryReceiveId
+                                    FROM JWPOBOQMAP POBOQMAP1
+									LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
 									where POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
@@ -1562,7 +1580,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer
 						,b.BOMQty,C.Id
 						,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
-						,Isnull(POMAP.TransactionQty,0) PORaisedQry,ISNULL(OtherPOData.TransactionQty,0) OtherPOQty,JWPOBOQMAP.TransactionQty
+						,Isnull(POMAP.TransactionQty,0) PORaisedQry,ISNULL(OtherPOData.TransactionQty,0) OtherPOQty
+                        --,JWPOBOQMAP.TransactionQty
 						,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
 						,ISNULL(cpo.PONumber,'') PONumber
 						,AUOM.AlternativeUOMId,AUOM.BaseUOMId,AUOM.BaseUOMFactor,AUOM.AlternativeUOMFactor
@@ -1595,15 +1614,19 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
 									FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN  JWTransformationPurchaseOrderDetail POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JWTransformationPurchaseOrderId
+									--LEFT JOIN  JWTransformationPurchaseOrderDetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									--LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JWTransformationPurchaseOrderId
+                                    LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
 									WHERE POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId								
 									)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.POBOQQty) TransactionQty 
 									FROM JWPOBOQMAP POBOQMAP1
-									LEFT JOIN  JWTransformationPurchaseOrderDetail POD ON POD.Id=POBOQMAP1.JWPODetailId
-									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JWTransformationPurchaseOrderId
+									--LEFT JOIN  JWTransformationPurchaseOrderDetail POD ON POD.Id=POBOQMAP1.JWPODetailId
+									--LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JWTransformationPurchaseOrderId
+                                    LEFT JOIN dbo.JobWorkTransformationContractChild POD ON POD.Id=POBOQMAP1.JWPODetailId
+									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=POD.JobWorkTransformationContractMasterId
 									WHERE POM.Id !='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id

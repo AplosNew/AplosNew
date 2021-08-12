@@ -291,6 +291,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("annualNonCashController", annualNonCashController)
     .controller("workGroupController", WorkGroupController)
     .controller("credentialPolicyController", CredentialPolicyController)
+    .controller("AdminAttendanceControlController", AdminAttendanceControlController)
     .controller("creditNoteTypeController", creditNoteTypeController)
     .controller("creditNoteTypeGLController", creditNoteTypeGLController)
     .controller("debitNoteTypeController", debitNoteTypeController)

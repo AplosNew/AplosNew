@@ -508,7 +508,7 @@ function DispatchMasterController(commonMessage, $scope, $rootScope, baseService
             url: 'OrderManagements/PackingContent/GetPackingContentDataByPRIdWithTran?PRId=' + modeldata.ProductionOrderId
         }).then(function successCallback(response) {
             if (baseService.arrayLength(response.data) > 0) {
-                console.log(response.data);
+               // console.log(response.data);
                 $scope.packingContenNew.PackingForm = "No of " + response.data[0].PackingForm;
                 $scope.packingContenNew.QtyPackingForm = "Qty/" + response.data[0].PackingForm;
                 $scope.packingContenNew.ConPackingForm = "Confirmed " + response.data[0].PackingForm;
@@ -751,7 +751,7 @@ function DispatchMasterController(commonMessage, $scope, $rootScope, baseService
         try {
             $scope.$broadcast("show-errors-check-validity");
             if ($scope.DispatchFrom.$valid) {
-                if ($scope.Action === "Save") {
+                if ($scope.Action === "Save" || $scope.Action === "Update") {
                     $http({
                         method: "POST",
                         url: "OrderManagements/DispatchMaster/Insert",
@@ -775,30 +775,6 @@ function DispatchMasterController(commonMessage, $scope, $rootScope, baseService
                         ShowResult(response.status.Message, "failure");
                     });
                     return true;
-                }
-                else if ($scope.Action === "Update") {
-                    $http({
-                        method: "POST",
-                        url: "OrderManagements/DispatchMaster/Insert",
-                        data: {
-                            "data": $scope.salesVM
-                            , "selectedSalesOrderList": $scope.selectedSalesOrderDataList
-                        },
-                        dataType: "JSON"
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, "failure");
-                        }
-                        else {
-                            ShowResult(response.data.Message, "success");
-                            $scope.GetAllConfirmedPackingContentData();
-
-
-                            $scope.Action = "Update";
-                        }
-                    }, function errorCallback(response) {
-                        ShowResult(response.status.Message, "failure");
-                    });
                 }
                 return true;
             }

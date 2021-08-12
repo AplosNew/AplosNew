@@ -1,8 +1,8 @@
 ﻿<h3 class="site-heading">
-    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  Manual Attendance-Day Status Update
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  Admin Attendance Control
 </h3>
 <div class="form-horizontal form-elements" id="mainContainer">
-    <div id="Tab" ej-tab>
+    <div id="Tab" ej-tab e-create="actionCompleteSingleEmployee">
         <ul>
             <li><a href="#TabEmployee">Employee Wise</a></li>
             <li><a href="#TabDateRange">Date Wise</a></li>
@@ -99,53 +99,45 @@
                      e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-querycellinfo="queryCellInfo"
                      e-allowscrolling="true" e-minheight="400" e-gridlines="vertical" @*e-showstackedheader="true"*@
                      e-actioncomplete="actionCompleteSingleEmployee" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
-                     e-templaterefresh="refreshTemplateemployee"
                      e-filtersettings-filterType="excel">
 
                     <div e-columns>
-                        <div e-column e-headertext="" e-headertemplateid="#BPheaderTemplate" e-template="#BPcheckboxTemplate"
-                             e-textalign="center" e-width="20"></div>
-                        <div e-column e-field="IsLock" e-headertext="Locked" e-width="100"></div>
                         <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>
                         <div e-column e-field="DayName" e-headertext="Day" e-width="50"></div>
-                        <div e-column e-field="ShiftName" e-headertext="Shift" e-width="220"></div>
+                        <div e-column e-template="#shift" e-headertext="Shift" e-width="220"></div>
 
                         <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
+                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
                         <div e-column e-field="IsManualInTime" e-headertext="ManualIn" e-width="50"></div>
                         <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
+                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
                         <div e-column e-field="IsManualOutTime" e-headertext="ManualOut" e-width="50"></div>
-                        <div e-column e-template="#daystatus" e-headertext="Day Status" e-width="80"></div>
+                        <div e-column e-field="DayStatusCode" e-headertext="DayStatusCode" e-width="50"></div>
                         <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="50"></div>
                         <div e-column e-field="IsManualDayStatus" e-headertext="Manual" e-width="40"></div>
                         <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
-                        <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150" e-primarykey="true"></div>
+                        <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
                         <div e-column e-field="PunchOutTime" e-headertext="Punch Out Time" e-width="150"></div>
 
                         <div e-column e-field="OTHr" e-headertext="OT. Hr" e-width="50"></div>
                         <div e-column e-field="IsOTEntitled" e-headertext="OT Entitled" e-width="50"></div>
                         <div e-column e-field="IsOTComfirm" e-headertext="OT Confirm" e-width="50"></div>
                         <div e-column e-field="ErrorMessage" e-headertext="Error Message" e-width="300"></div>
+
+
                     </div>
+
                 </div>
-               
-                <script type="text/template" id="BPcheckboxTemplate">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
-                </script>
-                <script type="text/x-jsrender" id="BPheaderTemplate">
-                    <input type="checkbox" id="BPheadchk" />
-                </script>
-            
+
+
+
             </div>
 
-            
 
             <div class="row">
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li>  <button type="button" ng-click="LockAttnd()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Lock Attendance</button></li>
-
                         <li>  <button type="button" ng-click="SaveSingleEmployee()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-
                     </ul>
                 </div>
 
@@ -153,44 +145,65 @@
         </div>
 
 
-
         <div id="TabDateRange">
             <div class="row">
                 <div class="col-sm-12">
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Date<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input e-dateformat="dd-MMM-yyyy" e-change="selectSingleDate" ej-datepicker e-value="FromDateSingleDate" e-width="100%" />
+                                <input e-dateformat="dd-MMM-yyyy" e-change="selectSigleDate" ej-datepicker e-value="FromDateSingleDate" e-width="100%" />
                             </div>
                         </div>
 
                     </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Time<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ej-timepicker e-value="Intime" e-width="100%" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="common-btn">
+                            <ul class="common-btn list-inline text-right">
+                                <li><button ng-click="SetIn()" class="btn" tabindex="10">Set IN</button></li>
+                                <li><button ng-click="SetOut()" class="btn" tabindex="10">Set OUT</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="common-btn">
+                            <ul class="common-btn list-inline text-right">
+                                <li><button ng-click="showEmployeeFilterScreen()" class="btn" tabindex="10"><i class="glyphicon glyphicon-filter"></i></button></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
-
             <div class="row">
                 <div id="GridChangeAttendanceBySingleDate" ng-init="chkinit()" ej-grid e-datasource="employeeAttendanceBySingleDate"
                      e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                      e-allowscrolling="true" e-minheight="400" e-gridlines="none" e-querycellinfo="queryCellInfo"
                      e-actioncomplete="actionCompleteSingleDay" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
-                     e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateemployeex">
+                     e-filtersettings-filterType="excel">
                     <div e-columns>
-                        <div e-column e-headertext="" e-headertemplateid="#APheaderTemplate" e-template="#APcheckboxTemplate"
-                             e-textalign="center" e-width="20"></div>
-                        <div e-column e-field="IsLock" e-headertext="Locked" e-width="100"></div>
                         <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100" e-primarykey="true"></div>
                         <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="150"></div>
-                        <div e-column e-field="ShiftName" e-headertext="Shift" e-width="220"></div>
+                        <div e-column e-template="#allShiftSingleDay" e-headertext="Shift" e-width="220"></div>
+
                         <div e-column e-template="#indate" e-headertext="In Date" e-width="130"></div>
+                        <div e-column e-template="#intime" e-headertext="In Time" e-width="120"></div>
                         <div e-column e-field="IsManualInTime" e-headertext="ManualIn" e-width="50"></div>
                         <div e-column e-template="#outdate" e-headertext="Out Date" e-width="130"></div>
+                        <div e-column e-template="#outtime" e-headertext="Out Time" e-width="120"></div>
                         <div e-column e-field="IsManualOutTime" e-headertext="ManualOut" e-width="50"></div>
-                        <div e-column e-template="#daystatusx" e-headertext="Day Status" e-width="80"></div>
+                        <div e-column e-field="DayStatusCode" e-headertext="DayStatusCode" e-width="50"></div>
                         <div e-column e-field="DayStatus" e-headertext="Day Status" e-width="50"></div>
                         <div e-column e-field="IsManualDayStatus" e-headertext="Manual" e-width="40"></div>
                         <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
-                        <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150" e-primarykey="true"></div>
+                        <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
                         <div e-column e-field="PunchOutTime" e-headertext="Punch Out Time" e-width="150"></div>
 
                         <div e-column e-field="OTHr" e-headertext="OT. Hr" e-width="50"></div>
@@ -208,19 +221,11 @@
 
                     </div>
                 </div>
-                <script type="text/template" id="APcheckboxTemplate">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
-                </script>
-                <script type="text/x-jsrender" id="APheaderTemplate">
-                    <input type="checkbox" id="APheadchk" />
-                </script>
 
             </div>
             <div class="row">
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li>  <button type="button" ng-click="LockAttndx()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Lock Attendance</button></li>
-
                         <li>  <button type="button" ng-click="SaveSingleDay()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                     </ul>
                 </div>
@@ -239,8 +244,15 @@
 
 <script type="text/template" id="shift">
 
-    <div class="col-sm-10" style="padding:0px;">
-        <input ej-dropdownlist e-datasource="$parent.allShift" e-value="data.ShiftSystemID" e-fields-value="SystemID" e-fields-text="UserName" e-width="100%" />
+    <div class="col-sm-10" style="padding:0px; ">
+
+        <div class="select-style">
+            <select class="form-control" ng-model="data.ShiftSystemID" name="" required ng-disabled="data.IsLock==true"
+                    ng-options="item.SystemID as item.UserName for item in $parent.allShift">
+                <option value="">--Select--</option>
+            </select>
+
+        </div>
     </div>
     <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
         <button ng-click="$parent.selectedShiftInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
@@ -250,8 +262,15 @@
 </script>
 <script type="text/template" id="allShiftSingleDay">
 
-    <div class="col-sm-10" style="padding:0px;">
-        <input ej-dropdownlist e-datasource="$parent.allShiftSingleDay" e-value="data.ShiftSystemID" e-fields-value="SystemID" e-fields-text="UserName" e-width="100%" />
+    <div class="col-sm-10" style="padding:0px; ">
+
+        <div class="select-style">
+            <select class="form-control" ng-model="data.ShiftSystemID" name="" required ng-disabled="data.IsLock==true"
+                    ng-options="item.SystemID as item.UserName for item in $parent.allShiftSingleDay">
+                <option value="">--Select--</option>
+            </select>
+
+        </div>
     </div>
     <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
         <button ng-click="$parent.selectedShiftInfo(this)" class="btn" style="height: 30px;width: 30px; padding: 0px; margin: 0px;">
@@ -266,44 +285,43 @@
         </button>
     </div>
 </script>
-@**@
-<script type="text/template" id="daystatus">
-    <div class="col-sm-10" style="padding:0px;">
-        <input type="text" name="NewStatus" ng-model="data.DayStatusNew" ng-disabled="data.DayStatusChange!='True' || data.IsLock==true" ng-click="$parent.getDayStatus(this)" class="form-control" maxlength="200" tabindex="5">
 
-    </div>
+<script type="text/template" id="indate">
+    <input type="text" name="Date" ng-model="data.InDate" datepicker class="form-control"
+           ng-disabled="data.IsLock==true">
+</script>
+<script type="text/template" id="intime">
+
+    <input style="display:{{data.IsLock==true?'none':'inherit'}};" type="text" ej-timepicker e-value="data.InTime" e-width="100%" />
+    <span style="display:{{data.IsLock==true?'inherit':'none'}};">{{data.InTime}}</span>
 
 </script>
 
-<script type="text/template" id="daystatusx">
-    <div class="col-sm-10" style="padding:0px;">
-        <input type="text" name="NewStatusx" ng-model="data.DayStatusNew" ng-disabled="data.DayStatusChange!='True' || data.IsLock==true" ng-click="$parent.getDayStatusx(this)" class="form-control" maxlength="200" tabindex="5">
-
-    </div>
-
+<script type="text/template" id="outdate">
+    <input type="text" name="Date" ng-model="data.OutDate" datepicker class="form-control" ng-disabled="data.IsLock==true">
 </script>
 
-<script type="text/x-jsrender" id="indate">
-    {{:InDate}} {{:InTime}}
-</script>
 
-<script type="text/x-jsrender" id="outdate">
-    {{:OutDate}} {{:OutTime}}
+<script type="text/template" id="outtime">
+       
+    <input style="display:{{data.IsLock==true?'none':'inherit'}};" type="text" ej-timepicker e-value="data.OutTime" e-width="100%" />
+    <span style="display:{{data.IsLock==true?'inherit':'none'}};">{{data.OutTime}}</span>
+
 </script>
 
 <div class="row">
     <div class="form-group">
         <ej-dialog id="dialogEmployeeSelect" title=" Employees" e-enablemodal="true" e-position-y="0" e-showoninit="false"
-                   e-target="#mainContainer" e-minwidth="1100" e-height="580" e-open="enableBtn">
+                   e-target="#mainContainer" e-minwidth="900" e-height="580" e-open="enableBtn">
             <div class="row">
                 <div id="GridWorkCenterProduct" ng-init="chkinit()" ej-grid e-datasource="selectemployee"
-                     e-recorddoubleclick="selectSingleEmployee"
+                     e-recorddoubleclick="selectSignleEmployee"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowscrolling="true" e-minwidth="1100" e-minheight="500"
                      e-allowselection="true" e-filtersettings-filterType="excel">
                     <div e-columns>
                         <div e-column e-field="Id" e-headertext="Id" e-width="30" e-primarykey="true"></div>
-                        <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30" e-primarykey="true"></div>
+                        <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
                         <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
                         <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
                         <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
@@ -342,79 +360,6 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="StatusModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button class="close" data-dismiss="modal">&times;</button>
-                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">DayStatus</h1>
-            </div>
-            <div class="modal-body" style="min-height:300px; min-width:100%;">
-                <div class="row" style="margin: 20px; font-style:italic"> </div>
-                <p style="margin:10px;">
-                    Select The DayStatus by Double Clicking the Choice.
-                <p>
-
-                    <div id="getCustomers" ej-grid e-datasource="selectedStatus" e-templaterefresh="refreshTemplate"
-                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
-                         e-recorddoubleclick="doubleStatus">
-                        <div e-columns>
-                            <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
-                            <div e-column e-field="DayType" e-headertext="DayStatus" e-width="50"></div>
-
-                        </div>
-                    </div>
-
-
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-
-<div class="modal fade site-modal in" id="StatusModalx" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button class="close" data-dismiss="modal">&times;</button>
-                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">DayStatus</h1>
-            </div>
-            <div class="modal-body" style="min-height:300px; min-width:100%;">
-                <div class="row" style="margin: 20px; font-style:italic"> </div>
-                <p style="margin:10px;">
-                    Select The DayStatus by Double Clicking the Choice.
-                <p>
-
-                    <div id="getCustomersx" ej-grid e-datasource="selectedStatusx" e-templaterefresh="refreshTemplate"
-                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
-                         e-recorddoubleclick="doubleStatusx">
-                        <div e-columns>
-                            <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
-                            <div e-column e-field="DayType" e-headertext="DayStatus" e-width="50"></div>
-
-                        </div>
-                    </div>
-
-
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-
-
 <div class="row">
     <ej-dialog id="ViewAttendanceInfo" title=" Attendance Info" e-enablemodal="true" e-position-y="0" e-showoninit="false"
                e-target="#Tab" e-width="500px" e-height="500px" e-open="enableBtn">
@@ -431,7 +376,46 @@
         </div>
     </ej-dialog>
 </div>
+<div class="modal fade site-modal in" id="recipeMaterialPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Select Employees<button type="button" class="close" data-dismiss="modal">&times;</button></div>
 
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="content-container-fluid">
+
+                    <div id="Gridemployee" ng-init="chkinit()" ej-grid e-datasource="employeeAttendanceBySingleDateSelection" @*e-actioncomplete="actionCompleteSelected"*@
+                         e-templaterefresh="refreshTemplateemployee"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50" e-primarykey="true"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <script type="text/x-jsrender" id="checkboxTemplate">
+                    <input type="checkbox" ng-model="{{:Id}}" class="rowCheckbox" value="{{:Id}}" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
+            </div>
+            <ul class="common-btn list-inline text-right" style="padding: 20px;">
+                <li><button ng-click="saveemployeedata();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Submit</button></li>
+                <li><button ng-click="Back();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Back</button></li>
+            </ul>
+
+        </div>
+    </div>
+</div>
 
 
 

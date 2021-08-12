@@ -1,6 +1,8 @@
 ﻿'use strict';
 NewAttdnDashboardController.$inject = ['cboService', '$scope', '$rootScope', '$routeParams', 'baseService', '$http', '$filter'];
 function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParams, baseService, $http, $filter) {
+
+    $scope.Title = "Daily In Status";
     $scope.chartList = [];
     $scope.list = [];
     $scope.index = -1;
@@ -11,7 +13,15 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
     var ManPowerbarChart;
     var salarybarChart;
     $scope.Date = $filter('dateFiltering')(Date.now(), 'dd-MM-yyyy');
-    
+
+
+    $scope.Stat = "All";
+    $scope.EmpCat = null;
+
+    $scope.docEmployeeCategoryList = [];
+    cboService.getCboEmployeeCategoryGroupByCompanyGroup(null, function (result) {
+        $scope.docEmployeeCategoryList = result;
+    });
 
     $scope.ManPowerBudget = function () {
         $scope.chartList = [];
@@ -25,7 +35,9 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
             method: 'POST',
             url: 'NewAttdnDashboard/GetGroupWiseCompanyList',
             data: {
-                'date': $scope.Date
+                'date': $scope.Date,
+                'stat': $scope.Stat,
+                'EmpCat' : $scope.EmpCat,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -55,7 +67,8 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                     'ChartColumnList': $scope.ColList,
                     'seq': $scope.index,
                     'date': $scope.Date,
-                    'data':data,
+                    'stat': $scope.Stat,
+                    'EmpCat': $scope.EmpCat,
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -251,7 +264,9 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
         $http({
             method: 'POST',
             url: 'NewAttdnDashboard/GetGroupWiseCompanyList/',
-            data: { 'date': $scope.Date},
+            data: {
+                'date': $scope.Date,'stat': $scope.Stat,
+                'EmpCat': $scope.EmpCat,},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             setList(response.data);
@@ -276,7 +291,8 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 method: 'POST',
                 url: 'NewAttdnDashboard/GetGroupWiseCompanyList/',
                 data: {
-                    'date': $scope.Date, 'status': $scope.hrStatus.pstatus
+                    'date': $scope.Date,'stat': $scope.Stat,
+                    'EmpCat': $scope.EmpCat,
                 },
 
                 dataType: 'JSON'
@@ -330,5 +346,27 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
 
         
     }
-    
+
+    // On Click on the Table
+    $scope.ClickDetail = [];
+    $scope.TableClick = function (data , column) {
+        
+        $http({
+            method: 'POST',
+            url: 'NewAttdnDashboard/DetailTableClick/',
+            data: {
+                'ChartColumnList': $scope.ColList,
+                'seq': $scope.index,
+                'date': $scope.Date,
+                'Column': column,
+                'data': data,
+                'stat': $scope.Stat,
+                'EmpCat': $scope.EmpCat,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ClickDetail = response.data;
+            angular.element(document.querySelector('#TableDetailModal')).modal('show');
+        });
+    }
 }
