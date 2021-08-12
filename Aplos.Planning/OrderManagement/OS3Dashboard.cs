@@ -524,10 +524,8 @@ namespace Library.Planning.OrderManagement
 								left outer join hkp.ProductionStatus ps on ps.Id = po.ProductionStatusId
                                 left join hkp.Buyer b on b.Id = mo.BuyerId
                                 left join (Select  oc.SalesOrderId ,
-                                (Select Concat( format(o.AddedDate,'dd/MMM/yy') ,' - ' ,ocr.Remarks) as Remarks from dbo.OrderControlRemarks ocr
-                                left join dbo.OrderControl o on o.Id =ocr.OrderControlId
-                                where ocr.Id = (Select top 1 cr.Id from dbo.OrderControlRemarks cr left join dbo.OrderControl c on c.Id = cr.OrderControlId
-								where c.SalesOrderId = oc.SalesOrderId order by cr.AddedDate desc)
+                                 (Select top 1 Concat( format(cr.AddedDate,'dd/MMM/yy') ,' - ' ,cr.Remarks) as Remarks from dbo.OrderControlRemarks cr left join dbo.OrderControl c on c.Id = cr.OrderControlId
+								where c.SalesOrderId = oc.SalesOrderId order by cr.AddedDate desc
                                 ) as Remarks
                                 from dbo.OrderControl oc
                                 left join dbo.OrderControlRemarks ocr on ocr.OrderControlId = oc.Id

@@ -2859,12 +2859,12 @@ namespace Library.Service.HumanResources
                                     else
                                     {
                                         string FinalOutTime = string.Empty;
-                                        _getPunchTime(dvBioDvAC[i].Row, out FinalOutTime);
+                                        //_getPunchTime(dvBioDvAC[i].Row, out FinalOutTime);
 
-                                        if (Convert.ToDateTime(FinalOutTime) > Convert.ToDateTime(dvBioDvAC[i]["punchTime"].ToString()))
-                                        {
+                                        //if (Convert.ToDateTime(FinalOutTime) > Convert.ToDateTime(dvBioDvAC[i]["punchTime"].ToString()))
+                                        //{
                                             FinalOutTime = dvBioDvAC[i]["OutTimeShow"].ToString();
-                                        }
+                                        //}
 
                                         sheet1.Range[xlsRow, iOutTime].NumberFormat = "hh:mm AM/PM";
                                         sheet1.Range[xlsRow, iOutTime].DateTime = Convert.ToDateTime(FinalOutTime);

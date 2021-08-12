@@ -227,7 +227,7 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
                 throw "Please Select LeaveType";
             }
 
-            var data = ej.DataManager(EmployeeListNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "Flag", "CheckBoxSelect", "SalaryStructureId"]));
+            var data = ej.DataManager(EmployeeListNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "Flag", "CheckBoxSelect", "SalaryStructureId", "EmployeeCode"]));
 
             $scope.$broadcast('show-errors-check-validity');
             $http({
@@ -240,6 +240,7 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
+                    //$scope.GetEmployeeInformation();
                 }
                 else {
                     ShowResult(response.data.Message, 'success');

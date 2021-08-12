@@ -154,7 +154,7 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
-            voucherVM.IsPark = true;
+            voucherVM.IsPark = false;
             int year = Int32.Parse(yearNo);
             int month = Int32.Parse(monthNo);
 
