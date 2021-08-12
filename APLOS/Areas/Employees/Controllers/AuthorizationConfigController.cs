@@ -53,6 +53,8 @@ namespace Aplos.Areas.Employees.Controllers
         [HttpPost]
         public JsonResult Create(AuthorizationConfig authorizationConfig)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            authorizationConfig.PlantId = identity.PlantId;
             _authorizationConfigService.Insert(authorizationConfig);
             return Json(new { AuthorizationConfig= authorizationConfig,  Message = AplosMessage.Insert });
         }
