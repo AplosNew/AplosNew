@@ -3642,6 +3642,7 @@
     <Content Include="Areas\HumanResource\Views\AttendanceSourceConfig\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\NewAttdnDashboard\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\AdminAttendanceControl\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBMaterialJVPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

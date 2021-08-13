@@ -132,13 +132,14 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         #region GroupWiseSummaryOfDashboard
 
-        public IEnumerable<object> GroupWiseCompanyList(string companyGroupId,string date, string stat, string EmpCat)
+        public IEnumerable<object> GroupWiseCompanyList(string companyGroupId,string date, string stat, string EmpCat, string EmpStat)
         {
             try
             {
 
                 string empCat = "";
                 string statP = "";
+                string empStat = "";
                 if(EmpCat != null)
                 {
                     empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
@@ -155,6 +156,20 @@ namespace Library.HumanResource.NewAttendanceProcess
                 {
                     statP = "and pos.IsDirect = 0";
                 }
+
+                if(EmpStat == "Active")
+                {
+                    empStat = " and  ei.EmployeeCurrentStatus is null";
+                }
+                if (EmpStat == "TBS")
+                {
+                    empStat = " and  ei.EmployeeCurrentStatus = 'TBS'";
+                }
+                if (EmpStat == "LA")
+                {
+                    empStat = " and  ei.EmployeeCurrentStatus ='LONG ABSENTEEISM'";
+                }
+
 
                 var str = @"Select c.Id , c.UserName, cg.Id  as ComapnyGroupId , cg.UserName as GroupName ,Sum(case when BudgetId is not null then 1 else 0 end) as BB , Count( distinct EmpSystemID) as OnRoll,
                              Sum(Case When InStatus = 'IN' or InStatus = 'EI' or InStatus='LI' then 1 else 0 end) as OTIN,
@@ -178,7 +193,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join org.CompanyGroup cg on cg.Id = c.CompanyGroupId
                             left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
-                            where c.CompanyGroupId = '" + companyGroupId+@"' and apd.WorkDate = '"+date+@"' "+empCat+@" "+statP+@"
+                            where c.CompanyGroupId = '" + companyGroupId+@"' and apd.WorkDate = '"+date+ @"'  " + empStat + @" " + empCat+@" "+statP+@"
                             group by c.Id , c.UserName , cg.id , cg.userName
                             order by c.UserName asc
                             ";
@@ -195,7 +210,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         #region DetailDrillDownOfDashboard
 
-        public IEnumerable<object> DetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId, string stat, string EmpCat)
+        public IEnumerable<object> DetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId, string stat, string EmpCat, string EmpStat)
         {
             try
             {
@@ -204,6 +219,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string selSt = string.Empty;
                 string whereSt = string.Empty;
                 string groupSt = string.Empty;
+                string empStat = "";
                 foreach (var item in ChartColumnList)
                 {
 
@@ -248,6 +264,19 @@ namespace Library.HumanResource.NewAttendanceProcess
                     statP = "and pos.IsDirect = 0";
                 }
 
+                if (EmpStat == "Active")
+                {
+                    empStat = " and  ei.EmployeeCurrentStatus is null";
+                }
+                if (EmpStat == "TBS")
+                {
+                    empStat = " and  ei.EmployeeCurrentStatus = 'TBS'";
+                }
+                if (EmpStat == "LA")
+                {
+                    empStat = " and  ei.EmployeeCurrentStatus ='LONG ABSENTEEISM'";
+                }
+
                 var str = @"Select "+selSt+ @"Sum(case when BudgetId is not null then 1 else 0 end) as BB , Count( distinct EmpSystemID) as OnRoll,
                            Sum(Case When InStatus = 'IN' or InStatus = 'EI' or InStatus='LI' then 1 else 0 end) as OTIN,
                             Sum(Case When InStatus = 'IN' then 1 else 0 end) as InStat,
@@ -274,7 +303,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
                             left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
-                            where company.CompanyGroupId = '" + companyGroupId+@"' and apd.WorkDate = '"+date+@"' "+whereSt+ @"  " + empCat + @" " + statP + @"
+                            where company.CompanyGroupId = '" + companyGroupId+@"' and apd.WorkDate = '"+date+ @"'  " + empStat + @" " + whereSt+ @"  " + empCat + @" " + statP + @"
                             " + groupSt+@"
                             ";
                 
@@ -290,7 +319,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         #endregion DetailDrillDownOfDashboard
 
         #region DetailedListOfColumn
-        public IEnumerable<object> DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId , string Column , Dictionary<string , string>data, string stat, string EmpCat)
+        public IEnumerable<object> DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId , string Column , Dictionary<string , string>data, string stat, string EmpCat, string EmpStat)
         {
             try
             {
@@ -300,6 +329,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string whereSt = string.Empty;
                 string groupSt = string.Empty;
                 string whereCol = string.Empty;
+                string empStat = "";
                 foreach (var item in ChartColumnList)
                 {
                     if (item.Sequence < seq && item.Sequence != -2)
@@ -387,6 +417,19 @@ namespace Library.HumanResource.NewAttendanceProcess
                 #endregion settingTheColumnStat
 
 
+                if (EmpStat == "Active")
+                {
+                    empStat = " and  ei.EmployeeCurrentStatus is null";
+                }
+                if (EmpStat == "TBS")
+                {
+                    empStat = " and  ei.EmployeeCurrentStatus = 'TBS'";
+                }
+                if (EmpStat == "LA")
+                {
+                    empStat = " and  ei.EmployeeCurrentStatus ='LONG ABSENTEEISM'";
+                }
+
                 var str = @"Select ei.EmployeeCode , ei.EmployeeName , apd.DayStatus , apd.InStatus , 
                             FORMAT(CAST(apd.InTime AS DATETIME),'hh:mm tt') as InTime , FORMAT(CAST(apd.OutTime AS DATETIME),'hh:mm tt') as OutTime
                             ,desg.UserName as Designation ,ei.EmployeeCurrentStatus
@@ -406,7 +449,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
-                            where company.CompanyGroupId = '" + companyGroupId+@"' and apd.WorkDate='"+date+@"' "+whereSt+ @"  " + empCat + @" " + statP + @"
+                            left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
+                            where company.CompanyGroupId = '" + companyGroupId+@"' and apd.WorkDate='"+date+@"' "+empStat+@" "+whereSt+ @"  " + empCat + @" " + statP + @"
                             " + whereCol+@"
                             ";
 

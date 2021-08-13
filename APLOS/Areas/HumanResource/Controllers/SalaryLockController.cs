@@ -361,11 +361,12 @@ namespace Aplos.Areas.HumanResource.Controllers
                 if (DATA_OK == true)
                 {
                     string EmpIdLoop = "";
+                    string EmpCodeLoop = "";
                     foreach (var item in EmployeeList)
                     {
                         if (EmpIdLoop == "")
                         {
-                            EmpIdLoop = "'" + item.EmpSystemId + "'"; ;
+                            EmpIdLoop = "'" + item.EmpSystemId + "'";
                         }
                         else
                         {
@@ -375,6 +376,29 @@ namespace Aplos.Areas.HumanResource.Controllers
                     }
 
                     GetLoadSalaryLock(EmpIdLoop, Month, Year, out dsSaveSalaryLocked);
+
+                    dsSaveSalaryLocked.Tables[0].DefaultView.RowFilter = "PayableVoucherId <> '' ";
+                    while (dsSaveSalaryLocked.Tables[0].DefaultView.Count > 0)
+                    {
+                        for (int i = 0; i < EmployeeList.Count; i++)
+                        {
+                            if (EmployeeList[i].EmpSystemId == dsSaveSalaryLocked.Tables[0].DefaultView[0]["EmpSystemId"].ToString() && EmployeeList[i].IsLocked == false)
+                            {
+                                if (EmpCodeLoop == "")
+                                {
+                                    EmpIdLoop = "" + EmployeeList[i].EmployeeCode + "";
+                                }
+                                else
+                                {
+                                    EmpIdLoop += "," + EmployeeList[i].EmployeeCode + "";
+                                }
+                            }
+                        }
+                        if (string.IsNullOrEmpty(EmpIdLoop))
+                            throw new Exception("Cannot Unlock Salary for Employee [" + EmpIdLoop + "]");
+                    }
+                    
+
                     dtLocal = dsSaveSalaryLocked.Tables[0];
                     dvLocal = new DataView();
                     dvLocal.Table = dtLocal;
@@ -408,7 +432,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     }
 
                     dsSaveSalaryLocked.Tables[0].DefaultView.RowFilter = "IsLocked = False";
-                    while (dsSaveSalaryLocked.Tables[0].DefaultView.Count>0)
+                    while (dsSaveSalaryLocked.Tables[0].DefaultView.Count > 0)
                     {
                         dsSaveSalaryLocked.Tables[0].DefaultView[0].Delete();
                     }
@@ -435,6 +459,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             #region Scalar Properties            
             public string Id { get; set; }
             public string EmpSystemId { get; set; }
+            public string EmployeeCode { get; set; }
             public string YearNo { get; set; }
             public string MonthNo { get; set; }
             public bool IsLocked { get; set; }
