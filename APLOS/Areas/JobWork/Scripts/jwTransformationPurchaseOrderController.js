@@ -1301,7 +1301,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
         $http({
             method: 'POST',
-            url: $scope.detailDeleteUrl + $scope.detailModel.Id,
+            url: $scope.detailDeleteUrl,
+            data: { 'Id': $scope.detailModel.Id, 'OrderSpecific': $scope.productNew.OrderSpecific},
             dataType: 'JSON'
         }).then(function (response) {
             if (response.data.Error === true)
@@ -2369,6 +2370,12 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
             url: $scope.detailGridListUrl + $scope.productNew.Id
         }).then(function successCallback(response) {
             $scope.PoChildList = response.data;
+            //if ($scope.PoChildList.length > 0) {
+            //    for (var i = 0; i < $scope.PoChildList.length; i++) {
+            //        $scope.Transformation[i].ServiceId = $scope.PoChildList[i].ServiceId;
+            //    }
+                
+            //}
         });
     };
     $scope.PoChildListAll = [];
@@ -3283,6 +3290,24 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         .then(function (response) {
             $scope.serviceCboList = response.data;
         });
+
+    $scope.BOQserviceCboList = [];
+    $scope.BOQServiceGet = function () {
+        $http.get('Setups/CompanyServiceMaster/GetCboList')
+            .then(function (response) {
+                $scope.BOQserviceCboList = response.data;
+            });
+    }
+    $scope.BOQServiceGet();
+
+    //$scope.uom = function () {
+    //    cboService.getUoMCbo(function (response) {
+    //        $scope.uoMList = response;
+    //    });
+    //}
+    //$scope.uom();
+
+
     $scope.EmployeeResPersonList = [];
     $scope.ResPersonPopUp = function () {
         angular.element(document.querySelector("#EmployeePopUpResPerson")).modal("show");
