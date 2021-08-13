@@ -8,8 +8,6 @@ namespace Library.Model.Productions
         #region Scalar Properties
 
         public string Id { get; set; }
-        public string GroupID { get; set; }
-        public string CompanyId { get; set; }
         public string PlantId { get; set; }
         public string EmployeeId { get; set; }
         public string ActionStatus { get; set; }
