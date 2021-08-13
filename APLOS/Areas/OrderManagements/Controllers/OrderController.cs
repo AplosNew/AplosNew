@@ -66,7 +66,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 //Report.OrderReport( parameters,  fromDate,  toDate,  dateType);
                 
                 string fileName = "";
-                //fileName = OrderReport(parameters, fromDate, toDate, dateType);
+                fileName = OrderReport(parameters, fromDate, toDate, dateType, "OrderReport");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -76,661 +76,649 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         }
 
-        //public string OrderReport(Dictionary<string, string> parameters, string fromDate, string toDate, string dateType)
-        //{
-        //    ExcelEngine excelEngine = null;
-        //    IApplication application = null;
-        //    IWorkbook workbook = null;
-        //    IWorksheet sheet = null;
-        //    try
-        //    {
-
-            
-
-        //        excelEngine = new ExcelEngine();
-        //        application = excelEngine.Excel;
-        //        workbook = application.Workbooks.Create(2);
-        //        workbook.Worksheets[0].Name = "Data";
-        //        sheet = workbook.Worksheets[0];
-        //        //DataTable dtOrder;
-        //        //OrderReportSQL( parameters,  fromDate,  toDate,  dateType, out dtOrder);
-                
-
-        //        var strFileName = DateTime.Now.ToString("yyMMdd") + " " + "OrderReport.xlsx";
-           
-        //       string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-        //        workbook.SaveAs(fullPath);
-        //        Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
-
-
-
-        //        int ROW = 6; int COL = 1;
-
-        //        #region columns
-        //        sheet[ROW, COL].Text = "Responsible Person";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colResponsiblePerson = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Customer";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colCustomer = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Buyer";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colBuyer = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Plant";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colPlant = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Entity";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colEntity = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Buyer Reference No.";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colBuyerRefNo = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Article";
-        //        sheet[ROW, COL].ColumnWidth = 22;
-        //        int colArticle = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Delivery Date";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colDeliveryDate = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Plan Ex Factory Date";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colPlanExFactoryDate = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Customer Group";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colCustomerAccountGroup = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Material ROW ID";
-        //        sheet[ROW, COL].ColumnWidth = 22;
-        //        int colMaterialRowId = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Material";
-        //        sheet[ROW, COL].ColumnWidth = 22;
-        //        int colMaterial = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Product Category";
-        //        sheet[ROW, COL].ColumnWidth = 14;
-        //        int colProductCategory = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Product";
-        //        sheet[ROW, COL].ColumnWidth = 14;
-        //        int colProduct = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Master Order No";
-        //        sheet[ROW, COL].ColumnWidth = 14;
-        //        int colMasterOrderNo = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Master Order Creation Date";
-        //        sheet[ROW, COL].ColumnWidth = 14;
-        //        int colMasterOrderCreationDate = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Sales Order Id";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colSalesOrderId = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Sales Order Status";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colSalesOrderStatus = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "PR No";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colProductionOrderId = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Production Status";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colProductionStatus = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Rate";
-        //        sheet[ROW, COL].ColumnWidth = 6;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        int colRate = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "CM";
-        //        sheet[ROW, COL].ColumnWidth = 6;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        int colCM = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "SPT";
-        //        sheet[ROW, COL].ColumnWidth = 10;
-        //        int colSPT = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Remarks";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colRemarks = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "SO Qty";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        int colSOQty = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Shipped Qty";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        int colShippedQty = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Bal Shipment";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colBalShipment = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Plan";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colPlan = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "To Plan";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colToPlan = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Process Status";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colProcessStatus = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Product Code";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        int colProductCode = COL;
-        //        //COL++;
-        //        //sheet[ROW, COL].Text = "Product";
-        //        //sheet[ROW, COL].ColumnWidth = 16;
-        //        //int colProduct = COL;
-        //        //COL++;
-        //        //sheet[ROW, COL].Text = "Material";
-        //        //sheet[ROW, COL].ColumnWidth = 16;
-        //        //int colMaterial = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Own Ref";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colOwnRef = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Description";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colDescription = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Order Remarks";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colOtherRawMaterialInhouseDate = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Main Material Remarks";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colMainMaterialRemarks = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Other Raw Material Remarks";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colOtherRawMaterialRemarks = COL;
-        //        COL++;
-
-
-        //        sheet[ROW, COL].Text = "Input Status";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colInputStatus = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Line Target";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colLineTarget = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "No of Line Plan";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        int colNoOfLinePlan = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Priority";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colPriority = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Line No.";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colLineNo = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Order Value";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colOrderValue = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "CM Value";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        int colOrderStatus = COL;
-        //        //COL++;
-        //        //sheet[ROW, COL].Text = "Remarks";
-        //        //sheet[ROW, COL].ColumnWidth = 12;
-        //        //int colRemarks = COL;
-
-
-        //        #endregion columns
-
-        //        int endCol = COL;
-        //        //sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
-        //        //sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
-        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
-        //        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-        //        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-
-        //        ROW++;
-
-        //        int startRow = ROW;
-
-        //        //for (int i = 0; i < dtOrder.Rows.Count; i++)
-        //        //{
-        //        //    sheet[ROW, colPlant].Text = dtOrder.Rows[i]["Plant"].ToString();
-        //        //    sheet[ROW, colEntity].Text = dtOrder.Rows[i]["Entity"].ToString();
-        //        //    sheet[ROW, colBuyer].Text = dtOrder.Rows[i]["Buyer"].ToString();
-        //        //    sheet[ROW, colCustomer].Text = dtOrder.Rows[i]["Customer"].ToString();
-        //        //    sheet[ROW, colCustomerAccountGroup].Text = dtOrder.Rows[i]["CustomerAccountGroup"].ToString();
-        //        //    sheet[ROW, colCommitmentDate].Text = GetDate(dtOrder.Rows[i]["CommitmentDate"].ToString());
-        //        //    sheet[ROW, colDeliveryDate].Text = GetDate(dtOrder.Rows[i]["DeliveryDate"].ToString());
-        //        //    sheet[ROW, colMasterOrderNo].Text = dtOrder.Rows[i]["MasterOrderNo"].ToString();
-        //        //    sheet[ROW, colMaterial].Text = dtOrder.Rows[i]["Material"].ToString();
-        //        //    sheet[ROW, colProductCategory].Text = dtOrder.Rows[i]["ProductCategory"].ToString();
-        //        //    sheet[ROW, colProduct].Text = dtOrder.Rows[i]["Product"].ToString();
-        //        //    sheet[ROW, colSalesOrderDesc].Text = dtOrder.Rows[i]["SODesc"].ToString();
-        //        //    sheet[ROW, colUOM].Text = dtOrder.Rows[i]["UOM"].ToString();
-        //        //    sheet[ROW, colCurrency].Text = dtOrder.Rows[i]["Currency"].ToString();
-        //        //    sheet[ROW, colMasterOrderCreationDate].Text = dtOrder.Rows[i]["MasterOrderCreationDate"].ToString();
-
-
-        //        //    sheet[ROW, colBulletinId].Text = dtOrder.Rows[i]["BulletinId"].ToString();
-        //        //    sheet[ROW, colTotalSPT].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["TotalSPT"].ToString());
-        //        //    sheet[ROW, colNoOfWS].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["NoOfWS"].ToString());
-        //        //    sheet[ROW, colContractId].Text = dtOrder.Rows[i]["ContractId"].ToString();
-        //        //    sheet[ROW, colContractName].Text = dtOrder.Rows[i]["ContractName"].ToString();
-        //        //    sheet[ROW, colLCNo].Text = dtOrder.Rows[i]["LCNo"].ToString();
-
-
-        //        //    sheet[ROW, colArticle].Text = dtOrder.Rows[i]["Article"].ToString();
-        //        //    sheet[ROW, colOwnReferenceNo].Text = dtOrder.Rows[i]["OwnReferenceNo"].ToString();
-        //        //    sheet[ROW, colBuyerReferenceNo].Text = dtOrder.Rows[i]["BuyerReferenceNo"].ToString();
-
-        //        //    sheet[ROW, colBuyerOrderNo].Text = dtOrder.Rows[i]["BuyerOrderNo"].ToString();
-        //        //    sheet[ROW, colOwnOrderNo].Text = dtOrder.Rows[i]["OwnOrderNo"].ToString();
-
-
-        //        //    sheet[ROW, colMaterialRowId].Text = dtOrder.Rows[i]["MaterialRowId"].ToString();
-        //        //    sheet[ROW, colProductionOrderId].Text = dtOrder.Rows[i]["ProductionOrderId"].ToString();
-
-        //        //    sheet[ROW, colProductionOrderRemarks].Text = dtOrder.Rows[i]["Remarks"].ToString();
-        //        //    if (dtOrder.Rows[i]["ProductionOrderId"].ToString().Trim() == "")
-        //        //        sheet[ROW, colProductionOrderRemarks].Text = "Yet to plan";
-
-        //        //    sheet[ROW, colProductionStatus].Text = dtOrder.Rows[i]["ProductionStatus"].ToString();
-
-        //        //    sheet[ROW, colReason].Text = dtOrder.Rows[i]["Reason"].ToString();
-
-
-        //        //    sheet[ROW, colOrderCategory].Text = dtOrder.Rows[i]["OrderCategory"].ToString();
-        //        //    sheet[ROW, colOrderStatus].Text = dtOrder.Rows[i]["OrderStatus"].ToString();
-        //        //    sheet[ROW, colSOCategory].Text = dtOrder.Rows[i]["SOCategory"].ToString();
-        //        //    sheet[ROW, colSOStatus].Text = dtOrder.Rows[i]["SOStatus"].ToString();
-        //        //    sheet[ROW, colResponsiblePerson].Text = dtOrder.Rows[i]["ResponsiblePerson"].ToString();
-        //        //    sheet[ROW, colType].Text = dtOrder.Rows[i]["Type"].ToString();
-        //        //    sheet[ROW, colSOQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["SOQty"].ToString());
-        //        //    sheet[ROW, colSalesOrderId].Text = dtOrder.Rows[i]["SalesOrderId"].ToString();
-        //        //    sheet[ROW, colPONo].Text = dtOrder.Rows[i]["PONumber"].ToString();
-        //        //    sheet[ROW, colPODate].Text = dtOrder.Rows[i]["PODate"].ToString();
-
-
-        //        //    sheet[ROW, colPlannedQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["PlannedQty"].ToString());
-        //        //    sheet[ROW, colFOB].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["FOB"].ToString());
-        //        //    sheet[ROW, colCM].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["CM"].ToString());
-        //        //    sheet[ROW, colDiff].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["Diff"].ToString());
-
-        //        //    sheet[ROW, colOrderAmount].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["OrderAmount"].ToString());
-        //        //    sheet[ROW, colCMAmount].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["CMAmount"].ToString());
-
-        //        //    sheet[ROW, colSOAddedDate].Text = dtOrder.Rows[i]["SOAddedDate"].ToString();
-        //        //    sheet[ROW, colMainRawMaterialInhouseDate].Text = dtOrder.Rows[i]["MainRawMaterialInhouseDate"].ToString();
-        //        //    sheet[ROW, colOtherRawMaterialInhouseDate].Text = dtOrder.Rows[i]["OtherRawMaterialInhouseDate"].ToString();
-        //        //    sheet[ROW, colLSD].Text = dtOrder.Rows[i]["LSD"].ToString();
-
-        //        //    sheet[ROW, colDeliveryMonth].Formula = string.Concat("MONTH(", CellAddr(colDeliveryDate, ROW), ")");
-        //        //    sheet[ROW, colCommitmentMonth].Formula = string.Concat("MONTH(", CellAddr(colCommitmentDate, ROW), ")");
-
-
-        //        //    sheet[ROW, colDeliveryMonth].Formula = "CONCATENATE(Month(" + CellAddr(colDeliveryDate, ROW) + "),\"/\",Year(" + CellAddr(colDeliveryDate, ROW) + "))";
-        //        //    sheet[ROW, colCommitmentMonth].Formula = "CONCATENATE(Month(" + CellAddr(colCommitmentDate, ROW) + "),\"/\",Year(" + CellAddr(colCommitmentDate, ROW) + "))";
-
-
-        //        //    sheet[ROW, colPRBookedQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["PRBookedQuantity"].ToString());
-        //        //    sheet[ROW, colSOBookedQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["SOBookedQuantity"].ToString());
-        //        //    sheet[ROW, colTotalPRProducedQty].Formula = CellAddr(colPRBookedQty, ROW) + "+" + CellAddr(colSOBookedQty, ROW);
-        //        //    sheet[ROW, colPRPlanQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["PRPlanQty"].ToString());
-
-
-        //        //    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-        //        //    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-        //        //    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-        //        //    ROW++;
-
-        //        //}
-
-
-        //        //sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-        //        //sheet.UsedRange.WrapText = true;
-        //        //sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-        //        //sheet.UsedRange["A7"].FreezePanes();
-
-        //        //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        //ReportUtility reportUtility = new ReportUtility();
-        //        //reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Order Report", identity.CompanyId, identity.CompanyName, "");
-
-        //        //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-        //        //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        //sheet.IsGridLinesVisible = false;
-
-        //        sheet.UsedRange.WrapText = true;
-        //        sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-        //        sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-
-        //        sheet["A" + startRow.ToString()].FreezePanes();
-
-        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        ReportUtility reportUtility = new ReportUtility();
-        //        reportUtility.PlantHeader(ref sheet, endCol, "Order Report", identity.PlantId);
-        //        reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
-
-        //        #region Sheet Report
-        //        workbook.Worksheets[1].Name = "Report";
-        //        sheet = workbook.Worksheets[1];
-
-        //        //DataTable dtOrder = _sqlRepository.GetDataTable(sql);
-
-        //        ROW = 6; COL = 1;
-
-        //        #region columns
-        //        sheet[ROW, COL].Text = "Plant";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        colPlant = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Entity";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        colEntity = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Responsible Person";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        colResponsiblePerson = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Customer";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        colCustomer = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Buyer";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        colBuyer = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Buyer Reference No.";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        colBuyerRefNo = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Article";
-        //        sheet[ROW, COL].ColumnWidth = 22;
-        //        colArticle = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Delivery Date";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        colDeliveryDate = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Plan Ex Factory Date";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        colPlanExFactoryDate = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Customer Group";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        colCustomerAccountGroup = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Material ROW ID";
-        //        sheet[ROW, COL].ColumnWidth = 22;
-        //        colMaterialRowId = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Material";
-        //        sheet[ROW, COL].ColumnWidth = 22;
-        //        colMaterial = COL;
-        //        COL++;
-
-        //        sheet[ROW, COL].Text = "Product Category";
-        //        sheet[ROW, COL].ColumnWidth = 14;
-        //        colProductCategory = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Product";
-        //        sheet[ROW, COL].ColumnWidth = 14;
-        //        colProduct = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Master Order No";
-        //        sheet[ROW, COL].ColumnWidth = 14;
-        //        colMasterOrderNo = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Master Order Creation Date";
-        //        sheet[ROW, COL].ColumnWidth = 14;
-        //        colMasterOrderCreationDate = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Sales Order Id";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        colSalesOrderId = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Sales Order Status";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        colSalesOrderStatus = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "PR No";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        colProductionOrderId = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Production Status";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        colProductionStatus = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Rate";
-        //        sheet[ROW, COL].ColumnWidth = 6;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        colRate = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "CM";
-        //        sheet[ROW, COL].ColumnWidth = 6;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        colCM = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "SPT";
-        //        sheet[ROW, COL].ColumnWidth = 10;
-        //        colSPT = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Remarks";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        colRemarks = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "SO Qty";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        colSOQty = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Shipped Qty";
-        //        sheet[ROW, COL].ColumnWidth = 12;
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        colShippedQty = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Bal Shipment";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        colBalShipment = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "Plan";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        colPlan = COL;
-        //        COL++;
-        //        sheet[ROW, COL].Text = "To Plan";
-        //        sheet[ROW, COL].ColumnWidth = 16;
-        //        colToPlan = COL;
-
-
-        //        #endregion columns
-
-        //        endCol = COL;
-        //        //sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
-        //        //sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
-        //        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
-        //        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-        //        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-
-        //        ROW++;
-
-        //        startRow = ROW;
-
-        //        //for (int i = 0; i < dtOrder.Rows.Count; i++)
-        //        //{
-        //        //    sheet[ROW, colPlant].Text = dtOrder.Rows[i]["Plant"].ToString();
-        //        //    sheet[ROW, colEntity].Text = dtOrder.Rows[i]["Entity"].ToString();
-        //        //    sheet[ROW, colBuyer].Text = dtOrder.Rows[i]["Buyer"].ToString();
-        //        //    sheet[ROW, colCustomer].Text = dtOrder.Rows[i]["Customer"].ToString();
-        //        //    sheet[ROW, colCustomerAccountGroup].Text = dtOrder.Rows[i]["CustomerAccountGroup"].ToString();
-        //        //    sheet[ROW, colCommitmentDate].Text = GetDate(dtOrder.Rows[i]["CommitmentDate"].ToString());
-        //        //    sheet[ROW, colDeliveryDate].Text = GetDate(dtOrder.Rows[i]["DeliveryDate"].ToString());
-        //        //    sheet[ROW, colMasterOrderNo].Text = dtOrder.Rows[i]["MasterOrderNo"].ToString();
-        //        //    sheet[ROW, colMaterial].Text = dtOrder.Rows[i]["Material"].ToString();
-        //        //    sheet[ROW, colProductCategory].Text = dtOrder.Rows[i]["ProductCategory"].ToString();
-        //        //    sheet[ROW, colProduct].Text = dtOrder.Rows[i]["Product"].ToString();
-        //        //    sheet[ROW, colSalesOrderDesc].Text = dtOrder.Rows[i]["SODesc"].ToString();
-        //        //    sheet[ROW, colUOM].Text = dtOrder.Rows[i]["UOM"].ToString();
-        //        //    sheet[ROW, colCurrency].Text = dtOrder.Rows[i]["Currency"].ToString();
-        //        //    sheet[ROW, colMasterOrderCreationDate].Text = dtOrder.Rows[i]["MasterOrderCreationDate"].ToString();
-
-
-        //        //    sheet[ROW, colBulletinId].Text = dtOrder.Rows[i]["BulletinId"].ToString();
-        //        //    sheet[ROW, colTotalSPT].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["TotalSPT"].ToString());
-        //        //    sheet[ROW, colNoOfWS].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["NoOfWS"].ToString());
-        //        //    sheet[ROW, colContractId].Text = dtOrder.Rows[i]["ContractId"].ToString();
-        //        //    sheet[ROW, colContractName].Text = dtOrder.Rows[i]["ContractName"].ToString();
-        //        //    sheet[ROW, colLCNo].Text = dtOrder.Rows[i]["LCNo"].ToString();
-
-
-        //        //    sheet[ROW, colArticle].Text = dtOrder.Rows[i]["Article"].ToString();
-        //        //    sheet[ROW, colOwnReferenceNo].Text = dtOrder.Rows[i]["OwnReferenceNo"].ToString();
-        //        //    sheet[ROW, colBuyerReferenceNo].Text = dtOrder.Rows[i]["BuyerReferenceNo"].ToString();
-
-        //        //    sheet[ROW, colBuyerOrderNo].Text = dtOrder.Rows[i]["BuyerOrderNo"].ToString();
-        //        //    sheet[ROW, colOwnOrderNo].Text = dtOrder.Rows[i]["OwnOrderNo"].ToString();
-
-
-        //        //    sheet[ROW, colMaterialRowId].Text = dtOrder.Rows[i]["MaterialRowId"].ToString();
-        //        //    sheet[ROW, colProductionOrderId].Text = dtOrder.Rows[i]["ProductionOrderId"].ToString();
-
-        //        //    sheet[ROW, colProductionOrderRemarks].Text = dtOrder.Rows[i]["Remarks"].ToString();
-        //        //    if (dtOrder.Rows[i]["ProductionOrderId"].ToString().Trim() == "")
-        //        //        sheet[ROW, colProductionOrderRemarks].Text = "Yet to plan";
-
-        //        //    sheet[ROW, colProductionStatus].Text = dtOrder.Rows[i]["ProductionStatus"].ToString();
-
-        //        //    sheet[ROW, colReason].Text = dtOrder.Rows[i]["Reason"].ToString();
-
-
-        //        //    sheet[ROW, colOrderCategory].Text = dtOrder.Rows[i]["OrderCategory"].ToString();
-        //        //    sheet[ROW, colOrderStatus].Text = dtOrder.Rows[i]["OrderStatus"].ToString();
-        //        //    sheet[ROW, colSOCategory].Text = dtOrder.Rows[i]["SOCategory"].ToString();
-        //        //    sheet[ROW, colSOStatus].Text = dtOrder.Rows[i]["SOStatus"].ToString();
-        //        //    sheet[ROW, colResponsiblePerson].Text = dtOrder.Rows[i]["ResponsiblePerson"].ToString();
-        //        //    sheet[ROW, colType].Text = dtOrder.Rows[i]["Type"].ToString();
-        //        //    sheet[ROW, colSOQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["SOQty"].ToString());
-        //        //    sheet[ROW, colSalesOrderId].Text = dtOrder.Rows[i]["SalesOrderId"].ToString();
-        //        //    sheet[ROW, colPONo].Text = dtOrder.Rows[i]["PONumber"].ToString();
-        //        //    sheet[ROW, colPODate].Text = dtOrder.Rows[i]["PODate"].ToString();
-
-
-        //        //    sheet[ROW, colPlannedQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["PlannedQty"].ToString());
-        //        //    sheet[ROW, colFOB].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["FOB"].ToString());
-        //        //    sheet[ROW, colCM].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["CM"].ToString());
-        //        //    sheet[ROW, colDiff].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["Diff"].ToString());
-
-        //        //    sheet[ROW, colOrderAmount].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["OrderAmount"].ToString());
-        //        //    sheet[ROW, colCMAmount].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["CMAmount"].ToString());
-
-        //        //    sheet[ROW, colSOAddedDate].Text = dtOrder.Rows[i]["SOAddedDate"].ToString();
-        //        //    sheet[ROW, colMainRawMaterialInhouseDate].Text = dtOrder.Rows[i]["MainRawMaterialInhouseDate"].ToString();
-        //        //    sheet[ROW, colOtherRawMaterialInhouseDate].Text = dtOrder.Rows[i]["OtherRawMaterialInhouseDate"].ToString();
-        //        //    sheet[ROW, colLSD].Text = dtOrder.Rows[i]["LSD"].ToString();
-
-        //        //    sheet[ROW, colDeliveryMonth].Formula = string.Concat("MONTH(", CellAddr(colDeliveryDate, ROW), ")");
-        //        //    sheet[ROW, colCommitmentMonth].Formula = string.Concat("MONTH(", CellAddr(colCommitmentDate, ROW), ")");
-
-
-        //        //    sheet[ROW, colDeliveryMonth].Formula = "CONCATENATE(Month(" + CellAddr(colDeliveryDate, ROW) + "),\"/\",Year(" + CellAddr(colDeliveryDate, ROW) + "))";
-        //        //    sheet[ROW, colCommitmentMonth].Formula = "CONCATENATE(Month(" + CellAddr(colCommitmentDate, ROW) + "),\"/\",Year(" + CellAddr(colCommitmentDate, ROW) + "))";
-
-
-        //        //    sheet[ROW, colPRBookedQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["PRBookedQuantity"].ToString());
-        //        //    sheet[ROW, colSOBookedQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["SOBookedQuantity"].ToString());
-        //        //    sheet[ROW, colTotalPRProducedQty].Formula = CellAddr(colPRBookedQty, ROW) + "+" + CellAddr(colSOBookedQty, ROW);
-        //        //    sheet[ROW, colPRPlanQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["PRPlanQty"].ToString());
-
-
-        //        //    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-        //        //    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-        //        //    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-        //        //    ROW++;
-
-        //        //}
-
-
-        //        //sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-        //        //sheet.UsedRange.WrapText = true;
-        //        //sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-        //        //sheet.UsedRange["A7"].FreezePanes();
-
-        //        //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        //ReportUtility reportUtility = new ReportUtility();
-        //        //reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Order Report", identity.CompanyId, identity.CompanyName, "");
-
-        //        //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-        //        //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        //sheet.IsGridLinesVisible = false;
-
-        //        sheet.UsedRange.WrapText = true;
-        //        sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-        //        sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-
-        //        sheet["A" + startRow.ToString()].FreezePanes();
-
-        //        identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        reportUtility = new ReportUtility();
-        //        reportUtility.PlantHeader(ref sheet, endCol, "Order Report", identity.PlantId);
-        //        reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-        //        sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
-
-
-        //        #endregion
-
-        //        //string FileName = "Purchase LC.xlsx";
-        //        //workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-        //        //workbook.Close();
-
-        //        string FileName = "OrderReport.xlsx";
-        //        workbook.SaveAs(FileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-        //        workbook.Close();
-        //        //return filePath;
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-
-        //    }
-
-
-        //}
+        public string OrderReport(Dictionary<string, string> parameters, string fromDate, string toDate, string dateType,string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[0].Name = "Data";
+                sheet = workbook.Worksheets[0];
+                DataTable dtOrder;
+                OrderReportSQL(parameters, fromDate, toDate, dateType, out dtOrder);
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Responsible Person";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colResponsiblePerson = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Customer";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colCustomer = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Buyer";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colBuyer = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Plant";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPlant = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEntity = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Buyer Reference No.";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colBuyerRefNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Article";
+                sheet[ROW, COL].ColumnWidth = 22;
+                int colArticle = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Delivery Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colDeliveryDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Plan Ex Factory Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPlanExFactoryDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Customer Group";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colCustomerAccountGroup = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material ROW ID";
+                sheet[ROW, COL].ColumnWidth = 22;
+                int colMaterialRowId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Material";
+                sheet[ROW, COL].ColumnWidth = 22;
+                int colMaterial = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Product Category";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int colProductCategory = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Product";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int colProduct = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Master Order No";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int colMasterOrderNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Master Order Creation Date";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int colMasterOrderCreationDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Sales Order Id";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSalesOrderId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Sales Order Status";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSalesOrderStatus = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PR No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProductionOrderId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Production Status";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProductionStatus = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Rate";
+                sheet[ROW, COL].ColumnWidth = 6;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colRate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "CM";
+                sheet[ROW, COL].ColumnWidth = 6;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colCM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SPT";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colSPT = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Remarks";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colRemarks = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SO Qty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSOQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Shipped Qty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colShippedQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Bal Shipment";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colBalShipment = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Plan";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPlan = COL;
+                COL++;
+                sheet[ROW, COL].Text = "To Plan";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colToPlan = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Process Status";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProcessStatus = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Product Code";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProductCode = COL;
+                //COL++;
+                //sheet[ROW, COL].Text = "Product";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int colProduct = COL;
+                //COL++;
+                //sheet[ROW, COL].Text = "Material";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int colMaterial = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Own Ref";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colOwnRef = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Description";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colDescription = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Order Remarks";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colOtherRawMaterialInhouseDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Main Material Remarks";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colMainMaterialRemarks = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Other Raw Material Remarks";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colOtherRawMaterialRemarks = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Input Status";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colInputStatus = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Line Target";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colLineTarget = COL;
+                COL++;
+                sheet[ROW, COL].Text = "No of Line Plan";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colNoOfLinePlan = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Priority";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPriority = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Line No.";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colLineNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Order Value";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colOrderValue = COL;
+                COL++;
+                sheet[ROW, COL].Text = "CM Value";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colOrderStatus = COL;
+                //COL++;
+                //sheet[ROW, COL].Text = "Remarks";
+                //sheet[ROW, COL].ColumnWidth = 12;
+                //int colRemarks = COL;
+
+
+                #endregion columns
+
+                int endCol = COL;
+                //sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                //sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+
+                //for (int i = 0; i < dtOrder.Rows.Count; i++)
+                //{
+                //    sheet[ROW, colPlant].Text = dtOrder.Rows[i]["Plant"].ToString();
+                //    sheet[ROW, colEntity].Text = dtOrder.Rows[i]["Entity"].ToString();
+                //    sheet[ROW, colBuyer].Text = dtOrder.Rows[i]["Buyer"].ToString();
+                //    sheet[ROW, colCustomer].Text = dtOrder.Rows[i]["Customer"].ToString();
+                //    sheet[ROW, colCustomerAccountGroup].Text = dtOrder.Rows[i]["CustomerAccountGroup"].ToString();
+                //    sheet[ROW, colCommitmentDate].Text = GetDate(dtOrder.Rows[i]["CommitmentDate"].ToString());
+                //    sheet[ROW, colDeliveryDate].Text = GetDate(dtOrder.Rows[i]["DeliveryDate"].ToString());
+                //    sheet[ROW, colMasterOrderNo].Text = dtOrder.Rows[i]["MasterOrderNo"].ToString();
+                //    sheet[ROW, colMaterial].Text = dtOrder.Rows[i]["Material"].ToString();
+                //    sheet[ROW, colProductCategory].Text = dtOrder.Rows[i]["ProductCategory"].ToString();
+                //    sheet[ROW, colProduct].Text = dtOrder.Rows[i]["Product"].ToString();
+                //    sheet[ROW, colSalesOrderDesc].Text = dtOrder.Rows[i]["SODesc"].ToString();
+                //    sheet[ROW, colUOM].Text = dtOrder.Rows[i]["UOM"].ToString();
+                //    sheet[ROW, colCurrency].Text = dtOrder.Rows[i]["Currency"].ToString();
+                //    sheet[ROW, colMasterOrderCreationDate].Text = dtOrder.Rows[i]["MasterOrderCreationDate"].ToString();
+
+
+                //    sheet[ROW, colBulletinId].Text = dtOrder.Rows[i]["BulletinId"].ToString();
+                //    sheet[ROW, colTotalSPT].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["TotalSPT"].ToString());
+                //    sheet[ROW, colNoOfWS].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["NoOfWS"].ToString());
+                //    sheet[ROW, colContractId].Text = dtOrder.Rows[i]["ContractId"].ToString();
+                //    sheet[ROW, colContractName].Text = dtOrder.Rows[i]["ContractName"].ToString();
+                //    sheet[ROW, colLCNo].Text = dtOrder.Rows[i]["LCNo"].ToString();
+
+
+                //    sheet[ROW, colArticle].Text = dtOrder.Rows[i]["Article"].ToString();
+                //    sheet[ROW, colOwnReferenceNo].Text = dtOrder.Rows[i]["OwnReferenceNo"].ToString();
+                //    sheet[ROW, colBuyerReferenceNo].Text = dtOrder.Rows[i]["BuyerReferenceNo"].ToString();
+
+                //    sheet[ROW, colBuyerOrderNo].Text = dtOrder.Rows[i]["BuyerOrderNo"].ToString();
+                //    sheet[ROW, colOwnOrderNo].Text = dtOrder.Rows[i]["OwnOrderNo"].ToString();
+
+
+                //    sheet[ROW, colMaterialRowId].Text = dtOrder.Rows[i]["MaterialRowId"].ToString();
+                //    sheet[ROW, colProductionOrderId].Text = dtOrder.Rows[i]["ProductionOrderId"].ToString();
+
+                //    sheet[ROW, colProductionOrderRemarks].Text = dtOrder.Rows[i]["Remarks"].ToString();
+                //    if (dtOrder.Rows[i]["ProductionOrderId"].ToString().Trim() == "")
+                //        sheet[ROW, colProductionOrderRemarks].Text = "Yet to plan";
+
+                //    sheet[ROW, colProductionStatus].Text = dtOrder.Rows[i]["ProductionStatus"].ToString();
+
+                //    sheet[ROW, colReason].Text = dtOrder.Rows[i]["Reason"].ToString();
+
+
+                //    sheet[ROW, colOrderCategory].Text = dtOrder.Rows[i]["OrderCategory"].ToString();
+                //    sheet[ROW, colOrderStatus].Text = dtOrder.Rows[i]["OrderStatus"].ToString();
+                //    sheet[ROW, colSOCategory].Text = dtOrder.Rows[i]["SOCategory"].ToString();
+                //    sheet[ROW, colSOStatus].Text = dtOrder.Rows[i]["SOStatus"].ToString();
+                //    sheet[ROW, colResponsiblePerson].Text = dtOrder.Rows[i]["ResponsiblePerson"].ToString();
+                //    sheet[ROW, colType].Text = dtOrder.Rows[i]["Type"].ToString();
+                //    sheet[ROW, colSOQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["SOQty"].ToString());
+                //    sheet[ROW, colSalesOrderId].Text = dtOrder.Rows[i]["SalesOrderId"].ToString();
+                //    sheet[ROW, colPONo].Text = dtOrder.Rows[i]["PONumber"].ToString();
+                //    sheet[ROW, colPODate].Text = dtOrder.Rows[i]["PODate"].ToString();
+
+
+                //    sheet[ROW, colPlannedQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["PlannedQty"].ToString());
+                //    sheet[ROW, colFOB].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["FOB"].ToString());
+                //    sheet[ROW, colCM].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["CM"].ToString());
+                //    sheet[ROW, colDiff].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["Diff"].ToString());
+
+                //    sheet[ROW, colOrderAmount].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["OrderAmount"].ToString());
+                //    sheet[ROW, colCMAmount].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["CMAmount"].ToString());
+
+                //    sheet[ROW, colSOAddedDate].Text = dtOrder.Rows[i]["SOAddedDate"].ToString();
+                //    sheet[ROW, colMainRawMaterialInhouseDate].Text = dtOrder.Rows[i]["MainRawMaterialInhouseDate"].ToString();
+                //    sheet[ROW, colOtherRawMaterialInhouseDate].Text = dtOrder.Rows[i]["OtherRawMaterialInhouseDate"].ToString();
+                //    sheet[ROW, colLSD].Text = dtOrder.Rows[i]["LSD"].ToString();
+
+                //    sheet[ROW, colDeliveryMonth].Formula = string.Concat("MONTH(", CellAddr(colDeliveryDate, ROW), ")");
+                //    sheet[ROW, colCommitmentMonth].Formula = string.Concat("MONTH(", CellAddr(colCommitmentDate, ROW), ")");
+
+
+                //    sheet[ROW, colDeliveryMonth].Formula = "CONCATENATE(Month(" + CellAddr(colDeliveryDate, ROW) + "),\"/\",Year(" + CellAddr(colDeliveryDate, ROW) + "))";
+                //    sheet[ROW, colCommitmentMonth].Formula = "CONCATENATE(Month(" + CellAddr(colCommitmentDate, ROW) + "),\"/\",Year(" + CellAddr(colCommitmentDate, ROW) + "))";
+
+
+                //    sheet[ROW, colPRBookedQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["PRBookedQuantity"].ToString());
+                //    sheet[ROW, colSOBookedQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["SOBookedQuantity"].ToString());
+                //    sheet[ROW, colTotalPRProducedQty].Formula = CellAddr(colPRBookedQty, ROW) + "+" + CellAddr(colSOBookedQty, ROW);
+                //    sheet[ROW, colPRPlanQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["PRPlanQty"].ToString());
+
+
+                //    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                //    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                //    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                //    ROW++;
+
+                //}
+
+
+                //sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                //sheet.UsedRange.WrapText = true;
+                //sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                //sheet.UsedRange["A7"].FreezePanes();
+
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //ReportUtility reportUtility = new ReportUtility();
+                //reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Order Report", identity.CompanyId, identity.CompanyName, "");
+
+                //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet.IsGridLinesVisible = false;
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Order Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+
+                #region Sheet Report
+                workbook.Worksheets[1].Name = "Report";
+                sheet = workbook.Worksheets[1];
+
+                //DataTable dtOrder = _sqlRepository.GetDataTable(sql);
+
+                ROW = 6; COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Plant";
+                sheet[ROW, COL].ColumnWidth = 16;
+                colPlant = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 16;
+                colEntity = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Responsible Person";
+                sheet[ROW, COL].ColumnWidth = 16;
+                colResponsiblePerson = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Customer";
+                sheet[ROW, COL].ColumnWidth = 16;
+                colCustomer = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Buyer";
+                sheet[ROW, COL].ColumnWidth = 16;
+                colBuyer = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Buyer Reference No.";
+                sheet[ROW, COL].ColumnWidth = 16;
+                colBuyerRefNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Article";
+                sheet[ROW, COL].ColumnWidth = 22;
+                colArticle = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Delivery Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                colDeliveryDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Plan Ex Factory Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                colPlanExFactoryDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Customer Group";
+                sheet[ROW, COL].ColumnWidth = 16;
+                colCustomerAccountGroup = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material ROW ID";
+                sheet[ROW, COL].ColumnWidth = 22;
+                colMaterialRowId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Material";
+                sheet[ROW, COL].ColumnWidth = 22;
+                colMaterial = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Product Category";
+                sheet[ROW, COL].ColumnWidth = 14;
+                colProductCategory = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Product";
+                sheet[ROW, COL].ColumnWidth = 14;
+                colProduct = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Master Order No";
+                sheet[ROW, COL].ColumnWidth = 14;
+                colMasterOrderNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Master Order Creation Date";
+                sheet[ROW, COL].ColumnWidth = 14;
+                colMasterOrderCreationDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Sales Order Id";
+                sheet[ROW, COL].ColumnWidth = 16;
+                colSalesOrderId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Sales Order Status";
+                sheet[ROW, COL].ColumnWidth = 16;
+                colSalesOrderStatus = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PR No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                colProductionOrderId = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Production Status";
+                sheet[ROW, COL].ColumnWidth = 12;
+                colProductionStatus = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Rate";
+                sheet[ROW, COL].ColumnWidth = 6;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                colRate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "CM";
+                sheet[ROW, COL].ColumnWidth = 6;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                colCM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SPT";
+                sheet[ROW, COL].ColumnWidth = 10;
+                colSPT = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Remarks";
+                sheet[ROW, COL].ColumnWidth = 16;
+                colRemarks = COL;
+                COL++;
+                sheet[ROW, COL].Text = "SO Qty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                colSOQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Shipped Qty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                colShippedQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Bal Shipment";
+                sheet[ROW, COL].ColumnWidth = 16;
+                colBalShipment = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Plan";
+                sheet[ROW, COL].ColumnWidth = 16;
+                colPlan = COL;
+                COL++;
+                sheet[ROW, COL].Text = "To Plan";
+                sheet[ROW, COL].ColumnWidth = 16;
+                colToPlan = COL;
+
+
+                #endregion columns
+
+                endCol = COL;
+                //sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                //sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                startRow = ROW;
+
+                //for (int i = 0; i < dtOrder.Rows.Count; i++)
+                //{
+                //    sheet[ROW, colPlant].Text = dtOrder.Rows[i]["Plant"].ToString();
+                //    sheet[ROW, colEntity].Text = dtOrder.Rows[i]["Entity"].ToString();
+                //    sheet[ROW, colBuyer].Text = dtOrder.Rows[i]["Buyer"].ToString();
+                //    sheet[ROW, colCustomer].Text = dtOrder.Rows[i]["Customer"].ToString();
+                //    sheet[ROW, colCustomerAccountGroup].Text = dtOrder.Rows[i]["CustomerAccountGroup"].ToString();
+                //    sheet[ROW, colCommitmentDate].Text = GetDate(dtOrder.Rows[i]["CommitmentDate"].ToString());
+                //    sheet[ROW, colDeliveryDate].Text = GetDate(dtOrder.Rows[i]["DeliveryDate"].ToString());
+                //    sheet[ROW, colMasterOrderNo].Text = dtOrder.Rows[i]["MasterOrderNo"].ToString();
+                //    sheet[ROW, colMaterial].Text = dtOrder.Rows[i]["Material"].ToString();
+                //    sheet[ROW, colProductCategory].Text = dtOrder.Rows[i]["ProductCategory"].ToString();
+                //    sheet[ROW, colProduct].Text = dtOrder.Rows[i]["Product"].ToString();
+                //    sheet[ROW, colSalesOrderDesc].Text = dtOrder.Rows[i]["SODesc"].ToString();
+                //    sheet[ROW, colUOM].Text = dtOrder.Rows[i]["UOM"].ToString();
+                //    sheet[ROW, colCurrency].Text = dtOrder.Rows[i]["Currency"].ToString();
+                //    sheet[ROW, colMasterOrderCreationDate].Text = dtOrder.Rows[i]["MasterOrderCreationDate"].ToString();
+
+
+                //    sheet[ROW, colBulletinId].Text = dtOrder.Rows[i]["BulletinId"].ToString();
+                //    sheet[ROW, colTotalSPT].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["TotalSPT"].ToString());
+                //    sheet[ROW, colNoOfWS].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["NoOfWS"].ToString());
+                //    sheet[ROW, colContractId].Text = dtOrder.Rows[i]["ContractId"].ToString();
+                //    sheet[ROW, colContractName].Text = dtOrder.Rows[i]["ContractName"].ToString();
+                //    sheet[ROW, colLCNo].Text = dtOrder.Rows[i]["LCNo"].ToString();
+
+
+                //    sheet[ROW, colArticle].Text = dtOrder.Rows[i]["Article"].ToString();
+                //    sheet[ROW, colOwnReferenceNo].Text = dtOrder.Rows[i]["OwnReferenceNo"].ToString();
+                //    sheet[ROW, colBuyerReferenceNo].Text = dtOrder.Rows[i]["BuyerReferenceNo"].ToString();
+
+                //    sheet[ROW, colBuyerOrderNo].Text = dtOrder.Rows[i]["BuyerOrderNo"].ToString();
+                //    sheet[ROW, colOwnOrderNo].Text = dtOrder.Rows[i]["OwnOrderNo"].ToString();
+
+
+                //    sheet[ROW, colMaterialRowId].Text = dtOrder.Rows[i]["MaterialRowId"].ToString();
+                //    sheet[ROW, colProductionOrderId].Text = dtOrder.Rows[i]["ProductionOrderId"].ToString();
+
+                //    sheet[ROW, colProductionOrderRemarks].Text = dtOrder.Rows[i]["Remarks"].ToString();
+                //    if (dtOrder.Rows[i]["ProductionOrderId"].ToString().Trim() == "")
+                //        sheet[ROW, colProductionOrderRemarks].Text = "Yet to plan";
+
+                //    sheet[ROW, colProductionStatus].Text = dtOrder.Rows[i]["ProductionStatus"].ToString();
+
+                //    sheet[ROW, colReason].Text = dtOrder.Rows[i]["Reason"].ToString();
+
+
+                //    sheet[ROW, colOrderCategory].Text = dtOrder.Rows[i]["OrderCategory"].ToString();
+                //    sheet[ROW, colOrderStatus].Text = dtOrder.Rows[i]["OrderStatus"].ToString();
+                //    sheet[ROW, colSOCategory].Text = dtOrder.Rows[i]["SOCategory"].ToString();
+                //    sheet[ROW, colSOStatus].Text = dtOrder.Rows[i]["SOStatus"].ToString();
+                //    sheet[ROW, colResponsiblePerson].Text = dtOrder.Rows[i]["ResponsiblePerson"].ToString();
+                //    sheet[ROW, colType].Text = dtOrder.Rows[i]["Type"].ToString();
+                //    sheet[ROW, colSOQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["SOQty"].ToString());
+                //    sheet[ROW, colSalesOrderId].Text = dtOrder.Rows[i]["SalesOrderId"].ToString();
+                //    sheet[ROW, colPONo].Text = dtOrder.Rows[i]["PONumber"].ToString();
+                //    sheet[ROW, colPODate].Text = dtOrder.Rows[i]["PODate"].ToString();
+
+
+                //    sheet[ROW, colPlannedQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["PlannedQty"].ToString());
+                //    sheet[ROW, colFOB].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["FOB"].ToString());
+                //    sheet[ROW, colCM].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["CM"].ToString());
+                //    sheet[ROW, colDiff].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["Diff"].ToString());
+
+                //    sheet[ROW, colOrderAmount].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["OrderAmount"].ToString());
+                //    sheet[ROW, colCMAmount].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["CMAmount"].ToString());
+
+                //    sheet[ROW, colSOAddedDate].Text = dtOrder.Rows[i]["SOAddedDate"].ToString();
+                //    sheet[ROW, colMainRawMaterialInhouseDate].Text = dtOrder.Rows[i]["MainRawMaterialInhouseDate"].ToString();
+                //    sheet[ROW, colOtherRawMaterialInhouseDate].Text = dtOrder.Rows[i]["OtherRawMaterialInhouseDate"].ToString();
+                //    sheet[ROW, colLSD].Text = dtOrder.Rows[i]["LSD"].ToString();
+
+                //    sheet[ROW, colDeliveryMonth].Formula = string.Concat("MONTH(", CellAddr(colDeliveryDate, ROW), ")");
+                //    sheet[ROW, colCommitmentMonth].Formula = string.Concat("MONTH(", CellAddr(colCommitmentDate, ROW), ")");
+
+
+                //    sheet[ROW, colDeliveryMonth].Formula = "CONCATENATE(Month(" + CellAddr(colDeliveryDate, ROW) + "),\"/\",Year(" + CellAddr(colDeliveryDate, ROW) + "))";
+                //    sheet[ROW, colCommitmentMonth].Formula = "CONCATENATE(Month(" + CellAddr(colCommitmentDate, ROW) + "),\"/\",Year(" + CellAddr(colCommitmentDate, ROW) + "))";
+
+
+                //    sheet[ROW, colPRBookedQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["PRBookedQuantity"].ToString());
+                //    sheet[ROW, colSOBookedQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["SOBookedQuantity"].ToString());
+                //    sheet[ROW, colTotalPRProducedQty].Formula = CellAddr(colPRBookedQty, ROW) + "+" + CellAddr(colSOBookedQty, ROW);
+                //    sheet[ROW, colPRPlanQty].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["PRPlanQty"].ToString());
+
+
+                //    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                //    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                //    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                //    ROW++;
+
+                //}
+
+
+                //sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                //sheet.UsedRange.WrapText = true;
+                //sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                //sheet.UsedRange["A7"].FreezePanes();
+
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //ReportUtility reportUtility = new ReportUtility();
+                //reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Order Report", identity.CompanyId, identity.CompanyName, "");
+
+                //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet.IsGridLinesVisible = false;
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Order Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+
+
+                #endregion
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+
+        }
 
 
         private void OrderReportSQL(Dictionary<string, string> parameters, string fromDate, string toDate, string dateType, out DataTable dtOrder)
@@ -738,6 +726,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
             string PlantId = parameters["PlantId"];
             string cu = parameters["CustomerId"];
             string b = parameters["BuyerId"];
+            string d = parameters["ProductionStatusId"];
+            string e = parameters["EntityId"];
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT 
@@ -783,8 +773,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                               FROM trn.MasterOrder MO
                             left outer join MasterOrderExchangeRates RT on RT.TransactionId=MO.Id
 							left JOIN org.Company AS com ON com.Id=mo.CompanyId
-                            LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + parameters.ContainsKey("EntityId") + @"))
-                            LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + parameters.ContainsKey("EntityId") + @"))
+                            LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + parameters["EntityId"] + @"))
+                            LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + parameters["EntityId"] + @"))
 
                             left outer join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
 							left outer join dbo.[Contract] con on con.Id=MOI.ContractId
@@ -848,11 +838,11 @@ left outer join trn.ProductionBulletinTemplateDetail pbtd on pbtd.ProductionBull
 AND  pbtm.ProcessId=(select top 1 sx.ProcessId from trn.ProductionOrderProcessSet SX where SX.ProductionOrderId=pbt.productionOrderId and isnull(SX.IsBaseProcess,0)=1)
 group by pbt.productionOrderId,pbtm.MaxNoOfWS, pbt.Id ) Btn on Btn.ProductionOrderId=po.Id
 --left outer join BOQ on boq.SalesOrderId=so.Id and boq.SalesOrderId=(select top 1 SalesOrderId from boq where SalesOrderId=so.Id)
-                            WHERE os.Id='Active' AND MO.EntityId IN (" + parameters.ContainsKey("EntityId") + @")
-						AND MO.PlantId IN(" + parameters.ContainsKey("PlantId") + @"') 
-						AND MO.PartyId in(" + parameters.ContainsKey("PartyId") + @")
-						AND MO.BuyerId in(" + parameters.ContainsKey("BuyerId") + @")
-						AND MO.OrderStatusId in(" + parameters.ContainsKey("OrderStatusId") + @")
+                            WHERE os.Id='Active' AND MO.EntityId IN (" + parameters["EntityId"] + @")
+						AND MO.PlantId IN(" + parameters["PlantId"] + @"') 
+						AND MO.PartyId in(" + parameters["CustomerId"] + @")
+						AND MO.BuyerId in(" + parameters["BuyerId"] + @")
+						AND MO.OrderStatusId in(" + parameters["ProductionStatusId"] + @")
 
 						--AND(so.PlanExFactoryDate between (" + fromDate + @") AND (" + toDate + @"))
 

@@ -9,6 +9,8 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
     $scope.exportgriddataUrl = 'GridReports/ExcelExportJson';
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.downloadgriddataPDFUrl = 'GridReports/DownloadPdf';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
+
    //The Selection Criteria   
     $scope.Datelist = [
         { text: "Ex Factory Date", value: "ExFactoryD" },
@@ -36,6 +38,7 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     $scope.Report = function () {
         try {
+            $scope.fileName = "OrderReport.xls";
             $http({
                 method: 'POST',
                 url: $scope.path + "GetOrderReport",
@@ -43,7 +46,8 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
-                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+
                 }
                 else {
                     ShowResult(response.data.Message, 'failure');
