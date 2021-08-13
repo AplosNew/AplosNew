@@ -131,7 +131,7 @@ namespace Library.Service.Employees
         {
             try
             {
-                parameters.CmdText = @"SELECT SSU.Id,SSU.ActionStatus, SSU.EmployeeId,EI.EmployeeName,EI.CompanyId,EI.PlantId,SSU.GroupId,EI.EmployeeCode
+                parameters.CmdText = @"SELECT SSU.Id,SSU.ActionStatus, SSU.EmployeeId,EI.EmployeeName,EI.CompanyId,EI.PlantId,EI.GroupId,EI.EmployeeCode
                                       ,EI.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                       PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection
                                       ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EI.EmpPicPath,EI.EmployeeStatus,C.UserName Company

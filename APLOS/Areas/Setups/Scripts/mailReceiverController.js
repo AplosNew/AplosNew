@@ -107,6 +107,7 @@ function mailReceiverController(commonMessage, $scope, $rootScope, baseService, 
         if ($scope.emailReceiveForm.$valid) {
             getDetailSaveData($scope.toList, $scope.ccList, $scope.bccList);
             angular.copy($scope.brandNew, $scope.brand);
+            $scope.brand.MailReceipientType = 'Normal';
             if ($scope.Action === 'Save') {
                 $http({
                     method: 'POST',

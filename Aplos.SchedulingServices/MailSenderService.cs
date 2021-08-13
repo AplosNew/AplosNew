@@ -3319,6 +3319,7 @@ namespace Library.SchedulingServices.Setups
                                     var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
                                     if (null == smtpConfigurationC)
                                         log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+
                                     else
                                         email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
                                 }

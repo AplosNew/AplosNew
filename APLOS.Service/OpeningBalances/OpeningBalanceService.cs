@@ -2522,7 +2522,9 @@ namespace Library.Service.OpeningBalances
 								WHERE OBDC.GLType='FA' AND C.Id='" + companyId + @"'
                                 GROUP BY OBDC.OpeningBalanceId
 								) AS X ON X.OpeningBalanceId=OB.Id
-                                WHERE OB.Archive=0 AND OB.IsFinancial=1  AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" + companyGroupId + "' AND OB.CompanyId='" + companyId + "' AND OB.PlantId='" + plantId + "'";
+                                WHERE OB.Archive=0 AND OB.IsFinancial=1  AND OB.Id NOT IN (SELECT OpeningBalanceId FROM TRN.OpeningBalanceDetail WHERE MaterialMasterOpeningBalanceDetailId in 
+								( SELECT Id FROM [TRN].[MaterialMasterOpeningBalanceDetail]) and MaterialMasterOpeningBalanceDetailId<>'')
+AND OB.IsPark=1 AND OB.SourceType='" + sourceType + "' AND OB.CompanyGroupId='" + companyGroupId + "' AND OB.CompanyId='" + companyId + "' AND OB.PlantId='" + plantId + "'";
             return _sqlRepository.GetGridData(parameters);
         }
 

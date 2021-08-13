@@ -154,7 +154,7 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
-            voucherVM.IsPark = true;
+            voucherVM.IsPark = false;
             int year = Int32.Parse(yearNo);
             int month = Int32.Parse(monthNo);
 
@@ -180,7 +180,15 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
 
-       
+        [HttpPost]
+        public ActionResult DeleteSalaryPayable(string voucherId,string monthNo,string yearNo)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salaryDisbursementService.DeleteSalaryPayable(identity.PlantId, voucherId, monthNo, yearNo);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetSalaryPayableVoucherReport(ReportFormat reportFormat, string voucherId)
         {
