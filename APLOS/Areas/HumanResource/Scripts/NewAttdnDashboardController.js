@@ -23,6 +23,8 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
         $scope.docEmployeeCategoryList = result;
     });
 
+    $scope.EmpStatsList = [{ 'Value': 'Active', 'Text': 'Active' }, { 'Value': 'TBS', 'Text': 'To Be Separated' }, { 'Value': 'LA', 'Text': 'LONG ABSENTEEISM' }];
+    $scope.EmpStat = 'Active';
     $scope.ManPowerBudget = function () {
         $scope.chartList = [];
         var currentTotalEmp = 0;
@@ -37,7 +39,8 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
             data: {
                 'date': $scope.Date,
                 'stat': $scope.Stat,
-                'EmpCat' : $scope.EmpCat,
+                'EmpCat': $scope.EmpCat,
+                'EmpStat': $scope.EmpStat,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -69,6 +72,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                     'date': $scope.Date,
                     'stat': $scope.Stat,
                     'EmpCat': $scope.EmpCat,
+                    'EmpStat': $scope.EmpStat,
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -266,7 +270,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
             url: 'NewAttdnDashboard/GetGroupWiseCompanyList/',
             data: {
                 'date': $scope.Date,'stat': $scope.Stat,
-                'EmpCat': $scope.EmpCat,},
+                'EmpCat': $scope.EmpCat, 'EmpStat': $scope.EmpStat,},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             setList(response.data);
@@ -292,7 +296,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 url: 'NewAttdnDashboard/GetGroupWiseCompanyList/',
                 data: {
                     'date': $scope.Date,'stat': $scope.Stat,
-                    'EmpCat': $scope.EmpCat,
+                    'EmpCat': $scope.EmpCat, 'EmpStat': $scope.EmpStat,
                 },
 
                 dataType: 'JSON'
@@ -362,6 +366,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 'data': data,
                 'stat': $scope.Stat,
                 'EmpCat': $scope.EmpCat,
+                'EmpStat' : $scope.EmpStat,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
