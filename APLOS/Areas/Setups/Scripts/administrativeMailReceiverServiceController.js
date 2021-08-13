@@ -115,6 +115,7 @@ function administrativeMailReceiverServiceController(commonMessage, $scope, $roo
             angular.copy($scope.brandNew, $scope.brand);
             $scope.brand.AddedDate = $filter('dateFilter')($scope.brand.AddedDate);
             $scope.brand.UpdatedDate = $filter('dateFilter')($scope.brand.UpdatedDate);
+            $scope.brand.MailReceipientType = 'Admin';
             if ($scope.Action === 'Save') {
                 $http({
                     method: 'POST',

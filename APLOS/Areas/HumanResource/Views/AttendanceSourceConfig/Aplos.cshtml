@@ -1,0 +1,98 @@
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ModelNew.CompanyId" ng-change="getPlants()" name="Entity"
+                            ng-options="item.Value as item.Text for item in CompanyList" required tabindex="1">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">ManualIn Allowed</label>
+            <div class="col-sm-8  show-message">
+                <div class="checkbox-site">
+                    <label>
+                        <input id="ManualIn" type="checkbox" class="css-checkbox" ng-model="ModelNew.ManualInAllowed" tabindex="3">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">ManualOT Allowed</label>
+            <div class="col-sm-8  show-message">
+                <div class="checkbox-site">
+                    <label>
+                        <input id="ManualOT" type="checkbox" class="css-checkbox" ng-model="ModelNew.ManualOTAllowed" tabindex="5">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ModelNew.PlantId" name="Plant"
+                            ng-options="item.Value as item.Text for item in PlantList" required tabindex="2">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+       
+        <div class="form-group">
+            <label class="col-sm-4 control-label">ManualOut Allowed</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site" style="margin-top:7px;">
+                    <label>
+                        <input type="checkbox" id="ManualOut" ng-model="ModelNew.ManualOutAllowed" tabindex="4">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="CompanyName" e-headertext="CompanyName" e-width="3"></div>
+            <div e-column e-field="Plant" e-headertext="Plant" e-width="3"></div>
+            <div e-column e-field="ManualInAllowed" e-headertext="ManualIn Allowed" e-width="3"></div>
+            <div e-column e-field="ManualOutAllowed" e-headertext="ManualOut Allowed" e-width="3"></div>
+            <div e-column e-field="ManualOTAllowed" e-headertext="ManualOT Allowed" e-width="3"></div>
+
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+

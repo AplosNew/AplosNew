@@ -24,5 +24,6 @@ namespace Library.Service.SalaryDisbursement
         IWorkbook GetEmployeeSalaryProcessedReportSalaryLogWiseInVoucher(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool isTopSheet, string voucherId);
 
         IWorkbook GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool isTopSheet, string voucherId);
+        void DeleteSalaryPayable(string plantId, string voucherId, string monthNo, string yearNo);
     }
 }

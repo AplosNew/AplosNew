@@ -199,17 +199,18 @@ namespace Library.HumanResource.Payroll.SalaryProcess
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
 
-                                     WHERE E.GroupID='" + identity.CompanyGroupId+@"' --AND E.PlantId='"+identity.PlantId+@"' 
+                                     WHERE E.GroupID='" + identity.CompanyGroupId+@"' --AND E.PlantId='"+identity.PlantId+ @"' 
 									
-
+                                    
 									 and e.systemid in
 									 (
 									 SELECT c.EmpInfoSystemID FROM SalaryProcChild c 
-									  inner join SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID and MonthNo =  Month('"+ effectiveDate + @"') AND YearNo =  Year('"+ effectiveDate + @"')
-									  WHERE PlantID = '"+identity.PlantId+@"'		
+									  inner join SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID and MonthNo =  Month('" + effectiveDate + @"') AND YearNo =  Year('"+ effectiveDate + @"')
+									  WHERE PlantID = '"+identity.PlantId+ @"'		
 									 )
                                                                                      
-                                     ) DD  
+                                     ) DD  " + wcEmpStatus + @"
+
 									 
 									 ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric
 									";

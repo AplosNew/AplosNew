@@ -94,7 +94,7 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
         DropDownListYear.selectItemByText($scope.year);
 
     };
-    
+
     $scope.payGroupList = [];
     $scope.payGroupListSelected = [];
 
@@ -114,7 +114,7 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
         });
 
     };
-    
+
     $scope.getSalaryProcessIdList = function (args) {
         $scope.isCompletedMonth = 1;
 
@@ -136,7 +136,7 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
 
 
     };
-    
+
     $scope.selectedPaymentMode = $("#paymentMode option:selected").text();
     $scope.selectedEmployeeCategory = $("#employeeCategoryId option:selected").text();
     $scope.payGroupListSelected = [];
@@ -174,7 +174,7 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
                     $scope.EmployeeListDefault = response.data.filter(d => d.isSelect == true);
                     $scope.EmployeeList = $scope.EmployeeListDefault;
                     $scope.EmployeeListTemp = $scope.EmployeeListDefault;
-                    
+
                 }
                 else {
                     ShowResult("No Data Found", 'failure');
@@ -187,7 +187,7 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
             });
         }
     };
-    
+
     function daysInMonth(month, year) {
         return new Date(year, month, 0).getDate();
     }
@@ -215,19 +215,60 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
         var gridObj = $("#empInfoGrid").data("ejGrid");
         gridObj.refreshContent();
     };
-    
+
     $scope.SalaryLock = function () {
         try {
-             var EmployeeListNew = [];
+            var EmployeeListNew = [];
             for (var i = 0; i < $scope.EmployeeListTemp.length; i++) {
-                    EmployeeListNew.push($scope.EmployeeListTemp[i]);
+                EmployeeListNew.push($scope.EmployeeListTemp[i]);
             }
 
             if (EmployeeListNew.length == 0) {
                 throw "Please Select LeaveType";
             }
-            
-            var data = ej.DataManager(EmployeeListNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "Flag", "CheckBoxSelect","SalaryStructureId"]));
+
+            var data = ej.DataManager(EmployeeListNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "Flag", "CheckBoxSelect", "SalaryStructureId", "EmployeeCode"]));
+
+            $scope.$broadcast('show-errors-check-validity');
+            $http({
+                method: 'POST',
+                url: $scope.SaveSalaryLockUrl,
+                data: {
+                    'EmployeeList': data, 'Month': $scope.month, 'Year': $scope.year, 'isActive': $scope.isActive, 'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity, 'SalaryStructureId': $scope.SalaryStructureId
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                    //$scope.GetEmployeeInformation();
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetEmployeeInformation();
+                    var gridObj = $("#empInfoGrid").data("ejGrid");
+                    gridObj.refreshContent();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.SalaryUnLock = function () {
+        try {
+            var EmployeeListNew = [];
+            for (var i = 0; i < $scope.EmployeeListTemp.length; i++) {
+                EmployeeListNew.push($scope.EmployeeListTemp[i]);
+            }
+
+            if (EmployeeListNew.length == 0) {
+                throw "Please Select LeaveType";
+            }
+
+            var data = ej.DataManager(EmployeeListNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "Flag", "CheckBoxSelect", "SalaryStructureId"]));
 
             $scope.$broadcast('show-errors-check-validity');
             $http({
