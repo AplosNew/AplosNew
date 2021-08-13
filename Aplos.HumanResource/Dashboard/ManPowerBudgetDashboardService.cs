@@ -232,7 +232,7 @@ namespace Library.HumanResource.Dashboard
 								                LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = EM.GivenDesignationId
 								                LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 
-                                               WHERE EmployeeStatus = 'Active'
+                                               WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM')
                                                 AND GroupID = '" + companyGroupId + @"'  " + dStatus + @" " + EmployeeCategory + @"
                                                 group by BudgetCode,GroupID,c.Id, PO.IsDirect
                                             ) EmpInfo on m.Id=EmpInfo.BudgetCode and EmpInfo.GroupID = m.CgId and EmpInfo.cid = m.CompanyId and EmpInfo.IsDirect = m.IsDirect 
@@ -586,7 +586,7 @@ namespace Library.HumanResource.Dashboard
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 
                                      " + JoinEm + @"
-                                   WHERE EmployeeStatus = 'Active'
+                                   WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM')
 
                                     AND  em.GroupID  = '" + companyGroupId + @"' " + wcem + @" " + dStatus + @" " + EmployeeCategory + @"
                                    GROUP BY BudgetCode,em.GroupID,C.Id,PO.IsDirect  " + cListEmpG + @"
@@ -809,7 +809,7 @@ namespace Library.HumanResource.Dashboard
 
                                  " + Join + @"
 
-                                  WHERE EmployeeStatus = 'Active' " + dStatus + @" AND
+                                  WHERE EmployeeStatus = 'Active' " + dStatus + @"  AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') AND
                                    CG.Id  = '" + CompanyGroupId + @"' " + EmployeeCategory + @" ";
                     //return _sqlRepository.GetGridData(parameters);
 
@@ -888,7 +888,7 @@ namespace Library.HumanResource.Dashboard
                                   LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId =  em.GivenDesignationId
                                   LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
                                  " + Join + @"
-                                  where EmployeeStatus = 'Active' " + dStatus + @" AND
+                                  where EmployeeStatus = 'Active' " + dStatus + @"  AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') AND
                                    Em.GroupID  = '" + CompanyGroupId + @"'" + wc + @" " + EmployeeCategory + @"";
 
                     return _sqlRepository.GetDataCollection(sqltext);
@@ -1016,7 +1016,7 @@ namespace Library.HumanResource.Dashboard
                                   LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId =  em.GivenDesignationId
                                   LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
                                  " + Join + @"
-                                  where EmployeeStatus = 'Active' " + dStatus + @"
+                                  where EmployeeStatus = 'Active'   AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') " + dStatus + @"
                                   AND em.GroupID  = '" + companyGroupId + @"' and  em.CompanyId= '" + companyId + @"' " + wc + @" " + EmployeeCategory + @"";
                 return _sqlRepository.GetDataCollection(strSql);
             }
@@ -1196,7 +1196,7 @@ namespace Library.HumanResource.Dashboard
 
                                      " + Join + @"
 
-                                       WHERE EmployeeStatus = 'Active'
+                                       WHERE EmployeeStatus = 'Active'   AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') 
                                         AND em.GroupID = '" + companyGroupId + @"'  " + DStatus + @"
                                         group by BudgetCode,em.GroupID
                                        ) e on m.Id=e.BudgetCode and e.GroupID = m.CgId
@@ -1377,7 +1377,7 @@ namespace Library.HumanResource.Dashboard
 								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
                                      " + Join + @"
 
-                                       WHERE EmployeeStatus = 'Active' " + DStatus + @"
+                                       WHERE EmployeeStatus = 'Active'  AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') " + DStatus + @"
                                         AND em.GroupID = '" + companyGroupId + @"' " + EmployeeCategory + @"
                                         group by BudgetCode,em.GroupID
                                        ) e on m.Id = e.BudgetCode and e.GroupID = m.CgId
@@ -1607,7 +1607,7 @@ namespace Library.HumanResource.Dashboard
 								      LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
 
                                      " + join + @"
-                                      WHERE EmployeeStatus = 'Active'  " + DStatus + @"
+                                      WHERE EmployeeStatus = 'Active'   AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') " + DStatus + @"
                                         AND em.GroupID = '" + companyGroupId + @"' " + EmployeeCategory + @"
                                         group by BudgetCode,em.GroupID
                                 ) e ON m.Id=e.BudgetCode and e.GroupID = m.CgId
@@ -1854,7 +1854,7 @@ namespace Library.HumanResource.Dashboard
                                       LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
                                       LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
                                       " + join + @"
-                                       WHERE EmployeeStatus = 'Active'  " + DStatus + EmployeeCategory + @"
+                                       WHERE EmployeeStatus = 'Active'   AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') " + DStatus + EmployeeCategory + @"
                                         AND em.GroupID = '" + companyGroupId + @"'
                                         GROUP BY BudgetCode,em.GroupID,c.Id
                                      ) e ON m.Id=e.BudgetCode AND e.GroupID = m.CgId AND e.cid = m.CompanyId
@@ -2071,7 +2071,7 @@ namespace Library.HumanResource.Dashboard
                                       LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
                                      " + join + @"
 
-                                       WHERE EmployeeStatus = 'Active'  " + DStatus + @"
+                                       WHERE EmployeeStatus = 'Active'   AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') " + DStatus + @"
                                         AND em.GroupID = '" + companyGroupId + @"'
                                         group by BudgetCode,em.GroupID,c.Id
                                        ) e on m.Id=e.BudgetCode and e.GroupID = m.CgId and e.cid = m.CompanyId
@@ -2302,7 +2302,7 @@ namespace Library.HumanResource.Dashboard
                                       LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
                                       LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
                                      " + Join + @"
-                                      WHERE EmployeeStatus = 'Active'
+                                      WHERE EmployeeStatus = 'Active'  AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') 
                                         AND em.GroupID = '" + companyGroupId + @"' " + DStatus + @"
                                         group by BudgetCode,em.GroupID,c.Id
                                 ) e ON m.Id=e.BudgetCode and e.GroupID = m.CgId and e.cid = m.CompanyId
@@ -2560,7 +2560,7 @@ namespace Library.HumanResource.Dashboard
                                       LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
                                       LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
                                       " + join + @"
-                                       WHERE EmployeeStatus = 'Active'
+                                       WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') 
                                         AND em.GroupID = '" + companyGroupId + @"'  " + DStatus + @"
                                         group by BudgetCode,em.GroupID
                                      ) e on m.Id = e.BudgetCode and e.GroupID = m.CgId
@@ -2750,7 +2750,7 @@ namespace Library.HumanResource.Dashboard
                                       LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
                                      " + join + @"
 
-                                       WHERE EmployeeStatus = 'Active'
+                                       WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') 
                                         AND em.GroupID = '" + companyGroupId + @"'
                                         group by BudgetCode,em.GroupID
                                        ) e on m.Id=e.BudgetCode and e.GroupID = m.CgId
@@ -2988,7 +2988,7 @@ namespace Library.HumanResource.Dashboard
                                       LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
                                       LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
                                      " + join + @"
-                                      WHERE EmployeeStatus = 'Active'
+                                      WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') 
                                         AND em.GroupID = '" + companyGroupId + @"'   " + DStatus + @"
                                         group by BudgetCode,em.GroupID
                                 ) e on m.Id=e.BudgetCode and e.GroupID = m.CgId
@@ -3105,7 +3105,7 @@ namespace Library.HumanResource.Dashboard
                                   WHERE
                                   MB.Id='" + budgetCode + @"' 
                                     AND EMP.GroupID = '" + companyGroupId + @"' " + EmployeeCategory + @"
-                                    AND EMP.EmployeeStatus = 'Active'";
+                                    AND EMP.EmployeeStatus = 'Active'  AND ISNULL(EMP.EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') ";
                 return _sqlRepository.GetDataCollection(sqlText);
             }
             catch (Exception ex)
