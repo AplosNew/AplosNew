@@ -660,6 +660,25 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
+        //CustomerInvoiceReceiptGovtSubsidyReport
+        [HttpGet, Authorize]
+        public ActionResult CustomerInvoiceReceiptGovtSubsidyReport(ReportFormat reportFormat, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _invoiceReportService.GetCustomerInvoiceReceiptGovtSubsidyReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, SourceType.CustomerReceipt.ToString());
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult CustomerInvoiceChargeSetOffReport(ReportFormat reportFormat, string voucherId)
         {

@@ -1684,6 +1684,7 @@ namespace Aplos.Areas.JobWork.Controllers
                         dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
                         dr["Remarks"] = item.Remarks;
                         dr["ArticleId"] = item.ArticleId;
+                        dr["BOQRequiredQuantity"] = 0;
 
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -1709,6 +1710,7 @@ namespace Aplos.Areas.JobWork.Controllers
                         dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
                         dr["Remarks"] = item.Remarks;
                         dr["ArticleId"] = item.ArticleId;
+                        dr["BOQRequiredQuantity"] = 0;
 
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();

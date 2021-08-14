@@ -105,11 +105,6 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
         IsActive: false,
         IsSeperated: false,
         IsMaternity: false,
-
-
-        //MonthNo: null,
-        //YearNo: null,
-
         salaryProcessId: null,
         payGroupListSelected: null,
         parameters: null
@@ -621,10 +616,22 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
         $scope.Action = "Save";
         $scope.voucher = {};
         $scope.voucher.EmployeeId = null;
-        $scope.getCboVoucherTypeEmployeePayableList();
+        $scope.getCboVoucherTypeSalaryPayableList();
         $scope.voucher.Active = true;
+        $scope.voucher.IsActive = false;
+        $scope.voucher.IsMaternity = false;
+        $scope.voucher.IsSeperated = false;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.DocRefNo = null;
+        $scope.takeAwaylist = [];
+        $scope.salaryLockPayableData = [];
+        $scope.cTClist = [];
+        $scope.salaryLockDirectCTCPayableData = [];
+        $scope.DirectSalaryHeadGLCombineList = [];
+        $scope.salaryLockPayableGLData = [];
+        $scope.salaryLockInDirectTakeAwayPayableData = [];
+        $scope.salaryLockInDirectCTCPayableData = [];
+        $scope.inDirectSalaryHeadGLCombineList = [];
         $scope.salaryLockPayableData = [];
         $scope.expensesBookingDetailList = [];
         $scope.advanceTaxesList = [];
@@ -1048,6 +1055,42 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
             ShowResult(e, 'failure');
         }
     };
+    $scope.deleteUrl = "Accounts/SalaryDisbursement/DeleteSalaryPayable";
 
-   
+    $scope.deleteSalaryPayable = function (voucherId, monthNo, yearNo) {
+        $http({
+            method: "POST",
+            url: $scope.deleteUrl,
+            data: {
+                "voucherId": voucherId,
+                "monthNo": monthNo,
+                "yearNo": yearNo,
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.voucherId = null;
+                $scope.DelMonthNo = null;
+                $scope.DelYearNo = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.confirmDelete = function (data) {
+        $scope.voucherId = data.PayableVoucherId;
+        $scope.DelMonthNo = data.MonthNo;
+        $scope.DelYearNo = data.YearNo;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+    };
+
 }

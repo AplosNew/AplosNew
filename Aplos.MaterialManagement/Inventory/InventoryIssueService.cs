@@ -10577,6 +10577,7 @@ namespace Library.MaterialManagement.Inventory
             int currentSalesServiceId = 0;
             decimal avgRate = 0;
             decimal totalReturnQty = 0;
+            decimal totalGRNTax = 0;
             
             try
             {
@@ -10709,7 +10710,7 @@ namespace Library.MaterialManagement.Inventory
                         var inventoryMaterial = _inventoryMaterialService.Find(issue.InventoryMaterialId);
                         if (inventoryMaterial != null)
                         {
-                            inventoryMaterial.TotalQty = inventoryMaterial.TotalQty + issue.TransactionQty;
+                            inventoryMaterial.TotalQty += issue.TransactionQty;
                             inventoryMaterial.ModelState = ModelState.Modified;
                             _inventoryMaterialService.UpdateGraph(inventoryMaterial);
                         }
@@ -10757,8 +10758,8 @@ namespace Library.MaterialManagement.Inventory
                             TransactionQty = totalReturnQty,
                             TransactionUoMId = detail.TransactionUoMId,
                             BaseQty = totalReturnQty,
-                            BaseUOMId = detail.TransactionUoMId,
-                            BaseUoMFactor = 0,
+                            BaseUOMId = entities.Where(r => r.MaterialMasterId == inventoryMaterial.MaterialMasterId).Select(t => t.BaseUOMId).FirstOrDefault(),
+                            BaseUoMFactor = Convert.ToDecimal(entities.Where(r => r.MaterialMasterId == inventoryMaterial.MaterialMasterId).Select(t => t.BaseUoMFactor).FirstOrDefault()),
                             MaterialTranRate = avgRate,
                             MaterialTranAmount = avgRate * totalReturnQty,
                             IssueQty = null,
@@ -10769,7 +10770,7 @@ namespace Library.MaterialManagement.Inventory
                             UpdatedDate = inventoryReceive.UpdatedDate,
                             UpdatedFromIP = inventoryReceive.UpdatedFromIP,
 
-                            TotalTaxAmount = 0,
+                          //  TotalTaxAmount = 0,
 
                             TotalMaterialTranAmount = avgRate * totalReturnQty,
                             TotalMaterialBooksCurrencyAmount = avgRate * totalReturnQty * inventoryIssue.ToCurrencyRate,
@@ -10819,7 +10820,7 @@ namespace Library.MaterialManagement.Inventory
                             JWTCMDByProductId = null,
                             MaterialFor = null
                         };
-                        _receiveDetailRepository.Insert(receiveDetail);
+                       
 
                         if (issue.TaxList != null && issue.TaxList.Count > 0)
                         {
@@ -10836,6 +10837,7 @@ namespace Library.MaterialManagement.Inventory
                                     AddedDate = detail.AddedDate,
                                     AddedFromIP = detail.AddedFromIP,
                                     TaxAmount = taxVM.TaxAmount,
+                                    
                                     HSNCodeId = taxVM.HSNCodeId,
                                     Percentage = taxVM.Percentage,
                                     InventoryReceiveDetailId = receiveDetail.Id,
@@ -10846,10 +10848,13 @@ namespace Library.MaterialManagement.Inventory
                                     UpdatedDate = null,
                                     UpdatedFromIP = null
                                 };
+                                totalGRNTax += inventoryReceiveTax.TaxAmount;
                                 _receiveTaxRepository.Insert(inventoryReceiveTax);
                             }
                         }
 
+                        receiveDetail.TotalTaxAmount = totalGRNTax;
+                        _receiveDetailRepository.Insert(receiveDetail);
                     }
 
                    

@@ -169,6 +169,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 dr["WrongShift"] = 0;
                                 dr["OTHr"] = "0";
+                                dr["ProcessedOT"] = "0";
                                 dr["ManualOt"] = "0";
                                 dr["IsOTComfirm"] = 0;
                                 dr["IsLock"] = 0;
@@ -2697,6 +2698,8 @@ and mb.ShiftDefinationId!=''
                                 dr.BeginEdit();
 
                                 dr["Duration"] = CalDuration;
+                                dr["EarlyLateIn"] = DBNull.Value;
+                                dr["EarlyLateOut"] = DBNull.Value;
                                 if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
                                 {
                                     TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
@@ -2706,7 +2709,7 @@ and mb.ShiftDefinationId!=''
                                 else
                                 {
                                     dr["EarlyIn"] = 0;
-                                    dr["EarlyLateIn"] = DBNull.Value;
+                                   
                                 }
                                 if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                                 {
@@ -2717,7 +2720,7 @@ and mb.ShiftDefinationId!=''
                                 else
                                 {
                                     dr["LateIn"] = 0;
-                                    dr["EarlyLateIn"] = DBNull.Value;
+                                   
                                 }
                                 if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
                                 {
@@ -2729,13 +2732,13 @@ and mb.ShiftDefinationId!=''
                                 else
                                 {
                                     dr["EarlyOut"] = 0;
-                                    dr["EarlyLateOut"] = DBNull.Value;
+                                   
                                 }
 
                                 if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
                                 {
                                     dr["LateOut"] = 0;
-                                    dr["EarlyLateOut"] = DBNull.Value;
+                                   
                                 }
                                 else
                                 {
@@ -3094,14 +3097,14 @@ and mb.ShiftDefinationId!=''
                                         if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
                                         {
                                             dr.BeginEdit();
-                                            dr["OTHr"] = PastManualOT;
+                                            dr["ProcessedOT"] = PastManualOT;
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
                                         else
                                         {
                                             dr.BeginEdit();
-                                            dr["OTHr"] = Result;
+                                            dr["ProcessedOT"] = Result;
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
@@ -3109,7 +3112,7 @@ and mb.ShiftDefinationId!=''
                                     else
                                     {
                                         dr.BeginEdit();
-                                        dr["OTHr"] = Result;
+                                        dr["ProcessedOT"] = Result;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                     }
@@ -3150,7 +3153,7 @@ and mb.ShiftDefinationId!=''
                                 {
                                     DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                     dr.BeginEdit();
-                                    dr["OTHr"] = ManualOT;
+                                    dr["ProcessedOT"] = ManualOT;
                                     dr["ManualOt"] = ManualOT;
                                     dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                     dr.EndEdit();
@@ -3499,6 +3502,8 @@ and mb.ShiftDefinationId!=''
                             dr.BeginEdit();
 
                             dr["Duration"] = CalDuration;
+                            dr["EarlyLateIn"] = DBNull.Value;
+                            dr["EarlyLateOut"] = DBNull.Value;
                             if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
                             {
                                 TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
@@ -3508,7 +3513,7 @@ and mb.ShiftDefinationId!=''
                             else
                             {
                                 dr["EarlyIn"] = 0;
-                                dr["EarlyLateIn"] = DBNull.Value;
+                                
                             }
                             if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                             {
@@ -3519,7 +3524,7 @@ and mb.ShiftDefinationId!=''
                             else
                             {
                                 dr["LateIn"] = 0;
-                                dr["EarlyLateIn"] = DBNull.Value;
+                               
                             }
                             if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
                             {
@@ -3531,13 +3536,13 @@ and mb.ShiftDefinationId!=''
                             else
                             {
                                 dr["EarlyOut"] = 0;
-                                dr["EarlyLateOut"] = DBNull.Value;
+                               
                             }
 
                             if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
                             {
                                 dr["LateOut"] = 0;
-                                dr["EarlyLateOut"] = DBNull.Value;
+                                
                             }
                             else
                             {
@@ -3898,7 +3903,7 @@ and mb.ShiftDefinationId!=''
                                     if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
                                     {
                                         dr.BeginEdit();
-                                        dr["OTHr"] = PastManualOT;
+                                        dr["ProcessedOT"] = PastManualOT;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -3906,7 +3911,7 @@ and mb.ShiftDefinationId!=''
                                     else
                                     {
                                         dr.BeginEdit();
-                                        dr["OTHr"] = Result;
+                                        dr["ProcessedOT"] = Result;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -3915,7 +3920,7 @@ and mb.ShiftDefinationId!=''
                                 else
                                 {
                                     dr.BeginEdit();
-                                    dr["OTHr"] = Result;
+                                    dr["ProcessedOT"] = Result;
                                     dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                     dr.EndEdit();
                                     CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -4307,7 +4312,7 @@ and mb.ShiftDefinationId!=''
 
         #region Save Function
 
-        public static void SaveLog(string Message, bool isError = false)
+        public static void SaveLog(string Message, string UserName, bool isError = false)
         {
             if (Message.Length > 2000)
                 Message = Message.Substring(0, 2000);
@@ -4317,7 +4322,7 @@ and mb.ShiftDefinationId!=''
 
             DataRow dr = dsRef.Tables[0].NewRow();
             dr["ScheduleMessage"] = Message;
-            dr["UserName"] = "NewProcess";
+            dr["UserName"] = UserName;
             dr["isError"] = isError;
             dr["AddedDate"] = DateTime.Now.ToString();
             dsRef.Tables[0].Rows.Add(dr);

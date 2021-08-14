@@ -80,6 +80,7 @@ namespace Library.Service.Setups
         /// <param name="ip"></param>
         /// <param name="appVersion"></param>
         void SendDailyAttendanceFromAppList(string addedBy, string ip, string appVersion);
+        void SendEmployeeApprovalAppList(string addedBy, string ip, string appVersion);
 
         /// <summary>
         /// Manual Attendance Notification

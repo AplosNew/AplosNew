@@ -62,7 +62,7 @@
                             </label>
                         </div>
                     </div>
-                   
+
                     <label class="col-sm-3" style="font-weight:normal; ">Going Maternity<sup></sup></label>
                     <div class="col-sm-1" style="padding-left:0px;">
                         <div class="checkbox-site">
@@ -91,14 +91,14 @@
         </div>
 
 
-        
+
 
 
         @*<div class="form-group" style="padding-left: 10px;">
-            <div class="common-btn">
-                <button ng-click="getemployeesalaryprocessedreportsalarylogwise();" ng-show="directsalaryheadglcombinelist.length" class="btn"> <i class="glyphicon glyphicon-file"></i>download</button>
-            </div>
-        </div>*@
+                <div class="common-btn">
+                    <button ng-click="getemployeesalaryprocessedreportsalarylogwise();" ng-show="directsalaryheadglcombinelist.length" class="btn"> <i class="glyphicon glyphicon-file"></i>download</button>
+                </div>
+            </div>*@
 
     </fieldset>
 
@@ -117,7 +117,7 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1">
                 <div class="clearfix"></div>
                 <fieldset class="scheduler-border">
-                    
+
                     <div class="form-group" style="padding-left: 10px;">
                         <div class="common-btn">
                             <button ng-click="GetEmployeeSalaryProcessedReportSalaryLogWiseDirectSPayable();" @*ng-show="directsalaryheadglcombinelist.length"*@ class="btn"> <i class="glyphicon glyphicon-file"></i>download</button>
@@ -454,13 +454,11 @@
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
+                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                             <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryPayableVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryPayableVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                             <li>@*<a class="btn btn-action" href="Accounts/SalaryDisbursement/GetEmployeeSalaryProcessedReportSalaryLogWiseInVoucher?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a>*@</li>
                             <li><a class="btn btn-action" ng-click="GetEmployeeSalaryProcessedReportSalaryLogWiseInVoucher(x);"><i class="fa fa-file-excel-o"></i></a></li>
-                            @*<button ng-click="GetEmployeeSalaryProcessedReportSalaryLogWise();" class="btn"> <i class="glyphicon glyphicon-file"></i>Download</button>  x.PayableVoucherId,x.Month,x.YearNo*@
-
-
                         </ul>
                     </td>
                 </tr>
@@ -471,6 +469,7 @@
 </div>
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(payableId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteSalaryPayable(voucherId,DelMonthNo,DelYearNo)"></confirm-archive-generic>
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_RevenueExpensesGLBudgetPopUp.cshtml")
