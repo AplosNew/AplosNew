@@ -464,6 +464,7 @@ ORDER BY PLN.Sequence,e.UserName,po.Id,P.Sequence,bmd.Sequence"
 
 select ORD.CM,wc.Id as WorkCenterMasterId,
   wc.UserName AS  [LineNo],  ps.ProcessId ,ps.ProductionOrderId ,ps.Quantity,''WorkHour ,dr.DaysRun,
+  CASE WHEN ex.MachineCostPerHour*tr.TotalHour <ex.MinFixedCost THEN ex.MinFixedCost ELSE CASE WHEN ex.MachineCostPerHour*tr.TotalHour>EX.MaxFixedCost THEN ex.MaxFixedCost ELSE ex.MachineCostPerHour*tr.TotalHour END END AS MachineCostPerDay,
   buyer=STUFF((select distinct ','+XB.UserName from 
 	                               trn.SalesOrder XSO 
 		                               JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -489,24 +490,24 @@ Item=STUFF((select distinct ','+XMM.UserName from
 									  TR.Manpower AllotedWorkstation,
 									 TR.Quantity AS TargetPerDay,
 									 TR.Quantity/tr.TotalHour AS  RequiredStdTarget
-from(
-select 
-p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId,sum(p.Quantity) Quantity
- from  TRN.ProductionSummary as p 
-  JOIN trn.ProductionOrderProcessSet AS Ps ON ps.ProductionOrderId=p.ProductionOrderId  AND ps.IsBaseProcess=1 and ps.ProcessId=p.ProcessId
-where p.ProductionDate='" + Date + @"' 
-and p.ProductionGrade='A'
-group by p.WorkCenterMasterId,p.ProcessId,p.ProductionOrderId
-) ps
-LEFT JOIN (SELECT p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId,COUNT(DISTINCT p.ProductionDate) AS DaysRun  
-           from  TRN.ProductionSummary as p 
-           JOIN trn.ProductionOrderProcessSet AS Ps ON ps.ProductionOrderId=p.ProductionOrderId  AND ps.IsBaseProcess=1 and ps.ProcessId=p.ProcessId
-           WHERE p.ProductionDate<='" + Date + @"'
-           GROUP BY  p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId
+            from(
+            select 
+            p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId,sum(p.Quantity) Quantity
+             from  TRN.ProductionSummary as p 
+              JOIN trn.ProductionOrderProcessSet AS Ps ON ps.ProductionOrderId=p.ProductionOrderId  AND ps.IsBaseProcess=1 and ps.ProcessId=p.ProcessId
+            where p.ProductionDate='" + Date + @"' 
+            and p.ProductionGrade='A'
+            group by p.WorkCenterMasterId,p.ProcessId,p.ProductionOrderId
+            ) ps
+            LEFT JOIN (SELECT p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId,COUNT(DISTINCT p.ProductionDate) AS DaysRun  
+                       from  TRN.ProductionSummary as p 
+                       JOIN trn.ProductionOrderProcessSet AS Ps ON ps.ProductionOrderId=p.ProductionOrderId  AND ps.IsBaseProcess=1 and ps.ProcessId=p.ProcessId
+                       WHERE p.ProductionDate<='" + Date + @"'
+                       GROUP BY  p.ProcessId,p.ProductionOrderId,p.WorkCenterMasterId
 
-) AS DR ON dr.ProcessId=ps.ProcessId
-           AND dr.ProductionOrderId=ps.ProductionOrderId AND dr.WorkCenterMasterId=ps.WorkCenterMasterId
-LEFT JOIN trn.DailyProductionTarget AS TR ON tr.ProductionOrderId=ps.ProductionOrderId AND tr.WorkCenterMasterID=ps.WorkCenterMasterId AND tr.TargetDate='" + Date + @"'
+            ) AS DR ON dr.ProcessId=ps.ProcessId
+                       AND dr.ProductionOrderId=ps.ProductionOrderId AND dr.WorkCenterMasterId=ps.WorkCenterMasterId
+            LEFT JOIN trn.DailyProductionTarget AS TR ON tr.ProductionOrderId=ps.ProductionOrderId AND tr.WorkCenterMasterID=ps.WorkCenterMasterId AND tr.TargetDate='" + Date + @"'
            left outer join (
                                                         select POD.ProductionOrderId,
                                                         SUM(CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) AS PlannedQty,
@@ -532,13 +533,23 @@ LEFT JOIN trn.DailyProductionTarget AS TR ON tr.ProductionOrderId=ps.ProductionO
                                                         group by POD.ProductionOrderId
                                                         ) AS ORD on ord.ProductionOrderID=ps.ProductionOrderId 
 
-left join scs.WorkCenterMaster as wc on wc.id=ps.WorkCenterMasterId 
-left join hkp.Process p on p.id=ps.ProcessId
-where wc.EntityId IN (" + entityid + @") 
-order by wc.Sequence
+            left join scs.WorkCenterMaster as wc on wc.id=ps.WorkCenterMasterId 
+            LEFT JOIN (SELECT ec.EntityId,ec.GeneralWorkingHourPerDay,
+			            (CASE WHEN same.FromCurrencyId=ec.CurrencyId THEN ec.MachineCostPerHour ELSE ec.MachineCostPerHour*rer.ExchangeRate END) AS MachineCostPerHour,
+			            CASE WHEN same.FromCurrencyId=ec.CurrencyId THEN ec.MinFixedCost ELSE ec.MinFixedCost*rer.ExchangeRate END AS MinFixedCost,
+			            CASE WHEN same.FromCurrencyId=ec.CurrencyId THEN ec.MaxFixedCost ELSE ec.MaxFixedCost*rer.ExchangeRate END AS MaxFixedCost
+			              FROM EntityConfig AS ec 
+			            LEFT JOIN org.Entity AS e ON e.Id=ec.EntityId
+			            JOIN EntityConfig AS X ON ec.Id=x.Id and x.Id=(SELECT TOP 1 Id FROM EntityConfig AS ecx WHERE ecx.EntityId=ec.EntityId)
+			            LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=EC.CurrencyId AND rer.PlantId=e.PlantId
+			            LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=e.PlantId
+			            WHERE ec.EntityId IN (" + entityid + @") ) AS EX ON ex.EntityId=wc.EntityId
+            left join hkp.Process p on p.id=ps.ProcessId
+            where wc.EntityId IN (" + entityid + @") 
+            order by wc.Sequence
 
 
-";
+            ";
         }
         public void ProductionEfficiencyReport(string PlantId, string entityid, string Date)
         {
@@ -831,11 +842,12 @@ order by wc.Sequence
                     sheet[ROW, colCM].Number = clsStaticInfo.dbl(dtProductionInfo.Rows[i]["CM"].ToString());
                     sheet[ROW, colCMTarget].Formula = clsStaticInfo.GetxlsCol(colCM) + ROW.ToString() + "*" + clsStaticInfo.GetxlsCol(colTGThr) + ROW.ToString() + "*" + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString();
                     sheet[ROW, colCMEarned].Formula = clsStaticInfo.GetxlsCol(colCM) + ROW.ToString() + "*" + clsStaticInfo.GetxlsCol(colTotalP) + ROW.ToString();
-                    sheet[ROW, colCMSpend].Formula = "IF(" + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + @">0," + (25 + "*" + clsStaticInfo.GetxlsCol(colRUNmc) + ROW.ToString()) + "/" + 11 + "*" + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + @",0)";
+                    //sheet[ROW, colCMSpend].Formula = "IF(" + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + @">0," + (clsStaticInfo.dbl(dtProductionInfo.Rows[i]["MachineCostPerDay"].ToString()).ToString() + "*" + clsStaticInfo.GetxlsCol(colRUNmc) + ROW.ToString()) + "/" + 11 + "*" + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + @",0)";
+                    sheet[ROW, colCMSpend].Formula = "IF(" + clsStaticInfo.GetxlsCol(colWorkHour) + ROW.ToString() + @">0," + (clsStaticInfo.dbl(dtProductionInfo.Rows[i]["MachineCostPerDay"].ToString()).ToString() + "*" + clsStaticInfo.GetxlsCol(colRUNmc) + ROW.ToString()) + @",0)";
                     sheet[ROW, colCMMargin].Formula = clsStaticInfo.GetxlsCol(colCMEarned) + ROW.ToString() + "-" + clsStaticInfo.GetxlsCol(colCMSpend) + ROW.ToString();
 
                     sheet[ROW, colEfficiency].Formula = "IF(" + clsStaticInfo.GetxlsCol(colAvailableMin) + ROW.ToString() + ">0," + clsStaticInfo.GetxlsCol(colTotalP) + ROW.ToString() + "*" + clsStaticInfo.GetxlsCol(colSPT) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colAvailableMin) + ROW.ToString() + "*100" + ",0)";
-                    // sheet[ROW, colRemarksProblemms].Text = dtProductionInfo.Rows[i]["Skill"].ToString();
+                    // sheet[ROW, colRemarksProblemms].Text = dtProductionInfo.Rows[i]["Skill"].ToString();MachineCostPerDay
                     // sheet[ROW, colTarget].Text = dtProductionInfo.Rows[i]["SkillCode"].ToString();
                     // sheet[ROW, colActual].Text = dtProductionInfo.Rows[i]["MachineVarient"].ToString();
                     // sheet[ROW, colAchievement].Text = dtProductionInfo.Rows[i]["FGZone"].ToString();

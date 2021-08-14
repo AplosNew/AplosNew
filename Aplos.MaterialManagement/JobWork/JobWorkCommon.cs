@@ -938,7 +938,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
 
                     var sql = "";
-                    sql = @"SELECT NULL AS uoMList, b.Id BOQId,b.Sequence Sequence1
+                    sql = @"SELECT NULL AS uoMList, NULL as BOQserviceCboList, b.Id BOQId,b.Sequence Sequence1
 						,b.MasterOrderItemId
 						,moi.MasterOrderId
 						,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
@@ -1072,6 +1072,12 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                     {
                         var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
                         Data[i]["uoMList"] = temp;
+                    }
+
+                    var JWServiceList = _sqlRepository.GetDataCollection(@"select Id as Value, UserName as Text from HKP.ServiceMaster order by UserName");
+                    for (int i = 0; i < Data.Count; i++)
+                    {
+                        Data[i]["BOQserviceCboList"] = JWServiceList;
                     }
 
                     return Data;
@@ -1299,7 +1305,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 try
                 {
                     var sql = "";
-                    sql = @"SELECT NULL AS uoMList, b.Id BOQId,b.Sequence Sequence1
+                    sql = @"SELECT NULL AS uoMList,NULL as BOQserviceCboList, b.Id BOQId,b.Sequence Sequence1
 						,b.MasterOrderItemId
 						,moi.MasterOrderId
 						,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
@@ -1442,6 +1448,12 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                     {
                         var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
                         Data[i]["uoMList"] = temp;
+                    }
+
+                    var JWServiceList = _sqlRepository.GetDataCollection(@"select Id as Value, UserName as Text from HKP.ServiceMaster order by UserName");
+                    for (int i = 0; i < Data.Count; i++)
+                    {
+                        Data[i]["BOQserviceCboList"] = JWServiceList;
                     }
 
                     return Data;
@@ -2539,7 +2551,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         #endregion
 
         #region delete PODetail
-        public void DeleteDetail(string id)
+        public void DeleteDetail(string id, string OrderSpecific)
         {
             // string sql = @"select * from [HKP].[HourlyLeaveReason] where CostingGroupId = '" + id + "'";
 
@@ -2555,36 +2567,44 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
 
-                if (!string.IsNullOrEmpty(id))
+                if (OrderSpecific == "No")
                 {
-                    con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild2 where JobWorkTransformationContractChildMasterId='" + id + "' ", out dsMaster, false, "1");
-                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    if (!string.IsNullOrEmpty(id))
                     {
-                        throw new Exception("First Delete Order Wise Data");
+                        con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild2 where JobWorkTransformationContractChildMasterId='" + id + "' ", out dsMaster, false, "1");
+                        if (dsMaster.Tables[0].Rows.Count > 0)
+                        {
+                            throw new Exception("First Delete Order Wise Data");
+                        }
+
+                        con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + id + "' ", out dsMaster, false, "1");
+                        if (dsMaster.Tables[0].Rows.Count > 0)
+                        {
+                            throw new Exception("First Delete Material Input Data");
+                        }
+
                     }
 
-                    con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + id + "' ", out dsMaster, false, "1");
-                    if (dsMaster.Tables[0].Rows.Count > 0)
-                    {
-                        throw new Exception("First Delete Material Input Data");
-                    }
+                    //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
+                    //con.executeQuery("DELETE JWPOBOQMAP where JWPODetailId = '" + id + "'");
+                    //con.executeQuery("DELETE JWTransformationPurchaseOrderChildMaterial where JWPODetailId = '" + id + "'");
+                    //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
+                    //con.executeQuery("DELETE JWTransformationPurchaseOrderInputChildMaterial where JWPODetailId = '" + id + "'");
+                    //con.executeQuery("DELETE JWTransformationPurchaseOrderByProductChildMaterial where JWPODetailId = '" + id + "'");
 
+                    //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
+                    //con.executeQuery("DELETE from  JWTransformationPurchaseOrderDetail where id='" + id + "'");
+
+                    con.executeQuery("delete from dbo.JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId='" + id + @"' ");
+                    con.executeQuery("delete from dbo.JobWorkTransformationContractChild where Id='" + id + "' ");
+                }
+                else
+                {
+                    con.executeQuery("delete from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + id + @"' ");
+                    con.executeQuery("delete from dbo.JobWorkTransformationContractChild where Id='" + id + "' ");
                 }
 
-                
-
-                //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
-                //con.executeQuery("DELETE JWPOBOQMAP where JWPODetailId = '" + id + "'");
-                //con.executeQuery("DELETE JWTransformationPurchaseOrderChildMaterial where JWPODetailId = '" + id + "'");
-                //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
-                //con.executeQuery("DELETE JWTransformationPurchaseOrderInputChildMaterial where JWPODetailId = '" + id + "'");
-                //con.executeQuery("DELETE JWTransformationPurchaseOrderByProductChildMaterial where JWPODetailId = '" + id + "'");
-
-                //con.executeQuery("DELETE JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId = '" + id + "'");
-                //con.executeQuery("DELETE from  JWTransformationPurchaseOrderDetail where id='" + id + "'");
-
-                con.executeQuery("delete from dbo.JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId='" + id + @"' ");
-                con.executeQuery("delete from dbo.JobWorkTransformationContractChild where Id='" + id + "' ");
+             
 
                 con.CommitTransaction();
 
@@ -2909,6 +2929,11 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
         public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable)
         {
+            string  JWOutId = " ";
+            string  JWBOQId = " ";
+            string JWBOQReqQty = "";
+          //  var JWBOQChildId = "' '";
+
             string JWPODId = "";
             DataSet dsMaster; DataSet dsPOBOQMap; DataSet dsJwChildMaterial;
             DataSet dsJwChildJWInputMaterial = new DataSet();
@@ -2985,7 +3010,6 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                     }
                     #endregion
 
-
                     for (int i = 0; i < data.Count; i++)
                     {
                         dsMaster.Tables[0].DefaultView.RowFilter = "Id='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
@@ -3000,13 +3024,49 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             JWPODId = data[i]["Id"].ToString();
                             data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
+                            data[i]["RatePerUnit"] = data[i]["TransactionRate"];
+                            data[i]["ServiceId"] = data[i]["ServiceId"];
+                            data[i]["TaxAmount"] = 0;
+
+                            if (JWPOIsNonCreditable == "False")
+                            {
+                                //    decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                                decimal Qty = Convert.ToDecimal(data[i]["TransactionQty"]);
+                                decimal Rate = Convert.ToDecimal(data[i]["RatePerUnit"]);
+                                decimal Amt = Convert.ToDecimal(Qty * Rate);
+                                decimal BAmt = Convert.ToDecimal(Amt);
+                                data[i]["TransactionAmount"] = Amt;
+                                data[i]["BaseAmount"] = BAmt;
+                            }
+
+                            if (JWPOIsNonCreditable == "True")
+                            {
+                                //   decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                                decimal Qty = Convert.ToDecimal(data[i]["TransactionQty"]);
+                                decimal Rate = Convert.ToDecimal(data[i]["RatePerUnit"]);
+                                decimal Amt = Convert.ToDecimal(Qty * Rate);
+                                decimal BAmt = Convert.ToDecimal(Amt + 0);
+                                data[i]["TransactionAmount"] = Amt;
+                                data[i]["BaseAmount"] = BAmt;
+                            }
+
                             if (OrderSpecific == "Yes")
                             {
                                 data[i]["ReferenceNo"] = data[i]["ReferenceNoM"];
 
                             }
+                            //JWOutId += ",'" + data[i]["Id"].ToString() + "' ";
+                            //JWBOQId += ",'" + data[i]["BOQId"].ToString() + "' ";
+
+                            JWOutId = data[i]["Id"].ToString();
+                            JWBOQId = data[i]["BOQId"].ToString();
+                            JWBOQReqQty= data[i]["RequiredQtyPO"].ToString();
+
                             AddNewRow(dsMaster.Tables[0], data[i]);
 
+                            clsStaticInfo _info = new clsStaticInfo();
+                            _info.SaveDataSets(dsMaster);
+                            SaveJWBOQChild(JWOutId, JWBOQId, JWBOQReqQty);
 
                         }
                         else
@@ -3021,17 +3081,64 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                             data[i]["JobWorkTransformationContractMasterId"] = JWPurchaseOrderId;
                             data[i]["Quantity"] = data[i]["TransactionQty"];
+                            data[i]["RatePerUnit"] = data[i]["TransactionRate"];
+                            data[i]["ServiceId"] = data[i]["ServiceId"];
+                            data[i]["TaxAmount"] = data[i]["TaxAmount"];
+
+                            if (JWPOIsNonCreditable == "False")
+                            {
+                                //    decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                                decimal Qty = Convert.ToDecimal(data[i]["TransactionQty"]);
+                                decimal Rate = Convert.ToDecimal(data[i]["RatePerUnit"]);
+                                decimal Amt = Convert.ToDecimal(Qty * Rate);
+                                decimal BAmt = Convert.ToDecimal(Amt);
+                                data[i]["TransactionAmount"] = Amt;
+                                data[i]["BaseAmount"] = BAmt;
+                            }
+
+                            if (JWPOIsNonCreditable == "True")
+                            {
+                                //   decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                                decimal Qty = Convert.ToDecimal(data[i]["TransactionQty"]);
+                                decimal Rate = Convert.ToDecimal(data[i]["RatePerUnit"]);
+                                decimal Amt = Convert.ToDecimal(Qty * Rate);
+                                decimal TAmt = Convert.ToDecimal(data[i]["TaxAmount"]);
+                                decimal BAmt = Convert.ToDecimal(Amt + TAmt);
+                                data[i]["TransactionAmount"] = Amt;
+                                data[i]["BaseAmount"] = BAmt;
+                            }
+
                             if (OrderSpecific == "Yes")
                             {
-                                data[i]["ReferenceNo"] = data[i]["ReferenceNoM"];
+                                data[i]["ReferenceNo"] = data[i]["ReferenceNo"];
 
                             }
 
+                            //JWOutId += ",'" + data[i]["Id"].ToString() + "' ";
+                            //JWBOQId += ",'" + data[i]["BOQId"].ToString() + "' ";
+
+                            JWOutId = data[i]["Id"].ToString();
+                            if (data[i]["BOQId"]!=null)
+                            {
+                                JWBOQId = data[i]["BOQId"].ToString();
+                                JWBOQReqQty = data[i]["RequiredQtyPO"].ToString();
+                            }
+                            
+
                             EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
+
+                            
+
+                            if (data[i]["BOQId"] != null)
+                            {
+                                clsStaticInfo _info = new clsStaticInfo();
+                                _info.SaveDataSets(dsMaster);
+                                SaveJWBOQChild(JWOutId, JWBOQId, JWBOQReqQty);
+                            }
+                           
                         }
-
-
                     }
+
                 }
                 else
                 {
@@ -3217,7 +3324,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                     clsStaticInfo _info = new clsStaticInfo();
                     if (OrderSpecific == "Yes")
                     {
-                        if (data[0].ContainsKey("BOQId"))
+                        if (data[0].ContainsKey("BOQId") && data[0]["BOQId"] != null)
                         {
 
                             for (int i = 0; i < data.Count; i++)
@@ -3253,6 +3360,142 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
             {
                 throw ex;
             }
+        }
+
+        // BOQ Child Material
+
+        private string GetMaterialInputPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JobWorkTransformationContractChild3", out sID);
+            return sID;
+        }
+
+        public void SaveJWBOQChild(string JWOutId, string  JWBOQId, string JWBOQReqQty)
+        {
+            
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var JWBOQChildId = "' '";
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet JWBOQ;
+                DataSet JWOutMat;
+
+                con.OpenDataSetThroughAdapter("select * from BOQ where ParentId='"+ JWBOQId + @"'  ", out JWBOQ, false, "1");
+                for(var i=0;i< JWBOQ.Tables[0].DefaultView.Count; i++)
+                {
+                    JWBOQChildId += ",'" + JWBOQ.Tables[0].Rows[i]["Id"] ;
+                }
+                con.OpenDataSetThroughAdapter("select * from dbo.jobworktransformationcontractchild3 where JobWorkTransformationContractChildMasterId='"+ JWOutId + "' ", out JWOutMat, false, "1");
+                string BoqChildId = "";
+                decimal Consumption = 0;
+                decimal WastagePer = 0;
+
+                    for (var j = 0; j < JWBOQ.Tables[0].DefaultView.Count; j++)
+                    {
+                        //  JWBOQChildId += ",'" + data[i]["Id"].ToString() + "' ";
+                        //        JWBOQ.Tables[0].DefaultView.RowFilter = "ParentId ='" + data + "' and WorkDate='" + item.WorkDate + "' ";
+
+                        BoqChildId = JWBOQ.Tables[0].Rows[j]["Id"].ToString();
+                        Consumption = Convert.ToDecimal(JWBOQ.Tables[0].Rows[j]["Consumption"]);
+                        WastagePer = Convert.ToDecimal(JWBOQ.Tables[0].Rows[j]["WastagePer"]);
+                        decimal ReqQuantity = (Convert.ToDecimal(JWBOQReqQty) * Consumption) * (1 + (WastagePer / 100));
+
+                        decimal GrossConsumption = (Consumption * (1 + (WastagePer / 100)));
+
+                        JWOutMat.Tables[0].DefaultView.RowFilter = "JobWorkTransformationContractChildMasterId='" + JWOutId + "' and BOQChildId='" + bplib.clsWebLib.RetValidLen(JWBOQ.Tables[0].Rows[j]["Id"]).ToString() + "' ";
+                    
+
+                    if (JWOutMat.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = JWOutMat.Tables[0].NewRow();
+                        dr["Id"] = "MI" + GetMaterialInputPK();
+
+                        dr["JobWorkTransformationContractChildMasterId"] = JWOutId;
+
+                        //dr["JobWorkItemId"] = item.JobWorkItemId;
+                        //dr["ItemSpecification"] = item.ItemSpecification;
+
+                        dr["NetConsumption"] = Consumption;
+                        dr["Rejection"] = 0;
+                        dr["ValueLoss"] = WastagePer;
+                        dr["GrossConsumption"] = GrossConsumption;
+
+                        dr["BOQRequiredQuantity"] = ReqQuantity;
+                        dr["BOQChildId"] = JWBOQ.Tables[0].Rows[j]["Id"];
+                        //dr["ArticleId"] = item.ArticleId;
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        JWOutMat.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        //edit
+
+                        JWOutMat.Tables[0].DefaultView.RowFilter = "JobWorkTransformationContractChildMasterId='" + JWOutId + "' and BOQChildId='" + bplib.clsWebLib.RetValidLen(JWBOQ.Tables[0].Rows[j]["Id"]).ToString() + "' ";
+
+                        if(JWOutMat.Tables[0].DefaultView.Count == 0)
+                        {
+                            DataRow drr = JWOutMat.Tables[0].NewRow();
+                            drr["Id"] = "MI" + GetMaterialInputPK();
+
+                            drr["JobWorkTransformationContractChildMasterId"] = JWOutId;
+
+                            drr["NetConsumption"] = Consumption;
+                            drr["Rejection"] = 0;
+                            drr["ValueLoss"] = WastagePer;
+                            drr["GrossConsumption"] = GrossConsumption;
+                            drr["BOQRequiredQuantity"] = ReqQuantity;
+                            drr["BOQChildId"] = JWBOQ.Tables[0].Rows[j]["Id"];
+
+                            drr["AddedBy"] = identity.Name;
+                            drr["AddedDate"] = System.DateTime.Now.ToString();
+                            drr["AddedFromIP"] = identity.IPAddress;
+
+                            JWOutMat.Tables[0].Rows.Add(drr);
+                        }
+                        else if(JWOutMat.Tables[0].DefaultView.Count > 0)
+                        {
+                            DataRow drr = JWOutMat.Tables[0].DefaultView[0].Row;
+
+                            drr.BeginEdit();
+
+                            drr["JobWorkTransformationContractChildMasterId"] = JWOutId;
+
+                            drr["NetConsumption"] = Consumption;
+                            drr["Rejection"] = 0;
+                            drr["ValueLoss"] = WastagePer;
+                            drr["GrossConsumption"] = GrossConsumption;
+                            drr["BOQRequiredQuantity"] = ReqQuantity;
+                            drr["BOQChildId"] = JWBOQ.Tables[0].Rows[j]["Id"];
+
+                            drr["UpdatedBy"] = identity.Name;
+                            drr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            drr["UpdatedFromIP"] = identity.IPAddress;
+
+                            drr.EndEdit();
+                        }
+                    }
+                    //clsStaticInfo _info = new clsStaticInfo();
+                    //_info.SaveDataSets(JWOutMat);
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(JWOutMat);
+
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+
         }
 
         public List<Dictionary<string, object>> SaveTaxList(List<Dictionary<string, object>> data, List<Dictionary<string, object>> TaxList, string userName, string IPAddress)
@@ -3598,7 +3841,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             , JWTPD.ReferenceNo,((JWTPD.Quantity*JWTPD.RatePerUnit)*po.ToCurrencyRate) BaseAmount
                             , jwtax.TaxAmount,JWTPD.TransactionUoMId,TransactionUoM.Code TransactionUoM,JWTPD.BaseUOMId,BaseUOM.Code BaseUOM
                             ,MS.Id MaterialStorageId,MS.UserName MaterialStorage,EEI.EmployeeName ResponsiblePerson ,ISNULL(MM.UserName,'') MaterialName
-                            --,SerM.UserName as JWService
+                            ,SerM.UserName as JWService, NULL as BOQId
                             --,FORMAT(JWTPD.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate
                             FROM JobWorkTransformationContractChild JWTPD      
                             left JOIN [dbo].[JWTransformationPurchaseOrder] PO On PO.Id=JWTPD.JobWorkTransformationContractMasterId
@@ -3625,7 +3868,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             ON jwtax.JWTransformationPurchaseOrderId  = JWTPD.JobWorkTransformationContractMasterId and  jwtax.JWTransformationPurchaseOrderDetailId  = JWTPD.Id 
                             left join HKP.JobWorkLocation JL on JL.Id=JWTPD.MaterialLocationId
 							left join hkp.MaterialStorage MS ON MS.Id=JL.StoreLocationId
-                           -- left join hkp.ServiceMaster SerM on SerM.Id=JWTPD.ServiceId
+                            left join hkp.ServiceMaster SerM on SerM.Id=JWTPD.ServiceId
                             WHERE " + strkey + "  and JWTPD.JobWorkTransformationContractMasterId = '" + jwpoId + @"'";
             return sql;
 		}

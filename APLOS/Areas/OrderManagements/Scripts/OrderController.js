@@ -1,11 +1,15 @@
 ﻿'use strict';
 OrderController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function OrderController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Order';
+    $rootScope.title = 'Order Status';
     $scope.path = "OrderManagements/Order/";
 
-    $scope.fromDate = null;
-    $scope.toDate = null;
+    $scope.fromDate = '';
+    $scope.toDate = '';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportJson';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.downloadgriddataPDFUrl = 'GridReports/DownloadPdf';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
 
    //The Selection Criteria   
     $scope.Datelist = [
@@ -22,26 +26,31 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
         $rootScope.dateCgroup = obj.option("value");
     }
 
-    $scope.setAll = function () {
+    $scope.Report = function () {
+        try {
+            $scope.filterComplete();
+            $scope.fileName = "OrderReport.xls";
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetOrderReport",
+                data: { 'parameters': $scope.parameters, 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'dateType': $rootScope.dateCgroup },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
 
-        var file_src = $scope.path + 'GetOrderReport';
-        $rootScope.report(file_src);
-    /*    $scope.filterComplete();*/
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+        }
     }
 
-    //$scope.OrderReport = function () {
-
-    //    try {
-
-    //        var file_src = $scope.path + 'ProductionEfficiencyReport?PlantId=' + $scope.SelectedPlant + '&entityid=' + $scope.SelectedEntity + "&Date=" + ($filter('dateFiltering')(new Date($scope.FromDateParameter), 'dd-MM-yyyy'));
-    //        $rootScope.report(file_src);
-
-    //    } catch (e) {
-
-    //    }
-    //}
-  
-
+ 
     //The Filters 
     $scope.filters=[];
     $scope.loadfilters = function () {
@@ -56,9 +65,12 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
                 { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
                 { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
                 { field: 'Buyer', width: 20, headerText: "Buyer", type: "string" },
-                { field: 'MResP', width: 20, headerText: "Responsible Person", type: "string" },
-                { field: 'MoStatus', width: 20, headerText: "MO Status", type: "string" },
-                { field: 'Status', width: 20, headerText: "SO Status", type: "string" },
+                { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
+                      
+                { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
+                { field: 'SOStatusId', width: 20, headerText: "SO Status", type: "string" },
+                { field: 'MOStatusId', width: 20, headerText: "MO Status", type: "string" },
+                
             ];
             $("#filters").ejGrid({
                 dataSource: $scope.filters,
@@ -94,10 +106,12 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
         parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
         parameters.push({ "Key": "CustomerId", "Value": getString(fl, "CustomerId") });
         parameters.push({ "Key": "BuyerId", "Value": getString(fl, "BuyerId") });
-        parameters.push({ "Key": "MResId", "Value": getString(fl, "MResId") });
-        parameters.push({ "Key": "MoStatus", "Value": getString(fl, "MoStatus") });
-        parameters.push({ "Key": "Status", "Value": getString(fl, "Status") });
-
+        parameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
+      
+        parameters.push({ "Key": "ProductionStatusId", "Value": getString(fl, "ProductionStatusId") });
+        parameters.push({ "Key": "SOStatusId", "Value": getString(fl, "SOStatusId") });
+        parameters.push({ "Key": "MOStatusId", "Value": getString(fl, "MOStatusId") });
+      
         $scope.parameters = parameters;
      
     }
@@ -109,6 +123,7 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
 
         for (var i = 0; i < data.length; i++) {
             if (collection.includes(data[i][column]) == false) {
+               /* var replace = data[i][column].replace(",", "','");*/
                 string += ",'" + data[i][column] + "'";
                 collection.push(data[i][column]);
             }

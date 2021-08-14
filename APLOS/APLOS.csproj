@@ -534,6 +534,7 @@
     <Compile Include="Areas\HumanResource\Controllers\AdminAttendanceControlController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceProcessDataNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceSourceConfigController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\EmployeeBudgetUpdateController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\NewAttdnDashboardController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTUpdateConfigurationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\DayStatusMasterController.cs" />
@@ -1773,6 +1774,7 @@
     <Content Include="Areas\HumanResource\Scripts\AdminAttendanceControlController.js" />
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\AttendanceSourceConfig.js" />
+    <Content Include="Areas\HumanResource\Scripts\EmployeeBudgetUpdateController.js" />
     <Content Include="Areas\HumanResource\Scripts\NewAttdnDashboardController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTUpdateConfigurationController.js" />
     <Content Include="Areas\HumanResource\Scripts\DayStatusMasterController.js" />
@@ -3642,6 +3644,8 @@
     <Content Include="Areas\HumanResource\Views\AttendanceSourceConfig\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\NewAttdnDashboard\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\AdminAttendanceControl\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBMaterialJVPopUp.cshtml" />
+    <Content Include="Areas\HumanResource\Views\EmployeeBudgetUpdate\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
