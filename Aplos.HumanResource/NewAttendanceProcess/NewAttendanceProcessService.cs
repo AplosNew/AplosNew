@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using context = System.Web.HttpContext;
 
 namespace Library.HumanResource.NewAttendanceProcess { 
+    
     public class NewAttendanceProcessService
     {
         SqlRepository _sqlRepository;
@@ -1923,6 +1924,24 @@ and mb.ShiftDefinationId!=''
 
                 var sql = @"SELECT CompanyGroupId, Id as PlantValue FROM ORG.Plant WHERE CompanyGroupId = 
                '" + CompanyGpId + "' AND  Active = 1 AND Archive = 0";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
+        public void GetCompanyGp(out DataSet ds)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+
+                var sql = @"select distinct Id as CGId from org.CompanyGroup";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4076,7 +4095,7 @@ and mb.ShiftDefinationId!=''
         #region Roster Process
        
         // Work Date , Plant Id 
-        public void RosterProcessTry(string PlantId , string Date)
+        public void RosterProcess(string PlantId , string Date)
         {
             try
             {
