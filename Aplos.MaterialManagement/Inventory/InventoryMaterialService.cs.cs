@@ -2184,7 +2184,10 @@ namespace Library.MaterialManagement.Inventory
 						,IM.CountryId
 						,IM.FirstCharacteristicsId
 						,IM.SecondCharacteristicsId
-						,IM.ThirdCharacteristicsId,,MM.IssueByUoM
+						,IM.ThirdCharacteristicsId,IssueByUoM=CASE WHEN MM.IssueByUoM=0 THEN 'No' ELSE 'Yes' END
+                        ,0 TrasactopmUomQty
+						,'' IssueTransactionUoMId
+						,'' IssueTransactionUoM
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
