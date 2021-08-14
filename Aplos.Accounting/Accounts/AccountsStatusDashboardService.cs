@@ -7424,34 +7424,30 @@ group by Id) O60 ON O60.Id=IV.Id
         #region fixed assets
         public List<Dictionary<string, object>> GetFixedAssetsListData(string companyGroupId, string companyId, string plantId)
         {
-            var sql = @"SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId,ISNULL (MGM.UserName,'') MaterialGroupMaster
-                , M.Id MaterialMasterId,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName ,ISNULL( M.UserName,'' ) MaterialMaster
-                ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId,isnull(SC.UserName,'') MaterialSubCategory
+            var sql = @"select X.* from (
+                SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId
+				,ISNULL (MGM.UserName,'') MaterialGroupMaster
+                , M.Id MaterialMasterId,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName
+				,ISNULL( M.UserName,'' ) MaterialMaster
+                ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId
+				,isnull(SC.UserName,'') MaterialSubCategory
                 ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
 				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
                  ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
 				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
 
 				 ,ISNULL(FA.FACount,0) FACount
-
-               -- , ISNULL(FA.FABaseAmount,0)FABaseAmount
-               -- , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-				-- , ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
-
                 , ISNULL(FA.FABaseAmount,0)FABaseAmount
 				  , isnull(FA.SubAssetAmount,0)SubAssetAmount
 				  ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0)  TotalBaseAmount
 				 , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
 				 ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0)  NetFixedAssetsAmount
-
-
                 ,isnull (S.UserName,'') Skill
+
                 ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
-                where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+							 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
                 ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
-
-
                 FROM MST.MaterialMaster M
                 LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
                 LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
@@ -7462,6 +7458,7 @@ group by Id) O60 ON O60.Id=IV.Id
 		        left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
 				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
 				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+
 				LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
@@ -7471,55 +7468,118 @@ group by Id) O60 ON O60.Id=IV.Id
 				,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
 				,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
 				,FAR.MaterialMasterId
-				
 			    FROM TRN.FixedAssetRegister FAR
+
 				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 				group by FixedAssetRegisterId
 				) sar on sar.FixedAssetRegisterId=FAR.Id
-                GROUP BY FAR.MaterialMasterId
+                
+				where DisposedVoucherId IS NULL
+                GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId
 				)FA ON FA.MaterialMasterId=M.Id
-                WHERE M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
-                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-                WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1 
-				-- and m.UserName='Speaker'
-				--and m.UserName='Multineedle'
-				--and t.UserName ='IT System'
-                ORDER BY M.UserName
 
-			--	select * from mst.MaterialMaster";
+
+                WHERE (M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1)  
+                --ORDER BY M.UserName
+
+
+
+				union ALL
+				SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId
+				,ISNULL (MGM.UserName,'') MaterialGroupMaster
+                , M.Id MaterialMasterId,ISNULL (M.Code,'')Code
+				,ISNULL(M.ShortName,'')ShortName ,ISNULL( M.UserName,'' ) MaterialMaster
+                ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId
+				,isnull(SC.UserName,'') MaterialSubCategory
+                ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
+				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
+                 ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
+				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
+
+				 ,Count(ISNULL(FAR.Id,0)) FACount
+                , SUM(ISNULL(FAR.FABaseAmount,0))FABaseAmount
+				  , SUM(isnull(SAR.SubAssetAmount,0))SubAssetAmount
+				  ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0))  TotalBaseAmount
+				 , SUM(ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				 ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0))  NetFixedAssetsAmount
+                ,isnull (S.UserName,'') Skill
+
+                ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
+                where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
+                FROM  TRN.FixedAssetRegister FAR
+
+				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+				group by FixedAssetRegisterId
+				) sar on sar.FixedAssetRegisterId=FAR.Id
+				
+				left join MST.MaterialMaster M ON FAR.MaterialMasterId=M.Id
+                LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
+                LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
+                LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
+                LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
+                LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
+                LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
+		        left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
+				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
+				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+
+
+				LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
+
+
+
+                WHERE  M.IsAsset=0 
+				group by
+				T.Id ,T.UserName,MGM.Id,MGM.UserName
+                , M.Id,M.Code,M.ShortName, M.UserName
+                ,MC.Id,MC.UserName,SC.Id,SC.UserName
+                ,MG.Id,MG.UserName
+				,uom.Id,uom.UserName
+                 ,M.IsAsset
+				 ,MBP.BusinessProcessName ,S.UserName,M.BudgetMasterId,fam.UserName
+				 ) x
+                ORDER BY x.MaterialMaster";
             return _sqlRepository.GetDataCollection(sql);
 
         }
         public List<Dictionary<string, object>> GetFixedArticalListData(string companyGroupId, string companyId, string plantId, string materialMasterId)
         {
-                 var sql = @"SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId,ISNULL (MGM.UserName,'') MaterialGroupMaster
-                , M.Id MaterialMasterId,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName ,ISNULL( M.UserName,'' ) MaterialMaster
+                 var sql = @"
+
+                            --mma gride data--------
+
+SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId
+,ISNULL (MGM.UserName,'') MaterialGroupMaster
+                , M.Id MaterialMasterId,mma.Id MaterialMasterArticleId
+				,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName 
+				,ISNULL( M.UserName,'' ) MaterialMaster
 				 ,mma.Id MaterialMasterArticleId ,mma.StandardName Article
-                ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId,isnull(SC.UserName,'') MaterialSubCategory
+                ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId
+				,isnull(SC.UserName,'') MaterialSubCategory
                 ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
 				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
                  ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
 				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
 
 				 ,ISNULL(FA.FACount,0) FACount
-
-               -- , ISNULL(FA.FABaseAmount,0)FABaseAmount
-               -- , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-				-- , ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
-
                 , ISNULL(FA.FABaseAmount,0)FABaseAmount
 				  , isnull(FA.SubAssetAmount,0)SubAssetAmount
 				  ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0)  TotalBaseAmount
 				 , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
 				 ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0)  NetFixedAssetsAmount
 
-
                 ,isnull (S.UserName,'') Skill
                 ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
                 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
                 ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
-
+				  ,gl.UserName GL,b.UserName Budget, a.UserName Activity
 
                 FROM MST.MaterialMaster M
                 LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
@@ -7532,6 +7592,12 @@ group by Id) O60 ON O60.Id=IV.Id
 		        left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
 				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
 				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+
+							  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+			                       left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
+				                    left join HKP.Budget b on b.Id=bm.BudgetId
+				                    left join HKP.Activity a on a.Id=M.ActivityId
+
 				LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
@@ -7546,20 +7612,81 @@ group by Id) O60 ON O60.Id=IV.Id
 				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 				group by FixedAssetRegisterId
 				) sar on sar.FixedAssetRegisterId=FAR.Id
-
+                where DisposedVoucherId IS NULL
                 GROUP BY FAR.MaterialMasterId,FAR.MaterialMasterArticleId
 				)FA ON FA.MaterialMasterId=M.Id and fa.MaterialMasterArticleId = mma.Id
-                WHERE M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+
+
+                WHERE( M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1 ) 
+                --ORDER BY M.UserName
 
 
+				UNION ALL
+				SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId,ISNULL (MGM.UserName,'') MaterialGroupMaster
+                , M.Id MaterialMasterId,mma.Id MaterialMasterArticleId
+				,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName ,ISNULL( M.UserName,'' ) MaterialMaster
+				,mma.Id MaterialMasterArticleId ,mma.StandardName Article
+                ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId,isnull(SC.UserName,'') MaterialSubCategory
+                ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
+				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
+                 ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
+				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
+
+				 ,Count(ISNULL(FAR.Id,0)) FACount
+
+                , SUM(ISNULL(FAR.FABaseAmount,0))FABaseAmount
+				  , SUM(isnull(SAR.SubAssetAmount,0))SubAssetAmount
+				  ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0))  TotalBaseAmount
+				 , SUM(ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				 ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0))  NetFixedAssetsAmount
 
 
-                WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1 
-				-- and m.UserName='Speaker'
-				--and m.UserName='Multineedle'
-				--and t.UserName ='IT System'
-                ORDER BY M.UserName";
+                ,isnull (S.UserName,'') Skill
+                ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
+                where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
+					    ,gl.UserName GL,b.UserName Budget, a.UserName Activity
+
+                FROM  TRN.FixedAssetRegister FAR
+				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+				group by FixedAssetRegisterId
+				) sar on sar.FixedAssetRegisterId=FAR.Id
+				
+				left join MST.MaterialMaster M ON FAR.MaterialMasterId=M.Id
+                LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
+                LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
+                LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
+                LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
+				left join mst.MaterialMasterArticle mma on FAR.MaterialMasterArticleId = mma.Id
+                LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
+                LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
+		        left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
+				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
+				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+
+							  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+			                       left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
+				                    left join HKP.Budget b on b.Id=bm.BudgetId
+				                    left join HKP.Activity a on a.Id=M.ActivityId
+
+				LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
+
+                WHERE  M.IsAsset=0 
+				group by
+				T.Id ,T.UserName,MGM.Id,MGM.UserName
+                , M.Id,M.Code,M.ShortName, M.UserName
+				,mma.Id,mma.StandardName
+                ,MC.Id,MC.UserName,SC.Id,SC.UserName
+                ,MG.Id,MG.UserName
+				,uom.Id,uom.UserName
+                 ,M.IsAsset
+				 ,MBP.BusinessProcessName ,S.UserName,M.BudgetMasterId,fam.UserName
+				   ,gl.UserName ,b.UserName , a.UserName ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
@@ -7568,33 +7695,32 @@ group by Id) O60 ON O60.Id=IV.Id
         {
 
             return @" 
-	     		SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId,ISNULL (MGM.UserName,'') MaterialGroupMaster
-                , M.Id MaterialMasterId,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName ,ISNULL( M.UserName,'' ) MaterialMaster
-                ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId,isnull(SC.UserName,'') MaterialSubCategory
+	     		 
+	     		select X.* from (
+                SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId
+				,ISNULL (MGM.UserName,'') MaterialGroupMaster
+                , M.Id MaterialMasterId,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName
+				,ISNULL( M.UserName,'' ) MaterialMaster
+                ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId
+				,isnull(SC.UserName,'') MaterialSubCategory
                 ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
 				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
                  ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
 				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
 
 				 ,ISNULL(FA.FACount,0) FACount
-
-               -- , ISNULL(FA.FABaseAmount,0)FABaseAmount
-               -- , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-				-- , ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
-
                 , ISNULL(FA.FABaseAmount,0)FABaseAmount
 				  , isnull(FA.SubAssetAmount,0)SubAssetAmount
 				  ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0)  TotalBaseAmount
 				 , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
 				 ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0)  NetFixedAssetsAmount
                 ,isnull (S.UserName,'') Skill
+
                 ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
-                where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+							 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
                 ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
-
 				    ,gl.UserName GL,b.UserName Budget, a.UserName Activity
-
-
                 FROM MST.MaterialMaster M
                 LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
                 LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
@@ -7606,10 +7732,11 @@ group by Id) O60 ON O60.Id=IV.Id
 				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
 				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
 
-				        left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+				  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
 			                       left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
 				                    left join HKP.Budget b on b.Id=bm.BudgetId
 				                    left join HKP.Activity a on a.Id=M.ActivityId
+
 
 				LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
@@ -7620,20 +7747,90 @@ group by Id) O60 ON O60.Id=IV.Id
 				,sum(isnull(sar.SubAssetAmount,0) )SubAssetAmount
 				,SUM(isnull( FAR.ADBaseAmount,0)) ADBaseAmount
 				,FAR.MaterialMasterId
-				
 			    FROM TRN.FixedAssetRegister FAR
+
 				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 				group by FixedAssetRegisterId
 				) sar on sar.FixedAssetRegisterId=FAR.Id
-                GROUP BY FAR.MaterialMasterId
+                
+				where DisposedVoucherId IS NULL
+                GROUP BY FAR.MaterialMasterId, FAR.DisposedVoucherId
 				)FA ON FA.MaterialMasterId=M.Id
-                WHERE M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+
+
+                WHERE (M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
-                WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1 
-				-- and m.UserName='Speaker'
-				--and m.UserName='Multineedle'
-				--and t.UserName ='IT System'
-                ORDER BY M.UserName ";
+                WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1)  
+                --ORDER BY M.UserName
+
+
+
+				union ALL
+				SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId
+				,ISNULL (MGM.UserName,'') MaterialGroupMaster
+                , M.Id MaterialMasterId,ISNULL (M.Code,'')Code
+				,ISNULL(M.ShortName,'')ShortName ,ISNULL( M.UserName,'' ) MaterialMaster
+                ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId
+				,isnull(SC.UserName,'') MaterialSubCategory
+                ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
+				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
+                 ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
+				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
+
+				 ,Count(ISNULL(FAR.Id,0)) FACount
+                , SUM(ISNULL(FAR.FABaseAmount,0))FABaseAmount
+				  , SUM(isnull(SAR.SubAssetAmount,0))SubAssetAmount
+				  ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0))  TotalBaseAmount
+				 , SUM(ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				 ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0))  NetFixedAssetsAmount
+                ,isnull (S.UserName,'') Skill
+
+                ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
+                where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
+					    ,gl.UserName GL,b.UserName Budget, a.UserName Activity
+                FROM  TRN.FixedAssetRegister FAR
+
+				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+				group by FixedAssetRegisterId
+				) sar on sar.FixedAssetRegisterId=FAR.Id
+				
+				left join MST.MaterialMaster M ON FAR.MaterialMasterId=M.Id
+                LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
+                LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
+                LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
+                LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
+                LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
+                LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
+		        left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
+				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
+				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+
+				  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+			                       left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
+				                    left join HKP.Budget b on b.Id=bm.BudgetId
+				                    left join HKP.Activity a on a.Id=M.ActivityId
+
+
+				LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
+
+
+
+                WHERE  M.IsAsset=0 
+				group by
+				T.Id ,T.UserName,MGM.Id,MGM.UserName
+                , M.Id,M.Code,M.ShortName, M.UserName
+                ,MC.Id,MC.UserName,SC.Id,SC.UserName
+                ,MG.Id,MG.UserName
+				,uom.Id,uom.UserName
+                 ,M.IsAsset
+				 ,MBP.BusinessProcessName ,S.UserName,M.BudgetMasterId,fam.UserName
+				 	    ,gl.UserName ,b.UserName , a.UserName 
+				 ) x
+                ORDER BY x.MaterialMaster";
 
         }
 
@@ -7990,35 +8187,41 @@ group by Id) O60 ON O60.Id=IV.Id
         {
 
             return @" 
-	     	           
-	     	   SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId,ISNULL (MGM.UserName,'') MaterialGroupMaster
-                , M.Id MaterialMasterId,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName ,ISNULL( M.UserName,'' ) MaterialMaster
-				 ,mma.Id MaterialMasterArticleId ,mma.StandardName Article
-                 ,MMA.MachineAllowance,MMA.RPM,SC.UserName StitchCode
-                ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId,isnull(SC.UserName,'') MaterialSubCategory
+	     	---atricle report--
+ 
+	     	          
+                --mma gride data--------
+
+SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId
+,ISNULL (MGM.UserName,'') MaterialGroupMaster
+                , M.Id MaterialMasterId
+			
+				,mma.Id MaterialMasterArticleId
+				,mma.MachineAllowance 
+				,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName 
+				,ISNULL( M.UserName,'' ) MaterialMaster
+				-- ,mma.Id MaterialMasterArticleId 
+				 ,mma.StandardName Article
+                ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId
+				,isnull(SC.UserName,'') MaterialSubCategory
                 ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
 				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
                  ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
 				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
 
 				 ,ISNULL(FA.FACount,0) FACount
-
-               -- , ISNULL(FA.FABaseAmount,0)FABaseAmount
-               -- , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
-				-- , ISNULL(FA.FABaseAmount,0)- ISNULL(FA.ADBaseAmount,0) NetFixedAssetsAmount
-
                 , ISNULL(FA.FABaseAmount,0)FABaseAmount
 				  , isnull(FA.SubAssetAmount,0)SubAssetAmount
 				  ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0)  TotalBaseAmount
 				 , ISNULL(FA.ADBaseAmount,0) ADBaseAmount
 				 ,ISNULL(FA.FABaseAmount,0) + isnull(FA.SubAssetAmount,0) - ISNULL(FA.ADBaseAmount,0)  NetFixedAssetsAmount
-                ,isnull (S.UserName,'') Skill
 
+                ,isnull (S.UserName,'') Skill, SCode.UserName StitchCode,mma.RPM
                 ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
                 where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
                 ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
-				         ,gl.UserName GL,b.UserName Budget, a.UserName Activity
+				  ,gl.UserName GL,b.UserName Budget, a.UserName Activity
 
                 FROM MST.MaterialMaster M
                 LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
@@ -8031,12 +8234,12 @@ group by Id) O60 ON O60.Id=IV.Id
 		        left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
 				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
 				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+				 LEFT JOIN HKP.StitchCode SCode ON SCode.Id=MMA.StitchCodeId
 
-				                  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+							  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
 			                       left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
 				                    left join HKP.Budget b on b.Id=bm.BudgetId
 				                    left join HKP.Activity a on a.Id=M.ActivityId
-
 
 				LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
@@ -8052,20 +8255,85 @@ group by Id) O60 ON O60.Id=IV.Id
 				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 				group by FixedAssetRegisterId
 				) sar on sar.FixedAssetRegisterId=FAR.Id
-
+                where DisposedVoucherId IS NULL
                 GROUP BY FAR.MaterialMasterId,FAR.MaterialMasterArticleId
 				)FA ON FA.MaterialMasterId=M.Id and fa.MaterialMasterArticleId = mma.Id
-                WHERE M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+
+
+                WHERE( M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
                 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1 ) 
+                --ORDER BY M.UserName
 
 
+				UNION ALL
+				SELECT T.Id MaterialTypeId,ISNULL(T.UserName,'') MaterialType,ISNULL (MGM.Id,'') MaterialGroupMasterId,ISNULL (MGM.UserName,'') MaterialGroupMaster
+                , M.Id MaterialMasterId
+					,mma.MachineAllowance
+				,mma.Id MaterialMasterArticleId
+				,ISNULL (M.Code,'')Code,ISNULL(M.ShortName,'')ShortName ,ISNULL( M.UserName,'' ) MaterialMaster
+				--,mma.Id MaterialMasterArticleId 
+				,mma.StandardName Article
+                ,MC.Id MaterialCategoryId,ISNULL( MC.UserName,'') MaterialCategory,SC.Id MaterialSubCategoryId,isnull(SC.UserName,'') MaterialSubCategory
+                ,MG.Id [MaterialGroup1Id],Isnull (MG.UserName,'' )MaterialGroup1
+				,uom.Id BaseUOMId,Isnull (uom.UserName,'') BaseUOM
+                 ,IsAsset =case when M.IsAsset =1 then 'Yes' else  'No'  end
+				 , Machine=case when MBP.BusinessProcessName ='MachineDefinition' Then 'Yes' else 'No' end 
+
+				 ,Count(ISNULL(FAR.Id,0)) FACount
+
+                , SUM(ISNULL(FAR.FABaseAmount,0))FABaseAmount
+				  , SUM(isnull(SAR.SubAssetAmount,0))SubAssetAmount
+				  ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0))  TotalBaseAmount
+				 , SUM(ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
+				 ,SUM(ISNULL(FAR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0))  NetFixedAssetsAmount
 
 
-                WHERE BP.BusinessProcessName ='MachineDefinition') Or M.IsAsset=1 
-				-- and m.UserName='Speaker'
-				--and m.UserName='Multineedle'
-				--and t.UserName ='IT System'
-                ORDER BY M.UserName  ";
+                ,isnull (S.UserName,'') Skill, SCode.UserName StitchCode,mma.RPM
+                ,Process= ISNULL(STUFF((select distinct ','+P.UserName from [MST].[MaterialMasterMachineProcess] MMP JOIN HKP.Process P ON P.Id=MMP.ProcessId
+                where MMP.MaterialMasterId=M.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+
+                ,M.BudgetMasterId,ISNULL (fam.UserName,'') AssetMaster
+					    ,gl.UserName GL,b.UserName Budget, a.UserName Activity
+
+                FROM  TRN.FixedAssetRegister FAR
+				left join(select sum(Amount*CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
+				group by FixedAssetRegisterId
+				) sar on sar.FixedAssetRegisterId=FAR.Id
+				
+				left join MST.MaterialMaster M ON FAR.MaterialMasterId=M.Id
+                LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
+                LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
+                LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
+                LEFT JOIN [HKP].[MaterialSubCategory] SC ON SC.Id=M.MaterialSubCategoryId
+				left join mst.MaterialMasterArticle mma on FAR.MaterialMasterArticleId = mma.Id
+                LEFT JOIN HKP.MaterialGroup1 MG ON MG.Id=MGM.MaterialGroup1Id
+                LEFT JOIN SCS.UnitOfMeasurement uom ON uom.Id=M.BaseUOMId
+		        left join hkp.FixedAssetMasterBudgetTag FAMBT ON FAMBT.BudgetMasterId=M.BudgetMasterId
+				left join mst.FixedAssetMaster fam on fam.Id= FAMBT.FixedAssetMasterId
+				left JOIN [HKP].[Skill] S ON S.Id=M.SkillId
+			    LEFT JOIN HKP.StitchCode SCode ON SCode.Id=MMA.StitchCodeId
+
+							  left join mst.BudgetMaster bm on bm.Id=M.BudgetMasterId
+			                       left join HKP.GLGeneralInfo gl on gl.Id=bm.GLGeneralInfoId
+				                    left join HKP.Budget b on b.Id=bm.BudgetId
+				                    left join HKP.Activity a on a.Id=M.ActivityId
+
+				LEFT JOIN (SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                WHERE BP.BusinessProcessName ='MachineDefinition') AS MBP ON MBP.MaterialMasterId=M.Id
+
+                WHERE  M.IsAsset=0 
+				group by
+				T.Id ,T.UserName,MGM.Id,MGM.UserName
+                , M.Id,M.Code,M.ShortName, M.UserName
+				,mma.Id,mma.StandardName,	mma.MachineAllowance,SCode.UserName ,mma.RPM
+                ,MC.Id,MC.UserName,SC.Id,SC.UserName
+                ,MG.Id,MG.UserName
+				,uom.Id,uom.UserName
+                 ,M.IsAsset
+				 ,MBP.BusinessProcessName ,S.UserName,M.BudgetMasterId,fam.UserName
+				   ,gl.UserName ,b.UserName , a.UserName  ";
 
         }
 
