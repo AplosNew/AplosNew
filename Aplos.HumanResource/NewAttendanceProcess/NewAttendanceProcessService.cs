@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using context = System.Web.HttpContext;
 
 namespace Library.HumanResource.NewAttendanceProcess { 
+    
     public class NewAttendanceProcessService
     {
         SqlRepository _sqlRepository;
@@ -1923,6 +1924,24 @@ and mb.ShiftDefinationId!=''
 
                 var sql = @"SELECT CompanyGroupId, Id as PlantValue FROM ORG.Plant WHERE CompanyGroupId = 
                '" + CompanyGpId + "' AND  Active = 1 AND Archive = 0";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
+        public void GetCompanyGp(out DataSet ds)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+
+                var sql = @"select distinct Id as CGId from org.CompanyGroup";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4074,121 +4093,9 @@ and mb.ShiftDefinationId!=''
         #endregion
 
         #region Roster Process
-        public void RosterProcess(string PlantId)
-        {
-            try
-            {
-               
-                var sql2 = @"Select * from dbo.RosterPatternHeader where PlantId = '" + PlantId + "'";
-                DataTable RosterTable = new DataTable();
-                RosterTable = _sqlRepository.GetDataTable(sql2);
-                if (RosterTable.Rows.Count > 0)
-                {
-                    //Loop to go through all the Rosters in a Plant
-                    for (int j = 0; j < RosterTable.Rows.Count; j++)
-                    {
-
-                        //Getting all the Shifts Child 
-                        var sql3 = @"Select * from dbo.RosterPatternChild where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' order by ShiftSequence";
-                        DataTable ShiftsTable = new DataTable();
-                        ShiftsTable = _sqlRepository.GetDataTable(sql3);
-
-
-
-                        int maxSeq = ShiftsTable.Rows.Count;
-                        if (maxSeq == 0)
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            string _Id = "";
-                            //Get the top Nearest Effective Date
-                            DateTime Today = DateTime.Now;
-                            String noww = DateTime.Now.ToString("dd-MMM-yyyy");
-                            var sql4 = @"Select top 1 ed.*, rp.PlantId from dbo.RosterEffectiveDate ed
-                                                left join dbo.RosterPatternHeader rp on rp.Id = ed.RPHeaderId
-                                                 where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' and EffectiveDate <= '" + noww + "' order by EffectiveDate desc";
-
-                            DataTable EffectiveDateTable = new DataTable();
-                            EffectiveDateTable = _sqlRepository.GetDataTable(sql4);
-
-                            //Getting all the rows from the Process table
-                            var sql5 = @"Select top 1 * from dbo.RosterPatternProcess where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' and PlantId = '" + PlantId + "' order by WorkDate";
-                            DataTable ProcessTable = new DataTable();
-                            ProcessTable = _sqlRepository.GetDataTable(sql5);
-
-                            //Dictionary and DataSet Initialization
-                            DataSet ds;
-                            ConnectionManager.DAL.ConManager cona = new ConnectionManager.DAL.ConManager("1");
-                            cona.OpenDataSetThroughAdapter("select * from RosterPatternProcess where 1 = 2", out ds, false, "1");
-
-                            Dictionary<string, object> dict = InitializeMyDictionary();
-
-                            // Conditions...
-                            int DateDifference = -1;
-                            if (EffectiveDateTable.Rows.Count > 0)
-                            {
-                                DateTime EffecDate = Convert.ToDateTime(EffectiveDateTable.Rows[0]["EffectiveDate"].ToString());
-                                DateDifference = (int)(Today - EffecDate).Days;
-                            }
-
-                            if (DateDifference == 0)// If today is an Effective Date
-                            {
-                                bplib.clsGenID genid = new bplib.clsGenID();
-                                genid.GenID("dbo.RosterPatternProcess", out _Id);
-                                dict["Id"] = "RP" + _Id;
-                                dict["RPHeaderId"] = RosterTable.Rows[j]["Id"].ToString();
-                                dict["PlantId"] = PlantId;
-                                dict["WorkDate"] = Convert.ToDateTime(Today);
-                                dict["ShiftDefinationID"] = ShiftsTable.Rows[0]["ShiftDefinitionID"].ToString();
-                                dict["ShiftSequence"] = ShiftsTable.Rows[0]["ShiftSequence"].ToString();
-                                Add(ds.Tables[0], dict);
-                            }
-                            else
-                            {
-                                //Check for the nearest Previous Date;
-                                if (EffectiveDateTable.Rows.Count > 0)
-                                {
-                                    DateTime EffecDates = Convert.ToDateTime(EffectiveDateTable.Rows[0]["EffectiveDate"].ToString());
-                                    double DayDiffs = (Today - EffecDates).Days;
-                                    int Seq = (int)(DayDiffs % maxSeq); // The Sequence of Shift to be inserted Today
-
-                                    bplib.clsGenID genid = new bplib.clsGenID();
-                                    genid.GenID("dbo.RosterPatternProcess", out _Id);
-                                    dict["Id"] = "RP" + _Id;
-                                    dict["RPHeaderId"] = RosterTable.Rows[j]["Id"].ToString();
-                                    dict["PlantId"] = PlantId;
-                                    dict["WorkDate"] = Convert.ToDateTime(Today);
-                                    dict["ShiftDefinationID"] = ShiftsTable.Rows[Seq]["ShiftDefinitionID"].ToString();
-                                    dict["ShiftSequence"] = ShiftsTable.Rows[Seq]["ShiftSequence"].ToString();
-                                    //We will make the Row and insert into the Table.
-                                    Add(ds.Tables[0], dict);
-                                }
-                                else // In case there are no previous date Either, it will be an Exceptional Case.
-                                {
-                                    continue;
-                                }
-
-                            }
-
-
-                            SaveDataSets(ds);
-                        }
-
-                    }
-                }
-
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-
+       
         // Work Date , Plant Id 
-        public void RosterProcessTry(string PlantId , string Date)
+        public void RosterProcess(string PlantId , string Date)
         {
             try
             {
@@ -4235,66 +4142,71 @@ and mb.ShiftDefinationId!=''
                             EffectiveDateTable = _sqlRepository.GetDataTable(sql4);
 
                             //Getting all the rows from the Process table
-                            var sql5 = @"Select top 1 * from dbo.RosterPatternProcess where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' and PlantId = '" + PlantId + "' order by WorkDate";
+                            var sql5 = @"Select * from dbo.RosterPatternProcess where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' and PlantId = '" + PlantId + "' and WorkDate='"+noww+"'";
                             DataTable ProcessTable = new DataTable();
                             ProcessTable = _sqlRepository.GetDataTable(sql5);
+                            int counts = ProcessTable.Rows.Count;
 
-                            //Dictionary and DataSet Initialization
-                            DataSet ds;
-                            ConnectionManager.DAL.ConManager cona = new ConnectionManager.DAL.ConManager("1");
-                            cona.OpenDataSetThroughAdapter("select * from RosterPatternProcess where 1 = 2", out ds, false, "1");
-
-                            Dictionary<string, object> dict = InitializeMyDictionary();
-
-                            // Conditions...
-                            int DateDifference = -1;
-                            if (EffectiveDateTable.Rows.Count > 0)
+                            if(counts == 0)
                             {
-                                DateTime EffecDate = Convert.ToDateTime(EffectiveDateTable.Rows[0]["EffectiveDate"].ToString());
-                                DateDifference = (int)(Today - EffecDate).Days;
-                            }
+                                //Dictionary and DataSet Initialization
+                                DataSet ds;
+                                ConnectionManager.DAL.ConManager cona = new ConnectionManager.DAL.ConManager("1");
+                                cona.OpenDataSetThroughAdapter("select * from RosterPatternProcess where 1 = 2", out ds, false, "1");
 
-                            if (DateDifference == 0)// If today is an Effective Date
-                            {
-                                bplib.clsGenID genid = new bplib.clsGenID();
-                                genid.GenID("dbo.RosterPatternProcess", out _Id);
-                                dict["Id"] = "RP" + _Id;
-                                dict["RPHeaderId"] = RosterTable.Rows[j]["Id"].ToString();
-                                dict["PlantId"] = PlantId;
-                                dict["WorkDate"] = Convert.ToDateTime(Today);
-                                dict["ShiftDefinationID"] = ShiftsTable.Rows[0]["ShiftDefinitionID"].ToString();
-                                dict["ShiftSequence"] = ShiftsTable.Rows[0]["ShiftSequence"].ToString();
-                                Add(ds.Tables[0], dict);
-                            }
-                            else
-                            {
-                                //Check for the nearest Previous Date;
+                                Dictionary<string, object> dict = InitializeMyDictionary();
+
+                                // Conditions...
+                                int DateDifference = -1;
                                 if (EffectiveDateTable.Rows.Count > 0)
                                 {
-                                    DateTime EffecDates = Convert.ToDateTime(EffectiveDateTable.Rows[0]["EffectiveDate"].ToString());
-                                    double DayDiffs = (Today - EffecDates).Days;
-                                    int Seq = (int)(DayDiffs % maxSeq); // The Sequence of Shift to be inserted Today
+                                    DateTime EffecDate = Convert.ToDateTime(EffectiveDateTable.Rows[0]["EffectiveDate"].ToString());
+                                    DateDifference = (int)(Today - EffecDate).Days;
+                                }
 
+                                if (DateDifference == 0)// If today is an Effective Date
+                                {
                                     bplib.clsGenID genid = new bplib.clsGenID();
                                     genid.GenID("dbo.RosterPatternProcess", out _Id);
                                     dict["Id"] = "RP" + _Id;
                                     dict["RPHeaderId"] = RosterTable.Rows[j]["Id"].ToString();
                                     dict["PlantId"] = PlantId;
                                     dict["WorkDate"] = Convert.ToDateTime(Today);
-                                    dict["ShiftDefinationID"] = ShiftsTable.Rows[Seq]["ShiftDefinitionID"].ToString();
-                                    dict["ShiftSequence"] = ShiftsTable.Rows[Seq]["ShiftSequence"].ToString();
-                                    //We will make the Row and insert into the Table.
+                                    dict["ShiftDefinationID"] = ShiftsTable.Rows[0]["ShiftDefinitionID"].ToString();
+                                    dict["ShiftSequence"] = ShiftsTable.Rows[0]["ShiftSequence"].ToString();
                                     Add(ds.Tables[0], dict);
                                 }
-                                else // In case there are no previous date Either, it will be an Exceptional Case.
+                                else
                                 {
-                                    continue;
+                                    //Check for the nearest Previous Date;
+                                    if (EffectiveDateTable.Rows.Count > 0)
+                                    {
+                                        DateTime EffecDates = Convert.ToDateTime(EffectiveDateTable.Rows[0]["EffectiveDate"].ToString());
+                                        double DayDiffs = (Today - EffecDates).Days;
+                                        int Seq = (int)(DayDiffs % maxSeq); // The Sequence of Shift to be inserted Today
+
+                                        bplib.clsGenID genid = new bplib.clsGenID();
+                                        genid.GenID("dbo.RosterPatternProcess", out _Id);
+                                        dict["Id"] = "RP" + _Id;
+                                        dict["RPHeaderId"] = RosterTable.Rows[j]["Id"].ToString();
+                                        dict["PlantId"] = PlantId;
+                                        dict["WorkDate"] = Convert.ToDateTime(Today);
+                                        dict["ShiftDefinationID"] = ShiftsTable.Rows[Seq]["ShiftDefinitionID"].ToString();
+                                        dict["ShiftSequence"] = ShiftsTable.Rows[Seq]["ShiftSequence"].ToString();
+                                        //We will make the Row and insert into the Table.
+                                        Add(ds.Tables[0], dict);
+                                    }
+                                    else // In case there are no previous date Either, it will be an Exceptional Case.
+                                    {
+                                        continue;
+                                    }
+
                                 }
 
+
+                                SaveDataSets(ds);
                             }
-
-
-                            SaveDataSets(ds);
+                            
                         }
 
                     }

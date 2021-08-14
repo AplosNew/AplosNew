@@ -460,8 +460,8 @@
                         <div class="col-sm-8 input-group" style="padding-left:4%; padding-right:5%">
                             <input type="text" name="Contract" ng-model="productNew.ContractNo" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
                             <span class="input-group-btn">
-                                <button ng-click="GetPopUpContract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
-                                <button ng-click="Clearcontract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
+                                <button ng-click="GetPopUpContract()" class="btn single-small-btn" ng-disabled="PoChildList.length>0" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="Clearcontract()" class="btn single-small-btn" ng-disabled="PoChildList.length>0" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
                                 <button ng-click="GetMasterOrderByContractList()" ng-hide="productNew.OrderSpecific==='No'" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i></button>
                             </span>
                         </div>
@@ -496,7 +496,7 @@
                                 <span class="input-group-addon"> {{productNew.PartyCode}}</span>
                                 <input type="text" name="Vendor" id="Vendor" ng-model="productNew.PartyName" class="form-control" required readonly>
                                 <span class="input-group-btn">
-                                    <button name="submit" ng-click="showPartyPopUpForJWPO(productNew.ContractId)" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    <button name="submit" ng-click="showPartyPopUpForJWPO(productNew.ContractId)" ng-disabled="inventoryMaterialList.length>0 || PoChildList.length>0" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                     <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                                 </span>
                             </div>
@@ -2539,7 +2539,7 @@
 
                                     </script>
                                     <script type="text/template" id="RatePerUnitText">
-                                        <input type="text" class="input ejinputtext form-control" n-decimals="4" onkeypress="return isNumber(event)" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionRate" width="80" />
+                                        <input type="text" class="input ejinputtext form-control" n-decimals="4" onkeypress="return isNumber(event)" ng-disabled="data.Id!==null && data.CheckedStatus==true" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionRate" width="80" />
 
                                     </script>
                                     <script type="text/template" id="ServiceBOQJW">
