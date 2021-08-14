@@ -7228,7 +7228,7 @@ namespace Library.HumanResource.Payroll
 
 
         #region PaySlip
-        public IWorkbook GetEmployeePaySlip(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity)
+        public IWorkbook GetEmployeePaySlip(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity,bool IsIncludingZeroHeads)
         {
             #region Variable
             ReportUtility ru = null;
@@ -7309,7 +7309,7 @@ namespace Library.HumanResource.Payroll
                 DataTable dtSalaryHeadSheet = null;
                 GetEmployeeInfoDetailSalaryLogWise(companyGroupId, companyId, plantId, para.FromDate, para.ToDate, salaryProcessId, "", parameters, isActive, isSeperated, isMaternity, out dsEmpLoyeeInfo);//Sql Query For Salary  Data
 
-                Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetailPaySlip(companyGroupId, companyId, plantId, para.FromDate, para.ToDate, languageId, parameters, isActive, isSeperated, isMaternity, out dtSalaryHeadSheet);
+                Dictionary<string, List<DataRow>> dicEmpSalry = GetEmployeeSalaryInfoDetailPaySlipWithZeroHeads(companyGroupId, companyId, plantId, para.FromDate, para.ToDate, languageId, parameters, isActive, isSeperated, isMaternity, IsIncludingZeroHeads, out dtSalaryHeadSheet);
 
                 Dictionary<string, string> dicPF = GetEmployeePFESIC("PF");
                 Dictionary<string, string> dicESIC = GetEmployeePFESIC("ESIC");
@@ -7407,6 +7407,10 @@ namespace Library.HumanResource.Payroll
                         xlsRow += 1;
                         xlsCol = 1;
                         #endregion ******************Report Header******************
+                        if (dtEmpInfo.Rows[i]["EmpSystemId"].ToString() == "208376")
+                        {
+
+                        }
 
                         para.EmployeeId = dtEmpInfo.Rows[i]["EmpSystemId"].ToString();
                         List<DataRow> drLeaveEmp = null;
@@ -7795,19 +7799,28 @@ namespace Library.HumanResource.Payroll
                         {
                             drSalaryHeadCollection = dicEmpSalry[dtEmpInfo.Rows[i]["EmpSystemID"].ToString()];
                         }
+                        if (drSalaryHeadCollection == null) 
+                            continue;
 
                         // dvStruct.RowFilter = "SystemID='" + x + "'";//SystemId = EmployeeSystemId
                         //dvSheet.RowFilter = "EmpInfoSystemID='" + x + "'";//SystemId = EmployeeSystemId
 
+                        
+                        DataTable dtTemp = drSalaryHeadCollection[0].Table.Clone();
+
+                        for (int dt = 0; dt < drSalaryHeadCollection.Count; dt++)
+                        {
+                            dtTemp.ImportRow(drSalaryHeadCollection[dt]);
+                        }
 
                         int _startRow = xlsRow;
-                        LoadSalaryHead_CurrLess(ref sheet1, dtSalaryHeadSheet, xlsRow, xlsColEarning, out int _tempMaxRow, out _Total_Earning, "E", localLanguage, drSalaryHeadCollection);
+                        LoadSalaryHead_CurrLess(ref sheet1, dtTemp, xlsRow, xlsColEarning, out int _tempMaxRow, out _Total_Earning, "E", localLanguage, drSalaryHeadCollection);
                         if (_tempMaxRow > _maxRow)
                             _maxRow = _tempMaxRow;
 
                         int xlsColDeduc = 10;
                         int _maxRowDeduct = 0;
-                        LoadSalaryHead_CurrLess(ref sheet1, dtSalaryHeadSheet, xlsRow, xlsColDeduc, out _maxRowDeduct, out _Total_Deduction, "D", localLanguage, drSalaryHeadCollection);
+                        LoadSalaryHead_CurrLess(ref sheet1, dtTemp, xlsRow, xlsColDeduc, out _maxRowDeduct, out _Total_Deduction, "D", localLanguage, drSalaryHeadCollection);
 
 
 
@@ -12992,7 +13005,137 @@ INNER JOIN
                                                                        ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
                                         LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = EmpSlr.SalaryHeadID
 
-                                                WHERE ISNULL(EmpSlr.DisbusmentAmount,0)<>0 AND EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId = '" + plantId + @"'";
+                                                WHERE ISNULL(EmpSlr.DisbusmentAmount,0)<>0 AND 
+                                    EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId = '" + plantId + @"'";
+                if (parameters.Count > 0)
+                {
+                    if (parameters.Keys.ElementAt(0) != "")
+                    {
+                        strSQL += @" AND EmpSlr.EmpInfoSystemID IN(" + parameters["EmpSystemId"] + ")";
+                    }
+                }
+
+                strSQL += "ORDER BY EmpSlr.EmpInfoSystemID,Sequence";
+
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(600);
+                con.getDataSet(strSQL, out dsRef);
+
+                distinctSalaryHead = dsRef.Tables[0].DefaultView.ToTable(true, "SalaryHeadID", "SalaryHead", "SalaryHeadLocal", "HeadType", "Sequence", "HeadCategory", "IntegerInDisb", "DecimalNo", "IsGrossComponent", "IsCTCComponent", "PartOfNetPay");
+                distinctSalaryHead.DefaultView.Sort = "Sequence";
+                distinctSalaryHead = distinctSalaryHead.DefaultView.ToTable();
+
+                DataTable dt = dsRef.Tables[0];
+                List<DataRow> _data = new List<DataRow>();
+                string empId = "";
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (empId != dt.Rows[i]["EmpInfoSystemID"].ToString())
+                    {
+                        _data = new List<DataRow>();
+                        dicBonus.Add(dt.Rows[i]["EmpInfoSystemID"].ToString(), _data);
+                    }
+                    _data.Add(dt.Rows[i]);
+
+                    empId = dt.Rows[i]["EmpInfoSystemID"].ToString();
+                }
+                return dicBonus;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                //objCon = null;
+            }
+        }//End Function
+
+        public Dictionary<string, List<DataRow>> GetEmployeeSalaryInfoDetailPaySlipWithZeroHeads(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string languageId, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity,bool IsIncludingZeroHeads, out DataTable distinctSalaryHead)
+        {
+            string strSQL;
+            DataSet dsRef = null;
+            Dictionary<string, List<DataRow>> dicBonus = new Dictionary<string, List<DataRow>>();
+            distinctSalaryHead = new DataTable("Tmp");
+            string ZeroHeads = string.Empty;
+            try
+            {
+
+                string wcEmpStatus = " Where (1=0 ";
+
+                if (isActive == true && isSeperated == true && isMaternity == true)
+                {
+                    wcEmpStatus = " Where (1=1 ";
+                }
+                else
+                {
+                    if (isActive == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='Regular' ";
+                    }
+                    if (isSeperated == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='SEPARATED'";
+                    }
+                    if (isMaternity == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='MLV_PRE'";
+
+                    }
+                }
+
+                if (IsIncludingZeroHeads)
+                    ZeroHeads = " ";
+                else
+                    ZeroHeads = "ISNULL(EmpSlr.DisbusmentAmount,0)<>0 AND ";
+
+                DataTable dtslProcId = _sqlRepository.GetDataTable(@" SELECT SystemID FROM SalaryProcMaster
+                                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+                                                        WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID)
+                                        AND MonthNo = Month('" + toDate + @"') AND YearNo = Year('" + toDate + @"') ");
+                string inSalaryProcParam = "' '";
+
+                for (int i = 0; i < dtslProcId.Rows.Count; i++)
+                {
+                    inSalaryProcParam += ",'" + dtslProcId.Rows[i]["SystemID"].ToString() + "'";
+                }
+
+                wcEmpStatus += ")";
+
+                strSQL = @"SELECT EmpSlr.*,ISNULL(PSH.Sequence,99) Sequence,ISNULL(crc.IsDecimalInDisb,0) IsDecimalInDisb,ISNULL(CRC.IntegerInDisb,1) IntegerInDisb,ISNULL(CRC.DecimalNo,0) DecimalNo FROM(SELECT SPC.SystemID AS SlrProcChdSysID, SPC.SlrProcMstSystemID, SPM.SalaryProcID, SPM.FromDate, SPM.ToDate,
+                                                    SPC.EmpInfoSystemID , SPC.PlantID, SPM.UserGroupSystemID, SPM.MonthNo, SPM.YearNo, SPC.PayAbleShSystemID,
+                                                    SPC.SalaryHeadID, SPC.EntryCurrencyID, SPC.EntryAmount, SPC.DefineCurrencyID, SPC.DefineAmount,
+                                                    SPC.DisbusmentCurrencyID, SPC.DisbusmentAmount, SPC.AcltExcDisbSlrHDID, SPC.AcltExcDisbSlrHDAmt,
+                                                    CRE.Name AS PlantWiseExchangeCR, EXR.ToCurrencyBuying ExchangeRate, SPM.AmtDefinitionCurrencyID,
+                                                    CR.Name AS AmtDefinitionCurrency, SPM.AmtDefinitionCurrencyRate, SPC.IsNetPayEffect, ISNULL(SH.IsCTCComponent,0) IsCTCComponent, ISNULL(SH.IsGrossComponent,0) IsGrossComponent
+                                                    , sh.SalaryHead,ISNULL(ISNULL(BSH.Name,SH.SalaryHead),'') SalaryHeadLocal, sh.HeadCategory, sh.HeadType, ISNULL(SH.PartOfNetPay,0) PartOfNetPay
+													, Case when Isnull(SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
+                                     FROM SalaryProcChild SPC
+
+                                        left JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
+                                                        LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                                                        LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL AND LanguageId = '" + languageId + @"') AS BSH ON BSH.SalaryHeadId = sh.SalaryHeadID --BanglaSalaryHead
+                                                        LEFT JOIN scs.Currency CR ON SPM.AmtDefinitionCurrencyID = CR.Id
+                                                        LEFT JOIN (
+                                                                   SELECT* FROM ExchangerateDateWiseForHR
+                                                                   WHERE FromDate IN (SELECT MAX(FromDate) FromDate FROM SalaryProcMaster
+                                                                                                           WHERE SystemID IN(" + inSalaryProcParam + @")
+																  )) EXR ON SPM.AmtDefinitionCurrencyID = EXR.FromCurrencyCode
+                                                                                            AND SPC.PlantID = Exr.PlantID
+                                                        LEFT JOIN SCS.Currency CRE ON EXR.FromCurrencyCode = CRE.Id
+
+                                                        WHERE ISNULL(SPC.SlrProcMstSystemID,'')  IN(" + inSalaryProcParam + @")) EmpSlr--ON EmpBasic.SystemID = EmpSlr.EmpInfoSystemID AND EmpBasic.PlantID = EmpSlr.PlantID
+
+                                            Inner join EmployeeInformation EEI ON EEI.SystemId = EmpSlr.EmpInfoSystemID
+
+                                         LEFT JOIN SalaryRuleMaster SRM ON SRM.SystemID = EEI.SalaryRuleMasterSystemID
+
+                                        LEFT JOIN SalaryRuleGeneral SRG ON SRG.SalaryRuleMasterSystemID = SRM.SystemID  AND SRG.SalaryHeadID = EmpSlr.SalaryHeadID
+                                        LEFT JOIN(SELECT* FROM [MST].[PlantSalaryHeadSequence] WHERE PlantId = '" + plantId + @"') PSH
+                                                                       ON PSH.SalaryHeadId = EmpSlr.SalaryHeadID
+                                        LEFT JOIN CurrencyRuleChild CRC ON CRC.MstSystemID = srm.CurrencyRuleSystemID AND CRC.SalaryHeadID = EmpSlr.SalaryHeadID
+
+                                                WHERE "+ ZeroHeads +@"
+                                    EEI.GroupID = '" + companyGroupId + @"' AND  EmpSlr.PlantId = '" + plantId + @"'";
                 if (parameters.Count > 0)
                 {
                     if (parameters.Keys.ElementAt(0) != "")

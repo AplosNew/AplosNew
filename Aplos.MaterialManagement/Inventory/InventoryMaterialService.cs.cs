@@ -2160,18 +2160,18 @@ namespace Library.MaterialManagement.Inventory
 	                    , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 'NO' else 'YES' END
 						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 'NO' else 'YES' END
 						, IR.Id AS GRNNo, IRD.POId AS PONo, TUoM.UserName AS TUoM, BUoM.UserName AS BUoM, IRD.TransactionUoMId,  IRD.BaseUOMId, IRD.BaseUoMFactor
-                        , IRD.MaterialTranRate, IRD.BooksCurrencyBaseRate, TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
+                        , round(IRD.MaterialTranRate,4) MaterialTranRate, IRD.BooksCurrencyBaseRate, TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
                         , BaseRate=CASE WHEN IRD.TransactionUoMId<>IRD.BaseUOMId THEN IRD.MaterialTranAmount/IRD.BaseQty ELSE IRD.BooksCurrencyBaseRate END
                         , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, REPLACE(CONVERT(CHAR(11), IR.AddedDate, 106),' ','-') AS ReceiveDate, 0 AS RequisitionQty
-                        ,(IRD.MaterialTranRate * IR.ToCurrencyRate) BaseCurrencyRate
+                        ,Round((IRD.MaterialTranRate * IR.ToCurrencyRate),4) BaseCurrencyRate
 						, IRD.TransactionQty, IRD.BaseQty
 						,ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0) StockQty
 						, ISNULL(IRD.IssueQty,0) IssueQty, ISNULL(IRD.BaseIssueQty,0) BaseIssueQty, ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty
 						 ,((((((ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0)-ISNULL(IRD.PurchaseReturnQty,0))+ISNULL(IRD.IssueReturnQty,0))-ISNULL(IRD.ReductionByAdjustmentQty,0))-ISNULL(IRD.InventorySalesQty,0))-ISNULL(IRD.InventoryScrapQty,0))-ISNULL(IRD.InventoryTransferQty,0)) AS BalanceStock
                         ,ISNULL(IRD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
 						 ,ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0) TotalMaterialBooksCurrencyAmount
-						 ,ISNULL(IRD.BooksCurrencyBaseRate,0) BooksCurrencyBaseRate
-						 ,ISNULL(IRD.TrnCurrencyBaseRate,0) TrnCurrencyBaseRate
+						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BooksCurrencyBaseRate
+						 ,round(ISNULL(IRD.TrnCurrencyBaseRate,0),4) TrnCurrencyBaseRate
                          ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
                         ,C.Id CountryId,C.UserName CountryName--,null AS [Flag] 
                         ,0 SalesRate
@@ -2184,9 +2184,13 @@ namespace Library.MaterialManagement.Inventory
 						,IM.CountryId
 						,IM.FirstCharacteristicsId
 						,IM.SecondCharacteristicsId
-						,IM.ThirdCharacteristicsId
+						,IM.ThirdCharacteristicsId,IssueByUoM=CASE WHEN MM.IssueByUoM=0 THEN 'No' ELSE 'Yes' END
+                        ,0 TrasactopmUomQty
+						,'' IssueTransactionUoMId
+						,'' IssueTransactionUoM
                     FROM [TRN].[InventoryReceiveDetail] AS IRD
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
                     left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                     left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
