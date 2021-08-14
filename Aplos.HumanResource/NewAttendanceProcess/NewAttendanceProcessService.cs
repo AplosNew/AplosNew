@@ -169,6 +169,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                                 dr["WrongShift"] = 0;
                                 dr["OTHr"] = "0";
+                                dr["ProcessedOT"] = "0";
                                 dr["ManualOt"] = "0";
                                 dr["IsOTComfirm"] = 0;
                                 dr["IsLock"] = 0;
@@ -3096,14 +3097,14 @@ and mb.ShiftDefinationId!=''
                                         if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
                                         {
                                             dr.BeginEdit();
-                                            dr["OTHr"] = PastManualOT;
+                                            dr["ProcessedOT"] = PastManualOT;
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
                                         else
                                         {
                                             dr.BeginEdit();
-                                            dr["OTHr"] = Result;
+                                            dr["ProcessedOT"] = Result;
                                             dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                             dr.EndEdit();
                                         }
@@ -3111,7 +3112,7 @@ and mb.ShiftDefinationId!=''
                                     else
                                     {
                                         dr.BeginEdit();
-                                        dr["OTHr"] = Result;
+                                        dr["ProcessedOT"] = Result;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                     }
@@ -3152,7 +3153,7 @@ and mb.ShiftDefinationId!=''
                                 {
                                     DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                     dr.BeginEdit();
-                                    dr["OTHr"] = ManualOT;
+                                    dr["ProcessedOT"] = ManualOT;
                                     dr["ManualOt"] = ManualOT;
                                     dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                     dr.EndEdit();
@@ -3902,7 +3903,7 @@ and mb.ShiftDefinationId!=''
                                     if (Convert.ToDouble(PastManualOT) < Convert.ToDouble(Result))
                                     {
                                         dr.BeginEdit();
-                                        dr["OTHr"] = PastManualOT;
+                                        dr["ProcessedOT"] = PastManualOT;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -3910,7 +3911,7 @@ and mb.ShiftDefinationId!=''
                                     else
                                     {
                                         dr.BeginEdit();
-                                        dr["OTHr"] = Result;
+                                        dr["ProcessedOT"] = Result;
                                         dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                         dr.EndEdit();
                                         CheckerFunction(ref ManualFlagRowId, newformat + EmpId);
@@ -3919,7 +3920,7 @@ and mb.ShiftDefinationId!=''
                                 else
                                 {
                                     dr.BeginEdit();
-                                    dr["OTHr"] = Result;
+                                    dr["ProcessedOT"] = Result;
                                     dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                     dr.EndEdit();
                                     CheckerFunction(ref ManualFlagRowId, newformat + EmpId);

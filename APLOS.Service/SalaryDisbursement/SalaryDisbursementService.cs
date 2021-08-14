@@ -67,6 +67,9 @@ namespace Library.Service.SalaryDisbursement
         private readonly IRepositoryAsync<EmployeeSubsequentTransaction> _employeeSubsequentTransactionRepository;
         private readonly IRepositoryAsync<AdvanceWriteOff> _advanceWriteOffRepository;
         private readonly IRepositoryAsync<AdvanceWriteOffDetail> _advanceWriteOffDetailRepository;
+        private readonly IRepositoryAsync<Voucher> _voucherRepository;
+        private readonly IRepositoryAsync<VoucherDetail> _voucherDetailRepository;
+        private readonly IRepositoryAsync<VoucherDetailCurrency> _voucherDetailCurrencyRepository;
         private readonly IAdvanceService _advanceService;
 
         public SalaryDisbursementService(
@@ -88,6 +91,9 @@ namespace Library.Service.SalaryDisbursement
             , IRepositoryAsync<EmployeeSubsequentTransaction> employeeSubsequentTransactionRepository
             , IRepositoryAsync<AdvanceWriteOff> advanceWriteOffRepository
             , IRepositoryAsync<AdvanceWriteOffDetail> advanceWriteOffDetailRepository
+            , IRepositoryAsync<Voucher> voucherRepository
+            , IRepositoryAsync<VoucherDetail> voucherDetailRepository
+            , IRepositoryAsync<VoucherDetailCurrency> voucherDetailCurrencyRepository
             , IAdvanceService advanceService
             )
         {
@@ -110,6 +116,9 @@ namespace Library.Service.SalaryDisbursement
             _advanceWriteOffRepository = advanceWriteOffRepository;
             _advanceWriteOffDetailRepository = advanceWriteOffDetailRepository;
             _advanceService = advanceService;
+            _voucherRepository = voucherRepository;
+            _voucherDetailRepository = voucherDetailRepository;
+            _voucherDetailCurrencyRepository = voucherDetailCurrencyRepository;
         }
 
         #endregion Contractor
@@ -1190,6 +1199,68 @@ namespace Library.Service.SalaryDisbursement
                 reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
             }
             return workbook;
+        }
+
+        public void DeleteSalaryPayable(string plantId,string voucherId, string monthNo, string yearNo)
+        {
+            var flag = false;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+                 var direct = new System.Text.StringBuilder();
+                var directsql = "";
+
+                directsql = @"update [dbo].[SalaryLock] set PayableVoucherId=NULL where Id in (
+                        select sl.Id     from [dbo].[SalaryLock] sl 
+						 left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+						 left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+                                    left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						            left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						            left join ORG.Position PO on PO.Id=MPB.PositionId
+                                    where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + "'   and spd.PlantId='" + plantId + @"'
+                                     and PayableVoucherId='" + voucherId + @"' )";
+                direct.Append(directsql);
+                _sqlRepository.ExecuteSqlCommand(direct.ToString());
+                _unitOfWork.SaveChanges();
+
+
+                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                }
+               
+                foreach (var item in voucherdetail)
+                {
+                    _voucherDetailRepository.Delete(item.Id);
+                }
+
+                _voucherRepository.Delete(voucherId);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
         }
 
 

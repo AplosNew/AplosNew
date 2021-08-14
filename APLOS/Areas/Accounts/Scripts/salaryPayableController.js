@@ -1048,6 +1048,42 @@ function salaryPayableController(cboService, commonMessage, $scope, $rootScope, 
             ShowResult(e, 'failure');
         }
     };
+    $scope.deleteUrl = "Accounts/SalaryDisbursement/DeleteSalaryPayable";
 
-   
+    $scope.deleteSalaryPayable = function (voucherId, monthNo, yearNo) {
+        $http({
+            method: "POST",
+            url: $scope.deleteUrl,
+            data: {
+                "voucherId": voucherId,
+                "monthNo": monthNo,
+                "yearNo": yearNo,
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.voucherId = null;
+                $scope.DelMonthNo = null;
+                $scope.DelYearNo = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.confirmDelete = function (data) {
+        $scope.voucherId = data.PayableVoucherId;
+        $scope.DelMonthNo = data.MonthNo;
+        $scope.DelYearNo = data.YearNo;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+    };
+
 }

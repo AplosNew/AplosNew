@@ -261,7 +261,7 @@ namespace Aplos.Areas.JobWork.Controllers
 
         }
         [Authorize]
-        public ActionResult DeleteDetail(string id)
+        public ActionResult DeleteDetail(string id, string OrderSpecific)
         {
 
             try
@@ -271,7 +271,7 @@ namespace Aplos.Areas.JobWork.Controllers
                     throw new Exception("Select entry first");
                 
                 JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
-                JobWorkCommon.DeleteDetail(id);
+                JobWorkCommon.DeleteDetail(id, OrderSpecific);
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
