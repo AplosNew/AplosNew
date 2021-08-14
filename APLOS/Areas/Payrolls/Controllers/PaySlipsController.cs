@@ -56,7 +56,7 @@ namespace Aplos.Areas.Payrolls.Controllers
         #region -- Operations
 
         [HttpPost, Authorize]
-        public ActionResult GetEmployeePaySlip(string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult GetEmployeePaySlip(string month, string year, string salaryProcessId, Dictionary<string, string> parameters, string languageId, bool isActive, bool isSeperated, bool isMaternity,bool IsIncludingZeroHeads)
         {
             try
             {
@@ -66,7 +66,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
                 //GetEmployeePaySlipWithBal
-                var workbook = _payrollReportsService.GetEmployeePaySlip(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, parameters, languageId,  isActive,  isSeperated,  isMaternity);
+                var workbook = _payrollReportsService.GetEmployeePaySlip(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, parameters, languageId,  isActive,  isSeperated,  isMaternity, IsIncludingZeroHeads);
               
                 workbook.Version = ExcelVersion.Excel2016;
                 //workbook.SaveAs(fullPath);

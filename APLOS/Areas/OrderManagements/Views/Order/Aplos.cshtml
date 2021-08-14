@@ -42,21 +42,35 @@
                     <div id="filters">
 
                     </div>
-                    <div class="col-md-1 text-right">
-                        <button type="button" class="btn single-btn" ng-click="filterComplete()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i> Generate </button>
+
+                    <div class="col-md-5">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button type="button" class="btn single-btn" ng-click="filterComplete()"><i class="glyphicon glyphicon-arrow-down"></i> Generate </button></li>
+                                <li> <button type="button" class="btn single-btn" ng-click="clearFilters()"><i class="glyphicon glyphicon-repeat"></i> Clear Filters </button></li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="col-md-1  text-right" style="margin-left:20px;margin-top:10px;">
-                        <button type="button" class="btn single-btn" ng-click="clearFilters()"><i class="glyphicon glyphicon-repeat"></i> Clear Filters </button>
-                    </div>                
+                    <div class="col-md-3" style="padding-top:10px;">
+                        Dependent Date(Analysis)
+                    </div>
+                    <div class="col-md-3">
+                        <div style="margin-left:10px;margin-top:5px;"><select id="dropdownDate" ej-dropdownlist e-datasource="Datelist" e-text="Shipment Date" e-value="ShipmentD" e-change="dateValueChange"></select></div>
+
+                    </div>
+                    @*<label class="col-md-4 control-label">Dependent Date(Analysis)</label>
+                    <div class="col-md-3" style="margin-left:10px;margin-top:5px;"><select id="dropdownDate" ej-dropdownlist e-datasource="Datelist" e-text="Shipment Date" e-value="ShipmentD" e-change="dateValueChange"></select></div>*@
+
+
                 </div>
-            </div>
+                </div>
 
 
             <div class="row" style="margin:10px; margin-top:20px;">
                 <div class="col-lg-12">
                     <div class="col-lg-3" style="margin-top:20px;">
-                        <label class="col-sm-3 control-label">Dependent Date(Analysis)</label>
-                        <div class="col-sm-9" style="margin-left:10px;margin-top:5px;"><select id="dropdownDate" ej-dropdownlist e-datasource="Datelist" e-text="Shipment Date" e-value="ShipmentD" e-change="dateValueChange"></select></div>
+                        @*<label class="col-sm-3 control-label">Dependent Date(Analysis)</label>
+                        <div class="col-sm-9" style="margin-left:10px;margin-top:5px;"><select id="dropdownDate" ej-dropdownlist e-datasource="Datelist" e-text="Shipment Date" e-value="ShipmentD" e-change="dateValueChange"></select></div>*@
                     </div>
                     <div class="col-lg-4" style="margin-top:20px;">
                         <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
