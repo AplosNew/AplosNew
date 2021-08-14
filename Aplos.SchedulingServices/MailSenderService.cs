@@ -15505,7 +15505,7 @@ AND (E.EmployeeStatus='Active' OR Year(DOS) >= '" + objm.AYear + @"' AND MONTH(D
             try
             {
                 var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
-                var serviceName = MailServiceName.AttendanceFromApp.ToString();
+                var serviceName = MailServiceName.EmployeeToBeApproved.ToString();
 
                 var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
                 foreach (var companyGroup in companyGroupList)
