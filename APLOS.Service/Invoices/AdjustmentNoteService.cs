@@ -117,7 +117,7 @@ namespace Library.Service.Invoices
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 decimal totalVoucherDetailTaxAmount = 0;
-                decimal totalcreditableDrAmount = 0, totalExpensesDrAmount = 0, totalExpensesCrAmount = 0, totalwithholdCrAmount = 0, totalwithholdDrAmount = 0, taxDrAmount = 0;
+                decimal totalcreditableDrAmount = 0, totalcreditableCrAmount=0, totalExpensesDrAmount = 0, totalExpensesCrAmount = 0, totalwithholdCrAmount = 0, totalwithholdDrAmount = 0, taxDrAmount = 0;
                 decimal totalcreditableDrAmountAddTax = 0, totalExpensesDrAmountAddTax = 0, totalwithholdCrAmountAddTax = 0, taxDrAmountAddTax = 0;
                 decimal totalBaseCurrencyCrAmount = 0;
                 decimal totalBaseCurrencyDrAmount = 0;
@@ -162,7 +162,8 @@ namespace Library.Service.Invoices
                     totalAmountDr += voucherDetaiSales.DrAmount;
                     currentVoucherDetailId++;
                     _voucherService.InsertVoucherDetail(voucher, voucherDetaiSales, currentVoucherDetailId);
-                    if (null != voucherDetailVM.InvoiceTaxViewModel && voucherDetailVM.InvoiceTaxViewModel.Count > 0)
+
+                    if (voucherVM.PartyType==PartyType.Vendor.ToString() && null != voucherDetailVM.InvoiceTaxViewModel && voucherDetailVM.InvoiceTaxViewModel.Count > 0)
                     {
                         taxDrAmount = 0;
                         foreach (var invoiceTaxVM in voucherDetailVM.InvoiceTaxViewModel)
@@ -331,6 +332,175 @@ namespace Library.Service.Invoices
                             }
                         }
                     }
+                    if (voucherVM.PartyType == PartyType.Customer.ToString() && null != voucherDetailVM.InvoiceTaxViewModel && voucherDetailVM.InvoiceTaxViewModel.Count > 0)
+                    {
+                        taxDrAmount = 0;
+                        foreach (var invoiceTaxVM in voucherDetailVM.InvoiceTaxViewModel)
+                        {
+                            var taxCode = _taxCodeRepository.Find(invoiceTaxVM.TaxCodeId);
+                            if (null == taxCode)
+                                throw new CustomException("Tax code not found!");
+
+                            if (voucherVM.IsExcludingTax)
+                            {
+                                if (taxCode.IsWithhold == false)
+                                    throw new CustomException("Withhold  is not configured for TaxCode " + taxCode.StandardName);
+                            }
+
+                            merge = taxCode.IsMerge;
+                            var taxCodeGL = _taxCodeGLRepository.Query(r => r.TaxCodeId == taxCode.Id).Select().FirstOrDefault();
+                            if (null == taxCodeGL)
+                                throw new CustomException("Tax code GL not found!");
+
+                            var invoiceTax = new InvoiceTax
+                            {
+                                VoucherDetailId = voucherDetaiSales.Id,
+                                TaxCodeId = invoiceTaxVM.TaxCodeId,
+                                TaxCategoryId = invoiceTaxVM.TaxCategoryId,
+                                TaxAmount = Math.Round(invoiceTaxVM.TaxAmount, 4),
+                                TaxAutoAmount = invoiceTaxVM.TaxAutoAmount,
+                                PartyId = voucherVM.PartyId,
+                                SourceType = SourceType.CustomerInvoiceTax.ToString(),
+                                AdjustmentNoteId = adjustmentNote.Id
+                            };
+                            taxDrAmount += Math.Round(invoiceTaxVM.TaxAmount, 4);
+                            _invoiceTaxService.InsertInvoiceTax(adjustmentNote, invoiceTax, invoiceTaxPk);
+
+                            // Insert Into Customer Invoice Tax Detail (Withhold GL)
+                            withholdgl = taxCode.IsWithhold;
+                            if (taxCode.IsWithhold && string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                                throw new CustomException("Withhold GL is not found of TaxCode " + taxCode.StandardName);
+                            if (taxCode.IsWithhold && !string.IsNullOrEmpty(taxCodeGL.WithholdCreditableGLId))
+                            {
+                                var invoiceTaxDetail = new InvoiceTaxDetail
+                                {
+                                    GLGeneralInfoId = taxCodeGL.WithholdCreditableGLId,
+                                    BudgetMasterId = taxCodeGL.WithholdCreditableBudgetMasterId,
+                                    ActivityId = taxCodeGL.WithholdCreditableActivityId,
+                                    Amount = invoiceTax.TaxAmount,
+                                    AType = "Dr"
+                                };
+                                totalwithholdDrAmount += invoiceTaxDetail.Amount;
+                                totalVoucherDetailTaxAmount += totalwithholdDrAmount;
+                                _invoiceTaxService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, 1);
+
+                                var voucherDetailTax = new VoucherDetail
+                                {
+                                    GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
+                                    BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
+                                    ActivityId = invoiceTaxDetail.ActivityId,
+                                    InvoiceTaxDetailId = invoiceTaxDetail.Id,
+                                    DrAmount = invoiceTaxDetail.Amount,
+                                    PostingWithoutTaxAllow = voucherDetaiSales.PostingWithoutTaxAllow
+                                };
+                                totalAmountDr += voucherDetailTax.DrAmount;
+                                currentVoucherDetailId++;
+                                _voucherService.InsertVoucherDetail(voucher, voucherDetailTax, currentVoucherDetailId);
+
+                                var voucherDetailCurrencydb = new VoucherDetailCurrency
+                                {
+                                    ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                                    ToCurrencyId = companyCurrencyId,
+                                    ParallelCurrencyId = companyCurrencyId,
+                                    FromCurrencyId = companyCurrencyId,
+                                    DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.DrAmount,
+                                    ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate
+                                };
+                                totalBaseCurrencyDrAmount += voucherDetailCurrencydb.DrAmount;
+                                _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencydb);
+                            }
+
+                            // Insert Into Customer Invoice Tax Detail (Creditable GL)
+                            creditablegl = taxCode.IsCreditable;
+                            if (taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                                throw new CustomException("Creditable GL is not found of TaxCode " + taxCode.StandardName);
+                            if (taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.CreditableGLId))
+                            {
+                                var invoiceTaxDetail = new InvoiceTaxDetail
+                                {
+                                    GLGeneralInfoId = taxCodeGL.CreditableGLId,
+                                    BudgetMasterId = taxCodeGL.CreditableGLBudgetMasterId,
+                                    ActivityId = taxCodeGL.CreditableGLActivityId,
+                                    Amount = invoiceTax.TaxAmount,
+                                    AType = "Cr"
+                                };
+                                totalcreditableCrAmount += invoiceTaxDetail.Amount;
+                                _invoiceTaxService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, 2);
+
+                                var voucherDetailTax = new VoucherDetail
+                                {
+                                    GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
+                                    BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
+                                    ActivityId = invoiceTaxDetail.ActivityId,
+                                    InvoiceTaxDetailId = invoiceTaxDetail.Id,
+                                    CrAmount = invoiceTaxDetail.Amount,
+                                    PostingWithoutTaxAllow = voucherDetaiSales.PostingWithoutTaxAllow
+                                };
+                                currentVoucherDetailId++;
+                                _voucherService.InsertVoucherDetail(voucher, voucherDetailTax, currentVoucherDetailId);
+                                totalAmountCr += voucherDetailTax.CrAmount;
+                                var voucherDetailCurrencybase = new VoucherDetailCurrency
+                                {
+                                    ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                                    ToCurrencyId = companyCurrencyId,
+                                    ParallelCurrencyId = companyCurrencyId,
+                                    FromCurrencyId = voucherVM.CurrencyId,
+                                    CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.DrAmount,
+                                    ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate
+                                };
+                                totalBaseCurrencyCrAmount += voucherDetailCurrencybase.CrAmount;
+                                totalAPBaseCurrencyCrAmount += voucherDetailCurrencybase.CrAmount;
+                                _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencybase);
+                            }
+                            if (!merge && !taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
+                                throw new CustomException("Expenses GL is not found of TaxCode " + taxCode.StandardName);
+                            if (!merge && !taxCode.IsCreditable && !string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
+                            {
+                                var invoiceTaxDetail = new InvoiceTaxDetail
+                                {
+                                    GLGeneralInfoId = taxCodeGL.ExpensesGLId,
+                                    BudgetMasterId = taxCodeGL.ExpensesGLBudgetMasterId,
+                                    ActivityId = taxCodeGL.ExpensesGLActivityId,
+                                    Amount = invoiceTax.TaxAmount,
+                                    AType = "Cr"
+
+                                };
+                                totalExpensesCrAmount += invoiceTaxDetail.Amount;
+                                _invoiceTaxService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, 3);
+
+                                var voucherDetailTax = new VoucherDetail
+                                {
+                                    GLGeneralInfoId = invoiceTaxDetail.GLGeneralInfoId,
+                                    BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
+                                    ActivityId = invoiceTaxDetail.ActivityId,
+                                    CurrencyId = voucherDetaiSales.CurrencyId,
+                                    CrAmount = invoiceTaxDetail.Amount,
+                                    PostingWithoutTaxAllow = voucherDetaiSales.PostingWithoutTaxAllow
+                                };
+                                currentVoucherDetailId++;
+                                _voucherService.InsertVoucherDetail(voucher, voucherDetailTax, currentVoucherDetailId);
+                                totalAmountCr += voucherDetailTax.CrAmount;
+                                var voucherDetailCurrencybase = new VoucherDetailCurrency
+                                {
+                                    ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                                    ToCurrencyId = companyCurrencyId,
+                                    ParallelCurrencyId = companyCurrencyId,
+                                    FromCurrencyId = voucherVM.CurrencyId,
+                                    CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.CrAmount,
+                                    ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate
+                                };
+
+                                totalBaseCurrencyDrAmount += voucherDetailCurrencybase.DrAmount;
+                                totalAPBaseCurrencyDrAmount += voucherDetailCurrencybase.DrAmount;
+                                _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencybase);
+                            }
+                            //if (merge && !taxCode.IsCreditable)
+                            //{
+                            //    voucherDetaiSales.CrAmount += invoiceTax.TaxAmount;
+                            //    totalAmountCr += invoiceTax.TaxAmount;
+                            //}
+                        }
+                    }
 
                     // INSERT INTO VoucherDetailCurrency
                     _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetaiSales, new VoucherDetailCurrency
@@ -352,7 +522,7 @@ namespace Library.Service.Invoices
                 };
                 if (voucherVM.PartyType == "Customer")
                 {
-                    adjustmentNoteDetail.Amount = adjustmentNote.Amount  + totalBaseCurrencyDrAmount;
+                    adjustmentNoteDetail.Amount = adjustmentNote.Amount  +  totalwithholdDrAmount;
 
                 }
                 else
