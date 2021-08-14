@@ -118,6 +118,12 @@ namespace Aplos.Areas.Setups.Controllers
             return Json(new { Message = AplosMessage.Success });
         }//
         [HttpPost, Authorize]
+        public JsonResult SendEmpApprovalMailReport()
+        {
+            _mailSenderService.SendEmployeeApprovalAppList("TS", "TS", "10215");
+            return Json(new { Message = AplosMessage.Success });
+        }//
+        [HttpPost, Authorize]
         public JsonResult SendManualAttendanceEmployeeList()
         {
             _mailSenderService.SendManualAttendanceEmployeeList("TS", "TS", "10215");

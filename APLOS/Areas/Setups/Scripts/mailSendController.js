@@ -556,7 +556,7 @@ $scope.SendAccountDelayPosting = function () {
     $scope.SendEmpApprovalMail = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'DailyAttendanceFromAppReport',
+            url: $scope.path + 'SendEmpApprovalMailReport',
             params: {
                 'addedBy': "",
                 'ip': "",
