@@ -552,4 +552,29 @@ $scope.SendAccountDelayPosting = function () {
         };
     };//SendLastFewDaysPaymentMadeMail
 
+
+    $scope.SendEmpApprovalMail = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'DailyAttendanceFromAppReport',
+            params: {
+                'addedBy': "",
+                'ip': "",
+                'appVersion': ""
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+        }), function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    };
+
+
+
 }
