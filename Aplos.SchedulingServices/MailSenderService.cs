@@ -15483,6 +15483,201 @@ AND (E.EmployeeStatus='Active' OR Year(DOS) >= '" + objm.AYear + @"' AND MONTH(D
 
         #endregion
 
+        #region EmployeeApproval
+        public void SendEmployeeApprovalAppList(string addedBy, string ip, string appVersion)
+        {
+            var Errorlog = new MailLog
+            {
+                AddedBy = addedBy,
+                AddedDate = DateTime.Now,
+                AddedFromIP = ip,
+                AppVersion = appVersion,
+                CompanyGroupId = null,
+                ModelState = ModelState.Added,
+                RecordTime = DateTime.Now,
+                ServiceName = "ERROR-EmployeeApprovalReport",
+                UserId = null,
+                AttachmentName = null,
+                IsSuccess = false,
+                SenderName = null,
+                MailGenerator = MailGenerator.Scheduler.ToString()
+            };
+            try
+            {
+                var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
+                var serviceName = MailServiceName.EmployeeToBeApproved.ToString();
+
+                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                foreach (var companyGroup in companyGroupList)
+                {
+                    var log = new MailLog
+                    {
+                        AddedBy = addedBy,
+                        AddedDate = DateTime.Now,
+                        AddedFromIP = ip,
+                        AppVersion = appVersion,
+                        CompanyGroupId = companyGroup.Id,
+                        ModelState = ModelState.Added,
+                        RecordTime = DateTime.Now,
+                        ServiceName = serviceName,
+                        UserId = null,
+                        AttachmentName = null,
+                        IsSuccess = false,
+                        SenderName = null,
+                        MailGenerator = MailGenerator.Scheduler.ToString()
+                    };
+
+                    var mailServiceList = _mailReceiverServiceMappingRepository.Query(r => r.CompanyGroupId == companyGroup.Id && r.ServiceName == serviceName).Select().ToList();
+                    if (mailServiceList.Count <= 0)
+                    {
+                        log.Remarks = "Mail service not found!";
+                        _mailLogRepository.Insert(log);
+                        _unitOfWork.SaveChanges();
+                        break;
+                    }
+                    else
+                    {
+                        var smtpConfigurationCG = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id).Select().FirstOrDefault();
+                        foreach (var item in mailServiceList)
+                        {
+                            log.MailReceiverId = item.MailReceiverId;
+                            log.SenderName = item.SenderName;
+                            log.SenderEmail = item.SenderEmail;
+                            log.Subject = item.Subject;
+                            if (item.Active)
+                            {
+                                EmailSender email = null;
+                                if (!string.IsNullOrEmpty(item.PlantId))
+                                {
+                                    var smtpConfigurationC = _smtpConfigurationService.Query(r => r.CompanyGroupId == companyGroup.Id && r.CompanyId == item.CompanyId).Select().FirstOrDefault();
+                                    if (null == smtpConfigurationC)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company");
+
+                                    else
+                                        email = new EmailSender(smtpConfigurationC.Host, smtpConfigurationC.Port, smtpConfigurationC.MailingUserName, smtpConfigurationC.Password, true);
+                                }
+                                else
+                                {
+                                    if (null == smtpConfigurationCG)
+                                        log.Remarks = string.Format(ResourcesCore.SMTPConfigNotFound.ToString(), "Company Group");
+                                    else
+                                        email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
+                                }
+                                var emailList = GetMaileList(item);
+                                if (emailList.Count <= 0)
+                                {
+                                    log.CompanyId = item.CompanyId;
+                                    log.PlantId = item.PlantId;
+                                    log.MailReceiverId = item.MailReceiverId;
+                                    log.SenderName = item.SenderName;
+                                    log.Subject = item.Subject;
+                                    log.IsReciepientListActive = false;
+                                    log.Remarks = "Reciepient List is not Active";
+                                }
+                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.ToList = toList;
+                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.CcList = ccList;
+                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                log.BccList = bccList;
+                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                if (toList == "")
+                                {
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.InactiveUsers = inActiveList;
+                                    log.ToAddressProblem = "To List is Empty";
+                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (tmissingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
+                                }
+                                if (inActiveList == string.Empty)
+                                    log.InactiveUsers = null;
+                                else
+                                    log.InactiveUsers = inActiveList;
+                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                if (missingEmailList == string.Empty)
+                                    log.MissingEMails = null;
+                                else
+                                    log.MissingEMails = missingEmailList;
+                                fileName += item.PlantId;
+                                var path = SendAttendanceFromAppNotification(item.CompanyGroupId, item.PlantId, fileName);
+
+                                if (!string.IsNullOrEmpty(path))
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                        message.Attachments.Add(new Attachment(path));
+                                        email.Send(message);
+                                        // Set file name.
+                                        log.AttachmentName = fileName + ".xls";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = true;
+                                        log.Remarks = "Mail has been send successfully.";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else if (item.IsSendMailIfEmptyData)
+                                {
+                                    try
+                                    {
+                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                        email.Send(message);
+
+                                        log.AttachmentName = null;
+                                        log.Remarks = "Mail send with: No data found.";
+                                        log.IsSuccess = true;
+                                        log.IsReciepientListActive = true;
+                                        log.IsServiceActive = true;
+                                        log.HasAttachment = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.IsSuccess = false;
+                                        log.Remarks = serviceName + " - " + ex.Message;
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
+                                    log.AttachmentName = null;
+                                    log.IsSuccess = true;
+                                    log.IsReciepientListActive = true;
+                                    log.IsServiceActive = true;
+                                    log.HasAttachment = false;
+                                }
+                            }
+                            else
+                            {
+                                log.Remarks = "Service is inactive";
+                            }
+                        }
+                    }
+                    _mailLogRepository.Insert(log);
+                    _unitOfWork.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Errorlog.Remarks = ex.Message;
+                _mailLogRepository.Insert(Errorlog);
+                _unitOfWork.SaveChanges();
+                throw;
+            }
+        }
+        #endregion
+
         #endregion
     }
 }

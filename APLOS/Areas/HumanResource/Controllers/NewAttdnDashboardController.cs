@@ -28,10 +28,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetGroupWiseCompanyList(string date, string stat, string EmpCat)
+        public ActionResult GetGroupWiseCompanyList(string date, string stat, string EmpCat , string EmpStat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date,  stat,  EmpCat);
+            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date,  stat,  EmpCat, EmpStat);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
@@ -50,19 +50,19 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetDetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string stat , string EmpCat)
+        public ActionResult GetDetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string stat , string EmpCat, string EmpStat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            return Json(na.DetailDrillDownTable(ChartColumnList, seq, date, identity.CompanyGroupId, stat, EmpCat), JsonRequestBehavior.AllowGet);
+            return Json(na.DetailDrillDownTable(ChartColumnList, seq, date, identity.CompanyGroupId, stat, EmpCat, EmpStat), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost , Authorize]
-        public ActionResult DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data ,string stat , string EmpCat)
+        public ActionResult DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data ,string stat , string EmpCat, string EmpStat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            return Json(na.DetailTableClick(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data , stat, EmpCat), JsonRequestBehavior.AllowGet);
+            return Json(na.DetailTableClick(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data , stat, EmpCat, EmpStat), JsonRequestBehavior.AllowGet);
         }
     }
 }
