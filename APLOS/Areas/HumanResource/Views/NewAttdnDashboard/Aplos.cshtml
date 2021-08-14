@@ -136,8 +136,25 @@
         </div>
     </div>
 </div>
+<div class="row">
+    
+        <div class="col-md-6 col-md-offset-6">
+            <div class="col-md-4" style="margin-top: 7px;margin-bottom: 4px;">
+                <span style="margin-top: 7px;margin-bottom: -4px;"> Employee Status:</span>
+            </div>
+            <div class="col-md-6">
+                <div class="select-style" style="margin-top: 7px;margin-bottom: -4px;">
+                    <select ng-model="EmpStat">
+                        <option ng-repeat="option in EmpStatsList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    
+</div>
 <br />
 <div class="row" id="overall" style="background-color:white;">
+
     <div class="col-md-12">
         <div id="Detail" class="col-lg-12" style="padding-left:0%">
             <div class="row">
