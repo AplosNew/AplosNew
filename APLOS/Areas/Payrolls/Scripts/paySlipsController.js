@@ -12,6 +12,7 @@ function paySlipsController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.month = "";
     $scope.year = "";
     $scope.isCompletedMonth = null;
+    $scope.IncludingZeroHeads = false;
     $scope.salaryProcessId = null;
     $scope.languageId = null;
     $scope.empGrid = false;
@@ -211,7 +212,8 @@ function paySlipsController(commonMessage, $scope, $rootScope, baseService, $rou
                     'languageId': $scope.languageId,
                     'isActive': $scope.isActive,
                     'isSeperated': $scope.isSeperated,
-                    'isMaternity': $scope.isMaternity
+                    'isMaternity': $scope.isMaternity,
+                    'IsIncludingZeroHeads': $scope.IncludingZeroHeads
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

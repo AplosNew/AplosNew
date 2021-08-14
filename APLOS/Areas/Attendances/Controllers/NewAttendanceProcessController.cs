@@ -38,11 +38,25 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunShiftProcess(string Date)
         {
-            string CGId = "CG20181";
+            string CGId = "";
 
+            DataSet GroupList;            
             NewAttendanceProcessService repo = new NewAttendanceProcessService();
+
+            repo.GetCompanyGp(out GroupList);
+            if (GroupList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int k = 0; k < GroupList.Tables[0].Rows.Count; k++)
+                {
+                    CGId = GroupList.Tables[0].Rows[k][@"CGId"].ToString();
+
+                }
+            }
+                    
             DataSet PlantList;
             repo.GetPlant(CGId, out PlantList);
+            
             if (PlantList.Tables[0].Rows.Count > 0)
             {
                 
@@ -75,9 +89,22 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunAttnd(string Date)
         {
-            string CGId = "CG20181";
+            string CGId = "";
 
+            DataSet GroupList;
             NewAttendanceProcessService repo = new NewAttendanceProcessService();
+
+            repo.GetCompanyGp(out GroupList);
+            if (GroupList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int k = 0; k < GroupList.Tables[0].Rows.Count; k++)
+                {
+                    CGId = GroupList.Tables[0].Rows[k][@"CGId"].ToString();
+
+                }
+            }
+            
             DataSet PlantList;
             repo.GetPlant(CGId, out PlantList);
 
@@ -112,9 +139,22 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunDayStatus(string Date)
         {
-            string CGId = "CG20181";
+            string CGId = "";
 
+            DataSet GroupList;
             NewAttendanceProcessService repo = new NewAttendanceProcessService();
+
+            repo.GetCompanyGp(out GroupList);
+            if (GroupList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int k = 0; k < GroupList.Tables[0].Rows.Count; k++)
+                {
+                    CGId = GroupList.Tables[0].Rows[k][@"CGId"].ToString();
+
+                }
+            }
+            
             DataSet PlantList;
             repo.GetPlant(CGId, out PlantList);
 
@@ -149,9 +189,22 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult ManualScheduler()
         {
-            string CGId = "CG20181";
+            string CGId = "";
 
+            DataSet GroupList;
             NewAttendanceProcessService repo = new NewAttendanceProcessService();
+
+            repo.GetCompanyGp(out GroupList);
+            if (GroupList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int k = 0; k < GroupList.Tables[0].Rows.Count; k++)
+                {
+                    CGId = GroupList.Tables[0].Rows[k][@"CGId"].ToString();
+
+                }
+            }
+            
             DataSet PlantList;
             repo.GetPlant(CGId, out PlantList);
 
@@ -209,9 +262,22 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult RunRoster(string Date)
         {
-            string CGId = "CG20181";
+            string CGId = "";
 
+            DataSet GroupList;
             NewAttendanceProcessService repo = new NewAttendanceProcessService();
+
+            repo.GetCompanyGp(out GroupList);
+            if (GroupList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int k = 0; k < GroupList.Tables[0].Rows.Count; k++)
+                {
+                    CGId = GroupList.Tables[0].Rows[k][@"CGId"].ToString();
+
+                }
+            }
+            
             DataSet PlantList;
             repo.GetPlant(CGId, out PlantList);
 
@@ -223,9 +289,8 @@ namespace Aplos.Areas.Attendances.Controllers
                     try
                     {
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString(); 
-                        CatchPlant = PlantValue;
-                        //rep.RosterProcess(PlantValue)
-                        rep.RosterProcessTry(PlantValue , Date);
+                        CatchPlant = PlantValue;                        
+                        rep.RosterProcess(PlantValue , Date);
                     }
                     catch (Exception ex)
                     {

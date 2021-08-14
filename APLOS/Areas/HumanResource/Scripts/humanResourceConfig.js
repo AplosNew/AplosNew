@@ -591,6 +591,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/admin-attdn-control', {
             templateUrl: 'humanresource/AdminAttendanceControl/',
             controller: 'AdminAttendanceControlController'
+        })
+        .when('/employee-budget-update', {
+            templateUrl: 'humanresource/EmployeeBudgetUpdate/Aplos',
+            controller: 'EmployeeBudgetUpdateController'
         });
 
 }

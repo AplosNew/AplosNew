@@ -200,7 +200,7 @@ namespace Library.Service.SalaryDisbursement
                 BankMasterId = voucherVM.BankMasterId,
                 CashMasterId = voucherVM.CashMasterId,
                 Archive = false,
-                VoucherId=voucherVM.VoucherId
+                VoucherId = voucherVM.VoucherId
             });
         }
 
@@ -247,7 +247,7 @@ namespace Library.Service.SalaryDisbursement
                     foreach (var directVoucherDetailVM in directJVList)
                     {
                         currentVoucherDetailId++;
-                         if(directVoucherDetailVM.SalaryHeadCategory != "Advance" || directVoucherDetailVM.SalaryHeadCategory != "Interest Deduction")
+                        if (directVoucherDetailVM.SalaryHeadCategory != "Advance" || directVoucherDetailVM.SalaryHeadCategory != "Interest Deduction")
                         {
                             var directVoucherDetailDr = _voucherService.InsertVoucherDetail(voucherdirect, new VoucherDetail
                             {
@@ -280,7 +280,7 @@ namespace Library.Service.SalaryDisbursement
                                 directdata.VoucherId = directVoucherId;
                                 directdata.Amount = directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance").Sum(r => r.Amount);
                                 var advanceWriteOff = InsertAdvanceWriteOff(directdata);
-                                foreach (var item in directSalaryLockList.Where(r=>r.SalaryHeadCategory == "Advance"))
+                                foreach (var item in directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance"))
                                 {
 
                                     var advance = _advanceService.Find(item.AdvanceId);
@@ -309,7 +309,7 @@ namespace Library.Service.SalaryDisbursement
                                         CurrencyId = advanceWriteOff.CurrencyId,
                                         PartyType = advanceDetail.PartyType,
                                         Amount = item.Amount,
-                                        EmployeeId=item.EmployeeId
+                                        EmployeeId = item.EmployeeId
                                     };
                                     InsertAdvanceWriteOffDetail(advanceWriteOff, advanceWriteOffDetail, currentAdvanceWriteOffDetailId);
 
@@ -336,8 +336,8 @@ namespace Library.Service.SalaryDisbursement
                                         CrAmount = item.Amount,
                                         EmployeeId = item.EmployeeId,
                                         TrnNature = directVoucherDetailVM.SalaryHead,
-                                        AdvanceWriteOffDetailId= advanceWriteOffDetail.Id,
-                                        PartyType="Employee"
+                                        AdvanceWriteOffDetailId = advanceWriteOffDetail.Id,
+                                        PartyType = "Employee"
                                     }, currentVoucherDetailId);
 
                                     // INSERT INTO VoucherDetailCurrency
@@ -388,7 +388,7 @@ namespace Library.Service.SalaryDisbursement
                                 }
                             }
                         }
-                        else if(directVoucherDetailVM.SalaryHeadCategory == "Interest Deduction")
+                        else if (directVoucherDetailVM.SalaryHeadCategory == "Interest Deduction")
                         {
                             if (directSalaryLockList != null)
                             {
@@ -457,12 +457,12 @@ namespace Library.Service.SalaryDisbursement
                                 }
                             }
                         }
-                       
+
                     }
 
 
                 }
-               
+
                 if (inDirectJVList != null)
                 {
                     InDirectVoucherData.DocRefNo = "I" + voucherVM.DocRefNo;
@@ -498,7 +498,7 @@ namespace Library.Service.SalaryDisbursement
                                 CrAmount = InDirectVoucherData.CompanyCurrencyRate * voucherDetailDr.CrAmount
                             });
                         }
-                        else if(voucherDetailVM.SalaryHeadCategory == "Advance")
+                        else if (voucherDetailVM.SalaryHeadCategory == "Advance")
                         {
                             var currentAdvanceWriteOffDetailId = 0;
                             if (indirectSalaryLockList != null)
@@ -611,7 +611,7 @@ namespace Library.Service.SalaryDisbursement
                                 }
                             }
                         }
-                        else if(voucherDetailVM.SalaryHeadCategory != "Interest Deduction")
+                        else if (voucherDetailVM.SalaryHeadCategory != "Interest Deduction")
                         {
                             if (indirectSalaryLockList != null)
                             {
@@ -680,8 +680,8 @@ namespace Library.Service.SalaryDisbursement
                         }
                     }
                 }
-               
-               
+
+
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
@@ -1201,7 +1201,7 @@ namespace Library.Service.SalaryDisbursement
             return workbook;
         }
 
-        public void DeleteSalaryPayable(string plantId,string voucherId, string monthNo, string yearNo)
+        public void DeleteSalaryPayable(string plantId, string voucherId, string monthNo, string yearNo)
         {
             var flag = false;
             try
@@ -1212,7 +1212,20 @@ namespace Library.Service.SalaryDisbursement
                 var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
-                 var direct = new System.Text.StringBuilder();
+
+
+                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                }
+
+                foreach (var item in voucherdetail)
+                {
+                    _voucherDetailRepository.Delete(item.Id);
+                }
+                var direct = new System.Text.StringBuilder();
                 var directsql = "";
 
                 directsql = @"update [dbo].[SalaryLock] set PayableVoucherId=NULL where Id in (
@@ -1226,20 +1239,6 @@ namespace Library.Service.SalaryDisbursement
                                      and PayableVoucherId='" + voucherId + @"' )";
                 direct.Append(directsql);
                 _sqlRepository.ExecuteSqlCommand(direct.ToString());
-                _unitOfWork.SaveChanges();
-
-
-                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                foreach (var item in voucherdetailcurrnecy)
-                {
-                    _voucherDetailCurrencyRepository.Delete(item.Id);
-                }
-               
-                foreach (var item in voucherdetail)
-                {
-                    _voucherDetailRepository.Delete(item.Id);
-                }
 
                 _voucherRepository.Delete(voucherId);
                 _unitOfWork.SaveChanges();
@@ -1262,7 +1261,6 @@ namespace Library.Service.SalaryDisbursement
                     _unitOfWork.Rollback();
             }
         }
-
 
 
         #region Salary Payable in Voucher

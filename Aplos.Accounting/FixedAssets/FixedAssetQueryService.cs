@@ -1510,10 +1510,10 @@ namespace Library.Accounting.FixedAssets
 		                            left join ORG.Entity E on E.Id= FR.EntityId
 									left join ORG.Department D on D.Id = FR.DepartmentId
 
-                                    WHERE FR.CompanyGroupId='" + companyGroupId+"'and FR.CompanyId='"+companyId+"' AND FR.PlantId='"+plantId+@"'
-                                    and FR.Archive=0 and FR.IsAUC=0
+                                    WHERE FR.CompanyGroupId='" + companyGroupId+"'and FR.CompanyId='"+companyId+"' AND FR.PlantId='"+plantId+ @"'
+                                    and FR.Archive=0 and FR.IsAUC=0 and	FR.DisposedVoucherId IS NULL
                                     AND FR.Id NOT IN(' ')
-				                     and FR.MaterialMasterId in("+materialMasterId+") AND FR.MaterialMasterArticleId in ("+materialMasterArticleId+") AND FR.FixedAssetMasterId in ("+fixedAssetMasterId+@")
+				                     and FR.MaterialMasterId in(" + materialMasterId+") AND FR.MaterialMasterArticleId in ("+materialMasterArticleId+") AND FR.FixedAssetMasterId in ("+fixedAssetMasterId+@")
 					                 and FR.VendorId in ("+vendorId+@") 
                                      --AND MM.IsAsset in () ";
             return _sqlRepository.GetDataCollection(sql);

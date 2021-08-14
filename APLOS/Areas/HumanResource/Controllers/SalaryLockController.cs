@@ -384,18 +384,19 @@ namespace Aplos.Areas.HumanResource.Controllers
                         {
                             if (EmployeeList[i].EmpSystemId == dsSaveSalaryLocked.Tables[0].DefaultView[0]["EmpSystemId"].ToString() && EmployeeList[i].IsLocked == false)
                             {
-                                if (EmpCodeLoop == "")
-                                {
-                                    EmpIdLoop = "" + EmployeeList[i].EmployeeCode + "";
-                                }
-                                else
-                                {
-                                    EmpIdLoop += "," + EmployeeList[i].EmployeeCode + "";
-                                }
+                                //if (EmpCodeLoop == "")
+                                //{
+                                //    EmpCodeLoop = "" + EmployeeList[i].EmployeeCode + "";
+                                //}
+                                //else
+                                //{
+                                //    EmpCodeLoop += "," + EmployeeList[i].EmployeeCode + "";
+                                //}
+                                throw new Exception("Cannot Unlock Salary for Employee [" + EmployeeList[i].EmployeeCode + "]");
                             }
                         }
-                        if (string.IsNullOrEmpty(EmpIdLoop))
-                            throw new Exception("Cannot Unlock Salary for Employee [" + EmpIdLoop + "]");
+                        //if (!string.IsNullOrEmpty(EmpIdLoop))
+                            //throw new Exception("Cannot Unlock Salary for Employee [" + EmpIdLoop + "]");
                     }
                     
 

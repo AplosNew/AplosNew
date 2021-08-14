@@ -34,13 +34,25 @@ namespace Library.Planning.OrderManagement
         {
             try
             {
-                var sql = @" SELECT * FROM ( SELECT  
+                var sql = @"SELECT * FROM ( SELECT  
                                         isnull(e.Id,'') AS EntityId,isnull(e.UserName,'') Entity,
 										pln.Id PlantId,Pln.UserName Plant,
                                         isnull(ps.Id,'') AS ProductionStatusId, isnull(ps.UserName,'') AS ProductionStatus
 										,PO.Id ProductionOrderId
-                                      
-
+                                      , ResponsiblePersonId=STUFF((select distinct ','+XMO.ResponsiblePersonId from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join dbo.EmployeeInformation XEmp on XEmp.SystemId=XMO.ResponsiblePersonId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+	                                         , ResponsiblePerson=STUFF((select distinct ','+XEmp.EmployeeName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join dbo.EmployeeInformation XEmp on XEmp.SystemId=XMO.ResponsiblePersonId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                                    , Buyer=STUFF((select distinct ','+XB.UserName from 
 	                                                    trn.SalesOrder XSO 
 		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -49,6 +61,25 @@ namespace Library.Planning.OrderManagement
 		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
 			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 
+														 SOStatusId=STUFF((select distinct ','+XB.Id from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].OrderStatus XB on XB.Id=XSO.OrderStatusId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+
+													
+																 MOStatusId=STUFF((select distinct ','+XB.Id from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].OrderStatus XB on XB.Id=XMO.OrderStatusId
+			                                                    where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+		
 													 BuyerId=STUFF((select distinct ','+XB.Id from 
 	                                                    trn.SalesOrder XSO 
 		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -76,13 +107,16 @@ namespace Library.Planning.OrderManagement
 
                                         from trn.ProductionOrder PO
 				                                inner join ProductionOrderSchedulingParametersType1 T1 on t1.ProductionOrderID=po.Id
+												
 				                              
 				                                left outer join org.Entity E on e.Id=PO.EntityID
 				                             
 				                                left outer join org.Plant PLN on pln.Id=E.PlantId
 				                                LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
+
                               WHERE  PO.ProductionStatusId<>'Closed'
-                                ) AS KK";
+                                ) AS KK							
+";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception e)

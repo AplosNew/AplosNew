@@ -9,7 +9,7 @@ namespace Library.Model.Configurations.Inventory
         public ServicePODetailConfiguration()
         {
             HasKey(t => t.Id);
-            //Property(t => t.ToCurrencyRate).HasPrecision(18, 10);
+            Property(t => t.Rate).HasPrecision(18, 4);
             ToTable(nameof(ServicePODetail), DbSchema.Transaction);
             Ignore(r => r.ModelState);
         }
