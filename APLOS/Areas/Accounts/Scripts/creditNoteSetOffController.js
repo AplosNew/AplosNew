@@ -309,11 +309,11 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
 
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
-            if (baseService.isUndefinedOrNull(party.ReconciliationGLId)) {
+        if ($scope.partyType=='Customer' && baseService.isUndefinedOrNull(party.ReconciliationGLId)) {
                 ShowResult($scope.partyType + " GL not found!", "failure", "partyPopUp");
                 return;
             }
-            else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(party.ReconciliationBudgetId)) {
+        else if ($scope.partyType == 'Customer' && $scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(party.ReconciliationBudgetId)) {
                 ShowResult($scope.partyType + " Budget not found!", "failure", "partyPopUp");
                 return;
             }
