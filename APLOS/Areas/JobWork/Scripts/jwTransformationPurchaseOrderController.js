@@ -2054,6 +2054,15 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                         return false;
                     }
 
+                    if (baseService.isUndefinedOrNull($scope.detailModelList[i].TransactionRate)) {
+                        ShowResult('Please Enter Rate', 'failure', 'ListOfPOMaterial');
+                        return false;
+                    }
+                    if (baseService.isUndefinedOrNull($scope.detailModelList[i].ServiceId)) {
+                        ShowResult('Please Select Service', 'failure', 'ListOfPOMaterial');
+                        return false;
+                    }
+
                     $scope.taxCategoryList = null;
                 }
                 $scope.materialValidationForBOQItem($scope.detailModelList);
@@ -2078,7 +2087,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                         type: type,
                         taxCategoryList: $scope.taxCategoryList,
                         JWPOToCurrencyRate: $scope.productNew.ToCurrencyRate,
-                        JWPOIsNonCreditable: $scope.productNew.IsNonCreditable
+                        JWPOIsNonCreditable: $scope.productNew.IsNonCreditable,
+                        JWPODate: $scope.productNew.PODate
 
                     },
                     dataType: 'JSON'
@@ -3042,7 +3052,6 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.Action1 = 'Save';
         $scope.processgroupList1();
     };
-
 
     $scope.getalldataListForBOQListUpdate = function (x) {
         //debugger;

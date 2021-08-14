@@ -1347,7 +1347,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,b.RequiredQtyPO RequiredQtyPOOrginal
 						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
 						,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '-' + ISNULL(mo.BuyerReferenceNo,'') +'-'+ ISNULL(moi.OwnReferenceNo,'')+'-'+ISNULL(moi.BuyerReferenceNo,'')
-						,mm.BaseUOMId
+						,mm.BaseUOMId,POMAP.RatePerUnit as TransactionRate
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -1368,7 +1368,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
 						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
-						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.TransactionQty) TransactionQty 
+						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.TransactionQty) TransactionQty,JWPPOD.RatePerUnit
 											FROM JWPOBOQMAP POBOQMAP1
 									--LEFT JOIN JWTransformationPurchaseOrderDetail JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
 									--LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JWTransformationPurchaseOrderId
@@ -1376,16 +1376,16 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                     LEFT JOIN dbo.JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
 									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JobWorkTransformationContractMasterId
 									where POM.Id ='" + JWPOId + @"'
-									GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id							
+									GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit							
 									)POMAP ON POMAP.BOQDetailId=b.Id
-						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.POBOQQty) TransactionQty 
+						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.POBOQQty) TransactionQty,JWPPOD.RatePerUnit
 											FROM JWPOBOQMAP POBOQMAP1
 									--LEFT JOIN JWTransformationPurchaseOrderDetail JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
 									--LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JWTransformationPurchaseOrderId
                                     LEFT JOIN JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
 									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JobWorkTransformationContractMasterId
 									where POM.Id !='" + JWPOId + @"'
-									GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id
+									GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
                         LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
                         --LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId=b.Id AND JWPOBOQMAP.JWPODetailId IN (select Id from JWTransformationPurchaseOrderDetail where JWTransformationPurchaseOrderId='" + JWPOId + @"')
@@ -2927,12 +2927,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
         //    }
         //}
 
-        public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable)
+        public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable, string JWPODate)
         {
             string  JWOutId = " ";
             string  JWBOQId = " ";
             string JWBOQReqQty = "";
-          //  var JWBOQChildId = "' '";
+            string TRate = "";
+            string TQty = "";
+            //  var JWBOQChildId = "' '";
 
             string JWPODId = "";
             DataSet dsMaster; DataSet dsPOBOQMap; DataSet dsJwChildMaterial;
@@ -3052,7 +3054,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                             if (OrderSpecific == "Yes")
                             {
-                                data[i]["ReferenceNo"] = data[i]["ReferenceNoM"];
+                                data[i]["ReferenceNo"] = data[i]["BuyerItemReferenceNo"];
 
                             }
                             //JWOutId += ",'" + data[i]["Id"].ToString() + "' ";
@@ -3061,12 +3063,15 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             JWOutId = data[i]["Id"].ToString();
                             JWBOQId = data[i]["BOQId"].ToString();
                             JWBOQReqQty= data[i]["RequiredQtyPO"].ToString();
+                            TQty = data[i]["TransactionQty"].ToString();
+                            TRate = data[i]["RatePerUnit"].ToString();
 
                             AddNewRow(dsMaster.Tables[0], data[i]);
 
                             clsStaticInfo _info = new clsStaticInfo();
                             _info.SaveDataSets(dsMaster);
                             SaveJWBOQChild(JWOutId, JWBOQId, JWBOQReqQty);
+                            SaveJWServiceTaxes(JWOutId, JWPurchaseOrderId, JWPODate, TQty, TRate, JWPOIsNonCreditable);
 
                         }
                         else
@@ -3083,7 +3088,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             data[i]["Quantity"] = data[i]["TransactionQty"];
                             data[i]["RatePerUnit"] = data[i]["TransactionRate"];
                             data[i]["ServiceId"] = data[i]["ServiceId"];
-                            data[i]["TaxAmount"] = data[i]["TaxAmount"];
+                            data[i]["TaxAmount"] = 0;
 
                             if (JWPOIsNonCreditable == "False")
                             {
@@ -3108,10 +3113,14 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                 data[i]["BaseAmount"] = BAmt;
                             }
 
-                            if (OrderSpecific == "Yes")
+                            if (OrderSpecific == "Yes" && data[i]["BOQId"] != null)
+                            {
+                                data[i]["ReferenceNo"] = data[i]["BuyerItemReferenceNo"];
+
+                            }
+                            else
                             {
                                 data[i]["ReferenceNo"] = data[i]["ReferenceNo"];
-
                             }
 
                             //JWOutId += ",'" + data[i]["Id"].ToString() + "' ";
@@ -3122,6 +3131,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             {
                                 JWBOQId = data[i]["BOQId"].ToString();
                                 JWBOQReqQty = data[i]["RequiredQtyPO"].ToString();
+                                TQty = data[i]["TransactionQty"].ToString();
+                                TRate = data[i]["RatePerUnit"].ToString();
                             }
                             
 
@@ -3134,6 +3145,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                 clsStaticInfo _info = new clsStaticInfo();
                                 _info.SaveDataSets(dsMaster);
                                 SaveJWBOQChild(JWOutId, JWBOQId, JWBOQReqQty);
+                                SaveJWServiceTaxes(JWOutId, JWPurchaseOrderId, JWPODate, TQty, TRate, JWPOIsNonCreditable);
                             }
                            
                         }
@@ -3486,6 +3498,215 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(JWOutMat);
+
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+
+        }
+
+        // JW SERVICE TAXES(BOQ POP UP)
+
+        private string GetJWTaxesPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "JWTransformationPurchaseOrderTax", out sID);
+            return sID;
+        }
+
+        public void SaveJWServiceTaxes(string JWOutId, string JWPurchaseOrderId, string JWPODate, string TQty, string TRate, string JWPOIsNonCreditable)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+      //      var JWBOQChildId = "' '";
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet JWTaxExist;
+                DataSet JWGetSerTaxes;
+                DataSet JWOutMatExist;
+                string hsnCodeId = "";
+
+                con.OpenDataSetThroughAdapter("select * from dbo.JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderId='"+ JWPurchaseOrderId + @"' and JWTransformationPurchaseOrderDetailId='"+ JWOutId + @"'  ", out JWTaxExist, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild where Id='"+ JWOutId + @"' ", out JWOutMatExist, false, "1");
+                //for (var i = 0; i < JWBOQ.Tables[0].DefaultView.Count; i++)
+                //{
+                //    JWBOQChildId += ",'" + JWBOQ.Tables[0].Rows[i]["Id"];
+                //}
+
+                con.OpenDataSetThroughAdapter("DECLARE @receiveId varchar(10)='" + JWPurchaseOrderId + @"'
+                                  , @partyState varchar(30)
+                                  , @partyCountry varchar(10)
+                                  , @plantState varchar(30)
+                                  , @plantCountry varchar(10)
+                                  , @plantId varchar(30)='" + identity.PlantId + @"'
+                                  , @hsnCodeId varchar(30)='" + hsnCodeId + @"'
+                    SET @partyCountry =(SELECT AM.CountryId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id
+                                                    JOIN JWTransformationPurchaseOrder AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SET @partyState =(SELECT AM.StateId FROM HKP.PartyPlant AS PP LEFT JOIN MST.AddressMaster AS AM ON PP.AddressMasterId=AM.Id
+                                    JOIN JWTransformationPurchaseOrder AS IR ON IR.InvoicingPartyPlantId=PP.Id WHERE IR.Id=@receiveId)-- AND AD.Active=1 AND AD.Archive=0)
+
+                    SET @plantState =(SELECT AD.StateId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SET @plantCountry =(SELECT AD.CountryId FROM MST.AddressMaster AS AD JOIN ORG.Plant AS PLNT ON AD.Id=PLNT.AddressMasterId WHERE PLNT.Id=@plantId)-- AND AD.Active=1 AND AD.Archive=0)
+                    SELECT TVD.Id, TVD.TaxCategoryId, HP.HSNCodeId, HN.Code AS HSNCode, TC.UserName, ISNULL(HP.[Percentage],'0') AS [Percentage], 0 TaxAmount
+                    FROM [MST].[TaxVariantDetail] AS TVD
+                    JOIN [MST].[TaxVariant] AS TV ON TVD.TaxVariantId=TV.Id
+                    JOIN [MST].[TaxCategory] AS TC ON TVD.TaxCategoryId=TC.Id
+                    --LEFT JOIN (SELECT * FROM [MST].[HSNTaxPercentage] WHERE HSNCodeId=@hsnCodeId) AS HP ON HP.TaxCategoryId=TC.Id
+					LEFT JOIN (SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY TaxCategoryId, HSNCodeId ORDER BY EffectiveDate DESC) AS RN
+								FROM [MST].[HSNTaxPercentage] WHERE CountryId=@plantCountry AND HSNCodeId=@hsnCodeId AND convert(DATE, EffectiveDate)<='" + JWPODate + @"') AS TBL WHERE RN=1) AS HP ON HP.TaxCategoryId=TC.Id
+
+                    LEFT JOIN [HKP].[HSNCode] AS HN ON HP.HSNCodeId=HN.Id
+                    WHERE TV.CompanyGroupId='" + identity.CompanyGroupId + @"' AND TV.CountryId=@plantCountry --AND HP.HSNCodeId=@hsnCodeId
+                    AND TV.TaxFor=CASE WHEN @partyCountry=@plantCountry THEN '" + TaxFor.DomesticPurchase + @"'
+				                        WHEN @partyCountry<>@plantCountry THEN '" + TaxFor.OverseasPurchase + @"' END
+                    AND (TV.Different=CASE WHEN @partyCountry=@plantCountry AND @partyState=@plantState AND TV.DifferentIn='State' THEN 'Same'
+					                       WHEN @partyCountry=@plantCountry AND @partyState<>@plantState AND TV.DifferentIn='State' THEN 'Different' END
+	                    OR TV.Different IS NULL)
+                    ORDER BY TC.[Sequence] ", out JWGetSerTaxes, false, "1");
+
+                //string BoqChildId = "";
+                //decimal Consumption = 0;
+                //decimal WastagePer = 0;
+
+                decimal SumTax = 0;
+                decimal TrAmt = 0;
+                decimal TaxAmt = 0;
+                    //for (int a = 0; a < JWGetSerTaxes.Tables[0].DefaultView.Count; a++)
+                    //{
+                    //    decimal T1 = Convert.ToDecimal(JWGetSerTaxes.Tables[0].Rows[a]["TaxAmount"]);
+                    //    SumTax = T1 + SumTax;
+                    //}
+
+                for (var j = 0; j < JWGetSerTaxes.Tables[0].DefaultView.Count; j++)
+                {
+                    if(JWGetSerTaxes.Tables[0].Rows[j]["Percentage"] !=null && Convert.ToDecimal(JWGetSerTaxes.Tables[0].Rows[j]["Percentage"]) != 0)
+                    {
+                        decimal P1 = Convert.ToDecimal(JWGetSerTaxes.Tables[0].Rows[j]["Percentage"]);
+                        TrAmt = Convert.ToDecimal(TQty) * Convert.ToDecimal(TRate);
+                        TaxAmt = ((TrAmt * P1) / 100);
+                        SumTax = TaxAmt + SumTax;
+
+                    }
+
+                    //BoqChildId = JWBOQ.Tables[0].Rows[j]["Id"].ToString();
+                    //Consumption = Convert.ToDecimal(JWBOQ.Tables[0].Rows[j]["Consumption"]);
+                    //WastagePer = Convert.ToDecimal(JWBOQ.Tables[0].Rows[j]["WastagePer"]);
+                    //decimal ReqQuantity = (Convert.ToDecimal(JWBOQReqQty) * Consumption) * (1 + (WastagePer / 100));
+
+                    //decimal GrossConsumption = (Consumption * (1 + (WastagePer / 100)));
+
+                    JWTaxExist.Tables[0].DefaultView.RowFilter = "JWTransformationPurchaseOrderId='"+ JWPurchaseOrderId + "' and JWTransformationPurchaseOrderDetailId ='" + JWOutId + "' and TaxCategoryId='" + bplib.clsWebLib.RetValidLen(JWGetSerTaxes.Tables[0].Rows[j]["TaxCategoryId"]).ToString() + "' ";
+
+
+                    if (JWTaxExist.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = JWTaxExist.Tables[0].NewRow();
+                        dr["Id"] = "JTX" + GetJWTaxesPK();
+
+                        dr["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+
+                        dr["JWTransformationPurchaseOrderDetailId"] = JWOutId;
+
+                        dr["TaxCategoryId"] = JWGetSerTaxes.Tables[0].Rows[j]["TaxCategoryId"].ToString();
+                        //dr["HSNCodeId"] = JWGetSerTaxes.Tables[0].Rows[j]["HSNCodeId"].ToString();
+                        dr["Percentage"] = Convert.ToDecimal(JWGetSerTaxes.Tables[0].Rows[j]["Percentage"]);
+                        dr["TaxAmount"] = TaxAmt;
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+
+                        JWTaxExist.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        //edit
+
+                        JWTaxExist.Tables[0].DefaultView.RowFilter = "JWTransformationPurchaseOrderId='" + JWPurchaseOrderId + "' and JWTransformationPurchaseOrderDetailId ='" + JWOutId + "' and TaxCategoryId='" + bplib.clsWebLib.RetValidLen(JWGetSerTaxes.Tables[0].Rows[j]["TaxCategoryId"]).ToString() + "' ";
+
+                        if (JWTaxExist.Tables[0].DefaultView.Count == 0)
+                        {
+                            DataRow drr = JWTaxExist.Tables[0].NewRow();
+                            drr["Id"] = "JTX" + GetJWTaxesPK();
+
+                            drr["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+
+                            drr["JWTransformationPurchaseOrderDetailId"] = JWOutId;
+
+                            drr["TaxCategoryId"] = JWGetSerTaxes.Tables[0].Rows[j]["TaxCategoryId"].ToString();
+                            //drr["HSNCodeId"] = JWGetSerTaxes.Tables[0].Rows[j]["HSNCodeId"].ToString();
+                            drr["Percentage"] = Convert.ToDecimal(JWGetSerTaxes.Tables[0].Rows[j]["Percentage"]);
+                            drr["TaxAmount"] = TaxAmt;
+
+                            drr["AddedBy"] = identity.Name;
+                            drr["AddedDate"] = System.DateTime.Now.ToString();
+                            drr["AddedFromIP"] = identity.IPAddress;
+
+                            JWTaxExist.Tables[0].Rows.Add(drr);
+                        }
+                        else if (JWTaxExist.Tables[0].DefaultView.Count > 0)
+                        {
+                            DataRow drr = JWTaxExist.Tables[0].DefaultView[0].Row;
+
+                            drr.BeginEdit();
+
+                            drr["JWTransformationPurchaseOrderId"] = JWPurchaseOrderId;
+
+                            drr["JWTransformationPurchaseOrderDetailId"] = JWOutId;
+
+                            drr["TaxCategoryId"] = JWGetSerTaxes.Tables[0].Rows[j]["TaxCategoryId"].ToString();
+                            //drr["HSNCodeId"] = JWGetSerTaxes.Tables[0].Rows[j]["HSNCodeId"].ToString();
+                            drr["Percentage"] = Convert.ToDecimal(JWGetSerTaxes.Tables[0].Rows[j]["Percentage"]);
+                            drr["TaxAmount"] = TaxAmt;
+
+                            drr["UpdatedBy"] = identity.Name;
+                            drr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            drr["UpdatedFromIP"] = identity.IPAddress;
+
+                            drr.EndEdit();
+                        }
+                    }
+                    //clsStaticInfo _info = new clsStaticInfo();
+                    //_info.SaveDataSets(JWOutMat);
+                }
+
+                JWOutMatExist.Tables[0].DefaultView.RowFilter = "Id ='" + JWOutId + "' ";
+                if(JWOutMatExist.Tables[0].DefaultView.Count > 0)
+                {
+                    DataRow drr = JWOutMatExist.Tables[0].DefaultView[0].Row;
+
+                    drr.BeginEdit();
+
+                    TrAmt = Convert.ToDecimal(TQty) * Convert.ToDecimal(TRate);
+                    if (JWPOIsNonCreditable == "False")
+                    {
+                        drr["TransactionAmount"] = TrAmt;
+                        drr["BaseAmount"] = TrAmt;
+                    }
+
+                    if (JWPOIsNonCreditable == "True")
+                    {
+                        drr["TransactionAmount"] = TrAmt;
+                        drr["BaseAmount"] = TrAmt + SumTax;
+                    }
+                    drr["TaxAmount"] = SumTax;
+
+                    drr["UpdatedBy"] = identity.Name;
+                    drr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    drr["UpdatedFromIP"] = identity.IPAddress;
+
+                    drr.EndEdit();
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(JWTaxExist, JWOutMatExist);
 
 
             }
