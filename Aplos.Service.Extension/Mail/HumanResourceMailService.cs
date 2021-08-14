@@ -661,6 +661,47 @@ namespace Library.Service.Extension.Mail
             }
         }
 
+        public DataTable GetUnApproveEmployeeInfo(string empId,string companyGroupId, string plantId)
+        {
+
+            try
+            {
+                string sqlTxt = string.Empty;
+                sqlTxt = @"SELECT EI.SystemID,EI.EmployeeCode, EI.EmployeeName,
+	                        Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOB,
+	                        Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJ
+   	                        ,DP.UserName Department, PR.UserName PositionName,	E.UserName EntityName,
+	                        DSG.UserName Designation, se.UserName Section, Sus.UserName SubSection,
+	                        LGD.userName LegalDesignation,PMB.Code,ISNULL(PG.UserName,'') PayrollGroup,EC.UserName EmployeeCategory
+	                        ,EI.ApprovalAuthorityId,ATH.EmailId
+                        FROM dbo.Employeeinformation EI                             
+                        LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
+                        LEFT JOIN MST.AddressMaster AM ON PL.AddressMasterId=AM.Id						
+                        LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                        LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
+                        LEFT JOIN HKP.Designation DeG on DeG.Id=EI.GivenDesignationId
+                        LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                        LEFT JOIN HKP.LegalDesignation LGD on LGD.Id=EI.LegalDesignationId							  
+                        LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
+                        LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID 
+                        LEFT JOIN  [MST].[PayrollGroupMaster] PGM ON PGM.EmployeeId=EI.SystemId
+                        LEFT JOIN  [HKP].[PayrollGroup] PG ON PG.Id=PGM.PayrollGroupId
+                        LEFT JOIN (
+                                    SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
+			                        LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
+	                        )EC ON EC.DesignationId=EI.GivenDesignationId
+	                        LEFT JOIN dbo.Employeeinformation ATH ON ATH.SystemId=EI.ApprovalAuthorityId
+                        WHERE EI.EmployeeStatus !='Separated' AND EI.IsApproved =0 AND EI.PlantId='"+ plantId + "' AND  EI.GroupId='"+ companyGroupId + "' AND EI.ApprovalAuthorityId='"+empId+"'";
+                return _sqlRepository.GetDataTable(sqlTxt);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public DataTable GetMissedPunchInfo(string companyGroupId, string plantId)
         {
 

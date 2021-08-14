@@ -133,6 +133,14 @@ namespace Library.SchedulingServices.Setups
             return _mailReceiverDetailRepository.SqlQuery<MailViewModel>(sql).ToList();
         }
 
+        public List<MailViewModel> GetEmployeeApprovalAuthorityMaileList(MailReceiverServiceMapping item)
+        {
+            var sql = @"Select Convert(int,EI.SystemId) Id,EI.EmployeeName FullName,EI.EmailId Email,'To' MailType,CONVERT(bit,1) Active from [dbo].[AuthorizationConfig] AC
+                        LEFT JOIN EmployeeInformation EI ON EI.SystemId=AC.EmployeeId
+                        Where AC.ActionStatus='EmployeeApprovalAuthority' AND AC.PlantId='" + item.PlantId + "' AND ISNULL(EI.EmailId,'')<>''";
+            return _mailReceiverDetailRepository.SqlQuery<MailViewModel>(sql).ToList();
+        }
+
         /// <summary>
         /// EmpLeave Approval Mail
         /// </summary>
@@ -6873,6 +6881,25 @@ namespace Library.SchedulingServices.Setups
             }
         }
 
+        private string SendEmployeeToBeApprovedReport(string empId, string companyGroupId, string plantId, string fileName)
+        {
+            DataSet dsEmpInfo = null;
+
+            try
+            {
+                //Get DS
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+                var dtEmpInfo = HRMS.GetUnApproveEmployeeInfo(empId, companyGroupId, plantId);
+                //set ds
+                return GetUnApproveEmplyeeExcel(companyGroupId, plantId, dtEmpInfo, "Employee ToBe Approved", fileName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         private string SendDailyDevicePunchInfo(string companyGroupId, string plantId, string fileName)
         {
             DataSet dsEmpInfo = null;
@@ -9028,6 +9055,141 @@ namespace Library.SchedulingServices.Setups
                                     //    sheet1.Range[xlsRow, cGivenDesignation].CellStyle.Font.Color = ExcelKnownColors.White;
                                     //}
                                     //oRU.SetText(ref sheet1, xlsRow, cLD, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+                                    #endregion Loop
+                                    xlsRow++;
+                                }
+
+                                oRU.SetHeaderText(ref sheet1, 4, 1, "On " + DateTime.Now.AddDays(-1).ToString("dd-MMM-yyyy"), ExcelHAlign.HAlignCenter);
+                                sheet1.Range[4, 1, 4, endXlsCol].Merge();
+
+                                if (!string.IsNullOrEmpty(plantId))
+                                    oRU.PlantHeader(ref sheet1, endXlsCol, SheetHeader, plantId);
+                                else
+                                    oRU.MainCompanyGroupHeader(ref sheet1, endXlsCol, SheetHeader, companyGroupId);
+
+                                #region UsedRange Alignment
+                                sheet1.UsedRange.WrapText = true;
+                                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                                #endregion UsedRange Alignment
+
+                                oRU.PageSetupAuto(ref sheet1, 5, ExcelPageOrientation.Landscape, "TS");
+                                sheet1.Name = SheetName;
+
+                                workbook.Version = ExcelVersion.Excel97to2003;
+                                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
+                                workbook.SaveAs(filePath);
+                                workbook.Close();
+                                excelEngine.Dispose();
+                            }
+                            return filePath;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string GetUnApproveEmplyeeExcel(string companyGroupId, string plantId, DataTable dtEmpInfo, string SheetHeader, string SheetName)
+        {
+            try
+            {
+                #region Variable
+                //clsReport objRpt = null;
+                var filePath = "";
+
+                DataTable dtEntity = null;
+                DataTable dtPosition = null;
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                ReportUtility oRU = null;
+
+                var xlsRow = 1;
+                var xlsCol = 1;
+                var IsBudgetCodeApplicable = true;
+
+                #endregion Variable
+                oRU = new ReportUtility();
+                Library.Service.Extension.Mail.HumanResourceMailService HRMS = new Library.Service.Extension.Mail.HumanResourceMailService(_mailReceiverDetailRepository);
+
+
+                {
+
+                    {
+
+                        using (var dvBC = new DataView(dtEmpInfo))
+                        {
+
+                            if (dtEmpInfo.Rows.Count > 0)
+                            {
+                                excelEngine = new ExcelEngine();
+                                application = excelEngine.Excel;
+                                workbook = application.Workbooks.Create(1);
+                                sheet1 = workbook.Worksheets[0];
+
+                                xlsRow = 5;
+
+                                #region variable
+
+                                var cEmployeeCode = 0;
+                                var cDepartment = 0;
+                                var cName = 0;
+                                var cDOJ = 0;
+                                var cSection = 0;
+                                var cLegalDesignation = 0;
+                                var cSubSection = 0;
+                                var cEmployeeCategory = 0;
+
+                                //bc
+
+                                //po
+
+                                #endregion variable
+
+                                var endXlsCol = 0;
+                                var colNum = 0;
+
+                                xlsRow++;
+                                xlsCol = 1;
+                                var cSl = 0;
+
+                                #region Header
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sl. No.", 6); cSl = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employee Code"); cEmployeeCode = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Name", 30); cName = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Department"); cDepartment = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation"); cLegalDesignation = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Section"); cSection = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SubSection"); cSubSection = xlsCol; xlsCol++;
+                                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCategory"); cEmployeeCategory = xlsCol; xlsCol++;
+
+
+                                #endregion Header
+
+                                xlsCol--;
+                                endXlsCol = xlsCol;
+                                xlsRow++;
+                                var slCount = 0;
+                                for (int i = 0; i < dtEmpInfo.Rows.Count; i++)
+                                {
+                                    slCount++;
+                                    #region Loop
+
+                                    oRU.SetText(ref sheet1, xlsRow, cSl, slCount.ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cEmployeeCode, dtEmpInfo.Rows[i]["EmployeeCode"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cName, dtEmpInfo.Rows[i]["EmployeeName"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cDOJ, dtEmpInfo.Rows[i]["DOJ"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cDepartment, dtEmpInfo.Rows[i]["Department"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cLegalDesignation, dtEmpInfo.Rows[i]["LegalDesignation"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cSection, dtEmpInfo.Rows[i]["Section"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cSubSection, dtEmpInfo.Rows[i]["SubSection"].ToString());
+                                    oRU.SetText(ref sheet1, xlsRow, cEmployeeCategory, dtEmpInfo.Rows[i]["EmployeeCategory"].ToString());
+
                                     #endregion Loop
                                     xlsRow++;
                                 }
@@ -15495,7 +15657,7 @@ AND (E.EmployeeStatus='Active' OR Year(DOS) >= '" + objm.AYear + @"' AND MONTH(D
                 CompanyGroupId = null,
                 ModelState = ModelState.Added,
                 RecordTime = DateTime.Now,
-                ServiceName = "ERROR-EmployeeApprovalReport",
+                ServiceName = "ERROR-EmployeeToBeApprovedReport",
                 UserId = null,
                 AttachmentName = null,
                 IsSuccess = false,
@@ -15507,7 +15669,7 @@ AND (E.EmployeeStatus='Active' OR Year(DOS) >= '" + objm.AYear + @"' AND MONTH(D
                 var companyGroupList = _companyGroupRepository.Query(r => r.Active && !r.Archive).Select().ToList();
                 var serviceName = MailServiceName.EmployeeToBeApproved.ToString();
 
-                var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+                //var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
                 foreach (var companyGroup in companyGroupList)
                 {
                     var log = new MailLog
@@ -15563,100 +15725,111 @@ AND (E.EmployeeStatus='Active' OR Year(DOS) >= '" + objm.AYear + @"' AND MONTH(D
                                     else
                                         email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
                                 }
-                                var emailList = GetMaileList(item);
-                                if (emailList.Count <= 0)
-                                {
-                                    log.CompanyId = item.CompanyId;
-                                    log.PlantId = item.PlantId;
-                                    log.MailReceiverId = item.MailReceiverId;
-                                    log.SenderName = item.SenderName;
-                                    log.Subject = item.Subject;
-                                    log.IsReciepientListActive = false;
-                                    log.Remarks = "Reciepient List is not Active";
-                                }
-                                var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
-                                log.ToList = toList;
-                                var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
-                                log.CcList = ccList;
-                                var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
-                                log.BccList = bccList;
-                                var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
-                                if (toList == "")
-                                {
-                                    log.IsReciepientListActive = true;
-                                    log.IsServiceActive = true;
-                                    log.InactiveUsers = inActiveList;
-                                    log.ToAddressProblem = "To List is Empty";
-                                    var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
-                                    if (tmissingEmailList == string.Empty)
-                                        log.MissingEMails = null;
-                                    else
-                                        log.MissingEMails = tmissingEmailList.Substring(0, 500);
-                                }
-                                if (inActiveList == string.Empty)
-                                    log.InactiveUsers = null;
-                                else
-                                    log.InactiveUsers = inActiveList;
-                                var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
-                                if (missingEmailList == string.Empty)
-                                    log.MissingEMails = null;
-                                else
-                                    log.MissingEMails = missingEmailList;
-                                fileName += item.PlantId;
-                                var path = SendAttendanceFromAppNotification(item.CompanyGroupId, item.PlantId, fileName);
+                                var emailList = GetEmployeeApprovalAuthorityMaileList(item);
+                                
+                                //fileName += item.PlantId;
 
-                                if (!string.IsNullOrEmpty(path))
+                                foreach (var emp in emailList)
                                 {
-                                    try
+
+                                    if (emailList.Count <= 0)
                                     {
-                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
-                                        message.Attachments.Add(new Attachment(path));
-                                        email.Send(message);
-                                        // Set file name.
-                                        log.AttachmentName = fileName + ".xls";
-                                        log.IsSuccess = true;
+                                        log.CompanyId = item.CompanyId;
+                                        log.PlantId = item.PlantId;
+                                        log.MailReceiverId = item.MailReceiverId;
+                                        log.SenderName = item.SenderName;
+                                        log.Subject = item.Subject;
+                                        log.IsReciepientListActive = false;
+                                        log.Remarks = "Reciepient List is not Active";
+                                    }
+                                    // var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                    var toList = emp.Email;
+                                    log.ToList = toList;
+                                    var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                    log.CcList = ccList;
+                                    var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                    log.BccList = bccList;
+                                    var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
+                                    if (toList == "")
+                                    {
                                         log.IsReciepientListActive = true;
                                         log.IsServiceActive = true;
-                                        log.HasAttachment = true;
-                                        log.Remarks = "Mail has been send successfully.";
+                                        log.InactiveUsers = inActiveList;
+                                        log.ToAddressProblem = "To List is Empty";
+                                        var tmissingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                        if (tmissingEmailList == string.Empty)
+                                            log.MissingEMails = null;
+                                        else
+                                            log.MissingEMails = tmissingEmailList.Substring(0, 500);
                                     }
-                                    catch (Exception ex)
-                                    {
-                                        log.IsSuccess = false;
-                                        log.Remarks = serviceName + " - " + ex.Message;
-                                        continue;
-                                    }
-                                }
-                                else if (item.IsSendMailIfEmptyData)
-                                {
-                                    try
-                                    {
-                                        var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
-                                        email.Send(message);
+                                    if (inActiveList == string.Empty)
+                                        log.InactiveUsers = null;
+                                    else
+                                        log.InactiveUsers = inActiveList;
+                                    var missingEmailList = string.Join(";", emailList.Where(r => r.Email == string.Empty).Select(r => r.MailType + ":" + r.FullName));
+                                    if (missingEmailList == string.Empty)
+                                        log.MissingEMails = null;
+                                    else
+                                        log.MissingEMails = missingEmailList;
 
+                                    var fileName = serviceName + DateTime.Now.ToString("ddMMyyyyHHmmss");
+
+                                    var path = SendEmployeeToBeApprovedReport(emp.Id.ToString(), item.CompanyGroupId, item.PlantId, fileName);
+
+                                    if (!string.IsNullOrEmpty(path))
+                                    {
+                                        try
+                                        {
+                                            var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                                            message.Attachments.Add(new Attachment(path));
+                                            email.Send(message);
+                                            // Set file name.
+                                            log.AttachmentName = fileName + ".xls";
+                                            log.IsSuccess = true;
+                                            log.IsReciepientListActive = true;
+                                            log.IsServiceActive = true;
+                                            log.HasAttachment = true;
+                                            log.Remarks = "Mail has been send successfully.";
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.IsSuccess = false;
+                                            log.Remarks = serviceName + " - " + ex.Message;
+                                            continue;
+                                        }
+                                    }
+                                    else if (item.IsSendMailIfEmptyData)
+                                    {
+                                        try
+                                        {
+                                            var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, "No data to show.");
+                                            email.Send(message);
+
+                                            log.AttachmentName = null;
+                                            log.Remarks = "Mail send with: No data found.";
+                                            log.IsSuccess = true;
+                                            log.IsReciepientListActive = true;
+                                            log.IsServiceActive = true;
+                                            log.HasAttachment = false;
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.IsSuccess = false;
+                                            log.Remarks = serviceName + " - " + ex.Message;
+                                            continue;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
                                         log.AttachmentName = null;
-                                        log.Remarks = "Mail send with: No data found.";
                                         log.IsSuccess = true;
                                         log.IsReciepientListActive = true;
                                         log.IsServiceActive = true;
                                         log.HasAttachment = false;
                                     }
-                                    catch (Exception ex)
-                                    {
-                                        log.IsSuccess = false;
-                                        log.Remarks = serviceName + " - " + ex.Message;
-                                        continue;
-                                    }
                                 }
-                                else
-                                {
-                                    log.Remarks = "Mail not send for: No data found and Not permitted to send Email.";
-                                    log.AttachmentName = null;
-                                    log.IsSuccess = true;
-                                    log.IsReciepientListActive = true;
-                                    log.IsServiceActive = true;
-                                    log.HasAttachment = false;
-                                }
+
                             }
                             else
                             {
