@@ -778,9 +778,6 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster;
-            //DataSet dsunlockemp;
-            //DataSet dssetunlock;
-            //DataTable dtunlockemp;
             try
             {
                 string EmpIdLoop = "";
@@ -797,36 +794,22 @@ namespace Aplos.Areas.Accounts.Controllers
                     }
                 }
 
-                //string sql1 = " select * from SalaryLock where  MonthNo='" + EmployeeList[0].MonthNo + @"' and YearNo='" + EmployeeList[0].YearNo + @"' and EmpSystemId IN (" + EmpIdLoop + @")";
-                //objCon = new ConnectionManager.DAL.ConManager("1");
-                //objCon.OpenDataSetThroughAdapter(sql1, out dsunlockemp, false, "1");
-                //dtunlockemp = dsunlockemp.Tables[0];
-
-                //string EmpLoop = "";
-                //foreach (DataRow row in dtunlockemp.Rows)
-                //{
-                //    if (EmpLoop == "")
-                //    {
-                //        EmpLoop = "'" + row["EmpSystemId"].ToString() + "'"; ;
-                //    }
-                //    else
-                //    {
-                //        EmpLoop += ",'" + row["EmpSystemId"].ToString() + "'";
-
-                //    }
-                //}
-
-                //if (dsunlockemp.Tables[0].Rows.Count > 0)
-                //{
-                //    string sql2 = " UPDATE SalaryLock SET IsDisbursed=0 WHERE EmpSystemId in (" + EmpLoop + @") and YearNo='" + EmployeeList[0].YearNo.ToString() + @"' and MonthNo='" + EmployeeList[0].MonthNo.ToString() + @"'";
-                //    objCon = new ConnectionManager.DAL.ConManager("1");
-                //    objCon.OpenDataSetThroughAdapter(sql2, out dssetunlock, false, "1");
-                //}
-
                 string sql = "select * from SalaryLock where  MonthNo='" + EmployeeList[0].MonthNo + @"' and YearNo='" + EmployeeList[0].YearNo + @"' and EmpSystemId IN (" + EmpIdLoop + @")";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
                 DataView DvMaster = new DataView(dsMaster.Tables[0]);
+
+                dsMaster.Tables[0].DefaultView.RowFilter = "DisbursementVoucherId <> '' ";
+                while (dsMaster.Tables[0].DefaultView.Count > 0)
+                {
+                    for (int i = 0; i < EmployeeList.Count; i++)
+                    {
+                        if (EmployeeList[i].EmpSystemId == dsMaster.Tables[0].DefaultView[0]["EmpSystemId"].ToString() && EmployeeList[i].IsLocked == false)
+                        {
+                            throw new Exception("Accounting Disbursement already done for this Employee [" + EmployeeList[i].EmployeeCode + "]");
+                        }
+                    }
+                }
 
                 foreach (var item in EmployeeList)
                 {
@@ -900,7 +883,7 @@ namespace Aplos.Areas.Accounts.Controllers
             public string PayableVoucherId { get; set; }
             public string DisbursementVoucherId { get; set; }
             public bool CheckBoxSelect { get; set; }
-
+            public string EmployeeCode { get; set; }
             #endregion Scalar Properties
 
             #region Audit Properties

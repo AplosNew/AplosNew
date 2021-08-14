@@ -84,7 +84,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
 
 
-
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(2);
@@ -120,7 +119,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].ColumnWidth = 22;
                 int colArticle = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Delivery Date";
+                sheet[ROW, COL].Text = "Shipment Date";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colDeliveryDate = COL;
                 COL++;
