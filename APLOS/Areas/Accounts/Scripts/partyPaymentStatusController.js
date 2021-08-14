@@ -1245,6 +1245,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     "materialMasterId": $scope.id
                 },
                 dataType: 'JSON'
+               // , contentType: "application/json charset=utf-8"
 
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
@@ -1338,7 +1339,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         //$scope.tempMaterialMasterArticleId = data[0].MaterialMasterAritcleId
 
         $scope.tempMaterialMasterId = args.data.MaterialMasterId;
-        $scope.tempMaterialMasterArticleId = args.data.MaterialMasterArticleId; MaterialMasterArticleId
+        $scope.tempMaterialMasterArticleId = args.data.MaterialMasterArticleId; 
        
         //var data = obj.model.dataSource;
         //$scope.tempMaterialMasterId = data[0].MaterialMasterId
