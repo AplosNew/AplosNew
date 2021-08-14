@@ -28,6 +28,10 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     $scope.Report = function () {
         try {
+            if (new Date($scope.fromDate) > new Date($scope.toDate)) {
+                throw " From date can not be greater than To date.";
+
+            }
             $scope.filterComplete();
             $scope.fileName = "OrderReport.xls";
             $http({
@@ -47,6 +51,7 @@ function OrderController(cboService, commonMessage, $scope, $rootScope, baseServ
                 ShowResult(response.data.Message, 'failure');
             };
         } catch (e) {
+            ShowResult(e, 'failure');
         }
     }
 
