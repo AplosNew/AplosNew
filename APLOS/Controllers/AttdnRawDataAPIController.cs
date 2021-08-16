@@ -9,7 +9,7 @@ using Library.Service.EmployeeServices;
 
 namespace Aplos.Controllers
 {
-    [BasicAuthentication]
+    [BasicAuthforRawData]
     public class AttdnRawDataAPIController : ApiController
     {
 
@@ -23,7 +23,7 @@ namespace Aplos.Controllers
 
       
         [HttpPost]
-        public string SaveData([FromBody] List<AttdnManualData> DataToSave)
+        public string SaveData([FromBody] List<AttdnRawData> DataToSave)
         {
             try
             {

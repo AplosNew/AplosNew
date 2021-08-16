@@ -135,7 +135,11 @@ namespace Aplos.Areas.Attendances.Controllers
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
                             KK.DayStatus, KK.OTHr,
                             KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus
-							,kk.isApprovedIN,kk.isApprovedOUT,kk.InDateApp,kk.InTimeApp,kk.OutDateApp,kk.OutTimeApp
+							,kk.isApprovedIN,kk.isApprovedOUT
+                            ,InDateApp = case when kk.InDateApp is not null then kk.InDateApp else format(isnull(KK.InTime,ShiftInTime),'dd-MMM-yyyy') end
+							,InTimeApp = case when kk.InTimeApp is not null then kk.InTimeApp else FORMAT(KK.InTime,'hh:mm tt') end
+							,OutDateApp = case when kk.OutDateApp is not null then kk.OutDateApp else format(isnull(KK.OutTime,format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt')),'dd-MMM-yyyy') end
+							,OutTimeApp = case when kk.OutTimeApp is not null then kk.OutTimeApp else format(KK.OutTime,'hh:mm tt') end
                              FROM (								
 		                            SELECT Emp.SystemID AS Id,emp.EmployeeCode,O.WorkDate, O.ShiftSystemID,sd.UserName AS ShiftName,
 								    DATEADD(minute,DATEPART(minute, isnull(stcm.InTime, sd.Intime)), DATEADD(hour,DATEPART(hour, isnull(stcm.InTime, sd.Intime)),O.WorkDate))  AS ShiftInTime,
@@ -219,6 +223,10 @@ namespace Aplos.Areas.Attendances.Controllers
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
             List<AttendanceFromApp> employee = JsonConvert.DeserializeObject<List<AttendanceFromApp>>(data, settings);
+
+            if (employee.Count == 0)
+                throw new Exception("Nothing To Update..!");
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             clsAttendanceRawDataFromApp a = new clsAttendanceRawDataFromApp();
             ARFA _rt = a.Save(employee);

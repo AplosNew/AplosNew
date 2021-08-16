@@ -10666,9 +10666,9 @@ namespace Library.MaterialManagement.Inventory
                 var currentId = _InventorySalesReturnDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventorySalesReturnDetail] WHERE InventorySalesReturnId='{inventoryIssue.Id}'").First();
 
                 var receiveDetailcurrentId = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[InventoryReceiveDetail]  WHERE InventoryReceiveId ='{inventoryReceive.Id}'").First();
-               
 
-                
+
+                int isrdCount = 0;
                 DataSet AR = null;
                 GetAvgRate(inventoryIssue.InventorySalesId, out AR);
                 if (AR.Tables[0].Rows.Count > 0)
@@ -10679,8 +10679,11 @@ namespace Library.MaterialManagement.Inventory
                 {
                     foreach (var issue in entities)
                     {
-                        var detail = new InventorySalesReturnDetail
+                        // isrdCount++;
+                        currentId++;
+                         var detail = new InventorySalesReturnDetail
                         {
+                            //Id = inventoryIssue.Id + "-" + isrdCount,  //MakePK(inventoryIssue.Id, currentId, 2),
                             Id = MakePK(inventoryIssue.Id, currentId, 2),
                             InventorySalesReturnId = inventoryIssue.Id,
                             IsAsset = FlagIsAsset,
