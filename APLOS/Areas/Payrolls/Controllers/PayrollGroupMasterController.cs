@@ -59,7 +59,7 @@ namespace Aplos.Areas.Payrolls.Controllers
             return Json(_payrollGroupMasterService.QueryWithUser(parameters, identity.CompanyGroupId, userId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult PayRollGroupQuery(string payrollGroupId)
         {
             CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

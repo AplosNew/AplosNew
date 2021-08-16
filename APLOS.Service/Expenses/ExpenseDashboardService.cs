@@ -3568,7 +3568,7 @@ namespace Library.Service.Expenses
 							    " + cList + @"
 								,cmp.Id AS CompanyId
                                 ,CMPGR.Id CompanyGroupId
-                                ,V.PlantId
+                                ,V.PlantId,II.Id InventoryIssueId
 								,ISNULL(BSC.UserName,'') AS BudgetSubCategoryName
 								,ISNULL(B.UserName,'') AS BudgetName
 								,ISNULL(V.SourceType,'') SourceType
@@ -3592,6 +3592,7 @@ namespace Library.Service.Expenses
                                 FROM TRN.VoucherDetailCurrency AS VDC
 								JOIN TRN.VoucherDetail AS VD ON VD.Id=VDC.VoucherDetailId
 								JOIN TRN.Voucher AS V ON V.Id =VD.VoucherId
+	                            left join trn.InventoryIssue II on II.VoucherId = v.Id
 								LEFT JOIN ORG.Company AS CMP on CMP.Id = V.CompanyId
 								LEFT JOIN ORG.CompanyGroup AS CMPGR on CMPGR.Id = V.CompanyGroupId
 								LEFT JOIN MST.BudgetMaster AS BM ON BM.Id =VD.BudgetMasterId
