@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using context = System.Web.HttpContext;
 
 namespace Library.HumanResource.NewAttendanceProcess { 
+    
     public class NewAttendanceProcessService
     {
         SqlRepository _sqlRepository;
@@ -192,6 +193,59 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         }
                         SaveDataSets(dsRef);
+                    }
+                    #endregion
+
+                    #region Shift Not Assigned Employee
+                    DataSet ShiftNotAssigned;
+                    TopShift(out ShiftNotAssigned, PlantValue);
+                    if (ShiftNotAssigned.Tables[0].Rows.Count > 0)
+                    {
+                        string WorkDate = ShiftNotAssigned.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "' and isnull(ShiftSystemID,'')='' and PlantID ='" + PlantValue + "' ";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < ShiftNotAssigned.Tables[0].Rows.Count; i++)
+                        {
+                            string EmpId = ShiftNotAssigned.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            var ShiftDurn = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[i][@"ShiftDuration"]).ToString();
+                            var ShiftId = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[i][@"SystemID"]).ToString();
+                            var ShiftIn = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[i][@"InTime"]).ToString();
+                            var ShiftOut = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[i][@"OutTime"]).ToString();
+                            var FullDayDuration = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[i][@"FullDayDuration"]).ToString();
+                            var HalfDayDuration = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[i][@"HalfDayDuration"]).ToString();
+                            var ShortDuration = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[i][@"ShortDuration"]).ToString();
+                            var HoursWithoutOT = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[i][@"HoursWithoutOT"]).ToString();
+                            ShiftTime(ref ShiftIn, ref ShiftOut, WorkDate);
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+                               
+                                dr["ShiftSystemID"] = ShiftId;
+                                dr["ShiftDuration"] = ShiftDurn;
+                                dr["ShiftInTime"] = Convert.ToDateTime(ShiftIn);
+                                dr["ShiftOutTime"] = Convert.ToDateTime(ShiftOut);
+                                dr["ShiftHalfDayDuration"] = HalfDayDuration;
+                                dr["ShiftShortDuration"] = ShortDuration;
+                                dr["ShiftFullDayDuration"] = FullDayDuration;
+                                dr["ShiftHoursWithoutOT"] = HoursWithoutOT;                               
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+
+                                dr.EndEdit();
+                            }
+
+
+                        }
+                        SaveDataSets(dsRef);
+
                     }
                     #endregion
 
@@ -758,9 +812,7 @@ left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='" 
 left join ShiftDefination sdz on sdz.SystemID=rp.ShiftDefinationID
 left join org.Plant pl on pl.Id=e.PlantId
 left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
-where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantId + @"'
-and mb.ShiftDefinationId!=''
-";
+where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantId + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -1024,6 +1076,23 @@ and mb.ShiftDefinationId!=''
                 on p.ShiftSystemID=s.ShiftDefinationID
                 left join ShiftTimeChgChild sc on sc.STCMasterSystemID=s.SystemID
                 where WorkDate='" + Date + "' and sc.ShiftDate='" + Date + "' and sc.PlantID='" + Plant + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void TopShift(out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select top 1 SystemID,ShiftDuration,ShortDuration,
+                HalfDayDuration,HoursWithoutOT,FullDayDuration,InTime,
+                OutTime
+                from ShiftDefination where PlantID='"+Plant+"'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -1923,6 +1992,24 @@ and mb.ShiftDefinationId!=''
 
                 var sql = @"SELECT CompanyGroupId, Id as PlantValue FROM ORG.Plant WHERE CompanyGroupId = 
                '" + CompanyGpId + "' AND  Active = 1 AND Archive = 0";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
+        public void GetCompanyGp(out DataSet ds)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+
+                var sql = @"select distinct Id as CGId from org.CompanyGroup";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -4076,7 +4163,7 @@ and mb.ShiftDefinationId!=''
         #region Roster Process
        
         // Work Date , Plant Id 
-        public void RosterProcessTry(string PlantId , string Date)
+        public void RosterProcess(string PlantId , string Date)
         {
             try
             {
