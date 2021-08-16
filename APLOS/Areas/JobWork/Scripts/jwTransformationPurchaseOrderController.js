@@ -1870,7 +1870,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                 $scope.rmchar3.Name = $scope.detailModel.ThirdCharacteristics;
                 $scope.rmchar3.FreeText = $scope.detailModel.ThirdCharacteristicsValue;
             }
-            $scope.BOQServiceGet();
+
             getDetailTaxCategoryList($scope.detailModel);
 
             angular.element(document.querySelector('#detailPopUp')).modal('show');
