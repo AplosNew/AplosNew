@@ -1,7 +1,7 @@
 ﻿'use strict';
 salaryProcessedReportExtraOTCTCController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService', '$window'];
 function salaryProcessedReportExtraOTCTCController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $window) {
-
+    $rootScope.title = 'Post CTC';
     $scope.path = 'humanresource/payrollReports/';
     $scope.exportgriddataUrl = 'GridReports/ExcelExport';
     $scope.downloadgriddataUrl = 'GridReports/Download';

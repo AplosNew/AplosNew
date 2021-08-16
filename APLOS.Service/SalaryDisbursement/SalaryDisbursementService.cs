@@ -695,11 +695,13 @@ namespace Library.Service.SalaryDisbursement
 
                     directsql = @"update [dbo].[SalaryLock] set PayableVoucherId='" + directVoucherId + @"' where Id in (
                                     select sl.Id     from [dbo].[SalaryLock] sl 
+                         left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+						 left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
                                     left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						            left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						            left join ORG.Position PO on PO.Id=MPB.PositionId
                                     where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + @"'   
-                                    and  PO.DirectManpowerCost=1)";
+                                    and  PO.DirectManpowerCost=1 AND  spd.PlantId='" + voucherVM.PlantId + "' and sl.PayableVoucherId IS NULL)";
                     direct.Append(directsql);
                     _sqlRepository.ExecuteSqlCommand(direct.ToString());
 
@@ -714,11 +716,13 @@ namespace Library.Service.SalaryDisbursement
 
                     inDirectsql = @"update [dbo].[SalaryLock] set PayableVoucherId='" + InDirectVoucherId + @"' where Id in (
                                     select sl.Id     from [dbo].[SalaryLock] sl 
+                         left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+						 left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
                                     left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
 						            left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						            left join ORG.Position PO on PO.Id=MPB.PositionId
                                     where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + @"'   
-                                    and  PO.DirectManpowerCost=0 and sl.PayableVoucherId IS NULL)";
+                                    and  PO.DirectManpowerCost=0 AND  spd.PlantId='" + voucherVM.PlantId + "' and sl.PayableVoucherId IS NULL)";
                     inDirect.Append(inDirectsql);
                     _sqlRepository.ExecuteSqlCommand(inDirect.ToString());
 
@@ -1236,7 +1240,7 @@ namespace Library.Service.SalaryDisbursement
 						            left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						            left join ORG.Position PO on PO.Id=MPB.PositionId
                                     where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + "'   and spd.PlantId='" + plantId + @"'
-                                     and PayableVoucherId='" + voucherId + @"' )";
+                                     and sl.PayableVoucherId='" + voucherId + @"' )";
                 direct.Append(directsql);
                 _sqlRepository.ExecuteSqlCommand(direct.ToString());
 

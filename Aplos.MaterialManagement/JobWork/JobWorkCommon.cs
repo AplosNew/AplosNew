@@ -1347,7 +1347,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,b.RequiredQtyPO RequiredQtyPOOrginal
 						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
 						,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '-' + ISNULL(mo.BuyerReferenceNo,'') +'-'+ ISNULL(moi.OwnReferenceNo,'')+'-'+ISNULL(moi.BuyerReferenceNo,'')
-						,mm.BaseUOMId,POMAP.RatePerUnit as TransactionRate
+						,mm.BaseUOMId,POMAP.RatePerUnit as TransactionRate, IsEditMode=1
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -2601,6 +2601,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 else
                 {
                     con.executeQuery("delete from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + id + @"' ");
+                    con.executeQuery("delete from dbo.JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId='" + id + @"' ");
                     con.executeQuery("delete from dbo.JobWorkTransformationContractChild where Id='" + id + "' ");
                 }
 
@@ -3404,6 +3405,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 string BoqChildId = "";
                 decimal Consumption = 0;
                 decimal WastagePer = 0;
+                string BOQArticleId = "";
 
                     for (var j = 0; j < JWBOQ.Tables[0].DefaultView.Count; j++)
                     {
@@ -3417,7 +3419,9 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                         decimal GrossConsumption = (Consumption * (1 + (WastagePer / 100)));
 
-                        JWOutMat.Tables[0].DefaultView.RowFilter = "JobWorkTransformationContractChildMasterId='" + JWOutId + "' and BOQChildId='" + bplib.clsWebLib.RetValidLen(JWBOQ.Tables[0].Rows[j]["Id"]).ToString() + "' ";
+                    BOQArticleId = JWBOQ.Tables[0].Rows[j]["ArticleId"].ToString();
+
+                    JWOutMat.Tables[0].DefaultView.RowFilter = "JobWorkTransformationContractChildMasterId='" + JWOutId + "' and BOQChildId='" + bplib.clsWebLib.RetValidLen(JWBOQ.Tables[0].Rows[j]["Id"]).ToString() + "' ";
                     
 
                     if (JWOutMat.Tables[0].DefaultView.Count == 0)
@@ -3437,7 +3441,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                         dr["BOQRequiredQuantity"] = ReqQuantity;
                         dr["BOQChildId"] = JWBOQ.Tables[0].Rows[j]["Id"];
-                        //dr["ArticleId"] = item.ArticleId;
+                        dr["ArticleId"] = BOQArticleId;
 
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -3464,6 +3468,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             drr["GrossConsumption"] = GrossConsumption;
                             drr["BOQRequiredQuantity"] = ReqQuantity;
                             drr["BOQChildId"] = JWBOQ.Tables[0].Rows[j]["Id"];
+                            drr["ArticleId"] = BOQArticleId;
 
                             drr["AddedBy"] = identity.Name;
                             drr["AddedDate"] = System.DateTime.Now.ToString();
@@ -3485,6 +3490,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                             drr["GrossConsumption"] = GrossConsumption;
                             drr["BOQRequiredQuantity"] = ReqQuantity;
                             drr["BOQChildId"] = JWBOQ.Tables[0].Rows[j]["Id"];
+                            drr["ArticleId"] = BOQArticleId;
 
                             drr["UpdatedBy"] = identity.Name;
                             drr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -4577,6 +4583,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 dataInserted.Add(new Dictionary<string, object>(data[i]));
                 dataInserted[dataInserted.Count - 1]["TransactionQty"] = 0;
                 dataInserted[dataInserted.Count - 1]["ReferenceNoM"] = "";
+                dataInserted[dataInserted.Count - 1]["BuyerItemReferenceNo"] = "";
                 referrenceNo = "";
                 for (int KK = 0; KK < dataInserted.Count; KK++)
                 {
@@ -4599,6 +4606,18 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                             dataInserted[KK]["ReferenceNoM"] = data[M]["OwnItemReferenceNo"].ToString();
                                         else
                                             dataInserted[KK]["ReferenceNoM"] += "," + data[M]["OwnItemReferenceNo"].ToString();
+                                    }
+                                }
+
+                                if (data[M].ContainsKey("BuyerItemReferenceNo"))
+                                {
+                                    if (strTemp.Contains(data[M]["BuyerItemReferenceNo"].ToString()) == false)
+                                    {
+                                        strTemp.Add(data[M]["BuyerItemReferenceNo"].ToString());
+                                        if (dataInserted[KK]["BuyerItemReferenceNo"].ToString() == "")
+                                            dataInserted[KK]["BuyerItemReferenceNo"] = data[M]["BuyerItemReferenceNo"].ToString();
+                                        else
+                                            dataInserted[KK]["BuyerItemReferenceNo"] += "," + data[M]["BuyerItemReferenceNo"].ToString();
                                     }
                                 }
 
@@ -6007,6 +6026,71 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 throw new CustomException(ex.Message, ex,
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        public IEnumerable<object> getMatInputListBOQData(string Id)
+        {
+            try
+            {
+                var _sql = @"select mi.*
+                                ,mm.Id as MaterialMasterId
+                                ,mm.UserName as Material, mm.Code as MaterialCode
+                                , mma.StandardName as Article, mma.Code as ArticleCode
+                                ,uom.UserName as MatBaseUoM,mm.BaseUOMId
+                                from dbo.JobWorkTransformationContractChild3 mi 
+                                left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
+                                left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
+                                left join SCS.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
+                                where mi.JobWorkTransformationContractChildMasterId='"+ Id + @"' ";
+                return _sqlRepository.GetDataCollection(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        public void DelMaterialInputBOQ(string Id)
+        {
+            try
+            {
+         //       DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con2 = new ConnectionManager.DAL.ConManager("1");
+
+                if (string.IsNullOrEmpty(Id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+
+                    //if (!string.IsNullOrEmpty(Id))
+                    //{
+                    //    con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild2 where JobWorkTransformationContractChildMasterId='" + id + "' ", out dsMaster, false, "1");
+                    //    if (dsMaster.Tables[0].Rows.Count > 0)
+                    //    {
+                    //        throw new Exception("First Delete Order Wise Data");
+                    //    }
+
+                    //    con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + id + "' ", out dsMaster, false, "1");
+                    //    if (dsMaster.Tables[0].Rows.Count > 0)
+                    //    {
+                    //        throw new Exception("First Delete Material Input Data");
+                    //    }
+
+                    //}
+
+                    con.executeQuery("delete from dbo.JobWorkTransformationContractChild3 where Id='" + Id + @"' ");
+
+                con.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
             }
         }
 
