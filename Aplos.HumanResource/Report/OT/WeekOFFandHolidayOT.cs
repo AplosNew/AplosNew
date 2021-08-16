@@ -857,6 +857,9 @@ namespace Library.HumanResource.Report.OT
                 Image companyLogo = null;
                 string companyLogoName = _sqlRepository.GetDataTable(@"select * from ORG.Company where Id = '" + companyId + @"'").Rows[0]["Image"].ToString();
 
+                string FromDate = new DateTime(Convert.ToInt32(year), Convert.ToInt32(month), 1).ToString("dd-MMM-yyyy");
+                string ToDate = new DateTime(Convert.ToInt32(year), Convert.ToInt32(month), daysInMonth).ToString("dd-MMM-yyyy");
+
                 try
                 {
                     strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), companyLogoName);  // IDCardEng.xlsx
@@ -952,6 +955,14 @@ namespace Library.HumanResource.Report.OT
 
                 #endregion DataSet
 
+                clsSalaryProcessAplosR r = new clsSalaryProcessAplosR();
+                r.GetSundayMondayCount(FromDate, ToDate, out Dictionary<string, int> DicWeekOffCount);
+                r.GetWeekOffAll(identity.PlantId, ToDate, out DataSet dsEmployeeWiseWeekoff);
+                Dictionary<string, string> dicEmployeeWiseWeekoff = new Dictionary<string, string>();
+                for (int i = 0; i < dsEmployeeWiseWeekoff.Tables[0].Rows.Count; i++)
+                    if(dicEmployeeWiseWeekoff.ContainsKey(dsEmployeeWiseWeekoff.Tables[0].Rows[i]["EmpSystemID"].ToString())==false)
+                    dicEmployeeWiseWeekoff.Add(dsEmployeeWiseWeekoff.Tables[0].Rows[i]["EmpSystemID"].ToString(), dsEmployeeWiseWeekoff.Tables[0].Rows[i]["offday"].ToString());
+
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 if (isTopSheet == true)
@@ -973,7 +984,7 @@ namespace Library.HumanResource.Report.OT
                 #region Column Variables
                 int ColSr = 0, ColIDNo = 0, ColName = 0, ColDOJ = 0, ColDOS = 0, ColPlantName = 0, cDept = 0, cSec = 0, cSubSec = 0, cLine = 0, cPayrollGroup = 0, cJobLocation = 0, cGender = 0,
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0, ColMLv = 0, colBank = 0, colBankAccountNo = 0
-                   , ColLWP = 0, cDMP = 0, ColExtraAbsent = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colBasic=0, colGross = 0, colCTC = 0;
+                   , ColLWP = 0, cDMP = 0, ColExtraAbsent = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0, colBasic = 0, colGross = 0, colCTC = 0;
                 int npstruct = 0;
 
                 #endregion
@@ -1003,6 +1014,7 @@ namespace Library.HumanResource.Report.OT
                 SetCellValue("Grade", sheet1, xlsRow, ref xlsCol, out cGrade, 25);
                 SetCellValue("Direct Manpower Cost", sheet1, xlsRow, ref xlsCol, out colDirectManpowerCost, 25);
 
+                SetCellValue("Working Days", sheet1, xlsRow, ref xlsCol, out int colWorkingDays, 9);
                 SetCellValue("Pay Days", sheet1, xlsRow, ref xlsCol, out colPayDays, 5);
                 SetCellValue("Present", sheet1, xlsRow, ref xlsCol, out ColPdDy, 9);
                 SetCellValue("Late", sheet1, xlsRow, ref xlsCol, out ColLate, 9);
@@ -1093,11 +1105,7 @@ namespace Library.HumanResource.Report.OT
 
                     endXlsCol = colCashPaymentPercentage;
                 }
-                endXlsCol++;
-                int colExtraOT = endXlsCol;
-                sheet1.Range[xlsRow + 1, colExtraOT].Text = "Extra OT Hr";
-                sheet1.Range[xlsRow + 1, colExtraOT].ColumnWidth = 10;
-                sheet1.Range[xlsRow + 1, colExtraOT].CellStyle.Font.Size = 8;
+
                 endXlsCol++;
                 int colGWRDailyExtraOTweekoffOT = endXlsCol;
                 sheet1.Range[xlsRow + 1, colGWRDailyExtraOTweekoffOT].Text = "GWR (Daily Extra OT & week off OT)";
@@ -1108,7 +1116,16 @@ namespace Library.HumanResource.Report.OT
                 sheet1.Range[xlsRow + 1, colHolidayOT].Text = "Holiday OT";
                 sheet1.Range[xlsRow + 1, colHolidayOT].ColumnWidth = 10;
                 sheet1.Range[xlsRow + 1, colHolidayOT].CellStyle.Font.Size = 8;
-
+                endXlsCol++;
+                int colExtraOT = endXlsCol;
+                sheet1.Range[xlsRow + 1, colExtraOT].Text = "Week Day(OT Hrs)";
+                sheet1.Range[xlsRow + 1, colExtraOT].ColumnWidth = 10;
+                sheet1.Range[xlsRow + 1, colExtraOT].CellStyle.Font.Size = 8;
+                endXlsCol++;
+                int colWeekOff = endXlsCol;
+                sheet1.Range[xlsRow + 1, colWeekOff].Text = "WeekOff(OT Hrs)";
+                sheet1.Range[xlsRow + 1, colWeekOff].ColumnWidth = 10;
+                sheet1.Range[xlsRow + 1, colWeekOff].CellStyle.Font.Size = 8;
                 endXlsCol++;
                 int colTotalCTC = endXlsCol;
                 sheet1.Range[xlsRow + 1, colTotalCTC].Text = "Total CTC";
@@ -1232,21 +1249,21 @@ namespace Library.HumanResource.Report.OT
                 xlsRow = RowIndex;
 
                 xlsRow--;
-                Double ExtraOT = 0.00;
-                Double ExtraOTH = 0.00;
-                Double ExtraOTW = 0.00;
+
                 double FOT = 0.00;
                 double HolidayOT = 0.00;
                 for (int i = 0; i <= dtEmployees.Rows.Count - 1; i++)
                 {
-
+                    Double ExtraOT = 0.00;
+                    Double ExtraOTH = 0.00;
+                    Double ExtraOTW = 0.00;
 
                     #region EmpInfo
                     try
                     {
                         SrNo += 1;
                         x = dtEmployees.Rows[i]["EmpSystemID"].ToString().Trim();
-                      
+
                         FOT = 0.00;
                         HolidayOT = 0.00;
 
@@ -1273,9 +1290,10 @@ namespace Library.HumanResource.Report.OT
                         }
                         if (dicNW.ContainsKey(x))
                         {
-                            if (dicHourlyOTNW.ContainsKey(x)){
+                            if (dicHourlyOTNW.ContainsKey(x))
+                            {
 
-                                ExtraOTH = clsStaticInfo.dbl(dicHourlyOTNW[x]["DurationH"].ToString()); 
+                                ExtraOTH = clsStaticInfo.dbl(dicHourlyOTNW[x]["DurationH"].ToString());
                                 sheet1.Range[xlsRow, colGWRDailyExtraOTweekoffOT].Number = clsStaticInfo.dbl(dicNW[x]) * (clsStaticInfo.dbl(dicHourlyOTNW[x]["DurationH"].ToString())) + FOT;
 
                                 sheet1.Range[xlsRow, colGWRDailyExtraOTweekoffOT].NumberFormat = NumberFormatTwoDecimal;
@@ -1440,8 +1458,30 @@ namespace Library.HumanResource.Report.OT
                         SetCellTextAttdn(sheet1, xlsRow, ColLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLv"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColMLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalMLv"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColTotalOTHR, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalOTHr"].ToString()) / 60);
-                        ExtraOT = ExtraOTH + ExtraOTW;
-                        SetCellTextAttdn(sheet1, xlsRow, colExtraOT, ExtraOT);
+
+                        double WorkingDays = clsStaticInfo.dbl(dtEmployees.Rows[i]["WorkDays"].ToString());
+                        if (Convert.ToDateTime(dtEmployees.Rows[i]["DOJ"].ToString()) > Convert.ToDateTime(FromDate))
+                        {
+
+                            if (dicEmployeeWiseWeekoff.ContainsKey(dtEmployees.Rows[i]["EmpSystemId"].ToString()))
+                            {
+                                string _dayName = dicEmployeeWiseWeekoff[dtEmployees.Rows[i]["EmpSystemId"].ToString()];
+                                foreach (var WeekOffs in DicWeekOffCount)
+                                {
+                                    if (WeekOffs.Key.ToUpper() == _dayName.ToUpper())
+                                    {
+                                        WorkingDays = daysInMonth - WeekOffs.Value;
+                                        break;
+                                    }
+                                }
+                            }
+
+                        }
+
+                        SetCellTextAttdn(sheet1, xlsRow, colWorkingDays, WorkingDays);
+                        //ExtraOT = ExtraOTH + ExtraOTW;
+                        SetCellTextAttdn(sheet1, xlsRow, colExtraOT, ExtraOTH);
+                        SetCellTextAttdn(sheet1, xlsRow, colWeekOff, ExtraOTW);
 
                         //}
                         #endregion
@@ -1459,21 +1499,21 @@ namespace Library.HumanResource.Report.OT
                                 //        sheet1.Range[xlsRow, colBasic].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
                                 //        sheet1.Range[xlsRow, colBasic].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                                 //        sheet1.Range[xlsRow, colBasic].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                        
+
                                 //    }
                                 //    if (listdsSlrStr[ix].HeadCategory == "CTC" )
                                 //    {
                                 //        sheet1.Range[xlsRow, colCTC].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
                                 //        sheet1.Range[xlsRow, colCTC].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                                 //        sheet1.Range[xlsRow, colCTC].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                        
+
                                 //    }
                                 //    if (listdsSlrStr[ix].HeadCategory == "GROSS" )
                                 //    {
                                 //        sheet1.Range[xlsRow, colGross].Number = Convert.ToDouble(listdsSlrStr[ix].EntryAmount);
                                 //        sheet1.Range[xlsRow, colGross].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                                 //        sheet1.Range[xlsRow, colGross].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                        
+
                                 //    }
 
                                 //}
@@ -1566,7 +1606,7 @@ namespace Library.HumanResource.Report.OT
 
                             }
                         }
-                        
+
                         sheet1.Range[xlsRow, colTotalCTC].Formula = clsStaticInfo.GetxlsCol(colGWRDailyExtraOTweekoffOT) + xlsRow + "+" + clsStaticInfo.GetxlsCol(colHolidayOT) + xlsRow + "+" + clsStaticInfo.GetxlsCol(colCtc) + xlsRow;
 
                         sheet1.Range[xlsRow, colTotalCTC].NumberFormat = NumberFormatTwoDecimal;
@@ -3644,7 +3684,7 @@ namespace Library.HumanResource.Report.OT
             }
         }//End Function
 
-        
+
 
         public DataTable getHourlyOT(string plantId, string monthNo, string yearNo, Dictionary<string, string> parameters)
         {
@@ -3846,7 +3886,7 @@ namespace Library.HumanResource.Report.OT
             }
         }//End Function
 
-      
+
 
 
         public void GetEmployeeInfoDetailSalaryLogWise(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string salaryProcessSystemId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, out DataSet dsRef)
@@ -3912,7 +3952,7 @@ namespace Library.HumanResource.Report.OT
                 strSQL = @"SELECT EmpBasic.*,MMDSA.*,ISNULL(MW.Grade,'') Grade,ISNULL(MW.SalaryHeadValue,0) MinimumWage
                             FROM
                                     (
-									SELECT DISTINCT E.SystemID EmpSystemId,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
+									SELECT DISTINCT E.SystemID EmpSystemId,AP.WorkDays,ISNULL(EmployeeCodePreFix,'') EmployeeCodePreFix,ISNULL(EmployeeCodeNumeric,0) EmployeeCodeNumeric,E.GroupID CompanyGroupId,E.CompanyId, E.EmployeeCode, E.EmployeeName, E.EmployeeStatus EmployeeStatusReal,E.EmployeeCurrentStatus
 											, DG.UserName DesignationGroupName, E.DesignationSystemID, DE.UserName DesignationName,
 											'' UserGroupSystemID,  F.Id PlantID, F.UserName PlantName, 
 											FU.UserName UnitName,  DV.UserName DivisionName,  DP.UserName DepartmentName,
@@ -3956,7 +3996,9 @@ namespace Library.HumanResource.Report.OT
 												  LEFT JOIN [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
 									LEFT JOIN [HKP].[Bank] bb on bb.Id = SPLD.BankSystemID
                                     LEFT OUTER JOIN MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
-
+                                        left join (select EmpSystemID,count(*) AS WorkDays from AttdnProcessData 
+                                        where WorkDate between '" + fromDate + @"' and '" + toDate + @"' and DayStatus NOT IN(select DayType from DayType where Category='Weekend')
+                                        group by EmpSystemID) AS AP ON AP.EmpSystemID=e.SystemId
 									LEFT OUTER JOIN HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
                                                 LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LDS.Id and E.PlantId = LSGD.PlantId
                                                 LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = SPLD.LegalSalaryGradeId  --and SPLD.PlantId = LSalGr.PlantId
@@ -4450,7 +4492,7 @@ left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
                 Dictionary<string, DataRow> dicOTpolicy = LoadOverTimePolicyCon(PlantId, FirstDayOfTheMonth, LastDayOfTheMonth);
 
                 clsSalaryInfo objSal = new clsSalaryInfo();
-                
+
                 GetLocalCurrencyCon(CompanyGroupId, CompanyId, out dsCurrency);
                 if (dsCurrency.Tables[0].Rows.Count > 0)
                 {
@@ -4757,7 +4799,7 @@ left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
 
 
                 string reportTitle = "Week day ExtraOt and WeekOff OT For " + bplib.clsWebLib.GetMonthName(Month) + @", " + Year + @"";
-                ReporHeaderCon(CompanyId,PlantId, xlsRow, xlsCol, endXlsCol, reportTitle, sheet1);
+                ReporHeaderCon(CompanyId, PlantId, xlsRow, xlsCol, endXlsCol, reportTitle, sheet1);
                 #endregion ******************Report Header******************
 
                 #region Freeze Panes
@@ -5264,7 +5306,7 @@ left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
                 strSQL = @"SELECT C.Id AS LocalCurrency, C.[Name] AS Currency 		
 		                        FROM scs.Currency C		
 			                        INNER JOIN [ORG].[Company] CA ON C.id = CA.BaseCurrencyId	
-									where CA.Id = '"+CompId+@"'";
+									where CA.Id = '" + CompId + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
@@ -5342,7 +5384,7 @@ left join EmployeeInformation e on e.SystemId =m.EmpInfoSystemID
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 18;
                 sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-               
+
                 xlsRow += 1;
                 sheet1.Range[xlsRow, 3].Text = reportTitle;//"Salary Sheet For The Month Of " + Convert.ToDateTime(fdateOfMonth).ToString("MMMM") + "," + Convert.ToDateTime(fdateOfMonth).ToString("yyyy");
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();

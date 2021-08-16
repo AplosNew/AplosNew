@@ -6387,7 +6387,7 @@ public class clsSalaryProcessAplosR
             objCon = null;
         }
     }//End Function 
-    private void GetWeekOffAll(string _plantid, string ToDate, out DataSet dsRef)
+    public void GetWeekOffAll(string _plantid, string ToDate, out DataSet dsRef)
     {
         ConnectionManager.DAL.ConManager objCon;
         string strSql = string.Empty;
@@ -6403,7 +6403,7 @@ public class clsSalaryProcessAplosR
             //            inner join(select max(EffectiveDate) ed, EmpSystemID from EmployeeWeekOffByDay where EffectiveDate<= '" + ToDate + @"' group by EmpSystemID) m
             //             on w.EmpSystemID = m.EmpSystemID and w.EffectiveDate = m.ed";
 
-            strSql = @"SELECT ei.SystemId AS EmpSystemID,offday=CASE WHEN ISNULL(w.AlignWithCC,1)=1 THEN s.DefaultWeekOff ELSE w.FstOffDay END,
+            strSql = @"SELECT distinct ei.SystemId AS EmpSystemID,offday=CASE WHEN ISNULL(w.AlignWithCC,1)=1 THEN s.DefaultWeekOff ELSE w.FstOffDay END,
                             ISNULL(w.AlignWithCC,1) AS AlignWithCC
                               FROM EmployeeInformation AS ei
                             LEFT JOIN EmployeeWeekOffByDay w ON w.EmpSystemID=ei.SystemId
@@ -6423,7 +6423,7 @@ public class clsSalaryProcessAplosR
             objCon = null;
         }
     }//End Function 
-    void GetSundayMondayCount(string FromDate, string ToDate, out Dictionary<string, int> ListDic)
+    public void GetSundayMondayCount(string FromDate, string ToDate, out Dictionary<string, int> ListDic)
     {
         ListDic = new Dictionary<string, int>();
         try
