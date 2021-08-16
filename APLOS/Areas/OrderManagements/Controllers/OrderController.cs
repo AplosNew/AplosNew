@@ -47,7 +47,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return View();
         }
 
-
         #endregion -- Pages
 
         [HttpGet, Authorize]
