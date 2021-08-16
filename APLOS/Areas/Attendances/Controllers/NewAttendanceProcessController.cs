@@ -71,15 +71,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                     catch (Exception ex)
                     {
-                        string ErrorlineNo, Errormsg, extype, ErrorLocation;
-
-                        ErrorlineNo = ex.StackTrace.Substring(ex.StackTrace.Length - 7, 7);
-                        Errormsg = ex.GetType().Name.ToString();
-                        extype = ex.GetType().ToString();
-                        ErrorLocation = ex.Message.ToString();
-                        string error = "Plant:- "+ CatchPlant+ " Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
-
-                        NewAttendanceProcessService.SaveLog(error, "ShiftProcess", true);
+                        rep.CommonLogFunction(ex, CatchPlant, "ShiftProcess");                       
                     }
                 }
             }
@@ -121,15 +113,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                     catch (Exception ex)
                     {
-                        string ErrorlineNo, Errormsg, extype, ErrorLocation;
-
-                        ErrorlineNo = ex.StackTrace.Substring(ex.StackTrace.Length - 7, 7);
-                        Errormsg = ex.GetType().Name.ToString();
-                        extype = ex.GetType().ToString();
-                        ErrorLocation = ex.Message.ToString();
-                        string error = "Plant:- " + CatchPlant + " Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
-
-                        NewAttendanceProcessService.SaveLog(error,"AttdnProcess", true);
+                        rep.CommonLogFunction(ex, CatchPlant, "AttdnProcess");
                     }
                 }
             }
@@ -171,15 +155,8 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                     catch (Exception ex)
                     {
-                        string ErrorlineNo, Errormsg, extype, ErrorLocation;
+                        rep.CommonLogFunction(ex, CatchPlant, "DayStatusProcess");
 
-                        ErrorlineNo = ex.StackTrace.Substring(ex.StackTrace.Length - 7, 7);
-                        Errormsg = ex.GetType().Name.ToString();
-                        extype = ex.GetType().ToString();
-                        ErrorLocation = ex.Message.ToString();
-                        string error = "Plant:- " + CatchPlant + " Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
-
-                        NewAttendanceProcessService.SaveLog(error, "DayStatusProcess", true);
                     }
                 }
             }
@@ -221,15 +198,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                     catch (Exception ex)
                     {
-                        string ErrorlineNo, Errormsg, extype, ErrorLocation;
-
-                        ErrorlineNo = ex.StackTrace.Substring(ex.StackTrace.Length - 7, 7);
-                        Errormsg = ex.GetType().Name.ToString();
-                        extype = ex.GetType().ToString();
-                        ErrorLocation = ex.Message.ToString();
-                        string error = "Plant:- " + CatchPlant + " Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
-
-                        NewAttendanceProcessService.SaveLog(error,"ManualProcess", true);
+                        rep.CommonLogFunction(ex, CatchPlant, "ManualProcess");
                     }
                 }
             }
@@ -294,15 +263,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     }
                     catch (Exception ex)
                     {
-                        string ErrorlineNo, Errormsg, extype, ErrorLocation;
-
-                        ErrorlineNo = ex.StackTrace.Substring(ex.StackTrace.Length - 7, 7);
-                        Errormsg = ex.GetType().Name.ToString();
-                        extype = ex.GetType().ToString();
-                        ErrorLocation = ex.Message.ToString();
-                        string error = "Plant:- " + CatchPlant + " Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
-
-                        NewAttendanceProcessService.SaveLog(error,"RosterProcess", true);
+                        rep.CommonLogFunction(ex, CatchPlant, "RosterProcess");
                     }
                 }
             }

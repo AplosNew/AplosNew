@@ -135,13 +135,16 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
        
-        public DataTable getEmployeeRosterFile(string plantId )
+        public DataTable getEmployeeBudgetFile(string plantId )
         {
             try
             {
-                var str = @"Select re.* , ei.EmployeeCode , ei.SystemId from dbo.RosterEmployee re 
-                            left join dbo.EmployeeInformation ei on ei.SystemId = re.EmpSystemId
-                            where ei.PlantId = '" + plantId+"'";
+                string plant = "";
+                if(plantId != null)
+                {
+                    plantId = "where ei.plantid = '"+plantId+"'";
+                }
+                var str = @"Select SystemId , EmployeeCode, employeename , BudgetCode from Employeeinformation ei " + plant;
 
                 return _sqlRepository.GetDataTable(str);
             }

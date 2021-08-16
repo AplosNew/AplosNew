@@ -1455,7 +1455,7 @@ function expenseDashboardController(cboService, commonMessage, $scope, $rootScop
         if (baseService.isUndefinedOrNull(data.data.VoucherId))
             return ShowResult('No Id found', 'failure');
         else {
-            file_src = 'Accounts/VoucherReport/GetCommonVoucherReport?reportFormat=' + 'Pdf' + '&compnayGroupId=' + data.data.CompanyGroupId + '&companyId=' + data.data.CompanyId + '&plantId=' + data.data.PlantId + '&sourceType=' + data.data.SourceType + '&voucherId=' + data.data.VoucherId;
+            file_src = 'Accounts/VoucherReport/GetCommonVoucherReport?reportFormat=' + 'Pdf' + '&compnayGroupId=' + data.data.CompanyGroupId + '&companyId=' + data.data.CompanyId + '&plantId=' + data.data.PlantId + '&sourceType=' + data.data.SourceType + '&voucherId=' + data.data.VoucherId + '&inventoryIssueId=' + data.data.InventoryIssueId;
 
             $window.open(file_src, '_blank');
         }
