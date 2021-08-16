@@ -47,7 +47,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return View();
         }
 
-
         #endregion -- Pages
 
         [HttpGet, Authorize]
@@ -82,7 +81,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
             var filePath = "";
             try
             {
-
 
 
                 excelEngine = new ExcelEngine();
@@ -120,7 +118,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].ColumnWidth = 22;
                 int colArticle = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Delivery Date";
+                sheet[ROW, COL].Text = "Shipment Date";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colDeliveryDate = COL;
                 COL++;

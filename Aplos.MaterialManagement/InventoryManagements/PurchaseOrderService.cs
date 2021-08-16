@@ -84,7 +84,8 @@ namespace Library.MaterialManagement.InventoryManagements
 						--,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '-' + ISNULL(mo.BuyerReferenceNo,'') +'-'+ ISNULL(moi.OwnReferenceNo,'')+'-'+ISNULL(moi.BuyerReferenceNo,'')
 						--,RefferenceNo=ISNULL(moi.OwnReferenceNo,'') 
 						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  
-						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,ISNULL(uom1.UserName,'') POUoM,null TrnsactionQty
+						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,Isnull(b.Rate,0) TransactionRateBOQ
+                        ,ISNULL(uom1.UserName,'') POUoM,null TrnsactionQty
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId

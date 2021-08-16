@@ -1010,6 +1010,7 @@
     <Compile Include="Areas\TaskManagement\TaskManagementAreaRegistration.cs" />
     <Compile Include="Areas\TaskScheduler\Controllers\TaskScheduleController.cs" />
     <Compile Include="Areas\TaskScheduler\TaskSchedulerRegistration.cs" />
+    <Compile Include="Controllers\APIAuthenticationForRawData.cs" />
     <Compile Include="Controllers\APIAuthentication.cs" />
     <Compile Include="Controllers\ApopAPIHR\ApopAPIHRController.cs" />
     <Compile Include="Controllers\AttendanceController.cs" />
@@ -1017,6 +1018,7 @@
     <Compile Include="Controllers\BookingSaudaController.cs" />
     <Compile Include="Controllers\DailyProductionsController.cs" />
     <Compile Include="Controllers\EmployeeDataController.cs" />
+    <Compile Include="Controllers\AttdnRawDataAPIController.cs" />
     <Compile Include="Controllers\ManualAttndFromAppController.cs" />
     <Compile Include="Controllers\EmpUtilityController.cs" />
     <Compile Include="Controllers\ItemScanController.cs" />

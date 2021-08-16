@@ -168,7 +168,7 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId,string JWActivityId,string OrderSpecific,string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable)
+        public JsonResult detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId,string JWActivityId,string OrderSpecific,string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable, string JWPODate)
         {
 
             try
@@ -176,7 +176,7 @@ namespace Aplos.Areas.JobWork.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
-                data = JobWorkCommon.detailcreate(data,  JWPurchaseOrderId, JWActivityId,identity.Name,identity.IPAddress,OrderSpecific,type, taxCategoryList, JWPOToCurrencyRate, JWPOIsNonCreditable);
+                data = JobWorkCommon.detailcreate(data,  JWPurchaseOrderId, JWActivityId,identity.Name,identity.IPAddress,OrderSpecific,type, taxCategoryList, JWPOToCurrencyRate, JWPOIsNonCreditable, JWPODate);
                 return Json(new { Data = data, Message = AplosMessage.Success });
             }
             catch (Exception ex)
@@ -722,9 +722,44 @@ namespace Aplos.Areas.JobWork.Controllers
             {
                 throw ex;
             }
-
         }
         #endregion
+
+        [HttpGet, Authorize]
+        public JsonResult getMatInputListBOQData(string Id)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                return Json(JobWorkCommon.getMatInputListBOQData(Id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult DelMaterialInputBOQ(string Id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(Id))
+                    throw new Exception("Select entry first");
+
+                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                JobWorkCommon.DelMaterialInputBOQ(Id);
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
     }
 }

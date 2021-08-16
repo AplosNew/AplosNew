@@ -37,7 +37,7 @@ namespace Library.MaterialManagement.Inventory
 
 		private readonly ISqlRepository _sqlRepository;
 		private readonly IUnitOfWork _unitOfWork;
-		private readonly IRepositoryAsync<GRNPORequisitionAllocation> _gRNPORequisitionAllocationRepository;
+		private readonly IRepositoryAsync<GRNPORequisitionAllocation> _gRNPOAllocationRepository; 
 		private readonly IRepositoryAsync<GRNRejectionDetails> _gRNRejectionDetailsRepository;
 		private readonly IRepositoryAsync<GRNAcceptanceMap> _GRNAcceptanceMapRepository;
 		private readonly IRepositoryAsync<POGGRNMap> _POGGRNMapRepository;
@@ -64,7 +64,7 @@ namespace Library.MaterialManagement.Inventory
 			, IPKGeneratorService pkGeneratorService
 			, IUnitOfWork unitOfWork
 			, ISqlRepository sqlRepository
-			, IRepositoryAsync<GRNPORequisitionAllocation> gRNPORequisitionAllocationRepository
+			, IRepositoryAsync<GRNPORequisitionAllocation> gRNPOAllocationRepository 
 			, IRepositoryAsync<GRNRejectionDetails> gRNRejectionDetailsRepository
 			, IRepositoryAsync<GRNAcceptanceMap> GRNAcceptanceMapRepository
 			, IRepositoryAsync<POGGRNMap> POGGRNMapRepository
@@ -87,7 +87,7 @@ namespace Library.MaterialManagement.Inventory
 			_inventoryMaterialService = inventoryMaterialService;
 			_unitOfWork = unitOfWork;
 			_sqlRepository = sqlRepository;
-			_gRNPORequisitionAllocationRepository = gRNPORequisitionAllocationRepository;
+			_gRNPOAllocationRepository = gRNPOAllocationRepository;
 			_gRNRejectionDetailsRepository = gRNRejectionDetailsRepository;
 			_GRNAcceptanceMapRepository = GRNAcceptanceMapRepository;
 			_POGGRNMapRepository = POGGRNMapRepository;
@@ -107,6 +107,7 @@ namespace Library.MaterialManagement.Inventory
 			objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(GRNRejectionDetails), out sID);
 			return sID;
 		}
+
 		private string GetPurchaseReturnPK()
 		{
 			string sID = string.Empty;
@@ -472,6 +473,37 @@ namespace Library.MaterialManagement.Inventory
 							//entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
 							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
 						}
+						else if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && itemDetail.CurrencyId == itemDetail.BaseCurrencyId
+							&& (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
+						{
+							//itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
+							//itemDetail.BaseQty = Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
+							//ShortageQty = Convert.ToDecimal(itemDetail.ShortageQty * itemDetail.BaseUoMFactor);
+							//RejectionQty = Convert.ToDecimal(itemDetail.RejectionQty * itemDetail.BaseUoMFactor);
+							//ApprovedQty = Convert.ToDecimal(itemDetail.ApprovedQty * itemDetail.BaseUoMFactor);							
+							//itemDetail.TotalMaterialTranAmount = itemDetail.MaterialTranAmount;
+							//entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
+							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
+							//AddedDate
+							itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
+							itemDetail.BaseQty = itemDetail.NetQty*itemDetail.BaseUoMFactor;//itemDetail.TransactionQty;
+							itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
+							itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
+							itemDetail.ChargesTaxTranAmount = itemDetail.ServiceTax;//itemDetail.TrnAmount * ratioServiceTax;
+							if (itemDetail.TotalTaxAmount == null)
+								itemDetail.TotalTaxAmount = itemDetail.BaseTaxAmount;
+							itemDetail.TotalMaterialTranAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) :
+							  Convert.ToDecimal(itemDetail.ChargesTranAmount);
+							itemDetail.TotalMaterialBooksCurrencyAmount = itemDetail.TrnAmount * itemDetail.ToCurrencyRate;
+							//itemDetail.ChargesTranAmount = itemDetail.MaterialTranAmount * ratio;
+							itemDetail.TotalMaterialBooksCurrencyAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate) :
+									 Convert.ToDecimal(itemDetail.ChargesTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate);
+							itemDetail.TrnCurrencyBaseRate = itemDetail.TotalMaterialTranAmount / itemDetail.BaseQty;
+							itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
+
+							//entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
+							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
+						}
 						else if (itemDetail.BaseUOMId == itemDetail.TransactionUoMId && itemDetail.CurrencyId != itemDetail.BaseCurrencyId)
 						{
 							//itemDetail.BaseQty = itemDetail.TransactionQty;
@@ -505,37 +537,7 @@ namespace Library.MaterialManagement.Inventory
 							//entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
 							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
 						}
-						else if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && itemDetail.CurrencyId == itemDetail.BaseCurrencyId
-							&& (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
-						{
-							//itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
-							//itemDetail.BaseQty = Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
-							//ShortageQty = Convert.ToDecimal(itemDetail.ShortageQty * itemDetail.BaseUoMFactor);
-							//RejectionQty = Convert.ToDecimal(itemDetail.RejectionQty * itemDetail.BaseUoMFactor);
-							//ApprovedQty = Convert.ToDecimal(itemDetail.ApprovedQty * itemDetail.BaseUoMFactor);							
-							//itemDetail.TotalMaterialTranAmount = itemDetail.MaterialTranAmount;
-							//entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
-							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
-							//AddedDate
-							itemDetail.BaseUoMFactor = 1;
-							itemDetail.BaseQty = itemDetail.NetQty;//itemDetail.TransactionQty;
-							itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
-							itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
-							itemDetail.ChargesTaxTranAmount = itemDetail.ServiceTax;//itemDetail.TrnAmount * ratioServiceTax;
-							if (itemDetail.TotalTaxAmount == null)
-								itemDetail.TotalTaxAmount = itemDetail.BaseTaxAmount;
-							itemDetail.TotalMaterialTranAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) :
-							  Convert.ToDecimal(itemDetail.ChargesTranAmount);
-							itemDetail.TotalMaterialBooksCurrencyAmount = itemDetail.TrnAmount * itemDetail.ToCurrencyRate;
-							//itemDetail.ChargesTranAmount = itemDetail.MaterialTranAmount * ratio;
-							itemDetail.TotalMaterialBooksCurrencyAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate) :
-									 Convert.ToDecimal(itemDetail.ChargesTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate);
-							itemDetail.TrnCurrencyBaseRate = itemDetail.TotalMaterialTranAmount / itemDetail.BaseQty;
-							itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
-
-							//entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
-							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
-						}
+						
 						else
 						{
 							//itemDetail.BaseUoMFactor = itemDetail.BaseUoMFactor;
@@ -551,7 +553,7 @@ namespace Library.MaterialManagement.Inventory
 							//Added Date :22-10-2019
 							//itemDetail.BaseUoMFactor = itemDetail.TransactionQty;
 							itemDetail.BaseUoMFactor = 1;
-							itemDetail.BaseQty = itemDetail.NetQty;//itemDetail.TransactionQty;
+							itemDetail.BaseQty = itemDetail.NetQty* itemDetail.BaseUoMFactor;//itemDetail.TransactionQty;
 							itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
 							itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
 							itemDetail.ChargesTaxTranAmount = itemDetail.ServiceTax;//itemDetail.TrnAmount * ratioServiceTax;
@@ -881,8 +883,6 @@ namespace Library.MaterialManagement.Inventory
 							int count = 0;
 							foreach (var issue in receiveDetailList)
 							{
-
-
 								count++;
 								if (count == 1)
 								{
@@ -943,8 +943,9 @@ namespace Library.MaterialManagement.Inventory
 									}
 								}
 
-
-								var gRNPORequisitionAllocation = new GRNPORequisitionAllocation
+								var baseQqtynew = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty));
+								var POBOQQtyNew = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty));
+								var gRNPOAllocation = new GRNPORequisitionAllocation 
 								{
 									Id = GetPKGRNPORequisitionAllocation(),
 									InventoryReceiveDetailId = grndId,
@@ -952,9 +953,11 @@ namespace Library.MaterialManagement.Inventory
 									POReqDetailsID = issue.POReqDetailsID,
 									TransactionQty = Convert.ToDecimal(itemDetail.TransactionQty),
 									TransactionUoMId = itemDetail.TransactionUoMId,
-									BaseQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
+									BaseQty= baseQqtynew,
+									//BaseQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
 									BaseUoMId = issue.BaseUOMId,
-									POBOQQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
+									//POBOQQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
+									POBOQQty= POBOQQtyNew,
 									POUoMId = itemDetail.POUoMId,
 									RejectQty = Convert.ToDecimal(itemDetail.RejectionQty),
 									RejectBaseQty = Convert.ToDecimal(itemDetail.RejectBaseQty),
@@ -962,8 +965,8 @@ namespace Library.MaterialManagement.Inventory
 									//AutoAllocate = true
 
 								};
-								AuditService.AddedLog(gRNPORequisitionAllocation);
-								_gRNPORequisitionAllocationRepository.Insert(gRNPORequisitionAllocation);
+								AuditService.AddedLog(gRNPOAllocation);
+								_gRNPOAllocationRepository.Insert(gRNPOAllocation); 
 							}
 						}
 					}
@@ -1106,6 +1109,35 @@ namespace Library.MaterialManagement.Inventory
 							//entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
 							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
 						}
+						else if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && itemDetail.CurrencyId == itemDetail.BaseCurrencyId
+							&& (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
+						{
+							//itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
+							//itemDetail.BaseQty = Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
+							//ShortageQty = Convert.ToDecimal(itemDetail.ShortageQty * itemDetail.BaseUoMFactor);
+							//RejectionQty = Convert.ToDecimal(itemDetail.RejectionQty * itemDetail.BaseUoMFactor);
+							//ApprovedQty = Convert.ToDecimal(itemDetail.ApprovedQty * itemDetail.BaseUoMFactor);							
+							//itemDetail.TotalMaterialTranAmount = itemDetail.MaterialTranAmount;
+							//entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
+							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
+							//AddedDate
+							itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
+							itemDetail.BaseQty = itemDetail.NetQty * itemDetail.BaseUoMFactor; //itemDetail.TransactionQty;
+							itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
+							itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
+							itemDetail.ChargesTaxTranAmount = itemDetail.ServiceTax;//itemDetail.TrnAmount * ratioServiceTax;
+							itemDetail.TotalMaterialTranAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) :
+							  Convert.ToDecimal(itemDetail.ChargesTranAmount);
+							itemDetail.TotalMaterialBooksCurrencyAmount = itemDetail.TrnAmount * itemDetail.ToCurrencyRate;
+							//itemDetail.ChargesTranAmount = itemDetail.MaterialTranAmount * ratio;
+							itemDetail.TotalMaterialBooksCurrencyAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate) :
+									 Convert.ToDecimal(itemDetail.ChargesTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate);
+							itemDetail.TrnCurrencyBaseRate = itemDetail.TotalMaterialTranAmount / itemDetail.BaseQty;
+							itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
+
+							//entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
+							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
+						}
 						else if (itemDetail.BaseUOMId == itemDetail.TransactionUoMId && itemDetail.CurrencyId != itemDetail.BaseCurrencyId)
 						{
 							//itemDetail.BaseQty = itemDetail.TransactionQty;
@@ -1118,7 +1150,7 @@ namespace Library.MaterialManagement.Inventory
 							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
 
 							//added date 22-10-2019
-							itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
+							itemDetail.BaseUoMFactor = 1; //Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
 							itemDetail.BaseQty = Convert.ToDecimal(itemDetail.NetQty * itemDetail.BaseUoMFactor); //Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
 																												  //itemDetail.TotalMaterialTranAmount = itemDetail.TransactionAmount;
 							itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
@@ -1136,35 +1168,7 @@ namespace Library.MaterialManagement.Inventory
 							//entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
 							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
 						}
-						else if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && itemDetail.CurrencyId == itemDetail.BaseCurrencyId
-							&& (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
-						{
-							//itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
-							//itemDetail.BaseQty = Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
-							//ShortageQty = Convert.ToDecimal(itemDetail.ShortageQty * itemDetail.BaseUoMFactor);
-							//RejectionQty = Convert.ToDecimal(itemDetail.RejectionQty * itemDetail.BaseUoMFactor);
-							//ApprovedQty = Convert.ToDecimal(itemDetail.ApprovedQty * itemDetail.BaseUoMFactor);							
-							//itemDetail.TotalMaterialTranAmount = itemDetail.MaterialTranAmount;
-							//entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
-							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
-							//AddedDate
-							itemDetail.BaseUoMFactor = 1;
-							itemDetail.BaseQty = itemDetail.NetQty; //itemDetail.TransactionQty;
-							itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
-							itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
-							itemDetail.ChargesTaxTranAmount = itemDetail.ServiceTax;//itemDetail.TrnAmount * ratioServiceTax;
-							itemDetail.TotalMaterialTranAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) :
-							  Convert.ToDecimal(itemDetail.ChargesTranAmount);
-							itemDetail.TotalMaterialBooksCurrencyAmount = itemDetail.TrnAmount * itemDetail.ToCurrencyRate;
-							//itemDetail.ChargesTranAmount = itemDetail.MaterialTranAmount * ratio;
-							itemDetail.TotalMaterialBooksCurrencyAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate) :
-									 Convert.ToDecimal(itemDetail.ChargesTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate);
-							itemDetail.TrnCurrencyBaseRate = itemDetail.TotalMaterialTranAmount / itemDetail.BaseQty;
-							itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
-
-							//entity.TotalQty = Convert.ToDecimal(entity.TotalQty + entity.BaseQty);
-							//entity.AvgRate = Convert.ToDecimal((totalAmount + entity.TotalMaterialTranAmount) / entity.TotalQty);
-						}
+						
 						else
 						{
 							//itemDetail.BaseUoMFactor = itemDetail.BaseUoMFactor;
@@ -1180,7 +1184,7 @@ namespace Library.MaterialManagement.Inventory
 							//Added Date :22-10-2019
 							//itemDetail.BaseUoMFactor = itemDetail.TransactionQty;
 							itemDetail.BaseUoMFactor = 1;
-							itemDetail.BaseQty = itemDetail.NetQty;//itemDetail.TransactionQty;
+							itemDetail.BaseQty = itemDetail.NetQty * itemDetail.BaseUoMFactor;//itemDetail.TransactionQty;
 							itemDetail.TotalMaterialTranAmount = itemDetail.TrnAmount;
 							itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
 							itemDetail.ChargesTaxTranAmount = itemDetail.ServiceTax;//itemDetail.TrnAmount * ratioServiceTax;
@@ -1433,13 +1437,13 @@ namespace Library.MaterialManagement.Inventory
 					}
 					if (Convert.ToDecimal(itemDetail.POQty) > (Convert.ToDecimal(itemDetail.GRNRcvQty + itemDetail.TransactionQty)))
 					{
-						var GRNPORequisitionAllocation = _gRNPORequisitionAllocationRepository.Query(t => t.InventoryReceiveDetailId == itemDetail.InventoryReceiveDetailId).Select().ToList();
+						var GRNPORequisitionAllocation = _gRNPOAllocationRepository.Query(t => t.InventoryReceiveDetailId == itemDetail.InventoryReceiveDetailId).Select().ToList();
 						if (GRNPORequisitionAllocation.IsNotNull())
 						{
 							foreach (var item in GRNPORequisitionAllocation)
 							{
 								item.ModelState = ModelState.Deleted;
-								_gRNPORequisitionAllocationRepository.Delete(item);
+								_gRNPOAllocationRepository.Delete(item);
 							}
 						}
 						entity.msgForAllocationNeed = "You have to allocate GRN Qty manually for Sales Order ! Please go to edit mode for allocation";
@@ -1505,13 +1509,13 @@ namespace Library.MaterialManagement.Inventory
 											where b.Id='" + itemDetail.PODetailsID + @"'").ToList();
 						if (receiveDetailList.IsNotNull())
 						{
-							var GRNPORequisitionAllocation = _gRNPORequisitionAllocationRepository.Query(t => t.InventoryReceiveDetailId == itemDetail.InventoryReceiveDetailId).Select().ToList();
+							var GRNPORequisitionAllocation = _gRNPOAllocationRepository.Query(t => t.InventoryReceiveDetailId == itemDetail.InventoryReceiveDetailId).Select().ToList();
 							if (GRNPORequisitionAllocation.IsNotNull())
 							{
 								foreach (var item in GRNPORequisitionAllocation)
 								{
 									item.ModelState = ModelState.Deleted;
-									_gRNPORequisitionAllocationRepository.Delete(item);
+									_gRNPOAllocationRepository.Delete(item);
 								}
 							}
 
@@ -1578,7 +1582,66 @@ namespace Library.MaterialManagement.Inventory
 										itemDetail.TransactionQty = 0;
 									}
 								}
+								//if (count == 1)
+								//{
+								//	if ((issue.TransactionQtyForPO - issue.AllocatedSOQty) > itemDetail.TransactionQty)
+								//	{
 
+								//		itemDetail.TransactionQty = itemDetail.TransactionQty;
+								//		//temp += itemDetail.TransactionQty;
+								//		isQtyAlocated = false;
+
+								//	}
+								//	else if ((issue.TransactionQtyForPO - issue.AllocatedSOQty) < itemDetail.TransactionQty)
+								//	{
+								//		temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+								//		//temp = issue.TransactionQtyForPO - issue.AllocatedSOQty;
+								//		itemDetail.TransactionQty = (issue.TransactionQtyForPO - issue.AllocatedSOQty);
+								//		isQtyAlocated = true;
+
+								//	}
+								//	else
+								//	{
+								//		//temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+								//		itemDetail.TransactionQty = itemDetail.TransactionQty;
+								//		isQtyAlocated = true;
+
+								//	}
+								//}
+								//if (count > 1)
+								//{
+								//	if (isQtyAlocated == true)
+								//	{
+								//		if ((issue.TransactionQtyForPO - issue.AllocatedSOQty) > temp)
+								//		{
+								//			//temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
+								//			itemDetail.TransactionQty = itemDetail.TransactionQty;
+								//			isQtyAlocated = false;
+								//		}
+								//		if ((issue.TransactionQtyForPO - issue.AllocatedSOQty) < temp)
+								//		{
+								//			//temp = temp - issue.TransactionQtyForPO;
+								//			temp = (temp - (issue.TransactionQtyForPO - issue.AllocatedSOQty));
+								//			//itemDetail.TransactionQty = issue.TransactionQtyForPO;
+								//			itemDetail.TransactionQty = (issue.TransactionQtyForPO - issue.AllocatedSOQty);
+								//			isQtyAlocated = true;
+								//		}
+								//		else
+								//		{
+								//			//temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+								//			itemDetail.TransactionQty = temp;
+								//			isQtyAlocated = true;
+
+								//		}
+
+								//	}
+								//	else
+								//	{
+								//		itemDetail.TransactionQty = 0;
+								//	}
+								//}
+								var BaseQtynew = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty));
+								var POBOQQtynew = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.TransactionUoMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty));
 
 								var gRNPORequisitionAllocation = new GRNPORequisitionAllocation
 								{
@@ -1588,9 +1651,9 @@ namespace Library.MaterialManagement.Inventory
 									POReqDetailsID = issue.POReqDetailsID,
 									TransactionQty = Convert.ToDecimal(itemDetail.TransactionQty),
 									TransactionUoMId = itemDetail.TransactionUoMId,
-									BaseQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
+									BaseQty = BaseQtynew,//(decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
 									BaseUoMId = issue.BaseUOMId,
-									POBOQQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.TransactionUoMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
+									POBOQQty = POBOQQtynew, //(decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.TransactionUoMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
 									POUoMId = itemDetail.TransactionUoMId,
 									RejectQty = Convert.ToDecimal(itemDetail.RejectionQty),
 									RejectBaseQty = Convert.ToDecimal(itemDetail.RejectBaseQty),
@@ -1598,7 +1661,7 @@ namespace Library.MaterialManagement.Inventory
 
 								};
 								AuditService.AddedLog(gRNPORequisitionAllocation);
-								_gRNPORequisitionAllocationRepository.Insert(gRNPORequisitionAllocation);
+								_gRNPOAllocationRepository.Insert(gRNPORequisitionAllocation);
 							}
 						}
 					}
@@ -2499,13 +2562,13 @@ namespace Library.MaterialManagement.Inventory
 						_poDetailRepository.Update(PODetailData);
 					}
 
-					var GRNPORequisitionAllocation = _gRNPORequisitionAllocationRepository.Query(t => t.InventoryReceiveDetailId == receiveDetailId).Select().ToList();
+					var GRNPORequisitionAllocation = _gRNPOAllocationRepository.Query(t => t.InventoryReceiveDetailId == receiveDetailId).Select().ToList();
 					if (GRNPORequisitionAllocation.IsNotNull())
 					{
 						foreach (var item in GRNPORequisitionAllocation)
 						{
 							item.ModelState = ModelState.Deleted;
-							_gRNPORequisitionAllocationRepository.Delete(item);
+							_gRNPOAllocationRepository.Delete(item);
 						}
 					}
 

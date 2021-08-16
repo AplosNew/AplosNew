@@ -460,8 +460,8 @@
                         <div class="col-sm-8 input-group" style="padding-left:4%; padding-right:5%">
                             <input type="text" name="Contract" ng-model="productNew.ContractNo" class="form-control" maxlength="100" disabled ng-hide="productNew.OrderSpecific==='No'">
                             <span class="input-group-btn">
-                                <button ng-click="GetPopUpContract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
-                                <button ng-click="Clearcontract()" class="btn single-small-btn" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
+                                <button ng-click="GetPopUpContract()" class="btn single-small-btn" ng-disabled="PoChildList.length>0" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="Clearcontract()" class="btn single-small-btn" ng-disabled="PoChildList.length>0" ng-hide="productNew.OrderSpecific==='No'"><i class="glyphicon glyphicon-refresh"></i></button>
                                 <button ng-click="GetMasterOrderByContractList()" ng-hide="productNew.OrderSpecific==='No'" class="btn single-small-btn"><i class="glyphicon glyphicon-list-alt"></i></button>
                             </span>
                         </div>
@@ -496,7 +496,7 @@
                                 <span class="input-group-addon"> {{productNew.PartyCode}}</span>
                                 <input type="text" name="Vendor" id="Vendor" ng-model="productNew.PartyName" class="form-control" required readonly>
                                 <span class="input-group-btn">
-                                    <button name="submit" ng-click="showPartyPopUpForJWPO(productNew.ContractId)" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    <button name="submit" ng-click="showPartyPopUpForJWPO(productNew.ContractId)" ng-disabled="inventoryMaterialList.length>0 || PoChildList.length>0" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                     <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                                 </span>
                             </div>
@@ -1040,17 +1040,17 @@
                                     </div>
                                 </td>
                                 @*<td class="text-right" style="width:200px;">
-            <div class="show-message">
-                <div class="select-style">
-                    <select id="ddlCurrencyId" name="x.ServiceId" class="form-control" submit-required="false" ng-model="Transformation.ServiceId" ng-options="item.Value as item.Text for item in serviceCboList"></select>
-                </div>
-            </div>
-        </td>*@
+                                        <div class="show-message">
+                                            <div class="select-style">
+                                                <select id="ddlCurrencyId" name="x.ServiceId" class="form-control" submit-required="false" ng-model="Transformation.ServiceId" ng-options="item.Value as item.Text for item in serviceCboList"></select>
+                                            </div>
+                                        </div>
+                                    </td>*@
 
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TaxAmount" ng-disabled="true"></td> @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.JWTaxAmount" ng-disabled="true"></td>*@ @*{{x.BaseTaxAmount| setDecimal:currencyPrecision| number}}*@
                                 @*<td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
-        <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
+                                    <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>*@
                                 <td class="text-right" style="width:200px;"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseAmount" ng-disabled="true"></td>
                                 @*<td class="text-right">{{x.BaseAmount| setDecimal:currencyPrecision| number}}</td>*@
                                 <td>
@@ -1074,7 +1074,7 @@
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
                                         @*<li ng-hide="productNew.OrderSpecific==='No'"><button ng-click="detailPopUpForEdit(x)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>*@
-
+                                        <li><button ng-click="ConfirmMaterialInputPopUpBOQ(x)" ng-disabled="productNew.POType=='OSValueAddedPO'" class="btn btn-action tooltip-here" data-placement="top" title="Material Input"><i class="glyphicon glyphicon-list"></i></button></li>
                                         <li><button ng-click="detailPopUpForEdit(x)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>
                                         <li><button ng-click="getReceiveTaxList(x)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
                                         <li><button ng-click="valuePassInDelModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
@@ -2481,7 +2481,7 @@
                     <ul class="nav nav-tabs" role="tablist">
                         <li role="presentation" ng-class="{ active: isSetOwnVendorIndex(1) }"><a ng-click="setOwnVendorTabIndex(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Parent</a></li>
                         @*<li role="presentation" ng-class="{ active: isSetOtherVendorIndex(2) }"><a ng-click="setTabOtherVendorIndex(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Other Vendor</a></li>
-                        <li role="presentation" ng-class="{ active: isSetParentIndex(3) }"><a ng-click="setTabParentIndex(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Parent</a></li>*@
+                            <li role="presentation" ng-class="{ active: isSetParentIndex(3) }"><a ng-click="setTabParentIndex(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Parent</a></li>*@
 
                     </ul>
                 </div>
@@ -2539,17 +2539,16 @@
 
                                     </script>
                                     <script type="text/template" id="RatePerUnitText">
-                                        <input type="text" class="input ejinputtext form-control" n-decimals="4" onkeypress="return isNumber(event)" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionRate" width="80" />
+                                        <input type="text" class="input ejinputtext form-control" n-decimals="4" onkeypress="return isNumber(event)" ng-disabled="data.IsEditMode==1 && data.CheckedStatus==true" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionRate" width="80" />
 
                                     </script>
                                     <script type="text/template" id="ServiceBOQJW">
 
-                                            <div class="select-style">
-                                                <select class="form-control" ng-model="data.ServiceId" name="ServiceId"
-                                                        ng-options="item.Value as item.Text for item in data.BOQserviceCboList" tabindex="3">
-                                                </select>
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="data.ServiceId" name="ServiceId"
+                                                    ng-options="item.Value as item.Text for item in data.BOQserviceCboList" tabindex="3"></select>
 
-                                            </div>
+                                        </div>
                                     </script>
                                     <script type="text/template" id="UOM">
                                         <div class="select-style">
@@ -2606,106 +2605,106 @@
 
                     @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetOtherVendorIndex(2), active: isSetOtherVendorIndex(2) }">
 
-                        <div id="ReqaddId1">
-                            <div class="col-lg-12">
-                                <div class="content-container-fluid" style="color:black;">
+                            <div id="ReqaddId1">
+                                <div class="col-lg-12">
+                                    <div class="content-container-fluid" style="color:black;">
 
-                                    <div style="color:black;" id="GridReqeee" ej-grid e-datasource="GetListForMasterOrder"
-                                         e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                                        <div style="color:black;" id="GridReqeee" ej-grid e-datasource="GetListForMasterOrder"
+                                             e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
 
-                                        <div e-columns>
+                                            <div e-columns>
 
-                                            <div e-column e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
-                                            <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="150"></div>
-                                            <div e-column e-field="RequiredQtyApproved" e-headertext="Approved" e-width="100"></div>
-                                            <div e-column e-field="UserName" e-headertext="Material" e-width="200"></div>
-                                            <div e-column e-field="StandardName" e-headertext="Article" e-width="250"></div>
+                                                <div e-column e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
+                                                <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="150"></div>
+                                                <div e-column e-field="RequiredQtyApproved" e-headertext="Approved" e-width="100"></div>
+                                                <div e-column e-field="UserName" e-headertext="Material" e-width="200"></div>
+                                                <div e-column e-field="StandardName" e-headertext="Article" e-width="250"></div>
 
-                                            <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
-                                            <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
-                                            <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
-                                            <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
-                                            <div e-column e-field="BOMQty" e-headertext="BOMQty" e-width="100" textAlign='Right'></div>
-                                            <div e-column e-field="RequiredQty" e-headertext="RequiredQty" e-width="150" textAlign='Right'></div>
-                                            <div e-column e-field="PORaisedQry" e-headertext="PORaisedQry" e-width="150" textAlign='Right'></div>
-
-
-                                            <div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
-
-                                            <div e-column e-field="IncompleteMaterial" e-headertext="IncompleteMaterial" e-width="200"></div>
-                                            <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="150"></div>
-                                            <div e-column e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="150"></div>
-                                            <div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="120"></div>
-                                            <div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="120"></div>
-                                            <div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="120"></div>
-                                            <div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="120"></div>
+                                                <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
+                                                <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
+                                                <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
+                                                <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                                                <div e-column e-field="BOMQty" e-headertext="BOMQty" e-width="100" textAlign='Right'></div>
+                                                <div e-column e-field="RequiredQty" e-headertext="RequiredQty" e-width="150" textAlign='Right'></div>
+                                                <div e-column e-field="PORaisedQry" e-headertext="PORaisedQry" e-width="150" textAlign='Right'></div>
 
 
-                                        </div>
+                                                <div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
 
-                                    </div>
-
-                                    <div id="GridT"></div>
-
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-
-                    </div>
-
-                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetParentIndex(3), active: isSetParentIndex(3) }">
-
-                        <div id="ReqaddId1">
-                            <div class="col-lg-12">
-                                <div class="content-container-fluid" style="color:black;">
-
-                                    <div style="color:black;" id="GridReq3" ej-grid e-datasource="GetListForMasterOrder"
-                                         e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
-
-                                        <div e-columns>
-
-                                            <div e-column e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
-                                            <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="150"></div>
-                                            <div e-column e-field="RequiredQtyApproved" e-headertext="Approved" e-width="100"></div>
-                                            <div e-column e-field="UserName" e-headertext="Material" e-width="200"></div>
-                                            <div e-column e-field="StandardName" e-headertext="Article" e-width="250"></div>
-
-                                            <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
-                                            <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
-                                            <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
-                                            <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
-                                            <div e-column e-field="BOMQty" e-headertext="BOMQty" e-width="100" textAlign='Right'></div>
-                                            <div e-column e-field="RequiredQty" e-headertext="RequiredQty" e-width="150" textAlign='Right'></div>
-                                            <div e-column e-field="PORaisedQry" e-headertext="PORaisedQry" e-width="150" textAlign='Right'></div>
+                                                <div e-column e-field="IncompleteMaterial" e-headertext="IncompleteMaterial" e-width="200"></div>
+                                                <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="150"></div>
+                                                <div e-column e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="150"></div>
+                                                <div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="120"></div>
+                                                <div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="120"></div>
+                                                <div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="120"></div>
+                                                <div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="120"></div>
 
 
-                                            <div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
-
-                                            <div e-column e-field="IncompleteMaterial" e-headertext="IncompleteMaterial" e-width="200"></div>
-                                            <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="150"></div>
-                                            <div e-column e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="150"></div>
-                                            <div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="120"></div>
-                                            <div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="120"></div>
-                                            <div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="120"></div>
-                                            <div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="120"></div>
-
+                                            </div>
 
                                         </div>
 
+                                        <div id="GridT"></div>
+
                                     </div>
-
-                                    <div id="GridT"></div>
-
                                 </div>
                             </div>
+                            <div class="clearfix"></div>
+
                         </div>
-                        <div class="clearfix"></div>
-                    </div>*@
+
+                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetParentIndex(3), active: isSetParentIndex(3) }">
+
+                            <div id="ReqaddId1">
+                                <div class="col-lg-12">
+                                    <div class="content-container-fluid" style="color:black;">
+
+                                        <div style="color:black;" id="GridReq3" ej-grid e-datasource="GetListForMasterOrder"
+                                             e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+
+                                            <div e-columns>
+
+                                                <div e-column e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
+                                                <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="150"></div>
+                                                <div e-column e-field="RequiredQtyApproved" e-headertext="Approved" e-width="100"></div>
+                                                <div e-column e-field="UserName" e-headertext="Material" e-width="200"></div>
+                                                <div e-column e-field="StandardName" e-headertext="Article" e-width="250"></div>
+
+                                                <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
+                                                <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
+                                                <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
+                                                <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                                                <div e-column e-field="BOMQty" e-headertext="BOMQty" e-width="100" textAlign='Right'></div>
+                                                <div e-column e-field="RequiredQty" e-headertext="RequiredQty" e-width="150" textAlign='Right'></div>
+                                                <div e-column e-field="PORaisedQry" e-headertext="PORaisedQry" e-width="150" textAlign='Right'></div>
+
+
+                                                <div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
+
+                                                <div e-column e-field="IncompleteMaterial" e-headertext="IncompleteMaterial" e-width="200"></div>
+                                                <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="150"></div>
+                                                <div e-column e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="150"></div>
+                                                <div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="120"></div>
+                                                <div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="120"></div>
+                                                <div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="120"></div>
+                                                <div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="120"></div>
+
+
+                                            </div>
+
+                                        </div>
+
+                                        <div id="GridT"></div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>*@
 
                 </div>
 
@@ -4024,12 +4023,156 @@
     </div>
 </div>
 
+<div class="modal fade site-modal in" id="BOQMaterialInputPopUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Material Input<button type="button" class="close" ng-click="CloseProcessBOQ();" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-element-ctrl form-horizontal">
+                <div ng-form="MaterialInputFormBOQ">
+                    <div class="row">
+                        <div class="form-elements form-horizontal" ng-form name="MatInputNewFormBOQ">
+                            <input type="hidden" ng-model="MaterialInput.Id">
+
+                            @*<div class="col-md-12">
+            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                <div style="color:black;" id="GridMatInput" ej-grid e-datasource="MatInputList"
+                     e-allowfiltering="true" e-recorddoubleclick="setMatInputdata" e-allowpaging="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplateMatInput">
+                    <div e-columns>
+                        <div e-column e-headertext="" e-headertemplateid="#MatInputheaderTemplate" e-template="#MatInputcheckboxTemplate" e-textalign="center" e-width="20"></div>
+                        <div e-column e-type="string" e-field="JWInputItem" e-headertext="JW Input Item" e-width="100"></div>
+                        <div e-column e-type="string" e-field="InputMaterial" e-headertext="Input Material" e-width="100"></div>
+                        <div e-column e-template="#InputArticle" e-headertext="Input Article" e-width="200" style="height: 200px;"></div>
+                        <div e-column e-type="string" e-field="Unit" e-headertext="Unit" e-width="80"></div>
+                        <div e-column e-template="#ItemSpecification" e-headertext="Item Specification" e-width="100"></div>
+                        <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
+                        <div e-column e-type="string" e-field="EmployeeName" e-headertext="Responsible Person" e-width="100"></div>
+                        <div e-column e-template="#NetConsump" e-headertext="Net Consumption" e-width="100"></div>
+                        <div e-column e-template="#Rejection" e-headertext="Rejection" e-width="100"></div>
+                        <div e-column e-template="#ValLoss" e-headertext="Value Loss" e-width="100"></div>
+                        <div e-column e-template="#GrossConsumption" e-headertext="GrossConsumption" e-width="100"></div>
+                        <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="100"></div>
+
+                    </div>
+                </div>
+            </div>
+            <script type="text/template" id="MatInputcheckboxTemplate">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isToBeSelect" e-value="data.isToBeSelect" />
+            </script>
+            <script type="text/x-jsrender" id="MatInputheaderTemplate">
+                <input type="checkbox" id="headchk" />
+            </script>
+            <script type="text/ng-template" id="ItemSpecification">
+                <input type="text" ng-model="data.ItemSpecification" class="form-control" maxlength="15" e-width="100">
+            </script>
+            <script type="text/ng-template" id="NetConsump">
+                <input type="text" ng-model="data.NetConsumption" class="form-control" maxlength="15" ng-change="$parent.GetGrossConsumption(data);" e-width="100" onkeypress="return OnlyNumber(event)">
+            </script>
+            <script type="text/ng-template" id="Rejection">
+                <input type="text" ng-model="data.Rejection" class="form-control" maxlength="15" e-width="100" onkeypress="return OnlyNumber(event)">
+            </script>
+            <script type="text/ng-template" id="ValLoss">
+                <input type="text" ng-model="data.ValueLoss" class="form-control" maxlength="15" ng-change="$parent.GetGrossConsumption(data);" e-width="100" onkeypress="return OnlyNumber(event)">
+            </script>
+            <script type="text/ng-template" id="GrossConsumption">
+                <input type="text" ng-model="data.GrossConsumption" class="form-control" maxlength="15" readonly e-width="100" onkeypress="return OnlyNumber(event)">
+            </script>
+            <script type="text/ng-template" id="Remarks">
+                <input type="text" ng-model="data.Remarks" class="form-control" maxlength="15" e-width="100">
+            </script>
+
+            <script type="text/template" id="InputArticle">
+
+                <div class="col-sm-10" style="padding:0px; width:200px;height:20px;">
+
+                    <div class="input-group">
+                        <span class="input-group-addon">{{data.InputArticleCode}}</span>
+                        <input type="text" ng-model="data.InputArticleName" name="Material Master" required class="form-control" readonly>
+                        <input type="hidden" ng-model="data.ArticleId" />
+                        <span class="input-group-btn">
+                            <button ng-click="$parent.InputArticlePopUp(data)" ng-disabled="data.InputMaterialId==null" tabindex="48" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="$parent.InputArticleClear(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                        </span>
+                    </div>
+                </div>
+
+            </script>
+
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li>
+                    <button ng-click="SaveMaterialInputTab();" class="btn"><i class=""></i> Save</button>
+                    <button ng-click="closeMaterialInputTabPopUp('MaterialInputPopUp');" class="btn"><i class=""></i> Close</button>
+                </li>
+            </ul>
+        </div>*@
+
+                            <div class="col-md-12">
+                                <div class="content-container-fluid" style="color:black;overflow:scroll">
+                                    <div style="color:black;" id="GridMaterialInputBOQ" ej-grid e-datasource="MaterialInputListBOQ"
+                                         e-allowfiltering="true" e-recorddoubleclick="setMaterialInputBOQ" e-allowpaging="true"
+                                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-allowscrolling="true">
+                                        <div e-columns>
+                                            @*<div e-column e-type="string" e-field="JWInputItem" e-headertext="JW Input Item" e-width="100"></div>*@
+                                            <div e-column e-type="string" e-field="Material" e-headertext="Input Material" e-width="100"></div>
+                                            <div e-column e-type="string" e-field="Article" e-headertext="Input Article" e-width="100"></div>
+                                            <div e-column e-type="string" e-field="MatBaseUoM" e-headertext="UoM" e-width="100"></div>
+                                            @*<div e-column e-type="string" e-field="ItemSpecification" e-headertext="Item Specification" e-width="100"></div>*@
+                                            @*<div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>*@
+                                            <div e-column e-type="string" e-field="NetConsumption" e-headertext="Net Consumption" e-width="100"></div>
+                                            <div e-column e-type="string" e-field="Rejection" e-headertext="Rejection" e-width="100"></div>
+                                            <div e-column e-type="string" e-field="ValueLoss" e-headertext="Value Loss" e-width="100"></div>
+                                            <div e-column e-type="string" e-field="GrossConsumption" e-headertext="GrossConsumption" e-width="100"></div>
+                                            <div e-column e-type="string" e-field="BOQRequiredQuantity" e-headertext="Required Quantity" e-width="100"></div>
+                                            @*<div e-column e-template="#BOQPopUpByProduct" e-headertext="By-Product" e-width="100"></div>*@
+                                            @*<div e-column e-template="#BOQDeleteMaterialInputTab" e-width="100"></div>*@
+                                        </div>
+                                    </div>
+                                </div>
+                                @*<script type="text/template" id="BOQDeleteMaterialInputTab">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.ConfirmDeleteMaterialInputTabBOQ(data.Id);" class="btn" tabindex="49"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </script>*@
+                                @*<script type="text/template" id="BOQPopUpByProduct">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="$parent.ConfirmByProductPopUpBOQ(data);" ng-disabled="data.ByProductApplicable=='No' " class="btn" tabindex="50"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                    </ul>
+                </div>
+            </script>*@
+                            </div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li>
+                                        @*<button ng-click="SaveMaterialInputTab();" class="btn"><i class=""></i> Save</button>*@
+                                        <button ng-click="closeMaterialInputTabPopUpBOQ('BOQMaterialInputPopUp');" class="btn"><i class=""></i> Close</button>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DetailDelete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="serviceDelete();"></confirm-archive-generic>
 
 <confirm-archive-generic modalid="DelByProductTabPopUp" title="Confirmation" message="Are you sure want to Delete this file?" data-ng-click-right-button="DelByProduct();"></confirm-archive-generic>
 <confirm-archive-generic modalid="DelMaterialInputChildTabPopUp" title="Confirmation" message="Are you sure want to Delete this file?" data-ng-click-right-button="DelMaterialInput();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removePopUpForDoc" title="Confirmation" message={{message}} data-ng-click-right-button="DeletePOIgame();"></confirm-archive-generic>
+<confirm-archive-generic modalid="DelMaterialInputChildBOQ" title="Confirmation" message="Are you sure want to Delete this file?" data-ng-click-right-button="DelMaterialInputBOQ();"></confirm-archive-generic>
 
 
 

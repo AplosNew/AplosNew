@@ -1,73 +1,74 @@
 ﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{FormTitle}}</h3>
 
-<div class="form-elements form-horizontal" ng-form name="AttndFromAppForm">
+<div class="form-elements form-horizontal" ng-form name="NewAttdnProcess">
     <div class="row" ng-form name="General">        
 
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
 
-        <div class="row">
-            <h2>This is just for Testing Purpose of the Attendance Process !!</h2>
-
-        </div>
-
+        
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Date" ng-model="Attnd.Date" datepicker class="form-control" required tabindex="4">
-
-
-
+                <input type="text" name="Date" ng-model="Attnd.Date" datepicker class="form-control" required>
             </div>
         </div>
 
-        <div class="common-btn" style="margin-top:30px;">
-            <ul class="list-inline text-left">
-                <li> <button ng-click="RunRoster();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Run Roster Logic </button></li>
+    </div>
 
+</div>
 
-            </ul>
+<div class="row" id="overall" style="background-color:white; padding-top:5%">
+
+    <div class="col-md-12">
+        <div id="Detail" class="col-lg-12" style="padding-left:3%">
+            <div class="row">
+                <div class="" style="margin-left:0%;  max-height:375px; max-width:100%;">
+                    <table class="table table-hover" style="overflow-y:scroll;border:1px solid black; box-shadow:1px 1px 1px 1px grey;">
+                        <thead>
+                            <tr>
+                                <th>Process</th>
+                                <th>Description</th>
+                                
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td style="padding:2px; cursor:pointer;" class="hoverItem" ng-click="RunRoster();">Roster Process</td>
+                                <td style="padding:2px; text-align:left;cursor:pointer;" class="hoverItem">This Process is used to Process the Roster Shift for the Day</td>
+                            </tr>
+                            <tr><td></td><td></td></tr>
+                            <tr>
+                                <td style="padding:2px; cursor:pointer;" class="hoverItem" ng-click="Run();">Shift Process</td>
+                                <td style="padding:2px; text-align:left;cursor:pointer;" class="hoverItem">This Process is used to create the Row of Active Employees along with their Assigned Shift for the Day</td>
+                            </tr>
+                            <tr><td></td><td></td></tr>
+                            <tr>
+                                <td style="padding:2px; cursor:pointer;" class="hoverItem" ng-click="RunAttnd();">Attendance Process</td>
+                                <td style="padding:2px; text-align:left;cursor:pointer;" class="hoverItem">This Process is used to Process the In,Out,OutpunchLimit of the Employee</td>
+                            </tr>
+                            <tr><td></td><td></td></tr>
+                            <tr>
+                                <td style="padding:2px; cursor:pointer;" class="hoverItem" ng-click="RunDayStatus();">DayStatus Process</td>
+                                <td style="padding:2px; text-align:left;cursor:pointer;" class="hoverItem">This Process is used to Process the Day Status for the WorkDate</td>
+                            </tr>
+                            <tr><td></td><td></td></tr>
+                            <tr>
+                                <td style="padding:2px; cursor:pointer;" class="hoverItem" ng-click="RunMonthlySummary();">Monthly Summary Process</td>
+                                <td style="padding:2px; text-align:left;cursor:pointer;" class="hoverItem">This Process is used to Process the Monthly Summary of the Active Employees</td>
+                            </tr>
+                            <tr><td></td><td></td></tr>
+                            <tr>
+                                <td style="padding:2px; cursor:pointer;" class="hoverItem" ng-click="RunManualScheduler();">Manual Process</td>
+                                <td style="padding:2px; text-align:left;cursor:pointer;" class="hoverItem">This Process is used to trigger the Attendance of Changed Employee's Attendance</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
-
-        <div class="common-btn" style="margin-top:30px;">
-            <ul class="list-inline text-left">
-
-                <li> <button ng-click="Run();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Run Shift Process </button></li>
-
-            </ul>
-        </div>
-
-        <div class="common-btn" style="margin-top:30px;">
-            <ul class="list-inline text-left">
-
-                <li> <button ng-click="RunAttnd();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Run Attendance Process </button></li>
-
-            </ul>
-        </div>
-        
-        <div class="common-btn" style="margin-top:30px;">
-            <ul class="list-inline text-left">
-
-                <li> <button ng-click="RunDayStatus();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Run DayStatus Process </button></li>
-
-            </ul>
-        </div>
-        
-        <div class="common-btn" style="margin-top:30px;">
-                   <ul class="list-inline text-left">
-
-                       <li> <button ng-click="RunManualScheduler();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Run Manual Scheduler </button></li>
-
-                   </ul>
-        </div> 
-        
-        <div class="common-btn" style="margin-top:30px;">
-                   <ul class="list-inline text-left">
-                       <li> <button ng-click="RunMonthlySummary();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Run Monthly Summary </button></li>
-
-                   </ul>
-        </div>
-      
     </div>
 
 </div>

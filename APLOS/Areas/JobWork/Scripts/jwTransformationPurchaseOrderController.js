@@ -2054,6 +2054,15 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                         return false;
                     }
 
+                    if (baseService.isUndefinedOrNull($scope.detailModelList[i].TransactionRate)) {
+                        ShowResult('Please Enter Rate', 'failure', 'ListOfPOMaterial');
+                        return false;
+                    }
+                    if (baseService.isUndefinedOrNull($scope.detailModelList[i].ServiceId)) {
+                        ShowResult('Please Select Service', 'failure', 'ListOfPOMaterial');
+                        return false;
+                    }
+
                     $scope.taxCategoryList = null;
                 }
                 $scope.materialValidationForBOQItem($scope.detailModelList);
@@ -2078,7 +2087,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                         type: type,
                         taxCategoryList: $scope.taxCategoryList,
                         JWPOToCurrencyRate: $scope.productNew.ToCurrencyRate,
-                        JWPOIsNonCreditable: $scope.productNew.IsNonCreditable
+                        JWPOIsNonCreditable: $scope.productNew.IsNonCreditable,
+                        JWPODate: $scope.productNew.PODate
 
                     },
                     dataType: 'JSON'
@@ -3043,7 +3053,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.processgroupList1();
     };
 
-
+    $scope.RateDisable = false;
     $scope.getalldataListForBOQListUpdate = function (x) {
         //debugger;
         var gridObj = $("#GridReq").data("ejGrid");
@@ -4453,4 +4463,58 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
 	//#endregion
 
+    // BOQ Material Input data
+
+    $scope.ConfirmMaterialInputPopUpBOQ = function (data) {
+        $scope.OutputMatId = data.Id;
+        //$scope.JWInputId = data.JobWorkItemMasterId;
+        //$scope.JWActivityId = data.JobActivityId;
+        $scope.getMatInputListBOQData();
+   //     $scope.getMaterialInputData();
+
+        angular.element(document.querySelector("#BOQMaterialInputPopUp")).modal("show");
+    }
+
+
+    $scope.closeMaterialInputTabPopUpBOQ = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+
+    }
+
+ //   $scope.MaterialInputList = [];
+    //$scope.MaterialMasterList = [];
+    //$scope.InputUOMList = [];
+
+    $scope.MaterialInputListBOQ = [];
+    $scope.getMatInputListBOQData = function () {
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getMatInputListBOQData?Id=' + $scope.OutputMatId
+        }).then(function successCallback(response) {
+            $scope.MaterialInputListBOQ = response.data;
+        });
+    }
+
+    $scope.DelMaterialInputBOQ = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'DelMaterialInputBOQ?Id=' + $scope.MatInputChildTabId
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getMatInputListBOQData();
+                //ClearFieldsMaterialInputChildData();
+            }
+
+        });
+    }
+
+    $scope.ConfirmDeleteMaterialInputTabBOQ = function (Id) {
+        $scope.MatInputChildTabId = Id;
+        angular.element(document.querySelector("#DelMaterialInputChildBOQ")).modal("show");
+    }
 }
