@@ -327,6 +327,9 @@ namespace Aplos.Areas.Payrolls.Controllers
                             }
                             catch (Exception ex)
                             {
+                                
+                                SendNotification(ex.Message);
+                                throw ex;
                                 //requestCancelled = true;
                                 //_lock.UnlockProcess();
                                 //return Json(new { Error = true, Message = ex.Message });
