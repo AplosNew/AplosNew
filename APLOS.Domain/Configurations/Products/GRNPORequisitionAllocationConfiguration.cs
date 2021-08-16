@@ -11,8 +11,8 @@ namespace Library.Model.Configurations.Products
         public GRNPORequisitionAllocationConfiguration()
         {
             // Primary Key
-            HasKey(t => t.Id);
             Ignore(r => r.ModelState);
+            HasKey(t => t.Id);          
 
             // Table & Column Configuration
             ToTable(nameof(GRNPORequisitionAllocation), DbSchema.Transaction);
