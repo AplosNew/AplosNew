@@ -13,6 +13,7 @@ namespace Library.Model.Products
 
         public InventoryReceiveDetail InventoryReceiveDetail { get; set; }
         public string InventoryReceiveDetailId { get; set; }
+        public POBOQMap POBOQMap { get; set; } 
         public string POBOQMapId { get; set; }
         public string POReqDetailsID { get; set; }
        
@@ -20,6 +21,7 @@ namespace Library.Model.Products
         public decimal TransactionQty { get; set; }
         public string TransactionUoMId { get; set; }
         public decimal BaseQty { get; set; }
+        public UnitOfMeasurement BaseUoM { get; set; }
         public string BaseUoMId { get; set; }
 
         public decimal POBOQQty { get; set; }
