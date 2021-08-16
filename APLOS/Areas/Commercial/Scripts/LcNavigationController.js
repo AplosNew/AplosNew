@@ -126,11 +126,9 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             }).then(function successCallback(response) {
                 $scope.PurchaseLCList = response.data;
             });
-
-
-
         }
     }
+
     $scope.PurchaseLCPOList = [];
     $scope.SelectedLCRow = {};
     $scope.LoadPOList = function (LCData) {
