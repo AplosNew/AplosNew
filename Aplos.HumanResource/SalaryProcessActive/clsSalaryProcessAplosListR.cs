@@ -339,7 +339,7 @@ public class clsSalaryProcessAplosArrear
 
             #endregion
 
-            EmployeeSelect(para.dsGrid);//validation count !=0//
+            EmployeeSelect(para.dsGrid, ArrearToDate);//validation count !=0//
 
             //for Pratibha DOS/DOJ weekoff count
             DataSet dsWeekOffAll = null;
@@ -5356,12 +5356,14 @@ public class clsSalaryProcessAplosArrear
             objCon = null;
         }
     }//End Function  
-    private void EmployeeSelect(DataSet dsGrid)
+    private void EmployeeSelect(DataSet dsGrid, string ToDate)
     {
         // DataSet dsGrid = null;
         try
         {
             //LoadDataSetFromDataGrid(ref dgSalaryProc, out dsGrid);
+            string TotalEmployees = "''";
+
             int _count = 0;
             if (dsGrid != null)
             {
@@ -5371,6 +5373,8 @@ public class clsSalaryProcessAplosArrear
                     if (Convert.ToBoolean(pp) == true)
                     {
                         _count++;
+
+                        TotalEmployees += ",'" + dsGrid.Tables[0].Rows[i]["EmpSystemID"].ToString().Trim() + @"'";
 
                     }//checked
                 }//for
@@ -5386,6 +5390,7 @@ public class clsSalaryProcessAplosArrear
             }
 
 
+            ValidateSalaryStructure(TotalEmployees, ToDate);
         }
         catch (Exception ex)
         {
@@ -5393,6 +5398,89 @@ public class clsSalaryProcessAplosArrear
             throw ex;
         }
     }//End Function
+    private void ValidateSalaryStructure(string allEmpIds, string EffectiveDate)
+    {
+        ConnectionManager.DAL.ConManager objCon;
+        string strSql = string.Empty;
+        DataSet dsRef = null;
+        try
+        {
+            #region Must approve unapproved salary structure before [Salary To Date]
+            strSql = @"SELECT 
+                        DISTINCT ei.EmployeeCode
+                        from SalaryInfoDefineMaster SDM
+                        JOIN EmployeeInformation AS ei ON ei.SystemId=sdm.EmpInfoSystemID
+                        WHERE SDM.EffectiveDate<='" + EffectiveDate + @"' AND ISNULL(SDM.IsApproved,0)=0
+                        AND SDM.EmpInfoSystemID IN (" + allEmpIds + @")";
+
+            objCon = new ConnectionManager.DAL.ConManager("1");
+            objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            string EmployeeIds = "";
+            for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+            {
+                if (EmployeeIds == "")
+                    EmployeeIds = dsRef.Tables[0].Rows[i]["EmployeeCode"].ToString();
+                else
+                    EmployeeIds += "," + dsRef.Tables[0].Rows[i]["EmployeeCode"].ToString();
+            }
+            if (EmployeeIds != "")
+                throw new Exception(string.Format("Unappoved salary structure found before {0} for following employees {1}", EffectiveDate, EmployeeIds));
+            #endregion Must approve unapproved salary structure before [Salary To Date]
+
+
+            #region Must have approved salary structure before [Salary To Date]
+
+            strSql = @"SELECT ei.SystemId, ei.EmployeeCode FROM EmployeeInformation AS ei
+                            LEFT JOIN (
+                            SELECT DISTINCT * FROM (SELECT  *,
+	                            DENSE_RANK() OVER (PARTITION BY SDM.EmpInfoSystemID ORDER BY SDM.EffectiveDate DESC) AS RNK
+
+			                                    from (
+							                                    SELECT EmpInfoSystemID,SDM.EffectiveDate
+								                                    from SalaryInfoDefineMaster SDM
+								                                    JOIN SalaryInfoDefine AS SD ON sdm.SystemID=SD.SalaryID 
+                                                                    WHERE SDM.IsApproved=1 AND sdm.EmpInfoSystemID IN (" + allEmpIds + @")
+										                             union ALL
+								                                    select EmpInfoSystemID,SDM.EffectiveDate
+								                                    from SalaryInfoBackMaster SDM
+								                                    JOIN SalaryInfoBack AS SD ON sdm.SystemID=SD.SalaryID 
+                                                                    WHERE SDM.IsApproved=1 AND sdm.EmpInfoSystemID IN (" + allEmpIds + @")
+							
+			                                    ) AS SDM
+			
+			                            ) AS SDM 
+                                        WHERE EffectiveDate <= '" + EffectiveDate + @"' AND rnk=1 
+            
+                            ) AS SL ON sl.EmpInfoSystemID=ei.SystemId  
+
+                            WHERE ISNULL(sl.EmpInfoSystemID,'')='' AND ei.SystemId IN (" + allEmpIds + @")  ";
+
+            objCon = new ConnectionManager.DAL.ConManager("1");
+            objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+
+            EmployeeIds = "";
+            for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+            {
+                if (EmployeeIds == "")
+                    EmployeeIds = dsRef.Tables[0].Rows[i]["EmployeeCode"].ToString();
+                else
+                    EmployeeIds += "," + dsRef.Tables[0].Rows[i]["EmployeeCode"].ToString();
+            }
+            if (EmployeeIds != "")
+                throw new Exception(string.Format("No approved salary structure found before {0} for following employees {1}", EffectiveDate, EmployeeIds));
+
+            #endregion Must have approved salary structure before [Salary To Date]
+
+        }
+        catch (Exception ex)
+        {
+            throw (ex);
+        }
+        finally
+        {
+            objCon = null;
+        }
+    }//End Function 
     private void GetHRSettingPlantWise(string _plantid, out DataSet dsRef)
     {
         ConnectionManager.DAL.ConManager objCon;
