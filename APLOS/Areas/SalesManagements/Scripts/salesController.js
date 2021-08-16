@@ -418,7 +418,9 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
 
     $scope.Save = function () {
         try {
-
+            if (baseService.isUndefinedOrNull($scope.salesVM.InvoicingPartyPlantId)) {
+                throw "Select Invoicing Party Plant for this Customer.";
+            }
             $scope.BaseDate = $scope.salesVM.BaseOnDueDate;
             $scope.DData = $scope.salesVM.DocDate;
             $scope.InDate = $scope.salesVM.InvoiceDate;

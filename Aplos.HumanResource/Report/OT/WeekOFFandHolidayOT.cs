@@ -1094,6 +1094,11 @@ namespace Library.HumanResource.Report.OT
                     endXlsCol = colCashPaymentPercentage;
                 }
                 endXlsCol++;
+                int colExtraOT = endXlsCol;
+                sheet1.Range[xlsRow + 1, colExtraOT].Text = "Extra OT Hr";
+                sheet1.Range[xlsRow + 1, colExtraOT].ColumnWidth = 10;
+                sheet1.Range[xlsRow + 1, colExtraOT].CellStyle.Font.Size = 8;
+                endXlsCol++;
                 int colGWRDailyExtraOTweekoffOT = endXlsCol;
                 sheet1.Range[xlsRow + 1, colGWRDailyExtraOTweekoffOT].Text = "GWR (Daily Extra OT & week off OT)";
                 sheet1.Range[xlsRow + 1, colGWRDailyExtraOTweekoffOT].ColumnWidth = 10;
@@ -1227,7 +1232,9 @@ namespace Library.HumanResource.Report.OT
                 xlsRow = RowIndex;
 
                 xlsRow--;
-
+                Double ExtraOT = 0.00;
+                Double ExtraOTH = 0.00;
+                Double ExtraOTW = 0.00;
                 double FOT = 0.00;
                 double HolidayOT = 0.00;
                 for (int i = 0; i <= dtEmployees.Rows.Count - 1; i++)
@@ -1246,12 +1253,14 @@ namespace Library.HumanResource.Report.OT
                         if (dicHourlyOTW.ContainsKey(x))
                         {
                             FOT = clsStaticInfo.dbl(dicHourlyOTW[x]["Duration"].ToString());
+                            ExtraOTW = clsStaticInfo.dbl(dicHourlyOTW[x]["DurationH"].ToString());
                         }
                         if (dicHourlyOTH.ContainsKey(x))
                         {
                             HolidayOT = clsStaticInfo.dbl(dicHourlyOTH[x]["Duration"].ToString());
                             if (dicH.ContainsKey(x))
                             {
+                                ExtraOTH = clsStaticInfo.dbl(dicHourlyOTH[x]["DurationH"].ToString());
                                 sheet1.Range[xlsRow, colHolidayOT].Number = clsStaticInfo.dbl(dicH[x]) * (clsStaticInfo.dbl(dicHourlyOTH[x]["DurationH"].ToString()));
 
                                 sheet1.Range[xlsRow, colHolidayOT].NumberFormat = NumberFormatTwoDecimal;
@@ -1264,8 +1273,9 @@ namespace Library.HumanResource.Report.OT
                         }
                         if (dicNW.ContainsKey(x))
                         {
-                            if (dicHourlyOTNW.ContainsKey(x))
-                            {
+                            if (dicHourlyOTNW.ContainsKey(x)){
+
+                                ExtraOTH = clsStaticInfo.dbl(dicHourlyOTNW[x]["DurationH"].ToString()); 
                                 sheet1.Range[xlsRow, colGWRDailyExtraOTweekoffOT].Number = clsStaticInfo.dbl(dicNW[x]) * (clsStaticInfo.dbl(dicHourlyOTNW[x]["DurationH"].ToString())) + FOT;
 
                                 sheet1.Range[xlsRow, colGWRDailyExtraOTweekoffOT].NumberFormat = NumberFormatTwoDecimal;
@@ -1430,6 +1440,8 @@ namespace Library.HumanResource.Report.OT
                         SetCellTextAttdn(sheet1, xlsRow, ColLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalLv"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColMLv, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalMLv"].ToString()));
                         SetCellTextAttdn(sheet1, xlsRow, ColTotalOTHR, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalOTHr"].ToString()) / 60);
+                        ExtraOT = ExtraOTH + ExtraOTW;
+                        SetCellTextAttdn(sheet1, xlsRow, colExtraOT, ExtraOT);
 
                         //}
                         #endregion
@@ -1554,6 +1566,7 @@ namespace Library.HumanResource.Report.OT
 
                             }
                         }
+                        
                         sheet1.Range[xlsRow, colTotalCTC].Formula = clsStaticInfo.GetxlsCol(colGWRDailyExtraOTweekoffOT) + xlsRow + "+" + clsStaticInfo.GetxlsCol(colHolidayOT) + xlsRow + "+" + clsStaticInfo.GetxlsCol(colCtc) + xlsRow;
 
                         sheet1.Range[xlsRow, colTotalCTC].NumberFormat = NumberFormatTwoDecimal;

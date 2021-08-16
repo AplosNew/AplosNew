@@ -55,10 +55,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string EmpId = UnProcessed.Tables[0].Rows[i][@"SystemId"].ToString();
                             string PlantId = UnProcessed.Tables[0].Rows[i][@"PlantId"].ToString();
                             string RowId = UnProcessed.Tables[0].Rows[i][@"RowId"].ToString();
-                            string ManualShift = UnProcessed.Tables[0].Rows[i][@"ManualShift"].ToString();
-                            string ManualShiftDurn = UnProcessed.Tables[0].Rows[i][@"ManualDuration"].ToString();
-                            string ManualShiftIn = UnProcessed.Tables[0].Rows[i][@"ManualShiftIn"].ToString();
-                            string ManualShiftOut = UnProcessed.Tables[0].Rows[i][@"ManualShiftOut"].ToString();
+                            string ManualShift = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"ManualShift"]).ToString();
+                            string ManualShiftDurn = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"ManualDuration"]).ToString();
+                            string ManualShiftIn = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"ManualShiftIn"]).ToString();
+                            string ManualShiftOut = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"ManualShiftOut"]).ToString();
                             string ManualInTime = UnProcessed.Tables[0].Rows[i][@"ManualInTime"].ToString();
                             string ManualOuTime = UnProcessed.Tables[0].Rows[i][@"ManualOutTime"].ToString();
                             string ManualDayStatus = UnProcessed.Tables[0].Rows[i][@"ManualDayStatus"].ToString();
@@ -67,22 +67,22 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             string IsManualDayStatus = UnProcessed.Tables[0].Rows[i][@"IsManualDayStatus"].ToString();
                             ShiftTime(ref ManualShiftIn, ref ManualShiftOut, WkDate);
 
-                            string BudgetShift = UnProcessed.Tables[0].Rows[i][@"BudgetedShift"].ToString();
-                            string BudgetShiftDurn = UnProcessed.Tables[0].Rows[i][@"BudgetDuration"].ToString();
-                            string BudgetShiftIn = UnProcessed.Tables[0].Rows[i][@"BudgetShiftIn"].ToString();
-                            string BudgetShiftOut = UnProcessed.Tables[0].Rows[i][@"BudgetShiftOut"].ToString();
+                            string BudgetShift = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"BudgetedShift"]).ToString();
+                            string BudgetShiftDurn = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"BudgetDuration"]).ToString();
+                            string BudgetShiftIn = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"BudgetShiftIn"]).ToString();
+                            string BudgetShiftOut = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"BudgetShiftOut"]).ToString();
                             ShiftTime(ref BudgetShiftIn, ref BudgetShiftOut, WkDate);
 
-                            var ProfileShift = UnProcessed.Tables[0].Rows[i][@"ProfileShift"].ToString();
-                            var ProfileShiftDurn = UnProcessed.Tables[0].Rows[i][@"ProfileDuration"].ToString();
-                            var ProfileShiftIn = UnProcessed.Tables[0].Rows[i][@"ProfileShiftIn"].ToString();
-                            var ProfileShiftOut = UnProcessed.Tables[0].Rows[i][@"ProfileShiftOut"].ToString();
+                            var ProfileShift = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"ProfileShift"]).ToString();
+                            var ProfileShiftDurn = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"ProfileDuration"]).ToString();
+                            var ProfileShiftIn = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"ProfileShiftIn"]).ToString();
+                            var ProfileShiftOut = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"ProfileShiftOut"]).ToString();
                             ShiftTime(ref ProfileShiftIn, ref ProfileShiftOut, WkDate);
 
-                            var RosterShift = UnProcessed.Tables[0].Rows[i][@"RosterShift"].ToString();
-                            var RosterShiftDurn = UnProcessed.Tables[0].Rows[i][@"RosterDuration"].ToString();
-                            var RosterShiftIn = UnProcessed.Tables[0].Rows[i][@"RosterShiftIn"].ToString();
-                            var RosterShiftOut = UnProcessed.Tables[0].Rows[i][@"RosterShiftOut"].ToString();
+                            var RosterShift = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"RosterShift"]).ToString();
+                            var RosterShiftDurn = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"RosterDuration"]).ToString();
+                            var RosterShiftIn = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"RosterShiftIn"]).ToString();
+                            var RosterShiftOut = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"RosterShiftOut"]).ToString();
                             var BudgetId = UnProcessed.Tables[0].Rows[i][@"BudgetId"].ToString();
                             var RosterId = UnProcessed.Tables[0].Rows[i][@"RosterId"].ToString();
                             ShiftTime(ref RosterShiftIn, ref RosterShiftOut, WkDate);
@@ -127,35 +127,35 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 #endregion
 
                                 #region AssignedShift Data
-                                if (clsWebLib.RetValidLen(ManualShift).ToString() != "")
+                                if (ManualShift.ToString() != "")
                                 {
                                     dr["ShiftSystemID"] = ManualShift;
-                                    dr["ShiftDuration"] = clsWebLib.RetValidLen(ManualShiftDurn);
-                                    dr["ShiftInTime"] = clsWebLib.RetValidLen(ManualShiftIn);
-                                    dr["ShiftOutTime"] = clsWebLib.RetValidLen(ManualShiftOut);
+                                    dr["ShiftDuration"] = ManualShiftDurn;
+                                    dr["ShiftInTime"] = ManualShiftIn;
+                                    dr["ShiftOutTime"] = ManualShiftOut;
                                 }
-                                else if (clsWebLib.RetValidLen(RosterShift).ToString() != "")
+                                else if (RosterShift.ToString() != "")
                                 {
                                     dr["ShiftSystemID"] = RosterShift;
-                                    dr["ShiftDuration"] = clsWebLib.RetValidLen(RosterShiftDurn);
-                                    dr["ShiftInTime"] = clsWebLib.RetValidLen(RosterShiftIn);
-                                    dr["ShiftOutTime"] = clsWebLib.RetValidLen(RosterShiftOut);
+                                    dr["ShiftDuration"] = RosterShiftDurn;
+                                    dr["ShiftInTime"] = RosterShiftIn;
+                                    dr["ShiftOutTime"] = RosterShiftOut;
 
                                 }
-                                else if (clsWebLib.RetValidLen(ProfileShift).ToString() != "")
+                                else if (ProfileShift.ToString() != "")
                                 {
                                     dr["ShiftSystemID"] = ProfileShift;
-                                    dr["ShiftDuration"] = clsWebLib.RetValidLen(ProfileShiftDurn);
-                                    dr["ShiftInTime"] = clsWebLib.RetValidLen(ProfileShiftIn);
-                                    dr["ShiftOutTime"] = clsWebLib.RetValidLen(ProfileShiftOut);
+                                    dr["ShiftDuration"] = ProfileShiftDurn;
+                                    dr["ShiftInTime"] = ProfileShiftIn;
+                                    dr["ShiftOutTime"] = ProfileShiftOut;
 
                                 }
-                                else
+                                else if(BudgetShift.ToString() != "")
                                 {
                                     dr["ShiftSystemID"] = BudgetShift;
-                                    dr["ShiftDuration"] = clsWebLib.RetValidLen(BudgetShiftDurn);
-                                    dr["ShiftInTime"] = clsWebLib.RetValidLen(BudgetShiftIn);
-                                    dr["ShiftOutTime"] = clsWebLib.RetValidLen(BudgetShiftOut);
+                                    dr["ShiftDuration"] = BudgetShiftDurn;
+                                    dr["ShiftInTime"] = BudgetShiftIn;
+                                    dr["ShiftOutTime"] =BudgetShiftOut;
 
                                 }
                                 #endregion
@@ -193,6 +193,54 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         }
                         SaveDataSets(dsRef);
+                    }
+                    #endregion
+
+                    #region Shift Not Assigned Employee
+                    DataSet ShiftNotAssigned;
+                    TopShift(out ShiftNotAssigned, PlantValue);
+                    if (ShiftNotAssigned.Tables[0].Rows.Count > 0)
+                    {
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + Date + "' and isnull(ShiftSystemID,'')='' and PlantID ='" + PlantValue + "' ";
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                        var ShiftDurn = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[0][@"ShiftDuration"]).ToString();
+                        var ShiftId = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[0][@"SystemID"]).ToString();
+                        var ShiftIn = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[0][@"InTime"]).ToString();
+                        var ShiftOut = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[0][@"OutTime"]).ToString();
+                        var FullDayDuration = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[0][@"FullDayDuration"]).ToString();
+                        var HalfDayDuration = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[0][@"HalfDayDuration"]).ToString();
+                        var ShortDuration = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[0][@"ShortDuration"]).ToString();
+                        var HoursWithoutOT = clsWebLib.RetValidLen(ShiftNotAssigned.Tables[0].Rows[0][@"HoursWithoutOT"]).ToString();
+                        ShiftTime(ref ShiftIn, ref ShiftOut, Date);
+
+                        string EmpSet = "''";
+                        if (dsRef.Tables[0].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                            {
+
+                                EmpSet += ",'" + dsRef.Tables[0].Rows[i][@"RowId"].ToString() + "'";
+                                
+                            }
+                            var sql = @"update AttdnProcessData set ShiftSystemID='"+ShiftId+ @"',ShiftDuration='"+ShiftDurn+ @"',ShiftInTime='"+ShiftIn+ @"',
+                            ShiftOutTime='"+ShiftOut+ @"',ShiftHalfDayDuration='"+HalfDayDuration+ @"',ShiftShortDuration='"+ ShortDuration+ @"',
+                            ShiftFullDayDuration='"+ FullDayDuration+ @"',ShiftHoursWithoutOT='"+ HoursWithoutOT+@"' where RowId 
+                            IN(" + EmpSet+")";
+
+                            ConnectionManager.DAL.ConManager objCone = null;
+                            objCone = new ConnectionManager.DAL.ConManager("1");
+                            objCone.OpenConnection("1");
+                            objCone.BeginTransaction();
+
+                            objCone.ExecuteNonQueryWrapper(sql, true, "1");
+                            objCone.CommitTransaction();
+
+
+                        }
+                        
                     }
                     #endregion
 
@@ -759,9 +807,7 @@ left join dbo.RosterPatternProcess rp on rp.RPHeaderId=rh.Id and rp.WorkDate='" 
 left join ShiftDefination sdz on sdz.SystemID=rp.ShiftDefinationID
 left join org.Plant pl on pl.Id=e.PlantId
 left join OutPunchConfigurationHeader Op on OP.PlantId=pl.Id
-where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantId + @"'
-and mb.ShiftDefinationId!=''
-";
+where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantId + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -1025,6 +1071,23 @@ and mb.ShiftDefinationId!=''
                 on p.ShiftSystemID=s.ShiftDefinationID
                 left join ShiftTimeChgChild sc on sc.STCMasterSystemID=s.SystemID
                 where WorkDate='" + Date + "' and sc.ShiftDate='" + Date + "' and sc.PlantID='" + Plant + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void TopShift(out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select top 1 SystemID,ShiftDuration,ShortDuration,
+                HalfDayDuration,HoursWithoutOT,FullDayDuration,InTime,
+                OutTime
+                from ShiftDefination where PlantID='"+Plant+"'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }

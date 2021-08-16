@@ -7,71 +7,82 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
     $scope.path = 'Attendances/NewAttendanceProcess/';
 
 
-    //// The Region For Attendance Processing (Not to be included in this code Just for Testing)
     $scope.Run = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'RunShiftProcess?Date=' + $scope.Attnd.Date,
-        }).then(function success(response) {
-            console.log("Done!!");
-        });
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.NewAttdnProcess.$valid) {
+
+            $http({
+                method: 'GET',
+                url: $scope.path + 'RunShiftProcess?Date=' + $scope.Attnd.Date,
+            }).then(function success(response) {
+                console.log("Done!!");
+            });
+        }
     }
+
     $scope.Attnd = {
         Date: null,
     };
 
     $scope.RunAttnd = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'RunAttnd?Date=' + $scope.Attnd.Date,
-        }).then(function success(response) {
-            console.log("Done!!");
-        });
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.NewAttdnProcess.$valid) {
+
+            $http({
+                method: 'GET',
+                url: $scope.path + 'RunAttnd?Date=' + $scope.Attnd.Date,
+            }).then(function success(response) {
+                console.log("Done!!");
+            });
+        }
     }
 
     $scope.RunDayStatus = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'RunDayStatus?Date=' + $scope.Attnd.Date,
-        }).then(function success(response) {
-            console.log("Done!!");
-        });
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.NewAttdnProcess.$valid)
+        {
+            $http({
+                method: 'GET',
+                url: $scope.path + 'RunDayStatus?Date=' + $scope.Attnd.Date,
+            }).then(function success(response) {
+                console.log("Done!!");
+            });
+        }
     }
 
     $scope.RunManualScheduler = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'ManualScheduler',
-        }).then(function success(response) {
-            console.log("Done!!");
-        });
+       
+            $http({
+                method: 'GET',
+                url: $scope.path + 'ManualScheduler',
+            }).then(function success(response) {
+                console.log("Done!!");
+            });
+       
     }
 
     $scope.RunMonthlySummary = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'MonthlySummary?Date=' + $scope.Attnd.Date,
-        }).then(function success(response) {
-            console.log("Done!!");
-        });
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.NewAttdnProcess.$valid) {
+            $http({
+                method: 'GET',
+                url: $scope.path + 'MonthlySummary?Date=' + $scope.Attnd.Date,
+            }).then(function success(response) {
+                console.log("Done!!");
+            });
+        }
     }
 
     $scope.RunRoster = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'RunRoster?Date=' + $scope.Attnd.Date,
-        }).then(function success(response) {
-            console.log("Done!!");
-        });
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.NewAttdnProcess.$valid) {
+
+            $http({
+                method: 'GET',
+                url: $scope.path + 'RunRoster?Date=' + $scope.Attnd.Date,
+            }).then(function success(response) {
+                console.log("Done!!");
+            });
+        }
     }
-
-    // The End Region
-
-
-    $scope.selectedValues = {
-        FromDate: null,
-        ToDate: null,
-        AttndType: null,
-    };
-
  }
