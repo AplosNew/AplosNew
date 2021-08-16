@@ -823,27 +823,6 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
         $scope.closeTaxCodePopUp();
     };
 
-    cboService.getCboVoucherTypeDebitNoteList(function (result) {
-        $scope.voucherTypeList = result;
-        if ($scope.voucherTypeList.length === 1) {
-            $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
-            $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
-            $scope.voucher.DocDate = $scope.voucher.PostingDate;
-            $scope.GetCurrencyExchangeRateList();
-            $scope.getTaxCodeByTaxYear($scope.voucher.PostingDate);
-        }
-    });
-
-    $scope.changeVoucherType = function (voucherTypeId) {
-        var data = $.grep($scope.voucherTypeList, function (item) {
-            return item.Value === voucherTypeId;
-        })[0];
-        $scope.taxCodCboList = [];
-        $scope.voucher.VoucherTypeId = data.Value;
-        $scope.voucher.PostingDate = $filter("dateFiltering")(data.LastPostingDate);
-        $scope.voucher.DocDate = $scope.voucher.PostingDate;
-        $scope.getTaxCodeByTaxYear($scope.voucher.PostingDate);
-    };
 
    // $scope.changeVoucherType('hh');
     $scope.changePostingGetTaxCode = function () {
