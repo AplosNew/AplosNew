@@ -40,7 +40,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
 
                 string Sql = @"select * from EmployeeInformation where SystemId IN("+EmpId+")";
-                objCon.OpenDataSetThroughAdapter(strSql, out dsPlant, false, "1");
+                objCon.OpenDataSetThroughAdapter(Sql, out dsPlant, false, "1");
 
                 foreach (AttdnRawData item in DataToSave)
                 {
