@@ -150,7 +150,14 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             ShowResult(e, 'failure');
         }
     }
+    
 
+    function nullrecorder(val) {
+        if (baseService.isUndefinedOrNull(val))
+            return "";
+
+        return val;
+    }
 
     $scope.SaveSingleEmployee = function () {
         try {
@@ -158,10 +165,10 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             for (var i = 0; i < $scope.employeeAttendance.length; i++) {
                 $scope.employeeAttendance[i].ErrorMessage = "";
                 try {
-                    if ($scope.employeeAttendance[i].InDateApp != null
-                        || $scope.employeeAttendance[i].InTimeApp != null
-                        || $scope.employeeAttendance[i].OutDateApp != null
-                        || $scope.employeeAttendance[i].OutTimeApp != null)
+                    if (nullrecorder($scope.employeeAttendance[i].InDateApp) != nullrecorder($scope.employeeAttendance[i].InDateOriginal)
+                        || nullrecorder($scope.employeeAttendance[i].InTimeApp) != nullrecorder($scope.employeeAttendance[i].InTimeOriginal)
+                        || nullrecorder($scope.employeeAttendance[i].OutDateApp) != nullrecorder($scope.employeeAttendance[i].OutDateOriginal)
+                        || nullrecorder($scope.employeeAttendance[i].OutTimeApp) != nullrecorder($scope.employeeAttendance[i].OutTimeOriginal))
                     {
                         DataToBeSaved.push($scope.employeeAttendance[i]);
                     }
@@ -213,10 +220,10 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
         for (var i = 0; i < $scope.employeeAttendanceBySingleDate.length; i++) {
             $scope.employeeAttendanceBySingleDate[i].ErrorMessage = "";
             try {
-                if ($scope.employeeAttendanceBySingleDate[i].InDateApp != null
-                    || $scope.employeeAttendanceBySingleDate[i].InTimeApp != null
-                    || $scope.employeeAttendanceBySingleDate[i].OutDateApp != null
-                    || $scope.employeeAttendanceBySingleDate[i].OutTimeApp != null)
+                if (nullrecorder($scope.employeeAttendance[i].InDateApp) != nullrecorder($scope.employeeAttendance[i].InDateOriginal)
+                    || nullrecorder($scope.employeeAttendance[i].InTimeApp) != nullrecorder($scope.employeeAttendance[i].InTimeOriginal)
+                    || nullrecorder($scope.employeeAttendance[i].OutDateApp) != nullrecorder($scope.employeeAttendance[i].OutDateOriginal)
+                    || nullrecorder($scope.employeeAttendance[i].OutTimeApp) != nullrecorder($scope.employeeAttendance[i].OutTimeOriginal))
                 {
                     DataToBeSaved.push($scope.employeeAttendanceBySingleDate[i]);
                 }

@@ -88,7 +88,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string date = DateTime.Now.Date.ToString("dd-MMM");//.Substring(0, DateTime.Now.Date.ToString().Length - 12);
-            var reportFileName = "EmployeeRoster-" + name + "-" + date;
+            var reportFileName = "EmployeeBudgetUpdate-" + name + "-" + date;
             var workbook = GetEmployeeRosterWorkSheet(plantId);
             switch (reportFormat)
             {
@@ -116,9 +116,9 @@ namespace Aplos.Areas.HumanResource.Controllers
             var sheet2 = workbook.Worksheets[1];
 
             /// Sheet 1 
-            DataTable data = rs.getEmployeeRosterFile(plantId);
+            DataTable data = rs.getEmployeeBudgetFile(plantId);
 
-            sheet.Name = "EmployeeRoster";
+            sheet.Name = "EmployeeBudget";
 
 
 
@@ -130,13 +130,20 @@ namespace Aplos.Areas.HumanResource.Controllers
             //report.SetHeaderText(ref sheet, ROW, COL, "Employee Id ", 12, ExcelHAlign.HAlignLeft);
             //int ColEmpSystemId = COL;
             //COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "SystemID", 8, ExcelHAlign.HAlignLeft);
+            int ColEmployeeId = COL;
+            COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "EmployeeCode", 8, ExcelHAlign.HAlignLeft);
             int ColEmployeeCode = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "RosterId", 8, ExcelHAlign.HAlignLeft);
-            int ColRosterId = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "EmployeeName", 8, ExcelHAlign.HAlignLeft);
+            int ColEmployeeName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "BudgetCode", 8, ExcelHAlign.HAlignLeft);
+            int ColBudgetCode = COL;
             COL++;
 
             endCol = COL;
@@ -150,7 +157,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 //sheet[ROW, ColEmpSystemId].Text = data.Rows[i]["EmpSystemId"].ToString();
                 sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
-                sheet[ROW, ColRosterId].Text = data.Rows[i]["RosterId"].ToString();
+                sheet[ROW, ColBudgetCode].Text = data.Rows[i]["RosterId"].ToString();
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
