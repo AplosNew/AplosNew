@@ -395,6 +395,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 	};
 
 	$scope.Save = function () {
+		
 		//debugger;
 		//$scope.detailModel.BaseUOMId = $filter("filter")($scope.inventoryMaterialListPO, { check: 1 })[0].Value;
 		if ($scope.Action === 'Save') {
@@ -403,6 +404,31 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 				ShowResult("Enter atleast one material information", 'failure');
 				return false;
 			}
+			if (baseService.isUndefinedOrNull($scope.productNew.DocRefNo)) {
+				ShowResult("Enter Doc Ref No", 'failure');
+				return false;
+			}
+			if (baseService.isUndefinedOrNull($scope.productNew.DocRefNo)) {
+				ShowResult("Enter Doc Ref No", 'failure');
+				return false;
+			}
+			if (baseService.isUndefinedOrNull($scope.productNew.DocDate)) {
+				ShowResult("Enter Doc Date", 'failure');
+				return false;
+			}
+			if (baseService.isUndefinedOrNull($scope.productNew.GateEntryNo)) {
+				ShowResult("Select Gate Entry No", 'failure');
+				return false;
+			}
+			if (baseService.isUndefinedOrNull($scope.productNew.EntryDate)) {
+				ShowResult("Enter Gate Entry Date", 'failure');
+				return false;
+			}
+			if (baseService.isUndefinedOrNull($scope.productNew.GRNDate)) {
+				ShowResult("Enter GRN Date", 'failure');
+				return false;
+			}
+			
 		}
 		
 		$scope.inventoryMaterialListPOnew = [];
@@ -412,6 +438,30 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 				$scope.modelValidation('div_grnNo', 'productNew', 'Id');
 				$scope.modelValidation('div_grnDate', 'productNew', 'GRNDate');
 				$scope.manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');
+				if (baseService.isUndefinedOrNull($scope.productNew.DocRefNo)) {
+					ShowResult("Enter Doc Ref No", 'failure');
+					return false;
+				}
+				if (baseService.isUndefinedOrNull($scope.productNew.DocRefNo)) {
+					ShowResult("Enter Doc Ref No", 'failure');
+					return false;
+				}
+				if (baseService.isUndefinedOrNull($scope.productNew.DocDate)) {
+					ShowResult("Enter Doc Date", 'failure');
+					return false;
+				}
+				if (baseService.isUndefinedOrNull($scope.productNew.GateEntryNo)) {
+					ShowResult("Select Gate Entry No", 'failure');
+					return false;
+				}
+				if (baseService.isUndefinedOrNull($scope.productNew.EntryDate)) {
+					ShowResult("Enter Gate Entry Date", 'failure');
+					return false;
+				}
+				if (baseService.isUndefinedOrNull($scope.productNew.GRNDate)) {
+					ShowResult("Enter GRN Date", 'failure');
+					return false;
+				}
 			}
 
 			$scope.$broadcast('show-errors-check-validity');

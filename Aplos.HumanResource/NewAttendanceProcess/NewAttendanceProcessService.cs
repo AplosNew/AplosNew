@@ -11,13 +11,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using context = System.Web.HttpContext;
 
-namespace Library.HumanResource.NewAttendanceProcess { 
-    
+namespace Library.HumanResource.NewAttendanceProcess {
+
     public class NewAttendanceProcessService
     {
         SqlRepository _sqlRepository;
         ConnectionManager.clsConnectionManager ConManager;
-        
+
         public NewAttendanceProcessService()
         {
             _sqlRepository = new SqlRepository();
@@ -150,12 +150,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                     dr["ShiftOutTime"] = ProfileShiftOut;
 
                                 }
-                                else if(BudgetShift.ToString() != "")
+                                else if (BudgetShift.ToString() != "")
                                 {
                                     dr["ShiftSystemID"] = BudgetShift;
                                     dr["ShiftDuration"] = BudgetShiftDurn;
                                     dr["ShiftInTime"] = BudgetShiftIn;
-                                    dr["ShiftOutTime"] =BudgetShiftOut;
+                                    dr["ShiftOutTime"] = BudgetShiftOut;
 
                                 }
                                 #endregion
@@ -223,12 +223,12 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             {
 
                                 EmpSet += ",'" + dsRef.Tables[0].Rows[i][@"RowId"].ToString() + "'";
-                                
+
                             }
-                            var sql = @"update AttdnProcessData set ShiftSystemID='"+ShiftId+ @"',ShiftDuration='"+ShiftDurn+ @"',ShiftInTime='"+ShiftIn+ @"',
-                            ShiftOutTime='"+ShiftOut+ @"',ShiftHalfDayDuration='"+HalfDayDuration+ @"',ShiftShortDuration='"+ ShortDuration+ @"',
-                            ShiftFullDayDuration='"+ FullDayDuration+ @"',ShiftHoursWithoutOT='"+ HoursWithoutOT+@"' where RowId 
-                            IN(" + EmpSet+")";
+                            var sql = @"update AttdnProcessData set ShiftSystemID='" + ShiftId + @"',ShiftDuration='" + ShiftDurn + @"',ShiftInTime='" + ShiftIn + @"',
+                            ShiftOutTime='" + ShiftOut + @"',ShiftHalfDayDuration='" + HalfDayDuration + @"',ShiftShortDuration='" + ShortDuration + @"',
+                            ShiftFullDayDuration='" + FullDayDuration + @"',ShiftHoursWithoutOT='" + HoursWithoutOT + @"' where RowId 
+                            IN(" + EmpSet + ")";
 
                             ConnectionManager.DAL.ConManager objCone = null;
                             objCone = new ConnectionManager.DAL.ConManager("1");
@@ -240,7 +240,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
 
                         }
-                        
+
                     }
                     #endregion
 
@@ -1087,7 +1087,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 var sql = @"select top 1 SystemID,ShiftDuration,ShortDuration,
                 HalfDayDuration,HoursWithoutOT,FullDayDuration,InTime,
                 OutTime
-                from ShiftDefination where PlantID='"+Plant+"'";
+                from ShiftDefination where PlantID='" + Plant + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }
@@ -2791,7 +2791,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                                 else
                                 {
                                     dr["EarlyIn"] = 0;
-                                   
+
                                 }
                                 if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                                 {
@@ -2802,7 +2802,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                                 else
                                 {
                                     dr["LateIn"] = 0;
-                                   
+
                                 }
                                 if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
                                 {
@@ -2814,13 +2814,13 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                                 else
                                 {
                                     dr["EarlyOut"] = 0;
-                                   
+
                                 }
 
                                 if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
                                 {
                                     dr["LateOut"] = 0;
-                                   
+
                                 }
                                 else
                                 {
@@ -3435,13 +3435,13 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 				(
 				select SandwichFlag from AttdnProcessData where WorkDate=DATEADD(day,-1,p.WorkDate) 
 				and EmpSystemID=p.EmpSystemID
-				and PlantID='"+Plant+@"'
+				and PlantID='" + Plant + @"'
 				)PrevDayFlag,
 				(
 				select Format(WorkDate,'yyyy-MMM-dd')WorkDate from AttdnProcessData 
 				where WorkDate=DATEADD(day,-1,p.WorkDate) 
 				and EmpSystemID=p.EmpSystemID
-				and PlantID='"+Plant+@"'
+				and PlantID='" + Plant + @"'
 				)PrevWorkDate
 				from AttdnProcessData p
                 where ManualFlag=1 and PlantID='" + Plant + "'";
@@ -3595,7 +3595,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                             else
                             {
                                 dr["EarlyIn"] = 0;
-                                
+
                             }
                             if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
                             {
@@ -3606,7 +3606,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                             else
                             {
                                 dr["LateIn"] = 0;
-                               
+
                             }
                             if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
                             {
@@ -3618,13 +3618,13 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                             else
                             {
                                 dr["EarlyOut"] = 0;
-                               
+
                             }
 
                             if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
                             {
                                 dr["LateOut"] = 0;
-                                
+
                             }
                             else
                             {
@@ -4156,13 +4156,12 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
         #endregion
 
         #region Roster Process
-       
-        // Work Date , Plant Id 
-        public void RosterProcess(string PlantId , string Date)
+
+        public void RosterProcess(string PlantId, string Date)
         {
             try
             {
-                
+
 
                 var sql2 = @"Select * from dbo.RosterPatternHeader where PlantId = '" + PlantId + "'";
                 DataTable RosterTable = new DataTable();
@@ -4205,12 +4204,12 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                             EffectiveDateTable = _sqlRepository.GetDataTable(sql4);
 
                             //Getting all the rows from the Process table
-                            var sql5 = @"Select * from dbo.RosterPatternProcess where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' and PlantId = '" + PlantId + "' and WorkDate='"+noww+"'";
+                            var sql5 = @"Select * from dbo.RosterPatternProcess where RPHeaderId = '" + RosterTable.Rows[j]["Id"].ToString() + "' and PlantId = '" + PlantId + "' and WorkDate='" + noww + "'";
                             DataTable ProcessTable = new DataTable();
                             ProcessTable = _sqlRepository.GetDataTable(sql5);
                             int counts = ProcessTable.Rows.Count;
 
-                            if(counts == 0)
+                            if (counts == 0)
                             {
                                 //Dictionary and DataSet Initialization
                                 DataSet ds;
@@ -4269,13 +4268,11 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
                                 SaveDataSets(ds);
                             }
-                            
+
                         }
 
                     }
                 }
-
-                //}
 
             }
             catch (Exception e)
@@ -4380,6 +4377,148 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
         }
 
         #endregion
+
+        #region GroupWise Calling Functions
+        public void ShiftProcessGroupWise(string Date, string GroupId)
+        {
+            DataSet PlantList;
+            GetPlant(GroupId, out PlantList);
+
+            if (PlantList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
+                {
+                    string CatchPlant = "";
+                    try
+                    {
+                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
+                        CatchPlant = PlantValue;
+                        ShiftProcess(Date, PlantValue);
+                    }
+                    catch (Exception ex)
+                    {
+                        CommonLogFunction(ex, CatchPlant, "ShiftProcess");
+                    }
+                }
+            }
+        }
+
+        public void AttendanceProcessGroupWise(string Date, string GroupId)
+        {
+            DataSet PlantList;
+            GetPlant(GroupId, out PlantList);
+
+            if (PlantList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
+                {
+                    string CatchPlant = "";
+                    try
+                    {
+                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
+                        CatchPlant = PlantValue;
+                        AttndProcess(Date, PlantValue);
+                    }
+                    catch (Exception ex)
+                    {
+                        CommonLogFunction(ex, CatchPlant, "AttdnProcess");
+                    }
+                }
+            }
+        }
+
+        public void DayStatusProcessGroupWise(string Date, string GroupId)
+        {
+            DataSet PlantList;
+            GetPlant(GroupId, out PlantList);
+
+            if (PlantList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
+                {
+                    string CatchPlant = "";
+                    try
+                    {
+                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
+                        CatchPlant = PlantValue;
+                        DayStatus(Date, PlantValue);
+                    }
+                    catch (Exception ex)
+                    {
+                        CommonLogFunction(ex, CatchPlant, "DayStatusProcess");
+                    }
+                }
+            }
+        }
+
+        public void ManualProcessGroupWise(string GroupId)
+        {
+            DataSet PlantList;
+            GetPlant(GroupId, out PlantList);
+
+            if (PlantList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
+                {
+                    string CatchPlant = "";
+                    try
+                    {
+                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
+                        CatchPlant = PlantValue;
+                        ManualScheduler(PlantValue);
+                    }
+                    catch (Exception ex)
+                    {
+                        CommonLogFunction(ex, CatchPlant, "ManualProcess");
+                    }
+                }
+            }
+        }
+
+        public void RosterProcessGroupWise(string Date, string GroupId)
+        {
+            DataSet PlantList;
+            GetPlant(GroupId, out PlantList);
+
+            if (PlantList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
+                {
+                    string CatchPlant = "";
+                    try
+                    {
+                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString(); 
+                        CatchPlant = PlantValue;
+                        RosterProcess(PlantValue, Date);
+                    }
+                    catch (Exception ex)
+                    {
+                        CommonLogFunction(ex, CatchPlant, "RosterProcess");                       
+                    }
+                }
+            }
+        }
+       
+        #endregion
+
+        public void CommonLogFunction(Exception ex, string CatchPlant,string Process)
+         {
+
+            string ErrorlineNo, Errormsg, extype, ErrorLocation;
+
+            ErrorlineNo = ex.StackTrace.Substring(ex.StackTrace.Length - 7, 7);
+            Errormsg = ex.GetType().Name.ToString();
+            extype = ex.GetType().ToString();
+            ErrorLocation = ex.Message.ToString();
+            string error = "Plant:- " + CatchPlant + " Error Line No :" + " " + ErrorlineNo + " Error Message:" + " " + Errormsg + "Exception Type:" + " " + extype + "Error Location :" + " " + ErrorLocation;
+            SaveLog(error, Process, true);
+       
+         } 
 
     }
 

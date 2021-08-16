@@ -1240,7 +1240,7 @@ namespace Library.Service.SalaryDisbursement
 						            left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 						            left join ORG.Position PO on PO.Id=MPB.PositionId
                                     where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + "'   and spd.PlantId='" + plantId + @"'
-                                     and PayableVoucherId='" + voucherId + @"' )";
+                                     and sl.PayableVoucherId='" + voucherId + @"' )";
                 direct.Append(directsql);
                 _sqlRepository.ExecuteSqlCommand(direct.ToString());
 
