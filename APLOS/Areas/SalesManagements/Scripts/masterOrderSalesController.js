@@ -638,6 +638,10 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
 
     $scope.Save = function () {
         try {
+            if (baseService.isUndefinedOrNull($scope.salesVM.InvoicingPartyPlantId)) {
+                throw "Select Invoicing Party Plant for this Customer.";
+            }
+
             if (baseService.isUndefinedOrNull($scope.salesVM.PaymentTermId) && $scope.BaseLineDate !== 'postingdate') {
                 throw "Payment Term is required.";
             }
@@ -2470,8 +2474,8 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                         moi.TaxAmount = 0;
 
                         moi.TaxList = $scope.materialtaxCategoryList;
-                        $scope.salesVM.InvoicingPartyPlantId = $scope.masterOrderItemList[i].InvoicingPartyPlantId;
-                        moi.InvoicingPartyPlantId = $scope.masterOrderItemList[i].InvoicingPartyPlantId;
+                        //$scope.salesVM.InvoicingPartyPlantId = $scope.masterOrderItemList[i].InvoicingPartyPlantId;
+                        //moi.InvoicingPartyPlantId = $scope.masterOrderItemList[i].InvoicingPartyPlantId;
                         moi.HSNCodeId = $scope.masterOrderItemList[i].HSNCodeId;
                         $scope.salesVM.MasterOrderId = $scope.masterOrderItemList[i].MasterOrderId;
                         moi.ExistSalesQty = $scope.masterOrderItemList[i].ExistSalesQty;

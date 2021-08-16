@@ -19,8 +19,6 @@ namespace Library.OrderManagement.LcNavigation
         {
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
-
-
         }
 
 
@@ -36,9 +34,6 @@ namespace Library.OrderManagement.LcNavigation
                 throw ex;
             }
         }
-
-
-   
 
         private string PurchaseLCSearchByDateSql(string fromDate, string toDate)
         {

@@ -3053,6 +3053,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.processgroupList1();
     };
 
+    $scope.RateDisable = false;
     $scope.getalldataListForBOQListUpdate = function (x) {
         //debugger;
         var gridObj = $("#GridReq").data("ejGrid");
@@ -4462,4 +4463,58 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
 
 	//#endregion
 
+    // BOQ Material Input data
+
+    $scope.ConfirmMaterialInputPopUpBOQ = function (data) {
+        $scope.OutputMatId = data.Id;
+        //$scope.JWInputId = data.JobWorkItemMasterId;
+        //$scope.JWActivityId = data.JobActivityId;
+        $scope.getMatInputListBOQData();
+   //     $scope.getMaterialInputData();
+
+        angular.element(document.querySelector("#BOQMaterialInputPopUp")).modal("show");
+    }
+
+
+    $scope.closeMaterialInputTabPopUpBOQ = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+
+    }
+
+ //   $scope.MaterialInputList = [];
+    //$scope.MaterialMasterList = [];
+    //$scope.InputUOMList = [];
+
+    $scope.MaterialInputListBOQ = [];
+    $scope.getMatInputListBOQData = function () {
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getMatInputListBOQData?Id=' + $scope.OutputMatId
+        }).then(function successCallback(response) {
+            $scope.MaterialInputListBOQ = response.data;
+        });
+    }
+
+    $scope.DelMaterialInputBOQ = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'DelMaterialInputBOQ?Id=' + $scope.MatInputChildTabId
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getMatInputListBOQData();
+                //ClearFieldsMaterialInputChildData();
+            }
+
+        });
+    }
+
+    $scope.ConfirmDeleteMaterialInputTabBOQ = function (Id) {
+        $scope.MatInputChildTabId = Id;
+        angular.element(document.querySelector("#DelMaterialInputChildBOQ")).modal("show");
+    }
 }
