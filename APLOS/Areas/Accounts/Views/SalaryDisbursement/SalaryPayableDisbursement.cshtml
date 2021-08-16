@@ -100,7 +100,7 @@
                         </select>
                     </div>
                 </div>
-                <label class="col-sm-1 control-label" ng-show="voucher.PaymentMode=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">Bank<sup>*</sup></label>
+                <label class="col-sm-1 control-label" ng-show="voucher.PaymentMode=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">Employee Bank<sup>*</sup></label>
                 <div class="col-sm-3" ng-show="voucher.PaymentMode=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
                     <div class="select-style">
                         <select id="PaymentModeId" class="form-control" name="Payment Mode" ng-change="changeBank()" ng-model="voucher.BankId" tabindex="5">
@@ -109,7 +109,7 @@
                         </select>
                     </div>
                 </div>
-                <label class="col-sm-2 control-label" ng-show="voucher.PaymentMode=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">Acc To Be Credited<sup>*</sup></label>
+                <label class="col-sm-2 control-label" ng-show="voucher.PaymentMode=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">Payment Bank<sup>*</sup></label>
                 <div class="col-sm-2 show-message" ng-show="voucher.PaymentMode=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
                     <div class="input-group">
                         <input type="text" name="CashName" ng-model="voucher.BankName" class="form-control" readonly data-toggle="tooltip" data-placement="top" title="{{voucher.BankName}}" tooltip>

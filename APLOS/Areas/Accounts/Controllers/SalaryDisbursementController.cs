@@ -552,8 +552,15 @@ namespace Aplos.Areas.Accounts.Controllers
                                     LEFT JOIN [HKP].[BankBranch] AS BB ON BB.Id=BM.BankBranchId
                                     LEFT JOIN [SCS].Currency AS C ON C.Id=BM.CurrencyId
                                     WHERE BM.Archive=0 AND BM.Active=1 AND BM.CompanyGroupId='" + companyGroupId + "' AND BM.CompanyId='" + companyId + "' AND BM.PlantId='" + plantId + @"'" +
-                                    " AND BM.AccountType='" + type + "' AND BM.BankId='" + bankId + "'";
+                                    " AND BM.AccountType='" + type + "' AND ISNULL(BM.BankId,'')='" + bankId + "' OR BM.BankId<>''";
                 return _sqlRepository.GetGridData(parameters);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetSalaryPayableDisbursementVoucherList(GridParameter parameters)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetSalaryPayableDisbursementVoucherList(parameters), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
         public JsonResult ParkSalaryPayableDisbursement(VoucherViewModel voucherVM, string yearNo, string monthNo, string monthName, string pMode, IEnumerable<VoucherDetailViewModel> directJVList)
@@ -572,7 +579,7 @@ namespace Aplos.Areas.Accounts.Controllers
             if (voucherVM.PostingDate > dt)
                 throw new CustomException("Posting Date must in the selected month of " + monthName);
             voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
-            voucherVM.SourceType = SourceType.SalaryPayable.ToString();
+            voucherVM.SourceType = SourceType.SalaryDisbursement.ToString();
             
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkSalaryPayableDisbursement(voucherVM, yearNo, monthNo, monthName, pMode, directJVList)) });
         }

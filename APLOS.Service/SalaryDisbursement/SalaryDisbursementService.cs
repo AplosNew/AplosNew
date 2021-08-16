@@ -157,6 +157,7 @@ namespace Library.Service.SalaryDisbursement
             }
         }
 
+       
         private string GetEmployeeSubsequentTransactionPK()
         {
             return _pKGeneratorService.GetAutoNumber("EmployeeSubsequentTransaction", PKGeneratorEnum.Auto, null, DateTime.Now);
