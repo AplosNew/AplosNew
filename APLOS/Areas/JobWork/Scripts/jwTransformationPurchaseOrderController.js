@@ -1822,6 +1822,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         if ($scope.productNew.OrderSpecific == 'Yes') {
             $scope.taxCategoryList = [];
             $scope.getalldataListForBOQListUpdate(args);
+            $scope.BOQServiceGet();
         }
         else {
             $scope.taxCategoryList = [];
@@ -1869,6 +1870,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                 $scope.rmchar3.Name = $scope.detailModel.ThirdCharacteristics;
                 $scope.rmchar3.FreeText = $scope.detailModel.ThirdCharacteristicsValue;
             }
+            $scope.BOQServiceGet();
             getDetailTaxCategoryList($scope.detailModel);
 
             angular.element(document.querySelector('#detailPopUp')).modal('show');
@@ -3308,7 +3310,7 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                 $scope.BOQserviceCboList = response.data;
             });
     }
-    $scope.BOQServiceGet();
+  //  $scope.BOQServiceGet();
 
     //$scope.uom = function () {
     //    cboService.getUoMCbo(function (response) {
