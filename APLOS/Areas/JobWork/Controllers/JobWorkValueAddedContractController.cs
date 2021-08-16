@@ -1615,7 +1615,6 @@ namespace Aplos.Areas.JobWork.Controllers
         }
 
         //  MATERIAL INPUT TAB
-
         [HttpGet, Authorize]
         public JsonResult getMatInputListData(string JobWorkItemId, string ActivityId, string Id)
         {

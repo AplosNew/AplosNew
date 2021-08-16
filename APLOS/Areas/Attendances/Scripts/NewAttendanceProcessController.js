@@ -7,7 +7,7 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
     $scope.path = 'Attendances/NewAttendanceProcess/';
 
 
-    $scope.Run = function () {
+    $scope.RunShiftProcess = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.NewAttdnProcess.$valid) {
 

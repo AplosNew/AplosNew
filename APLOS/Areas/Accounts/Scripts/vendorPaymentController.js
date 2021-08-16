@@ -1,5 +1,5 @@
 ﻿"use strict";
-vendorPaymentController.$inject = ["bankService","accountService", "cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
+vendorPaymentController.$inject = ["bankService", "accountService", "cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
 function vendorPaymentController(bankService, accountService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
     $rootScope.title = "Payment";
     $scope.Action = "Save";
@@ -79,7 +79,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
         ExchangeAmount: null,
         ExchangeType: null,
         DiscountAmount: null,
-        BaseCurrencyId:null
+        BaseCurrencyId: null
     };
 
     $scope.voucherDetail = {
@@ -177,7 +177,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
 
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;
-       
+
     });
     cboService.getCboEntityByPlant(null, null, "", function (result) {
         $scope.entityList = result;
@@ -208,9 +208,9 @@ function vendorPaymentController(bankService, accountService, cboService, common
         .then(function successCallback(response) {
             $scope.exchangeGainLossList = response.data;
         },
-        function errorCallback(response) {
-            ShowResult(response, "failure");
-        });
+            function errorCallback(response) {
+                ShowResult(response, "failure");
+            });
 
     $scope.GetCurrencyExchangeRateList = function () {
         if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
@@ -230,7 +230,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
     };
 
     $scope.taxcodelistMessage = "";
-   
+
     $http({
         method: "GET",
         url: "accounts/PaymentTerm/getcustomercbo"
@@ -307,29 +307,29 @@ function vendorPaymentController(bankService, accountService, cboService, common
 
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
-            if (baseService.isUndefinedOrNull(party.ReconciliationGLId)) {
-                ShowResult($scope.partyType + " GL not found!", "failure", "partyPopUp");
-                return;
-            }
-            else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(party.ReconciliationBudgetId)) {
-                ShowResult($scope.partyType + " Budget not found!", "failure", "partyPopUp");
-                return;
-            }
-            else {
-                $scope.voucher.PartyName = party.Code + " - " + party.UserName;
-                $scope.voucher.PartyId = party.Id;
-                $scope.voucher.PartyType = $scope.partyType;
-                $scope.voucher.CurrencyId = party.CurrencyId;
-                $scope.partyPlantList = [];
-                $scope.getPartyPlantList(party.Id);
-                $scope.GetCurrencyExchangeRateList();
-                $scope.getPartyWiseOutstandingAdvance($scope.voucher.PartyId);
-                $scope.getPartyWiseOutstandingDebitNote($scope.voucher.PartyId);
-                $scope.voucherDetailList = [];
-            }
+        if (baseService.isUndefinedOrNull(party.ReconciliationGLId)) {
+            ShowResult($scope.partyType + " GL not found!", "failure", "partyPopUp");
+            return;
+        }
+        else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(party.ReconciliationBudgetId)) {
+            ShowResult($scope.partyType + " Budget not found!", "failure", "partyPopUp");
+            return;
+        }
+        else {
+            $scope.voucher.PartyName = party.Code + " - " + party.UserName;
+            $scope.voucher.PartyId = party.Id;
+            $scope.voucher.PartyType = $scope.partyType;
+            $scope.voucher.CurrencyId = party.CurrencyId;
+            $scope.partyPlantList = [];
+            $scope.getPartyPlantList(party.Id);
+            $scope.GetCurrencyExchangeRateList();
+            $scope.getPartyWiseOutstandingAdvance($scope.voucher.PartyId);
+            $scope.getPartyWiseOutstandingDebitNote($scope.voucher.PartyId);
+            $scope.voucherDetailList = [];
+        }
         $scope.hidePartyPopUp();
     };
-   
+
     $scope.updatePartyAmount = function () {
         var row = $filter("filter")($scope.voucherDetailList, { "TrnType": "Cr" });
         if (!baseService.isUndefinedOrNull(row) && row.length > 0) {
@@ -395,12 +395,12 @@ function vendorPaymentController(bankService, accountService, cboService, common
 
     $http.get(glUrl)
         .then(
-        function successCallback(response) {
-            $scope.invoiceGLList = response.data;
-        },
-        function errorCallback(response) {
-            ShowResult(response, "failure");
-        });
+            function successCallback(response) {
+                $scope.invoiceGLList = response.data;
+            },
+            function errorCallback(response) {
+                ShowResult(response, "failure");
+            });
     $scope.selectedInvoiceGLId = null;
     $scope.selectedInvoiceGLName = null;
     $scope.selectedInvoiceGL = function (selected) {
@@ -478,11 +478,11 @@ function vendorPaymentController(bankService, accountService, cboService, common
         {
             "Text": "Doc RefNo",
             "Value": "DocRefNo"
-        } ,
+        },
         {
             "Text": "LC No",
             "Value": "LCRef"
-        } ,
+        },
         {
             "Text": "Contract No",
             "Value": "ContractNo"
@@ -553,7 +553,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
                         data.ExchangeType = null;
                     }
                     $scope.voucherDetailList.push(data);
-                    
+
                     if ($scope.voucherDetailList.length > 0)
                         $scope.isReadOnly = true;
                     else
@@ -595,7 +595,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
             $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "BaseDrAmount") * 10000 + Number.EPSILON) / 10000;
             $scope.BaseAmountObj.BaseCrAmount = null;
             if ($scope.BaseAmountObj.BaseDrAmount > 0)
-            $scope.BaseAmountList.push($scope.BaseAmountObj);
+                $scope.BaseAmountList.push($scope.BaseAmountObj);
             $scope.BaseAmountObj = {};
         }
         //if ($scope.voucher.BankMasterId != null) {
@@ -631,7 +631,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
             $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList, { ExchangeType: "ExchangeGain" }), "ExchangeAmount") * 10000 + Number.EPSILON) / 10000;
             $scope.BaseAmountObj.BaseDrAmount = null;
             if ($scope.BaseAmountObj.BaseCrAmount > 0)
-            $scope.BaseAmountList.push($scope.BaseAmountObj);
+                $scope.BaseAmountList.push($scope.BaseAmountObj);
             $scope.BaseAmountObj = {};
         }
 
@@ -642,40 +642,40 @@ function vendorPaymentController(bankService, accountService, cboService, common
             $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList, { ExchangeType: "ExchangeLoss" }), "ExchangeAmount") * 10000 + Number.EPSILON) / 10000;
             $scope.BaseAmountObj.BaseCrAmount = null;
             if ($scope.BaseAmountObj.BaseDrAmount > 0)
-            $scope.BaseAmountList.push($scope.BaseAmountObj);
+                $scope.BaseAmountList.push($scope.BaseAmountObj);
             $scope.BaseAmountObj = {};
         }
     }
     $scope.calExchangeTypeGainLossBaseAmount = function () {
-            $scope.BaseAmountObj.Type = $scope.voucher.ExchangeType;
-            if ($scope.BaseAmountObj.Type == 'ExchangeLoss') {
-                $scope.BaseAmountObj.BaseDrAmount = $scope.voucher.ExchangeAmount;
-                $scope.BaseAmountObj.BaseCrAmount = 0;
-                if ($scope.BaseAmountObj.BaseDrAmount > 0)
-                    $scope.BaseAmountList.push($scope.BaseAmountObj);
-            }
-            if ($scope.BaseAmountObj.Type == 'ExchangeGain') {
-                $scope.BaseAmountObj.BaseCrAmount = $scope.voucher.ExchangeAmount;
-                $scope.BaseAmountObj.BaseDrAmount = 0;
-                if ($scope.BaseAmountObj.BaseCrAmount > 0)
-                    $scope.BaseAmountList.push($scope.BaseAmountObj);
+        $scope.BaseAmountObj.Type = $scope.voucher.ExchangeType;
+        if ($scope.BaseAmountObj.Type == 'ExchangeLoss') {
+            $scope.BaseAmountObj.BaseDrAmount = $scope.voucher.ExchangeAmount;
+            $scope.BaseAmountObj.BaseCrAmount = 0;
+            if ($scope.BaseAmountObj.BaseDrAmount > 0)
+                $scope.BaseAmountList.push($scope.BaseAmountObj);
         }
-        
-            $scope.BaseAmountObj = {};
+        if ($scope.BaseAmountObj.Type == 'ExchangeGain') {
+            $scope.BaseAmountObj.BaseCrAmount = $scope.voucher.ExchangeAmount;
+            $scope.BaseAmountObj.BaseDrAmount = 0;
+            if ($scope.BaseAmountObj.BaseCrAmount > 0)
+                $scope.BaseAmountList.push($scope.BaseAmountObj);
+        }
+
+        $scope.BaseAmountObj = {};
 
     }
-   
+
     $scope.calBankAmount = function () {
         if ($scope.voucher.BankMasterId != null) {
             $scope.voucher.Amount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 10000 + Number.EPSILON) / 10000 + Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 10000 + Number.EPSILON) / 10000;
-                if ($scope.voucher.CurrencyId == $scope.voucher.BankCurrencyId) {
-                   if ($scope.voucher.ExchangeType == 'ExchangeLoss')
-                        $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount + $scope.voucher.ExchangeAmount) * 10000 + Number.EPSILON) / 10000;
-                    else if ($scope.voucher.ExchangeType == 'ExchangeGain')
-                        $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount - $scope.voucher.ExchangeAmount) * 10000 + Number.EPSILON) / 10000;
-                   else
-                       $scope.voucher.BankBookAmount = $scope.voucher.Amount
-                    $scope.voucher.BankAmount = $scope.voucher.BankBookAmount;
+            if ($scope.voucher.CurrencyId == $scope.voucher.BankCurrencyId) {
+                if ($scope.voucher.ExchangeType == 'ExchangeLoss')
+                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount + $scope.voucher.ExchangeAmount) * 10000 + Number.EPSILON) / 10000;
+                else if ($scope.voucher.ExchangeType == 'ExchangeGain')
+                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount - $scope.voucher.ExchangeAmount) * 10000 + Number.EPSILON) / 10000;
+                else
+                    $scope.voucher.BankBookAmount = $scope.voucher.Amount
+                $scope.voucher.BankAmount = $scope.voucher.BankBookAmount;
             }
             if ($scope.voucher.CurrencyId != $scope.voucher.BankCurrencyId) {
                 if ($scope.voucher.ExchangeType == 'ExchangeLoss')
@@ -691,10 +691,16 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.calBankBaseAmount = function () {
         if ($scope.voucher.BankMasterId != null) {
             $scope.BaseAmountObj.Type = 'Bank';
-            $scope.BaseAmountObj.BaseCrAmount = $scope.voucher.BankBookAmount;
+            if ($scope.voucher.CurrencyId == $scope.voucher.BankCurrencyId) {
+                $scope.BaseAmountObj.BaseCrAmount = $scope.voucher.BankBookAmount * $scope.voucher.CompanyCurrencyRate;
+            }
+            else {
+
+                $scope.BaseAmountObj.BaseCrAmount = $scope.voucher.BankBookAmount;
+            }
             $scope.BaseAmountObj.BaseDrAmount = null;
             if ($scope.BaseAmountObj.BaseCrAmount > 0)
-            $scope.BaseAmountList.push($scope.BaseAmountObj);
+                $scope.BaseAmountList.push($scope.BaseAmountObj);
             $scope.BaseAmountObj = {};
         }
     }
@@ -705,7 +711,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
             $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "BaseDrAmount") * 10000 + Number.EPSILON) / 10000;
             $scope.BaseAmountObj.BaseDrAmount = null;
             if ($scope.BaseAmountObj.BaseCrAmount > 0)
-            $scope.BaseAmountList.push($scope.BaseAmountObj);
+                $scope.BaseAmountList.push($scope.BaseAmountObj);
             $scope.BaseAmountObj = {};
         }
     }
@@ -715,7 +721,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
             $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 10000 + Number.EPSILON) / 10000;
             $scope.BaseAmountObj.BaseCrAmount = null;
             if ($scope.BaseAmountObj.BaseDrAmount > 0)
-            $scope.BaseAmountList.push($scope.BaseAmountObj);
+                $scope.BaseAmountList.push($scope.BaseAmountObj);
             $scope.BaseAmountObj = {};
         }
         else if ($scope.bankChargesList.length > 1) {
@@ -736,7 +742,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
     }
 
     $scope.caltaxBaseAmount = function () {
-        if ($scope.TDSList.length>0) {
+        if ($scope.TDSList.length > 0) {
             $scope.BaseAmountObj.Type = 'Tax';
             //$scope.BaseAmountObj.BaseCrAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.TDSList), "TaxAmount")).toFixed(4);
             $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 10000 + Number.EPSILON) / 10000;
@@ -767,7 +773,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
             $scope.BaseAmountObj = {};
         }
     }
-    
+
     $scope.exchangeGainLossAmount = function (data) {
         var balance = parseFloat(data.Balance), dramount = parseFloat(data.Amount);
         if (dramount > balance) {
@@ -831,12 +837,12 @@ function vendorPaymentController(bankService, accountService, cboService, common
             if ($scope.voucher.CurrencyId != $scope.voucher.BankCurrencyId) {
                 $scope.voucher.BankBookAmount = $scope.voucher.BankAmount;
                 $scope.reCalBankBaseAmount();
-                
+
             }
         }
         $scope.calBaseAmount();
     }
-    
+
     $scope.removeRow = function (index, data) {
         $scope.deletecurrency = data.CurrencyId;
         $scope.voucherDetailList.splice(index, 1);
@@ -1174,7 +1180,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
         }
     };
 
-    
+
 
 
     $scope.Save = function () {
@@ -1182,7 +1188,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
         $scope.checkDocDate();
         $scope.checkPostingDate();
         $scope.passBankCashAmount();
-            $scope.entityValidation();
+        $scope.entityValidation();
         if ($scope.form1.$valid && !$scope.validation() && !$scope.invalidDocDate && !$scope.invalidPostingDate) {
             if ($scope.Action === "Save") {
                 $http({
@@ -1291,7 +1297,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
         $scope.bankChargesList.splice(index, 1);
     };
 
-   
+
     $scope.copyTaxesAmount = function () {
         if ($scope.advance.CurrencyId === $scope.companyCurrencyId) {
             $scope.advanceTax.CompanyCurrencyAmount = $scope.advanceTax.TaxAmount;
@@ -1301,7 +1307,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
         }
     };
 
-    
+
 
     $scope.invoiceWriteOffId = null;
     $scope.confirmPost = function (invoiceWriteOffId) {
@@ -1368,11 +1374,11 @@ function vendorPaymentController(bankService, accountService, cboService, common
 
     $scope.closeNotePartyPopUpNew = function (x) {
         var party = x.data;
-            $scope.voucher.OtherPartyName = party.Code + " - " + party.UserName;
+        $scope.voucher.OtherPartyName = party.Code + " - " + party.UserName;
         $scope.voucher.OtherPartyId = party.Id;
         $scope.notepartyPlantList = [];
         $scope.getNotePartyPlantList(party.Id);
-            $scope.voucherDetailList = [];
+        $scope.voucherDetailList = [];
         $scope.hideNotePartyPopUp();
     };
 
