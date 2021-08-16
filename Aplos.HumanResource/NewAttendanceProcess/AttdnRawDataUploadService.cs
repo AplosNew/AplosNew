@@ -28,7 +28,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 List<AttdnRawData> items = DataToSave.ToList();
 
-                DataSet dsRef,dsPlant;
+                DataSet dsRef,dsPlant,Device;
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                 string strSql = @"select * from dbo.AttdnRawData where 1=2";
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
@@ -41,6 +41,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 string Sql = @"select * from EmployeeInformation where SystemId IN("+EmpId+")";
                 objCon.OpenDataSetThroughAdapter(Sql, out dsPlant, false, "1");
+               
+                var sqlx = @"select top 1 * from mst.AccessControllerList";
+                objCon.OpenDataSetThroughAdapter(sqlx, out Device, false, "1");
+                var DeviceSystemId = clsWebLib.RetValidLen(Device.Tables[0].Rows[0][@"Id"]).ToString();
 
                 foreach (AttdnRawData item in DataToSave)
                 {
@@ -62,7 +66,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             drx["Id"] = "ARD" + _Idx;
                             drx["DeviceID"] = DBNull.Value;
-                            drx["DevSystemID"] = item.DevSystemId;
+                            drx["DevSystemID"] = DeviceSystemId;
                             drx["LogDownLoadNum"] = item.LogDownLoadNum;
                             drx["PlantID"] = PlantId;
                             drx["GroupID"] = GpId;
