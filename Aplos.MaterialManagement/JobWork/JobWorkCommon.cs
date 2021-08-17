@@ -1347,7 +1347,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,b.RequiredQtyPO RequiredQtyPOOrginal
 						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
 						,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '-' + ISNULL(mo.BuyerReferenceNo,'') +'-'+ ISNULL(moi.OwnReferenceNo,'')+'-'+ISNULL(moi.BuyerReferenceNo,'')
-						,mm.BaseUOMId,POMAP.RatePerUnit as TransactionRate, IsEditMode=1
+						,mm.BaseUOMId,POMAP.RatePerUnit as TransactionRate, IsEditMode=1,POMAP.ServiceId
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -1368,7 +1368,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
 						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
-						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.TransactionQty) TransactionQty,JWPPOD.RatePerUnit
+						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.TransactionQty) TransactionQty,JWPPOD.RatePerUnit,JWPPOD.ServiceId
 											FROM JWPOBOQMAP POBOQMAP1
 									--LEFT JOIN JWTransformationPurchaseOrderDetail JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
 									--LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JWTransformationPurchaseOrderId
@@ -1376,7 +1376,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                     LEFT JOIN dbo.JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
 									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JobWorkTransformationContractMasterId
 									where POM.Id ='" + JWPOId + @"'
-									GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit							
+									GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit,JWPPOD.ServiceId					
 									)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.POBOQQty) TransactionQty,JWPPOD.RatePerUnit
 											FROM JWPOBOQMAP POBOQMAP1
@@ -6038,11 +6038,13 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                                 ,mm.UserName as Material, mm.Code as MaterialCode
                                 , mma.StandardName as Article, mma.Code as ArticleCode
                                 ,uom.UserName as MatBaseUoM,mm.BaseUOMId
+                                ,CurrentReqQty=(om.Quantity * mi.NetConsumption) * (1 + (mi.ValueLoss/100))
                                 from dbo.JobWorkTransformationContractChild3 mi 
                                 left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
                                 left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                                 left join SCS.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
-                                where mi.JobWorkTransformationContractChildMasterId='"+ Id + @"' ";
+                                left join dbo.JobWorkTransformationContractChild om on om.Id=mi.JobWorkTransformationContractChildMasterId
+                                where mi.JobWorkTransformationContractChildMasterId='" + Id + @"' ";
                 return _sqlRepository.GetDataCollection(_sql);
             }
             catch (Exception ex)
