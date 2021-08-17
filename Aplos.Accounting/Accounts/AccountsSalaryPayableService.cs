@@ -2256,6 +2256,38 @@ namespace Library.Accounting.Accounts
                 //workbook = null;
             }
         }
+        public GridModel GetSalaryPayableDisbursementVoucherList(GridParameter parameters)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                parameters.CmdText = @"SELECT V.Id PayableVoucherId, V.VoucherDate, V.PostingDate, V.DocRefNo, V.VoucherTypeId, V.CurrencyId, V.DocDate, V.EntityId, C.Code AS CurrencyCode
+                                    , VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration,[Month]=case when sl.MonthNo=1 then 'January'
+                                    when sl.MonthNo=2 then 'February'
+                                    when sl.MonthNo=3 then 'March'
+                                    when sl.MonthNo=4 then 'April'
+                                    when sl.MonthNo=5 then 'May'
+                                    when sl.MonthNo=6 then 'June'
+                                    when sl.MonthNo=7 then 'July'
+                                    when sl.MonthNo=8 then 'August'
+                                    when sl.MonthNo=9 then 'September'
+                                    when sl.MonthNo=10 then 'October'
+                                    when sl.MonthNo=11 then 'November'
+                                    when sl.MonthNo=12 then 'December' end,sl.MonthNo ,sl.YearNo
+                                    FROM TRN.[Voucher] AS V
+                                    LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
+                                    LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 GROUP BY VD.VoucherId
+                                    ) AS VD ON VD.VoucherId=V.Id
+									left join (select distinct PayableVoucherId,MonthNo,YearNo from dbo.SalaryLock) sl on sl.PayableVoucherId=v.Id
+                                    WHERE  V.Archive=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + "'AND V.CompanyId='" + identity.CompanyId + "' AND V.PlantId='" + identity.PlantId + "' AND V.SourceType='" + SourceType.SalaryDisbursement + "'";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex);
+            }
+        }
 
 
         #endregion
