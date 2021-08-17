@@ -124,8 +124,7 @@ namespace Library.Planning.OrderManagement
                 throw e;
             }
         }
-
-
+ 
         public struct Total
         {
             public string Key ;
