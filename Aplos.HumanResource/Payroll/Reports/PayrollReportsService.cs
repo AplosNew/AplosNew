@@ -7302,7 +7302,11 @@ namespace Library.HumanResource.Payroll
                 para.DivisionId = "ALL";
                 //para.SystemAdmin = (string)Session["sa"].ToString().Trim();
                 //para.ControlAdmin = (string)Session["ca"].ToString().Trim();
-
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                sheet1 = workbook.Worksheets[0];
+                sheet1.IsGridLinesVisible = true;
                 #region DataSet
                 //GetSalaryInfoSlrProcIDWiseCombinedForPaySlip(plantId, para.FromDate, para.ToDate, salaryProcessId, "", parameters, languageId, isActive, isSeperated, isMaternity, out dsSlrProc);//Sql Query For Salary  Data
                 DataSet dsEmpLoyeeInfo = null;
@@ -7335,11 +7339,7 @@ namespace Library.HumanResource.Payroll
                 #endregion DataSet
                 if (dtEmpInfo.Rows.Count > 0)
                 {
-                    excelEngine = new ExcelEngine();
-                    application = excelEngine.Excel;
-                    workbook = application.Workbooks.Create(1);
-                    sheet1 = workbook.Worksheets[0];
-                    sheet1.IsGridLinesVisible = true;
+                   
 
                     #region Variable For Data
                     double EL = 0.00;
@@ -7443,7 +7443,7 @@ namespace Library.HumanResource.Payroll
 
                             empDetailFirstXlsRow = xlsRow;
 
-                            //_OTHours = 0.00;//Convert.ToDouble(dtEmpInfo.Rows[i]["TotalOTHr"].ToString());//
+                            //_OTHours = 0.00;//clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalOTHr"].ToString());//
                             #region------------------Header------------------
 
                             sheet1.Range[xlsRow, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.EmployeeCode.ToString(), "Emp Code");
@@ -7623,21 +7623,21 @@ namespace Library.HumanResource.Payroll
                             //sheet1.Range[xlsRow + 2, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.CasualLeave.ToString(), "CL"); //"Casual Leave";
                             //sheet1.Range[xlsRow + 2, xlsCol].ColumnWidth = 11;
 
-                            //sheet1.Range[xlsRow + 2, xlsCol + 1].Number = Convert.ToDouble(CL);
+                            //sheet1.Range[xlsRow + 2, xlsCol + 1].Number = clsStaticInfo.dbl(CL);
                             //sheet1.Range[xlsRow + 2, xlsCol + 1].ColumnWidth = 5;
 
                             //sheet1.Range[xlsRow + 3, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.SickLeave.ToString(), "SL");//"Sick Leave";
-                            //sheet1.Range[xlsRow + 3, xlsCol + 1].Number = Convert.ToDouble(SL);
+                            //sheet1.Range[xlsRow + 3, xlsCol + 1].Number = clsStaticInfo.dbl(SL);
 
                             //sheet1.Range[xlsRow + 4, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.EarnLeave.ToString(), "EL");//"Earn Leave";
 
-                            //sheet1.Range[xlsRow + 4, xlsCol + 1].Number = Convert.ToDouble(EL);
+                            //sheet1.Range[xlsRow + 4, xlsCol + 1].Number = clsStaticInfo.dbl(EL);
 
                             //sheet1.Range[xlsRow + 5, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.LWP.ToString(), "LWP");//"Leave Without Pay";
-                            //sheet1.Range[xlsRow + 5, xlsCol + 1].Number = Convert.ToDouble(LWP);
+                            //sheet1.Range[xlsRow + 5, xlsCol + 1].Number = clsStaticInfo.dbl(LWP);
 
                             //sheet1.Range[xlsRow + 6, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.SickLeaveESIC.ToString(), "SL Esic"); //"Sick Leave Esic";
-                            //sheet1.Range[xlsRow + 6, xlsCol + 1].Number = Convert.ToDouble(SLESIC);
+                            //sheet1.Range[xlsRow + 6, xlsCol + 1].Number = clsStaticInfo.dbl(SLESIC);
 
                             //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
 
@@ -7690,7 +7690,7 @@ namespace Library.HumanResource.Payroll
                             sheet1[1, xlsCol].ColumnWidth = 14;
                             sheet1[1, xlsCol + 1].ColumnWidth = 6;
                             sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.Present.ToString(), "Present");//"Present";
-                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = Convert.ToDouble(dtEmpInfo.Rows[i]["TotalPresent"].ToString()) + Convert.ToDouble(dtEmpInfo.Rows[i]["TotalLate"].ToString());
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalPresent"].ToString()) + clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLate"].ToString());
                             sheet1.Range[xlsRow + _x, xlsCol + 1].CellStyle.Font.Size = 10;
                             //GetEarningDays(ref EarningDays, _pd);
 
@@ -7702,7 +7702,7 @@ namespace Library.HumanResource.Payroll
 
                             _x++;
                             sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.LWP.ToString(), "LWP"); //"LWP";
-                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLWP"].ToString()) + Convert.ToDouble(SLESIC);
+                            sheet1.Range[xlsRow + _x, xlsCol + 1].Number = clsStaticInfo.dbl(dtEmpInfo.Rows[i]["TotalLWP"].ToString()) + clsStaticInfo.dbl(SLESIC);
 
                             _x++;
                             sheet1.Range[xlsRow + _x, xlsCol].Text = ru.GetLabelname(labelList, LabelNameInLocalLanguage.WorkOff.ToString(), "W.Off"); //"W.Off";
@@ -7835,7 +7835,7 @@ namespace Library.HumanResource.Payroll
                         }
                         //if (dvBasic.Count > 0)
                         //{
-                        //    _basic = Convert.ToDouble(dvBasic[0]["DisbusmentAmount"].ToString());
+                        //    _basic = clsStaticInfo.dbl(dvBasic[0]["DisbusmentAmount"].ToString());
                         //}
 
                         if (_maxRowDeduct > _maxRow)
