@@ -78,7 +78,6 @@ function showAllUserController(cboService, $scope, $rootScope, baseService, $rou
             }).finally(function () {
             });
     };
-
     $scope.encryptDecrypt = { Decrypt: null };
     $scope.index = -1;
     $scope.DecryptText = function (encrypt, index) {

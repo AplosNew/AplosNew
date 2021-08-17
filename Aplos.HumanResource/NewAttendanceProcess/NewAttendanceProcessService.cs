@@ -2432,6 +2432,36 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
         #endregion
 
         #region DayStatus Source Data
+
+        public void TodayDuration(string Today, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select * from (select Format(WorkDate,'yyyy-MMM-dd')WorkDate,EmpSystemID,
+                datediff(minute,ap.InTime,ap.OutTime) 
+                as CalDuration, Format(ap.InTime,'yyyy-MMM-dd HH:mm:ss')InTime,
+				Format(ap.OutTime,'yyyy-MMM-dd HH:mm:ss')OutTime,
+				Format(ap.ShiftInTime,'yyyy-MMM-dd HH:mm:ss')ShiftInTime, 
+                Format(ap.ShiftOutTime,'yyyy-MMM-dd HH:mm:ss')ShiftOutTime, 
+                sd.ShiftEarlyInMargin,sd.ShiftEarlyOutMargin,sd.ShiftLateInMargin,
+                sd.ShiftLateOutMargin
+                from Attdnprocessdata  ap
+                left join ShiftDefination sd on sd.SystemID=ap.ShiftSystemID
+                where workdate='" + Today + @"' and ap.PlantID='" + Plant + @"' 
+                and isnull(ap.InTime,'')!='' and isnull(ap.OutTime,'')!='') as dd
+				where dd.CalDuration>0";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+
+        }
         public void PrevDayDuration(string PreDay, out DataSet ds, string Plant)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -3246,6 +3276,100 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
                     }
                     #endregion
+
+                    #region Today Duration EarlyIn Late EarlyOut OverStay
+                    DataSet TodayDurn;
+                    TodayDuration(Date, out TodayDurn, PlantValue);
+                    if (TodayDurn.Tables[0].Rows.Count > 0)
+                    {
+                        string WorkDate = TodayDurn.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + WorkDate + "'and isnull(InTime,'')!='' and isnull(OutTime,'')!='' and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                        for (int i = 0; i < TodayDurn.Tables[0].Rows.Count; i++)
+                        {
+                            string EmpId = TodayDurn.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            string ProcessInTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"InTime"]).ToString();
+                            string ProcessOutTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"OutTime"]).ToString();
+                            string ShiftOutTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftOutTime"]).ToString();
+                            string ShiftInTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
+                            string CalDuration = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"CalDuration"]).ToString();
+                            double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
+                            double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
+                            double ShiftEarlyOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftEarlyOutMargin"]).ToString());
+                            double ShiftLateOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftLateOutMargin"]).ToString());
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+
+                                dr["Duration"] = CalDuration;
+                                dr["EarlyLateIn"] = DBNull.Value;
+                                dr["EarlyLateOut"] = DBNull.Value;
+                                if (Convert.ToDateTime(ProcessInTime).AddMinutes(ShiftEarlyInMargin) < Convert.ToDateTime(ShiftInTime))
+                                {
+                                    TimeSpan ts = Convert.ToDateTime(ShiftInTime).Subtract(Convert.ToDateTime(ProcessInTime));
+                                    dr["EarlyIn"] = ts.TotalMinutes;
+                                    dr["EarlyLateIn"] = "EI";
+                                }
+                                else
+                                {
+                                    dr["EarlyIn"] = 0;
+
+                                }
+                                if (Convert.ToDateTime(ProcessInTime).AddMinutes(-ShiftLateInMargin) > Convert.ToDateTime(ShiftInTime))
+                                {
+                                    TimeSpan ts = Convert.ToDateTime(ProcessInTime).Subtract(Convert.ToDateTime(ShiftInTime));
+                                    dr["LateIn"] = ts.TotalMinutes;
+                                    dr["EarlyLateIn"] = "LI";
+                                }
+                                else
+                                {
+                                    dr["LateIn"] = 0;
+
+                                }
+                                if (Convert.ToDateTime(ProcessOutTime).AddMinutes(ShiftEarlyOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                                {
+
+                                    TimeSpan ts = Convert.ToDateTime(ShiftOutTime).Subtract(Convert.ToDateTime(ProcessOutTime));
+                                    dr["EarlyOut"] = ts.TotalMinutes;
+                                    dr["EarlyLateOut"] = "EO";
+                                }
+                                else
+                                {
+                                    dr["EarlyOut"] = 0;
+
+                                }
+
+                                if (Convert.ToDateTime(ProcessOutTime).AddMinutes(-ShiftLateOutMargin) < Convert.ToDateTime(ShiftOutTime))
+                                {
+                                    dr["LateOut"] = 0;
+
+                                }
+                                else
+                                {
+                                    TimeSpan ts = Convert.ToDateTime(ProcessOutTime).Subtract(Convert.ToDateTime(ShiftOutTime));
+                                    dr["LateOut"] = ts.TotalMinutes;
+                                    dr["EarlyLateOut"] = "LO";
+                                }
+
+                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                dr.EndEdit();
+                            }
+                        }
+                        SaveDataSets(dsRef);
+
+                    }
+
+                    #endregion
+
                 }
 
             }
