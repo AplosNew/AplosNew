@@ -2749,7 +2749,7 @@ namespace Library.MaterialManagement.Inventory
 						var baseUoMFactorList = _materialMasterService.GetBaseUoMConvertionFactorByMaterialMaster(materialMasterIds, altUomIds);
 						var TransactionQty = entity.Where(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId && r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId && r.ThirdCharacteristicsValueId == r.ThirdCharacteristicsValueId).Sum(r => r.TransactionQty);
 						var lst = entity.Where(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId && r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId && r.ThirdCharacteristicsValueId == r.ThirdCharacteristicsValueId).ToList();
-
+						
 						var ViewModelData = new List<InventoryMaterialViewModel>();                         //var newList = new string[]{  }; 
 						foreach (var lstt1 in lst)
 						{
@@ -2811,6 +2811,7 @@ namespace Library.MaterialManagement.Inventory
 
 						//End Update Req Table
 						itemDetail.Id = "";
+						var PODetailId = entity.Where(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId && r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId && r.ThirdCharacteristicsValueId == r.ThirdCharacteristicsValueId && r.InventoryReceiveDetailId != "").FirstOrDefault();
 						// Insert in receive detail
 						if (string.IsNullOrEmpty(itemDetail.Id))
 						{
@@ -2819,7 +2820,7 @@ namespace Library.MaterialManagement.Inventory
 							currentId++;
 							var receiveDetail = new PurchaseOrderDetail
 							{
-								Id = itemDetail.InventoryReceiveDetailId,
+								Id = PODetailId.InventoryReceiveDetailId.ToString(),//itemDetail.InventoryReceiveDetailId, 
 								MaterialStorageId = itemDetail.MaterialStorageId,
 								InventoryReceiveId = PoId, //itemDetail.InventoryReceiveId,
 								InventoryMaterialId = itemDetail.MaterialMasterId,
