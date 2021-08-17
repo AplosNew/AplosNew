@@ -4506,7 +4506,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
        
         #endregion
 
-         public void CommonLogFunction(Exception ex, string CatchPlant,string Process)
+        public void CommonLogFunction(Exception ex, string CatchPlant,string Process)
          {
 
             string ErrorlineNo, Errormsg, extype, ErrorLocation;
