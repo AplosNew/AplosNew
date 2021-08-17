@@ -37,19 +37,8 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
         }
     ];
 
-    $scope.voucherListParameters = {
-        limit: 10,
-        offset: 0,
-        order: "DESC",
-        sort: "VoucherNo",
-        searchBy: "VoucherNo",
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
-
-    baseService.init("Accounts/Voucher/GetJournalVoucherList", null, null, "DESC", "PostingDate DESC, VoucherNo", "PostingDate");
+    
+    baseService.init("Accounts/Voucher/GetJournalVoucherList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
             .then(function (result) {

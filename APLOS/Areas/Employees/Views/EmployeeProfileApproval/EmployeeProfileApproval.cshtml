@@ -22,24 +22,19 @@
         text-overflow: ellipsis;*/
     }
 </style>
-@*<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Employee Profile Approval</h3>*@
 <h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>{{FormTitle}}</h3>
-
+<p style="color:blue;font-size:11px">Work based on Payroll Group wise access control.</p>
 
 <div class="row form-horizontal form-elements" id="tabpaneldiv">
     <div class="col-md-12">
         <div id="Grid" ej-grid
              e-datasource="employees"
-             @*e-recorddoubleclick="Get"*@
-             @*e-height="500"*@
              e-allowscrolling="true"
              e-actioncomplete="actionCompleteSelected"
              e-templaterefresh="refreshTemplateemployee"
              e-endedit="updatedata"
              e-allowfiltering="true"
              e-allowpaging="true"
-             @*e-editsettings-allowediting="true"
-             e-editsettings-editmode="dialog"*@
              e-allowsorting="true"
              e-enabletouch="false"
              e-responsive="true"
@@ -59,7 +54,7 @@
                 <div e-column e-field="PositionName" e-headertext="Position" e-width="80"></div>
                 <div e-column e-field="EntityName" e-headertext="Entity" e-width="80"></div>
                 <div e-column e-field="Code" e-headertext="Budget Code" e-width="80"></div>
-                <div e-column e-field="ApprovalAuthority" e-headertext="Approval Authority" e-width="80"></div>
+                <div e-column e-field="ApprovalAuthority" e-headertext="Approval Authority" e-width="150"></div>
             </div>
         </div>
         <script type="text/x-jsrender" id="checkboxTemplate">
@@ -72,15 +67,11 @@
     </div>
 
 </div>
-@*<br />*@
 <div class="row form-horizontal form-elements">
     <div class="col-xs-12 col-sm-10 col-md-10">
 
     </div>
     <div class="col-xs-12 col-sm-2 col-md-2">
-        @*<div class="form-group right">
-            <button ng-click="SaveData()" class="btn btn-comm " style="width:80%">Approved</button>
-        </div>*@
         <div class="common-btn">
             <ul class="list-inline text-right">
                 
@@ -88,14 +79,10 @@
             </ul>
         </div>
     </div>
-
-
-
 </div>
 <br />
 
 <ej-dialog id="dialogMessage" title="{{messageTitle}}" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#tabpaneldiv" e-close="onDialogClose" e-minwidth="50%" e-minheight="50" e-open="enableBtn">
-
     <div>
         {{messageText}}
     </div>
