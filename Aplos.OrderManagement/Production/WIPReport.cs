@@ -2584,7 +2584,7 @@ FROM
                                       from scs.WorkCenterMaster AS wcm
                                     JOIN  trn.DailyProductionTarget TG ON wcm.Id=tg.WorkCenterMasterID AND TG.TargetDate='" + date + @"' AND TG.PlantId='" + PlantId + @"'
                                     join trn.ProductionOrder PO ON PO.Id=TG.ProductionOrderId
-                                    JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId   AND (isnull(s.StandardName,'')<>'Closed' OR convert(date,po.ClosingDate)>CONVERT(DATE,'" + date + @"'))
+                                    JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                                     
                                     WHERE wcm.ProcessId=(SELECT TOP 1 xpt.BaseProcessId FROM PlanningTypes xpt WHERE xpt.PlanningType='PlanningType1')  " + Filter + @"
                                     UNION ALL
@@ -2594,7 +2594,7 @@ FROM
                                     join trn.ProductionOrder PO ON PO.Id=TG.ProductionOrderId
                                     LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                                     JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=tg.WorkCenterMasterID
-                                     WHERE TG.ProductionDate='" + date + @"'  AND (isnull(s.StandardName,'')<>'Closed' OR convert(date,po.ClosingDate)>CONVERT(DATE,'" + date + @"')) AND TG.PlantId='" + PlantId + @"' " + Filter + @" AND wcm.ProcessId=(SELECT TOP 1 xpt.BaseProcessId FROM PlanningTypes xpt WHERE xpt.PlanningType='PlanningType1')
+                                     WHERE TG.ProductionDate='" + date + @"'  AND TG.PlantId='" + PlantId + @"' " + Filter + @" AND wcm.ProcessId=(SELECT TOP 1 xpt.BaseProcessId FROM PlanningTypes xpt WHERE xpt.PlanningType='PlanningType1')
                                     ) AS K ON K.WorkCenterMasterID=WCM.Id
 
                                     LEFT JOIN org.Entity AS e ON e.Id=k.EntityId
@@ -2670,7 +2670,7 @@ FROM
                                     join trn.ProductionOrder PO ON PO.Id=TG.ProductionOrderId
                                     LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                                     JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=tg.WorkCenterMasterID
-                                     WHERE TG.PlantId='" + PlantId + @"' AND (isnull(s.StandardName,'')<>'Closed' OR convert(date,po.ClosingDate)>CONVERT(DATE,TG.TargetDate)) AND TargetDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  " + Filter + @"  AND wcm.ProcessId=(SELECT TOP 1 xpt.BaseProcessId FROM PlanningTypes xpt WHERE xpt.PlanningType='PlanningType1')
+                                     WHERE TG.PlantId='" + PlantId + @"' AND TargetDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"'  " + Filter + @"  AND wcm.ProcessId=(SELECT TOP 1 xpt.BaseProcessId FROM PlanningTypes xpt WHERE xpt.PlanningType='PlanningType1')
                                     GROUP BY tg.TargetDate
 
                                     UNION ALL
@@ -2680,7 +2680,7 @@ FROM
                                     join trn.ProductionOrder PO ON PO.Id=TG.ProductionOrderId
                                     LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                                     JOIN scs.WorkCenterMaster AS wcm ON wcm.Id=tg.WorkCenterMasterID
-                                     WHERE TG.PlantId='" + PlantId + @"' AND (isnull(s.StandardName,'')<>'Closed'  OR convert(date,po.ClosingDate)>CONVERT(DATE,tg.ProductionDate)) AND tg.ProductionDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' " + Filter + @"  AND wcm.ProcessId=(SELECT TOP 1 xpt.BaseProcessId FROM PlanningTypes xpt WHERE xpt.PlanningType='PlanningType1')
+                                     WHERE TG.PlantId='" + PlantId + @"' AND tg.ProductionDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' " + Filter + @"  AND wcm.ProcessId=(SELECT TOP 1 xpt.BaseProcessId FROM PlanningTypes xpt WHERE xpt.PlanningType='PlanningType1')
                                     GROUP BY tg.ProductionDate
                                     ) AS K ON k.ProductionDate=dt.ProductionDate
                                     GROUP BY DT.ProductionDate

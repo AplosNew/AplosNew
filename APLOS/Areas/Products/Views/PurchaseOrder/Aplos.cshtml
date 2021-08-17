@@ -2149,9 +2149,9 @@
 										@*<div e-column e-field="POUoM" e-headertext="POUoM" e-width="80" textAlign='Right'></div>*@
 										<div e-column e-template="#UOMEdit" e-field="UOM" e-headertext="UoM" e-width="150"></div>
 										<div e-column e-template="#CurrentText" e-field="TransactionQty" textAlign='right' e-headertext="CurrentQty" e-width="150"></div>
-
-										<div e-column e-field="TransactionRate" textAlign='right' e-headertext="Rate" e-width="100"></div>
-
+										
+										@*<div e-column e-field="TransactionRate" textAlign='right' e-headertext="Rate" e-width="100"></div>*@
+										<div e-column e-template="#CurrentRate" e-field="TransactionRate" textAlign='right' e-headertext="CurrentRate" e-width="150"></div>
 										<div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
 										<div e-column e-field="RequiredQtyApproved" e-headertext="Approved" e-width="200"></div>
 										<div e-column e-field="IncompleteMaterial" e-headertext="IncompleteMaterial" e-width="200"></div>
@@ -2172,6 +2172,10 @@
 								</script>
 								<script type="text/template" id="CurrentText">
 									<input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
+
+								</script>
+								<script type="text/template" id="CurrentRate">
+									<input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionRate" width="80" ng-change="$parent.calculateRequisitionData(this)" />
 
 								</script>
 								<script type="text/template" id="UOMEdit">

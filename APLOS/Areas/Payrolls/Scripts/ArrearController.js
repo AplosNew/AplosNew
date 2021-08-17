@@ -96,11 +96,18 @@ function ArrearController(cboService, commonMessage, $scope, $rootScope, baseSer
                 data: parameters
             }).then(function successCallback(response) {
                 for (var i = 0; i < response.data.length; i++) {
+
                     if (angular.isUndefinedOrNull(response.data[i].DOJ) == false)
                         response.data[i].DOJ = new Date(response.data[i].DOJ);
 
                     if (angular.isUndefinedOrNull(response.data[i].DOS) == false)
                         response.data[i].DOS = new Date(response.data[i].DOS);
+
+                    if (angular.isUndefinedOrNull(response.data[i].LastSalaryEffectiveDate) == false)
+                        response.data[i].LastSalaryEffectiveDate = new Date(response.data[i].LastSalaryEffectiveDate);
+
+                    if (angular.isUndefinedOrNull(response.data[i].LatestSalaryEffectiveDate) == false)
+                        response.data[i].LatestSalaryEffectiveDate = new Date(response.data[i].LatestSalaryEffectiveDate);
 
                 }
                 $scope.EmployeeList = response.data;
