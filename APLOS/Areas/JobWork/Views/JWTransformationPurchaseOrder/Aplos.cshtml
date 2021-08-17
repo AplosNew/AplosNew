@@ -2545,7 +2545,7 @@
                                     <script type="text/template" id="ServiceBOQJW">
 
                                         <div class="select-style">
-                                            <select class="form-control" ng-model="data.ServiceId" name="ServiceId"
+                                            <select class="form-control" ng-model="data.ServiceId" name="ServiceId" ng-disabled="data.IsEditMode==1 && data.CheckedStatus==true"
                                                     ng-options="item.Value as item.Text for item in data.BOQserviceCboList" tabindex="3"></select>
 
                                         </div>
@@ -4121,12 +4121,13 @@
                                             <div e-column e-type="string" e-field="MatBaseUoM" e-headertext="UoM" e-width="100"></div>
                                             @*<div e-column e-type="string" e-field="ItemSpecification" e-headertext="Item Specification" e-width="100"></div>*@
                                             @*<div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
-                        <div e-column e-type="string" e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>*@
+        <div e-column e-type="string" e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>*@
                                             <div e-column e-type="string" e-field="NetConsumption" e-headertext="Net Consumption" e-width="100"></div>
                                             <div e-column e-type="string" e-field="Rejection" e-headertext="Rejection" e-width="100"></div>
                                             <div e-column e-type="string" e-field="ValueLoss" e-headertext="Value Loss" e-width="100"></div>
                                             <div e-column e-type="string" e-field="GrossConsumption" e-headertext="GrossConsumption" e-width="100"></div>
                                             <div e-column e-type="string" e-field="BOQRequiredQuantity" e-headertext="Required Quantity" e-width="100"></div>
+                                            <div e-column e-type="string" e-field="CurrentReqQty" e-headertext="Current Required Quantity" e-width="100"></div>
                                             @*<div e-column e-template="#BOQPopUpByProduct" e-headertext="By-Product" e-width="100"></div>*@
                                             @*<div e-column e-template="#BOQDeleteMaterialInputTab" e-width="100"></div>*@
                                         </div>
