@@ -51,7 +51,7 @@ function productionOrderReportsController(cboService, commonMessage, $scope, $ro
 
         });
 
-     };
+    };
     $scope.getProcessData();
 
     $scope.showEntityPopUp = function (Id, plantName) {
@@ -227,15 +227,15 @@ function productionOrderReportsController(cboService, commonMessage, $scope, $ro
     $scope.Bulletin = function () {
 
         try {
-            
-                var file_src = 'OrderManagements/productionOrderReports/BulletinReport?entityid=' + $scope.EntityId
-                $rootScope.report(file_src);           
+
+            var file_src = 'OrderManagements/productionOrderReports/BulletinReport?entityid=' + $scope.EntityId
+            $rootScope.report(file_src);
 
         } catch (e) {
 
         }
     }
-  
+
 
     $scope.getos2 = function () {
 
@@ -280,74 +280,74 @@ function productionOrderReportsController(cboService, commonMessage, $scope, $ro
         } catch (e) {
 
         }
+    }
+    $scope.getos5 = function () {
 
-        $scope.getos5 = function () {
-
-            try {
-
-
-                var file_src = 'OrderManagements/productionOrderReports/OS5xls?entityid=' + $scope.EntityId + "&fromDate=" + $scope.FromDate + "&toDate=" + $scope.ToDate;
-                $rootScope.report(file_src);
-
-            } catch (e) {
-
-            }
-        }
-        $scope.LineBookingStatus = function () {
-
-            try {
-                var file_src = 'OrderManagements/productionOrderReports/LineBookingStatus?entityid=' + $scope.EntityId
-                $rootScope.report(file_src);
-
-            } catch (e) {
-
-            }
-        }
+        try {
 
 
-        $scope.dummydata = [];
-        $scope.PunchInfoDummy = function () {
+            var file_src = 'OrderManagements/productionOrderReports/OS5xls?entityid=' + $scope.EntityId + "&fromDate=" + $scope.FromDate + "&toDate=" + $scope.ToDate;
+            $rootScope.report(file_src);
 
-            try {
-
-                $http({
-                    method: 'GET',
-                    url: 'OrderManagements/productionOrderReports/getOrderMasterDummy'
-                }).then(function successCallback(response) {
-                    $scope.dummydata = response.data;
-                });
-            } catch (e) {
-
-            }
-        }
-        $scope.PunchInfoDummy();
-
-        $scope.gg = function (args) {
-            args.data.SalesOrderId = args.data.Buyer.length;
-            var gridObj = $("#Grid").data("ejGrid");
-            gridObj.refreshTemplate();
-
-            //gridObj.refreshContent(); // Refreshes the grid contents only
-
-        }
-        $scope.getProductionInfoWithWIP = function () {
-            try {
-                var proStatus = "''";
-                for (var i = 0; i < $scope.productionStatusList.length; i++) {
-                    if ($scope.productionStatusList[i].Checked == true)
-                        proStatus += ",'" + $scope.productionStatusList[i].Value + "'";
-                }
-                if (proStatus == "''")
-                    throw 'Please select production status';
-
-                var file_src = 'OrderManagements/productionOrderReports/ProductionReport?entityid=' + $scope.EntityId + "&fromDate=" + $scope.FromDate + "&todate=" + $scope.ToDate + "&ProductionStatus=" + proStatus;
-                $rootScope.report(file_src);
-
-            } catch (e) {
-                ShowResult(e, 'failure');
-            }
-
+        } catch (e) {
 
         }
     }
+    $scope.LineBookingStatus = function () {
+
+        try {
+            var file_src = 'OrderManagements/productionOrderReports/LineBookingStatus?entityid=' + $scope.EntityId
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
+
+    $scope.dummydata = [];
+    $scope.PunchInfoDummy = function () {
+
+        try {
+
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/productionOrderReports/getOrderMasterDummy'
+            }).then(function successCallback(response) {
+                $scope.dummydata = response.data;
+            });
+        } catch (e) {
+
+        }
+    }
+    $scope.PunchInfoDummy();
+
+    $scope.gg = function (args) {
+        args.data.SalesOrderId = args.data.Buyer.length;
+        var gridObj = $("#Grid").data("ejGrid");
+        gridObj.refreshTemplate();
+
+        //gridObj.refreshContent(); // Refreshes the grid contents only
+
+    }
+    $scope.getProductionInfoWithWIP = function () {
+        try {
+            var proStatus = "''";
+            for (var i = 0; i < $scope.productionStatusList.length; i++) {
+                if ($scope.productionStatusList[i].Checked == true)
+                    proStatus += ",'" + $scope.productionStatusList[i].Value + "'";
+            }
+            if (proStatus == "''")
+                throw 'Please select production status';
+
+            var file_src = 'OrderManagements/productionOrderReports/ProductionReport?entityid=' + $scope.EntityId + "&fromDate=" + $scope.FromDate + "&todate=" + $scope.ToDate + "&ProductionStatus=" + proStatus;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+
+    }
+
 }

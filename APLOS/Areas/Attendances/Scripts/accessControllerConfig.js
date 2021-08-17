@@ -341,5 +341,9 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/AttendanceRawDataFromApp/Aplos',
             controller: 'AttendanceRawDataFromAppController'
         })
+        .when('/attendance-dashboard', {
+            templateUrl: 'Attendances/AttendanceDashboard/Aplos',
+            controller: 'AttendanceDashboardController'
+        })
         ;
 } 
