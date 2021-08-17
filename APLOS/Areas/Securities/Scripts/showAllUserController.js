@@ -73,6 +73,17 @@ function showAllUserController(cboService, $scope, $rootScope, baseService, $rou
         baseService.pagination(pageno)
             .then(function (result) {
                 $scope.userList = result.Rows;
+                for (var i = 0; i < $scope.userList.length; i++) {
+
+                    $http({
+                        method: "get"
+                        , url: "Securities/controladmin/decrypttext?decrypttxt=" + encodeURIComponent($scope.userList[i].Password)
+                        , dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        $scope.userList[i].Password = response.data;
+                    });
+
+                }
             }, function () {
                 ShowResult(commonMessage.NetworkError, 'failure');
             }).finally(function () {
