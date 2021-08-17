@@ -1444,7 +1444,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,Sum(Isnull(POMAP.TransactionQty,0)) PORaisedQry
 						,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQty
 						,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQtyOrginal
-						,Sum(JWPOBOQMAP.TransactionQty) TransactionQty
+						--,Sum(JWPOBOQMAP.TransactionQty) TransactionQty
+                        ,POMAP.TransactionQty
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
@@ -1469,7 +1470,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 
                                     LEFT JOIN dbo.JobWorkTransformationContractChild JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
 									LEFT JOIN JWTransformationPurchaseOrder POM ON POM.Id=JWPPOD.JobWorkTransformationContractMasterId
-									where POM.Id ='"+ JWPOId + @"'
+									where POM.Id ='" + JWPOId + @"'
 									GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit,JWPPOD.ServiceId					
 									)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.POBOQQty) TransactionQty,JWPPOD.RatePerUnit
@@ -1529,7 +1530,8 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 						,mm.BaseUOMId,b.POUoMId,b.UoMId
 						,POMAP.RatePerUnit  
 					
-						,POMAP.ServiceId";
+						,POMAP.ServiceId
+                        ,POMAP.TransactionQty";
 
 
                     var Data = _sqlRepository.GetDataCollection(sql);
