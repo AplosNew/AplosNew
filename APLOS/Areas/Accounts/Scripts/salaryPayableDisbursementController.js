@@ -12,7 +12,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
     $scope.transactionTypeList = [];
     $scope.salaryPayables = [];
     $scope.path = "accounts/salarydisbursement/";
-    $scope.getListUrl = $scope.path + "GetSalaryPayableVoucherList";
+    $scope.getListUrl = $scope.path + "GetSalaryPayableDisbursementVoucherList";
     $scope.saveUrl = $scope.path + "ParkSalaryPayableDisbursement";
     $scope.updateUrl = $scope.path + "UpdateEmployeePayable";
     $scope.deleteUrl = $scope.path + "delete/";
