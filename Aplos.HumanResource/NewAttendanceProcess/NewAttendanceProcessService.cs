@@ -3280,9 +3280,9 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                     #region Today Duration EarlyIn Late EarlyOut OverStay
                     DataSet TodayDurn;
                     TodayDuration(Date, out TodayDurn, PlantValue);
-                    if (PrevDurn.Tables[0].Rows.Count > 0)
+                    if (TodayDurn.Tables[0].Rows.Count > 0)
                     {
-                        string WorkDate = PrevDurn.Tables[0].Rows[0][@"WorkDate"].ToString();
+                        string WorkDate = TodayDurn.Tables[0].Rows[0][@"WorkDate"].ToString();
                         string newformat = Convert.ToDateTime(WorkDate).ToString("yyyyMMdd");
 
                         ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
@@ -3290,18 +3290,18 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
-                        for (int i = 0; i < PrevDurn.Tables[0].Rows.Count; i++)
+                        for (int i = 0; i < TodayDurn.Tables[0].Rows.Count; i++)
                         {
-                            string EmpId = PrevDurn.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                            string ProcessInTime = clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"InTime"]).ToString();
-                            string ProcessOutTime = clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"OutTime"]).ToString();
-                            string ShiftOutTime = clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"ShiftOutTime"]).ToString();
-                            string ShiftInTime = clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
-                            string CalDuration = clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"CalDuration"]).ToString();
-                            double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
-                            double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
-                            double ShiftEarlyOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"ShiftEarlyOutMargin"]).ToString());
-                            double ShiftLateOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(PrevDurn.Tables[0].Rows[i][@"ShiftLateOutMargin"]).ToString());
+                            string EmpId = TodayDurn.Tables[0].Rows[i][@"EmpSystemID"].ToString();
+                            string ProcessInTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"InTime"]).ToString();
+                            string ProcessOutTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"OutTime"]).ToString();
+                            string ShiftOutTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftOutTime"]).ToString();
+                            string ShiftInTime = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
+                            string CalDuration = clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"CalDuration"]).ToString();
+                            double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
+                            double ShiftLateInMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftLateInMargin"]).ToString());
+                            double ShiftEarlyOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftEarlyOutMargin"]).ToString());
+                            double ShiftLateOutMargin = Convert.ToDouble(clsWebLib.RetValidLen(TodayDurn.Tables[0].Rows[i][@"ShiftLateOutMargin"]).ToString());
 
                             dsRef.Tables[0].DefaultView.RowFilter = @"RowId='" + newformat + EmpId + "' ";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
