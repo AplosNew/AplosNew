@@ -64,26 +64,8 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public IEnumerable<object> GetDayStatus(string EmpType)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-                var sql = @"select distinct DayType,dt.Id from DayTypeWithValues dt 
-                left join DayStatusHeader dh on dh.Id=dt.HeaderId
-                left join DayStatusPlantChild dc on dc.HeaderId=dh.Id
-                where dt.ManualStatusAllowed=1 and dc.EmpTypeId='"+EmpType+"' and dc.PlantId='"+identity.PlantId+"'";
-                return _sqlRepository.GetDataCollection(sql, null);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-       
-       private DataTable getDateWiseShift(List<AttendanceProcessNewProcess> data)
+        
+        private DataTable getDateWiseShift(List<AttendanceProcessNewProcess> data)
         {
 
             string dateString = "";
@@ -95,10 +77,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dateString += " UNION select CONVERT(DATETIME,'" + data[i].WorkDate + "') ";
 
             }
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-
+          
             string sql = @" SELECT dt.WorkDate,
  
                            sd.SystemID,                            
@@ -130,7 +109,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             ) AS KK ON dt.WorkDate=kk.WorkDate
                             INNER JOIN   ShiftDefination sd ON sd.SystemID=kk.SystemID
                             LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON dt.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
-							WHERE sd.PlantID='" + identity.PlantId + @"'
+							WHERE sd.PlantID='" + data[0].PlantID + @"'
                         ORDER BY dt.WorkDate, sd.SequenceNo ASC ";
 
             return _sqlRepository.GetDataTable(sql);
@@ -281,7 +260,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         else
                         {
                             if (shiftchange.Tables[0].Rows.Count > 0)
-                            {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 {
 
                                 DataRow dr = shiftchange.Tables[0].Rows[0];
 
