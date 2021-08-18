@@ -3769,11 +3769,11 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
 							return false;
 						}
 						else if (baseService.isUndefinedOrNull($scope.GetListForMasterOrder[i].TransactionRate)) {
-							ShowResult('Enter the current rate.Zero not allowed', 'failure', 'ListOfPOMaterial');
+							ShowResult('Enter the current rate.Zero not allowed', 'failure', 'ListOfPOMaterial1');
 							return false;
 						}
 						else if ($scope.GetListForMasterOrder[i].TransactionRate === 0 || $scope.GetListForMasterOrder[i].TransactionRate === 0.0 || $scope.GetListForMasterOrder[i].TransactionRate === 0.00) {
-							ShowResult('Enter the current rate.Zero not allowed', 'failure', 'ListOfPOMaterial');
+							ShowResult('Enter the current rate.Zero not allowed', 'failure', 'ListOfPOMaterial1');
 							return false;
 						}
 

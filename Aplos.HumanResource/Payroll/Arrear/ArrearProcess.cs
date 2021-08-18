@@ -157,7 +157,8 @@ namespace Library.HumanResource.Payroll.Arrear
                                     FORMAT(emp.DOJ,'dd-MMM-yyyy') AS DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') AS DOS,EMP.EmployeeStatus,DIV.UserName AS Division,
                                     EMP.EmployeeName,EMP.EmployeeCode,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric,concat( sl.YearNo,'/', sl.MonthNo) LastLocked
                                     ,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation, PR.UserName PositionName,format(SEFD.EffectiveDate,'dd-MMM-yyyy') AS LastSalaryEffectiveDate,
-                                    DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection,PL.UserName Plant,SEFD.SalaryRuleMasterSystemID ,srm.SalaryRuleName
+                                    DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection,PL.UserName Plant,SEFD.SalaryRuleMasterSystemID 
+                                    ,srm.SalaryRuleName,srmLA.SalaryRuleName AS LastSalaryRuleName,format(LSA.EffectiveDate,'dd-MMM-yyyy') AS LatestSalaryEffectiveDate
                                     FROM (
 		                            	
 		                            	SELECT * FROM (  SELECT  *,
@@ -177,9 +178,28 @@ namespace Library.HumanResource.Payroll.Arrear
                                                     WHERE ISNULL(sdm.IsApproved,'')=1 AND EffectiveDate <= '" + ToDate + @"' AND rnk=1 
 		                                   ) SEFD 
 
+                                        Left JOIN (
+		                            	
+		                            	SELECT * FROM (  SELECT  *,
+				                            DENSE_RANK() OVER (PARTITION BY SDM.EmpInfoSystemID ORDER BY SDM.EffectiveDate DESC) AS RNK
+
+			                                                from (
+							                                                SELECT sdm.EmpInfoSystemID,SDM.SalaryRuleMasterSystemID ,sdm.EffectiveDate,sdm.IsApproved
+							                                                   from SalaryInfoDefineMaster SDM
+                                                                               -- WHERE SDM.IsApproved=1
+								                                                union ALL
+								                                                select sdm.EmpInfoSystemID,SDM.SalaryRuleMasterSystemID ,sdm.EffectiveDate,sdm.IsApproved
+								                                                from SalaryInfoBackMaster SDM
+                                                                               -- WHERE SDM.IsApproved=1
+			                                                ) AS SDM
+			
+			                                        ) AS SDM 
+                                                    WHERE  EffectiveDate <= '" + ToDate + @"' AND rnk=1 --AND ISNULL(sdm.IsApproved,'')=1
+		                                   ) LSA ON LSA.EmpInfoSystemID=SEFD.EmpInfoSystemID
 
 			                            LEFT JOIN EmployeeInformation EMP ON SEFD.EmpInfoSystemID = EMP.SystemID
 			                            LEFT JOIN SalaryRuleMaster AS srm ON srm.SystemID=sefd.SalaryRuleMasterSystemID
+			                            LEFT JOIN SalaryRuleMaster AS srmLA ON srmLA.SystemID=LSA.SalaryRuleMasterSystemID
 			                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
 										LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
 										LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
