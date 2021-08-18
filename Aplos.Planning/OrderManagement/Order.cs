@@ -115,8 +115,7 @@ namespace Library.Planning.OrderManagement
 				                                LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
 
                               WHERE  PO.ProductionStatusId<>'Closed'
-                                ) AS KK							
-";
+                                ) AS KK	";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception e)
@@ -124,8 +123,7 @@ namespace Library.Planning.OrderManagement
                 throw e;
             }
         }
-
-
+ 
         public struct Total
         {
             public string Key ;

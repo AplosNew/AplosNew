@@ -44,7 +44,7 @@ namespace Library.OrderManagement.LcNavigation
                         FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate,
                         P.UserName as  Vendor,
                         PL.Amount as Value,
-                        Cur.Name as Currency,
+                        Cur.Code as Currency,
                         PL.LCANo,PL.Type as LCType,
                         PL.Tenure,
                         PL.BenificiaryBank,                       
@@ -123,7 +123,7 @@ namespace Library.OrderManagement.LcNavigation
                         FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate,
                         P.UserName as  Vendor,
                         PL.Amount as Value,
-                        Cur.Name as Currency,
+                        Cur.Code as Currency,
                         PL.LCANo,PL.Type as LCType,
                         PL.Tenure,
                         PL.BenificiaryBank,                       
@@ -199,7 +199,7 @@ namespace Library.OrderManagement.LcNavigation
 
                             po.Id as PONo,
                             PL.Id as PurchaseLCID,sum(POD.TransactionAmount) as TotalValue,
-                            c.Name as Currency,Ac.AcceptanceValue,
+                            c.Code as Currency,Ac.AcceptanceValue,
                             FORMAT( po.PODate,'dd-MMM-yyyy' ) as PODate  
                             ,po.DocRefNo as VendorRefNo, grn.GRNValue as GRNValue
 
@@ -228,7 +228,7 @@ namespace Library.OrderManagement.LcNavigation
                             group by pa.POId
                             ) as AC on ac.POId=PO.Id
                              where po.purchaseLcId='" + PurchaseLCId + @"'
-                            group by po.Id,pl.Id,c.Name,po.PODate,po.DocRefNo,grn.GRNValue,AC.AcceptanceValue";
+                            group by po.Id,pl.Id,c.Code,po.PODate,po.DocRefNo,grn.GRNValue,AC.AcceptanceValue";
         }
 
         public List<Dictionary<string, object>> GetPurchaseLCGRNList(string PurchaseLCId)
@@ -255,7 +255,7 @@ namespace Library.OrderManagement.LcNavigation
 						PL.Id as PurchaseLCId,
 						sum(IRD.TotalMaterialTranAmount) as GRNValue,IRD.InventoryReceiveId as GRNNo,
 					FORMAT( IR.GRNDate,'dd-MMM-yyyy') as GRNDate,po.DocRefNo as VendorRefNo,
-                    c.Name as Currency
+                    c.Code as Currency
 					,gate.UserName as GateName, ir.GateEntryNo
 					from PurchaseLC as PL 
 					 join TRN.PurchaseOrder as PO 
@@ -266,7 +266,7 @@ namespace Library.OrderManagement.LcNavigation
                     left outer join dbo.PlantWiseGate as  gate on gate.Id=g.PlantWiseGateId
 					 left join SCS.Currency as c on c.id=PL.CurrencyId
                     where PurchaseLCId='" + PurchaseLCId + @"'
-					  group by PL.Id,IRD.InventoryReceiveId ,IR.GRNDate,po.DocRefNo,c.Name,gate.UserName,ir.GateEntryNo";
+					  group by PL.Id,IRD.InventoryReceiveId ,IR.GRNDate,po.DocRefNo,c.Code,gate.UserName,ir.GateEntryNo";
 
         }
         public List<Dictionary<string, object>> GetPurchaseLCACList(string PurchaseLCId)
@@ -287,7 +287,7 @@ namespace Library.OrderManagement.LcNavigation
             return @"select
 PL.Id as PurchaseLCId,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' ) as AcceptanceDate
 ,Format(A.PODate,'dd-MMM-yyyy') PODate,A.POAmount,A.PurchaseOrderId PONo,A.GRNAmount,A.InventoryReceiveId GRNNo,FORMAT(A.GRNDate,'dd-MMM-yyyy')GRNDate
-                        ,c.Name as Currency,A.AcceptanceValue
+                        ,c.Code as Currency,A.AcceptanceValue
 						from PurchaseLC as PL
 						join SCS.Currency as c on PL.CurrencyId=c.Id
 						left outer join trn.PurchaseDocAcceptance as PA on PA.PurchaseLCId=PL.Id						
@@ -306,8 +306,8 @@ PL.Id as PurchaseLCId,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' )
 						group by PA.PurchaseDocAcceptanceId,PA.POId ,PO.PODate,PO.DocRefNo,GRN.InventoryReceiveId,GRN.GRNDate
 						)						
 						A on A.PurchaseDocAcceptanceId=PA.Id						
-                        where PL.Id ='"+PurchaseLCId+@"'
-						group by PL.Id,PA.AcceptanceNo,PA.AcceptanceDate,c.Name,A.PODate,A.POAmount,A.PurchaseOrderId,A.GRNAmount,A.InventoryReceiveId,A.GRNDate,A.AcceptanceValue";
+                        where PL.Id ='" + PurchaseLCId+ @"'
+						group by PL.Id,PA.AcceptanceNo,PA.AcceptanceDate,c.Code,A.PODate,A.POAmount,A.PurchaseOrderId,A.GRNAmount,A.InventoryReceiveId,A.GRNDate,A.AcceptanceValue";
 
         }
 

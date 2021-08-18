@@ -1,7 +1,7 @@
 ﻿'use strict';
 LcNavigationController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function LcNavigationController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'LC Navigation';
+    $rootScope.title = 'Commercial Dashboard';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.MasterLCList = [];

@@ -201,7 +201,7 @@
     
 </div>
 
-<div class="modal fade site-modal in" id="TableDetailModal" >
+<div class="modal " id="TableDetailModal" >
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -213,8 +213,13 @@
                 <p style="margin:10px;">
                     The Detail Table
                 <p>
+                    <div class="common-btn" style="margin-top:20px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="printReport();" class="btn">Export To Excel</button></li>
+                        </ul>
+                    </div>
 
-                    <div id="getClickDetail" ej-grid e-datasource="ClickDetail" 
+                    <div id="getClickDetail" ej-grid e-datasource="ClickDetail"
                          e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                          e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
@@ -226,12 +231,19 @@
                             <div e-column e-field="OutTime" e-headertext="Out Time" e-type="time" e-width="120"></div>
                             <div e-column e-field="DayStatus" e-headertext="Day Status" e-type="string" e-width="120"></div>
                             <div e-column e-field="Designation" e-headertext="Designation" e-type="string" e-width="120"></div>
+                            <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Shift" e-headertext="Shift" e-type="string" e-width="120"></div>
+                            <div e-column e-field="SubSection" e-headertext="Sub Section" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-type="string" e-width="120"></div>
 
                         </div>
                     </div>
 
 
-            </div>
+</div>
             <div class="modal-footer">
                 <button class="btn btn-primary" data-dismiss="modal">Close</button>
             </div>
