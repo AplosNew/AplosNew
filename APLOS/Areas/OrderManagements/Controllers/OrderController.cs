@@ -356,7 +356,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colOrderValue].Text = dtOrder.Rows[i]["OrderValue"].ToString();
                     sheet[ROW, colCMValue].Text = dtOrder.Rows[i]["CMValue"].ToString();
                     sheet[ROW, colProductionStartDate].Text = dtOrder.Rows[i]["ProductionStartDate"].ToString();
-                    sheet[ROW, colProductionOrderCategory].Text = dtOrder.Rows[i]["ProductionStatus"].ToString();
+                    sheet[ROW, colProductionOrderCategory].Text = dtOrder.Rows[i]["ProductionOrderCategory"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -598,7 +598,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colInputRemarks].Text = dtOrder.Rows[i]["InputRemarks"].ToString();
                     sheet[ROW, colInputStatus].Text = dtOrder.Rows[i]["InputStatus"].ToString();
                     sheet[ROW, colProductionStartDate].Text = dtOrder.Rows[i]["ProductionStartDate"].ToString();
-                    sheet[ROW, colProductionOrderCategory].Text = dtOrder.Rows[i]["ProductionStatus"].ToString();
+                    sheet[ROW, colProductionOrderCategory].Text = dtOrder.Rows[i]["ProductionOrderCategory"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -671,7 +671,6 @@ ISNULL(PRODPR.ProductionQtyAtPR,0) AS ProducedQty,
 ISNULL(CASE WHEN ISNULL(T.Qty,0)>0 THEN T.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS RemainingPlanQuantity,
 
 
-
 BDEP.UserName AS BuyerDepartment,bd.UserName AS BuyerDivision, ei.EmployeeName AS ResponsiblePerson,mo.MasterOrderNo,MO.TotalQty MasterOrderQty,
 FORMAT(MO.AddedDate,'dd-MMM-yyyy') MasterOrderCreationDate,OC.UserName AS OrderCategory,os.UserName AS OrderStatus, mo.BuyerReferenceNo AS BuyerOrderNo
 ,MO.OwnReferenceNo AS OwnOrderNo,
@@ -694,7 +693,8 @@ FORMAT(so.OtherRawMaterialInhouseDate,'dd-MMM-yyyy') SOOtherRawMaterialInhouseDa
 t.ProductionOrderID,ps.UserName AS ProductionStatus, t.NoOfWorkStation, t.Efficiency,
 t.SPT, t.PlanWorkingHoursPerDay, t.FirstDayOutPut,
 t.PlanTargetPerHour, t.IncrementValue, t.IncrementType,
-t.DayToReachTheTarget, t.CommitmentDate,
+t.DayToReachTheTarget,
+--t.CommitmentDate ,
 t.ProductionPriority, t.TargetPerHour, t.TargetPerDay,
 t.MinimumLineDays, t.RequiredLineDays,
 t.RequiredNoOfLines, t.AllocatedLines, t.Qty AS ExplicitProductionQty,
@@ -722,7 +722,7 @@ else case when
 isnull(PRDD.ProductionDate,PLND.ProductionDate) <= isnull(PLND.ProductionDate,PRDD.ProductionDate) THEN PRDD.ProductionDate
 else PLND.ProductionDate END END,'dd-MMM-yyyy') AS ProductionStartDate,
 
-case when isnull(PRDD.ProductionDate,'')='' then 'ToStart' else 'Started' END AS ProductionStatus
+case when isnull(PRDD.ProductionDate,'')='' then 'ToStart' else 'Started' END AS ProductionOrderCategory
 ,isnull(SM.TransactionQty,0) ShippedQty,isnull(SO.Qty,0)-ISNUll(SM.TransactionQty,0) BalShipment
 FROM trn.MasterOrder MO
 LEFT JOIN org.Plant AS p2 ON p2.id=mo.PlantId
