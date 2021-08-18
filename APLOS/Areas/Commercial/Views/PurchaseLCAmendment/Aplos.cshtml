@@ -36,22 +36,12 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Benificiary Bank<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                @*<div class="select-style">
-                    <select name="Benificiary Bank" class="form-control" ng-model="purchaseLCNew.BenificiaryBank" ng-options="item.Value as item.Text for item in bankList" required tabindex="1">
-                        <option value="">--Select--</option>
-                    </select>
-                </div>*@
                 <input type="text" name="Benificiary Bank" ng-model="purchaseLCNew.BenificiaryBank" ng-disabled="true" class="form-control" required tabindex="3" maxlength="100">
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-4 control-label" title="On behalf of Purchaser">Lein Bank/At Confirm</label>
             <div class="col-sm-8">
-                @*<div class="select-style">
-                    <select name="Lein Bank" class="form-control" ng-model="purchaseLCNew.LeinBankId" ng-options="item.Value as item.Text for item in bankList" tabindex="5">
-                        <option value="">--Select--</option>
-                    </select>
-                </div>*@
                 <input type="text" name="Lein Bank" ng-model="purchaseLCNew.LeinBank" ng-disabled="true" class="form-control" tabindex="6" maxlength="50">
             </div>
         </div>
@@ -70,14 +60,14 @@
             <label class="col-sm-2 control-label" style="margin-left:-25px">Currency<sup>*</sup></label>
             <div class="col-sm-2 show-message" style="padding-right: 0px; width: 69px;">
                 <div class="select-style">
-                    <select id="currencyId" class="form-control" tabindex="15" name="Currency" ng-model="purchaseLCNew.CurrencyId" ng-change="GetCurrencyExchangeRateList();" required>
+                    <select id="currencyId" class="form-control" tabindex="15" name="Currency" ng-model="purchaseLCNew.CurrencyId" disabled  ng-change="GetCurrencyExchangeRateList();" required>
                         <option value="">--Select--</option>
                         <option ng-repeat="option in currencyList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
             </div>
             <div class="col-sm-1 show-message" style="width: 17%; margin-left: -16px;">
-                <input type="text" n-decimals="2" id="Rate" name="Rate" ng-model="purchaseLCNew.Rate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="purchaseLCNew.CurrencyId==companyCurrencyId">
+                <input type="text" n-decimals="2" id="Rate" name="Rate" ng-model="purchaseLCNew.Rate" disabled class="form-control text-right" tabindex="5" autocomplete="off">
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -211,7 +201,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">PI No<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="PINo" ng-model="purchaseLCNew.PINo" class="form-control" maxlength="50" required tabindex="2">
+                <input type="text" name="PINo" ng-model="purchaseLCNew.PINo" class="form-control" maxlength="50" required disabled tabindex="2">
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -223,7 +213,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">LCA No<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="LCA No" ng-model="purchaseLCNew.LCANo" maxlength="50" class="form-control" required tabindex="8">
+                <input type="text" name="LCA No" ng-model="purchaseLCNew.LCANo" maxlength="50" class="form-control" disabled required tabindex="8">
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -241,11 +231,6 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Final Destination<sup>*</sup></label>
             <div class="col-sm-8">
-                @*<div class="select-style">
-                        <select name="Destination" class="form-control" ng-model="purchaseLCNew.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" tabindex="11">
-                            <option value=""></option>
-                        </select>
-                    </div>*@
                 <input type="text" name="Final Destination" ng-model="purchaseLCNew.FinalDestination" class="form-control" required tabindex="17" maxlength="50">
             </div>
         </div>
@@ -378,7 +363,7 @@
     @*<div class="content-container-fluid" style="color:black;overflow:scroll">
         </div>*@
     <script type="text/template" id="ShowActionButtonsBOM">
-        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" ng-disabled="data.Version===1" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.Get(this,'Edit');" style="margin: -6px;"></i></button>
+        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Update" ng-disabled="data.Version===1" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.Get(this,'Update');" style="margin: -6px;"></i></button>
         <button style="color: #f3f3ec;background-color: #1c1f32;" title="Amendment" class="btn"><i class="glyphicon glyphicon-edit" ng-click="$parent.Get(this,'Amendment');" style="margin: -6px;"></i></button>
     </script>
 </div>
