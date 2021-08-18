@@ -715,6 +715,8 @@ namespace Aplos.Areas.Accounts.Controllers
                                     ,v.VoucherNo as PayableVoucherNo
                                     ,vl.VoucherNo as DisbursementVoucherNo
                                     ,sl.IsDisbursed
+                                    ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
+                                  ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end
                                     FROM EmployeeInformation e
                                     LEFT OUTER JOIN ORG.Department edept on edept.id=e.DepartmentId
                                     LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId

@@ -376,6 +376,7 @@
     </Compile>
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceRawDataFromAppController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\AttendanceDashboardController.cs" />
     <Compile Include="Areas\Attendances\Controllers\NewAttendanceProcessController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceFromAppReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\PayrollManagementDashboardController.cs" />
@@ -1577,6 +1578,7 @@
     <Content Include="Areas\Accounts\Scripts\taxPayableReportController.js" />
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
     <Content Include="Areas\Attendances\Scripts\AttendanceRawDataFromAppController.js" />
+    <Content Include="Areas\Attendances\Scripts\AttendanceDashboardController.js" />
     <Content Include="Areas\Attendances\Scripts\NewAttendanceProcessController.js" />
     <Content Include="Areas\Attendances\Scripts\PayrollManagementDashboardController.js" />
     <Content Include="Areas\Attendances\Scripts\AuditReportSummeryController.js" />
@@ -3648,6 +3650,7 @@
     <Content Include="Areas\HumanResource\Views\AdminAttendanceControl\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\OpeningBalance\_AddOBMaterialJVPopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployeeBudgetUpdate\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\AttendanceDashboard\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
