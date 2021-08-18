@@ -518,7 +518,8 @@ namespace Library.HumanResource.Dashboard
                                 CompanyId,ISNULL(UserName,'N/A') UserName,UId,Sequence" + cListextF + @"" + cListextIdF + @"
                                ,ISNULL(sum(TotalNumber),0) ProposedManpowerBudget ,ISNULL(SUM(TotalManpower),0) TotalManpower
                                 ,ISNULL(sum(TotalSalary),0) OnRoleSalaryC
-                                 ,ISNULL((sum(MaxSal)+sum(MinSal))/2,0) ProposedSalaryC
+                                -- ,ISNULL((sum(MaxSal)+sum(MinSal))/2,0) ProposedSalaryC
+                                ,sum(BudgetedSalary) ProposedSalaryC
                                 " + shortExcess + @"
                                 FROM
                                  (
@@ -545,6 +546,7 @@ namespace Library.HumanResource.Dashboard
                                   WHEN ISNULL(TotalManpower,0) - ISNULL(TotalNumber,0) > 0
                                   THEN ISNULL(TotalManpower,0) - ISNULL(TotalNumber,0)
                                   ELSE 0 END
+                                ,((ISNULL(Sal.MaximumSalary,0)) + (ISNULL(Sal.MinimumSalary,0)) / 2 ) * b.TotalNumber BudgetedSalary
                                   FROM
                                   ----------------------1 bc-------------------------------c-------
                                   (SELECT
