@@ -1518,6 +1518,7 @@ namespace Aplos.Areas.JobWork.Controllers
                     dr["OutputMaterialUOMId"] = data["OutputMaterialUOMId"];
                     dr["Quantity"] = data["Quantity"];
                     dr["PlanQuantity"] = data["PlanQuantity"];
+                    dr["SalesOrderId"] = data["SalesOrderId"];
 
                     dr["Remarks"] = data["Remarks"];
 
@@ -1546,6 +1547,7 @@ namespace Aplos.Areas.JobWork.Controllers
                     dr["OutputMaterialUOMId"] = data["OutputMaterialUOMId"];
                     dr["Quantity"] = data["Quantity"];
                     dr["PlanQuantity"] = data["PlanQuantity"];
+                    dr["SalesOrderId"] = data["SalesOrderId"];
 
                     dr["Remarks"] = data["Remarks"];
                     dr["AddedBy"] = identity.Name;
@@ -1602,13 +1604,46 @@ namespace Aplos.Areas.JobWork.Controllers
         public JsonResult getTransformOrderWiseData(string MaterialMasterId)
         {
 
-            string sql = @"select owr.*,P.UserName as Customer,mo.MasterOrderNo,mm.UserName as MaterialOrderItem, uom.UserName as UOM 
-                                                    from dbo.JobWorkTransformationContractChild2 owr left join HKP.Party P on P.Id=owr.CustomerId
-                                                    left join TRN.MasterOrder mo on mo.Id=owr.MasterOrderNoId												
-													left join TRN.MasterOrderItem moi on moi.Id=owr.MasterOrderItemId
-													left join MST.MaterialMaster mm on mm.Id=moi.MaterialMasterId
-													left join SCS.UnitOfMeasurement uom on uom.Id=owr.OutputMaterialUOMId
-										            where owr.JobWorkTransformationContractChildMasterId='" + MaterialMasterId + "' ";
+            //string sql = @"select owr.*,P.UserName as Customer,mo.MasterOrderNo,mm.UserName as MaterialOrderItem, uom.UserName as UOM 
+            //                                        from dbo.JobWorkTransformationContractChild2 owr left join HKP.Party P on P.Id=owr.CustomerId
+            //                                        left join TRN.MasterOrder mo on mo.Id=owr.MasterOrderNoId												
+            //	left join TRN.MasterOrderItem moi on moi.Id=owr.MasterOrderItemId
+            //	left join MST.MaterialMaster mm on mm.Id=moi.MaterialMasterId
+            //	left join SCS.UnitOfMeasurement uom on uom.Id=owr.OutputMaterialUOMId
+            //          where owr.JobWorkTransformationContractChildMasterId='" + MaterialMasterId + "' ";
+
+            string sql = @"SELECT ROW_NUMBER() OVER (ORDER BY SO.MasterOrderItemId) AS RN,POD.ProductionOrderId
+	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
+	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
+	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
+								,CN.ContractNo,MLC.LCRef MasterLCNo, Uom.UserName as MasterOrderUoM
+								,owr.OrderType, owr.ParticularSpecification,owr.PlanQuantity as OWPlanQuantity, owr.Remarks as OWRemarks, owr.Id
+                       FROM dbo.JobWorkTransformationContractChild2 owr left join [TRN].[SalesOrder] AS SO on owr.SalesOrderId=SO.Id 
+                        left outer join [TRN].[ProductionOrderDetail] POD on POD.SalesOrderId=SO.Id 
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
+					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+                       LEFT JOIN dbo.[Contract] AS CN ON CN.Id=MOI.ContractId
+                       LEFT JOIN dbo.MasterLC AS MLC ON MLC.Id=CN.MasterLCId
+					   left join SCS.UnitOfMeasurement Uom on Uom.Id=MO.TotalQtyUOMId
+					   where owr.JobWorkTransformationContractChildMasterId='" + MaterialMasterId + @"' ";
 
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
