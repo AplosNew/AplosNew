@@ -489,7 +489,19 @@ namespace Aplos.Areas.Productions.Controllers
 													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
                                                     group by pod.ProductionOrderId,mm.userName,MMA.StandardName,MOI.MaterialMasterId,MOI.ArticleId,ma.StandardName,PM.UserName,pc.UserName) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-                            WHERE isnull(s.username,'') IN ('ACTIVE','RUNNING') AND  PO.entityid='" + entityid + @"' and PO.Id IN (SELECT DISTINCT pops.ProductionOrderId
+                            WHERE isnull(s.username,'') IN ('ACTIVE','RUNNING') AND  (PO.entityid='" + entityid + @"' OR isnull(PO.Id,'') IN 
+                                    ( SELECT distinct P.ProductionOrderId
+                                             FROM trn.ProductionOrderWorkCenter AS p
+                                           JOIN scs.WorkCenterMaster AS w ON w.Id=p.WorkCenterMasterId
+                                           WHERE w.EntityId='" + entityid + @"'
+                                           
+                                           UNION
+                                           
+                                                 
+                                           SELECT distinct P.ProductionOrderId
+                                             FROM trn.RunningOrderWorkCenter  AS p
+                                           JOIN scs.WorkCenterMaster AS w ON w.Id=p.WorkCenterMasterId
+                                           WHERE w.EntityId='" + entityid + @"')) and PO.Id IN (SELECT DISTINCT pops.ProductionOrderId
                             FROM trn.ProductionOrderProcessSet AS pops WHERE pops.ProcessId = '" + processId + @"') ";
 
 

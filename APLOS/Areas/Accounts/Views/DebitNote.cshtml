@@ -283,6 +283,7 @@
                 <th>Party</th>
                 <th>Posting Date</th>
                 <th>Doc Ref No</th>
+                <th>Party Type</th>
                 <th>Currency</th>
                 <th>Amount</th>
                 <th>Status</th>
@@ -295,6 +296,7 @@
                 <td>{{x.PartyCode}} - {{x.PartyName}}</td>
                 <td>{{x.PostingDate| dateFiltering}}</td>
                 <td>{{x.DocRefNo}}</td>
+                <td>{{x.PartyType}}</td>
                 <td>{{x.CurrencyCode}}</td>
                 <td class="text-right">{{x.Amount | number:2}}</td>
                 <td>{{x.IsPark?'Parked':'Posted'}}</td>

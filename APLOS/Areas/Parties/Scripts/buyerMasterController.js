@@ -656,48 +656,57 @@ function BuyerMasterController(commonMessage, $scope, $rootScope, baseService, $
     }
 
     $scope.Save = function () {
-        angular.copy($scope.buyerMasterNew, $scope.buyerMaster);
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.buyerMasterNewForm.$valid) {
+        try {
 
-            if ($scope.Action === 'Save') {
-                $http({
-                    method: 'POST',
-                    url: $scope.saveUrl,
-                    data: { 'buyerMaster': $scope.buyerMaster, 'buyerMasterDetails': $scope.buyerMasterEntityList, 'activityList': $scope.SelectedActivityList },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
+            angular.copy($scope.buyerMasterNew, $scope.buyerMaster);
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.buyerMasterNewForm.$valid) {
+
+                if (baseService.arrayLength($scope.buyerMasterEntityList) < 0 || baseService.arrayLength($scope.buyerMasterEntityList) == 0) {
+                    throw "Entity is required.";
+                }
+
+                if ($scope.Action === 'Save') {
+                    $http({
+                        method: 'POST',
+                        url: $scope.saveUrl,
+                        data: { 'buyerMaster': $scope.buyerMaster, 'buyerMasterDetails': $scope.buyerMasterEntityList, 'activityList': $scope.SelectedActivityList },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.getData();
+                            ClearFields();
+                        }
+                    }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.getData();
-                        ClearFields();
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
-            }
-            else if ($scope.Action === 'Update') {
-                $http({
-                    method: 'POST',
-                    url: $scope.saveUrl,
-                    data: { 'buyerMaster': $scope.buyerMaster, 'buyerMasterDetails': $scope.buyerMasterEntityList, 'activityList': $scope.SelectedActivityList },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
+                    };
+                }
+                else if ($scope.Action === 'Update') {
+                    $http({
+                        method: 'POST',
+                        url: $scope.saveUrl,
+                        data: { 'buyerMaster': $scope.buyerMaster, 'buyerMasterDetails': $scope.buyerMasterEntityList, 'activityList': $scope.SelectedActivityList },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.getData();
+                            ClearFields();
+                        }
+                    }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.getData();
-                        ClearFields();
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
+                    };
+                }
             }
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
 

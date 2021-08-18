@@ -464,5 +464,151 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
         #endregion DetailedListOfColumn
+
+        #region ReportDownload
+        public DataTable ReportDownloadSvc(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string companyGroupId, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
+        {
+            try
+            {
+
+                //seq += 1;
+                string selSt = string.Empty;
+                string whereSt = string.Empty;
+                string groupSt = string.Empty;
+                string whereCol = string.Empty;
+                string empStat = "";
+                foreach (var item in ChartColumnList)
+                {
+                    if (item.Sequence < seq && item.Sequence != -2)
+                    {
+                        whereSt = whereSt + " and " + item.ColumnName + @".Id= '" + item.Id + @"'";
+                    }
+                    if (item.Sequence == seq)
+                    {
+                        if (item.Sequence == 7)
+                        {
+                            whereSt = whereSt + " and " + item.ColumnName + @".SystemId ='" + data["Id"] + "'";
+                        }
+                        else
+                        {
+                            whereSt = whereSt + " and " + item.ColumnName + @".Id ='" + data["Id"] + "'";
+                        }
+
+                    }
+                }
+
+                string empCat = "";
+                string statP = "";
+                if (EmpCat != null)
+                {
+                    empCat = "and dm.EmployeeCategoryId = '" + EmpCat + @"'";
+                }
+                if (stat == "All")
+                {
+                    statP = "";
+                }
+                if (stat == "Direct")
+                {
+                    statP = " and pos.IsDirect = 1";
+                }
+                if (stat == "InDirect")
+                {
+                    statP = "and pos.IsDirect = 0";
+                }
+
+                #region settingTheColumnStat
+                if (Column == "OnRoll")
+                {
+                    whereCol = "";
+                }
+                if (Column == "BB")
+                {
+                    whereCol = " and apd.BudgetId is not null";
+                }
+                if (Column == "InStat")
+                {
+                    whereCol = " and apd.InStatus = 'IN'";
+                }
+                if (Column == "EarlyIn")
+                {
+                    whereCol = " and apd.InStatus ='EI'";
+                }
+                if (Column == "LateIn")
+                {
+                    whereCol = " and  apd.InStatus ='LI'";
+                }
+                if (Column == "InMissing")
+                {
+                    whereCol = "  and apd.InStatus = 'IM'";
+                }
+                if (Column == "OD")
+                {
+                    whereCol = " and IsOD=1";
+                }
+                if (Column == "DayStatus")
+                {
+                    whereCol = " and (DayStatus='W' or DayStatus='H' or DayStatus='AH' or DayStatus='CW')";
+                }
+                if (Column == "Leave")
+                {
+                    whereCol = " and LeaveStatus is not null";
+                }
+                if (Column == "Other")
+                {
+                    whereCol = " and InStatus ='O'";
+                }
+                if (Column == "OTIN")
+                {
+                    whereCol = " and  (apd.InStatus='IN' or apd.InStatus='EI' or apd.InStatus='LI' )";
+                }
+                #endregion settingTheColumnStat
+
+
+                if (EmpStat == "Active")
+                {
+                    empStat = " and  ei.EmployeeCurrentStatus is null";
+                }
+                if (EmpStat == "TBS")
+                {
+                    empStat = " and  ei.EmployeeCurrentStatus = 'TBS'";
+                }
+                if (EmpStat == "LA")
+                {
+                    empStat = " and  ei.EmployeeCurrentStatus ='LONG ABSENTEEISM'";
+                }
+
+                var str = @"Select ei.EmployeeCode , ei.EmployeeName , apd.DayStatus , apd.InStatus , 
+                            FORMAT(CAST(apd.InTime AS DATETIME),'hh:mm tt') as InTime , FORMAT(CAST(apd.OutTime AS DATETIME),'hh:mm tt') as OutTime
+                            ,desg.UserName as Designation ,ei.EmployeeCurrentStatus
+                            from dbo.AttdnProcessData apd
+                             left join org.Plant plant on plant.Id = apd.PlantID
+                            left join org.Company company on company.Id = plant.CompanyId
+                            left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
+                            left join org.Position pos on pos.Id = mb.PositionId
+                            left join org.Division division on division.Id = pos.DivisionId
+                            left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
+                            left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
+                            left join org.Unit unit on unit.Id = ei.UnitId
+                            left join org.CompanyGroup cg on cg.Id = company.CompanyGroupId
+                            left join org.Department department on department.Id = pos.DepartmentId
+                            left join org.Section section on section.Id = pos.SectionId
+                            left join org.SubSection subsection on subsection.id = pos.SubSectionId
+                            left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
+                            left join hkp.Designation desg on desg.Id = dm.DesignationId
+                            left join org.Department dept on dept.id = pos.DepartmentId
+                            left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
+                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
+                            " + whereCol + @"
+                            ";
+
+
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion ReportDownload
     }
 }
