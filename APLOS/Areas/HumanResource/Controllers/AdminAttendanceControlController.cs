@@ -63,13 +63,13 @@ namespace Aplos.Areas.HumanResource.Controllers
             string sql = @"
                         SELECT distinct Emp.SystemID AS Id,
                         EMP.EmployeeName
-,EMP.EmployeeCode,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric
-,EMP.EmpPicPath,
+                        ,EMP.EmployeeCode,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric
+                        ,EMP.EmpPicPath,
                         EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName Department,S.UserName Section,
                             EMP.SectionId,SS.UserName SubSection
-                            ,PL.UserName Plant
+                            ,PL.UserName Plant,emp.PlantId as PlantID
                             FROM EmployeeInformation EMP
                             INNER JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
@@ -110,8 +110,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
 
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ManualAttndFromAppService mau = new ManualAttndFromAppService(identity, _sqlRepository);
+                AdminAttendanceControlService mau = new AdminAttendanceControlService();
 
                 return Json(mau.GetShiftData(systemid, WorkDate), JsonRequestBehavior.AllowGet);
 
@@ -143,8 +142,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpPost]
         public ActionResult SaveSingleEmployee(List<AttendanceProcessNewProcess> data)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ManualAttndFromAppService mau = new ManualAttndFromAppService(identity, _sqlRepository);
+            AdminAttendanceControlService mau = new AdminAttendanceControlService();
             RTx _rt = mau.Savex(data);
 
             if (_rt.IsError)
@@ -194,7 +192,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             format(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt') AS PunchInTime,
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
 
-                            KK.DayStatus, KK.OTHr,
+                            KK.DayStatus, KK.OTHr,KK.plantid AS PlantID,
                             KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus,convert(bit,isnull(KK.IsLock,0)) AS IsLock
 
                              FROM (
@@ -207,7 +205,7 @@ namespace Aplos.Areas.HumanResource.Controllers
        
 		                            O.PunchInTime,O.PunchOutTime,
 		                            O.DayStatus, O.OTHr, O.IsOTComfirm,O.DayStatusCode,
-		                            O.IsOTEntitled
+		                            O.IsOTEntitled,emp.plantid
 
 		                            FROM EmployeeInformation EMP
 		                            LEFT JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
