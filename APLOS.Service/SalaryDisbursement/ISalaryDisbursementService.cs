@@ -18,12 +18,12 @@ namespace Library.Service.SalaryDisbursement
         string ParkSalaryPayable(VoucherViewModel voucherVM, string yearNo, string monthNo,string monthName
             , IEnumerable<VoucherDetailViewModel> directJVList, IEnumerable<VoucherDetailViewModel> inDirectJVList, IEnumerable<VoucherDetailViewModel> directSalaryLockList, IEnumerable<VoucherDetailViewModel> indirectSalaryLockList);
         string ParkSalaryPayableDisbursement(VoucherViewModel voucherVM, string yearNo, string monthNo, string monthName, string pMode, IEnumerable<VoucherDetailViewModel> directJVList);
-        IWorkbook GetSalaryPayableVoucherReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId);
          GridModel GetSalaryPayableVoucherList(GridParameter parameters);
 
         IWorkbook GetEmployeeSalaryProcessedReportSalaryLogWiseInVoucher(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool isTopSheet, string voucherId);
 
         IWorkbook GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool isTopSheet, string voucherId);
         void DeleteSalaryPayable(string plantId, string voucherId, string monthNo, string yearNo);
+        void DeleteSalaryDisbursementVoucher(string plantId, string voucherId, string monthNo, string yearNo);
     }
 }
