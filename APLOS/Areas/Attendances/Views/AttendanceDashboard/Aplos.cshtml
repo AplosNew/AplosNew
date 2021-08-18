@@ -1,11 +1,195 @@
 ﻿
-<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{FormTitle}}</h3>
-<div class="col-xs-12 form-elements form-horizontal">
-    <div class="col-md-12">
-        
-        
-    </div>    
+<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list">{{FormTitle}}</span> &nbsp; As of {{hrDate  }}</h3>
+<div class="container-fluid" id="MainDiv">
+    <div class="col-xs-12 form-elements form-horizontal">
+        <div class="col-md-12">
+            <div class="col-md-4" style="text-align:center">
+                <div class="col-md-10" @*style="margin-left: -15%;"*@>
+                    <div class="form-group form-element-ctrl" style="margin-top:-10px" ;>
+                        <div class="show-message">
+                            <p>
+                                <input type="text" name="Date" ng-model="hrDate" datepicker class="form-control datepicker" required tabindex="1" style="margin-top: 7px;margin-bottom: -4px;">
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <button ng-click="dFunction()" class="btn" style="margin-top:-4px;"><i class="glyphicon glyphicon-refresh"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="container" id="headerNav" style="margin-left: -1.5%; margin-top:.5%;">
+                    <div id="wizard-container">
+                        <ul style="cursor:pointer; margin-bottom:-22px;">
+                            <li hidden ng-repeat="x in ColList" ng-click="headerNav(x)" ng-show="x.Sequence < index">
+                                <a>
+                                    <b>{{x.ColumnName}}</b><br />{{x.Name}}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row" style="">
+            <div class="col-md-4" @*style="margin-left:1%;"*@>
+                <div class="row table-responsive modal-table" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                    <label class="chart-title-hrD">On Role Employees<br><span>{{OnRoleEmployee}}</span></label>
+                    <canvas id="attnPieChart" width="400" height="400"></canvas>
+                </div>
+                <div class="row table-responsive modal-table" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                    <div style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                        <table class="table table-hover " style="border:0px !important;">
+                            <thead style="background-color:white; color:gray; ">
+                                <tr><th colspan="3" style=" border-right:none;border-bottom:1px solid ghostwhite; text-align:center;">Today's Attendance</th></tr>
+                            </thead>
+                            <tbody style="">
+
+                                <tr ng-click="">
+                                    <td>
+                                        <div>Present</div>
+                                    </td>
+                                    <td><span style="background-color:rgba(46, 204, 113,0.7)"> &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+                                    <td colspan="2" class="text-right">{{present ? (present | number:0) : '-'}}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div>Late</div>
+                                    </td>
+                                    <td><span style="background-color:rgba(241, 196, 15, 0.7);"> &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+                                    <td colspan="2" class="text-right">{{late ? (late | number:0) : '-'}}</td>
+                                </tr>
+                                <tr ng-click="">
+                                    <td>Absent</td>
+                                    <td><span style="background-color:rgba(231, 76, 60,0.7);"> &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+                                    <td colspan="2" class="text-right">{{absent ? (absent | number:0) : '-'}}</td>
+                                </tr>
+                                <tr ng-click="">
+                                    <td>Leave</td>
+                                    <td><span style="background-color:rgba(82, 179, 217, 0.7);"> &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+                                    <td colspan="2" class="text-right">{{leave ?  (leave | number:0) : '-'}}</td>
+                                </tr>
+                                <tr ng-click="GetModalOthersDetailJS()">
+                                    <td style="border-right: none;">Others </td>
+                                    <td style="border-right: none;"><span style="background-color:rgba(253, 227, 167, 0.7)"> &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+                                    <td colspan="2" style="cursor:pointer;text-align:right">{{othersSummary  ?  (othersSummary | number:0) : '-' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8" style="">
+                <div class="row table-responsive modal-table" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                    <table class="table table-hover " style="border:0px !important;">
+                        <tbody style="cursor:pointer; ">
+                            <tr>
+                                <td style="border-bottom:1px solid ghostwhite; text-align:left; ">
+                                    {{ColList[index+2].ColumnName}}
+                                </td>
+                                <td style="border-bottom:1px solid ghostwhite; text-align:right;">Budget</td>
+                                <td style="border-bottom:1px solid ghostwhite; text-align:right;" class="onRoleHeader">On Role</td>
+                                <td style="border-bottom:1px solid ghostwhite; text-align:right;">Present</td>
+                                <td style="border-bottom:1px solid ghostwhite; text-align:right;">Late</td>
+                                <td style="border-bottom:1px solid ghostwhite; text-align:right;">Absent</td>
+                                <td style="border-bottom:1px solid ghostwhite; text-align:right;">Leave</td>
+                                <td style="border-bottom:1px solid ghostwhite; text-align:right;">L.Absent</td>
+                                <td style="border-bottom:1px solid ghostwhite; text-align:right;">Others</td>
+                            </tr>
+                            <tr ng-repeat="x in dynamicAttendanseList">
+                                <td style="text-align:left; cursor:{{index+2 == ColList.length-1?'default':'pointer'}};text-decoration:{{index+2 == ColList.length-1?'none':'underline'}};" class="hoverItem" ng-click="GetDrillDownAttnStatus(x);setIndex(x);">{{x.ColumnName}}</td>
+                                <td class="hoverItem text-right">{{x.ProposedManpowerBudget  ? (x.ProposedManpowerBudget | number:0) : '-' }}</td>
+
+                                <td class="onRole text-right" ng-click="GetModalHROnRoleStatusDetailList(0,x)">{{x.OnRoleEmployee  ? (x.OnRoleEmployee | number:0) : '-' }}</td>
+                                <td class="hoverItem text-right" ng-click="GetModalHRDailyPresentStatusDetailList(0,x);">{{x.totalPresentEmployee ? (x.totalPresentEmployee | number:0) : '-' }}</td>
+                                <td class="hoverItem text-right" ng-click="GetModalHRDailyLateStatusList(0,x);">{{x.totalLateEmployee  ? (x.totalLateEmployee | number:0) : '-' }}</td>
+                                <td class="hoverItem text-right" ng-click="GetModalHRDailyAbsentStatusDetailList(0,x);">{{x.totalAbsentEmployee ? (x.totalAbsentEmployee | number:0) : '-' }}</td>
+                                <td class="hoverItem text-right" ng-click="GetModalHRDailyLeaveStatusDetailList(0,x);">{{x.totalLeaveEmployee  ? (x.totalLeaveEmployee | number:0) : '-' }}</td>
+                                <td class="hoverItem text-right" ng-click="GetModalHRLongAbsentismDetailList(0,x);">{{x.totalLongAbsentismEmployee? (x.totalLongAbsentismEmployee | number:0) : '-'}}</td>
+                                <td class="hoverItem text-right" ng-click="GetOtherModalDetailJS(x);">{{x.ShiftNotAssignedEmployee + x.totalAttdnNotProcessedToday + x.totalWeekoffEmployee ? (x.ShiftNotAssignedEmployee + x.totalAttdnNotProcessedToday+x.totalWeekoffEmployee | number:0) : '-'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 
+<style>
+    #myDIV {
+        width: 100%;
+        text-align: center;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        background: #a2f1ff;
+        color: #080076;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 24px;
+    }
+
+        .switch input {
+            display: none;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 5px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+    input:checked + .slider {
+        background-color: #20384c;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(16px);
+        -ms-transform: translateX(16px);
+        transform: translateX(16px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 14px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+</style>
 
 

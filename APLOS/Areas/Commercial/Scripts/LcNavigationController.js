@@ -93,6 +93,8 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
     $scope.PurchaseLCList = [];  
     $scope.LoadLCGrid = function () {
         if ($scope.LCGrid.Type == 'SearchByDate') {
+            if (new Date($scope.LCGrid.FromDate) > new Date($scope.LCGrid.ToDate)) 
+                throw " From date can not be greater than To date.";
             $http({
                 method: 'POST',
                 url: $scope.path + "GetPurchaseLCSearchByDate",
@@ -100,7 +102,7 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
-              
+
                 if (response.data.Error == false) {
                     for (var i = 0; i < response.data.DATA.length; i++) {
                         response.data.DATA[i].OpeningDate = new Date(response.data.DATA[i].OpeningDate);
@@ -117,15 +119,23 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
         }
         else {
             $scope.PurchaseLCList = [];
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetList",
-                data: { 'column': $scope.LCsearchBy, 'value': $scope.LCsearch },
-                dataType: 'JSON'
+            try {
+                if ($scope.LCsearch == '')
+                    throw "Please insert search value.";
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "GetList",
+                    data: { 'column': $scope.LCsearchBy, 'value': $scope.LCsearch },
+                    dataType: 'JSON'
 
-            }).then(function successCallback(response) {
-                $scope.PurchaseLCList = response.data;
-            });
+                }).then(function successCallback(response) {
+                    $scope.PurchaseLCList = response.data;
+                });
+            }
+            catch (e) {
+                ShowResult(e, 'failure');
+            }
+
         }
     }
 
@@ -138,7 +148,6 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
             url: $scope.path + "GetPurchaseLCPOList",
             data: { 'PurchaseLCId': LCData.LCId },
             dataType: 'JSON'
-
         })
 
             .then(function successCallback(response) {
@@ -149,10 +158,16 @@ function LcNavigationController(cboService, commonMessage, $scope, $rootScope, b
                     ShowResult(response.data.Message, 'failure');
                 }
 
+                for (var i = 0; i < $scope.SelectFGCharacteristicsValueList.length; i++) {
+                if ($scope.SelectFGCharacteristicsValueList[i].Ratio != null) {
+                    $scope.TotalRatio = parseFloat($scope.SelectFGCharacteristicsValueList[i].Ratio) + parseFloat($scope.TotalRatio);
+                }
+            }
             }),
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
+
         $rootScope.openPopupAngular('POPopup');
     }
 
