@@ -3529,13 +3529,13 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     $scope.ConfirmOrderWisePopUp = function (data) {
         $scope.MatPlanningTabId = data.Id;
         $scope.UnitId = data.OutputMaterialUOMId;
-        $scope.TransformOrderWiseReq.Quantity = data.Quantity;
-        $scope.PQuantity = data.Quantity;
-        $scope.TransformOrderWiseReq.PlanQuantity = $scope.PQuantity;
+        //$scope.TransformOrderWiseReq.Quantity = data.Quantity;
+        //$scope.PQuantity = data.Quantity;
+        /*$scope.TransformOrderWiseReq.PlanQuantity = $scope.PQuantity;*/
         //  $scope.TransformOrderWiseReq.ArtclCode = data.ArticleCode 
-        $scope.TransformOrderWiseReq.Material = data.MaterialName;
-        $scope.TransformOrderWiseReq.ArtclCode = data.ArticleName;
-        $scope.GetTransformOrderWiseUOM();
+        //$scope.TransformOrderWiseReq.Material = data.MaterialName;
+        //$scope.TransformOrderWiseReq.ArtclCode = data.ArticleName;
+    //    $scope.GetTransformOrderWiseUOM();
         $scope.getTransformOrderWiseData();
         angular.element(document.querySelector("#OrderWisePopUp")).modal("show");
 
@@ -3546,6 +3546,50 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         angular.element(document.querySelector("#" + popupName + "")).modal("hide");
 
     }
+
+    // Order Wise Requirement Sales Order POP UP
+
+    $scope.SOItemList = [];
+    $scope.SalesOrderPopUP = function () {
+        angular.element(document.querySelector("#SOItemPopup")).modal("show");
+        $scope.getSalesorderData();
+
+    }
+    $scope.getSalesorderData = function () {
+        $scope.SOItemList = [];
+        $http({
+            method: 'POST',
+            data: { Id: $scope.TransformOrderWiseReq.Id },
+            url: $scope.path + 'GetSalesOrderData'
+        }).then(function successCallback(response) {
+            $scope.SOItemList = response.data;
+        });
+    }
+    $scope.selectSOItem = function (obj) {
+
+        var data = obj.data;
+        $scope.TransformOrderWiseReq.SalesOrderId = data.SalesOrderId;
+        $scope.TransformOrderWiseReq.Customer = data.Customer;
+        $scope.TransformOrderWiseReq.MasterOrderNo = data.MasterOrderNo;
+        $scope.TransformOrderWiseReq.MasterOrderItemId = data.MasterOrderItemId;
+
+        $scope.TransformOrderWiseReq.MasterOrderUoM = data.MasterOrderUoM;
+        $scope.TransformOrderWiseReq.Material = data.MaterialMasterName;
+        $scope.TransformOrderWiseReq.Article = data.ArticleName;
+
+        $scope.TransformOrderWiseReq.Quantity = data.Qty;
+        $scope.TransformOrderWiseReq.ContractNo = data.ContractNo;
+        $scope.TransformOrderWiseReq.MasterLCNo = data.MasterLCNo;
+        angular.element(document.querySelector('#SOItemPopup')).modal('hide');
+    };
+
+    //$scope.ResPersonClear = function () {
+    //    $scope.detailModel.ResponsiblePersonId = null;
+    //    $scope.detailModel.ResponsiblePerson = null;
+    //    $scope.detailModel.EmployeeCode = null;
+    //    $scope.detailModel.EmployeeStatus = null;
+
+    //};
 
     $scope.TransformOrderWiseRequirementList = [];
     $scope.AllCustomerList = [];
@@ -3604,6 +3648,14 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         Quantity: null,
         PlanQuantity: null,
         ArtclCode: null,
+        SalesOrderId: null,
+        Customer: null,
+        MasterOrderNo: null,
+        MasterOrderUoM: null,
+        Material: null,
+        Article: null,
+        ContractNo: null,
+        MasterLCNo: null,
 
     };
     $scope.TransformOrderWiseReq = Object.assign({}, $scope.TransformOrderWiseReqModelTemp);
@@ -3661,16 +3713,17 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
     }
 
     function ClearFieldsTransformOrderWiseChildData() {
-        $scope.TransformOrderWiseReq.Id = null;
-        $scope.TransformOrderWiseReq.JobWorkTransformationContractChildMasterId = null;
-        $scope.TransformOrderWiseReq.OrderType = null;
-        $scope.TransformOrderWiseReq.CustomerId = null;
-        $scope.TransformOrderWiseReq.MasterOrderNoId = null;
-        $scope.TransformOrderWiseReq.MasterOrderItemId = null;
-        $scope.TransformOrderWiseReq.ParticularSpecification = null;
-        $scope.TransformOrderWiseReq.Remarks = null;
-        $scope.TransformOrderWiseReq.PlanQuantity = $scope.PQuantity;
-        $scope.GetTransformOrderWiseUOM();
+        $scope.TransformOrderWiseReq = Object.assign({}, $scope.TransformOrderWiseReqModelTemp);
+        //$scope.TransformOrderWiseReq.Id = null;
+        //$scope.TransformOrderWiseReq.JobWorkTransformationContractChildMasterId = null;
+        //$scope.TransformOrderWiseReq.OrderType = null;
+        //$scope.TransformOrderWiseReq.CustomerId = null;
+        //$scope.TransformOrderWiseReq.MasterOrderNoId = null;
+        //$scope.TransformOrderWiseReq.MasterOrderItemId = null;
+        //$scope.TransformOrderWiseReq.ParticularSpecification = null;
+        //$scope.TransformOrderWiseReq.Remarks = null;
+        //$scope.TransformOrderWiseReq.PlanQuantity = $scope.PQuantity;
+        //$scope.GetTransformOrderWiseUOM();
     }
 
     $scope.getTransformOrderWiseData = function () {
@@ -4563,39 +4616,5 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         angular.element(document.querySelector("#DelMaterialInputChildBOQ")).modal("show");
     }
 
-    // Order Wise Requirement Sales Order POP UP
-
-    $scope.SOItemList = [];
-
-    //$scope.EmployeeResPersonList = [];
-    //$scope.ResPersonPopUp = function () {
-    //    angular.element(document.querySelector("#EmployeePopUpResPerson")).modal("show");
-    //    $scope.getEmpData();
-
-    //}
-    //$scope.getEmpData = function () {
-    //    $scope.EmployeeResPersonList = [];
-    //    $http({
-    //        method: 'POST',
-    //        //data: { Id: $scope.ModelNew.Id },
-    //        url: $scope.path + 'LoadAllEmpDetails'
-    //    }).then(function successCallback(response) {
-    //        $scope.EmployeeResPersonList = response.data;
-    //    });
-    //}
-    //$scope.setEmpData = function (obj) {
-
-    //    var data = obj.data;
-    //    $scope.detailModel.EmployeeCode = data.Code;
-    //    $scope.detailModel.ResponsiblePersonId = data.Id;
-    //    $scope.detailModel.ResponsiblePerson = data.EmployeeName;
-    //    angular.element(document.querySelector('#EmployeePopUpResPerson')).modal('hide');
-    //};
-    //$scope.ResPersonClear = function () {
-    //    $scope.detailModel.ResponsiblePersonId = null;
-    //    $scope.detailModel.ResponsiblePerson = null;
-    //    $scope.detailModel.EmployeeCode = null;
-    //    $scope.detailModel.EmployeeStatus = null;
-
-    //};
+   
 }
