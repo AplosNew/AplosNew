@@ -187,12 +187,15 @@ namespace Library.HumanResource.Dashboard
                 {
                     dStatus = "and PO.IsDirect = 0";
                 }
-                var sql = @"SELECT  CompanyGroupId,GroupName,CompanyId,UserName,Case when  ISNULL(IsDirect,0) = 0 then 'Indirect' else 'Direct' end AS  IsDirect, ISNULL(SUM(TotalNumber),0) ProposedManpowerBudget, ISNULL(SUM(TotalManpower),0) TotalManpower , " + shortExcess + @"
-								,ISNULL(SUM(TotalSalary),0) OnRoleSalaryC,ISNULL((SUM(MaxSal)+SUM(MinSal))/2,0) ProposedSalaryC
+                var sql = @"SELECT  CompanyGroupId,GroupName,CompanyId,UserName,Case when  ISNULL(IsDirect,0) = 0 then 'Indirect' else 'Direct' end AS  IsDirect, ISNULL(SUM(TotalNumber),0) ProposedManpowerBudget, ISNULL(SUM(TotalManpower),0) TotalManpower , sum(short) Short,sum(Excess) Excess
+								,ISNULL(SUM(TotalSalary),0) OnRoleSalaryC
+								--,ISNULL((SUM(MaxSal)+SUM(MinSal))/2,0) ProposedSalaryC
+								,sum(BudgetedSalary) ProposedSalaryC
                                  FROM
                                  (
                                      SELECT m.CgId CompanyGroupId, m.IsDirect,m.Id,b.TotalNumber,m.GroupName,m.CompanyId,m.CName as UserName,EmpInfo.TotalSalary
                                      ,EmpInfo.TotalManpower,(ISNULL(Sal.MaximumSalary,0)) MaxSal,(ISNULL(Sal.MinimumSalary,0)) MinSal
+									 ,((ISNULL(Sal.MaximumSalary,0)) + (ISNULL(Sal.MinimumSalary,0)) / 2 ) * b.TotalNumber BudgetedSalary
                                      , Short = CASE WHEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0) > 0
                                                 THEN ISNULL(TotalNumber,0) - ISNULL(TotalManpower,0) ELSE 0 END
                                      , Excess = CASE WHEN isNull(TotalManpower,0) - ISNULL(TotalNumber,0) > 0

@@ -22,7 +22,7 @@
                     <label class="col-sm-4 control-label">Department<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select class="form-control" name="Department" id="Department" ng-model="buyerMasterNew.BuyerDepartmentId">
+                            <select class="form-control" name="Department" id="Department" ng-model="buyerMasterNew.BuyerDepartmentId" required>
                                 <option value="ALL">ALL</option>
                                 <option ng-repeat="option in departmentList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
@@ -66,7 +66,7 @@
                     <label class="col-sm-4 control-label">Division<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select class="form-control" name="Division" id="Division" ng-model="buyerMasterNew.BuyerDivisionId">
+                            <select class="form-control" name="Division" id="Division" ng-model="buyerMasterNew.BuyerDivisionId" required>
                                 <option value="ALL">ALL</option>
                                 <option ng-repeat="option in divisionList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
@@ -389,8 +389,8 @@
             </div>
             <div class="modal-footer common-btn">
                 <ul class="list-inline text-right">
-                    <li><button type="button" class="btn btn-default" ng-click="closeEntityPopUp();">Close</button></li>
                     <li><button ng-click="selectEntityPopUp();" class="btn">Select</button></li>
+                    <li><button type="button" class="btn btn-default" ng-click="closeEntityPopUp();">Close</button></li>
                 </ul>
             </div>
         </div>

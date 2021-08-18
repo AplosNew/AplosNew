@@ -1912,6 +1912,8 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         Name: null,
         FreeText: null
     };
+
+    $scope.CombinationList = [];
     $scope.detailSave = function (type, onlyTax) {
         activityListsel = null;
         $scope.detailModelList = [];
@@ -2064,6 +2066,47 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
                         ShowResult('Please Select Service', 'failure', 'ListOfPOMaterial');
                         return false;
                     }
+
+                    if (!baseService.isUndefinedOrNull($scope.detailModelList[i].TransactionQty)) {
+                        if ($scope.detailModelList[i].TransactionQty > $scope.detailModelList[i].BalanceQuantity) {
+                            ShowResult('Current Quantity cannot be greater than Balance Quantity for Material ' + $scope.detailModelList[i].UserName + ' and Article ' + $scope.detailModelList[i].StandardName + ' ', 'failure', 'ListOfPOMaterial');
+                            return false;
+                        }
+                     
+                    }
+
+                    var MaterialId = $scope.detailModelList[i].MaterialMasterId;
+                    var ArticleId = $scope.detailModelList[i].ArticleId;
+                    var SKU1 = $scope.detailModelList[i].FirstCharacteristicsValueId;
+                    var SKU2 = $scope.detailModelList[i].SecondCharacteristicsValueId;
+                    var SKU3 = $scope.detailModelList[i].ThirdCharacteristicsValueId;
+                    $scope.CombinationList = $filter('filter')($scope.detailModelList, { 'MaterialMasterId': MaterialId, 'ArticleId': ArticleId, 'FirstCharacteristicsValueId': SKU1, 'SecondCharacteristicsValueId': SKU2, 'ThirdCharacteristicsValueId': SKU3 });
+                    if ($scope.CombinationList.length > 0) {
+                        var Rate = $scope.CombinationList[0].TransactionRate;
+                        var Service = $scope.CombinationList[0].ServiceId;
+                        var TransUoMId = $scope.CombinationList[0].TransactionUoMId;
+                        for (var p = 0; p < $scope.detailModelList.length; p++) {
+                            if ($scope.CombinationList[0].MaterialMasterId == $scope.detailModelList[p].MaterialMasterId && $scope.CombinationList[0].ArticleId == $scope.detailModelList[p].ArticleId && $scope.CombinationList[0].FirstCharacteristicsValueId == $scope.detailModelList[p].FirstCharacteristicsValueId && $scope.CombinationList[0].SecondCharacteristicsValueId == $scope.detailModelList[p].SecondCharacteristicsValueId && $scope.CombinationList[0].ThirdCharacteristicsValueId == $scope.detailModelList[p].ThirdCharacteristicsValueId) {
+
+                                if ($scope.detailModelList[p].TransactionRate != Rate) {
+                                    ShowResult('Rate should be same for Material ' + $scope.detailModelList[p].UserName + ' and Article ' + $scope.detailModelList[p].StandardName + ' ', 'failure', 'ListOfPOMaterial');
+                                    return false;
+                                }
+                                if ($scope.detailModelList[p].ServiceId != Service) {
+                                    ShowResult('Service should be same for Material ' + $scope.detailModelList[p].UserName + ' and Article ' + $scope.detailModelList[p].StandardName + ' ', 'failure', 'ListOfPOMaterial');
+                                    return false;
+                                }
+                                if ($scope.detailModelList[p].TransactionUoMId != TransUoMId) {
+                                    ShowResult('Transaction UoM should be same for Material ' + $scope.detailModelList[p].UserName + ' and Article ' + $scope.detailModelList[p].StandardName + ' ', 'failure', 'ListOfPOMaterial');
+                                    return false;
+                                }
+                            }
+
+                          
+                        }
+                    }
+                    
+
 
                     $scope.taxCategoryList = null;
                 }

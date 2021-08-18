@@ -3370,7 +3370,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
                     #endregion
 
-                }
+                }                
 
             }
             catch (Exception ex)
@@ -4477,7 +4477,6 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
         }
         public void Add(DataTable dt, Dictionary<string, object> sourceData)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             DataRow dr = dt.NewRow();
 
             foreach (var item in sourceData.Keys)
@@ -4490,12 +4489,12 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 {
                 }
             }
-            dr["AddedBy"] = identity.Name;
-            dr["DateAdded"] = System.DateTime.Now.ToString(); ;
-            dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["DateUpdated"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr["AddedBy"] = "RosterProcess";
+            dr["DateAdded"] = DateTime.Now.ToString(); 
+            dr["AddedFromIP"] = "1";
+            dr["UpdatedBy"] = "RosterProcess";
+            dr["DateUpdated"] = DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = "1";
 
             dt.Rows.Add(dr);
         }
@@ -4569,35 +4568,17 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
                         DayStatus(Date, PlantValue);
-                    }
-                    catch (Exception ex)
+                        try
+                        {
+                            ManualScheduler(PlantValue);
+                        }
+                        catch (Exception ex)
+                        {
+                            CommonLogFunction(ex, CatchPlant, "ManualProcess");
+                        }
+                    }catch (Exception ex)
                     {
                         CommonLogFunction(ex, CatchPlant, "DayStatusProcess");
-                    }
-                }
-            }
-        }
-
-        public void ManualProcessGroupWise(string GroupId)
-        {
-            DataSet PlantList;
-            GetPlant(GroupId, out PlantList);
-
-            if (PlantList.Tables[0].Rows.Count > 0)
-            {
-
-                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
-                {
-                    string CatchPlant = "";
-                    try
-                    {
-                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
-                        CatchPlant = PlantValue;
-                        ManualScheduler(PlantValue);
-                    }
-                    catch (Exception ex)
-                    {
-                        CommonLogFunction(ex, CatchPlant, "ManualProcess");
                     }
                 }
             }
