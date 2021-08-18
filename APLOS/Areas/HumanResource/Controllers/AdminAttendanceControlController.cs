@@ -53,9 +53,8 @@ namespace Aplos.Areas.HumanResource.Controllers
         #endregion -- Pages
 
         [HttpPost, Authorize]
-        public ActionResult getAllEmployees(string fromdate, string todate)
+        public ActionResult getAllEmployees(string fromdate, string todate,string PlantId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             TimeSpan ts = Convert.ToDateTime(todate).Subtract(Convert.ToDateTime(fromdate));
             if (Math.Abs(ts.TotalDays) > 31)
                 return Json(new { Error = true, Message = "Timespan between from and to date cannot be greater than 31 days" }, JsonRequestBehavior.AllowGet);
@@ -63,13 +62,13 @@ namespace Aplos.Areas.HumanResource.Controllers
             string sql = @"
                         SELECT distinct Emp.SystemID AS Id,
                         EMP.EmployeeName
-,EMP.EmployeeCode,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric
-,EMP.EmpPicPath,
+                        ,EMP.EmployeeCode,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric
+                        ,EMP.EmpPicPath,
                         EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
                             PR.UserName PositionName,
                             DEPT.UserName Department,S.UserName Section,
                             EMP.SectionId,SS.UserName SubSection
-                            ,PL.UserName Plant
+                            ,PL.UserName Plant,emp.PlantId as PlantID
                             FROM EmployeeInformation EMP
                             INNER JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
@@ -82,7 +81,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                             LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
     
-                        WHERE emp.PlantId='" + identity.PlantId + @"' AND o.WorkDate BETWEEN '" + fromdate + @"' AND '" + todate + @"'
+                        WHERE emp.PlantId='" + PlantId + @"' AND o.WorkDate BETWEEN '" + fromdate + @"' AND '" + todate + @"'
     order by EmployeeCodePreFix,EmployeeCodeNumeric
 
                     ";
@@ -92,13 +91,12 @@ namespace Aplos.Areas.HumanResource.Controllers
             return jsondata;
         }
         [HttpPost]
-        public ActionResult getAttendanceData(string employeeid, string fromdate, string todate)
+        public ActionResult getAttendanceData(string employeeid, string fromdate, string todate,string PlantId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = stringAttendanceData(employeeid, fromdate, todate);
+            string sql = stringAttendanceData(employeeid, fromdate, todate,PlantId);
 
 
-            string shiftSQL = @" SELECT * FROM ShiftDefination AS sd WHERE sd.PlantID='" + identity.PlantId + @"'";
+            string shiftSQL = @" SELECT * FROM ShiftDefination AS sd WHERE sd.PlantID='" + PlantId + @"'";
 
             var jsondata = Json(new { data = _sqlRepository.GetModelCollection<AttendanceProcessNewProcess>(sql), shift = _sqlRepository.GetDataCollection(shiftSQL) }, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
@@ -111,8 +109,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
 
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ManualAttndFromAppService mau = new ManualAttndFromAppService(identity, _sqlRepository);
+                AdminAttendanceControlService mau = new AdminAttendanceControlService();
 
                 return Json(mau.GetShiftData(systemid, WorkDate), JsonRequestBehavior.AllowGet);
 
@@ -129,9 +126,6 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpPost, Authorize]
         public ActionResult getAttendance(string empsystemid, string WorkDate)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-
             string sql = @"SELECT 
                             FORMAT(pdate,'dd-MMM-yyyy') AS PDate,FORMAT(ptime,'hh:mm:ss tt') AS PTime,PType
 
@@ -147,8 +141,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpPost]
         public ActionResult SaveSingleEmployee(List<AttendanceProcessNewProcess> data)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ManualAttndFromAppService mau = new ManualAttndFromAppService(identity, _sqlRepository);
+            AdminAttendanceControlService mau = new AdminAttendanceControlService();
             RTx _rt = mau.Savex(data);
 
             if (_rt.IsError)
@@ -159,33 +152,11 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 return Json(new { Error = false, Message = _rt.msg, Data = _rt.data }, JsonRequestBehavior.AllowGet);
             }
-        }
+        }        
 
-        public void GetHRsettinng(string plantid, out DataSet dsRef)
+        private string stringAttendanceData(string employeeid, string fromdate, string todate,string PlantId)
         {
-            string strSQL;
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                strSQL = @"select * from PlantWiseHRMSSetting where PlantID='" + plantid + "' and isnull(ShiftBasedPunchFlag,0)=1";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }//End Function
-
-        private string stringAttendanceData(string employeeid, string fromdate, string todate)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
+           
             if (string.IsNullOrEmpty(employeeid) == false)
                 employeeid = " AND emp.SystemId='" + employeeid + @"' ";
             else
@@ -220,7 +191,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             format(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt') AS PunchInTime,
                             format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
 
-                            KK.DayStatus, KK.OTHr,
+                            KK.DayStatus, KK.OTHr,KK.plantid AS PlantID,
                             KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus,convert(bit,isnull(KK.IsLock,0)) AS IsLock
 
                              FROM (
@@ -233,7 +204,7 @@ namespace Aplos.Areas.HumanResource.Controllers
        
 		                            O.PunchInTime,O.PunchOutTime,
 		                            O.DayStatus, O.OTHr, O.IsOTComfirm,O.DayStatusCode,
-		                            O.IsOTEntitled
+		                            O.IsOTEntitled,emp.plantid
 
 		                            FROM EmployeeInformation EMP
 		                            LEFT JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
@@ -252,7 +223,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
                             LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
                             LEFT JOIN ORG.Department DEPT ON EMP.DepartmentId=DEPT.Id	
-                        where emp.plantid='" + identity.PlantId + @"'
+                        where emp.plantid='" + PlantId + @"'
                         ORDER BY kk.EmployeeCode,CONVERT(DATE, WorkDate) ASC ";
 
         }

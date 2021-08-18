@@ -15726,7 +15726,7 @@ AND (E.EmployeeStatus='Active' OR Year(DOS) >= '" + objm.AYear + @"' AND MONTH(D
                                         email = new EmailSender(smtpConfigurationCG.Host, smtpConfigurationCG.Port, smtpConfigurationCG.MailingUserName, smtpConfigurationCG.Password, true);
                                 }
                                 var emailList = GetEmployeeApprovalAuthorityMaileList(item);
-                                
+                                var adminemailList = GetAdministrativeMailList();
                                 //fileName += item.PlantId;
 
                                 foreach (var emp in emailList)
@@ -15745,9 +15745,9 @@ AND (E.EmployeeStatus='Active' OR Year(DOS) >= '" + objm.AYear + @"' AND MONTH(D
                                     // var toList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "To" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
                                     var toList = emp.Email;
                                     log.ToList = toList;
-                                    var ccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                    var ccList = string.Join(";", adminemailList.Where(r => r.Active && r.MailType == "Cc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
                                     log.CcList = ccList;
-                                    var bccList = string.Join(";", emailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
+                                    var bccList = string.Join(";", adminemailList.Where(r => r.Active && r.MailType == "Bcc" && r.Email != string.Empty).Select(r => r.FullName + "<" + r.Email + ">"));
                                     log.BccList = bccList;
                                     var inActiveList = string.Join(";", emailList.Where(r => !r.Active).Select(r => r.MailType + ":" + r.FullName));
                                     if (toList == "")

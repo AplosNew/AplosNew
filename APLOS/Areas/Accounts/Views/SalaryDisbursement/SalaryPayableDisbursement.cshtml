@@ -30,62 +30,62 @@
 
                 </div>
 
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <label class="col-sm-2 " style="font-weight:normal;">Regular<sup></sup></label>
-                            @*<div class="col-sm-2" style="padding-left:0px;">
-                          <input type="checkbox" ej-checkbox class="nodetext" e-value="isActive" e-checked="isActive" e-model="vouchcer.IsActive" />
-                         </div>*@
-                            <div class="col-sm-2" style="padding-left:0px;">
-                                <div class="checkbox-site">
-                                    <label>
-                                        <input tabindex="8" type="checkbox" ng-model="voucher.IsActive">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <label class="col-sm-3" style="font-weight:normal; ">Seperated<sup></sup></label>
-                            <div class="col-sm-1" style="padding-left:0px;">
-                                <div class="checkbox-site">
-                                    <label>
-                                        <input tabindex="8" type="checkbox" ng-model="voucher.IsSeperated">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
-                                </div>
-                            </div>
-                            @*<div class="col-sm-1" style="padding-left:0px;">
-                        <input type="checkbox" ej-checkbox class="nodetext" e-value="isSeperated" e-checked="isSeperated" e-model="voucher.IsSeperated" />
-                    </div>*@
-                            <label class="col-sm-3" style="font-weight:normal; ">Going Maternity<sup></sup></label>
-                            @*<div class="col-sm-1" style="padding-left:0px;">
-                        <input type="checkbox" ej-checkbox class="nodetext" e-value="isMaternity" e-checked="isMaternity" e-model="voucher.IsMaternity" />
-                    </div>*@
-                            <div class="col-sm-1" style="padding-left:0px;">
-                                <div class="checkbox-site">
-                                    <label>
-                                        <input tabindex="8" type="checkbox" ng-model="voucher.IsMaternity">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
-                                </div>
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label class="col-sm-2 " style="font-weight:normal;">Regular<sup></sup></label>
+                        @*<div class="col-sm-2" style="padding-left:0px;">
+                             <input type="checkbox" ej-checkbox class="nodetext" e-value="isActive" e-checked="isActive" e-model="vouchcer.IsActive" />
+                            </div>*@
+                        <div class="col-sm-2" style="padding-left:0px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input tabindex="8" type="checkbox" ng-model="voucher.IsActive">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
                             </div>
                         </div>
-                    </div>
 
-                    @*<div class="col-sm-1 show-message" style="padding-left:0px;">
-                    <div class="common-btn">
-                        <button ng-click="getSalaryLockPayable();" class="btn">Go <i class="glyphicon glyphicon-circle-arrow-right"></i></button>
-                    </div>
-                </div>*@
-
-                    <div class="col-sm-1 " style="padding-left:0px;">
-                        <div class="common-btn">
-                            <button ng-click="getSalaryLockPayableGL();" class="btn"> <i class="glyphicon glyphicon-circle-arrow-down"></i>Go</button>
-
+                        <label class="col-sm-3" style="font-weight:normal; ">Seperated<sup></sup></label>
+                        <div class="col-sm-1" style="padding-left:0px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input tabindex="8" type="checkbox" ng-model="voucher.IsSeperated">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                        @*<div class="col-sm-1" style="padding-left:0px;">
+                                <input type="checkbox" ej-checkbox class="nodetext" e-value="isSeperated" e-checked="isSeperated" e-model="voucher.IsSeperated" />
+                            </div>*@
+                        <label class="col-sm-3" style="font-weight:normal; ">Going Maternity<sup></sup></label>
+                        @*<div class="col-sm-1" style="padding-left:0px;">
+                                <input type="checkbox" ej-checkbox class="nodetext" e-value="isMaternity" e-checked="isMaternity" e-model="voucher.IsMaternity" />
+                            </div>*@
+                        <div class="col-sm-1" style="padding-left:0px;">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input tabindex="8" type="checkbox" ng-model="voucher.IsMaternity">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                @*<div class="col-sm-1 show-message" style="padding-left:0px;">
+                        <div class="common-btn">
+                            <button ng-click="getSalaryLockPayable();" class="btn">Go <i class="glyphicon glyphicon-circle-arrow-right"></i></button>
+                        </div>
+                    </div>*@
+
+                <div class="col-sm-1 " style="padding-left:0px;">
+                    <div class="common-btn">
+                        <button ng-click="getSalaryLockPayableGL();" class="btn"> <i class="glyphicon glyphicon-circle-arrow-down"></i>Go</button>
+
+                    </div>
+                </div>
             </div>
+        </div>
         <div class="clearfix"></div>
         <div class="col-xs-12 col-sm-8 col-md-8">
             <div class="form-group">
@@ -199,7 +199,7 @@
                             <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="employeeDisbursementDataList" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="15"
                                  e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateemployee"
                                  e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
-                                 e-allowselection="true" e-filtersettings-filterType="excel"  e-allowsorting="true" style="margin-left:1%">
+                                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowsorting="true" style="margin-left:1%">
 
                                 <div e-columns>
                                     <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
@@ -276,8 +276,9 @@
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
-                            <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryPayableVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                            <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryPayableVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+                            <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryDisbursementVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryDisbursementVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                         </ul>
                     </td>
                 </tr>
@@ -288,6 +289,8 @@
 </div>
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(payableId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteSalaryDisbursement(voucherId,DelMonthNo,DelYearNo)"></confirm-archive-generic>
+
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
 @Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")

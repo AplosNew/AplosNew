@@ -223,7 +223,7 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
                 });
     };
     $scope.getSavedData();
-    $scope.flag = 'Edit';
+    $scope.flag = 'Update';
     $scope.confirmToCreateNewVersion = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.PurchaseLCForm.$valid) {
@@ -486,7 +486,7 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
         $scope.purchaseLCChargesList = [];
         $scope.VersionList = [];
         $scope.Action = 'Update';
-        $scope.flag = 'Edit';
+        $scope.flag = 'Update';
         $scope.version = 0;
         cboService.getCboTransactionCurrencyByCompany('', function (result) {
             $scope.currencyList = [];

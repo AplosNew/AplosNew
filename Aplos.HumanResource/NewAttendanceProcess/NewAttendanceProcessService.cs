@@ -3370,7 +3370,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
                     #endregion
 
-                }
+                }                
 
             }
             catch (Exception ex)
@@ -4563,9 +4563,9 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
                 {
                     string CatchPlant = "";
+                    var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                     try
                     {
-                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
                         DayStatus(Date, PlantValue);
                     }
@@ -4573,24 +4573,8 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                     {
                         CommonLogFunction(ex, CatchPlant, "DayStatusProcess");
                     }
-                }
-            }
-        }
-
-        public void ManualProcessGroupWise(string GroupId)
-        {
-            DataSet PlantList;
-            GetPlant(GroupId, out PlantList);
-
-            if (PlantList.Tables[0].Rows.Count > 0)
-            {
-
-                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
-                {
-                    string CatchPlant = "";
-                    try
+                    try                        
                     {
-                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
                         ManualScheduler(PlantValue);
                     }
@@ -4598,6 +4582,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                     {
                         CommonLogFunction(ex, CatchPlant, "ManualProcess");
                     }
+                    
                 }
             }
         }

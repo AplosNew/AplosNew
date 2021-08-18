@@ -66,8 +66,9 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data ,string stat , string EmpCat, string EmpStat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            return Json(na.DetailTableClick(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data , stat, EmpCat, EmpStat), JsonRequestBehavior.AllowGet);
+            var JsonData = Json(na.DetailTableClick(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data, stat, EmpCat, EmpStat), JsonRequestBehavior.AllowGet); ;
+            JsonData.MaxJsonLength = int.MaxValue;
+            return JsonData;
         }
 
         [HttpPost, Authorize]
@@ -137,31 +138,34 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColDesg = COL;
             COL++;
 
-            //report.SetHeaderText(ref sheet, ROW, COL, "PO No", 15, ExcelHAlign.HAlignCenter);
-            //int ColPONo = COL;
-            //COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Budget Code", 15, ExcelHAlign.HAlignCenter);
+            int ColBudCode = COL;
+            COL++;
 
-            //report.SetHeaderText(ref sheet, ROW, COL, "Lot No", 13, ExcelHAlign.HAlignCenter);
-            //int ColLotNo = COL;
-            //COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Shift", 13, ExcelHAlign.HAlignCenter);
+            int ColShift = COL;
+            COL++;
 
 
-            //report.SetHeaderText(ref sheet, ROW, COL, "Plan Qty", 13, ExcelHAlign.HAlignCenter);
-            //int ColPlanQty = COL;
-            //COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Seub Section", 13, ExcelHAlign.HAlignCenter);
+            int ColSubSection = COL;
+            COL++;
 
-            //report.SetHeaderText(ref sheet, ROW, COL, "SO PO No", 13, ExcelHAlign.HAlignCenter);
-            //int ColSoPoNo = COL;
-            //COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Section", 13, ExcelHAlign.HAlignCenter);
+            int ColSection = COL;
+            COL++;
 
-            //report.SetHeaderText(ref sheet, ROW, COL, "Stock Qty", 13, ExcelHAlign.HAlignCenter);
-            //int ColStockQty = COL;
-            //COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Department", 13, ExcelHAlign.HAlignCenter);
+            int ColDepartment = COL;
+            COL++;
 
-            //report.SetHeaderText(ref sheet, ROW, COL, "No Of Packages", 13, ExcelHAlign.HAlignCenter);
-            //int ColPackages = COL;
-            //COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 13, ExcelHAlign.HAlignCenter);
+            int ColEntity = COL;
+            COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 13, ExcelHAlign.HAlignCenter);
+            int ColPlant = COL;
+            COL++;
             ROW++;
             endCol = COL;
             #endregion Headers
@@ -181,6 +185,13 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColITime].Text = dtData.Rows[i]["InTime"].ToString();
                 sheet[ROW, ColOTime].Text = dtData.Rows[i]["OutTime"].ToString();
                 sheet[ROW, ColDesg].Text = dtData.Rows[i]["Designation"].ToString();
+                sheet[ROW, ColBudCode].Text = dtData.Rows[i]["BudgetCode"].ToString();
+                sheet[ROW, ColShift].Text = dtData.Rows[i]["Shift"].ToString();
+                sheet[ROW, ColSubSection].Text = dtData.Rows[i]["SubSection"].ToString();
+                sheet[ROW, ColSection].Text = dtData.Rows[i]["Section"].ToString();
+                sheet[ROW, ColDepartment].Text = dtData.Rows[i]["Department"].ToString();
+                sheet[ROW, ColEntity].Text = dtData.Rows[i]["Entity"].ToString();
+                sheet[ROW, ColPlant].Text = dtData.Rows[i]["Plant"].ToString();
 
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);

@@ -4500,13 +4500,13 @@ namespace Library.MaterialManagement.Inventory
 	                                ,IPP.UserName As InvoicingByName
                                     --,pgl.CtnId
 	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, '' LCNo,IPP.GSTIN
-									,ISNULL(CON.UDNo,'') UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank
+									,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
                                  FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
                                 LEFT JOIN (SELECT C.PartyId, C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
                                 ON PAG.Id= C.PartyAccountGroupId WHERE C.PartyType= 'Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId= IR.PlantId
                                  LEFT JOIN[SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
 								LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
-								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
                                  LEFT JOIN[MST].[PaymentTerm] AS PT ON IR.PaymentTermId= PT.Id
                                  LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId= IPP.Id
                                  LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId= AM.Id
@@ -4522,6 +4522,14 @@ namespace Library.MaterialManagement.Inventory
                                        LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN[TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id
                                        WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
                                         LEFT JOIN[SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId= UoM.Id
+								 LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
+											,OpeningBank=STUFF((select distinct ','+xPDAMAP.OpeningBank from
+											trn.PurchaseOrder xpo
+											INNER JOin dbo.MasterLC xPDAMAP on xpo.PartyId=xPDAMAP.CustomerId
+											where xPDAMAP.CustomerId=PDAMAP.CustomerId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											from  dbo.MasterLC PDAMAP 							 
+											 group by  PDAMAP.CustomerId
+										) POothers ON POothers.CustomerId = IR.PartyId
                                         --LEFT JOIN (Select count(Id) as CtnId, POID from TRN.PurchaseOrderApprovalLog where Status= 'Approval' group by POID) as pgl on pgl.POID=IR.Id
                                          WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
@@ -4548,13 +4556,13 @@ namespace Library.MaterialManagement.Inventory
 	                                ,IPP.UserName As InvoicingByName
                                     --,pgl.CtnId
 	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, ISNULL(PLC.LCRef,'') LCNo,IPP.GSTIN
-								 ,ISNULL(CON.UDNo,'') UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank
+								 ,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
                                  FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
                                 LEFT JOIN (SELECT C.PartyId, C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
                                 ON PAG.Id= C.PartyAccountGroupId WHERE C.PartyType= 'Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId= IR.PlantId
                                  LEFT JOIN[SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
 								LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
-								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
                                  LEFT JOIN[MST].[PaymentTerm] AS PT ON IR.PaymentTermId= PT.Id
                                  LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId= IPP.Id
                                  LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId= AM.Id
@@ -4570,6 +4578,14 @@ namespace Library.MaterialManagement.Inventory
                                        LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN[TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id
                                        WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
                                         LEFT JOIN[SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId= UoM.Id
+								LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
+											,OpeningBank=STUFF((select distinct ','+xPDAMAP.OpeningBank from
+											trn.PurchaseOrder xpo
+											INNER JOin dbo.MasterLC xPDAMAP on xpo.PartyId=xPDAMAP.CustomerId
+											where xPDAMAP.CustomerId=PDAMAP.CustomerId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											from  dbo.MasterLC PDAMAP 							 
+											 group by  PDAMAP.CustomerId
+										) POothers ON POothers.CustomerId = IR.PartyId
                                         --LEFT JOIN (Select count(Id) as CtnId, POID from TRN.PurchaseOrderApprovalLog where Status= 'Approval' group by POID) as pgl on pgl.POID=IR.Id
 								LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=IR.PurchaseLCId                                        
 								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
@@ -4598,13 +4614,13 @@ namespace Library.MaterialManagement.Inventory
 	                                ,IPP.UserName As InvoicingByName
 	                                --,pgl.CtnId
 	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, '' LCNo,IPP.GSTIN
-									,ISNULL(CON.UDNo,'') UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank
+									,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
                                  FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
                                 LEFT JOIN (SELECT C.PartyId, C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
                                 ON PAG.Id= C.PartyAccountGroupId WHERE C.PartyType= 'Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId= IR.PlantId
                                  LEFT JOIN[SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
 									LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
-								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
                                  LEFT JOIN[MST].[PaymentTerm] AS PT ON IR.PaymentTermId= PT.Id
                                  LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId= IPP.Id
                                  LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId= AM.Id
@@ -4620,6 +4636,14 @@ namespace Library.MaterialManagement.Inventory
                                        LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN[TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id
                                        WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
                                         LEFT JOIN[SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId= UoM.Id
+								LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
+											,OpeningBank=STUFF((select distinct ','+xPDAMAP.OpeningBank from
+											trn.PurchaseOrder xpo
+											INNER JOin dbo.MasterLC xPDAMAP on xpo.PartyId=xPDAMAP.CustomerId
+											where xPDAMAP.CustomerId=PDAMAP.CustomerId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											from  dbo.MasterLC PDAMAP 							 
+											 group by  PDAMAP.CustomerId
+										) POothers ON POothers.CustomerId = IR.PartyId
                                         --LEFT JOIN (Select count(Id) as CtnId, POID from TRN.PurchaseOrderApprovalLog where Status= 'Approval' group by POID) as pgl on pgl.POID=IR.Id
                                          WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq') 
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
@@ -4645,13 +4669,13 @@ namespace Library.MaterialManagement.Inventory
 	                                ,IPP.UserName As InvoicingByName
 	                                --,pgl.CtnId
 	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, ISNULL(PLC.LCRef,'') LCNo,IPP.GSTIN
-								,ISNULL(CON.UDNo,'') UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank
+								,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
                                  FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
                                 LEFT JOIN (SELECT C.PartyId, C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
                                 ON PAG.Id= C.PartyAccountGroupId WHERE C.PartyType= 'Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId= IR.PlantId
                                  LEFT JOIN[SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
 								LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
-								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
                                  LEFT JOIN[MST].[PaymentTerm] AS PT ON IR.PaymentTermId= PT.Id
                                  LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId= IPP.Id
                                  LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId= AM.Id
@@ -4671,6 +4695,14 @@ namespace Library.MaterialManagement.Inventory
                                          
 
 								LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=IR.PurchaseLCId	
+								LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
+											,OpeningBank=STUFF((select distinct ','+xPDAMAP.OpeningBank from
+											trn.PurchaseOrder xpo
+											INNER JOin dbo.MasterLC xPDAMAP on xpo.PartyId=xPDAMAP.CustomerId
+											where xPDAMAP.CustomerId=PDAMAP.CustomerId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											from  dbo.MasterLC PDAMAP 							 
+											 group by  PDAMAP.CustomerId
+										) POothers ON POothers.CustomerId = IR.PartyId
 								WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq') 
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
                                          --ANd IR.Id= '20248'
@@ -4696,13 +4728,13 @@ namespace Library.MaterialManagement.Inventory
 	                                ,IPP.UserName As InvoicingByName
 	                                --,pgl.CtnId
 	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, '' LCNo,IPP.GSTIN
-								 ,ISNULL(CON.UDNo,'') UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank
+								 ,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
                                  FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
                                 LEFT JOIN (SELECT C.PartyId, C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
                                 ON PAG.Id= C.PartyAccountGroupId WHERE C.PartyType= 'Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId= IR.PlantId
                                  LEFT JOIN[SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
 								LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
-								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
                                  LEFT JOIN[MST].[PaymentTerm] AS PT ON IR.PaymentTermId= PT.Id
                                  LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId= IPP.Id
                                  LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId= AM.Id
@@ -4718,6 +4750,14 @@ namespace Library.MaterialManagement.Inventory
                                        LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN[TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId= B.Id
                                        WHERE B.PlantId= '" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
                                         LEFT JOIN[SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId= UoM.Id
+								 LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
+											,OpeningBank=STUFF((select distinct ','+xPDAMAP.OpeningBank from
+											trn.PurchaseOrder xpo
+											INNER JOin dbo.MasterLC xPDAMAP on xpo.PartyId=xPDAMAP.CustomerId
+											where xPDAMAP.CustomerId=PDAMAP.CustomerId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											from  dbo.MasterLC PDAMAP 							 
+											 group by  PDAMAP.CustomerId
+										) POothers ON POothers.CustomerId = IR.PartyId
                                         --LEFT JOIN (Select count(Id) as CtnId, POID from TRN.PurchaseOrderApprovalLog where Status= 'Approval' group by POID) as pgl on pgl.POID=IR.Id
                                          WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
@@ -4744,13 +4784,13 @@ namespace Library.MaterialManagement.Inventory
 	                                ,IPP.UserName As InvoicingByName
 	                                --,pgl.CtnId
 	                                ,0'Active',CU.Code Currency, IRD.CountryName,IRD.CountryId,IR.CheckedByStatus,IR.AuthorizedByStatus,IR.POType, ISNULL(PLC.LCRef,'') LCNo,IPP.GSTIN
-								,ISNULL(CON.UDNo,'') UDNo,ISNULL(MLC.OpeningBank,'') OpeningBank
+								,ISNULL(CON.UDNo,'') UDNo,ISNULL(POothers.OpeningBank,'') OpeningBank
                                  FROM[TRN].[PurchaseOrder] AS IR left JOIN[HKP].[Party] AS P ON IR.PartyId=P.Id
                                 LEFT JOIN (SELECT C.PartyId, C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
                                 ON PAG.Id= C.PartyAccountGroupId WHERE C.PartyType= 'Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId= IR.PlantId
                                  LEFT JOIN[SCS].[Currency] AS CU ON IR.CurrencyId= CU.Id
 									LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
-								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
+								 LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId --left JOIN dbo.MasterLC MLC ON MLC.CustomerId=Pr.Id
                                  LEFT JOIN[MST].[PaymentTerm] AS PT ON IR.PaymentTermId= PT.Id
                                  LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId= IPP.Id
                                  LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId= AM.Id
@@ -4769,6 +4809,14 @@ namespace Library.MaterialManagement.Inventory
                                         --LEFT JOIN (Select count(Id) as CtnId, POID from TRN.PurchaseOrderApprovalLog where Status= 'Approval' group by POID) as pgl on pgl.POID=IR.Id
                                          
 										LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=IR.PurchaseLCId
+								LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
+											,OpeningBank=STUFF((select distinct ','+xPDAMAP.OpeningBank from
+											trn.PurchaseOrder xpo
+											INNER JOin dbo.MasterLC xPDAMAP on xpo.PartyId=xPDAMAP.CustomerId
+											where xPDAMAP.CustomerId=PDAMAP.CustomerId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											from  dbo.MasterLC PDAMAP 							 
+											 group by  PDAMAP.CustomerId
+										) POothers ON POothers.CustomerId = IR.PartyId
 										WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
                                 AND IR.IsClosed= 0 and IRD.QtyStatus= 0
                                          --ANd IR.Id= '20248'
