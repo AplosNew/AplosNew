@@ -3370,7 +3370,7 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
 
                     #endregion
 
-                }
+                }                
 
             }
             catch (Exception ex)
@@ -4568,35 +4568,17 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                         var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
                         DayStatus(Date, PlantValue);
-                    }
-                    catch (Exception ex)
+                        try
+                        {
+                            ManualScheduler(PlantValue);
+                        }
+                        catch (Exception ex)
+                        {
+                            CommonLogFunction(ex, CatchPlant, "ManualProcess");
+                        }
+                    }catch (Exception ex)
                     {
                         CommonLogFunction(ex, CatchPlant, "DayStatusProcess");
-                    }
-                }
-            }
-        }
-
-        public void ManualProcessGroupWise(string GroupId)
-        {
-            DataSet PlantList;
-            GetPlant(GroupId, out PlantList);
-
-            if (PlantList.Tables[0].Rows.Count > 0)
-            {
-
-                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
-                {
-                    string CatchPlant = "";
-                    try
-                    {
-                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
-                        CatchPlant = PlantValue;
-                        ManualScheduler(PlantValue);
-                    }
-                    catch (Exception ex)
-                    {
-                        CommonLogFunction(ex, CatchPlant, "ManualProcess");
                     }
                 }
             }

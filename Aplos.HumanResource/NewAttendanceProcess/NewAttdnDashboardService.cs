@@ -432,7 +432,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 var str = @"Select ei.EmployeeCode , ei.EmployeeName , apd.DayStatus , apd.InStatus , 
                             FORMAT(CAST(apd.InTime AS DATETIME),'hh:mm tt') as InTime , FORMAT(CAST(apd.OutTime AS DATETIME),'hh:mm tt') as OutTime
-                            ,desg.UserName as Designation ,ei.EmployeeCurrentStatus
+                            ,desg.UserName as Designation ,ei.EmployeeCurrentStatus, plant.username as Plant , mb.Code as BudgetCode, shift.Username as Shift,
+                            subsection.Username as SubSection , section.UserName as Section , department.Username as Department, e.UserName as Entity
+                            
                             from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
@@ -442,6 +444,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
                             left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
                             left join org.Unit unit on unit.Id = ei.UnitId
+							left join org.Entity e on e.UnitId = ei.UnitId and e.CompanyId = ei.CompanyId and e.PlantId = ei.PlantId and ei.DivisionId = e.DivisionId
                             left join org.CompanyGroup cg on cg.Id = company.CompanyGroupId
                             left join org.Department department on department.Id = pos.DepartmentId
                             left join org.Section section on section.Id = pos.SectionId
@@ -579,7 +582,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 var str = @"Select ei.EmployeeCode , ei.EmployeeName , apd.DayStatus , apd.InStatus , 
                             FORMAT(CAST(apd.InTime AS DATETIME),'hh:mm tt') as InTime , FORMAT(CAST(apd.OutTime AS DATETIME),'hh:mm tt') as OutTime
-                            ,desg.UserName as Designation ,ei.EmployeeCurrentStatus
+                            ,desg.UserName as Designation ,ei.EmployeeCurrentStatus, plant.username as Plant , mb.Code as BudgetCode, shift.Username as Shift,
+                            subsection.Username as SubSection , section.UserName as Section , department.Username as Department, e.UserName as Entity
                             from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
@@ -589,6 +593,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
                             left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
                             left join org.Unit unit on unit.Id = ei.UnitId
+							left join org.Entity e on e.UnitId = ei.UnitId and e.CompanyId = ei.CompanyId and e.PlantId = ei.PlantId and ei.DivisionId = e.DivisionId
                             left join org.CompanyGroup cg on cg.Id = company.CompanyGroupId
                             left join org.Department department on department.Id = pos.DepartmentId
                             left join org.Section section on section.Id = pos.SectionId

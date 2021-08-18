@@ -7,6 +7,42 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
     $scope.preRecruitmentEmployees = [];
     $scope.path = 'HumanResource/AdminAttendanceControl/';
 
+
+    $scope.ModelNew = {
+        CompanyId: null,
+        PlantId: null,
+    };
+
+
+    $scope.ModelNewx = {
+        CompanyId: null,
+        PlantId: null,
+    };
+
+    $scope.Company = null;
+    $scope.CompanyList = [];
+    $scope.getCompany = function () {
+        $http({
+            method: 'GET',
+            url: 'humanresource/RosterPattern/getCompany'
+        }).then(function success(response) {
+            $scope.CompanyList = response.data;
+        })
+    }
+
+    $scope.getCompany();
+
+    $scope.PlantList = [];
+    $scope.getPlants = function () {
+        $http({
+            method: 'GET',
+            url: 'HumanResource/RosterPattern/getPlants',
+            params: { 'cmp': $scope.ModelNew.CompanyId }
+        }).then(function success(response) {
+            $scope.PlantList = response.data;
+        })
+    }
+
     $scope.FromDateSingleDate = '';
     $scope.FromDate = '';
     $scope.ToDate = '';
@@ -34,19 +70,21 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
     $scope.selectedSinglemployee = {};
     $scope.getAllEmployee = function () {
 
-        var eDialog = $("#dialogEmployeeSelect").data("ejDialog");
-        eDialog.open();
+            Validation();
+            var eDialog = $("#dialogEmployeeSelect").data("ejDialog");
+            eDialog.open();
 
-        $http({
-            method: "POST",
-            dataType: 'JSON',
-            data: { 'fromdate': $scope.FromDate, 'todate': $scope.ToDate },
-            url: $scope.path + 'getAllEmployees'
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                data: { 'fromdate': $scope.FromDate, 'todate': $scope.ToDate, 'PlantId': $scope.ModelNew.PlantId },
+                url: $scope.path + 'getAllEmployees'
 
-        }).then(function successCallback(response) {
-            $scope.selectemployee = response.data;
+            }).then(function successCallback(response) {
+                $scope.selectemployee = response.data;
 
-        });
+            });
+        
     }
     $scope.employeeAttendanceBySingleDateSelection = [];
     function checkChangeemployee(e) {
@@ -170,11 +208,11 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
         eDialog.close();
         if (baseService.isUndefinedOrNull(args) == false)
             $scope.selectedSinglemployee = args.data;
-
+        Validation();
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'employeeid': $scope.selectedSinglemployee.Id, 'fromdate': $scope.FromDate, 'todate': $scope.ToDate },
+            data: { 'employeeid': $scope.selectedSinglemployee.Id, 'fromdate': $scope.FromDate, 'todate': $scope.ToDate, 'PlantId': $scope.ModelNew.PlantId },
             url: $scope.path + 'getAttendanceData'
 
         }).then(function successCallback(response) {
@@ -190,11 +228,11 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
     $scope.allShiftSingleDay = [];
 
     $scope.selectSigleDate = function () {
-
+        Validationx();
         $http({
             method: "POST",
             dataType: 'JSON',
-            data: { 'employeeid': '', 'fromdate': $scope.FromDateSingleDate, 'todate': $scope.FromDateSingleDate },
+            data: { 'employeeid': '', 'fromdate': $scope.FromDateSingleDate, 'todate': $scope.FromDateSingleDate, 'PlantId': $scope.ModelNewx.PlantId },
             url: $scope.path + 'getAttendanceData'
 
         }).then(function successCallback(response) {
@@ -376,6 +414,39 @@ function AdminAttendanceControlController(fileReader, cboService, commonMessage,
         });
 
 
+    }
+
+    function Validation() {
+        try {
+
+            CheckField("Company", $scope.ModelNew.CompanyId);
+            CheckField("Plant", $scope.ModelNew.PlantId);
+
+        } catch (ex) {
+            throw ex;
+        }
+    }
+
+    function Validationx() {
+        try {
+
+            CheckField("Company", $scope.ModelNewx.CompanyId);
+            CheckField("Plant", $scope.ModelNewx.PlantId);
+
+        } catch (ex) {
+            throw ex;
+        }
+    }
+
+    function CheckField(fieldname, field) {
+        try {
+            if (baseService.isUndefinedOrNull(field)) {
+                ShowResult("[" + fieldname + "] can not be null...", 'failure');
+                throw "[" + fieldname + "] can not be null...";
+            }
+        } catch (ex) {
+            throw ex;
+        }
     }
 
     $scope.SetIn = function () {
