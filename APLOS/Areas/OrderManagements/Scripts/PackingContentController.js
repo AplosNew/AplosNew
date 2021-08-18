@@ -72,12 +72,90 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
         angular.element(document.querySelector('#POItemPopup')).modal('show');
     };
 
+    // #region checkbox all
+
+    $scope.refreshTemplatePO = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllPOWise });
+    };
+
+    function CheckBoxSelectAllPOWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridPO").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ProductionOrderList.length; i++) {
+                $scope.ProductionOrderList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridPO").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
+    $scope.ClosePOPopUp = function () {
+        try {
+            MakeData();
+            angular.element(document.querySelector('#POItemPopup')).modal('hide');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.SelectedProductionOrderList = [];
+    function MakeData() {
+        for (var i = 0; i < $scope.ProductionOrderList.length; i++) {
+            if ($scope.ProductionOrderList[i].Flag == true) {
+                if (checkExists($scope.SelectedProductionOrderList, $scope.ProductionOrderList[i].POId) === false) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.ProductionOrderId = $scope.ProductionOrderList[i].POId;
+                    ob.BuyerOrder = $scope.ProductionOrderList[i].BuyerOrder;
+                    ob.OwnOrder = $scope.ProductionOrderList[i].OwnOrder;
+                    ob.Description = $scope.ProductionOrderList[i].Description;
+                    ob.Qty = $scope.ProductionOrderList[i].Qty;
+                    ob.LSD = $scope.ProductionOrderList[i].LSD;
+                    ob.CommitmentDate = $scope.ProductionOrderList[i].CommitmentDate;
+                    ob.ProductionStatus = $scope.ProductionOrderList[i].ProductionStatus;
+                    ob.BuyerItem = $scope.ProductionOrderList[i].BuyerItem;
+                    ob.OwnItem = $scope.ProductionOrderList[i].OwnItem;
+                    ob.ProductCategory = $scope.ProductionOrderList[i].ProductCategory;
+                    ob.Product = $scope.ProductionOrderList[i].Product;
+                    ob.Customer = $scope.ProductionOrderList[i].Customer;
+                    ob.Buyer = $scope.ProductionOrderList[i].Buyer;
+                    ob.PONumber = $scope.ProductionOrderList[i].PONumber;
+                    ob.RequiredTimeUnit = $scope.ProductionOrderList[i].RequiredTimeUnit;
+                    $scope.SelectedProductionOrderList.push(ob);
+                }
+                else {
+                    throw "This Production Order: " + $scope.ProductionOrderList[i].POId + " is already taken.";
+                }
+            }
+        }
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].ProductionOrderId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     $scope.closePopup = function (popupName) {
         angular.element(document.querySelector("#" + popupName + "")).modal("hide");
         try {
             $("#" + popupName).data("ejDialog").close();
         } catch (e) {
-
         }
     }
     $scope.openPopup = function (popupName) {
@@ -254,13 +332,39 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
         showCaptionSummary: true
 
     }];
+    $scope.sqlInStatement = null;
     $scope.serachSoMaterial = function serachSoMaterial() {
-        $http({
-            method: 'GET',
-            url: 'OrderManagements/PackingContent/GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.packingContenNew.ProductionOrderId
-        }).then(function successCallback(response) {
-            $scope.recipeMaterialList = response.data;
 
+        try {
+            if (baseService.arrayLength($scope.SelectedProductionOrderList) < 0 || baseService.arrayLength($scope.SelectedProductionOrderList) == 0) {
+                throw "Select Production Order.";
+            }
+
+            if ($scope.SelectedProductionOrderList.length > 0) {
+                var uniqueProductionOrderId = removeDuplicates($scope.SelectedProductionOrderList, 'ProductionOrderId');
+                var wcProductionOrderId = "";
+                if (uniqueProductionOrderId.length > 0) {
+                    wcProductionOrderId = "IN(";
+                    wcProductionOrderId += Array.prototype.map.call(uniqueProductionOrderId, function (item) { return "'" + item.ProductionOrderId + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcProductionOrderId;
+            }
+
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/PackingContent/GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.sqlInStatement
+            }).then(function successCallback(response) {
+                $scope.recipeMaterialList = response.data;
+
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
         });
     }
 
@@ -375,6 +479,7 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
     };
 
     // #endregion Recipe Material and SO
+
     $scope.OpenNoRowsPopUp = function () {
         if (baseService.arrayLength($scope.lineItemNo) > 0) {
             $scope.LineNo = $scope.lineItemNo.length;
@@ -392,6 +497,10 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         try {
+
+            if (baseService.arrayLength($scope.SelectedProductionOrderList) < 0 || baseService.arrayLength($scope.SelectedProductionOrderList) == 0) {
+                throw "Select Production Order.";
+            }
 
             if ($scope.packingContenNew.NetWeight > $scope.packingContenNew.GrossWeight) {
                 throw "Net Weight cann't greater than Gross Weight.";
@@ -426,7 +535,7 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
                     $http({
                         method: 'POST',
                         url: 'OrderManagements/PackingContent/Create',
-                        data: { 'data': $scope.model, 'packingContentDetails': $scope.recipeMaterialListSelected, 'packingChilds': $scope.lineItemNo },
+                        data: { 'data': $scope.model, 'packingContentDetails': $scope.recipeMaterialListSelected, 'packingChilds': $scope.lineItemNo, 'packingProductionOrderList': $scope.SelectedProductionOrderList},
                         dataType: 'JSON'
                     }).then(function successCallback(response) {
                         if (response.data.Error === true) {
@@ -449,7 +558,7 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
                     $http({
                         method: 'POST',
                         url: 'OrderManagements/PackingContent/Edit',
-                        data: { 'data': $scope.model, 'packingContentDetails': $scope.recipeMaterialListSelected, 'packingChilds': $scope.lineItemNo },
+                        data: { 'data': $scope.model, 'packingContentDetails': $scope.recipeMaterialListSelected, 'packingChilds': $scope.lineItemNo, 'packingProductionOrderList': $scope.SelectedProductionOrderList },
                         dataType: 'JSON'
                     }).then(function successCallback(response) {
                         if (response.data.Error === true) {
