@@ -2734,6 +2734,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 }
                 else
                 {
+                    con.executeQuery("delete from dbo.JWPOBOQMAP where JWPODetailId='" + id + @"' ");
                     con.executeQuery("delete from dbo.JobWorkTransformationContractChild3 where JobWorkTransformationContractChildMasterId='" + id + @"' ");
                     con.executeQuery("delete from dbo.JWTransformationPurchaseOrderTax where JWTransformationPurchaseOrderDetailId='" + id + @"' ");
                     con.executeQuery("delete from dbo.JobWorkTransformationContractChild where Id='" + id + "' ");
@@ -6218,7 +6219,7 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
                 //                left join dbo.JobWorkTransformationContractChild om on om.Id=mi.JobWorkTransformationContractChildMasterId
                 //                where mi.JobWorkTransformationContractChildMasterId='" + Id + @"' ";
 
-                var _sql = @"select mm.Id as MaterialMasterId
+                var _sql = @"select mm.Id as MaterialMasterId,mi.NetConsumption as NETCon,mi.Rejection as Rej, mi.ValueLoss as ValLoss, mi.GrossConsumption as GrConsump,mi.BOQRequiredQuantity
                                 ,mm.UserName as Material, mm.Code as MaterialCode
                                 , mma.StandardName as Article, mma.Code as ArticleCode
                                 ,uom.UserName as MatBaseUoM,mm.BaseUOMId
@@ -6232,9 +6233,10 @@ LEFT JOIN (SELECT A.JobWorkTransformationContractMasterId, SUM(A.Quantity) AS Tr
 								left join (Select ArticleId,SUM(BOQRequiredQuantity) as BOQReqQty, Sum(NetConsumption) as NetConsumption, Sum(Rejection) as Rejection
 								,Sum(ValueLoss) ValueLoss, Sum(GrossConsumption) GrossConsumption from dbo.JobWorkTransformationContractChild3 group by ArticleId)
 								KK on KK.ArticleId=mma.Id
-                                where mi.JobWorkTransformationContractChildMasterId='"+ Id + @"'
+                                where mi.JobWorkTransformationContractChildMasterId='" + Id + @"'
 								group by mm.Id,mma.Code,mm.UserName,mma.StandardName,mm.Code,uom.UserName
-								,mm.BaseUOMId,om.Quantity,KK.BOQReqQty,KK.NetConsumption,kk.Rejection,KK.ValueLoss,KK.GrossConsumption ";
+								,mm.BaseUOMId,om.Quantity,KK.BOQReqQty,KK.NetConsumption,kk.Rejection,KK.ValueLoss,KK.GrossConsumption
+                                ,mi.NetConsumption,mi.Rejection, mi.ValueLoss, mi.GrossConsumption,mi.BOQRequiredQuantity ";
 
                 return _sqlRepository.GetDataCollection(_sql);
             }

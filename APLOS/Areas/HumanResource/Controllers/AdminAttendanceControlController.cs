@@ -55,7 +55,6 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpPost, Authorize]
         public ActionResult getAllEmployees(string fromdate, string todate,string PlantId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             TimeSpan ts = Convert.ToDateTime(todate).Subtract(Convert.ToDateTime(fromdate));
             if (Math.Abs(ts.TotalDays) > 31)
                 return Json(new { Error = true, Message = "Timespan between from and to date cannot be greater than 31 days" }, JsonRequestBehavior.AllowGet);

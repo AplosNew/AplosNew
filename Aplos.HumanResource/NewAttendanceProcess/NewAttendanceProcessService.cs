@@ -4563,23 +4563,26 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
                 {
                     string CatchPlant = "";
+                    var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                     try
                     {
-                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
                         CatchPlant = PlantValue;
                         DayStatus(Date, PlantValue);
-                        try
-                        {
-                            ManualScheduler(PlantValue);
-                        }
-                        catch (Exception ex)
-                        {
-                            CommonLogFunction(ex, CatchPlant, "ManualProcess");
-                        }
-                    }catch (Exception ex)
+                    }
+                    catch (Exception ex)
                     {
                         CommonLogFunction(ex, CatchPlant, "DayStatusProcess");
                     }
+                    try                        
+                    {
+                        CatchPlant = PlantValue;
+                        ManualScheduler(PlantValue);
+                    }
+                    catch (Exception ex)
+                    {
+                        CommonLogFunction(ex, CatchPlant, "ManualProcess");
+                    }
+                    
                 }
             }
         }
