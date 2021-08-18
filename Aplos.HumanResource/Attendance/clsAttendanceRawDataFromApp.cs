@@ -181,7 +181,7 @@ namespace Library.HumanResource.Attendance
                         dr.BeginEdit();
                         if (!string.IsNullOrEmpty(data[i].InDateApp) && string.IsNullOrEmpty(data[i].InTimeApp))
                         {
-                            dr["InTime"] = data[i].InDateApp;
+                            dr["InTime"] = DBNull.Value;
                         }
                         else
                         {
@@ -197,7 +197,7 @@ namespace Library.HumanResource.Attendance
                         }
                         if (!string.IsNullOrEmpty(data[i].OutDateApp) && string.IsNullOrEmpty(data[i].OutTimeApp))
                         {
-                            dr["OutTime"] = data[i].OutDateApp;
+                            dr["OutTime"] = DBNull.Value;
                         }
                         else
                         {
@@ -245,7 +245,7 @@ namespace Library.HumanResource.Attendance
 
                         if (!string.IsNullOrEmpty(data[i].InDateApp) && string.IsNullOrEmpty(data[i].InTimeApp))
                         {
-                            dr["InTime"] = data[i].InDateApp;
+                            dr["InTime"] = DBNull.Value;
                         }
                         else
                         {
@@ -261,7 +261,7 @@ namespace Library.HumanResource.Attendance
                         }
                         if (!string.IsNullOrEmpty(data[i].OutDateApp) && string.IsNullOrEmpty(data[i].OutTimeApp))
                         {
-                            dr["OutTime"] = data[i].OutDateApp;
+                            dr["OutTime"] = DBNull.Value;
                         }
                         else
                         {

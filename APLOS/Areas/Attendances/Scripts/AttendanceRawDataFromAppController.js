@@ -220,10 +220,10 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
         for (var i = 0; i < $scope.employeeAttendanceBySingleDate.length; i++) {
             $scope.employeeAttendanceBySingleDate[i].ErrorMessage = "";
             try {
-                if (nullrecorder($scope.employeeAttendance[i].InDateApp) != nullrecorder($scope.employeeAttendance[i].InDateOriginal)
-                    || nullrecorder($scope.employeeAttendance[i].InTimeApp) != nullrecorder($scope.employeeAttendance[i].InTimeOriginal)
-                    || nullrecorder($scope.employeeAttendance[i].OutDateApp) != nullrecorder($scope.employeeAttendance[i].OutDateOriginal)
-                    || nullrecorder($scope.employeeAttendance[i].OutTimeApp) != nullrecorder($scope.employeeAttendance[i].OutTimeOriginal))
+                if (nullrecorder($scope.employeeAttendanceBySingleDate[i].InDateApp) != nullrecorder($scope.employeeAttendanceBySingleDate[i].InDateOriginal)
+                    || nullrecorder($scope.employeeAttendanceBySingleDate[i].InTimeApp) != nullrecorder($scope.employeeAttendanceBySingleDate[i].InTimeOriginal)
+                    || nullrecorder($scope.employeeAttendanceBySingleDate[i].OutDateApp) != nullrecorder($scope.employeeAttendanceBySingleDate[i].OutDateOriginal)
+                    || nullrecorder($scope.employeeAttendanceBySingleDate[i].OutTimeApp) != nullrecorder($scope.employeeAttendanceBySingleDate[i].OutTimeOriginal))
                 {
                     DataToBeSaved.push($scope.employeeAttendanceBySingleDate[i]);
                 }

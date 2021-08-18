@@ -4477,7 +4477,6 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
         }
         public void Add(DataTable dt, Dictionary<string, object> sourceData)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             DataRow dr = dt.NewRow();
 
             foreach (var item in sourceData.Keys)
@@ -4490,12 +4489,12 @@ where e.EmployeeStatus='Active' and e.EmpType!='Guest' and e.PlantId='" + PlantI
                 {
                 }
             }
-            dr["AddedBy"] = identity.Name;
-            dr["DateAdded"] = System.DateTime.Now.ToString(); ;
-            dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["DateUpdated"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr["AddedBy"] = "RosterProcess";
+            dr["DateAdded"] = DateTime.Now.ToString(); 
+            dr["AddedFromIP"] = "1";
+            dr["UpdatedBy"] = "RosterProcess";
+            dr["DateUpdated"] = DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = "1";
 
             dt.Rows.Add(dr);
         }
