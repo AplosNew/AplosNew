@@ -731,7 +731,7 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
         $scope.voucher.CompanyCurrencyRate = null;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.NoteType = "CustomerDebitNote";
-        $scope.voucher.SettlementType = "Invoice";
+        $scope.voucher.SettlementType = "Others";
         $scope.invoiceSalesAvailableList = [];
         $scope.voucherDetail.InvoiceTaxViewModel = [];
         $scope.invoiceTaxDetailList = [];
