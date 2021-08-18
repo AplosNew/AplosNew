@@ -301,7 +301,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
             url: 'Accounts/SalaryDisbursement/GetDirectSalaryPayableDisbursementDataList?yearNo=' + $scope.voucher.YearNo + '&monthNo=' + $scope.voucher.MonthNo + '&pMode=' + $scope.voucher.PaymentMode
-                + '&isActive=' + $scope.voucher.IsActive + '&isSeperated=' + $scope.voucher.IsSeperated + '&isMaternity=' + $scope.voucher.IsMaternity,
+                + '&isActive=' + $scope.voucher.IsActive + '&isSeperated=' + $scope.voucher.IsSeperated + '&isMaternity=' + $scope.voucher.IsMaternity + '&bankId=' + $scope.voucher.BankId,
 
         }).then(function successCallback(response) {
             $scope.salaryLockPayableGLData = response.data;
