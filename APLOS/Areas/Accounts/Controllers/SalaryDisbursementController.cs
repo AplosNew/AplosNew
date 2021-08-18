@@ -192,8 +192,10 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpGet, Authorize]
         public ActionResult GetSalaryPayableVoucherReport(ReportFormat reportFormat, string voucherId)
         {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = _salaryDisbursementService.GetSalaryPayableVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            var workbook = accountsSalaryPayableService.GetSalaryPayableVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -569,7 +571,7 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
-            voucherVM.IsPark = true;
+            voucherVM.IsPark = false;
             int year = Int32.Parse(yearNo);
             int month = Int32.Parse(monthNo);
 
@@ -582,6 +584,35 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.SourceType = SourceType.SalaryDisbursement.ToString();
             
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkSalaryPayableDisbursement(voucherVM, yearNo, monthNo, monthName, pMode, directJVList)) });
+        }
+
+        [HttpPost]
+        public ActionResult DeleteSalaryDisbursementVoucher(string voucherId, string monthNo, string yearNo)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salaryDisbursementService.DeleteSalaryDisbursementVoucher(identity.PlantId, voucherId, monthNo, yearNo);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSalaryDisbursementVoucherReport(ReportFormat reportFormat, string voucherId)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = accountsSalaryPayableService.GetSalaryDisbursementVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
         }
         #region Salary Disbusment ---------------------------------
 
