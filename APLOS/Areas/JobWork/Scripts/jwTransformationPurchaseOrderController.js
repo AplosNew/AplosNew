@@ -4562,4 +4562,40 @@ function jwTransformationPurchaseOrderController(cboService, commonMessage, $sco
         $scope.MatInputChildTabId = Id;
         angular.element(document.querySelector("#DelMaterialInputChildBOQ")).modal("show");
     }
+
+    // Order Wise Requirement Sales Order POP UP
+
+    $scope.SOItemList = [];
+
+    //$scope.EmployeeResPersonList = [];
+    //$scope.ResPersonPopUp = function () {
+    //    angular.element(document.querySelector("#EmployeePopUpResPerson")).modal("show");
+    //    $scope.getEmpData();
+
+    //}
+    //$scope.getEmpData = function () {
+    //    $scope.EmployeeResPersonList = [];
+    //    $http({
+    //        method: 'POST',
+    //        //data: { Id: $scope.ModelNew.Id },
+    //        url: $scope.path + 'LoadAllEmpDetails'
+    //    }).then(function successCallback(response) {
+    //        $scope.EmployeeResPersonList = response.data;
+    //    });
+    //}
+    //$scope.setEmpData = function (obj) {
+
+    //    var data = obj.data;
+    //    $scope.detailModel.EmployeeCode = data.Code;
+    //    $scope.detailModel.ResponsiblePersonId = data.Id;
+    //    $scope.detailModel.ResponsiblePerson = data.EmployeeName;
+    //    angular.element(document.querySelector('#EmployeePopUpResPerson')).modal('hide');
+    //};
+    //$scope.ResPersonClear = function () {
+    //    $scope.detailModel.ResponsiblePersonId = null;
+    //    $scope.detailModel.ResponsiblePerson = null;
+    //    $scope.detailModel.EmployeeCode = null;
+    //    $scope.detailModel.EmployeeStatus = null;
+
+    //};
 }
