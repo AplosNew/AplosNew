@@ -777,7 +777,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,b.UoMId TransactionUoMId,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
                         ,0 PORaisedQry,'' InventoryReceiveDetailId, 0 TransactionQty
 						,OtherPOData.TransactionQty OtherPOQty,OtherPOData.TransactionQty OtherPOQtyOrginal
-						,RefferenceNo=ISNULL(moi.OwnReferenceNo,'')
+						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')
 						,b.Rate TransactionRate,'' DeliveryDate,b.POUoMId,mm.BaseUOMId,'' POUoM,uom.UserName BOQUOM
 						,b.POUoMId FromPoUomId
 					    ,b.POUoMId

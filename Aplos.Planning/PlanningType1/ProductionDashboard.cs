@@ -257,7 +257,7 @@ THEN wcm.VariableCost*(TRG.PlanHour-wcm.StandardTimePerDay) ELSE 0 END+wcm.Daily
                                                         LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId='" + PlantId + @"'
                                                         join trn.ProductionOrder PO ON PO.Id=POD.ProductionOrderId
 														LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-														 WHERE (isnull(s.StandardName,'')<>'Closed' OR convert(date,po.ClosingDate)>CONVERT(DATE,'" + date + @"')) 
+														
                                                   
                                                         group by POD.ProductionOrderId
                                                         ) AS ORD on ord.ProductionOrderID=dpt.ProductionOrderId 
@@ -288,7 +288,7 @@ THEN wcm.VariableCost*(TRG.PlanHour-wcm.StandardTimePerDay) ELSE 0 END+wcm.Daily
                                                         LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId='" + PlantId + @"'
                                                         join trn.ProductionOrder PO ON PO.Id=POD.ProductionOrderId
 														LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-														 WHERE (isnull(s.StandardName,'')<>'Closed' OR convert(date,po.ClosingDate)>CONVERT(DATE,'" + date + @"')) 
+														
                                                   
                                                         group by POD.ProductionOrderId
                                                         ) AS ORD on ord.ProductionOrderID=dpt.ProductionOrderId 
@@ -317,7 +317,7 @@ THEN wcm.VariableCost*(TRG.PlanHour-wcm.StandardTimePerDay) ELSE 0 END+wcm.Daily
                         LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                             
 
-                        WHERE PS.PlantId='" + PlantId + @"' AND (isnull(s.StandardName,'')<>'Closed'  OR convert(date,po.ClosingDate)>CONVERT(DATE,'" + date + @"')) AND p.Id IN (SELECT ept.ProcessId
+                        WHERE PS.PlantId='" + PlantId + @"' AND p.Id IN (SELECT ept.ProcessId
                                          FROM hkp.EntityProcessTag AS ept JOIN org.Entity AS e ON e.Id=ept.EntityId WHERE e.CompanyId='" + identity.CompanyId + @"')
                  
                         GROUP BY p.Id) AS K ON K.Id=P.Id
@@ -333,7 +333,7 @@ THEN wcm.VariableCost*(TRG.PlanHour-wcm.StandardTimePerDay) ELSE 0 END+wcm.Daily
                         join trn.ProductionOrder PO ON PO.Id=PS.ProductionOrderId
                         LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
 
-                        WHERE (isnull(s.StandardName,'')<>'Closed'  OR convert(date,po.ClosingDate)>CONVERT(DATE,'" + date + @"')) AND p.Id IN (SELECT ept.ProcessId
+                        WHERE p.Id IN (SELECT ept.ProcessId
                                          FROM hkp.EntityProcessTag AS ept  WHERE ept.EntityId='" + EntityId + @"')
                  
                         GROUP BY p.Id) AS K ON K.Id=P.Id
@@ -424,7 +424,7 @@ THEN wcm.VariableCost*(TRG.PlanHour-wcm.StandardTimePerDay) ELSE 0 END+wcm.Daily
                         join trn.ProductionOrder PO ON PO.Id=PS.ProductionOrderId
                         LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId                         
                         LEFT JOIN org.Entity AS e ON e.Id=ps.EntityId
-                        WHERE (isnull(s.StandardName,'')<>'Closed'  OR convert(date,po.ClosingDate)>CONVERT(DATE,'" + date + @"')) AND p.Id IN (SELECT ept.ProcessId
+                        WHERE p.Id IN (SELECT ept.ProcessId
                                          FROM hkp.EntityProcessTag AS ept JOIN org.Entity AS e ON e.Id=ept.EntityId WHERE e.CompanyId='" + identity.CompanyId + @"')
                  
                         AND PS.ProcessId='" + ProcessId + @"'
@@ -439,7 +439,7 @@ THEN wcm.VariableCost*(TRG.PlanHour-wcm.StandardTimePerDay) ELSE 0 END+wcm.Daily
                         join trn.ProductionOrder PO ON PO.Id=PS.ProductionOrderId
                         LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId                         
                         LEFT JOIN org.Entity AS e ON e.Id=ps.EntityId
-                        WHERE (isnull(s.StandardName,'')<>'Closed' OR convert(date,po.ClosingDate)>CONVERT(DATE,'" + date + @"')) AND p.Id IN (SELECT ept.ProcessId
+                        WHERE p.Id IN (SELECT ept.ProcessId
                                          FROM hkp.EntityProcessTag AS ept  WHERE ept.EntityId='" + EntityId + @"')
                         
                         AND PS.ProcessId='" + ProcessId + @"'
