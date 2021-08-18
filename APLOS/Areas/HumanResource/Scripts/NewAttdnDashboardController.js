@@ -353,8 +353,12 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
 
     // On Click on the Table
     $scope.ClickDetail = [];
+    $scope.RptData = [];
+    $scope.RptColumn = "";
+
     $scope.TableClick = function (data , column) {
-        
+        $scope.RptData = data;
+        $scope.RptColumn = column;
         $http({
             method: 'POST',
             url: 'NewAttdnDashboard/DetailTableClick/',
@@ -372,6 +376,35 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
         }).then(function successCallback(response) {
             $scope.ClickDetail = response.data;
             angular.element(document.querySelector('#TableDetailModal')).modal('show');
+        });
+    }
+
+    // On Downloading the Excel
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.printReport = function () {
+        $http({
+            method: 'POST',
+            url: 'NewAttdnDashboard/GetPrintReport',
+            data: {
+                'ChartColumnList': $scope.ColList,
+                'seq': $scope.index,
+                'date': $scope.Date,
+                'Column': $scope.RptColumn,
+                'data': $scope.RptData,
+                'stat': $scope.Stat,
+                'EmpCat': $scope.EmpCat,
+                'EmpStat': $scope.EmpStat,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
         });
     }
 }
