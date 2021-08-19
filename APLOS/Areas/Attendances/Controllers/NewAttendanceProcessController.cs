@@ -216,7 +216,7 @@ namespace Aplos.Areas.Attendances.Controllers
             {
                 string ErrorlineNo, Errormsg, extype, ErrorLocation;
 
-                ErrorlineNo = ex.StackTrace.Substring(ex.StackTrace.Length - 7, 7);
+                ErrorlineNo = ex.StackTrace.ToString();
                 Errormsg = ex.GetType().Name.ToString();
                 extype = ex.GetType().ToString();
                 ErrorLocation = ex.Message.ToString();
