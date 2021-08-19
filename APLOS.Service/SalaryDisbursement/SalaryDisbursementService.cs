@@ -70,6 +70,7 @@ namespace Library.Service.SalaryDisbursement
         private readonly IRepositoryAsync<Voucher> _voucherRepository;
         private readonly IRepositoryAsync<VoucherDetail> _voucherDetailRepository;
         private readonly IRepositoryAsync<VoucherDetailCurrency> _voucherDetailCurrencyRepository;
+        private readonly IRepositoryAsync<GLTransactionDetail> _gLTransactionDetailRepository;
         private readonly IAdvanceService _advanceService;
 
         public SalaryDisbursementService(
@@ -94,6 +95,7 @@ namespace Library.Service.SalaryDisbursement
             , IRepositoryAsync<Voucher> voucherRepository
             , IRepositoryAsync<VoucherDetail> voucherDetailRepository
             , IRepositoryAsync<VoucherDetailCurrency> voucherDetailCurrencyRepository
+            , IRepositoryAsync<GLTransactionDetail> gLTransactionDetailRepository
             , IAdvanceService advanceService
             )
         {
@@ -119,6 +121,7 @@ namespace Library.Service.SalaryDisbursement
             _voucherRepository = voucherRepository;
             _voucherDetailRepository = voucherDetailRepository;
             _voucherDetailCurrencyRepository = voucherDetailCurrencyRepository;
+            _gLTransactionDetailRepository = gLTransactionDetailRepository;
         }
 
         #endregion Contractor
@@ -876,26 +879,61 @@ namespace Library.Service.SalaryDisbursement
 
                 }
                 _unitOfWork.SaveChanges();
-                flag = false;
-                _unitOfWork.Commit();
-
+               
                 //**************update salary lock VoucherPayableId Direct and InDirect Salary ****************
-                _unitOfWork.BeginTransaction();
-                flag = true;
+              
                 if (directVoucherId != null)
                 {
                     var direct = new System.Text.StringBuilder();
                     var directsql = "";
 
-                    directsql = @"update [dbo].[SalaryLock] set DisbursementVoucherId='" + directVoucherId + @"' where Id in (
-                        select sl.Id     from [dbo].[SalaryLock] sl 
-						 left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-						 left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
-                                    left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						            left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						            left join ORG.Position PO on PO.Id=MPB.PositionId
-                                    where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + "'   and spd.PlantId='" + voucherVM.PlantId + "' and spd.PaymentMode='" + pMode + @"'
-                                    and  IsDisbursed=1 and PayableVoucherId<>'' )";
+                    if (voucherVM.BankId != null)
+                    {
+                        directsql = @"update [dbo].[SalaryLock] set DisbursementVoucherId='" + directVoucherId + @"' where Id in (
+                        select sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo
+                        ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName Bank,v.VoucherNo PayableVoucherNo
+                        ,spc.DisbusmentAmount Amount,spd.Id
+                        from [dbo].[SalaryLock] sl 
+                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+						left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+						left join hkp.Designation d on d.Id=spd.DesignationId
+						left join hkp.Bank b on spd.BankSystemID=b.Id
+						left join trn.Voucher v on v.Id=sl.PayableVoucherId
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL and sl.IsDisbursed=1 
+                        and spd.PaymentMode='" + pMode + "' and spd.BankSystemID='" + voucherVM.BankId + @"'
+                         and spc.DisbusmentAmount!=0  
+                        and spd.PlantId='" + voucherVM.PlantId + @"' 
+						 and ISNULL(sh.SalaryHead, '')  in ('Net Pay')";
+                    }
+                    else
+                    {
+                        directsql = @"update [dbo].[SalaryLock] set DisbursementVoucherId='" + directVoucherId + @"' where Id in (
+                        select sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo
+                        ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName Bank,v.VoucherNo PayableVoucherNo
+                        ,spc.DisbusmentAmount Amount,spd.Id
+                        from [dbo].[SalaryLock] sl 
+                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+						left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+						left join hkp.Designation d on d.Id=spd.DesignationId
+						left join hkp.Bank b on spd.BankSystemID=b.Id
+						left join trn.Voucher v on v.Id=sl.PayableVoucherId
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL and sl.IsDisbursed=1 
+                        and spd.PaymentMode='" + pMode + @"' 
+                        and spc.DisbusmentAmount!=0  
+                        and spd.PlantId='" + voucherVM.PlantId + @"' 
+						and ISNULL(sh.SalaryHead, '')  in ('Net Pay')";
+                    }
+                    
                     direct.Append(directsql);
                     _sqlRepository.ExecuteSqlCommand(direct.ToString());
 
@@ -1005,6 +1043,11 @@ namespace Library.Service.SalaryDisbursement
 
                 foreach (var item in voucherdetail)
                 {
+                    var glTransactionDetail = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().FirstOrDefault();
+                    if (glTransactionDetail != null)
+                    {
+                        _gLTransactionDetailRepository.Delete(item.Id);
+                    }
                     _voucherDetailRepository.Delete(item.Id);
                 }
                 var direct = new System.Text.StringBuilder();
