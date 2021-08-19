@@ -153,7 +153,8 @@ namespace Library.Accounting.Accounts
 								WHERE OB.CompanyGroupId='" + companyGroupId + "' AND OB.CompanyId='" + companyId + "' AND OB.PlantId='" + plantId + "' AND   OBD.OpeningBalanceId='" + openingBalanceId + "'";
             return _sqlRepository.GetGridData(parameters);
         }
-        public GridModel GetInterPlantTransactionTakenList(GridParameter parameters, string sourceType, string companyGroupId, string companyId, string plantId)
+		
+		public GridModel GetInterPlantTransactionTakenList(GridParameter parameters, string sourceType, string companyGroupId, string companyId, string plantId)
         {
             parameters.CmdText = @"SELECT OB.Id, OB.CompanyGroupId, OB.CompanyId, OB.PlantId, OB.EntityId, E.UserName AS EntityName, OB.VoucherId, VD.VoucherNo, OB.EmployeeTransactionTypeId, OB.FinancingTypeId,
                                 OB.SourceType, OB.PartyType, OB.PostingDate, OB.DocDate, OB.DocRefNo, OB.Narration, OB.IsPark, OB.IsPosted, OB.[AddedBy], OB.[AddedDate], OB.[AddedFromIP], X.Amount

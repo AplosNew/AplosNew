@@ -507,17 +507,17 @@ namespace Aplos.Areas.Commercial.Controllers
             DataSet dsSeq = null;
             try
             {
-                var IsUniquePINo = CheckUniquePINo(data);
-                if (!IsUniquePINo)
-                {
-                    throw new Exception("PI No is Unique.");
-                }
+                //var IsUniquePINo = CheckUniquePINo(data);
+                //if (!IsUniquePINo)
+                //{
+                //    throw new Exception("PI No is Unique.");
+                //}
 
-                var IsUniqueLCRef = CheckUniqueLCRef(data);
-                if (IsUniqueLCRef)
-                {
-                    throw new Exception("LC Ref No is Unique.");
-                }
+                //var IsUniqueLCRef = CheckUniqueLCRef(data);
+                //if (IsUniqueLCRef)
+                //{
+                //    throw new Exception("LC Ref No is Unique.");
+                //}
 
                 GetAutoSequence(data.Id, out dsSeq);
                 decimal seq = Convert.ToDecimal(dsSeq.Tables[0].Rows[0]["Version"].ToString());

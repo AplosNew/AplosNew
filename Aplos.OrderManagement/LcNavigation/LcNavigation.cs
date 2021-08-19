@@ -44,20 +44,25 @@ namespace Library.OrderManagement.LcNavigation
                         FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate,
                         P.UserName as  Vendor,
                         PL.Amount as Value,
-                        Cur.Name as Currency,
+                        Cur.Code as Currency,
                         PL.LCANo,PL.Type as LCType,
                         PL.Tenure,
                         PL.BenificiaryBank,                       
                         po.POAmount as POValue
-                        ,ac.AcceptanceValue,
-                        grn.GRNCount
-                        ,grn.GRNTotalAmount as GRNValue,
-                        case when PM.PaymentMade = 0 then null else PM.PaymentMade end as PaymentMade,
+						,PO.POCount
+                        ,ac.AcceptanceValue
+						,ac.AcceptanceCount
+						,grn.GRNTotalAmount as GRNValue
+                        ,grn.GRNCount
+                        
+                        ,case when PM.PaymentMade = 0 then null else PM.PaymentMade end as PaymentMade,
                         con.ContractNo,
                         cus.Customer,
                         PL.Id as LCId
 						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
 						,Loan.Amount Loan
+
+						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
                         from PurchaseLC as PL
                         left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
                         left outer join HKP.Bank as B on OBank.BankId=b.Id
@@ -76,9 +81,9 @@ namespace Library.OrderManagement.LcNavigation
 									group by po.PurchaseLCId
                         ) as grn on grn.LCId = PL.Id 
                         left join (
-									select sum(AD.TotalMaterialTranAmount) as AcceptanceValue,A.PurchaseLCId,A.Id  from TRN.PurchaseDocAcceptanceDetail as AD
+									select sum(AD.TotalMaterialTranAmount) as AcceptanceValue,A.PurchaseLCId,count(distinct A.Id) AcceptanceCount  from TRN.PurchaseDocAcceptanceDetail as AD
 									 inner join trn.PurchaseDocAcceptance as A on A.Id=AD.PurchaseDocAcceptanceId
-									group by A.PurchaseLCId,A.Id
+									group by A.PurchaseLCId
                         ) as ac on ac.PurchaseLCId = PL.Id
 
 						left join(select PDA.PurchaseLCId,sum(LAA.Amount) Amount from TRN.LoanAgainstAcceptance LAA 
@@ -123,7 +128,7 @@ namespace Library.OrderManagement.LcNavigation
                         FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate,
                         P.UserName as  Vendor,
                         PL.Amount as Value,
-                        Cur.Name as Currency,
+                        Cur.Code as Currency,
                         PL.LCANo,PL.Type as LCType,
                         PL.Tenure,
                         PL.BenificiaryBank,                       
@@ -199,9 +204,9 @@ namespace Library.OrderManagement.LcNavigation
 
                             po.Id as PONo,
                             PL.Id as PurchaseLCID,sum(POD.TransactionAmount) as TotalValue,
-                            c.Name as Currency,Ac.AcceptanceValue,
+                            c.Code as Currency,Ac.AcceptanceValue,
                             FORMAT( po.PODate,'dd-MMM-yyyy' ) as PODate  
-                            ,po.DocRefNo as VendorRefNo, grn.GRNValue as GRNValue
+                            ,po.DocRefNo as VendorRefNo, grn.GRNTotalAmount as GRNValue
 
 
                             from PurchaseLC as PL
@@ -216,19 +221,22 @@ namespace Library.OrderManagement.LcNavigation
 
                             left join
                              (
-                            select ir.POId,sum(IRD.TotalMaterialTranAmount) as GRNValue  from trn.InventoryReceive as IR 
-                            inner join TRN.InventoryReceiveDetail as IRD on IRD.InventoryReceiveId = IR.Id
-                            group by IR.POId
-                            )
-                            as grn on grn.POId=po.Id
+                            select  po.PurchaseLCId as LCId,sum(g.TotalMaterialTranAmount) as GRNTotalAmount,count(distinct g.InventoryReceiveId) as GRNCount from TRN.purchaseorder as po 
+									inner join TRN.InventoryReceiveDetail as g on g.POId=po.Id
+									group by po.PurchaseLCId
 
-                             left join (
-                            select pa.POId,sum(pd.TotalMaterialTranAmount) as AcceptanceValue from TRN.PurchaseDocAcceptance as PA 
+                            )
+                            as grn on grn.LCId=PL.Id
+
+                            
+							left join (
+                            select pa.PurchaseLCId,sum(pd.TotalMaterialTranAmount) as AcceptanceValue from TRN.PurchaseDocAcceptance as PA 
                             inner join TRN.PurchaseDocAcceptanceDetail as PD on PD.PurchaseDocAcceptanceId=PA.Id
-                            group by pa.POId
-                            ) as AC on ac.POId=PO.Id
-                             where po.purchaseLcId='" + PurchaseLCId + @"'
-                            group by po.Id,pl.Id,c.Name,po.PODate,po.DocRefNo,grn.GRNValue,AC.AcceptanceValue";
+                            group by pa.PurchaseLCId
+                            ) as AC on ac.PurchaseLCId=PL.Id
+
+                             where po.purchaseLcId='"+PurchaseLCId+@"'
+                            group by po.Id,pl.Id,c.Code,po.PODate,po.DocRefNo,grn.GRNTotalAmount,AC.AcceptanceValue";
         }
 
         public List<Dictionary<string, object>> GetPurchaseLCGRNList(string PurchaseLCId)
@@ -255,7 +263,7 @@ namespace Library.OrderManagement.LcNavigation
 						PL.Id as PurchaseLCId,
 						sum(IRD.TotalMaterialTranAmount) as GRNValue,IRD.InventoryReceiveId as GRNNo,
 					FORMAT( IR.GRNDate,'dd-MMM-yyyy') as GRNDate,po.DocRefNo as VendorRefNo,
-                    c.Name as Currency
+                    c.Code as Currency
 					,gate.UserName as GateName, ir.GateEntryNo
 					from PurchaseLC as PL 
 					 join TRN.PurchaseOrder as PO 
@@ -266,7 +274,7 @@ namespace Library.OrderManagement.LcNavigation
                     left outer join dbo.PlantWiseGate as  gate on gate.Id=g.PlantWiseGateId
 					 left join SCS.Currency as c on c.id=PL.CurrencyId
                     where PurchaseLCId='" + PurchaseLCId + @"'
-					  group by PL.Id,IRD.InventoryReceiveId ,IR.GRNDate,po.DocRefNo,c.Name,gate.UserName,ir.GateEntryNo";
+					  group by PL.Id,IRD.InventoryReceiveId ,IR.GRNDate,po.DocRefNo,c.Code,gate.UserName,ir.GateEntryNo";
 
         }
         public List<Dictionary<string, object>> GetPurchaseLCACList(string PurchaseLCId)
@@ -287,7 +295,7 @@ namespace Library.OrderManagement.LcNavigation
             return @"select
 PL.Id as PurchaseLCId,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' ) as AcceptanceDate
 ,Format(A.PODate,'dd-MMM-yyyy') PODate,A.POAmount,A.PurchaseOrderId PONo,A.GRNAmount,A.InventoryReceiveId GRNNo,FORMAT(A.GRNDate,'dd-MMM-yyyy')GRNDate
-                        ,c.Name as Currency,A.AcceptanceValue
+                        ,c.Code as Currency,A.AcceptanceValue
 						from PurchaseLC as PL
 						join SCS.Currency as c on PL.CurrencyId=c.Id
 						left outer join trn.PurchaseDocAcceptance as PA on PA.PurchaseLCId=PL.Id						
@@ -306,8 +314,8 @@ PL.Id as PurchaseLCId,PA.AcceptanceNo, FORMAT( PA.AcceptanceDate,'dd-MMM-yyyy' )
 						group by PA.PurchaseDocAcceptanceId,PA.POId ,PO.PODate,PO.DocRefNo,GRN.InventoryReceiveId,GRN.GRNDate
 						)						
 						A on A.PurchaseDocAcceptanceId=PA.Id						
-                        where PL.Id ='"+PurchaseLCId+@"'
-						group by PL.Id,PA.AcceptanceNo,PA.AcceptanceDate,c.Name,A.PODate,A.POAmount,A.PurchaseOrderId,A.GRNAmount,A.InventoryReceiveId,A.GRNDate,A.AcceptanceValue";
+                        where PL.Id ='" + PurchaseLCId+ @"'
+						group by PL.Id,PA.AcceptanceNo,PA.AcceptanceDate,c.Code,A.PODate,A.POAmount,A.PurchaseOrderId,A.GRNAmount,A.InventoryReceiveId,A.GRNDate,A.AcceptanceValue";
 
         }
 

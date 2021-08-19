@@ -192,8 +192,10 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpGet, Authorize]
         public ActionResult GetSalaryPayableVoucherReport(ReportFormat reportFormat, string voucherId)
         {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = _salaryDisbursementService.GetSalaryPayableVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            var workbook = accountsSalaryPayableService.GetSalaryPayableVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -266,7 +268,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         [Authorize, HttpGet]
-        public JsonResult GetDirectSalaryPayableDisbursementDataList(string yearNo, string monthNo, string pMode, bool isActive, bool isSeperated, bool isMaternity)
+        public JsonResult GetDirectSalaryPayableDisbursementDataList(string yearNo, string monthNo, string pMode, bool isActive, bool isSeperated, bool isMaternity, string bankId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -309,7 +311,9 @@ namespace Aplos.Areas.Accounts.Controllers
             string sql = null;
             if (!string.IsNullOrEmpty(pMode))
             {
-                 sql = @"SELECT
+                if (bankId != null)
+                {
+                    sql = @"SELECT
                         X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.DisbusmentAmount) DisbusmentAmount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
                         FROM
                         (
@@ -339,50 +343,66 @@ namespace Aplos.Areas.Accounts.Controllers
                             LEFT JOIN HKP.Activity CDA ON CDA.Id=vd.ActivityId
                         where sl.MonthNo = '" + monthNo + "' and sl.YearNo = '" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL 
                         and sl.IsDisbursed=1 and spd.PaymentMode='" + pMode + @"'
-                        and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount != 0 and PO.DirectManpowerCost = 1  " + wcEmpStatus + @"
-                        AND sh.PartOfNetPay=1 
-
+                        and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount != 0 
+                        " + wcEmpStatus + @" and spd.BankSystemID='" + bankId + @"'
+                       
                         group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
                         ,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
                         , CDGL.AccountCode, CDGL.UserName, CDB.UserName, CDA.UserName
-                        UNION
-                        select sh.SalaryHead,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
-                        , 0 DrAmount
-                        , CrAmount=case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount)*-1 else SUM(spc.DisbusmentAmount) end
-                        ,SUM(spc.DisbusmentAmount) DisbusmentAmount
-						  ,vd.GLGeneralInfoId 
-						, vd.BudgetMasterId
-						,vd.ActivityId
-						,CIGL.AccountCode+' - '+CIGL.UserName GLName
-                           ,CIB.UserName BudgetName
-                           ,CIA.UserName Name
-                        from [dbo].[SalaryLock] sl 
-                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
-                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						left join ORG.Position PO on PO.Id=MPB.PositionId
-						left join trn.Voucher v on v.Id=sl.PayableVoucherId
-						left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Net Pay'
-							LEFT JOIN HKP.GLGeneralInfo CIGL ON CIGL.Id=vd.GLGeneralInfoId
-                            LEFT JOIN MST.BudgetMaster CIBM ON CIBM.Id=vd.BudgetMasterId
-                            LEFT JOIN HKP.Budget CIB ON CIB.Id=CIBM.BudgetId
-                            LEFT JOIN HKP.Activity CIA ON CIA.Id=vd.ActivityId
-                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL 
-                        and sl.IsDisbursed=1 and spd.PaymentMode='" + pMode + @"'
-                        and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 --and sgl.CrInDirectActivityId<>''
-                        and spc.DisbusmentAmount!=0 " + wcEmpStatus + @"
-
-                        group by sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
-						,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
-                        ,CIGL.AccountCode,CIGL.UserName ,CIB.UserName ,CIA.UserName
+                        
                         )X
                         GROUP BY
 
                         X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
                         ORDER BY 5";
+                }
+                else
+                {
+                    sql = @"SELECT
+                        X.GLName,X.BudgetName,X.ActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.DisbusmentAmount) DisbusmentAmount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                        FROM
+                        (
+            select sh.SalaryHead,sh.[Sequence], sl.YearNo, sl.MonthNo, sh.HeadType
+                        , 0 DrAmount
+                        , CrAmount =case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount) * -1 else SUM(spc.DisbusmentAmount) end
+                        , SUM(spc.DisbusmentAmount) DisbusmentAmount
+                          ,vd.GLGeneralInfoId 
+						, vd.BudgetMasterId
+						,vd.ActivityId
+                        , CDGL.AccountCode + ' - ' + CDGL.UserName GLName
+                           , CDB.UserName BudgetName
+                           , CDA.UserName ActivityName
+                        from[dbo].[SalaryLock] sl
+                        left join dbo.SalaryProcMaster spm on   spm.MonthNo = sl.MonthNo and spm.YearNo = sl.YearNo
+                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID = spm.SystemID and sl.EmpSystemId = spc.EmpInfoSystemID
+                        left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+                        left join dbo.SalaryHead sh on sh.SalaryHeadID = spc.SalaryHeadID
+                        left join dbo.EmployeeInformation ei on ei.SystemId = sl.EmpSystemId
+                        left join MST.ManpowerBudget MPB on MPB.Id = ei.BudgetCode
+                        left join ORG.Position PO on PO.Id = MPB.PositionId
+                        left join trn.Voucher v on v.Id=sl.PayableVoucherId
+						left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Net Pay'
+							LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=vd.GLGeneralInfoId
+                            LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=vd.BudgetMasterId
+                            LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
+                            LEFT JOIN HKP.Activity CDA ON CDA.Id=vd.ActivityId
+                        where sl.MonthNo = '" + monthNo + "' and sl.YearNo = '" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL 
+                        and sl.IsDisbursed=1 and spd.PaymentMode='" + pMode + @"'
+                        and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount != 0 
+                        " + wcEmpStatus + @"
+                        AND sh.PartOfNetPay=1 
+
+                        group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
+                        ,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
+                        , CDGL.AccountCode, CDGL.UserName, CDB.UserName, CDA.UserName
+                       
+                        )X
+                        GROUP BY
+
+                        X.GLName,X.BudgetName,X.ActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId
+                        ORDER BY 5";
+                }
+                
             }
             else
             {
@@ -419,44 +439,14 @@ namespace Aplos.Areas.Accounts.Controllers
                             LEFT JOIN HKP.Activity CDA ON CDA.Id=vd.ActivityId
                         where sl.MonthNo = '" + monthNo + "' and sl.YearNo = '" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL 
                         and sl.IsDisbursed=1
-                        and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount != 0 and PO.DirectManpowerCost = 1 " + wcEmpStatus + @"
-                        AND sh.PartOfNetPay=1 
+                        and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount != 0 
+                        " + wcEmpStatus + @"
+                        --AND sh.PartOfNetPay=1 
 
                         group by sh.SalaryHead, sl.YearNo, sl.MonthNo, sh.HeadType, sh.[Sequence]
                         ,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
                         , CDGL.AccountCode, CDGL.UserName, CDB.UserName, CDA.UserName
-                        UNION
-                        select sh.SalaryHead,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
-                        , 0 DrAmount
-                        , CrAmount=case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount)*-1 else SUM(spc.DisbusmentAmount) end
-                        ,SUM(spc.DisbusmentAmount) DisbusmentAmount
-						  ,vd.GLGeneralInfoId 
-						, vd.BudgetMasterId
-						,vd.ActivityId
-						,CIGL.AccountCode+' - '+CIGL.UserName GLName
-                           ,CIB.UserName BudgetName
-                           ,CIA.UserName Name
-                        from [dbo].[SalaryLock] sl 
-                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-                        left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						left join ORG.Position PO on PO.Id=MPB.PositionId
-						left join trn.Voucher v on v.Id=sl.PayableVoucherId
-						left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Net Pay'
-							LEFT JOIN HKP.GLGeneralInfo CIGL ON CIGL.Id=vd.GLGeneralInfoId
-                            LEFT JOIN MST.BudgetMaster CIBM ON CIBM.Id=vd.BudgetMasterId
-                            LEFT JOIN HKP.Budget CIB ON CIB.Id=CIBM.BudgetId
-                            LEFT JOIN HKP.Activity CIA ON CIA.Id=vd.ActivityId
-                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL 
-                        and sl.IsDisbursed=1
-                        and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 --and sgl.CrInDirectActivityId<>''
-                        and spc.DisbusmentAmount!=0 " + wcEmpStatus + @"
-
-                        group by sh.SalaryHead,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
-						,vd.GLGeneralInfoId,vd.BudgetMasterId,vd.ActivityId
-                        ,CIGL.AccountCode,CIGL.UserName ,CIB.UserName ,CIA.UserName
+                       
                         )X
                         GROUP BY
 
@@ -465,6 +455,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+     
         [Authorize, HttpGet]
         public JsonResult GetEmployeeDisbursementDataList(string yearNo, string monthNo,string pMode,string bankId)
         {
@@ -487,7 +478,8 @@ namespace Aplos.Areas.Accounts.Controllers
 						left join hkp.Bank b on spd.BankSystemID=b.Id
 						left join trn.Voucher v on v.Id=sl.PayableVoucherId
                         where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + "'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL and sl.IsDisbursed=1 and spd.PaymentMode='" + pMode + @"'
-                         and spc.DisbusmentAmount!=0  and spd.PlantId='" + identity.PlantId + @"' 
+                         and spc.DisbusmentAmount!=0  
+                        and spd.PlantId='" + identity.PlantId + @"' 
 						 and ISNULL(sh.SalaryHead, '')  in ('Net Pay')";
             }
             else
@@ -508,12 +500,14 @@ namespace Aplos.Areas.Accounts.Controllers
 						left join trn.Voucher v on v.Id=sl.PayableVoucherId
                         where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL and sl.IsDisbursed=1 
                         and spd.PaymentMode='" + pMode + "' and spd.BankSystemID='"+bankId+@"'
-                         and spc.DisbusmentAmount!=0  and spd.PlantId='" + identity.PlantId + @"' 
+                         and spc.DisbusmentAmount!=0  
+                        and spd.PlantId='" + identity.PlantId + @"' 
 						 and ISNULL(sh.SalaryHead, '')  in ('Net Pay')";
             }
             
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+        
         [HttpGet, Authorize]
         public JsonResult GetBankList(string yearNo,string monthNo)
         {
@@ -529,6 +523,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
         }
+       
         [HttpGet, Authorize]
         public JsonResult GetBankMasterList(GridParameter parameters, BankACType bankACType, string bankId)
         {
@@ -552,8 +547,15 @@ namespace Aplos.Areas.Accounts.Controllers
                                     LEFT JOIN [HKP].[BankBranch] AS BB ON BB.Id=BM.BankBranchId
                                     LEFT JOIN [SCS].Currency AS C ON C.Id=BM.CurrencyId
                                     WHERE BM.Archive=0 AND BM.Active=1 AND BM.CompanyGroupId='" + companyGroupId + "' AND BM.CompanyId='" + companyId + "' AND BM.PlantId='" + plantId + @"'" +
-                                    " AND BM.AccountType='" + type + "' AND BM.BankId='" + bankId + "'";
+                                    " AND BM.AccountType='" + type + "' AND ISNULL(BM.BankId,'')='" + bankId + "' OR BM.BankId<>''";
                 return _sqlRepository.GetGridData(parameters);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetSalaryPayableDisbursementVoucherList(GridParameter parameters)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetSalaryPayableDisbursementVoucherList(parameters), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
         public JsonResult ParkSalaryPayableDisbursement(VoucherViewModel voucherVM, string yearNo, string monthNo, string monthName, string pMode, IEnumerable<VoucherDetailViewModel> directJVList)
@@ -562,7 +564,7 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
-            voucherVM.IsPark = true;
+            voucherVM.IsPark = false;
             int year = Int32.Parse(yearNo);
             int month = Int32.Parse(monthNo);
 
@@ -572,9 +574,38 @@ namespace Aplos.Areas.Accounts.Controllers
             if (voucherVM.PostingDate > dt)
                 throw new CustomException("Posting Date must in the selected month of " + monthName);
             voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
-            voucherVM.SourceType = SourceType.SalaryPayable.ToString();
+            voucherVM.SourceType = SourceType.SalaryDisbursement.ToString();
             
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkSalaryPayableDisbursement(voucherVM, yearNo, monthNo, monthName, pMode, directJVList)) });
+        }
+
+        [HttpPost]
+        public ActionResult DeleteSalaryDisbursementVoucher(string voucherId, string monthNo, string yearNo)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salaryDisbursementService.DeleteSalaryDisbursementVoucher(identity.PlantId, voucherId, monthNo, yearNo);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSalaryDisbursementVoucherReport(ReportFormat reportFormat, string voucherId)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = accountsSalaryPayableService.GetSalaryDisbursementVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
         }
         #region Salary Disbusment ---------------------------------
 
@@ -708,6 +739,8 @@ namespace Aplos.Areas.Accounts.Controllers
                                     ,v.VoucherNo as PayableVoucherNo
                                     ,vl.VoucherNo as DisbursementVoucherNo
                                     ,sl.IsDisbursed
+                                    ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
+                                  ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end
                                     FROM EmployeeInformation e
                                     LEFT OUTER JOIN ORG.Department edept on edept.id=e.DepartmentId
                                     LEFT OUTER JOIN ORG.Line eL on eL.id=e.LineId

@@ -4009,7 +4009,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 			return Json(new { entity, Message = AplosMessage.Success });
 		}
 		[Authorize, HttpPost]
-		public JsonResult ConverttedBOQUOMData(Dictionary<string, object> data)
+		public JsonResult ConverttedBOQUOMData(Dictionary<string, object> data)//sk
 		{
 
 			try

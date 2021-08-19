@@ -26,14 +26,14 @@
                             <div class="col-xs-12 col-sm-12 col-sm-12">
                                 <div class="search-form">
                                     <div class="row">
-                                        <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="col-xs-12 col-sm-3 col-md-3">
                                             <div class="select-style">
                                                 <select value="Material" ng-model="LCsearchBy">
                                                     <option ng-repeat="option in LCFilterList" value="{{option.value}}">{{option.name}}</option>
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-xs-12 col-sm-5 col-md-5">
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
                                             <input type="text" width="100" class="form-control" placeholder="Search" ng-model="LCsearch" ng-enter="LoadLCGrid()">
                                         </div>
                                         <div class="col-xs-12 col-sm-3 col-md-3">
@@ -91,12 +91,16 @@
                     @*<div e-column e-type="number" e-field="AcceptanceValue" e-textalign="right" e-format="{0:N2}" e-headertext="Acceptance Value" e-width="120"></div>
                         <div e-column e-type="number" e-field="GRNValue" e-textalign="right" e-format="{0:N2}" e-headertext="GRN Value" e-width="100"></div>*@
                     @*<div e-column e-type="number" e-field="PaymentMade" e-textalign="right" e-format="{0:N2}" e-headertext="Payment Made" e-width="100"></div>*@
-                    <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="200"></div>
+                    @*<div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="200"></div>*@
 
                     <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="220"></div>
                     <div e-column e-type="string" e-field="PINo" e-headertext="PI No." e-width="90"></div>
                     <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLC No." e-width="90"></div>
                     <div e-column e-type="string" e-field="UDNo" e-headertext="UD No." e-width="90"></div>
+                    <div e-column e-type="string" e-field="POCount" e-headertext="PO Count" e-width="90"></div>
+                    <div e-column e-type="string" e-field="AcceptanceCount" e-headertext="Acceptance Count" e-width="90"></div>
+                    <div e-column e-type="string" e-field="GRNCount" e-headertext="GRN Count" e-width="90"></div>
+                    <div e-column e-type="string" e-field="Status" e-headertext="LC Status" e-width="90"></div>
                     <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No." e-width="90"></div>
                     @*<div e-column e-type="string" e-field="LCId" e-headertext="LC" e-width="90"></div>*@
                 </div>
@@ -129,7 +133,6 @@
                     <button class="btn" ng-click="getPurcheseLcReport();" style="background-color:cornflowerblue;"><i class="glyphicon glyphicon-file"></i>Purchase LC Report</button>
                 </li>
             </ul>*@
-
     </div>
 </div>
 
@@ -212,9 +215,10 @@
                                 <div e-columns>
                                     <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No." e-width="50"></div>
                                     <div e-column e-type="date" e-field="GRNDate" e-format="{0:dd-MMM-yyyy}" e-headertext="GRN Date" e-width="80"></div>
-                                    <div e-column e-type="string" e-field="VendorRefNo" e-headertext="Vendor RefNo." e-width="100"></div>
+                                    <div e-column e-type="string" e-field="VendorRefNo" e-headertext="Vendor Ref No." e-width="100"></div>
                                     <div e-column e-type="string" e-field="GRNValue" e-textalign="right" e-format="{0:N2}" e-headertext="GRN Value" e-width="100"></div>
-
+                                    
+                                    <div e-column e-type="string" e-field="PONo" e-headertext="PO No." e-width="50"></div>
                                     <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="50"></div>
                                     <div e-column e-type="string" e-field="GateName" e-headertext="Gate Name" e-width="50"></div>
                                     <div e-column e-type="string" e-field="GateEntryNo" e-headertext="Gate Entry No." e-width="50"></div>

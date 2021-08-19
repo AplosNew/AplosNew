@@ -709,7 +709,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         ,Isnull(POMAP.TransactionQty,0) PORaisedQry,POMAP.PODetailId InventoryReceiveDetailId,Isnull(POMAP.TransactionQty,0) TransactionQty 
 						,ISNULL(OtherPOData.TransactionQty,0) OtherPOQty,ISNULL(OtherPOData.TransactionQty,0) OtherPOQtyOrginal
 						--,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '-' + ISNULL(mo.BuyerReferenceNo,'') +'-'+ ISNULL(moi.OwnReferenceNo,'') +'-'+ISNULL(moi.BuyerReferenceNo,'')
-						,RefferenceNo=ISNULL(moi.OwnReferenceNo,'') 
+						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'') 
 						,POMAP.TransactionRate,POMAP.DeliveryDate,b.POUoMId,mm.BaseUOMId,uom1.UserName POUoM,uom.UserName BOQUOM
 					    ,b.POUoMId FromPoUomId
 					    ,b.POUoMId
@@ -777,7 +777,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,b.UoMId TransactionUoMId,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
                         ,0 PORaisedQry,'' InventoryReceiveDetailId, 0 TransactionQty
 						,OtherPOData.TransactionQty OtherPOQty,OtherPOData.TransactionQty OtherPOQtyOrginal
-						,RefferenceNo=ISNULL(moi.OwnReferenceNo,'')
+						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')
 						,b.Rate TransactionRate,'' DeliveryDate,b.POUoMId,mm.BaseUOMId,'' POUoM,uom.UserName BOQUOM
 						,b.POUoMId FromPoUomId
 					    ,b.POUoMId
@@ -838,8 +838,11 @@ namespace Library.MaterialManagement.InventoryManagements
                     //if (!string.IsNullOrEmpty(Data[i]["SavedPOBOQId"].ToString()))
                     //{
                         Data[i]["OtherPOQty"] = conversion.Convert(Data[i]["MaterialMasterId"].ToString(), Data[i]["POUoMId"].ToString(), Data[i]["TransactionUoMId"].ToString(), OTSBD.clsStaticInfo.dbl(Data[i]["OtherPOQtyOrginal"].ToString())).ToString("F2");
+                        Data[i]["OtherPOQtyOrginal"] = conversion.Convert(Data[i]["MaterialMasterId"].ToString(), Data[i]["POUoMId"].ToString(), Data[i]["TransactionUoMId"].ToString(), OTSBD.clsStaticInfo.dbl(Data[i]["OtherPOQtyOrginal"].ToString())).ToString("F2");
 
-                   // }
+                        Data[i]["RequiredQtyPO"] = conversion.Convert(Data[i]["MaterialMasterId"].ToString(), Data[i]["FromPoUomId"].ToString(), Data[i]["TransactionUoMId"].ToString(), OTSBD.clsStaticInfo.dbl(Data[i]["RequiredQtyPOOrginal"].ToString())).ToString("F2");
+
+                    // }
                 }
 
                 return Data;

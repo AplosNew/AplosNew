@@ -110,7 +110,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colCommitmentDate = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Buyer Reference No.";
+                sheet[ROW, COL].Text = "Buyer Item Reference No.";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colBuyerRefNo = COL;
                 COL++;
@@ -141,6 +141,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].Text = "Production Status";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colProductionStatus = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Production Start Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProductionStartDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Production Order Category";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colProductionOrderCategory = COL;
                 COL++;
                 sheet[ROW, COL].Text = "LSD";
                 sheet[ROW, COL].ColumnWidth = 12;
@@ -278,17 +286,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].Text = "CM Value";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colCMValue = COL;
-                //COL++;
-                //sheet[ROW, COL].Text = "Remarks";
-                //sheet[ROW, COL].ColumnWidth = 12;
-                //int colRemarks = COL;
               
                 #endregion columns
 
                 int endCol = COL;
-                //sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
-                //sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -324,8 +327,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colSPT].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["SPT"].ToString());
                     sheet[ROW, colRemarks].Text =dtOrder.Rows[i]["Remarks"].ToString();
                     sheet[ROW, colSOQty].Text = dtOrder.Rows[i]["SOQty"].ToString();
-                    //sheet[ROW, colShippedQty].Text = dtOrder.Rows[i]["ProducedQty"].ToString();
-                    //sheet[ROW, colBalShipment].Text = dtOrder.Rows[i]["LCNo"].ToString();
+                    sheet[ROW, colShippedQty].Text = dtOrder.Rows[i]["ShippedQty"].ToString();
+                    sheet[ROW, colBalShipment].Text = dtOrder.Rows[i]["BalShipment"].ToString();
 
 
                     sheet[ROW, colPlan].Text = dtOrder.Rows[i]["TotalPlanQty"].ToString();
@@ -347,15 +350,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colOtherRawMaterialStatus].Text = dtOrder.Rows[i]["OtherRMInhouseStatus"].ToString();
                     sheet[ROW, colInputRemarks].Text = dtOrder.Rows[i]["InputRemarks"].ToString();
                     sheet[ROW, colInputStatus].Text = dtOrder.Rows[i]["InputStatus"].ToString();
-                  //  sheet[ROW, colLineTarget].Text = dtOrder.Rows[i]["ProductionOrderId"].ToString();
+                    sheet[ROW, colLineTarget].Text = dtOrder.Rows[i]["PlannedLinePreference"].ToString();
                     sheet[ROW, colNoOfLinePlan].Text = dtOrder.Rows[i]["AllocatedLines"].ToString();
                     sheet[ROW, colPriority].Text = dtOrder.Rows[i]["ProductionPriority"].ToString();
-                    //sheet[ROW, colLineNo].Text = dtOrder.Rows[i]["ProductionOrderId"].ToString();
+                    sheet[ROW, colLineNo].Text = dtOrder.Rows[i]["RunningOrderLinePreference"].ToString();
                     sheet[ROW, colOrderValue].Text = dtOrder.Rows[i]["OrderValue"].ToString();
                     sheet[ROW, colCMValue].Text = dtOrder.Rows[i]["CMValue"].ToString();
-                    // sheet[ROW, colRemarks].Text = dtOrder.Rows[i]["ProductionOrderId"].ToString();
-
-
+                    sheet[ROW, colProductionStartDate].Text = dtOrder.Rows[i]["ProductionStartDate"].ToString();
+                    sheet[ROW, colProductionOrderCategory].Text = dtOrder.Rows[i]["ProductionOrderCategory"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -376,6 +378,34 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+
+
+                IListObject table = sheet.ListObjects.Create("Table1", sheet[(1) + (6).ToString() + ":" + (endCol) + (ROW).ToString()]);
+                table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sheet.IsGridLinesVisible = false;
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
 
 
                 #region Sheet Report
@@ -411,7 +441,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].ColumnWidth = 16;
                  colCommitmentDate = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Buyer Reference No.";
+                sheet[ROW, COL].Text = "Buyer Item Reference No.";
                 sheet[ROW, COL].ColumnWidth = 16;
                  colBuyerRefNo = COL;
                 COL++;
@@ -419,7 +449,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].ColumnWidth = 22;
                  colArticle = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Delivery Date";
+                sheet[ROW, COL].Text = "Shipment Date";
                 sheet[ROW, COL].ColumnWidth = 12;
                  colDeliveryDate = COL;
                 COL++;
@@ -442,6 +472,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].Text = "Production Status";
                 sheet[ROW, COL].ColumnWidth = 12;
                  colProductionStatus = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Production Start Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                 colProductionStartDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Production Order Category";
+                sheet[ROW, COL].ColumnWidth = 12;
+                 colProductionOrderCategory = COL;
                 COL++;
                 sheet[ROW, COL].Text = "LSD";
                 sheet[ROW, COL].ColumnWidth = 12;
@@ -494,6 +532,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].Text = "To Plan";
                 sheet[ROW, COL].ColumnWidth = 16;
                  colToPlan = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Order Remarks";
                 sheet[ROW, COL].ColumnWidth = 12;
                  colorderRemarks = COL;
@@ -532,9 +571,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 #endregion columns
 
                 endCol = COL;
-                //sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
-                //sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+               
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -573,8 +612,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colSPT].Number = clsStaticInfo.dbl(dtOrder.Rows[i]["SPT"].ToString());
                     sheet[ROW, colRemarks].Text = dtOrder.Rows[i]["Remarks"].ToString();
                     sheet[ROW, colSOQty].Text = dtOrder.Rows[i]["SOQty"].ToString();
-                    //sheet[ROW, colShippedQty].Text = dtOrder.Rows[i]["ProducedQty"].ToString();
-                    //sheet[ROW, colBalShipment].Text = dtOrder.Rows[i]["LCNo"].ToString();
+                    sheet[ROW, colShippedQty].Text = dtOrder.Rows[i]["ShippedQty"].ToString();
+                    sheet[ROW, colBalShipment].Text = dtOrder.Rows[i]["BalShipment"].ToString();
 
 
                     sheet[ROW, colPlan].Text = dtOrder.Rows[i]["TotalPlanQty"].ToString();
@@ -587,6 +626,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colOtherRawMaterialStatus].Text = dtOrder.Rows[i]["OtherRMInhouseStatus"].ToString();
                     sheet[ROW, colInputRemarks].Text = dtOrder.Rows[i]["InputRemarks"].ToString();
                     sheet[ROW, colInputStatus].Text = dtOrder.Rows[i]["InputStatus"].ToString();
+                    sheet[ROW, colProductionStartDate].Text = dtOrder.Rows[i]["ProductionStartDate"].ToString();
+                    sheet[ROW, colProductionOrderCategory].Text = dtOrder.Rows[i]["ProductionOrderCategory"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -652,28 +693,24 @@ namespace Aplos.Areas.OrderManagements.Controllers
             string sql = @"SELECT p2.Id PlantId,p2.UserName AS Plant,
 e.Id AS MasterOrderEntityId,e.UserName AS MasterOrderEntity,
 e2.Id AS ProductionOrderEntityId,e2.UserName AS ProductionOrderEntity,
-p.UserName AS Customer,
-mo.Remarks,
+p.UserName AS Customer,MO.Remarks,
 b.UserName AS Buyer,ss.UserName AS Season,
 ISNULL(CASE WHEN ISNULL(T.Qty,0)>0 THEN T.Qty ELSE PO.PlannedQty END,0) AS TotalPlanQty,
 ISNULL(PRODPR.ProductionQtyAtPR,0) AS ProducedQty,
 ISNULL(CASE WHEN ISNULL(T.Qty,0)>0 THEN T.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS RemainingPlanQuantity,
 
 
-
 BDEP.UserName AS BuyerDepartment,bd.UserName AS BuyerDivision, ei.EmployeeName AS ResponsiblePerson,mo.MasterOrderNo,MO.TotalQty MasterOrderQty,
-FORMAT(MO.AddedDate,'dd-MMM-yyyy') MasterOrderCreationDate,OC.UserName AS OrderCategory,os.UserName AS OrderStatus, mo.BuyerReferenceNo AS BuyerOrderNo,MO.OwnReferenceNo AS OwnOrderNo,
-MOI.Id AS LineItemId
-,MOI.BuyerReferenceNo 
-,moi.ProductionGrouping,FORMAT(MOI.AddedDate,'dd-MMM-yyyy') MasterOrderItemCreationDate,
+FORMAT(MO.AddedDate,'dd-MMM-yyyy') MasterOrderCreationDate,OC.UserName AS OrderCategory,os.UserName AS OrderStatus, mo.BuyerReferenceNo AS BuyerOrderNo
+,MO.OwnReferenceNo AS OwnOrderNo,
+MOI.Id AS LineItemId,MOI.BuyerReferenceNo,moi.ProductionGrouping,FORMAT(MOI.AddedDate,'dd-MMM-yyyy') MasterOrderItemCreationDate,
 mm.UserName AS Material,mma.StandardName AS Article, pc.UserName AS ProductCategory, pm.UserName AS Product,MOI.TotalQty AS ItemQty,uom.UserName AS UOM,
 PL.Id ProductLibrayId,PL.Code ProductCode,OrderRemarks=(FORMAT(SC.AddedDate,'dd-MMM-yyyy')+'-'+SC.Remarks),SC.[Status] OrderControlStatus,SC.CriticalityLevel
 ,MainRMInhouseRemarks=(FORMAT(M.AddedDate,'dd-MMM-yyyy')+'-'+M.Remarks),M.[Status] MainRMInhouseStatus
 ,OtherRMInhouseRemarks=(FORMAT(O.AddedDate,'dd-MMM-yyyy')+'-'+O.Remarks),O.[Status] OtherRMInhouseStatus
-,InputRemarks=(FORMAT(I.AddedDate,'dd-MMM-yyyy')+'-'+I.Remarks),I.[Status] InputStatus,
+,InputRemarks=(FORMAT(I.AddedDate,'dd-MMM-yyyy')+'-'+I.Remarks),I.[Status] InputStatus
 
-CMValue=ISNULL(so.Qty,0)*ISNULL(SO.CM,0),
-OrderValue=ISNULL(so.Qty,0)*ISNULL(SO.Rate,0)
+
 
 ,so.Id AS SalesOrderId, so.DestinationId,dest.UserName AS Destination,
 so.ShipmentModeId,smo.UserName AS ShipMode, OCS.Id SalesOrderCategoryId,OCS.UserName AS SalesOrderCategory,
@@ -686,7 +723,7 @@ t.ProductionOrderID,ps.UserName AS ProductionStatus, t.NoOfWorkStation, t.Effici
 t.SPT, t.PlanWorkingHoursPerDay, t.FirstDayOutPut,
 t.PlanTargetPerHour, t.IncrementValue, t.IncrementType,
 t.DayToReachTheTarget,
---t.CommitmentDate,
+--t.CommitmentDate ,
 t.ProductionPriority, t.TargetPerHour, t.TargetPerDay,
 t.MinimumLineDays, t.RequiredLineDays,
 t.RequiredNoOfLines, t.AllocatedLines, t.Qty AS ExplicitProductionQty,
@@ -706,10 +743,18 @@ where PO.Id=xp.ProductionOrderId for xml path('') ), 1, 1, ''),
 PlannedLinePreference=STUFF((select distinct ','+xw.UserName from
 ProductionPlanningType1 AS xp
 INNER JOIN scs.WorkCenterMaster AS xw ON xp.WorkCenterMasterId=xw.Id
-where PO.Id=xp.ProductionOrderId for xml path('') ), 1, 1, '')
+where PO.Id=xp.ProductionOrderId for xml path('') ), 1, 1, ''),
 
 
+Format( case when  isnull(PRDD.ProductionDate,'')='' and  isnull(PLND.ProductionDate,'')='' THEN null
+else case when 
+isnull(PRDD.ProductionDate,PLND.ProductionDate) <= isnull(PLND.ProductionDate,PRDD.ProductionDate) THEN PRDD.ProductionDate
+else PLND.ProductionDate END END,'dd-MMM-yyyy') AS ProductionStartDate,
 
+case when isnull(PRDD.ProductionDate,'')='' then 'ToStart' else 'Started' END AS ProductionOrderCategory
+,isnull(SM.TransactionQty,0) ShippedQty,isnull(SO.Qty,0)-ISNUll(SM.TransactionQty,0) BalShipment,
+Isnull(so.CM,0)*isnull(so.Rate,0) CMValue
+, Isnull(so.Qty,0)*isnull(so.Rate,0) OrderValue
 FROM trn.MasterOrder MO
 LEFT JOIN org.Plant AS p2 ON p2.id=mo.PlantId
 LEFT JOIN org.Entity AS e ON e.Id=mo.EntityId
@@ -718,10 +763,9 @@ LEFT join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
 LEFT OUTER JOIN trn.CustomerPO AS cp ON cp.Id=so.CustomerPOId
 LEFT OUTER JOIN hkp.Season SS ON ss.Id=mo.SeasonId
 
-
-
 LEFT OUTER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
 LEFT OUTER JOIN trn.ProductionOrder AS po ON po.Id=pod.ProductionOrderId
+
 LEFT JOIN org.Entity AS e2 ON e2.Id=po.EntityId
 LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
 LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS T ON t.ProductionOrderID=po.Id
@@ -826,6 +870,13 @@ LEFT JOIN dbo.OrderControlRemarks AMTR ON AMTR.OrderControlId=B.Id
 AND AMTR.Id=(Select top(1) Id from dbo.OrderControlRemarks Where OrderControlId=B.Id Order by AddedDate desc)
 Where A.ControlType= 'ShipmentControl'
 ) SC ON SC.SalesOrderId=SO.Id
+
+
+
+LEFT OUTER JOIN (select PS.ProductionOrderId,min( PS.ProductionDate) ProductionDate from TRN.ProductionSummary PS group by PS.ProductionOrderId) PRDD on PRDD.ProductionOrderId=po.Id 
+LEFT OUTER JOIN (select PPT.ProductionOrderID,min(PPT.ProductionDate) ProductionDate from dbo.ProductionPlanningType1 PPT  group by PPT.ProductionOrderID) PLND on PLND.ProductionOrderID=po.Id
+LEFT OUTER JOIN TRN.SalesMaterial SM on SM.SalesOrderId=SO.Id
+
 
 
    WHERE os.UserName='Active'

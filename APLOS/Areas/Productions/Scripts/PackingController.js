@@ -932,10 +932,11 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
                 throw ("Invalid");
             }
 
-            if ($scope.PoLoTCollection[i]["BookQty"] > $scope.PoLoTCollection[i]["Available"] || $scope.PoLoTCollection[i]["PlanQty"] > $scope.PoLoTCollection[i]["Available"]) {
-                ShowResult("The Quantities cannot be more than Available Quantity!");
-                throw ("The Quantities cannot be more than Available Quantity!");
-            }
+
+            //if ($scope.PoLoTCollection[i]["BookQty"] > $scope.PoLoTCollection[i]["Available"] || $scope.PoLoTCollection[i]["PlanQty"] > $scope.PoLoTCollection[i]["Available"]) {
+            //    ShowResult("The Quantities cannot be more than Available Quantity!");
+            //    throw ("The Quantities cannot be more than Available Quantity!");
+            //}
         }
     }
 

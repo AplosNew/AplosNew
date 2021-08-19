@@ -141,13 +141,13 @@
                 <div class="row">
                     <div class="col-xs-12 col-sm-3 col-md-3">
                         <div class="select-style">
-                            <select ng-model="voucherListParameters.searchBy">
+                            <select ng-model="$root.parameters.searchBy">
                                 <option ng-repeat="option in searchvoucherList" value="{{option.value}}">{{option.name}}</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-7 col-md-7">
-                        <input type="text" class="form-control" placeholder="Search" ng-model="voucherListParameters.search" ng-enter="getData()">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
                     </div>
                     <div class="col-xs-12 col-sm-2 col-md-2">
                         <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
@@ -162,6 +162,8 @@
                 <tr>
                     <th>VoucherNo</th>
                     <th>Posting Date</th>
+                    <th>Doc Ref No</th>
+                    <th>Doc Date</th>
                     <th>Currency</th>
                     <th>Amount</th>
                     <th>Status</th>
@@ -172,6 +174,8 @@
                 <tr dir-paginate="x in voucherList |itemsPerPage:voucherListParameters.pageSize" total-items="voucherListParameters.total_count" ng-dblclick="Clear();Get(x);">
                     <td>{{x.VoucherNo}}</td>
                     <td>{{x.PostingDate | dateFiltering}}</td>
+                    <td>{{x.DocRefNo}}</td>
+                    <td>{{x.DocDate | dateFiltering}}</td>
                     <td>{{x.CurrencyCode}}</td>
                     <td class="text-right">{{x.DrAmount | number:2}}</td>
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>

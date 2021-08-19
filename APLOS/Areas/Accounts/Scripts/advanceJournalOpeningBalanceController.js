@@ -662,6 +662,7 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
 
     $scope.closePartyPopUp = function (x) {
         $scope.glvoucherDetail = {};
+        $scope.glvoucherDetailList = [];
         var party = x.data;
         if ($scope.voucher.PartyType == 'Vendor' || $scope.voucher.PartyType == 'Customer') {
             if (baseService.isUndefinedOrNull($scope.voucher.FinancingTypeId)) {
@@ -817,8 +818,8 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
                         $scope.voucherDetail.PartyType = $scope.voucher.PartyType;
                         $scope.voucherDetail.PartyPlantId = party.PartyPlantId;
                         $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
-                        $scope.voucherDetail.CrAmount = party.DrAmount;
-                        $scope.voucherDetail.DrAmount = party.CrAmount;
+                        $scope.voucherDetail.CrAmount = party.CrAmount;
+                        $scope.voucherDetail.DrAmount = party.DrAmount;
                         if ($scope.voucher.InvoiceAdvance == 'Invoice' && $scope.voucher.PartyType == 'Vendor'
                             || $scope.voucher.InvoiceAdvance == 'Advance' && $scope.voucher.PartyType == 'Customer'
                         ) {
@@ -850,8 +851,8 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
                     $scope.voucherDetail.PartyType = $scope.voucher.PartyType;
                     $scope.voucherDetail.PartyPlantId = party.PartyPlantId;
                     $scope.voucherDetail.PlantId = $scope.voucher.PlantId;
-                    $scope.voucherDetail.CrAmount = party.DrAmount;
-                    $scope.voucherDetail.DrAmount = party.CrAmount;
+                    $scope.voucherDetail.CrAmount = party.CrAmount;
+                    $scope.voucherDetail.DrAmount = party.DrAmount;
                     $scope.voucherDetail.DrDisable = false;
                     $scope.voucherDetail.CrDisable = false;
                     $scope.voucherDetailList.splice(0, 0, $scope.voucherDetail);
@@ -2749,6 +2750,14 @@ function advanceJournalOpeningBalanceController(accountService, cboService, comm
         {
             "name": "Party Code",
             "value": "PartyCode"
+        },
+        {
+            "name": "DrAmount",
+            "value": "DrAmount"
+        },
+        {
+            "name": "CrAmount",
+            "value": "CrAmount"
         }
     ];
 

@@ -126,7 +126,8 @@ namespace Library.HumanResource.Payroll.SalaryProcess
                                     , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end Flag
                                     ,DeG.UserName Designation,EC.UserName EmployeeCategory
 
-                                  
+                                  ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
+                                  ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end
 
 	                                  ,(PMB.EntityId) EntityId
 									,(PMB.PositionId) PositionId                                     
@@ -214,90 +215,6 @@ namespace Library.HumanResource.Payroll.SalaryProcess
 									 
 									 ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric
 									";
-
-            //   string sql = @"SELECT [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
-            //                            isnull(e.SystemId,'') EmpSystemId
-            //,ISNULL(e.EmployeeId,'')  EmployeeId 
-            //                        ,sl.Id,CheckBoxSelect=case when  sl.Id is null then  CONVERT(bit,0) when sl.IsLocked <> 1  then CONVERT(bit,0) else  CONVERT(bit,1) end   
-            //,SPM.MonthNo,SPM.YearNo ,sl.IsLocked AS Lock
-            //                           ,ISNULL(e.EmployeeCode,'') EmployeeCode
-            //                           ,ISNULL(e.EmployeeName,'') EmployeeName	
-            //                           , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end Flag
-
-
-
-            //                         ,(mpb.EntityId) EntityId
-            //,(mpb.PositionId) PositionId                                     
-            //                           ,(ld.UserName) Designation                                        
-            //,(Department.UserName) Department 
-            //,(Division.UserName) Division 
-            //,(EmpC.UserName) EmployeeCategory
-            //,(Plant.UserName) Plant 
-            //,(Section.UserName) Section 
-            //,(SubSection.UserName) SubSection 
-            //,(Unit.UserName) Unit 
-            //                           ,(eL.UserName) Line
-
-            //                           ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOJ, 106), ' ', '-'),'') DOJ
-            //                           ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
-            //                           , CASE WHEN MONTH(DOS) =  MONTH('" + effectiveDate + @"')  AND YEAR(DOS) = YEAR('" + effectiveDate + @"') then 'Separated' else 'Active' end CurrentMonthEmployeeStatus
-            //                           ,ISNULL(e.EmployeeStatus,'') EmployeeStatus
-            //                           " + salaryProcessFlag + @"
-            //                           " + salaryProcessColumn + @"
-            //,ISNULL(PG.UserName,'') PayRollGroup
-            //                           ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
-            //                           ,ISNULL(jl.JobLocation, '') JobLocation
-            //,ISNULL(spd.PaymentMode,'') PaymentMode
-            //,ISNULL(bb.UserName,'') BankName
-            //                           ,ISNULL(v.VoucherNo,'' ) VoucherNo
-            //                           ,ISNULL(sl.PayableVoucherId,'') PayableVoucherId
-            //                           ,ISNULL(sl.DisbursementVoucherId,'') DisbursementVoucherId
-            //                           ,v.VoucherNo as PayableVoucherNo
-            //                           ,vl.VoucherNo as DisbursementVoucherNo
-            //                           ,SPC.SalaryID as SalaryStructureId
-            //                           FROM EmployeeInformation e
-            //                           LEFT OUTER JOIN ORG.Department edept on edept.id=e.DepartmentId
-            //                           LEFT OUTER JOIN ORG.Division ediv on ediv.id=e.DivisionId
-            //                           LEFT OUTER JOIN ORG.SubDivision esdiv on esdiv.id=e.SubDivisionId
-            //                           LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
-            //                           LEFT OUTER JOIN ORG.Unit eu on eu.id=e.UnitId
-            //                           LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
-            //                           LEFT OUTER JOIN HKP.DesignationGroup edsgg on edsgg.id=e.DesignationGroupId
-            //LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=e.GivenDesignationId
-
-            //                           --LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId,dg.UserName GivenDesignationGroup
-            //--FROM mst.DesignationMaster dm
-            //--LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
-            //--) egdsgg on egdsgg.DesignationId=e.GivenDesignationId AND egdsgg.EmployeeCategoryId=e.EmployeeCategorySystemID
-
-            //                           LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
-            //LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
-            //                           LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
-            //LEFT OUTER JOIN ORG.Line eL on eL.id=mpb.LineId
-            //                           LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
-            //                           LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
-            //                           LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
-            //                           LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
-            //                           LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
-            //                           LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId                                   
-            //                           LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
-
-            //                           LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
-            //                           Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
-            //Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
-            //                           " + salaryProcessJoin + @"
-            //                           LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = spd.EmployeeCategoryId
-            //                           LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=spd.LegalDesignationId
-            //                           Left Join [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
-            //left join [dbo].[EmployeeBankInfo] ebi on ebi.EmpSystemID=e.SystemId
-            //left join [HKP].[Bank] bb on bb.Id = spd.BankSystemID
-            //Left join SalaryLock sl on sl.EmpSystemId=e.SystemId and sl.YearNo=YEAR('" + effectiveDate + @"') AND SL.MonthNo=Month('" + effectiveDate + @"')
-            //                           LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
-            //                           LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
-
-            //                            WHERE " + param + @" and isnull(spc.SystemID,'')<>'' " + strDOJ + @" 
-            //                                   " + wcPayrollGroup + @"  " + wcSalaryProcess + @"                                       
-            //                            ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             return sql;           
         }
     }

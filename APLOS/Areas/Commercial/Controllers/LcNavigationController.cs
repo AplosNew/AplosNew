@@ -282,7 +282,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate,
                         P.UserName as  Vendor,
                         PL.Amount as Value,
-                        Cur.Name as Currency,
+                        Cur.Code as Currency,
                         PL.LCANo,PL.Type as LCType,
                         PL.Tenure,
                         PL.BenificiaryBank,                       
@@ -412,26 +412,32 @@ namespace Aplos.Areas.Commercial.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select
+            string sql = @"select top 100 * from (
+select
                         PL.LCRef as LCNo,
                         B.UserName as OpeningBank,
                         FORMAT( PL.LCDate,'dd-MMM-yyyy' )as OpeningDate,
                         P.UserName as  Vendor,
                         PL.Amount as Value,
-                        Cur.Name as Currency,
+                        Cur.Code as Currency,
                         PL.LCANo,PL.Type as LCType,
                         PL.Tenure,
                         PL.BenificiaryBank,                       
                         po.POAmount as POValue
-                        ,ac.AcceptanceValue,
-                        grn.GRNCount
-                        ,grn.GRNTotalAmount as GRNValue,
-                        case when PM.PaymentMade = 0 then null else PM.PaymentMade end as PaymentMade,
+						,PO.POCount
+                        ,ac.AcceptanceValue
+						,ac.AcceptanceCount
+						,grn.GRNTotalAmount as GRNValue
+                        ,grn.GRNCount
+                        
+                        ,case when PM.PaymentMade = 0 then null else PM.PaymentMade end as PaymentMade,
                         con.ContractNo,
                         cus.Customer,
                         PL.Id as LCId
 						,PL.PINo,ML.LCRef MasterLCNo,PL.Id MasterLCId,Con.UDNo
 						,Loan.Amount Loan
+
+						,[Status]=case when PL.Status='Active' then 'Active' else 'Closed' END
                         from PurchaseLC as PL
                         left outer join MST.BankMaster as OBank on PL.OpeningBankMasterId=OBank.Id
                         left outer join HKP.Bank as B on OBank.BankId=b.Id
@@ -449,17 +455,16 @@ namespace Aplos.Areas.Commercial.Controllers
 									inner join TRN.InventoryReceiveDetail as g on g.POId=po.Id
 									group by po.PurchaseLCId
                         ) as grn on grn.LCId = PL.Id 
-                left join (
-									select sum(PDAD.TotalMaterialTranAmount) as AcceptanceValue,PO.PurchaseLCId from TRN.PurchaseOrder  PO
-									Inner join trn.PurchaseDocAcceptanceDetail PDAD on PDAD.POId=PO.Id
-									group by PO.PurchaseLCId 
+                        left join (
+									select sum(AD.TotalMaterialTranAmount) as AcceptanceValue,A.PurchaseLCId,count(distinct A.Id) AcceptanceCount  from TRN.PurchaseDocAcceptanceDetail as AD
+									 inner join trn.PurchaseDocAcceptance as A on A.Id=AD.PurchaseDocAcceptanceId
+									group by A.PurchaseLCId
                         ) as ac on ac.PurchaseLCId = PL.Id
-						left outer join TRN.PurchaseDocAcceptance PDA on PDA.PurchaseLCId=PL.Id
-						left join(   
-						            select LAA.PurchaseDocAcceptanceId,sum(LAA.Amount) Amount from TRN.LoanAgainstAcceptance LAA 
+
+						left join(select PDA.PurchaseLCId,sum(LAA.Amount) Amount from TRN.LoanAgainstAcceptance LAA 
 											left outer join TRN.PurchaseDocAcceptance PDA on PDA.Id=LAA.PurchaseDocAcceptanceId
-											group by LAA.PurchaseDocAcceptanceId														
-						) Loan on Loan.PurchaseDocAcceptanceId=PDA.Id
+											group by PDA.PurchaseLCId												
+						) Loan on Loan.PurchaseLCId=PL.Id
 
                         left outer join (
 										 select con.Id as Id, customer.UserName as Customer from Contract as con 

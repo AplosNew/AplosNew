@@ -2734,6 +2734,7 @@ namespace Library.MaterialManagement.Inventory
 				var NewId1 = "";
 				var currentId = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 1) AS INT)), 0) Id FROM [TRN].[PurchaseOrderDetail] WHERE  InventoryReceiveId = '{PoId}'").First();
 				var groupListentity = groupList;
+				var PODetailsId = "";
 				foreach (var itemDetail in groupListentity)
 				{
 					var refferenceNo = "";
@@ -2749,7 +2750,7 @@ namespace Library.MaterialManagement.Inventory
 						var baseUoMFactorList = _materialMasterService.GetBaseUoMConvertionFactorByMaterialMaster(materialMasterIds, altUomIds);
 						var TransactionQty = entity.Where(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId && r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId && r.ThirdCharacteristicsValueId == r.ThirdCharacteristicsValueId).Sum(r => r.TransactionQty);
 						var lst = entity.Where(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId && r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId && r.ThirdCharacteristicsValueId == r.ThirdCharacteristicsValueId).ToList();
-
+						
 						var ViewModelData = new List<InventoryMaterialViewModel>();                         //var newList = new string[]{  }; 
 						foreach (var lstt1 in lst)
 						{
@@ -2811,6 +2812,8 @@ namespace Library.MaterialManagement.Inventory
 
 						//End Update Req Table
 						itemDetail.Id = "";
+						var PODetailId = entity.Where(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId && r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId && r.ThirdCharacteristicsValueId == r.ThirdCharacteristicsValueId && r.InventoryReceiveDetailId != "").FirstOrDefault();
+						PODetailsId = PODetailId.InventoryReceiveDetailId;
 						// Insert in receive detail
 						if (string.IsNullOrEmpty(itemDetail.Id))
 						{
@@ -2819,7 +2822,7 @@ namespace Library.MaterialManagement.Inventory
 							currentId++;
 							var receiveDetail = new PurchaseOrderDetail
 							{
-								Id = itemDetail.InventoryReceiveDetailId,
+								Id = PODetailId.InventoryReceiveDetailId.ToString(),//itemDetail.InventoryReceiveDetailId, 
 								MaterialStorageId = itemDetail.MaterialStorageId,
 								InventoryReceiveId = PoId, //itemDetail.InventoryReceiveId,
 								InventoryMaterialId = itemDetail.MaterialMasterId,
@@ -2967,11 +2970,35 @@ namespace Library.MaterialManagement.Inventory
 							}
 							else
 							{
+								var POBOQMapRepository = _POBOQMapRepository.Query(t => t.PODetailId == PODetailsId.ToString()).Select().ToList();
+								if (POBOQMapRepository.IsNotNull())
+								{
+									foreach (var item in POBOQMapRepository) 
+									{
+										item.ModelState = ModelState.Deleted;
+										_POBOQMapRepository.Delete(item);
+									}
+								}
 
+								//var PoReqDetail = new POBOQMap
+								//{
+
+								//	Id = POReqDetail.SavedPOBOQId,
+								//	PODetailId = NewId1,
+								//	BOQDetailId = POReqDetail.BOQId,
+								//	TransactionQty = POReqDetail.TransactionQty,
+								//	TransactionUoMId = POReqDetail.TransactionUoMId,
+								//	BaseQty = Convert.ToDecimal(itemDetail.BaseQty),
+								//	BaseUoMId = itemDetail.BaseUOMId,
+								//	POUoMId = itemDetail.POUoMId,
+								//	POBOQQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(POReqDetail.TransactionQty)),
+								//};
+								//AuditService.UpdatedLog(PoReqDetail);
+								//_POBOQMapRepository.Update(PoReqDetail);
 								var PoReqDetail = new POBOQMap
 								{
 
-									Id = POReqDetail.SavedPOBOQId,
+									Id = GetPOBOQPK(),
 									PODetailId = NewId1,
 									BOQDetailId = POReqDetail.BOQId,
 									TransactionQty = POReqDetail.TransactionQty,
@@ -2981,8 +3008,8 @@ namespace Library.MaterialManagement.Inventory
 									POUoMId = itemDetail.POUoMId,
 									POBOQQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(POReqDetail.TransactionQty)),
 								};
-								AuditService.UpdatedLog(PoReqDetail);
-								_POBOQMapRepository.Update(PoReqDetail);
+								AuditService.AddedLog(PoReqDetail);
+								_POBOQMapRepository.Insert(PoReqDetail);
 							}
 						}
 					}

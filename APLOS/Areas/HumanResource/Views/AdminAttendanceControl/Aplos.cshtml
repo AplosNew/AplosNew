@@ -11,24 +11,28 @@
             <div class="row">
 
                 <div class="col-sm-12">
+
                     <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="ModelNew.CompanyId" ng-change="getPlants()" name="Entity"
+                                            ng-options="item.Value as item.Text for item in CompanyList" required>
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />
                             </div>
                         </div>
-                    </div>
 
-                    <div class="col-sm-6">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDate" e-width="100%" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
+
                         <div class="form-group">
                             <label class="col-sm-8 control-label">Select Employee<sup>*</sup></label>
                             <div class="col-sm-4 show-message">
@@ -39,7 +43,30 @@
                                 </div>
                             </div>
                         </div>
+
                     </div>
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="ModelNew.PlantId" name="Plant"
+                                            ng-options="item.Value as item.Text for item in PlantList" required>
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDate" e-width="100%" />
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -247,7 +274,7 @@
     <div class="col-sm-10" style="padding:0px; ">
 
         <div class="select-style">
-            <select class="form-control" ng-model="data.ShiftSystemID" name="" required ng-disabled="data.IsLock==true"
+            <select class="form-control" ng-model="data.ShiftSystemID" name="" required 
                     ng-options="item.SystemID as item.UserName for item in $parent.allShift">
                 <option value="">--Select--</option>
             </select>
@@ -265,7 +292,7 @@
     <div class="col-sm-10" style="padding:0px; ">
 
         <div class="select-style">
-            <select class="form-control" ng-model="data.ShiftSystemID" name="" required ng-disabled="data.IsLock==true"
+            <select class="form-control" ng-model="data.ShiftSystemID" name="" required 
                     ng-options="item.SystemID as item.UserName for item in $parent.allShiftSingleDay">
                 <option value="">--Select--</option>
             </select>
@@ -287,25 +314,22 @@
 </script>
 
 <script type="text/template" id="indate">
-    <input type="text" name="Date" ng-model="data.InDate" datepicker class="form-control"
-           ng-disabled="data.IsLock==true">
+    <input type="text" name="Date" ng-model="data.InDate" datepicker class="form-control">
 </script>
 <script type="text/template" id="intime">
 
-    <input style="display:{{data.IsLock==true?'none':'inherit'}};" type="text" ej-timepicker e-value="data.InTime" e-width="100%" />
-    <span style="display:{{data.IsLock==true?'inherit':'none'}};">{{data.InTime}}</span>
-
+    <input type="text" ej-timepicker e-value="data.InTime" e-width="90%" />
+   
 </script>
 
 <script type="text/template" id="outdate">
-    <input type="text" name="Date" ng-model="data.OutDate" datepicker class="form-control" ng-disabled="data.IsLock==true">
+    <input type="text" name="Date" ng-model="data.OutDate" datepicker class="form-control" >
 </script>
 
 
 <script type="text/template" id="outtime">
-       
-    <input style="display:{{data.IsLock==true?'none':'inherit'}};" type="text" ej-timepicker e-value="data.OutTime" e-width="100%" />
-    <span style="display:{{data.IsLock==true?'inherit':'none'}};">{{data.OutTime}}</span>
+
+    <input type="text" ej-timepicker e-value="data.OutTime" e-width="90%" />
 
 </script>
 
