@@ -41,6 +41,7 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
     $scope.Get = function (obj) {
         $scope.model = obj.data;
         $scope.packingContenNew = Object.assign({}, $scope.model);
+        $scope.GetPackingProductionOrderData($scope.packingContenNew.Id);
         $scope.getDetailData($scope.packingContenNew.Id);
         $scope.getPackingChildData($scope.packingContenNew.Id);
 
@@ -49,6 +50,20 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
+    };
+
+    $scope.GetPackingProductionOrderData = function (MasterId) {
+        $scope.SelectedProductionOrderList = [];
+        $http.get("OrderManagements/PackingContent/GetPackingProductionOrderData?MasterId=" + MasterId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.SelectedProductionOrderList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
     };
 
     //$scope.uOMList = [];
@@ -186,7 +201,6 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
 
     $scope.EntityProcessSettingList = [];
     $scope.GetEntityProcessSettingData = function (EntityId) {
-
         $http({
             method: 'GET',
             url: 'OrderManagements/PackingContent/GetEntityProcessSettingData?EntityId=' + EntityId
@@ -215,7 +229,6 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
                 angular.element(document.querySelector('#POItemPopup')).modal('hide');
             }
         });
-
     };
 
     $scope.selectSOItem = function ($event) {
@@ -466,8 +479,6 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
         } catch (e) {
             ShowResult(e, 'failure', 'recipeMaterialPopUp');
         }
-
-
     };
 
     $scope.checkSameRecipe = function (data, index, event) {
@@ -719,6 +730,7 @@ function PackingContentController(commonMessage, $scope, $rootScope, baseService
         $scope.packingContenNew = Object.assign({}, $scope.model);
 
         $scope.recipeMaterialListSelected = [];
+        $scope.SelectedProductionOrderList = [];
         $scope.lineItemNo = [];
         $scope.Action = 'Save';
     }
