@@ -61,7 +61,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             data: {
                 'obj': JSON.stringify(filtered),
                 'ReportHeader': $scope.report.AssetsLiability + '   ' + $scope.report.ToDate,
-               //'toDate': $scope.report.ToDate
+                //'toDate': $scope.report.ToDate
             }
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -99,7 +99,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         if (x.style.display === "none") {
             y.style.display = "none";
             x.style.display = "block";
-          
+
         }
     }
     $scope.showSecondDiv = function () {
@@ -139,7 +139,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
- //.............#regon Vendor Tab...................
+    //.............#regon Vendor Tab...................
     //get data for master gride for vendor Payable
     $scope.GetInvoiceList = function () {
         try {
@@ -788,7 +788,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         $rootScope.report(file_src);
 
     }
- //.............#endregion vendor payable tab
+    //.............#endregion vendor payable tab
 
     //AutoMailReport
     $scope.AutoMailReport = function () {
@@ -800,50 +800,50 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         $rootScope.report(file_src);
     }
 
-    $scope.DateRangeWisePayableList = [];
-    $scope.GetDateRangeWisePayableData = function () {
-        try {
+    //$scope.DateRangeWisePayableList = [];
+    //$scope.GetDateRangeWisePayableData = function () {
+    //    try {
 
-            $http({
-                method: 'POST',
-                url: 'Accounts/AccountStatusDashboard/GetDateRangeWisePayableData',
-                data: {
-                    FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate
-                },
-                dataType: 'JSON'
+    //        $http({
+    //            method: 'POST',
+    //            url: 'Accounts/AccountStatusDashboard/GetDateRangeWisePayableData',
+    //            data: {
+    //                FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate
+    //            },
+    //            dataType: 'JSON'
 
-            }).then(function successCallback(response) {
-                $scope.DateRangeWisePayableList = response.data.DATA;
-            }),
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-        }
-        catch (e) {
+    //        }).then(function successCallback(response) {
+    //            $scope.DateRangeWisePayableList = response.data.DATA;
+    //        }),
+    //            function errorCallBack(response) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //    }
+    //    catch (e) {
 
-        }
-    }
-    $scope.GetDateRangeWisePayableData();
+    //    }
+    //}
+    //$scope.GetDateRangeWisePayableData();
 
-    $scope.DateRangeWiseReport = function () {
+    //$scope.DateRangeWiseReport = function () {
 
-        if (baseService.isUndefinedOrNull($scope.reportParameters.FromDate)) {
-            manualValidation("div_FromDate", true, "From Date is required.");
-        }
-        else if (baseService.isUndefinedOrNull($scope.reportParameters.ToDate)) {
-            manualValidation("div_ToDate", true, "To Date is required.");
-        }
-        else if (new Date($scope.report.FromDate) > new Date($scope.reportParameters.ToDate)) {
-            manualValidation("div_FromDate", true, "From date must be below or equal to To Date");
-        }
-        else if (new Date($scope.report.ToDate) < new Date($scope.reportParameters.FromDate)) {
-            manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
-        }
-        else {
-            var url = 'Accounts/AccountStatusDashboard/GetDateRangeWiseReport?fromDate=' + $scope.reportParameters.FromDate + '&toDate=' + $scope.reportParameters.ToDate;
-            $rootScope.report(url);
-        }
-    }
+    //    if (baseService.isUndefinedOrNull($scope.reportParameters.FromDate)) {
+    //        manualValidation("div_FromDate", true, "From Date is required.");
+    //    }
+    //    else if (baseService.isUndefinedOrNull($scope.reportParameters.ToDate)) {
+    //        manualValidation("div_ToDate", true, "To Date is required.");
+    //    }
+    //    else if (new Date($scope.report.FromDate) > new Date($scope.reportParameters.ToDate)) {
+    //        manualValidation("div_FromDate", true, "From date must be below or equal to To Date");
+    //    }
+    //    else if (new Date($scope.report.ToDate) < new Date($scope.reportParameters.FromDate)) {
+    //        manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
+    //    }
+    //    else {
+    //        var url = 'Accounts/AccountStatusDashboard/GetDateRangeWiseReport?fromDate=' + $scope.reportParameters.FromDate + '&toDate=' + $scope.reportParameters.ToDate;
+    //        $rootScope.report(url);
+    //    }
+    //}
 
     $scope.DateRangeWisePaymentList = [];
     $scope.GetDateRangeWisePaymentData = function () {
@@ -868,7 +868,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-   // $scope.GetDateRangeWisePaymentData();
 
 
     $scope.DateRangeWisePaymentReport = function () {
@@ -1245,7 +1244,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     "materialMasterId": $scope.id
                 },
                 dataType: 'JSON'
-               // , contentType: "application/json charset=utf-8"
+                // , contentType: "application/json charset=utf-8"
 
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
@@ -1295,7 +1294,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 { field: "ADBaseAmount", headerText: "AD Base Amount", width: 30 },
                 { field: "NetFixedAssetsAmount", headerText: "Net Amount", width: 30 },
 
-  
+
                 {
                     headerText: "Action",
                     commands: [
@@ -1323,14 +1322,14 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     function GetFixedAssetsRegisterPopUp(args) {
         //alert('dd');
         this.preventClick = true;
-       // var obj = $("#detailGrid").ejGrid("instance");
+        // var obj = $("#detailGrid").ejGrid("instance");
 
         //var obj1 = $("#detailGrid").data("ejGrid");
         //var data1 = obj1.getSelectedRecords();
         //var index = this.element.closest("tr").index();
         //var record = obj.getCurrentViewData()[index];
 
-       // var data = obj.model.dataSource;
+        // var data = obj.model.dataSource;
         //for (var i = 0; i < data.length; i++) {
         //    $scope.tempMaterialMasterId = data[i].MaterialMasterId
         //    $scope.tempMaterialMasterArticleId = data[i].MaterialMasterArticleId
@@ -1339,8 +1338,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         //$scope.tempMaterialMasterArticleId = data[0].MaterialMasterAritcleId
 
         $scope.tempMaterialMasterId = args.data.MaterialMasterId;
-        $scope.tempMaterialMasterArticleId = args.data.MaterialMasterArticleId; 
-       
+        $scope.tempMaterialMasterArticleId = args.data.MaterialMasterArticleId;
+
         //var data = obj.model.dataSource;
         //$scope.tempMaterialMasterId = data[0].MaterialMasterId
         //$scope.tempMaterialMasterArticleId = data[0].MaterialMasterArticleId 
@@ -1369,75 +1368,381 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     $scope.TotalFARegisterPopUpAmount = [{
         title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "PurchasePrice", dataMember: "PurchasePrice", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "FABaseAmount", dataMember: "FABaseAmount", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SubAssetAmount", dataMember: "SubAssetAmount", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalAssetAmount", dataMember: "TotalAssetAmount", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "ADBaseAmount", dataMember: "ADBaseAmount", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" }
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "FABaseAmount", dataMember: "FABaseAmount", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SubAssetAmount", dataMember: "SubAssetAmount", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalAssetAmount", dataMember: "TotalAssetAmount", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "ADBaseAmount", dataMember: "ADBaseAmount", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "NetFixedAssetsAmount", dataMember: "NetFixedAssetsAmount", format: "{0:N2}" }
         ],
         showCaptionSummary: true
     }];
-    
 
-    //var getString = function (data, column) {
-    //    var string = "''";
-    //    var collection = [];
-    //    for (var i = 0; i < data.length; i++) {
-    //        if (collection.includes(data[i][column]) == false) {
-    //            string += ",'" + data[i][column] + "'";
-    //            collection.push(data[i][column]);
-    //        }
-    //    }
 
-    //    return string;
-    //}
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+
+        return string;
+    }
 
     $scope.getMasterReport2 = function () {
         try {
-            //var filtered = $("#gridTab").data("ejGrid").getFilteredRecords();
-            //if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            //    filtered = $scope.FixedAssetsList;
-            //}
-            ////filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
-            //var MaterialTypeId = getString(filtered, "MaterialTypeId");
-            //var MaterialMasterId = getString(filtered, "MaterialMasterId");
-            //var MaterialGroupMasterId = getString(filtered, "MaterialGroupMasterId");
-            //var MaterialCategoryId = getString(filtered, "MaterialCategoryId");
-            //var MaterialSubCategoryId = getString(filtered, "MaterialSubCategoryId");
-            //var MaterialGroup1Id = getString(filtered, "MaterialGroup1Id");
 
-            //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + MaterialTypeId + '&materialMasterId=' + MaterialMasterId + '&materialGroupMasterId=' + MaterialGroupMasterId +
-            //    '&materialCategoryId=' + MaterialCategoryId +
-            //    '&materialSubCategoryId=' + MaterialSubCategoryId + '&materialGroup1Id=' + MaterialGroup1Id ;
+            var filtered = $("#gridTab").data("ejGrid").getFilteredRecords();
 
-            var file_src = $scope.path + 'MaterialMasterReport2';
-            $rootScope.report(file_src);
+            if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+                filtered = $scope.FixedAssetsList;
 
-        } catch (e) {
+                var file_src = $scope.path + 'MaterialMasterReport2';
+                $rootScope.report(file_src);
+            }
+            else {
+
+                
+
+                //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+                var MaterialMasterId = getString(filtered, "MaterialMasterId");
+                var MaterialTypeId = getString(filtered, "MaterialTypeId");
+                var AssetMasterId = getString(filtered, "AssetMasterId");
+
+                var MaterialGroup1Id = getString(filtered, "MaterialGroup1Id");
+                var BaseUOMId = getString(filtered, "BaseUOMId");
+                var IsAsset = getString(filtered, "IsAsset");
+                var Machine = getString(filtered, "Machine");
+                var Process = getString(filtered, "ProcessId");
+                var SkillId = getString(filtered, "SkillId");
+                var FACount = getString(filtered, "FACount");
+
+
+                var file_src = $scope.path + 'MaterialMasterFilteringReport?materialMasterId=' + MaterialMasterId + '&materialTypeId=' + MaterialTypeId + '&assetMasterId=' + AssetMasterId +
+                    '&materialGroup1Id=' + MaterialGroup1Id +
+                    '&baseUOMId=' + BaseUOMId +
+                    '&isAsset=' + IsAsset + '&machine=' + Machine +
+                    '&process=' + Process + '&skillId=' + SkillId + '&fACount=' + FACount;
+
+                //var file_src = $scope.path + 'MaterialMasterReport2';
+                $rootScope.report(file_src);
+
+               
+            }
+        }
+        catch (e) {
 
         }
     }
 
+    //$scope.exportgriddataUrl = 'Accounts/AccountStatusDashboard/MaterialMasterReport2';
+    //$scope.downloadgriddataUrl = 'Accounts/AccountStatusDashboard/Download';
+    //$scope.downloadgriddataUrlPath = 'AccountStatusDashboard/DownloadUsingFullPath';//DownloadUsingPath
+    //$scope.getMasterReport2 = function () {
+    //    try {
+    //        var filtered = $("#gridTab").data("ejGrid").getFilteredRecords();
+    //        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+    //            filtered = $scope.FixedAssetsList;
+    //        }
+    //        //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+    //        var MaterialMasterId = getString(filtered, "MaterialMasterId");
+    //        var MaterialTypeId = getString(filtered, "MaterialTypeId");
+    //        var AssetMasterId = getString(filtered, "AssetMasterId");
+
+    //        var MaterialGroup1Id = getString(filtered, "MaterialGroup1Id");
+    //        var BaseUOMId = getString(filtered, "BaseUOMId");
+    //        var IsAsset = getString(filtered, "IsAsset");
+    //        var Machine = getString(filtered, "Machine");
+    //        var Process = getString(filtered, "ProcessId");
+    //        var SkillId = getString(filtered, "SkillId");
+    //        var FACount = getString(filtered, "FACount");
+
+    //        //$scope.fileName = $scope.report.AssetsLiability + ".xls";
+    //        $scope.fileName = "MaterialMasterReport.xls";
+
+    //        $http({
+    //            method: 'POST',
+    //            // url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
+    //            url: $scope.exportgriddataUrl,
+    //            data: {
+    //                'materialMasterId': MaterialMasterId
+    //                //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
+    //                , 'materialTypeId': MaterialTypeId
+    //                , 'assetMasterId': AssetMasterId
+    //                , 'materialGroup1Id': MaterialGroup1Id
+    //                , 'baseUOMId': BaseUOMId
+    //                , 'isAsset': IsAsset
+    //                , 'isMachine': Machine
+    //                , 'process': Process
+    //                , 'skillId': SkillId
+    //                , 'fACount': FACount
+
+
+    //            },
+    //            dataType: 'JSON'
+    //            , contentType: "application/json charset=utf-8"
+
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error === true) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //            else {
+    //                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+    //                // $rootScope.report($scope.downloadgriddataUrl + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+    //                //$rootScope.report($scope.downloadgriddataUrl);//downloadgriddataUrlPath
+    //            }
+    //        });
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //};
+
+   // $scope.exportgriddataUrl = 'Accounts/AccountStatusDashboard/MaterialMasterReport2';
+    //$scope.downloadgriddataUrl = 'Accounts/AccountStatusDashboard/Download';
+    //$scope.downloadgriddataUrlPath = 'AccountStatusDashboard/DownloadUsingFullPath';//DownloadUsingPath
+    //$scope.getMasterReport2 = function () {
+    //    try {
+    //        var filtered = $("#gridTab").data("ejGrid").getFilteredRecords();
+
+    //        if (!angular.isUndefinedOrNull(filtered) || filtered.length != 0) {
+    //            //    filtered = $scope.FixedAssetsList;
+    //            //}
+    //            //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+    //            var MaterialMasterId = getString(filtered, "MaterialMasterId");
+    //            var MaterialTypeId = getString(filtered, "MaterialTypeId");
+    //            var AssetMasterId = getString(filtered, "AssetMasterId");
+
+    //            var MaterialGroup1Id = getString(filtered, "MaterialGroup1Id");
+    //            var BaseUOMId = getString(filtered, "BaseUOMId");
+    //            var IsAsset = getString(filtered, "IsAsset");
+    //            var Machine = getString(filtered, "Machine");
+    //            var Process = getString(filtered, "ProcessId");
+    //            var SkillId = getString(filtered, "SkillId");
+    //            var FACount = getString(filtered, "FACount");
+
+    //            //$scope.fileName = $scope.report.AssetsLiability + ".xls";
+    //            $scope.fileName = "MaterialMasterReport.xls";
+
+    //            $http({
+    //                method: 'POST',
+    //                // url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
+    //                url: $scope.exportgriddataUrl,
+    //                data: {
+    //                    'materialMasterId': MaterialMasterId
+    //                    //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
+    //                    , 'materialTypeId': MaterialTypeId
+    //                    , 'assetMasterId': AssetMasterId
+    //                    , 'materialGroup1Id': MaterialGroup1Id
+    //                    , 'baseUOMId': BaseUOMId
+    //                    , 'isAsset': IsAsset
+    //                    , 'isMachine': Machine
+    //                    , 'process': Process
+    //                    , 'skillId': SkillId
+    //                    , 'fACount': FACount
+
+
+    //                },
+    //                dataType: 'JSON'
+    //                , contentType: "application/json charset=utf-8"
+
+    //            }).then(function successCallback(response) {
+    //                if (response.data.Error === true) {
+    //                    ShowResult(response.data.Message, 'failure');
+    //                }
+    //                else {
+    //                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+    //                    // $rootScope.report($scope.downloadgriddataUrl + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+    //                    //$rootScope.report($scope.downloadgriddataUrl);//downloadgriddataUrlPath
+    //                }
+    //            });
+    //        }
+    //        else {
+    //            $http({
+    //                method: 'POST',
+    //                // url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
+    //                url: $scope.exportgriddataUrl,
+    //                data: {
+    //                    'materialMasterId': MaterialMasterId
+    //                    //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
+    //                    , 'materialTypeId': MaterialTypeId
+    //                    , 'assetMasterId': AssetMasterId
+    //                    , 'materialGroup1Id': MaterialGroup1Id
+    //                    , 'baseUOMId': BaseUOMId
+    //                    , 'isAsset': IsAsset
+    //                    , 'isMachine': Machine
+    //                    , 'process': Process
+    //                    , 'skillId': SkillId
+    //                    , 'fACount': FACount
+
+
+    //                },
+    //                dataType: 'JSON'
+    //                , contentType: "application/json charset=utf-8"
+
+    //            }).then(function successCallback(response) {
+    //                if (response.data.Error === true) {
+    //                    ShowResult(response.data.Message, 'failure');
+    //                }
+    //                else {
+    //                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+    //                    // $rootScope.report($scope.downloadgriddataUrl + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+    //                    //$rootScope.report($scope.downloadgriddataUrl);//downloadgriddataUrlPath
+    //                }
+    //            });
+    //        }
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //};
+
+
+    //$scope.getMaterialMasterArticalReport = function () {
+    //    try {
+    //        var file_src = $scope.path + 'MaterialMasterArticalReport';
+    //        $rootScope.report(file_src);
+
+    //    } catch (e) {
+
+    //    }
+    //}
+
+    $scope.exportgriddataArticleUrl = 'Accounts/AccountStatusDashboard/MaterialMasterArticalReport';
+    //$scope.downloadgriddataUrl = 'Accounts/AccountStatusDashboard/Download';
+    $scope.downloadgriddataUrlPath = 'AccountStatusDashboard/DownloadUsingFullPath';//DownloadUsingPath
     $scope.getMaterialMasterArticalReport = function () {
         try {
-            var file_src = $scope.path + 'MaterialMasterArticalReport';
-            $rootScope.report(file_src);
+            var filtered = $("#gridTab").data("ejGrid").getFilteredRecords();
+            if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+                filtered = $scope.FixedAssetsList;
+            }
+            //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+            var MaterialMasterId = getString(filtered, "MaterialMasterId");
+            var MaterialTypeId = getString(filtered, "MaterialTypeId");
+            var AssetMasterId = getString(filtered, "AssetMasterId");
 
+            var MaterialGroup1Id = getString(filtered, "MaterialGroup1Id");
+            var BaseUOMId = getString(filtered, "BaseUOMId");
+            var IsAsset = getString(filtered, "IsAsset");
+            var Machine = getString(filtered, "Machine");
+            var Process = getString(filtered, "ProcessId");
+            var SkillId = getString(filtered, "SkillId");
+            var FACount = getString(filtered, "FACount");
+
+            //$scope.fileName = $scope.report.AssetsLiability + ".xls";
+            $scope.fileName = "MaterialMasterArticleReport.xls";
+
+            $http({
+                method: 'POST',
+                // url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
+                url: $scope.exportgriddataArticleUrl,
+                data: {
+                    'materialMasterId': MaterialMasterId
+                    //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
+                    , 'materialTypeId': MaterialTypeId
+                    , 'assetMasterId': AssetMasterId
+                    , 'materialGroup1Id': MaterialGroup1Id
+                    , 'baseUOMId': BaseUOMId
+                    , 'isAsset': IsAsset
+                    , 'isMachine': Machine
+                    , 'process': Process
+                    , 'skillId': SkillId
+                    , 'fACount': FACount
+
+
+                },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+                    // $rootScope.report($scope.downloadgriddataUrl + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+                    //$rootScope.report($scope.downloadgriddataUrl);//downloadgriddataUrlPath
+                }
+            });
         } catch (e) {
-
+            ShowResult(e, 'failure');
         }
-    }
+    };
 
+
+    //$scope.getFixedAssetRegisterReport = function () {
+    //    try {
+    //        //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + $scope.materialMasterReportNew.MaterialTypeId + '&Article=' + $scope.materialMasterReportNew.WithArticle;;
+    //        var file_src = $scope.path + 'GetFixedAssetRegisterReport';
+    //        $rootScope.report(file_src);
+
+    //    } catch (e) {
+
+    //    }
+    //}
+
+    $scope.exportgriddataUrl = 'Accounts/AccountStatusDashboard/GetFixedAssetRegisterReport';
+    //$scope.downloadgriddataUrl = 'Accounts/AccountStatusDashboard/Download';
+    $scope.downloadgriddataUrlPath = 'AccountStatusDashboard/DownloadUsingFullPath';//DownloadUsingPath
     $scope.getFixedAssetRegisterReport = function () {
         try {
-            //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + $scope.materialMasterReportNew.MaterialTypeId + '&Article=' + $scope.materialMasterReportNew.WithArticle;;
-            var file_src = $scope.path + 'getFixedAssetRegisterReport';
-            $rootScope.report(file_src);
+            var filtered = $("#gridTab").data("ejGrid").getFilteredRecords();
+            if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+                filtered = $scope.FixedAssetsList;
+            }
+            //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
+            var MaterialMasterId = getString(filtered, "MaterialMasterId");
+            var MaterialTypeId = getString(filtered, "MaterialTypeId");
+            var AssetMasterId = getString(filtered, "AssetMasterId");
 
+            var MaterialGroup1Id = getString(filtered, "MaterialGroup1Id");
+            var BaseUOMId = getString(filtered, "BaseUOMId");
+            var IsAsset = getString(filtered, "IsAsset");
+            var Machine = getString(filtered, "Machine");
+            var Process = getString(filtered, "ProcessId");
+            var SkillId = getString(filtered, "SkillId");
+            var FACount = getString(filtered, "FACount");
+
+            //$scope.fileName = $scope.report.AssetsLiability + ".xls";
+            $scope.fileName = "FixedAssetRegisterReport.xls";
+
+            $http({
+                method: 'POST',
+                // url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
+                url: $scope.exportgriddataUrl,
+                data: {
+                    'materialMasterId': MaterialMasterId
+                    //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
+                    , 'materialTypeId': MaterialTypeId
+                    , 'assetMasterId': AssetMasterId
+                    , 'materialGroup1Id': MaterialGroup1Id
+                    , 'baseUOMId': BaseUOMId
+                    , 'isAsset': IsAsset
+                    , 'isMachine': Machine
+                    , 'process': Process
+                    , 'skillId': SkillId
+                    , 'fACount': FACount
+
+
+                },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+                    // $rootScope.report($scope.downloadgriddataUrl + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+                    //$rootScope.report($scope.downloadgriddataUrl);//downloadgriddataUrlPath
+                }
+            });
         } catch (e) {
-
+            ShowResult(e, 'failure');
         }
-    }
+    };
 
     //#endregion
 
@@ -1586,7 +1891,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             }, {});
 
             createFixedAssetsBarChart(result);
-           // createLoanTakenBarChart(filtereddata);
+            // createLoanTakenBarChart(filtereddata);
         }
     }
 
@@ -1987,23 +2292,23 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.LoanTakenSetOffPoPUpList = [];
-    $scope.GetLoanTakenSetOffPopUpData = function ( FId) {
+    $scope.GetLoanTakenSetOffPopUpData = function (FId) {
 
         $http({
             method: "GET",
-            url: "Accounts/AccountStatusDashboard/GetLoanTakenSetOffPopUpData?financingId=" + FId  
+            url: "Accounts/AccountStatusDashboard/GetLoanTakenSetOffPopUpData?financingId=" + FId
         }).then(function successCallback(response) {
             $scope.LoanTakenSetOffPoPUpList = response.data;
             $scope.loanNo = $scope.LoanTakenSetOffPoPUpList[0].LoanNo
             $scope.partyName = $scope.LoanTakenSetOffPoPUpList[0].Party
             $scope.accountNumber = $scope.LoanTakenSetOffPoPUpList[0].AccountNumber
         });
-             $rootScope.openPopupAngular('loanTakenSetOffPopUp');
-       // angular.element(document.querySelector("#loanTakenSetOffPopUp")).modal("show");
+        $rootScope.openPopupAngular('loanTakenSetOffPopUp');
+        // angular.element(document.querySelector("#loanTakenSetOffPopUp")).modal("show");
     };
 
     $scope.showLoanTakenSetOffPopUp = function (args) {
-        $scope.GetLoanTakenSetOffPopUpData( args.FinancingId)
+        $scope.GetLoanTakenSetOffPopUpData(args.FinancingId)
     };
 
     $scope.closeloanTakenSetOffPopUp = function () {
@@ -2021,7 +2326,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         $http({
             method: "GET",
-            url: "Accounts/AccountStatusDashboard/GetLoanTakenInterestPopUpData?financingId=" + FId 
+            url: "Accounts/AccountStatusDashboard/GetLoanTakenInterestPopUpData?financingId=" + FId
         }).then(function successCallback(response) {
             $scope.LoanTakenInterestPoPUpList = response.data;
             $scope.loanNo = $scope.LoanTakenInterestPoPUpList[0].LoanNo
@@ -2052,7 +2357,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         var data = obj.data;
         var file_src = 'Accounts/Loan/LoanIntersetPayableReport?reportFormat=' + 'Excel' + '&voucherId=' + data.VoucherId + '&sourceType=' + data.SourceType;
         $rootScope.report(file_src);
-       // $window.open(url, '_blank');
+        // $window.open(url, '_blank');
     }
 
     $scope.LoanTakenChargesPayablePoPUpList = [];
@@ -2101,7 +2406,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.LoanTakenAdditionalLoanPayablePoPUpList = response.data;
             $scope.partyName = $scope.LoanTakenAdditionalLoanPayablePoPUpList[0].Party
             $scope.accountNumber = $scope.LoanTakenAdditionalLoanPayablePoPUpList[0].AccountNumber
-            $scope.loanNo = $scope.tempDocRefNo 
+            $scope.loanNo = $scope.tempDocRefNo
         });
         $rootScope.openPopupAngular('loanTakenAdditionalLoanPayablePopUp');
     };
@@ -2126,7 +2431,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     $scope.printLoanTakenAdditionalLoanPayableVoucherReport = function (obj) {
         var data = obj.data;
         var url = 'Accounts/Loan/LoanIntersetPayableReport?reportFormat=' + 'Pdf' + '&voucherId=' + data.VoucherId + '&sourceType=' + data.SourceType;
-       // $rootScope.report(file_src);
+        // $rootScope.report(file_src);
         $window.open(url, '_blank');
     }
     //.............#endregon Loan.............
@@ -2143,7 +2448,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         var LoanTakenBalanceAmount = 0.00;
         LoanTakenBarChartlist = LoanTakenBarChartlist.sort((a, b) => (a.Particulars > b.Particulars) ? 1 : -1)
         angular.forEach(LoanTakenBarChartlist, function (item, i) {
-         
+
             if ($scope.LoanTakenParticulars != item.Particulars) {
                 var filteredData = LoanTakenBarChartlist.filter(function (obj) {
                     return obj["Particulars"] === item.Particulars;
@@ -2254,7 +2559,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $http({
                 method: 'POST',
                 url: $scope.path + "GetFinancialDashboardCustomerReceiptMasterList",
-                data: { /*FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate */},
+                data: { /*FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate */ },
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
@@ -2274,8 +2579,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     $scope.crAgingsummaryRows = [{
         title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksGross", dataMember: "BooksGross", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksSetOff", dataMember: "BooksSetOff", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksSetOff", dataMember: "BooksSetOff", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
         ],
         showCaptionSummary: true
     }];
@@ -2435,7 +2740,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 $scope.chartCustomerReceivablePiaChartLabel = ['ODueMoreThan30', 'ODueMoreThan15', 'ODueLessThan15', 'TodayBalance', 'OneToSevenBalance', 'EightToThirtyBalance', 'ThirtyToSixtyBalance', 'Onword60'];
 
                 $scope.totalCustomerReceivableAgingPiaAndTable = $scope.ODueMoreThan30CustomerPai + $scope.ODueMoreThan15CustomerPai + $scope.ODueLessThan15CustomerPai + $scope.TodayBalanceCustomerPai
-                                                                  + $scope.OneToSevenBalanceCustomerPai + $scope.EightToThirtyBalanceCustomerPai + $scope.ThirtyToSixtyBalanceCustomerPai + $scope.Onword60CustomerPai;
+                    + $scope.OneToSevenBalanceCustomerPai + $scope.EightToThirtyBalanceCustomerPai + $scope.ThirtyToSixtyBalanceCustomerPai + $scope.Onword60CustomerPai;
                 $scope.chartCustomerReceivablePiaChartList = [$scope.ODueMoreThan30CustomerPai, $scope.ODueMoreThan15CustomerPai, $scope.ODueLessThan15CustomerPai, $scope.TodayBalanceCustomerPai, $scope.OneToSevenBalanceCustomerPai, $scope.EightToThirtyBalanceCustomerPai, $scope.ThirtyToSixtyBalanceCustomerPai, $scope.Onword60CustomerPai];
                 createCustomerReceivablePieChart();
             }),
@@ -2647,7 +2952,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector("#customerReceivableAgingSlotPopUp")).modal("hide");
     };
 
-   //CR SetOff detail PopUp and get data
+    //CR SetOff detail PopUp and get data
     $scope.customerReceivableSetOffDetailList = [];
     $scope.PartyId = null;
     $scope.getCustomerReceivableSetOffDetailList = function (pid, crDue) {
@@ -2881,7 +3186,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     'toDate': $scope.report.ToDate,
                     'isBudgetLevel': $scope.report.IsBudgetLevel,
                     'isActivityLevel': $scope.report.IsActivityLevel,
-                     'IsDetailLevel': $scope.report.IsDetailLevel
+                    'IsDetailLevel': $scope.report.IsDetailLevel
 
                 },
                 dataType: 'JSON'
@@ -2889,7 +3194,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             }).then(function successCallback(response) {
                 $scope.TrialBalanceList = response.data;
                 console.log('Trial Balance List', $scope.TrialBalanceList);
-               // createLoanTakenBarChart(response.data);
+                // createLoanTakenBarChart(response.data);
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -2904,12 +3209,12 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     $scope.summaryRowsTrialBalance = [{
         title: "Total DR. & CR.", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DR", dataMember: "DR", format: "{0:N2}" },
-                                                 { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CR", dataMember: "CR", format: "{0:N2}" }],
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CR", dataMember: "CR", format: "{0:N2}" }],
         showCaptionSummary: true
     }];
 
 
-   // $scope.LedgerActivityPoPUpList = [];
+    // $scope.LedgerActivityPoPUpList = [];
     //$scope.BankLedgerDetailLevelPoPUpList = [];
 
     $scope.getTrialBLDetailLevelBankMasterLedgerPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
@@ -2941,7 +3246,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.gLGeneralInfoCode = $scope.BankLedgerHeadingPoPUpList[0].GLGeneralInfoCode
             $scope.gLGeneralInfoName = $scope.BankLedgerHeadingPoPUpList[0].GLGeneralInfoName
         });
-       // $rootScope.openPopupAngular('TrialBLBankMasterLedgerPopUp');
+        // $rootScope.openPopupAngular('TrialBLBankMasterLedgerPopUp');
     };
 
 
@@ -2971,9 +3276,9 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.gLGeneralInfoCode = $scope.CashLedgerHeadingPoPUpList[0].GLGeneralInfoCode
             $scope.gLGeneralInfoName = $scope.CashLedgerHeadingPoPUpList[0].GLGeneralInfoName
         });
-       // $rootScope.openPopupAngular('TrialBLCashMasterLedgerPopUp');
+        // $rootScope.openPopupAngular('TrialBLCashMasterLedgerPopUp');
     };
-    
+
 
     $scope.getTrialBLDetailLevelGeneralLedgerPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
 
@@ -2982,7 +3287,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             url: "Accounts/AccountStatusDashboard/getLedgerActivityPoPUpListData?gLInfoId=" + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&partyId=' + pId + '&partyPlantId=' + ppId + '&bankMasterId=' + bkmId + '&cashMasterId=' + cmId + '&toDate=' + toDate
         }).then(function successCallback(response) {
             $scope.LedgerActivityPoPUpList = response.data;
-   
+
         });
         $rootScope.openPopupAngular('TrialBalanceDRPopUp');
         // angular.element(document.querySelector("#loanTakenSetOffPopUp")).modal("show");
@@ -3007,7 +3312,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         // $rootScope.openPopupAngular('TrialBLCashMasterLedgerPopUp');
     };
 
-   // $scope.PartyLedgerDetailLevelPoPUpList = [];
+    // $scope.PartyLedgerDetailLevelPoPUpList = [];
     $scope.getTrialBLDetailLevelPartyLedgerPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
         $http({
             method: "GET",
@@ -3019,7 +3324,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         $rootScope.openPopupAngular('TrialBLDetailLevelPartyLedgerPopUp');
     };
 
-   // $scope.PartyLedgerHeadingPoPUpList = [];
+    // $scope.PartyLedgerHeadingPoPUpList = [];
     $scope.getTrialBLHeadingPartyLedgerPopUpData = function (glId, budMId, actId, pId, ppId, bkmId, cmId, toDate) {
         $http({
             method: "GET",
@@ -3073,9 +3378,9 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     $scope.summaryRowsLedger = [{
         title: "Total DR. & CR.", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DrAmount", dataMember: "DrAmount", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CrAmount", dataMember: "CrAmount", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CompanyCurrencyDrAmount", dataMember: "CompanyCurrencyDrAmount", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CompanyCurrencyCrAmount", dataMember: "CompanyCurrencyCrAmount", format: "{0:N2}" }],
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CrAmount", dataMember: "CrAmount", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CompanyCurrencyDrAmount", dataMember: "CompanyCurrencyDrAmount", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CompanyCurrencyCrAmount", dataMember: "CompanyCurrencyCrAmount", format: "{0:N2}" }],
         showCaptionSummary: true
     }];
     $scope.summaryRowsBankMasterLedger = [{
@@ -3105,7 +3410,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CompanyCurrencyCrAmount", dataMember: "CompanyCurrencyCrAmount", format: "{0:N2}" }],
         //showCaptionSummary: true
     }];
-    
+
 
     $scope.getvouchardetailjs = function (obj) {
         var reportformat = "pdf";
@@ -3114,7 +3419,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         //    return showresult('no id found', 'failure');
         //else {
 
-      // file_src = 'accounts/voucherReport/GetCommonVoucherReport?reportformat=' + 'pdf' + '&compnaygroupid=' + obj.data.CompanyGroupId + '&companyid=' + obj.data.CompanyId + '&plantid=' + obj.data.PlantId + '&sourcetype=' + obj.data.SourceType + '&voucherid=' + obj.data.VoucherId;
+        // file_src = 'accounts/voucherReport/GetCommonVoucherReport?reportformat=' + 'pdf' + '&compnaygroupid=' + obj.data.CompanyGroupId + '&companyid=' + obj.data.CompanyId + '&plantid=' + obj.data.PlantId + '&sourcetype=' + obj.data.SourceType + '&voucherid=' + obj.data.VoucherId;
         file_src = 'Accounts/VoucherReport/GetCommonVoucherReport?reportFormat=' + 'Pdf' + '&compnayGroupId=' + obj.data.CompanyGroupId + '&companyId=' + obj.data.CompanyId + '&plantId=' + obj.data.PlantId + '&sourceType=' + obj.data.SourceType + '&voucherId=' + obj.data.VoucherId + '&inventoryIssueId=' + obj.data.InventoryIssueId + '&inventoryReceiveId=' + obj.data.InventoryReceiveId + '&salesSourceType=' + obj.data.SalesSourceType + '&invoiceWriteOffGroupNo=' + obj.data.InvoiceWriteOffGroupNo + '&openingBalanceId=' + obj.data.OpeningBalanceId;
         $window.open(file_src, '_blank');
         //}
@@ -3146,24 +3451,24 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
             //var AccountGroupNames = getString(filtered, "GL");
             //var AccountGroupNames = getString(filtered, "AccountGroupName");
-     
+
             $scope.fileName = $scope.report.AssetsLiability + ".xls";
 
             $http({
                 method: 'POST',
-               // url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
+                // url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
                 url: 'Accounts/AccountStatusDashboard/AccountGroupWiseReport',
                 data: {
                     'allAccountGroupList': AccountGroupNames
-                     //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
+                    //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
                     , 'toDate': $scope.report.ToDate
                     , 'reportName': $scope.report.AssetsLiability
-                    ,'isDetailLevel': $scope.report.IsDetailLevel
-                   //,'isUpToLevel': $scope.report.IsUpToLevel
+                    , 'isDetailLevel': $scope.report.IsDetailLevel
+                    //,'isUpToLevel': $scope.report.IsUpToLevel
                     , 'isBudgetLevel': $scope.report.IsBudgetLevel
                     , 'isActivityLevel': $scope.report.IsActivityLevel
                 },
-                 dataType: 'JSON'
+                dataType: 'JSON'
                 , contentType: "application/json charset=utf-8"
 
             }).then(function successCallback(response) {
@@ -3183,9 +3488,9 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
 
 
-   
+
     $scope.BankLedgerDetailLevelPoPUpList = [];
-    $scope.getTrialBLAllLevelBankMasterLedgerPopUpData = function (particulars,glId, budMId, actId, bkmId, toDate) {
+    $scope.getTrialBLAllLevelBankMasterLedgerPopUpData = function (particulars, glId, budMId, actId, bkmId, toDate) {
 
         $http({
             method: "GET",
@@ -3201,7 +3506,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     };
 
     $scope.BankLedgerHeadingPoPUpList = [];
-    $scope.getTrialBLAllLevelBankMasterHeaderLedgerPopUpData = function (particulars,glId, budMId, actId, bkmId, toDate) {
+    $scope.getTrialBLAllLevelBankMasterHeaderLedgerPopUpData = function (particulars, glId, budMId, actId, bkmId, toDate) {
 
         $http({
             method: "GET",
@@ -3221,11 +3526,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     };
 
     $scope.CashLedgerHeadingPoPUpList = [];
-    $scope.getTrialBLHeadingAllLevelCashMasterLedgerPopUpData = function (particulars,glId, budMId, actId,  cmId, toDate) {
+    $scope.getTrialBLHeadingAllLevelCashMasterLedgerPopUpData = function (particulars, glId, budMId, actId, cmId, toDate) {
 
         $http({
             method: "GET",
-            url: "Accounts/AccountStatusDashboard/GetCashMasterLedgerHeading?particulars=" + particulars + '&glInfoId=' + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId +  '&cashMasterId=' + cmId + '&toDate=' + toDate
+            url: "Accounts/AccountStatusDashboard/GetCashMasterLedgerHeading?particulars=" + particulars + '&glInfoId=' + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&cashMasterId=' + cmId + '&toDate=' + toDate
         }).then(function successCallback(response) {
             $scope.CashLedgerHeadingPoPUpList = response.data;
             $scope.cashName = $scope.CashLedgerHeadingPoPUpList[0].CashName
@@ -3241,7 +3546,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         $http({
             method: "GET",
-            url: "Accounts/AccountStatusDashboard/GetCashLedgerAllLevelPoPUpListData?particulars=" + particulars + '&glInfoId=' + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId +  '&cashMasterId=' + cmId + '&toDate=' + toDate
+            url: "Accounts/AccountStatusDashboard/GetCashLedgerAllLevelPoPUpListData?particulars=" + particulars + '&glInfoId=' + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&cashMasterId=' + cmId + '&toDate=' + toDate
         }).then(function successCallback(response) {
             $scope.CashLedgerDetailLevelPoPUpList = response.data;
             $scope.TotalDRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.CashLedgerDetailLevelPoPUpList), "CompanyCurrencyDrAmount") * 100 + Number.EPSILON) / 100;
@@ -3253,7 +3558,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     };
 
     $scope.PartyLedgerHeadingPoPUpList = [];
-    $scope.getTrialBLAllLevelHeadingPartyLedgerPopUpData = function (particulars,glId, budMId, actId, pId, ppId, toDate) {
+    $scope.getTrialBLAllLevelHeadingPartyLedgerPopUpData = function (particulars, glId, budMId, actId, pId, ppId, toDate) {
         $http({
             method: "GET",
             url: "Accounts/AccountStatusDashboard/GetPartyLedgerHeading?particulars=" + particulars + '&glInfoId=' + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&partyId=' + pId + '&partyPlantId=' + ppId + '&toDate=' + toDate
@@ -3268,7 +3573,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         // $rootScope.openPopupAngular('TrialBLCashMasterLedgerPopUp');
     };
     $scope.PartyLedgerDetailLevelPoPUpList = [];
-    $scope.getTrialBLAllLevelPartyLedgerPopUpData = function (particulars,glId, budMId, actId, pId, ppId, toDate) {
+    $scope.getTrialBLAllLevelPartyLedgerPopUpData = function (particulars, glId, budMId, actId, pId, ppId, toDate) {
         $http({
             method: "GET",
             url: "Accounts/AccountStatusDashboard/GetPartyLedgerAllLevelPoPUpListData?particulars=" + particulars + '&glInfoId=' + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&partyId=' + pId + '&partyPlantId=' + ppId + '&toDate=' + toDate
@@ -3283,11 +3588,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     };
 
     $scope.GeneralLedgerHeadingPoPUpList = [];
-    $scope.getTrialBLHeadingAllLevelGeneralLedgerPopUpData = function (particulars,glId, budMId, actId, toDate) {
+    $scope.getTrialBLHeadingAllLevelGeneralLedgerPopUpData = function (particulars, glId, budMId, actId, toDate) {
 
         $http({
             method: "GET",
-            url: "Accounts/AccountStatusDashboard/GetGeneralLedgerAllLevelDRHeading?particulars=" + particulars + '&gLInfoId=' + glId +  '&budgetMasterId=' + budMId + '&activityId=' + actId +  '&toDate=' + toDate
+            url: "Accounts/AccountStatusDashboard/GetGeneralLedgerAllLevelDRHeading?particulars=" + particulars + '&gLInfoId=' + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&toDate=' + toDate
         }).then(function successCallback(response) {
             $scope.GeneralLedgerHeadingPoPUpList = response.data;
             $scope.accountTypeName = $scope.GeneralLedgerHeadingPoPUpList[0].AccountTypeName
@@ -3306,12 +3611,12 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         $http({
             method: "GET",
-            url: "Accounts/AccountStatusDashboard/getLedgerAllLevelDRPoPUpListData?particulars=" + particulars + '&gLInfoId=' + glId +    '&budgetMasterId=' + budMId + '&activityId=' + actId +  '&toDate=' + toDate
+            url: "Accounts/AccountStatusDashboard/getLedgerAllLevelDRPoPUpListData?particulars=" + particulars + '&gLInfoId=' + glId + '&budgetMasterId=' + budMId + '&activityId=' + actId + '&toDate=' + toDate
         }).then(function successCallback(response) {
             $scope.LedgerActivityPoPUpList = response.data;
             $scope.TotalDRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.LedgerActivityPoPUpList), "CompanyCurrencyDrAmount") * 100 + Number.EPSILON) / 100;
             $scope.TotalCRAmount = Math.round($filter("sumByKey")($filter("filter")($scope.LedgerActivityPoPUpList), "CompanyCurrencyCrAmount") * 100 + Number.EPSILON) / 100;
-            $scope.GeneralLedgerClosingBalance  = Math.round(  ($scope.TotalDRAmount - $scope.TotalCRAmount) * 100 + Number.EPSILON) / 100;
+            $scope.GeneralLedgerClosingBalance = Math.round(($scope.TotalDRAmount - $scope.TotalCRAmount) * 100 + Number.EPSILON) / 100;
             $scope.DRBalanceType = 'DR'
         });
         $rootScope.openPopupAngular('TrialBalanceDRPopUp');
@@ -3331,8 +3636,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             //    args.Particulars = null;
             //}
 
-            $scope.getTrialBLAllLevelBankMasterLedgerPopUpData(args.Particulars,args.AccountCodeId, args.BudgetMasterId, args.ActivityId,  args.BankMasterId, $scope.toDate)
-            $scope.getTrialBLAllLevelBankMasterHeaderLedgerPopUpData(args.Particulars,args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.BankMasterId, $scope.toDate)
+            $scope.getTrialBLAllLevelBankMasterLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.BankMasterId, $scope.toDate)
+            $scope.getTrialBLAllLevelBankMasterHeaderLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.BankMasterId, $scope.toDate)
         }
         else if (args.CashMasterId != null) {
             //if (baseService.isUndefinedOrNull(args.BudgetMasterId)) {
@@ -3345,7 +3650,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             //    args.Particulars = null;
             //}
 
-            $scope.getTrialBLAllLevelCashMasterLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId,  args.CashMasterId, $scope.toDate)
+            $scope.getTrialBLAllLevelCashMasterLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.CashMasterId, $scope.toDate)
             $scope.getTrialBLHeadingAllLevelCashMasterLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.CashMasterId, $scope.toDate)
 
         }
@@ -3374,7 +3679,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             if (baseService.isUndefinedOrNull(args.Particulars)) {
                 args.Particulars = null;
             }
-            $scope.getTrialBLAllLevelGeneralLedgerPopUpData(args.Particulars,  args.AccountCodeId, args.BudgetMasterId, args.ActivityId,  $scope.toDate)
+            $scope.getTrialBLAllLevelGeneralLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, $scope.toDate)
             $scope.getTrialBLHeadingAllLevelGeneralLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, $scope.toDate)
 
         }
@@ -3382,7 +3687,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     //..................CR Amount popUp------------------------
 
-   
+
     $scope.getTrialBLAllLevelCRBankMasterLedgerPopUpData = function (particulars, glId, budMId, actId, bkmId, toDate) {
 
         $http({
@@ -3434,7 +3739,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         });
         // $rootScope.openPopupAngular('TrialBLCashMasterLedgerPopUp');
     };
-  
+
     $scope.getTrialBLAllLevelCRCashMasterLedgerPopUpData = function (particulars, glId, budMId, actId, cmId, toDate) {
 
         $http({
@@ -3515,7 +3820,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         });
         $rootScope.openPopupAngular('TrialBalanceDRPopUp');
     };
-    
+
     $scope.showTrialBalanceCRcumulativePopUp = function (args) {
         $scope.toDate = $scope.reportParameters.ToDate
 
@@ -3524,13 +3829,13 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $scope.getTrialBLAllLevelCRBankMasterHeaderLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.BankMasterId, $scope.toDate)
         }
         else if (args.CashMasterId != null) {
-            
+
             $scope.getTrialBLAllLevelCRCashMasterLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.CashMasterId, $scope.toDate)
             $scope.getTrialBLHeadingAllLevelCRCashMasterLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.CashMasterId, $scope.toDate)
 
         }
         else if (args.PartyId != null) {
-           
+
             $scope.getTrialBLAllLevelCRPartyLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, $scope.toDate)
             $scope.getTrialBLAllLevelCRHeadingPartyLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, $scope.toDate)
         }
@@ -3570,7 +3875,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 for (var i = 0; i < response.data.DATA.length; i++) {
                     try {
                         if (angular.isUndefinedOrNull(response.data.DATA[i].PostingDate) == false)
-                           // angular.isUndefinedOrNull(response.data.DATA[i].PostingDate)
+                            // angular.isUndefinedOrNull(response.data.DATA[i].PostingDate)
                             response.data.DATA[i].PostingDate = new Date(response.data.DATA[i].PostingDate);
 
                         if (angular.isUndefinedOrNull(response.data.DATA[i].MatureDate) == false)
@@ -3580,14 +3885,14 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     } catch (e) {
 
                     }
-           
+
                 }
                 $scope.CashInFlowReceivableMasterList = response.data.DATA;
                 $scope.cashInFlowMaterialMOSBooksBalance = $filter("sumByKey")($filter("filter")($scope.CashInFlowReceivableMasterList, { FilteringSourceType: "FMasterOrderSales" }), "BooksBalance");
                 $scope.cashInFlowMSBooksBalance = $filter("sumByKey")($filter("filter")($scope.CashInFlowReceivableMasterList, { FilteringSourceType: "MaterialSales" }), "BooksBalance");
                 $scope.cashInFlowNSMOSBooksBalance = $filter("sumByKey")($filter("filter")($scope.CashInFlowReceivableMasterList, { FilteringSourceType: "NonShiftedMasterOrderSales" }), "BooksBalance");
 
-               // $scope.partyCode = $scope.PartyLedgerHeadingPoPUpList[0].PartyCode
+                // $scope.partyCode = $scope.PartyLedgerHeadingPoPUpList[0].PartyCode
 
             }),
                 function errorCallBack(response) {
@@ -3663,8 +3968,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     $scope.summaryRowsCashOutFlow = [{
         title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksGross", dataMember: "BooksGross", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksSetOff", dataMember: "BooksSetOff", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksBalance", dataMember: "BooksBalance", format: "{0:N2}" }
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksSetOff", dataMember: "BooksSetOff", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksBalance", dataMember: "BooksBalance", format: "{0:N2}" }
         ],
         showCaptionSummary: true
     }];
@@ -3705,7 +4010,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 dataType: 'JSON',
             }).then(function successCallback(response) {
                 $scope.acceptancePostedList = response.data.DATA;
-            });     
+            });
         }
     }
     // $scope.getDataList();
@@ -3741,7 +4046,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    
+
     //.........#endregion Material Management...........................
 
     //...............#region Acceptance Liability Maturity...........................................
@@ -3790,11 +4095,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     $scope.TotalAcceptanceLiabilityMaturity = [{
         title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceAmount", dataMember: "AcceptanceAmount", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SetOff", dataMember: "SetOff", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Balance", dataMember: "Balance", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "LCAmount", dataMember: "LCAmount", format: "{0:N2}" }
-            
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SetOff", dataMember: "SetOff", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Balance", dataMember: "Balance", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "LCAmount", dataMember: "LCAmount", format: "{0:N2}" }
+
         ],
         showCaptionSummary: true
     }];
@@ -3813,7 +4118,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //............#endregion Acceptance Liability Maturity..............................
 
     //---------------#region Acceptance Liability-------------------------------
-   
+
     $scope.AcceptanceLiabilityList = [];
     $scope.GetAcceptanceLiabilityData = function () {
         try {
@@ -3860,9 +4165,9 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "AcceptanceAmount", dataMember: "AcceptanceAmount", format: "{0:N2}" },
         { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SetOff", dataMember: "SetOff", format: "{0:N2}" },
         { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Balance", dataMember: "Balance", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksAcceptanceAmount", dataMember: "BooksAcceptanceAmount", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksSetOff", dataMember: "BooksSetOff", format: "{0:N2}" },
-            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksBalance", dataMember: "BooksBalance", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksAcceptanceAmount", dataMember: "BooksAcceptanceAmount", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksSetOff", dataMember: "BooksSetOff", format: "{0:N2}" },
+        { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksBalance", dataMember: "BooksBalance", format: "{0:N2}" },
         { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" },
         { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "LCAmount", dataMember: "LCAmount", format: "{0:N2}" }
 
@@ -3928,24 +4233,24 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-   // $scope.GetOthersLiabilityData();
+    // $scope.GetOthersLiabilityData();
 
     $scope.TotalOthersLiabilityAmount = [{
         title: "Total", summaryColumns:
-        [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Gross", dataMember: "Gross", format: "{0:N2}" },
-                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DebitNoteAmount", dataMember: "DebitNoteAmount", format: "{0:N2}" },
-                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TaxAmount", dataMember: "TaxAmount", format: "{0:N2}" },
-                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SetOff", dataMember: "SetOff", format: "{0:N2}" },
-                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Balance", dataMember: "Balance", format: "{0:N2}" },
+            [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Gross", dataMember: "Gross", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DebitNoteAmount", dataMember: "DebitNoteAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TaxAmount", dataMember: "TaxAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "SetOff", dataMember: "SetOff", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Balance", dataMember: "Balance", format: "{0:N2}" },
 
-                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksGross", dataMember: "BooksGross", format: "{0:N2}" },
-                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DebitNoteBooksAmount", dataMember: "DebitNoteBooksAmount", format: "{0:N2}" },
-                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksTaxAmount", dataMember: "BooksTaxAmount", format: "{0:N2}" },
-                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksSetOff", dataMember: "BooksSetOff", format: "{0:N2}" },
-                { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksBalance", dataMember: "BooksBalance", format: "{0:N2}" }
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksGross", dataMember: "BooksGross", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "DebitNoteBooksAmount", dataMember: "DebitNoteBooksAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksTaxAmount", dataMember: "BooksTaxAmount", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksSetOff", dataMember: "BooksSetOff", format: "{0:N2}" },
+            { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksBalance", dataMember: "BooksBalance", format: "{0:N2}" }
 
 
-        ],
+            ],
         showCaptionSummary: true
     }];
 
