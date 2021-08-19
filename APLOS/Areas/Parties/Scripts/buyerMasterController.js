@@ -662,9 +662,9 @@ function BuyerMasterController(commonMessage, $scope, $rootScope, baseService, $
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.buyerMasterNewForm.$valid) {
 
-                if (baseService.arrayLength($scope.buyerMasterEntityList) < 0 || baseService.arrayLength($scope.buyerMasterEntityList) == 0) {
-                    throw "Entity is required.";
-                }
+                //if (baseService.arrayLength($scope.buyerMasterEntityList) < 0 || baseService.arrayLength($scope.buyerMasterEntityList) == 0) {
+                //    throw "Entity is required.";
+                //}
 
                 if ($scope.Action === 'Save') {
                     $http({

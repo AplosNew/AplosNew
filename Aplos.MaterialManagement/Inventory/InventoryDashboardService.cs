@@ -24041,6 +24041,7 @@ UNION ALL
 							,sum(IRD.TransactionQty) Qty
 							,sum(IRD.MaterialTranRate) Rate
 							,FORMAT(sum(IRD.TotalMaterialBooksCurrencyAmount),'#,#') Amount,IR.Id GRNNo
+							,ApprovedBY.EmployeeName ApproveBy
 						FROM trn.InventoryReceive IR 
 						LEFT JOIN TRN.[GateEntry] G ON IR.GateEntryNo=G.Id
 						LEFT Join hkp.Party p ON P.Id= G.PartyId
@@ -24058,12 +24059,13 @@ UNION ALL
 						Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
 						LEFT JOIN hkp.Party p1 ON p1.Code=G.PartyId
 						LEFT JOIn employeeinformation ei2 on ei2.systemid=G.EmployeeIdForGateEntry
+						LEFT JOIn employeeinformation ApprovedBY on ApprovedBY.systemid=IR.AuthorizedBy
 						Where IR.AuthorizedByStatus='For Approval' 	
 						--Where  Isnull(IR.AuthorizedByStatus,'') != 'Approved' AND (Isnull(IR.CheckedByStatus,'') != 'Reject' OR  IR.AuthorizedByStatus='Reject')
 						AND G.CompanyId='" + companyId + @"' AND G.PlantId='" + PlantId + @"' 	
 						AND DATEDIFF(day,G.EntryDate,getdate()) between '" + fromDate + "' and '" + toDate + @"'
 						GROUP BY G.CompanyId, G.Id,G.PlantId,G.EntryDate,G.PartyId,G.PackageQty,G.ModeofTransport
-						,G.Bill,G.PersonName,G.MobileNo,G.GateEntryType,P1.UserName,CG.UserName,C.UserName,P2.UserName,ei2.EmployeeName,IR.Id";
+						,G.Bill,G.PersonName,G.MobileNo,G.GateEntryType,P1.UserName,CG.UserName,C.UserName,P2.UserName,ei2.EmployeeName,IR.Id,ApprovedBY.EmployeeName";
 
 					}
 
@@ -24088,6 +24090,8 @@ UNION ALL
 							,sum(IRD.TransactionQty) Qty
 							,sum(IRD.MaterialTranRate) Rate
 							,FORMAT(sum(IRD.TotalMaterialBooksCurrencyAmount),'#,#') Amount
+							,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate
+							,p3.UserName PartyName
 							FROM trn.InventoryReceive IR 
 							LEFT JOIN ( select IRD.InventoryReceiveId,sum(IRD.TransactionQty) TransactionQty
 														,sum(IRD.MaterialTranRate) MaterialTranRate
@@ -24098,6 +24102,7 @@ UNION ALL
 							LEFT JOIN ORG.CompanyGroup CG ON CG.Id=IR.CompanyGroupId
 							LEFT JOIN ORG.Company C ON C.Id=IR.CompanyId
 							LEFT JOIN ORG.Plant P2 ON p2.Id=IR.PlantId
+							LEFT JOIN HKP.Party P3 ON p3.Id=IR.PartyId
 							Where IR.CheckedByStatus='Checked'
 											And IR.AuthorizedByStatus='Approved' 
 											ANd IR.CheckedBy is not null
@@ -24107,7 +24112,7 @@ UNION ALL
 											AND IR.Status is null 
 											AND DATEDIFF(day,IR.GRNDate,getdate()) Between '" + fromDate + @"' ANd '" + toDate + @"'
 							AND IR.CompanyId='" + companyId + @"' AND IR.PlantId='" + PlantId + @"' 						
-							 GROUP BY IR.CompanyId,IR.Id,IR.DocDate,IR.DocRefNo,EI.EmployeeName,IR.CheckedByStatus	,EI1.EmployeeName ,IR.AuthorizedByStatus,DATEDIFF(day,IR.GRNDate,getdate()),CG.UserName,C.UserName,P2.UserName";
+							 GROUP BY IR.CompanyId,IR.Id,IR.DocDate,IR.DocRefNo,EI.EmployeeName,IR.CheckedByStatus	,EI1.EmployeeName ,IR.AuthorizedByStatus,DATEDIFF(day,IR.GRNDate,getdate()),CG.UserName,C.UserName,P2.UserName,IR.GRNDate,p3.UserName";
 
 					}
 
@@ -24125,7 +24130,7 @@ UNION ALL
 								,EI.EmployeeName PreparedBy
 								,sum(isnull(IR.RequestedQty,0)) Qty
 								,sum(isnull(0,0)) Rate
-								,FORMAT(sum(isnull(0,0)),'#,#') Amount
+								,FORMAT(sum(isnull(0,0)),'#,#') Amount,REPLACE(CONVERT(CHAR(11), IRM.AddedDate, 106),' ','-') AS IssueRequestDate
 								FROM trn.IssueRequestMaster IRM
 								LEFT JOIN trn.IssueRequest IR ON IRM.Id=IR.IssueRequestMasterId   
 								LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IRM.AddedBy
@@ -24135,7 +24140,7 @@ UNION ALL
 								Where DATEDIFF(day,IRM.AddedDate,getdate()) Between '" + fromDate + @"' ANd '" + toDate + @"'  
 							    AND IRM.CompanyId='" + companyId + @"' AND IRM.PlantId='" + PlantId + @"' 
 								AND IRM.Id not in(select IssueRequestMasterId from trn.InventoryIssue where IssueRequestMasterId is not null)								
-								GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
+								GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName,IRM.AddedDate";
 
 					}
 
@@ -24154,6 +24159,7 @@ UNION ALL
 									,sum(isnull(IID.TransactionQty,0)) Qty
 									,sum(isnull(IID.PolicyRate,0)) Rate
 									,(sum(isnull(IID.TransactionQty,0))* sum(isnull(IID.PolicyRate,0))) Amount
+									,REPLACE(CONVERT(CHAR(11), II.AddedDate, 106),' ','-') AS IssueDate
 								FROM trn.InventoryIssue II
 									LEFT JOIN trn.InventoryIssueDetail IID ON IID.InventoryIssueId=II.Id
 									--LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
@@ -24163,7 +24169,7 @@ UNION ALL
 									Where DATEDIFF(day,II.IssueDate,getdate()) Between '" + fromDate + @"' ANd '" + toDate + @"'
 									AND II.CompanyId='" + companyId + @"' AND II.PlantId='" + PlantId + @"' 
 									AND II.VoucherId IS null
-								GROUP BY II.CompanyId,II.Id,II.AddedBy,DATEDIFF(day,II.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName";
+								GROUP BY II.CompanyId,II.Id,II.AddedBy,DATEDIFF(day,II.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName,II.AddedDate";
 
 					}
 

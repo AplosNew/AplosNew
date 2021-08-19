@@ -4,15 +4,7 @@ function AttendanceDashboardController(commonMessage, $scope, $rootScope, baseSe
     $rootScope.title = 'Attendance Dashboard';
     $scope.path = 'Attendances/AttendanceDashboard/';
     $scope.hrDate = $filter('dateFiltering')(Date.now(), 'dd-MMMM-yyyy');
-    //var y = document.getElementById("MainDiv");
-    //$scope.clickdde2 = function () {
-    //    if (y.style.display === "none") {
-    //        y.style.display = "block";
-    //        x.style.display = "none";
-    //        z.style.display = "none";
-    //    }
-    //};
-
+    var noOfdrilDownClick = 0;
     window.chartColors = {
         red: 'rgba(240, 52, 52, .6)',
         orange: 'rgb(255, 159, 64)',
@@ -22,7 +14,7 @@ function AttendanceDashboardController(commonMessage, $scope, $rootScope, baseSe
         purple: 'rgb(153, 102, 255)',
         grey: 'rgb(201, 203, 207)'
     };
-
+    $scope.date = new Date();
     $scope.ColList = [];
     $scope.dynamicAttendanseList = [];
 
@@ -110,97 +102,16 @@ function AttendanceDashboardController(commonMessage, $scope, $rootScope, baseSe
             $scope.stIndex = $scope.index - 1;
         });
 
-        $scope.overAllStatusList = [];
-        $http({
-            method: 'GET',
-            url: 'Employees/HRDashboard/HROverAllStatusDefault/',
-            params: { 'hrDate': $scope.hrDate, 'EmplyeeTypeOrCategoryId': $scope.hrDrpDownModel.EmplyeeTypeOrCategoryId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.overAllStatusList = response.data;
-            angular.forEach($scope.overAllStatusList, function (item, i) {
-                $scope.late3 = item.late3;
-                $scope.absent3 = item.absent3;
-                $scope.probationOverDue = item.probationOverDue;
-                $scope.probationToday = item.probationToday;
-                $scope.probationNext7Days = item.probationNext7Days;
-                $scope.separatedToday = item.separatedToday;
-                $scope.separatedNext7Days = item.separatedNext7Days;
-                $scope.resignationApprovalPending = item.resignationApprovalPending;
-                $scope.todayResignationApply = item.todayResignationApply;
-                $scope.incrementToday = item.incrementToday;
-                $scope.incrementOverDue = item.incrementOverDue;
-                $scope.incrementNext7Days = item.incrementNext7Days;
-                $scope.incrementNext30Days = item.incrementNext30Days;
-            });
-        });
-
-        $http({
-            method: 'POST',
-            url: 'ManpowerBudgetDashboard/GetGroupWiseCompanyList/',
-            params: {
-                'date': $scope.hrDate,
-                'EmplyeeTypeOrCategoryId': $scope.hrDrpDownModel.EmplyeeTypeOrCategoryId
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            setMPList(response.data);
-            $scope.MPOnRoleBudgetList = response.data;
-            createMPChart();
-        });//Manpower Budget
-
-        $http({
-            method: 'GET',
-            url: 'Employees/HRDashboard/JoiningStatusDaily/',
-            params: { 'hrDate': $scope.hrDate, 'EmplyeeTypeOrCategoryId': $scope.hrDrpDownModel.EmplyeeTypeOrCategoryId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            createJoiningAndSeparationLineChart(response.data);
-        });//joiningAndSepartationStatus
-        $http({
-            method: 'GET',
-            url: 'Employees/HRDashboard/AbsentismStatusDaily/',
-            params: { 'hrDate': $scope.hrDate, 'EmplyeeTypeOrCategoryId': $scope.hrDrpDownModel.EmplyeeTypeOrCategoryId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            createAbsentLineChart(response.data);
-        });
-        $scope.totalCAEmp = 0;
-        $scope.totalCLEmp = 0;
-        $http({
-            method: 'GET',
-            url: 'Employees/HRDashboard/ConsecutiveAbsentStats/',
-            params: { 'hrDate': $scope.hrDate, 'EmplyeeTypeOrCategoryId': $scope.hrDrpDownModel.EmplyeeTypeOrCategoryId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.ConsecutiveAbsentStatsList = response.data;
-            $scope.totalCAEmp = response.data.length;
-        });
-        $http({
-            method: 'GET',
-            url: 'Employees/HRDashboard/ConsecutiveLateStats/',
-            params: { 'hrDate': $scope.hrDate, 'EmplyeeTypeOrCategoryId': $scope.hrDrpDownModel.EmplyeeTypeOrCategoryId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.ConsecutiveLateStatsList = response.data;
-            $scope.totalCLEmp = response.data.length;
-        });
-
-        $http({
-            method: 'GET',
-            url: 'HRDashboard/HRLongAbsentismDefault/',
-            params: {
-                'hrDate': $scope.hrDate,
-                'EmplyeeTypeOrCategoryId': $scope.hrDrpDownModel.EmplyeeTypeOrCategoryId
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.numLongAbsent = response.data.length;
-            $scope.longAbsentList = response.data;
-        });
-
     };
     $scope.dFunction();
+
+    //$scope.isDirectChange = function () {
+    //    $scope.dynamicAttendanseList = $scope.dynamicAttendanseList2;
+    //    setMPList($scope.MPOnRoleBudgetList); //= response.data;
+
+    //    setDynamicDashboardList($scope.dynamicAttendanseList2);
+    //};
+
     $scope.GetDrillDownAttnStatus = function (data) {
         var getRow = $filter("filter")($scope.ColList, { "ColumnName": "Company" });
         createColListWithCompany(getRow[0].Id);
@@ -445,6 +356,237 @@ function AttendanceDashboardController(commonMessage, $scope, $rootScope, baseSe
                         },
                         barThickness: 60
                     }]
+                }
+            }
+        });
+    }
+
+    $scope.GetGruopWiseAttnStatus = function () {
+        $scope.groupWiseAttnList = [];
+        $http({
+            method: 'GET',
+            url: 'Employees/HRDashboard/DefaultAttnStatus/',
+            params: { 'hrDate': $scope.hrDate, 'EmplyeeTypeOrCategoryId': $scope.hrDrpDownModel.EmplyeeTypeOrCategoryId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            setDynamicDashboardList(response.data);
+            $scope.dynamicAttendanseList2 = response.data;
+            createColList();
+        });
+    };
+    $scope.GetGruopWiseAttnStatus();
+
+    function createColList() {
+        noOfdrilDownClick = 0;
+        //  $scope.ColList = [];
+        if (baseService.arrayLength($scope.ExpenseList) >= 0) {
+            var row = {
+                Sequence: null,
+                Id: null,
+                StandardName: null,
+                ColumnName: null,
+                RType: null,
+                Text: null,
+                Name: null,
+                date: ''
+            };
+            row.Sequence = -2;
+            row.Id = $scope.dynamicAttendanseList[0].CompanyGroupId;
+            row.StandardName = "Group";
+            row.ColumnName = "Group";
+            row.Text = $scope.dynamicAttendanseList[0].GroupName;
+            row.Name = $scope.dynamicAttendanseList[0].GroupName;
+            row.date = $scope.date;
+
+            $scope.ColList.push(row);
+            var rowc = {
+                Sequence: null,
+                Id: null,
+                StandardName: null,
+                ColumnName: null,
+                RType: null,
+                Text: null,
+                Name: null,
+                date: ''
+            };
+            rowc.Sequence = -1;
+            rowc.Id = $scope.dynamicAttendanseList[0].CompanyId;
+            rowc.StandardName = "Company";
+            rowc.ColumnName = "Company";
+            rowc.Text = $scope.dynamicAttendanseList[0].UserName;
+            rowc.Name = $scope.dynamicAttendanseList[0].UserName;
+            rowc.date = $scope.date;
+            $scope.ColList.push(rowc);
+            getDrillDownList();
+        }
+    }
+    function createColListWithCompany(companyId) {
+        noOfdrilDownClick++;
+        if (noOfdrilDownClick == 1) {
+            $scope.ColList = [];
+            if (baseService.arrayLength($scope.ExpenseList) >= 0) {
+                var row = {
+                    Sequence: null,
+                    Id: null,
+                    StandardName: null,
+                    ColumnName: null,
+                    RType: null,
+                    Text: null,
+                    Name: null,
+                    date: ''
+                };
+                row.Sequence = -2;
+                row.Id = $scope.dynamicAttendanseList[0].CompanyGroupId;
+                row.StandardName = "Group";
+                row.ColumnName = "Group";
+                row.Text = $scope.dynamicAttendanseList[0].GroupName;
+                row.Name = $scope.dynamicAttendanseList[0].GroupName;
+                row.date = $scope.date;
+
+                $scope.ColList.push(row);
+                var rowc = {
+                    Sequence: null,
+                    Id: null,
+                    StandardName: null,
+                    ColumnName: null,
+                    RType: null,
+                    Text: null,
+                    Name: null,
+                    date: ''
+                };
+                rowc.Sequence = -1;
+                rowc.Id = $scope.dynamicAttendanseList[0].CompanyId;
+                rowc.StandardName = "Company";
+                rowc.ColumnName = "Company";
+                rowc.Text = $scope.dynamicAttendanseList[0].UserName;
+                rowc.Name = $scope.dynamicAttendanseList[0].UserName;
+                rowc.date = $scope.date;
+                $scope.ColList.push(rowc);
+            }
+
+        }
+        getDrillDownListWithCompany(companyId);
+
+    }
+    function getDrillDownListWithCompany(companyId) {
+        $http({
+            method: 'GET',
+            url: 'Employees/HRDashboard/OrgStructureListColList?CompanyId=' + companyId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (noOfdrilDownClick == 1) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    for (var i = 0; i < baseService.arrayLength(response.data); i++) {
+                        var row = {
+                            Sequence: -2,
+                            Id: null,
+                            StandardName: null,
+                            ColumnName: null,
+                            RType: null,
+                            Text: null,
+                            Name: null,
+                            date: ''
+                        };
+                        row.Sequence = i;
+                        row.StandardName = response.data[i].StandardName;
+                        row.ColumnName = response.data[i].ColumnName;
+                        row.RType = response.data[i].RType;
+                        row.Text = response.data[i].UId;
+                        row.date = $scope.date;
+                        $scope.ColList.push(row);
+                    }
+
+                }
+            }
+
+
+            if ($scope.index + 3 < $scope.ColList.length) {
+                $http({
+                    method: 'POST',
+                    url: 'Employees/HRDashboard/DrillDownAttnStatus/',
+                    data: {
+                        'ChartColumnList': $scope.ColList,
+                        'seq': $scope.index,
+                        'hrDate': $scope.hrDate,
+                        'EmplyeeTypeOrCategoryId': $scope.hrDrpDownModel.EmplyeeTypeOrCategoryId
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    setDynamicDashboardList(response.data);
+                    $scope.dynamicAttendanseList2 = response.data;
+                    $scope.index += 1;
+                    $scope.stIndex = $scope.index - 1;
+                });
+            }
+
+        });
+
+
+        $scope.strColList = $scope.ColList;
+
+    }
+    $scope.setIndexHead = function (x) {
+        $scope.index = x.Sequence;
+    };
+    function createAbsentLineChart(data) {
+        $scope.AbsentStatusList = data;
+        $scope.workDate = [];
+        $scope.totalAbsent = [];
+        angular.forEach($scope.AbsentStatusList, function (item, i) {
+            $scope.workDate.push(item.WorkDate);
+            $scope.totalAbsent.push(item.totalAbsent);
+
+        });
+        var ASctx = document.getElementById("absentLineChart").getContext('2d');
+        if (ASchart !== undefined && typeof ASchart === 'object' && typeof ASchart.destroy === 'function') ASchart.destroy();
+        ASchart = new Chart(ASctx, {
+            type: 'line',
+            data: {
+                labels: $scope.workDate,
+                datasets: [{
+                    label: 'Absent',
+                    data: $scope.totalAbsent,
+                    backgroundColor: 'rgba(240, 52, 52, 0.6)',
+                    borderColor: 'rgba(240, 52, 52, 1)',
+                    fill: false,
+                    borderWidth: 2
+                }
+                ]
+            },
+            options: {
+                legend: {
+                    display: true
+                },
+                title: {
+                    display: true,
+                    text: 'Absent Trend (Last 30 days)',
+                    position: 'bottom'
+                },
+
+                hover: { mode: null },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            autoSkip: false,
+                            maxRotation: 75,
+                            minRotation: 75
+                        }
+                    }]
+                },
+                elements: {
+                    line: {
+                        //tension: 0
+                    }
                 }
             }
         });
