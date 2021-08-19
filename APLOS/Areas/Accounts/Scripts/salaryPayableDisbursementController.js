@@ -46,24 +46,24 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
             "value": "VoucherNo"
         },
         {
-            "name": "Employee Code",
-            "value": "EmployeeCode"
-        },
-        {
-            "name": "Employee Name",
-            "value": "EmployeeName"
-        },
-        {
-            "name": "Invoice No",
+            "name": "Doc Ref No",
             "value": "DocRefNo"
         },
         {
-            "name": "Invoice Date",
-            "value": "DocDate"
+            "name": "MonthNo",
+            "value": "MonthNo"
         },
         {
-            "name": "Currency",
-            "value": "Currency"
+            "name": "Year No",
+            "value": "Year No"
+        },
+        {
+            "name": "Employee Bank",
+            "value": "EmployeeBank"
+        },
+        {
+            "name": "Payment Bank",
+            "value": "PaymentBank"
         }
     ];
 
