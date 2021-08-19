@@ -761,5 +761,21 @@ namespace Aplos.Areas.JobWork.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult GetSalesOrderData(string Id)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                JobWorkCommon = new Library.MaterialManagement.JobWork.JobWorkCommon();
+                return Json(JobWorkCommon.GetSalesOrderData(Id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
     }
 }
