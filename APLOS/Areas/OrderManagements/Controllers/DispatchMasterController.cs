@@ -294,6 +294,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetPackingProductionOrderData()
+        {
+            return Json(_productionSummaryData.GetPackingProductionOrderData(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetPackingChildDataList(string MasterId)
         {
             string sql = @"SELECT 0 AS [Check],P.*, [State]=CASE WHEN P.IsConfirmed=1 THEN 1 ELSE 0 END FROM [dbo].[PackingChild] P WHERE P.PackingContentMasterId='" + MasterId + "' AND P.IsConfirmed=1";

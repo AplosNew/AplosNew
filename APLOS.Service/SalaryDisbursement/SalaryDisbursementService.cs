@@ -879,9 +879,11 @@ namespace Library.Service.SalaryDisbursement
 
                 }
                 _unitOfWork.SaveChanges();
-               
+                flag = false;
+                _unitOfWork.Commit();
                 //**************update salary lock VoucherPayableId Direct and InDirect Salary ****************
-              
+                _unitOfWork.BeginTransaction();
+                flag = true;
                 if (directVoucherId != null)
                 {
                     var direct = new System.Text.StringBuilder();
@@ -890,9 +892,7 @@ namespace Library.Service.SalaryDisbursement
                     if (voucherVM.BankId != null)
                     {
                         directsql = @"update [dbo].[SalaryLock] set DisbursementVoucherId='" + directVoucherId + @"' where Id in (
-                        select sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo
-                        ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName Bank,v.VoucherNo PayableVoucherNo
-                        ,spc.DisbusmentAmount Amount,spd.Id
+                        select sl.Id
                         from [dbo].[SalaryLock] sl 
                         left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
@@ -908,14 +908,12 @@ namespace Library.Service.SalaryDisbursement
                         and spd.PaymentMode='" + pMode + "' and spd.BankSystemID='" + voucherVM.BankId + @"'
                          and spc.DisbusmentAmount!=0  
                         and spd.PlantId='" + voucherVM.PlantId + @"' 
-						 and ISNULL(sh.SalaryHead, '')  in ('Net Pay')";
+						 and ISNULL(sh.SalaryHead, '')  in ('Net Pay'))";
                     }
                     else
                     {
                         directsql = @"update [dbo].[SalaryLock] set DisbursementVoucherId='" + directVoucherId + @"' where Id in (
-                        select sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo
-                        ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName Bank,v.VoucherNo PayableVoucherNo
-                        ,spc.DisbusmentAmount Amount,spd.Id
+                        select sl.Id
                         from [dbo].[SalaryLock] sl 
                         left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
@@ -931,14 +929,13 @@ namespace Library.Service.SalaryDisbursement
                         and spd.PaymentMode='" + pMode + @"' 
                         and spc.DisbusmentAmount!=0  
                         and spd.PlantId='" + voucherVM.PlantId + @"' 
-						and ISNULL(sh.SalaryHead, '')  in ('Net Pay')";
+						and ISNULL(sh.SalaryHead, '')  in ('Net Pay'))";
                     }
                     
                     direct.Append(directsql);
                     _sqlRepository.ExecuteSqlCommand(direct.ToString());
 
                 }
-                _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
                 return "Save Successful";
@@ -1026,6 +1023,25 @@ namespace Library.Service.SalaryDisbursement
             var flag = false;
             try
             {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var direct = new System.Text.StringBuilder();
+                var directsql = "";
+
+                directsql = @"update [dbo].[SalaryLock] set DisbursementVoucherId=NULL where Id in (
+                        select sl.Id     from [dbo].[SalaryLock] sl 
+						 left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+						 left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+                                    left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						            left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						            left join ORG.Position PO on PO.Id=MPB.PositionId
+                                    where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + "'   and spd.PlantId='" + plantId + @"' and sl.Islocked=1 and sl.PayableVoucherId<>''
+                                     and sl.DisbursementVoucherId='" + voucherId + @"' )";
+                direct.Append(directsql);
+                _sqlRepository.ExecuteSqlCommand(direct.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
@@ -1050,21 +1066,7 @@ namespace Library.Service.SalaryDisbursement
                     }
                     _voucherDetailRepository.Delete(item.Id);
                 }
-                var direct = new System.Text.StringBuilder();
-                var directsql = "";
-
-                directsql = @"update [dbo].[SalaryLock] set DisbursementVoucherId=NULL where Id in (
-                        select sl.Id     from [dbo].[SalaryLock] sl 
-						 left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-						 left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
-                                    left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
-						            left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-						            left join ORG.Position PO on PO.Id=MPB.PositionId
-                                    where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + "'   and spd.PlantId='" + plantId + @"' and sl.Islocked=1 and sl.PayableVoucherId<>''
-                                     and sl.DisbursementVoucherId='" + voucherId + @"' )";
-                direct.Append(directsql);
-                _sqlRepository.ExecuteSqlCommand(direct.ToString());
-
+                
                 _voucherRepository.Delete(voucherId);
                 _unitOfWork.SaveChanges();
                 flag = false;
