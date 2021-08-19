@@ -21,8 +21,8 @@ function attendanceProcessUIController(commonMessage, $scope, $rootScope, baseSe
         }
         var filtered = $("#empInfoGrid").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.EmployeeList.length; i++) {
-                $scope.EmployeeList[i].CheckBoxSelect = ChkOrUnchk;
+            for (var i = 0; i < $scope.EmployeeListTemp.length; i++) {
+                $scope.EmployeeListTemp[i].CheckBoxSelect = ChkOrUnchk;
             }
         }
         else {
