@@ -91,7 +91,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             try
             {
-                var _sql = @"SELECT * FROM [dbo].[PackingContentMaster]  where id<>'" + data["Id"] + "' and ProductionOrderId='" + data["ProductionOrderId"] + "'";
+                //var _sql = @"SELECT * FROM [dbo].[PackingContentMaster]  where id<>'" + data["Id"] + "' and ProductionOrderId='" + data["ProductionOrderId"] + "'";
+                string _sql = @"";
                 var list = _sqlRepository.GetDataCollection(_sql, null);
 
                 if (list.Count > 0)
@@ -110,43 +111,95 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data, IEnumerable<PackingContentDetail> packingContentDetails, IEnumerable<PackingChild> packingChilds)
+        public JsonResult Create(Dictionary<string, object> data, IEnumerable<PackingContentDetail> packingContentDetails, IEnumerable<PackingChild> packingChilds, List<Dictionary<string, object>> packingProductionOrderList)
         {
             try
             {
                 if (data != null)
                 {
-                    var IsDuplicateEntryAllowed = CheckCombination(data);
+                    //var IsDuplicateEntryAllowed = CheckCombination(data);
 
                     //if (IsDuplicateEntryAllowed)
                     //{
-                        DataSet dsMaster;
-                        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                        con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[PackingContentMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    DataSet dsMaster, dsProductionOrder;
+                    DataView dvProductionOrder = null;
+                    DataRow drProductionOrder = null;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[PackingContentMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[PackingProductionOrder] WHERE PackingContentMasterId='" + data["Id"] + "'", out dsProductionOrder, false, "1");
 
-                        string _Id = "";
+                    string _Id = "";
 
-                        #region data update
-                        if (dsMaster.Tables[0].Rows.Count == 0)
+                    #region data insert-update
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PackingContentMaster", out _Id);
+
+                        data["Id"] = "PB" + _Id;
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+                    else
+                    {
+                        _Id = data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], data);
+                    }
+                    #endregion data insert-update
+
+                    _Id = data["Id"].ToString();
+
+                    #region PackingProductionOrder
+                    int count = 0;
+                    foreach (var item in packingProductionOrderList)
+                    {
+
+                        dvProductionOrder = new DataView(dsProductionOrder.Tables[0]);
+                        
+                        dvProductionOrder.RowFilter = "PackingContentMasterId='" + _Id + "'";
+
+                        if (dvProductionOrder.Count == 0)
                         {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PackingContentMaster", out _Id);
+                            count++;
+                            string pk = _Id + "_" + count;
+                            drProductionOrder = dsProductionOrder.Tables[0].NewRow();
+                            drProductionOrder["Id"] = pk;
+                            drProductionOrder["PackingContentMasterId"] = _Id;
+                            drProductionOrder["ProductionOrderId"] = item["ProductionOrderId"].ToString();
+                           
 
-                            data["Id"] = "PB" + _Id;
-                            AddNewRow(dsMaster.Tables[0], data);
+                            drProductionOrder["AddedBy"] = identity.Name;
+                            drProductionOrder["AddedDate"] = DateTime.Now;
+                            drProductionOrder["AddedFromIp"] = identity.IPAddress;
+
+                            dsProductionOrder.Tables[0].Rows.Add(drProductionOrder);
                         }
                         else
                         {
-                            _Id = data["Id"].ToString();
-                            EditRow(dsMaster.Tables[0].Rows[0], data);
+                            drProductionOrder = dvProductionOrder[0].Row;
+                            drProductionOrder.BeginEdit();
+                            drProductionOrder["PackingContentMasterId"] = _Id;
+                            drProductionOrder["ProductionOrderId"] = item["ProductionOrderId"].ToString();
+
+
+                            drProductionOrder["UpdatedBy"] = identity.Name;
+                            drProductionOrder["UpdatedDate"] = DateTime.Now;
+                            drProductionOrder["UpdatedFromIP"] = identity.IPAddress;
+
+                            drProductionOrder.EndEdit();
                         }
-                        #endregion data update
-                        _Id = data["Id"].ToString();
-                        SavePackingContentDetail(packingContentDetails, _Id, out DataSet dsBp);
-                        SavePackingChildData(packingChilds, _Id, out DataSet dsPC);
-                       
-                        clsStaticInfo _info = new clsStaticInfo();
-                        _info.SaveDataSets(dsMaster, dsBp, dsPC);
+                        dvProductionOrder.RowFilter = null;
+                    }
+
+                    #endregion
+
+
+
+                    SavePackingContentDetail(packingContentDetails, _Id, out DataSet dsBp);
+                    SavePackingChildData(packingChilds, _Id, out DataSet dsPC);
+
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster, dsBp, dsPC, dsProductionOrder);
                     //}
                     //else
                     //{
@@ -165,7 +218,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
         [HttpPost]
-        public JsonResult Edit(Dictionary<string, object> data, IEnumerable<PackingContentDetail> packingContentDetails, IEnumerable<PackingChild> packingChilds)
+        public JsonResult Edit(Dictionary<string, object> data, IEnumerable<PackingContentDetail> packingContentDetails, IEnumerable<PackingChild> packingChilds, List<Dictionary<string, object>> packingProductionOrderList)
         {
             try
             {
@@ -175,33 +228,85 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                     //if (IsDuplicateEntryAllowed)
                     //{
-                        DataSet dsMaster;
-                        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                        con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[PackingContentMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    DataSet dsMaster, dsProductionOrder;
+                    DataView dvProductionOrder = null;
+                    DataRow drProductionOrder = null;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[PackingContentMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[PackingProductionOrder] WHERE PackingContentMasterId='" + data["Id"] + "'", out dsProductionOrder, false, "1");
 
-                        string _Id = "";
+                    string _Id = "";
 
-                        #region data update
-                        if (dsMaster.Tables[0].Rows.Count == 0)
+                    #region data insert-update
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PackingContentMaster", out _Id);
+
+                        data["Id"] = "PB" + _Id;
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+                    else
+                    {
+                        _Id = data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], data);
+                    }
+                    #endregion data insert-update
+
+                    _Id = data["Id"].ToString();
+
+                    #region PackingProductionOrder
+                    int count = 0;
+                    foreach (var item in packingProductionOrderList)
+                    {
+
+                        dvProductionOrder = new DataView(dsProductionOrder.Tables[0]);
+
+                        dvProductionOrder.RowFilter = "PackingContentMasterId='" + _Id + "'";
+
+                        if (dvProductionOrder.Count == 0)
                         {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PackingContentMaster", out _Id);
+                            count++;
+                            string pk = _Id + "_" + count;
+                            drProductionOrder = dsProductionOrder.Tables[0].NewRow();
+                            drProductionOrder["Id"] = pk;
+                            drProductionOrder["PackingContentMasterId"] = _Id;
+                            //drProductionOrder["ProductionOrderId"] = _Id;
 
-                            data["Id"] = "PB" + _Id;
-                            AddNewRow(dsMaster.Tables[0], data);
+
+                            drProductionOrder["AddedBy"] = identity.Name;
+                            drProductionOrder["AddedDate"] = DateTime.Now;
+                            drProductionOrder["AddedFromIp"] = identity.IPAddress;
+
+                            dsProductionOrder.Tables[0].Rows.Add(drProductionOrder);
                         }
                         else
                         {
-                            _Id = data["Id"].ToString();
-                            EditRow(dsMaster.Tables[0].Rows[0], data);
-                        }
-                        #endregion data update
-                        _Id = data["Id"].ToString();
-                        SavePackingContentDetail(packingContentDetails, _Id, out DataSet dsBp);
-                        SavePackingChildData(packingChilds, _Id, out DataSet dsPC);
+                            drProductionOrder = dvProductionOrder[0].Row;
+                            drProductionOrder.BeginEdit();
+                            drProductionOrder["PackingContentMasterId"] = _Id;
+                            //drProductionOrder["ProductionOrderId"] = item.MaterialMasterId;
 
-                        clsStaticInfo _info = new clsStaticInfo();
-                        _info.SaveDataSets(dsMaster, dsBp, dsPC);
+
+                            drProductionOrder["UpdatedBy"] = identity.Name;
+                            drProductionOrder["UpdatedDate"] = DateTime.Now;
+                            drProductionOrder["UpdatedFromIP"] = identity.IPAddress;
+
+                            drProductionOrder.EndEdit();
+                        }
+                        dvProductionOrder.RowFilter = null;
+                    }
+
+                    #endregion
+
+
+
+                    SavePackingContentDetail(packingContentDetails, _Id, out DataSet dsBp);
+                    SavePackingChildData(packingChilds, _Id, out DataSet dsPC);
+
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster, dsBp, dsPC, dsProductionOrder);
                     //}
                     //else
                     //{
@@ -217,7 +322,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
             }
 
         }
-
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -400,7 +504,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     if (dvBp.Count == 0)
                     {
                         count++;
-                        string pk =  BPId + "_" + count;
+                        string pk = BPId + "_" + count;
                         drBp = dsBp.Tables[0].NewRow();
                         drBp["Id"] = pk;
                         drBp["PackingContentMasterId"] = PackingContentMasterId;
@@ -437,7 +541,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     }
                     dvBp.RowFilter = null;
                 }
-                
+
             }
 
             catch (Exception ex)
@@ -682,7 +786,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            return Json(_clsPacking.GetSalesOrderListSearch(column,value,productionorderid,identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(_clsPacking.GetSalesOrderListSearch(column, value, productionorderid, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -690,5 +794,5 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #endregion Operations
 
     }
-   
+
 }

@@ -1513,9 +1513,9 @@ namespace Library.OrderManagement.Production
 
         public IEnumerable<object> GetProductionOrderDataList()
         {
-            string CmdText = @"SELECT PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
+            string CmdText = @"SELECT Flag=Convert(bit,0),PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
 								   ,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
-                                   ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
+                                   ,ISNULL(PD.BuyerOrder,'')BuyerOrder,ISNULL(PD.OwnOrder,'')OwnOrder,ISNULL(PD.BuyerItem,'')BuyerItem,ISNULL(PD.OwnItem,'')OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
 								   FROM TRN.ProductionOrder PO 
 								   LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
 								   LEFT JOIN ORG.Entity E ON E.Id=PO.EntityId
