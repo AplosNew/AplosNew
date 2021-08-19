@@ -13,7 +13,7 @@ function preallocatedOTController(cboService, commonMessage, $scope, $rootScope,
         $scope.SectionList = result;
     });
 
-    $scope.modelNew = { SectionId: null, WorkDate: null, PreallocatedOTHr: null }
+    $scope.modelNew = { SectionId: null, WorkDate: null, PreallocatedOTHr: null, ExtendTheDayLimit: false }
 
     $scope.searchdata = [];
     $scope.popUp = function () {
@@ -153,6 +153,7 @@ function preallocatedOTController(cboService, commonMessage, $scope, $rootScope,
             }
             for (var i = 0; i < $scope.saveList.length; i++) {
                 $scope.saveList[i].WorkDate = $scope.modelNew.WorkDate;
+                $scope.saveList[i].ExtendTheDayLimit = $scope.modelNew.ExtendTheDayLimit;
             }
             for (var i = 0; i < $scope.saveList.length; i++) {
                 if (baseService.isUndefinedOrNull($scope.saveList[i].PreallocatedOTHr)) {

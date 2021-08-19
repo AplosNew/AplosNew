@@ -415,6 +415,7 @@ namespace Library.OrderManagement.Packing
     {
         public string Id { get; set; }
         public string PackingContentMasterId { get; set; }
+        public string SalesOrderId { get; set; }
         public string MaterialMasterId { get; set; }
         public string ArticleId { get; set; }
         public decimal Qty { get; set; }

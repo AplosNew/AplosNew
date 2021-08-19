@@ -79,12 +79,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             string strSQL = @"SELECT A.*,
                                 ProcessNature=(Select EPT.ProcessNature FROM TRN.ProductionOrder PO 
-							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=A.ProductionOrderId AND EPT.ProcessNature='Packing') 
+							                        LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=PPO.ProductionOrderId AND EPT.ProcessNature='Packing') 
 							  ,IsPackingSKURequired=(Select EPT.IsPackingSKURequired FROM TRN.ProductionOrder PO 
-							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=A.ProductionOrderId AND EPT.ProcessNature='Packing') 
+							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=PPO.ProductionOrderId AND EPT.ProcessNature='Packing') 
                               ,PackingForm=(Select EPT.PackingForm FROM TRN.ProductionOrder PO 
-							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=A.ProductionOrderId AND EPT.ProcessNature='Packing')
-                            FROM [dbo].[PackingContentMaster] A";
+							                    LEFT JOIN HKP.EntityProcessTag EPT ON EPT.EntityId=PO.EntityId WHERE PO.Id=PPO.ProductionOrderId AND EPT.ProcessNature='Packing')
+                            FROM [dbo].[PackingContentMaster] A
+                            LEFT JOIN dbo.PackingProductionOrder PPO ON PPO.PackingContentMasterId=A.Id";
             return Json(_sqlRepository.GetDataCollection(strSQL), JsonRequestBehavior.AllowGet);
         }
         private bool CheckCombination(Dictionary<string, object> data)
@@ -723,7 +724,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             string sql = @"
                            SELECT PCD.*,MM.UserName AS MaterialMasterName,MMA.StandardName AS ArticleName,CV1.UserName as FirstCharacteristicsValue
-                           ,CV2.UserName as SecondCharacteristicsValue, CV3.UserName as ThirdCharacteristicsValue,A.TotalQty
+                           ,CV2.UserName as SecondCharacteristicsValue, CV3.UserName as ThirdCharacteristicsValue,A.TotalQty,A.SalesOrderId
 
                            FROM [dbo].[PackingContentDetail] PCD
                            left join MSt.MaterialMaster MM on MM.id= PCD.MaterialMasterId
@@ -732,15 +733,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
                            left join HKP.CharacteristicsValue CV2 on cv2.id= PCD.SecondCharacteristicsValueId
                            left join HKP.CharacteristicsValue CV3 on CV3.id= PCD.ThirdCharacteristicsValueId
                            JOIN [dbo].[PackingContentMaster] PCM ON PCM.Id=PCD.PackingContentMasterId
+                           LEFT JOIN [dbo].PackingProductionOrder PPO ON PCM.Id=PPO.PackingContentMasterId
                            LEFT JOIN (
                            SELECT
-                        --moi.MaterialMasterId,moi.ArticleId,
-                        --fc.CharacteristicsValueId,sc.CharacteristicsValueId,tc.CharacteristicsValueId,
-                        --c1.UserName AS FirstCharacteristics,cv1.UserName AS FirstCharacteristicsValue,
-                        --c2.UserName AS SecondCharacteristics,cv2.UserName AS SecondCharacteristicsValue,
-                        --c3.UserName AS ThirdCharacteristics,cv3.UserName AS ThirdCharacteristicsValue,
-
-                        SUM(
+                         SO.Id SalesOrderId,SUM(
                         CASE WHEN isnull(tc.Id,'')<>'' THEN tc.Qty ELSE
                         CASE WHEN ISNULL(sc.Id,'')<>'' THEN sc.Qty ELSE
                         CASE WHEN ISNULL(fc.Id,'')<>'' THEN fc.Qty ELSE so.Qty END END END
@@ -765,11 +761,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         LEFT JOIN hkp.CharacteristicsValue AS cv3 ON cv3.Id=tc.CharacteristicsValueId
                         LEFT JOIN hkp.Characteristics AS c3 ON c3.Id=cv3.CharacteristicsId
 
-                        GROUP BY pod.ProductionOrderId
+                        GROUP BY pod.ProductionOrderId,SO.Id
                         --moi.MaterialMasterId,moi.ArticleId,
                         --fc.CharacteristicsValueId,sc.CharacteristicsValueId,tc.CharacteristicsValueId
                         --,c1.UserName,cv1.UserName,c2.UserName,cv2.UserName,c3.UserName,cv3.UserName
-                           ) A ON A.ProductionOrderId=PCM.ProductionOrderId --AND A.CharacteristicsValueId
+                           ) A ON A.ProductionOrderId=PPO.ProductionOrderId --AND A.CharacteristicsValueId
                            WHERE PCD.PackingContentMasterId='" + MasterId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

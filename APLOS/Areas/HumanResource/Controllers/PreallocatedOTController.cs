@@ -166,6 +166,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                             dr["EmpSystemID"] = item.EmpSystemID;
                             dr["WorkDate"] = item.WorkDate;
+                            dr["ExtendTheDayLimit"] = item.ExtendTheDayLimit;
                             dr["PreallocatedOTHr"] = item.PreallocatedOTHr;
                             dr["GroupID"] = identity.CompanyGroupId;
                             dr["PlantID"] = identity.PlantId;
@@ -183,6 +184,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             dr["EmpSystemID"] = item.EmpSystemID;
                             dr["WorkDate"] = item.WorkDate;
                             dr["PreallocatedOTHr"] = item.PreallocatedOTHr;
+                            dr["ExtendTheDayLimit"] = item.ExtendTheDayLimit;
                             dr["GroupID"] = identity.CompanyGroupId;
                             dr["PlantID"] = identity.PlantId;
                             dr["GroupID"] = identity.CompanyGroupId;
@@ -711,7 +713,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         public double PreallocatedOTHr { get; set; }
         public string GroupID { get; set; }
         public string PlantID { get; set; }
-
+        public bool ExtendTheDayLimit { get; set; }
         public string SectionId { get; set; }
         public string DepartmentId { get; set; }
 
