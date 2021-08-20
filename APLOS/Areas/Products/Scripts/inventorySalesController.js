@@ -491,6 +491,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 
 
 		$scope.detailModel.TotalAmount = (parseFloat($scope.detailModel.TransactionQty) * ($scope.detailModel.SalesRate)).toFixed(2);
+	//	$scope.detailModel.SalesRate = (($scope.detailModel.TotalAmount) / parseFloat($scope.detailModel.TransactionQty)).toFixed(2);
 		$scope.calculateTaxCategory();
 	}
 	$scope.calculateTaxCategory = function () {
@@ -978,6 +979,7 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	$scope.getSpecificMaterialStock = function (data, index) {
 		//debugger;
 		$scope.index = index;
+		$scope.selectedRowQty = data.TransactionQty;
 		$http({
 			method: 'POST'
 			, url: $scope.path + 'GetSpecificMaterialStock'
@@ -1003,6 +1005,14 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 					}
 				}
 			}
+			for (var i1 = 0; i1 < $scope.materialStockList.length; i1++) {
+				$scope.materialStockList[i1].TrasactopmUomQty = $scope.materialStockList[i1].BalanceStock / data.BaseUoMFactor;
+				$scope.materialStockList[i1].IssueTransactionUoMId = data.TransactionUoMId;
+				$scope.materialStockList[i1].IssueTransactionUoM = data.TransactionUoM;
+
+				$scope.materialStockList[i1].TransactionUoMId = data.TransactionUoMId;
+				$scope.materialStockList[i1].BaseUoMFactor = data.BaseUoMFactor;
+			}
 			//for (var i2 = 0; i2 < $scope.detailList.length; i2++) {
 
 			//$scope.materialStockList.SalesRate = $scope.detailList[index].SalesRate;
@@ -1019,6 +1029,33 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 	$scope.addMaterialStock = function () {
 		//debugger;
 		try {
+			var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.materialStockList), 'RequisitionQty');
+			if (sumOfmaterialStockList > $scope.selectedRowQty) {
+				ShowResult("Issue qty can not grater than requisition qty", 'failure', 'stockPopUp');
+				return false;
+			}
+			if (sumOfmaterialStockList < $scope.selectedRowQty) {
+				ShowResult("Issue qty can not less than requisition qty", 'failure', 'stockPopUp');
+				return false;
+			}
+			for (var t1 = 0; t1 < baseService.arrayLength($scope.materialStockList); t1++) {
+				if ($scope.materialStockList[t1].IssueByUoM === 'Yes' && ($scope.materialStockList[t1].BaseUOMId != $scope.materialStockList[t1].IssueTransactionUoMId)) {
+					ShowResult("Your Transaction UoM is not equal to base UoM.So you can not issue this material", 'failure', 'stockPopUp');
+					return false;
+				}
+				if ($scope.materialStockList[t1].RequisitionQty > 0 && $scope.materialStockList[t1].Flag == 0) {
+					ShowResult("select The given qty row", 'failure', 'stockPopUp');
+					return false;
+				}
+				if (baseService.isUndefinedOrNull($scope.materialStockList[t1].RequisitionQty) && $scope.materialStockList[t1].Flag == 1) {
+					ShowResult("Enter the qty for selected row ", 'failure', 'stockPopUp');
+					return false;
+				}
+				if (baseService.isUndefinedOrNull($scope.materialStockList[t1].RequisitionQty) === 0 && $scope.materialStockList[t1].Flag == 1) {
+					ShowResult("Enter the qty for selected row ", 'failure', 'stockPopUp');
+					return false;
+				}
+			}
 			qtyValidation($scope.materialStockList);
 			validationWithTotal($scope.materialStockList);
 			for (var i = baseService.arrayLength($scope.specificStockList) - 1; i >= 0; i--) {
@@ -1033,7 +1070,8 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 			}
 			for (var n = 0; n < baseService.arrayLength($scope.materialStockList); n++) { // add
 				var nRow = $scope.materialStockList[n];
-				nRow.BaseQty = $scope.materialStockList[n].BaseIssueQty;
+				nRow.BaseQty = $scope.materialStockList[n].BaseQty;
+				nRow.BaseIssueQty = $scope.materialStockList[n].BaseIssueQty;
 				if (!baseService.valueCheckInList($scope.specificStockList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.Flag)
 					//$scope.detailModel.IsSpecific = true;
 					$scope.specificStockList.push(nRow);
@@ -1090,8 +1128,8 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 			}
 		}
 		var qty = parseFloat($scope.detailList[$scope.index].TransactionQty) * parseFloat($scope.detailList[$scope.index].BaseUoMFactor);
-		if (totalQty > qty && qty !== totalQty) throw 'Issue qty can\'t over ' + qty + ' .';
-		if (totalQty < qty && qty !== totalQty) throw 'Issue qty can\'t less ' + qty + ' .';
+		//if (totalQty > qty && qty !== totalQty) throw 'Issue qty can\'t over ' + qty + ' .';
+		//if (totalQty < qty && qty !== totalQty) throw 'Issue qty can\'t less ' + qty + ' .';
 
 	}
 
@@ -1148,22 +1186,32 @@ function inventorySalesController(accountService, $window, cboService, commonMes
 		//debugger;
 		// $scope.SavePOPUpConfirm();
 		$scope.productNew.ToCurrencyRate = $scope.productNew.ToCurrencyRate;
+		var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.materialStockList), 'RequisitionQty');
+		if (sumOfmaterialStockList < $scope.selectedRowQty) {
+			ShowResult("Please select specific GRN", 'failure');
+			return false;
+		}
 		if ($scope.detailList.length === 0) {
 			ShowResult('Please select Atlest one material');
 			return false;
 		}
-		else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
-			ShowResult("Please select to be approved by", 'failure');
-			return false;
-		}
-		else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
-			ShowResult("Please select to be checked by", 'failure');
-			return false;
-		}
+		//else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
+		//	ShowResult("Please select to be approved by", 'failure');
+		//	return false;
+		//}
+		//else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
+		//	ShowResult("Please select to be checked by", 'failure');
+		//	return false;
+		//}
 		else if (baseService.isUndefinedOrNull($scope.productNew.PartyName)) {
 			ShowResult("Please select Customer", 'failure');
 			return false;
 		}
+		else if (baseService.isUndefinedOrNull($scope.productNew.DocDate)) {
+			ShowResult("Enter the Doc Date", 'failure');
+			return false;
+		}
+		
 		var UIStatus = $("#SlipAssetIssueUI").val();
 		$scope.productNew.IssueRequestMasterId = $scope.issueId;	
 		$scope.productNew.CustomerId = $scope.productNew.PartyId;
